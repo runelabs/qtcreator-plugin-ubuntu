@@ -1,0 +1,444 @@
+{
+    "ubuntu.make": {
+        "name": "make",
+        "id": "Ubuntu.Make",
+        "parent": "Build",
+        "projectRequired": true,
+        "group": "ProjectExplorer.Group.Run",
+        "submenu": [
+            {
+                "name": "check",
+                "id": "Ubuntu.Make.Check",
+                "projectRequired": true,
+                "actions": [
+                    "%SCRIPTDIRECTORY%/qtc_project_make check"
+                ]
+            },
+            {
+                "name": "autopilot",
+                "id": "Ubuntu.Make.Autopilot",
+                "projectRequired": true,
+                "actions": [
+                    "%SCRIPTDIRECTORY%/qtc_project_make autopilot"
+                ]
+            },
+            {
+                "name": "install",
+                "id": "Ubuntu.Make.Install",
+                "projectRequired": true,
+                "actions": [
+                    "%SCRIPTDIRECTORY%/qtc_project_make install"
+                ]
+            },
+            {
+                "name": "uninstall",
+                "id": "Ubuntu.Make.Uninstall",
+                "projectRequired": true,
+                "actions": [
+                    "%SCRIPTDIRECTORY%/qtc_project_make uninstall"
+                ]
+            }
+        ]
+    },
+    "ubuntu": {
+        "name": "Ubuntu Touch",
+        "id": "Ubuntu.Build",
+        "parent": "Build",
+        "group": "ProjectExplorer.Group.Run",
+        "submenu": [
+            {
+                "name": "Run Application on Device",
+                "id": "Ubuntu.Build.Run",
+                "workingDirectory": "%0/..",
+                "projectRequired": true,
+                "keysequence": "Ctrl+F12",
+                "deviceRequired": true,
+                "qmlProjectRequired": true,
+                "saveRequired": true,
+                "actions": [
+                    "%SCRIPTDIRECTORY%/qtc_device_run_app %SERIALNUMBER% %FOLDERNAME% %DISPLAYNAME%.desktop %DISPLAYNAME%.qml /home/phablet/dev_tmp /home/phablet/.local/share/applications"
+                ]
+            },
+            {
+                "name": "Close Application on Device",
+                "id": "Ubuntu.Build.CancelRun",
+                "keysequence": "Ctrl+Shift+F12",
+                "projectRequired": true,
+                "deviceRequired": true,
+                "qmlProjectRequired": true,
+                "actions": [
+                    "%SCRIPTDIRECTORY%/qtc_device_close_all_apps %SERIALNUMBER% %DISPLAYNAME%"
+                ]
+            },
+            {
+                "name": "Create Application Package",
+                "id": "Ubuntu.Build.Package",
+                "workingDirectory": "%0",
+                "projectRequired": true,
+                "saveRequired": true,
+                "actions": [
+                    "%SCRIPTDIRECTORY%/qtc_project_create_package"
+                ]
+            },
+            {
+                "name": "Install Application on Device",
+                "id": "Ubuntu.Build.PackageInstall",
+                "workingDirectory": "%0",
+                "projectRequired": true,
+                "deviceRequired": true,
+                "qmlProjectRequired": true,
+                "saveRequired": true,
+                "actions": [
+                    "%SCRIPTDIRECTORY%/qtc_project_create_package",
+                    "%SCRIPTDIRECTORY%/qtc_device_deploy_package %SERIALNUMBER% ../%FOLDERNAME%_*.deb phablet@127.0.0.1 2222 /home/phablet"
+                ]
+            },
+            {
+                "name": "Build Application on Device",
+                "id": "Ubuntu.Build.Cpp",
+                "workingDirectory": "%0/..",
+                "projectRequired": true,
+                "deviceRequired": true,
+                "qmakeProjectRequired": true,
+                "saveRequired": true,
+                "actions": [
+                    "%SCRIPTDIRECTORY%/qtc_device_buildpackage %SERIALNUMBER% %FOLDERNAME%"
+                ]
+            },
+            {
+                "name": "Build and Install Application on Device",
+                "id": "Ubuntu.BuildAndInstall.Cpp",
+                "workingDirectory": "%0/..",
+                "projectRequired": true,
+                "deviceRequired": true,
+                "qmakeProjectRequired": true,
+                "saveRequired": true,
+                "actions": [
+                    "%SCRIPTDIRECTORY%/qtc_device_buildanddeploypackage %SERIALNUMBER% %FOLDERNAME%"
+                ]
+            },
+            {
+                "name": "click",
+                "id": "Ubuntu.Build.click",
+                "submenu": [
+                    {
+                        "name": "Build",
+                        "id": "Ubuntu.Build.click.build",
+                        "workingDirectory": "%0",
+                        "projectRequired": true,
+                        "qmlProjectRequired": true,
+                        "saveRequired": true,
+                        "actions": [
+                            "%SCRIPTDIRECTORY%/qtc_project_click_create"
+                        ]
+                    },
+                    {
+                        "name": "Build and Install on Device",
+                        "id": "Ubuntu.Build.click.InstallOnDevice",
+                        "workingDirectory": "%0",
+                        "projectRequired": true,
+                        "qmlProjectRequired": true,
+                        "deviceRequired": true,
+                        "saveRequired": true,
+                        "actions": [
+                            "%SCRIPTDIRECTORY%/qtc_project_click_createanddeploy %SERIALNUMBER%"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "ubuntuhelp": {
+        "name": "Ubuntu Touch",
+        "id": "Ubuntu.Help",
+        "parent": "Help",
+        "submenu": [
+            {
+                "name": "Getting Started",
+                "id": "Ubuntu.Help.GettingStarted",
+                "submenu": [
+                    {
+                        "name": "Go Mobile at developer.ubuntu.com",
+                        "id": "Ubuntu.Help.GettingStarted.GoMobile",
+                        "actions": [
+                            "xdg-open http://developer.ubuntu.com/get-started/gomobile"
+                        ]
+                    },
+                    {
+                        "name": "App Design Guides at design.ubuntu.com",
+                        "id": "Ubuntu.Help.GettingStarted.AppDesignGuides",
+                        "actions": [
+                            "xdg-open http://design.ubuntu.com/apps"
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Launchpad",
+                "id": "Ubuntu.Help.Launchpad",
+                "submenu": [
+                    {
+                        "name": "Create an Account",
+                        "id": "Ubuntu.Help.Launchpad.CreateAccount",
+                        "actions": [
+                            "xdg-open https://launchpad.net/+login"
+                        ]
+                    },
+                    {
+                        "name": "Register a Project",
+                        "id": "Ubuntu.Help.Launchpad.RegisterProject",
+                        "actions": [
+                            "xdg-open https://launchpad.net/projects/+new"
+                        ]
+                    },
+                    {
+                        "name": "User Guide",
+                        "id": "Ubuntu.Help.Launchpad.UserGuide",
+                        "actions": [
+                            "xdg-open https://help.launchpad.net"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "ubuntutools": {
+        "name": "Ubuntu Touch",
+        "id": "Ubuntu.Menu",
+        "parent": "Tools",
+        "submenu": [
+             {
+                "name": "Ubuntu Touch Showcase Gallery",
+                "keysequence": "Ctrl+Shift+S",
+                "id": "Ubuntu.Menu.Showcase",
+                "actions": [
+                    "%SCRIPTDIRECTORY%/qtc_launch_gallery"
+                ]
+            },
+            {
+                "name": "Take a screenshot",
+                "id": "Ubuntu.Menu.Screenshot",
+                "keysequence": "Ctrl+Shift+P",
+                "deviceRequired": true,
+                "actions": [
+                    "adb -s %SERIALNUMBER% root",
+                    "adb -s %SERIALNUMBER% shell /system/bin/screencap -p /tmp/screenshot.png",
+                    "adb -s %SERIALNUMBER% pull /tmp/screenshot.png /tmp/screenshot.png",
+                    "eog -s %SERIALNUMBER% /tmp/screenshot.png"
+                ]
+            },
+            {
+                "name": "Mount Device Filesystem",
+                "id": "Ubuntu.Menu.MountDeviceFileSystem",
+                "keysequence": "Ctrl+Shift+F1",
+                "deviceRequired": true,
+                "actions": [
+                    "nautilus ssh://phablet@127.0.0.1:2222"
+                ]
+            },
+            {
+                "name": "GPG",
+                "id": "Ubuntu.Menu.gpg",
+                "submenu": [
+                    { 
+                        "name": "Passwords && Keys",
+                        "id": "Ubuntu.Menu.gpg.seahorse",
+                        "actions": [
+                            "seahorse"
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Translations",
+                "id": "Ubuntu.Menu.i18n",
+                "submenu": [
+                    {
+                        "name": "Export \".pot\" File",
+                        "id": "Ubuntu.Menu.i18n.pot",
+                        "projectRequired": true,
+                        "qmlProjectRequired": true,
+                        "saveRequired": true,
+                        "actions": [
+                            "mkdir -p po",
+                            "xgettext -o po/%DISPLAYNAME%.pot --qt --c++ --add-comments=TRANSLATORS --keyword=tr %PROJECTFILES%"
+                        ]
+                    },
+                    {
+                        "name": "Generate \".mo\" File",
+                        "id": "Ubuntu.Menu.i18n.mo",
+                        "projectRequired": true,
+                        "qmlProjectRequired": true,
+                        "saveRequired": true,
+                        "actions": [
+                            "msgfmt po/*.po"
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Device Control",
+                "id": "Ubuntu.Menu.Device",
+                "submenu": [
+                    {
+                        "name": "SSH to Device",
+                        "id": "Ubuntu.Menu.Device.SSH",
+                        "keysequence": "Ctrl+F10",
+                        "deviceRequired": true,
+                        "actions": [
+                            "x-terminal-emulator -e \"ssh -i ~/.ssh/ubuntudevice_%SERIALNUMBER%_id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null phablet@127.0.0.1 -p2222\""
+                        ]
+                    },
+                    {
+                        "name": "Close All Applications on Device",
+                        "id": "Ubuntu.Menu.Device.CloseAllApps",
+                        "deviceRequired": true,
+                        "actions": [
+                            "%SCRIPTDIRECTORY%/qtc_device_close_all_apps %SERIALNUMBER%"
+                        ]
+                    },
+                    {
+                        "name": "Enable",
+                        "id": "Ubuntu.Menu.Device.Enable",
+                        "submenu": [
+                            {
+                                "name": "Developer Tools",
+                                "id": "Ubuntu.Menu.Device.Enable.DeveloperMode",
+                                "keysequence": "Ctrl+F11",
+                                "deviceRequired": true,
+                                "actions": [
+                                    "%SCRIPTDIRECTORY%/qtc_device_developertools %SERIALNUMBER%"
+                                    ]
+                            }
+                        ]
+                    },
+                    {
+                        "name": "State",
+                        "id": "Ubuntu.Menu.Device.State",
+                        "submenu": [
+                            {
+                                "name": "Reboot",
+                                "id": "Ubuntu.Menu.Device.Reboot",
+                                "keysequence": "Ctrl+F8",
+                                "deviceRequired": true,
+                                "actions": [
+                                    "adb -s %SERIALNUMBER% root",
+                                    "adb -s %SERIALNUMBER% wait-for-device",
+                                    "adb -s %SERIALNUMBER% shell chroot /data/ubuntu /usr/bin/env -i PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin reboot"
+                                ]
+                            },
+                            {
+                                "name": "Shutdown",
+                                "id": "Ubuntu.Menu.Device.Shutdown",
+                                "keysequence": "Ctrl+F9",
+                                "deviceRequired": true,
+                                "actions": [
+                                    "adb -s %SERIALNUMBER% root",
+                                    "adb -s %SERIALNUMBER% wait-for-device",
+                                    "adb -s %SERIALNUMBER% shell chroot /data/ubuntu /usr/bin/env -i PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin shutdown -h now"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Device Package Management",
+                "id": "Ubuntu.Menu.Device.AptGet",
+                "submenu": [
+                    {
+                        "name": "Run Package Update",
+                        "id": "Ubuntu.Menu.Device.AptGet.Update",
+                        "deviceRequired": true,
+                        "actions": [
+                            "adb -s %SERIALNUMBER% root",
+                            "adb -s %SERIALNUMBER% wait-for-device",
+                            "adb -s %SERIALNUMBER% shell chroot /data/ubuntu /usr/bin/env -i PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin apt-get update"
+                        ]
+                    },
+                    {
+                        "name": "Upgrade Packages",
+                        "id": "Ubuntu.Menu.Device.AptGet.Upgrade",
+                        "deviceRequired": true,
+                        "actions": [
+                            "adb -s %SERIALNUMBER% root",
+                            "adb -s %SERIALNUMBER% wait-for-device",
+                            "x-terminal-emulator -e \"adb -s %SERIALNUMBER% shell chroot /data/ubuntu /usr/bin/env -i PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin apt-get upgrade\""
+                        ]
+                    },
+                    {
+                        "name": "Install Package",
+                        "id": "Ubuntu.Menu.Device.AptGet.Install",
+                        "deviceRequired": true,
+                        "actions": [
+                            {
+                                "queryDialog": {
+                                    "title": "Install Package",
+                                    "message": "Package Name:",
+                                    "value": "<packagename>"
+                                }
+                            },
+                            "adb -s %SERIALNUMBER% root",
+                            "adb -s %SERIALNUMBER% wait-for-device",
+                            "adb -s %SERIALNUMBER% shell chroot /data/ubuntu /usr/bin/env -i PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin apt-get -y install %0"
+                        ]
+                    },
+                    {
+                        "name": "Install Package Build Dependencies",
+                        "id": "Ubuntu.Menu.Device.AptGet.BuildDep",
+                        "deviceRequired": true,
+                        "actions": [
+                            "adb -s %SERIALNUMBER% root",
+                            "adb -s %SERIALNUMBER% wait-for-device",
+                            {
+                                "queryDialog": {
+                                    "title": "Install Package Build Dependencies",
+                                    "message": "Package Name:",
+                                    "value": "<packagename>"
+                                }
+                            },
+                            "adb -s %SERIALNUMBER% shell chroot /data/ubuntu /usr/bin/env -i PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin apt-get -y build-dep %0"
+                        ]
+                    }
+                ]
+            },            
+            {
+                "name": "Android Debugging",
+                "id": "Ubuntu.Menu.Device.ADB",
+                "submenu": [
+                    {
+                        "name": "adb shell",
+                        "id": "Ubuntu.Menu.Device.ADB.shell",
+                        "deviceRequired": true,
+                        "actions": [
+                            "x-terminal-emulator -e \"adb -s %SERIALNUMBER% shell\""
+                        ]
+                    },
+                    {
+                        "name": "adb root",
+                        "id": "Ubuntu.Menu.Device.ADB.root",
+                        "deviceRequired": true,
+                        "actions": [
+                            "adb -s %SERIALNUMBER% root"
+                        ]
+                    },
+                    {
+                        "name": "adb devices",
+                        "id": "Ubuntu.Menu.Device.ADB.devices",
+                        "actions": [
+                            "adb devices"
+                        ]
+                    },
+                    {
+                        "name": "adb shell setprop persist.sys.usb.config ptp,adb",
+                        "id": "Ubuntu.Menu.Device.ADB.setUsbConfigPtpAdb",
+                        "deviceRequired": true,
+                        "actions": [
+                            "%SCRIPTDIRECTORY%/device_set_persist-sys-usb-config %SERIALNUMBER%"
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -1,0 +1,34 @@
+Source: qtcreator-plugin-ubuntu-common
+Section: devel
+Priority: optional
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Build-Depends: debhelper (>= 9),
+Standards-Version: 3.9.4
+# Note: currently the qtcreator-plugin-ubuntu binary package still comes 
+# from qtcreator source package. The end goal is to have the plugin 
+# compilable separately from qtcreator sources, thus merging the plugin 
+# code also into this source package.
+
+Package: qtcreator-plugin-ubuntu-common
+Architecture: all
+Depends: ${misc:Depends},
+Replaces: qtcreator-plugin-ubuntu (<= 2.7.1-0ubuntu4)
+Description: Common data files for the Ubuntu plugin for Qt Creator IDE
+ Qt Creator is a new, lightweight, cross-platform integrated development
+ environment (IDE) designed to make development with the Qt application
+ framework even faster and easier.
+ .
+ This package contains the runtime data files for the Ubuntu plugin for
+ Qt Creator IDE.
+
+Package: qtcreator-plugin-ubuntu-cordova-common
+Architecture: all
+Depends: ${misc:Depends},
+Replaces: qtcreator-plugin-ubuntu-cordova (<= 2.7.1-0ubuntu4)
+Description: Common data files for Cordova Ubuntu plugin for Qt Creator IDE
+ Qt Creator is a new, lightweight, cross-platform integrated development
+ environment (IDE) designed to make development with the Qt application
+ framework even faster and easier.
+ .
+ This package contains a data package for the Cordova Ubuntu plugin
+ for Qt Creator IDE.

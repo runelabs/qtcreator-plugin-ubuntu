@@ -1,0 +1,13 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+%:
+	dh $@ --fail-missing
+
+override_dh_auto_install:
+	mkdir -p $(CURDIR)/debian/tmp/usr
+	cp -r $(CURDIR)/share $(CURDIR)/debian/tmp/usr
+	dh_auto_install --destdir=debian/tmp/usr
+

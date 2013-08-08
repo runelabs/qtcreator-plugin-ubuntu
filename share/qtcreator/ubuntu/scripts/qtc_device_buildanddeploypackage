@@ -1,0 +1,47 @@
+#!/bin/bash
+# Copyright 2013 Canonical Ltd.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; version 2.1.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
+
+. `dirname $0`/functions.inc
+
+FOLDERNAME=$2
+TARGET_DEVICE=$3
+TARGET_DEVICE_PORT=$4
+TARGET_DEVICE_HOME=$5
+
+if [[ -z ${TARGET_DEVICE_PORT} ]]; then
+    TARGET_DEVICE_PORT=2222
+fi
+
+if [[ -z ${TARGET_DEVICE} ]]; then
+    TARGET_DEVICE=phablet@127.0.0.1
+fi
+
+if [[ -z ${TARGET_DEVICE_HOME} ]]; then
+    TARGET_DEVICE_HOME=/home/phablet/dev_tmp
+fi
+
+SCP="scp -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P${TARGET_DEVICE_PORT}"
+SSH="ssh -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p${TARGET_DEVICE_PORT} ${TARGET_DEVICE}"
+
+${SCRIPTPATH}/qtc_device_buildpackage ${SERIALNUMBER} ${FOLDERNAME}
+
+FILES=`$SSH "cd ${TARGET_DEVICE_HOME}; ls -1 *.deb"`
+for FILE in $FILES;
+do
+ echo "Installing $FILE to device.."
+ adb_shell gdebi --n ${TARGET_DEVICE_HOME}/${FILE}
+done

@@ -1,0 +1,195 @@
+[
+    {
+       "type": "qmlproject",
+       "folder": "simple",
+       "displayName": "Simple Touch UI",
+       "id": "UbuntuAppSimple",
+       "description": "A simple Ubuntu Touch UI with a Label and a Button.\n\nIncludes also unit and functional tests.",
+       "mainFile" : "main.qml",
+       "hasTests" : true,
+       "files": [
+           {
+               "fileName": "displayName.desktop"
+           },
+           {
+               "fileName": "tests/unit/tst_hellocomponent.qml"
+           },
+           {
+               "fileName": "components/HelloComponent.qml"
+           },
+           {
+               "fileName": "Makefile"
+           },
+           {
+               "fileName": "tests/autopilot/run"
+           },
+           {
+               "fileName": "tests/autopilot/displayName/main/test_main.py"
+           },
+		   {
+               "fileName": "tests/autopilot/displayName/__init__.py"
+           },
+           {
+               "fileName": "tests/autopilot/displayName/main/__init__.py"
+           }
+       ]
+    },
+    {
+       "type": "qmlproject",
+       "folder": "tabs",
+       "displayName": "Tabbed Touch UI",
+       "id": "UbuntuAppTabs",
+       "description": "A multi-page Ubuntu Touch UI using the Tabs component.\n\nIncludes also unit and functional tests.",
+       "mainFile" : "main.qml",
+       "hasTests" : true,
+       "files": [
+           {
+               "fileName": "graphics/toolbarIcon@8.png"
+           },
+           {
+               "fileName": "displayName.desktop"
+           },
+           {
+               "fileName": "tests/unit/tst_hellocomponent.qml"
+           },
+           {
+               "fileName": "components/HelloComponent.qml"
+           },
+           {
+               "fileName": "ui/WorldTabTools.qml"
+           },
+           {
+               "fileName": "ui/WorldTab.qml"
+           },
+           {
+               "fileName": "ui/HelloTab.qml"
+           },
+           {
+               "fileName": "Makefile"
+           },
+           {
+               "fileName": "tests/autopilot/run"
+           },
+           {
+               "fileName": "tests/autopilot/displayName/main/test_main.py"
+           },
+           {
+               "fileName": "tests/autopilot/displayName/__init__.py"
+           },
+           {
+               "fileName": "tests/autopilot/displayName/main/__init__.py"
+           }
+       ]
+    },
+    {
+       "type": "qmlproject",
+       "folder": "html5",
+       "displayName": "HTML5 Touch UI",
+       "id": "UbuntuAppWebView",
+       "description": "An HTML5 UI using the QML WebView component",
+       "mainFile" : "main.qml",
+       "files": [
+           {
+               "fileName": "displayName.desktop"
+           },
+           {
+               "fileName": "html/index.html"
+           },
+           {
+               "fileName": "html/app.js"
+           }
+       ]
+    },
+    {
+       "type": "cordovaproject",
+       "folder": "cordovaubuntu",
+       "displayName": "Cordova Ubuntu HTML5 Touch UI",
+       "id": "UbuntuCordovaUbuntuProject",
+       "description": "An HTML5 app that makes use of the Apache Cordova APIs with a native Ubuntu Touch look and feel",
+       "mainFile" : "index.html",
+       "files": [
+           {
+               "fileName": "css/index.css"
+           },
+           {
+               "fileName": "img/logo.png"
+           }
+       ]
+    },
+    {
+       "type": "pro",
+       "folder": "backend",
+       "displayName": "QML Extension Library",
+       "id": "UbuntuAppWBackend",
+       "description": "A simple C++ based QML Extension Library.\n\nIncludes also an unit test.",
+       "mainFile" : "modules/displayName/backend.h",
+       "projectFile" : "displayName.pro",
+       "files": [
+	   { "fileName": "modules/displayName/displayName.pro" },
+           { "fileName": "modules/displayName/backend.cpp" },
+           { "fileName": "modules/displayName/mytype.h" },
+           { "fileName": "modules/displayName/mytype.cpp" },
+           { "fileName": "modules/displayName/qmldir" },
+	   { "fileName": "tests/unit/tst_mytype.qml" }
+       ]
+    },
+    {
+       "type": "pro",
+       "folder": "backendplustabs",
+       "displayName": "QML Extension Library + Tabbed Touch UI",
+       "id": "UbuntuAppWBackendPlusTabs",
+       "description": "A simple C++ based QML Extension Library with\nTabbed Touch UI written in QML.\n\nIncludes also\n - an unit test for C++\n - unit and functional tests for QML\n",
+       "mainFile" : "backend/modules/displayName/backend.h",
+       "projectFile" : "displayName.pro",
+       "files": [
+           { "fileName": "backend/modules/displayName/displayName.pro" },
+           { "fileName": "backend/modules/displayName/backend.cpp" },
+           { "fileName": "backend/modules/displayName/mytype.h" },
+           { "fileName": "backend/modules/displayName/mytype.cpp" },
+           { "fileName": "backend/modules/displayName/qmldir" },
+           { "fileName": "backend/tests/unit/tst_mytype.qml" },
+           { "fileName": "app/graphics/toolbarIcon@8.png" },
+           { "fileName": "app/displayName.desktop" },
+           { "fileName": "app/tests/unit/tst_hellocomponent.qml" },
+           { "fileName": "app/components/HelloComponent.qml" },
+           { "fileName": "app/ui/WorldTabTools.qml" },
+           { "fileName": "app/ui/WorldTab.qml" },
+           { "fileName": "app/ui/HelloTab.qml" },
+           { "fileName": "app/Makefile" },
+           { "fileName": "app/tests/autopilot/run" },
+           { "fileName": "app/tests/autopilot/displayName/main/test_main.py" },
+           { "fileName": "app/tests/autopilot/displayName/__init__.py" },
+           { "fileName": "app/tests/autopilot/displayName/main/__init__.py" },
+           { "fileName": "Makefile" },
+           { "fileName": "backend/backend.pro" }
+       ]
+    },
+   {
+       "type": "pro",
+       "folder": "scope",
+       "displayName": "Unity Scope",
+       "id": "UbuntuUnityScope",
+       "description": "A Unity Scope template",
+       "mainFile" : "displayName.c",
+       "projectFile" : "displayName.pro",
+       "requiredFeature": "Ubuntu.Wizards.FeatureUnityScope",
+       "files": [
+           {
+               "fileName": "data/unity-scope-displayName_lower.service.in"
+           },
+           {
+               "fileName": "data/displayName_lower.scope"
+           },
+           {
+               "fileName": "config.h"
+           },
+           {
+               "fileName": "displayName-parser.c"
+           },
+           {
+               "fileName": "displayName-parser.h"
+           }
+       ]
+    }
+
+]
