@@ -1,4 +1,4 @@
-Source: qtcreator-plugin-ubuntu-common
+Source: qtcreator-plugin-ubuntu
 Section: devel
 Priority: optional
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
