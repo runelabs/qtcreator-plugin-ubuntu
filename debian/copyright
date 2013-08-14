@@ -1,6 +1,6 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: ubuntu-qtcreator-plugins-common
-Source: http://bazaar.launchpad.net/~ubuntu-sdk-team/ubuntu-qtcreator-plugins/trunk/files/head:/ubuntu-qtcreator-plugins-common/
+Upstream-Name: qtcreator-plugin-ubuntu
+Source: https://code.launchpad.net/~ubuntu-sdk-team/qtcreator-plugin-ubuntu/trunk
 
 Files: *
 Copyright: 2013 Canonical Ltd.
