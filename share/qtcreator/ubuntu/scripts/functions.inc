@@ -64,6 +64,12 @@ function phablet_shell {
 	adb_shell "su ${USERNAME} -c \"$@\""
 }
 
+function phablet_tools_new_syntax {
+        installed_version=$(dpkg-query --show --showformat '${Version}' phablet-tools)
+        dpkg --compare-versions $installed_version ge 1.0
+        echo $?
+}
+
 function ubuntu_stamp {
 	adb_shell cat /system/*ubuntu_stamp
 }
