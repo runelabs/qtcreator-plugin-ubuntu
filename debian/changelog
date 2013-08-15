@@ -1,4 +1,4 @@
-qtcreator-plugin-ubuntu (0.1-0ubuntu1) UNRELEASED; urgency=low
+qtcreator-plugin-ubuntu (0.1-0ubuntu2) UNRELEASED; urgency=low
 
   [ Juhapekka Piiroinen ]
   * Initial release
@@ -6,4 +6,7 @@ qtcreator-plugin-ubuntu (0.1-0ubuntu1) UNRELEASED; urgency=low
   [ Timo Jyrinki ]
   * Automatic snapshot from revision 3 (bootstrap)
 
- -- Timo Jyrinki <timo-jyrinki@ubuntu.com>  Tue, 06 Aug 2013 07:30:43 +0000
+  [ Zoltán Balogh ]
+  * Adopt to new syntax of the phablet-flash
+
+ -- Zoltán Balogh <zoltan@bakter.hu>  Thu, 15 Aug 2013 10:19:41 +0300
