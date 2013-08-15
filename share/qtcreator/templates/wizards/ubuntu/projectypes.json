@@ -150,6 +150,7 @@
            { "fileName": "backend/tests/unit/tst_mytype.qml" },
            { "fileName": "app/graphics/toolbarIcon@8.png" },
            { "fileName": "app/displayName.desktop" },
+           { "fileName": "app/displayName.qml" },
            { "fileName": "app/tests/unit/tst_hellocomponent.qml" },
            { "fileName": "app/components/HelloComponent.qml" },
            { "fileName": "app/ui/WorldTabTools.qml" },
