@@ -290,6 +290,14 @@
                         ]
                     },
                     {
+                        "name": "Enable platform development mode",
+                        "id": "Ubuntu.Menu.Device.EnablePlatformDevelopmentMode",
+                        "deviceRequired": true,
+                        "actions": [
+                            "%SCRIPTDIRECTORY%/qtc_device_developertools %SERIALNUMBER%"
+                        ]
+                    },
+                    {
                         "name": "Close All Applications on Device",
                         "id": "Ubuntu.Menu.Device.CloseAllApps",
                         "deviceRequired": true,
