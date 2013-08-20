@@ -113,6 +113,9 @@
            },
            {
                "fileName": "img/logo.png"
+           },
+           {
+               "fileName": "plugins.xml"
            }
        ]
     },
