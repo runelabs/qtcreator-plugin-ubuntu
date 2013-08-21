@@ -36,5 +36,4 @@ elif [[ phablet_tools_new_syntax ]]; then
 	x-terminal-emulator -e "bash -ic 'phablet-flash cdimage-touch -s ${SERIALNUMBER}'"
 else
 	x-terminal-emulator -e "bash -ic 'phablet-flash -s ${SERIALNUMBER}'"
-else
 fi
