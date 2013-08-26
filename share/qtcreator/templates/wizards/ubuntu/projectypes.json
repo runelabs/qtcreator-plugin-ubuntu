@@ -116,7 +116,11 @@
            },
            {
                "fileName": "plugins.xml"
+           },
+           {
+	       "filename": "displayName.desktop"
            }
+
        ]
     },
     {
