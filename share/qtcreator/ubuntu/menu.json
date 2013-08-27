@@ -261,7 +261,7 @@
                         "saveRequired": true,
                         "actions": [
                             "mkdir -p po",
-                            "xgettext -o po/%DISPLAYNAME%.pot --qt --c++ --add-comments=TRANSLATORS --keyword=tr %PROJECTFILES%"
+                            "xgettext -o po/%DISPLAYNAME%.pot --qt --c++ --add-comments=TRANSLATORS --keyword=tr %PROJECTFILES% --from-code=UTF-8"
                         ]
                     },
                     {
