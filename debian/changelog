@@ -1,4 +1,12 @@
-qtcreator-plugin-ubuntu (0.1-0ubuntu2) UNRELEASED; urgency=low
+qtcreator-plugin-ubuntu (0.1-0ubuntu3) saucy; urgency=low
+
+  * The Cordova project type in the template definition file had a typo. The
+    fileName was wrongly filename. So the .desktop file was not created. 
+    (LP: #1216046)
+
+ -- Zoltán Balogh <zoltan@bakter.hu>  Tue, 27 Aug 2013 22:15:56 +0300
+
+qtcreator-plugin-ubuntu (0.1-0ubuntu2) saucy; urgency=low
 
   * New snapshot relese from bazaar revision 17.
     - Add desktop file to the Cordova template.
