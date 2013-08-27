@@ -1,4 +1,14 @@
-qtcreator-plugin-ubuntu (0.1-0ubuntu1) UNRELEASED; urgency=low
+qtcreator-plugin-ubuntu (0.1-0ubuntu2) UNRELEASED; urgency=low
+
+  * New snapshot relese from bazaar revision 17.
+    - Add desktop file to the Cordova template.
+    - Depend on gksu from the common packages (LP: #1209369)
+    - Fix bug #1197537 (LP: #1197537)
+    - xgettext is called using --from-code=UTF-8 (LP: #1183045)
+
+ -- Timo Jyrinki <timo-jyrinki@ubuntu.com>  Tue, 27 Aug 2013 17:18:31 +0300
+
+qtcreator-plugin-ubuntu (0.1-0ubuntu1) saucy; urgency=low
 
   [ Juhapekka Piiroinen ]
   * Initial release
