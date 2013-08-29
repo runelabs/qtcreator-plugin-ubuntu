@@ -128,7 +128,7 @@
        "folder": "backend",
        "displayName": "QML Extension Library",
        "id": "UbuntuAppWBackend",
-       "description": "A simple C++ based QML Extension Library.\n\nIncludes also an unit test.",
+       "description": "A simple C++ based QML Extension Library.\n\nIncludes also a unit test.",
        "mainFile" : "modules/displayName/backend.h",
        "projectFile" : "displayName.pro",
        "files": [
@@ -145,7 +145,7 @@
        "folder": "backendplustabs",
        "displayName": "QML Extension Library + Tabbed Touch UI",
        "id": "UbuntuAppWBackendPlusTabs",
-       "description": "A simple C++ based QML Extension Library with\nTabbed Touch UI written in QML.\n\nIncludes also\n - an unit test for C++\n - unit and functional tests for QML\n",
+       "description": "A simple C++ based QML Extension Library with\nTabbed Touch UI written in QML.\n\nIncludes also\n - a unit test for C++\n - unit and functional tests for QML\n",
        "mainFile" : "backend/modules/displayName/backend.h",
        "projectFile" : "displayName.pro",
        "files": [
