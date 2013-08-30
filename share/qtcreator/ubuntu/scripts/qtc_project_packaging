@@ -114,5 +114,5 @@ else
   echo "Detected: CPP project"
 fi
 
-UBUNTU_RELEASE=`cat /etc/lsb-release|grep DISTRIB_CODENAME|sed 's/DISTRIB_CODENAM:>E=//'`
+UBUNTU_RELEASE=`cat /etc/lsb-release|grep DISTRIB_CODENAME|sed 's/DISTRIB_CODENAME=//'`
 sed -i "s/unstable; urgency=low/{$UBUNTU_RELEASE}; urgency=low/g" debian/changelog
