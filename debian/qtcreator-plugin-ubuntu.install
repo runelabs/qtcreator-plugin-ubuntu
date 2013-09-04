@@ -1,1 +1,4 @@
-usr/lib/qtcreator
+debian/ubuntusdk.desktop usr/share/applications
+debian/ubuntu-qtcreator.png usr/share/icons
+builddir/lib/qtcreator/plugins/Canonical/libUbuntu.so usr/lib/*/qtcreator/plugins/Canonical/
+builddir/lib/qtcreator/plugins/Canonical/Ubuntu.pluginspec usr/lib/*/qtcreator/plugins/Canonical/

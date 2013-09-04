@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/cordovaubuntuproject">
+        <file>CordovaUbuntuProject.mimetypes.xml</file>
+    </qresource>
+</RCC>

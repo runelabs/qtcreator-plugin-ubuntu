@@ -1,0 +1,10 @@
+<plugin name=\"CordovaUbuntuProjectManager\" version=\"0.0.1\" compatVersion=\"0.0.1\">
+    <vendor>Canonical</vendor>
+    <copyright>(C) Canonical</copyright>
+    <license>GPLv3</license>
+    <description></description>
+    <url>https://launchpad.net/cordova-ubuntu</url>
+    <dependencyList>
+    </dependencyList>
+</plugin>
+
