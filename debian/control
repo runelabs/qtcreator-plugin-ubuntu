@@ -2,7 +2,7 @@ Source: qtcreator-plugin-ubuntu
 Section: devel
 Priority: optional
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
-Build-Depends: debhelper (>= 9),
+Build-Depends: qtcreator-dev, debhelper (>= 9),
 Standards-Version: 3.9.4
 Homepage: https://launchpad.net/qtcreator-plugin-ubuntu
 # If you aren't a member of ~ubuntu-sdk-team but need to upload packaging changes,
@@ -15,9 +15,30 @@ Vcs-Bzr: https://code.launchpad.net/~ubuntu-sdk-team/qtcreator-plugin-ubuntu/tru
 
 Package: qtcreator-plugin-ubuntu
 Architecture: any
-Depends: qtcreator,
+Depends: qtcreator, ${misc:Depends},
+         qtcreator-plugin-ubuntu-common,
+         click,
+         click-dev,
+         click-doc,
+         devscripts,
+         android-tools-adb,
+         dh-make,
+         libqt5scripttools5,
+         ubuntu-html5-theme,
+         ubuntu-ui-toolkit-examples,
+         ubuntu-ui-toolkit-doc,
+Provides: ubuntu-qtcreator-plugins
+Conflicts: ubuntu-qtcreator-plugins
+Replaces: ubuntu-qtcreator-plugins
 Description: Ubuntu plugin for Qt Creator IDE
- This package contains the Ubuntu plugin for Qt Creator IDE
+ Qt Creator is a new, lightweight, cross-platform integrated development
+ environment (IDE) designed to make development with the Qt application
+ framework even faster and easier.
+ .
+ This package contains the Ubuntu plugin for Qt Creator, providing 
+ deeper integration for developing applications for Ubuntu using the 
+ Ubuntu UI Toolkit. It also introduces an Ubuntu themed welcome 
+ screen.
 
 Package: qtcreator-plugin-ubuntu-common
 Architecture: all
