@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+  <mime-type type="application/x-ubuntuproject">
+    <sub-class-of type="application/x-qml"/>
+    <comment>Ubuntu Project file</comment>
+    <glob pattern="*.ubuntuproject"/>
+  </mime-type>
+</mime-info>

@@ -13,6 +13,12 @@ Vcs-Bzr: https://code.launchpad.net/~ubuntu-sdk-team/qtcreator-plugin-ubuntu/tru
 # compilable separately from qtcreator sources, thus merging the plugin 
 # code also into this source package.
 
+Package: qtcreator-plugin-ubuntu
+Architecture: any
+Depends: qtcreator,
+Description: Ubuntu plugin for Qt Creator IDE
+ This package contains the Ubuntu plugin for Qt Creator IDE
+
 Package: qtcreator-plugin-ubuntu-common
 Architecture: all
 Depends: ${misc:Depends},

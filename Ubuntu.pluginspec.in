@@ -1,0 +1,12 @@
+<plugin name=\"Ubuntu\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\">
+    <vendor>Canonical</vendor>
+    <copyright>(C) Canonical Ltd.</copyright>
+    <license>LGPL</license>
+    <description>Ubuntu support library</description>
+    <url>http://www.ubuntu.com</url>
+    <dependencyList>
+        <dependency name=\"Core\" version=\"$$QTCREATOR_VERSION\"/>
+        <dependency name=\"ProjectExplorer\" version=\"$$QTCREATOR_VERSION\"/>
+    </dependencyList>
+</plugin>
+
