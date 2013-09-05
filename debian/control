@@ -54,7 +54,6 @@ Description: Common data files for the Ubuntu plugin for Qt Creator IDE
  This package contains the runtime data files for the Ubuntu plugin for
  Qt Creator IDE.
 
-
 Package: qtcreator-plugin-ubuntu-cordova
 Architecture: any
 Depends: qtcreator-plugin-ubuntu, ${misc:Depends},
@@ -66,7 +65,6 @@ Description: Cordova Ubuntu plugin for Qt Creator IDE
  framework even faster and easier.
  .
  This package contains the Cordova Ubuntu plugin for Qt Creator.
-
 
 Package: qtcreator-plugin-ubuntu-cordova-common
 Architecture: all
