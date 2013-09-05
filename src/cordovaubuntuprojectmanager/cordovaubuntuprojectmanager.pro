@@ -42,8 +42,8 @@ include($$QTCREATOR_SOURCES/src/plugins/debugger/debugger.pri)
 include(../ubuntu/ubuntu.pri)
 
 INCLUDEPATH += $$QTCREATOR_SOURCES/src
-LIBS += -L/usr/lib/qtcreator
-LIBS += -L/usr/lib/qtcreator/plugins/QtProject
+LIBS += -L$$[QT_INSTALL_LIBS]/qtcreator
+LIBS += -L$$[QT_INSTALL_LIBS]/qtcreator/plugins/QtProject
 
 OTHER_FILES += CordovaUbuntuProject.mimetypes.xml
 
