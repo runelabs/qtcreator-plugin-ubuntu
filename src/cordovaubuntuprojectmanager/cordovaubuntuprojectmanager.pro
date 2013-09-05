@@ -41,7 +41,7 @@ include($$QTCREATOR_SOURCES/src/plugins/projectexplorer/projectexplorer.pri)
 include($$QTCREATOR_SOURCES/src/plugins/debugger/debugger.pri)
 include(../ubuntu/ubuntu.pri)
 
-INCLUDEPATH += $$QTCREATOR_SOURCES/src
+INCLUDEPATH += $$QTCREATOR_SOURCES/src ..
 LIBS += -L$$[QT_INSTALL_LIBS]/qtcreator
 LIBS += -L$$[QT_INSTALL_LIBS]/qtcreator/plugins/QtProject
 
