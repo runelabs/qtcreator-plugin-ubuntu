@@ -3,8 +3,22 @@
 # Uncomment this to turn on verbose mode.
 export DH_VERBOSE=1
 
+DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
+ifneq (,$(filter $(DEB_HOST_ARCH),armhf))
+    export GCC47 := "QMAKE_CXX=g++-4.7"
+else
+    export GCC47 :=
+endif
+
+# -----------------------------------
+
 %:
 	dh $@ --fail-missing
+
+override_dh_auto_configure:
+	mkdir -p builddir
+	dh_auto_configure -- $(CURDIR) $(GCC47) IDE_LIBRARY_BASENAME=lib/$(DEB_HOST_MULTIARCH) 
 
 override_dh_auto_install:
 	mkdir -p $(CURDIR)/debian/tmp/usr/bin
