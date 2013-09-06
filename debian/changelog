@@ -9,6 +9,8 @@ qtcreator-plugin-ubuntu (1:0.2-0ubuntu1) UNRELEASED; urgency=low
     packages that this replaces
   * Move icon out of debian/ directory
   * Remove provides/conflicts/replaces for old PPA ubuntu-qtcreator-plugins
+  * Clean out packaging with wrap-and-sort -a -t
+  * Add recommended cflags and QT_SELECT to debian/rules
 
   [ Zoltán Balogh ]
   * Fixing the build dependencies
