@@ -27,9 +27,6 @@ Depends: qtcreator, ${misc:Depends},
          ubuntu-html5-theme,
          ubuntu-ui-toolkit-examples,
          ubuntu-ui-toolkit-doc,
-Provides: ubuntu-qtcreator-plugins
-Conflicts: ubuntu-qtcreator-plugins
-Replaces: ubuntu-qtcreator-plugins
 Description: Ubuntu plugin for Qt Creator IDE
  Qt Creator is a new, lightweight, cross-platform integrated development
  environment (IDE) designed to make development with the Qt application
