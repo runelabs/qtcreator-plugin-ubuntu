@@ -2,13 +2,14 @@ Source: qtcreator-plugin-ubuntu
 Section: devel
 Priority: optional
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
-Build-Depends: qtcreator-dev, debhelper (>= 9),
+Build-Depends: debhelper (>= 9),
                libqt5script5 (>= 5.0.2~),
                libqt5scripttools5 (>= 5.0.2~),
                libqt5webkit5-dev,
                libqt5widgets5 (>= 5.0.2~),
                libsqlite3-dev,
                qt5-qmake (>= 5.0.2~),
+               qtcreator-dev,
                qtdeclarative5-dev-tools (>= 5.0.2~),
                qtdeclarative5-private-dev (>= 5.0.2~),
                qtquick1-5-dev (>= 5.0.2~),
@@ -18,38 +19,37 @@ Build-Depends: qtcreator-dev, debhelper (>= 9),
                qtxmlpatterns5-dev-tools,
 Standards-Version: 3.9.4
 Homepage: https://launchpad.net/qtcreator-plugin-ubuntu
-# If you aren't a member of ~ubuntu-sdk-team but need to upload packaging changes,
-# just go ahead.  ~ubuntu-sdk-team will notice and sync up the code again.
 Vcs-Bzr: https://code.launchpad.net/~ubuntu-sdk-team/qtcreator-plugin-ubuntu/trunk
 
 Package: qtcreator-plugin-ubuntu
 Architecture: any
-Depends: qtcreator, ${misc:Depends},
-         qtcreator-plugin-ubuntu-common,
+Depends: android-tools-adb,
          click,
          click-dev,
          click-doc,
          devscripts,
-         android-tools-adb,
          dh-make,
          libqt5scripttools5,
+         qtcreator,
+         qtcreator-plugin-ubuntu-common,
          ubuntu-html5-theme,
-         ubuntu-ui-toolkit-examples,
          ubuntu-ui-toolkit-doc,
+         ubuntu-ui-toolkit-examples,
+         ${misc:Depends},
 Description: Ubuntu plugin for Qt Creator IDE
  Qt Creator is a new, lightweight, cross-platform integrated development
  environment (IDE) designed to make development with the Qt application
  framework even faster and easier.
  .
- This package contains the Ubuntu plugin for Qt Creator, providing 
- deeper integration for developing applications for Ubuntu using the 
- Ubuntu UI Toolkit. It also introduces an Ubuntu themed welcome 
+ This package contains the Ubuntu plugin for Qt Creator, providing
+ deeper integration for developing applications for Ubuntu using the
+ Ubuntu UI Toolkit. It also introduces an Ubuntu themed welcome
  screen.
 
 Package: qtcreator-plugin-ubuntu-common
 Architecture: all
-Depends: ${misc:Depends},
-         gksu,
+Depends: gksu,
+         ${misc:Depends},
 Replaces: qtcreator-plugin-ubuntu (<= 2.7.1-0ubuntu4),
 Conflicts: qtcreator-plugin-ubuntu (<= 2.7.1-0ubuntu4),
 Description: Common data files for the Ubuntu plugin for Qt Creator IDE
@@ -62,9 +62,11 @@ Description: Common data files for the Ubuntu plugin for Qt Creator IDE
 
 Package: qtcreator-plugin-ubuntu-cordova
 Architecture: any
-Depends: qtcreator-plugin-ubuntu, ${misc:Depends},
+Depends: qtcreator-plugin-ubuntu,
          qtcreator-plugin-ubuntu-cordova-common,
-Recommends: cordovamobilespec, cordova-ubuntu-2.8
+         ${misc:Depends},
+Recommends: cordova-ubuntu-2.8,
+            cordovamobilespec,
 Description: Cordova Ubuntu plugin for Qt Creator IDE
  Qt Creator is a new, lightweight, cross-platform integrated development
  environment (IDE) designed to make development with the Qt application
@@ -74,8 +76,8 @@ Description: Cordova Ubuntu plugin for Qt Creator IDE
 
 Package: qtcreator-plugin-ubuntu-cordova-common
 Architecture: all
-Depends: ${misc:Depends},
-         gksu,
+Depends: gksu,
+         ${misc:Depends},
 Replaces: qtcreator-plugin-ubuntu-cordova (<= 2.7.1-0ubuntu4),
 Conflicts: qtcreator-plugin-ubuntu-cordova (<= 2.7.1-0ubuntu4),
 Description: Common data files for Cordova Ubuntu plugin for Qt Creator IDE
