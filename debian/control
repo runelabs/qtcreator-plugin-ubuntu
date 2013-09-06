@@ -9,7 +9,7 @@ Build-Depends: debhelper (>= 9),
                libqt5widgets5 (>= 5.0.2~),
                libsqlite3-dev,
                qt5-qmake (>= 5.0.2~),
-               qtcreator-dev,
+               qtcreator-dev (>= 2.7.1),
                qtdeclarative5-dev-tools (>= 5.0.2~),
                qtdeclarative5-private-dev (>= 5.0.2~),
                qtquick1-5-dev (>= 5.0.2~),
@@ -32,8 +32,8 @@ Depends: android-tools-adb,
          devscripts,
          dh-make,
          libqt5scripttools5,
-         qtcreator,
-         qtcreator-plugin-ubuntu-common,
+         qtcreator (>= 2.7.1),
+         qtcreator-plugin-ubuntu-common (= ${binary:Version}),
          ubuntu-html5-theme,
          ubuntu-ui-toolkit-doc,
          ubuntu-ui-toolkit-examples,
@@ -52,6 +52,7 @@ Package: qtcreator-plugin-ubuntu-common
 Architecture: all
 Depends: gksu,
          ${misc:Depends},
+Recommends: qtcreator-plugin-ubuntu
 Replaces: qtcreator-plugin-ubuntu (<= 2.7.1-0ubuntu4),
 Conflicts: qtcreator-plugin-ubuntu (<= 2.7.1-0ubuntu4),
 Description: Common data files for the Ubuntu plugin for Qt Creator IDE
@@ -64,8 +65,8 @@ Description: Common data files for the Ubuntu plugin for Qt Creator IDE
 
 Package: qtcreator-plugin-ubuntu-cordova
 Architecture: any
-Depends: qtcreator-plugin-ubuntu,
-         qtcreator-plugin-ubuntu-cordova-common,
+Depends: qtcreator-plugin-ubuntu (= ${binary:Version}),
+         qtcreator-plugin-ubuntu-cordova-common (= ${binary:Version}),
          ${misc:Depends},
 Recommends: cordova-ubuntu-2.8,
             cordovamobilespec,
@@ -80,6 +81,7 @@ Package: qtcreator-plugin-ubuntu-cordova-common
 Architecture: all
 Depends: gksu,
          ${misc:Depends},
+Recommends: qtcreator-plugin-ubuntu-cordova
 Replaces: qtcreator-plugin-ubuntu-cordova (<= 2.7.1-0ubuntu4),
 Conflicts: qtcreator-plugin-ubuntu-cordova (<= 2.7.1-0ubuntu4),
 Description: Common data files for Cordova Ubuntu plugin for Qt Creator IDE
