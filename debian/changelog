@@ -1,4 +1,4 @@
-qtcreator-plugin-ubuntu (2.7.1-0ubuntu10) UNRELEASED; urgency=low
+qtcreator-plugin-ubuntu (2.7.1-0ubuntu13) saucy; urgency=low
 
   [ Juhapekka Piiroinen ]
   * Move the plugin code from qtcreator source package to here
@@ -7,7 +7,10 @@ qtcreator-plugin-ubuntu (2.7.1-0ubuntu10) UNRELEASED; urgency=low
   [ Timo Jyrinki ]
   * Bump the version number to be higher than older Qt Creator
 
- -- Timo Jyrinki <timo-jyrinki@ubuntu.com>  Thu, 05 Sep 2013 08:06:33 +0300
+  [ Zoltán Balogh ]
+  * Fixing the build dependencies
+
+ -- Zoltán Balogh <zoltan@bakter.hu>  Thu, 05 Sep 2013 16:26:07 +0300
 
 qtcreator-plugin-ubuntu (0.1-0ubuntu3) saucy; urgency=low
 
