@@ -33,7 +33,7 @@ Depends: android-tools-adb,
          dh-make,
          libqt5scripttools5,
          qtcreator (>= 2.7.1),
-         qtcreator-plugin-ubuntu-common (= ${binary:Version}),
+         qtcreator-plugin-ubuntu-common,
          ubuntu-html5-theme,
          ubuntu-ui-toolkit-doc,
          ubuntu-ui-toolkit-examples,
@@ -66,7 +66,7 @@ Description: Common data files for the Ubuntu plugin for Qt Creator IDE
 Package: qtcreator-plugin-ubuntu-cordova
 Architecture: any
 Depends: qtcreator-plugin-ubuntu (= ${binary:Version}),
-         qtcreator-plugin-ubuntu-cordova-common (= ${binary:Version}),
+         qtcreator-plugin-ubuntu-cordova-common,
          ${misc:Depends},
 Recommends: cordova-ubuntu-2.8,
             cordovamobilespec,
