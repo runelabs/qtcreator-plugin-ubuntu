@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+  <mime-type type="application/x-cordovaproject">
+    <sub-class-of type="application/x-qml"/>
+    <comment>Cordova Ubuntu Project file</comment>
+    <glob pattern="*.cordovaproject"/>
+  </mime-type>
+</mime-info>

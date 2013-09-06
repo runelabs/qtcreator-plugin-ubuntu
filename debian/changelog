@@ -1,3 +1,25 @@
+qtcreator-plugin-ubuntu (2.7.2-0ubuntu1) UNRELEASED; urgency=low
+
+  [ Juhapekka Piiroinen ]
+  * Move the plugin code from qtcreator source package to here, fix install
+  * Depend on qtcreator-dev
+
+  [ Zoltán Balogh ]
+  * Fixing the build dependencies
+
+  [ Timo Jyrinki ]
+  * Follow Qt Creator version numbering but slightly higher to allow upgrades
+  * Move icon out of debian/ directory
+  * Remove provides/conflicts/replaces for old PPA ubuntu-qtcreator-plugins
+  * Clean out packaging with wrap-and-sort -a -t
+  * Add recommended cflags and QT_SELECT to debian/rules
+  * Make dependencies stricter. Require Qt Creator >= 2.7.1 and recommend 
+    the plugins from the -common packages.
+  * A file moved from ubuntu plugin package to cordova plugin package, adding 
+    Replaces.
+
+ -- Timo Jyrinki <timo-jyrinki@ubuntu.com>  Fri, 06 Sep 2013 07:12:02 +0300
+
 qtcreator-plugin-ubuntu (0.1-0ubuntu3) saucy; urgency=low
 
   * The Cordova project type in the template definition file had a typo. The

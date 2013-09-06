@@ -1,0 +1,175 @@
+/*
+ * Copyright 2013 Canonical Ltd.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; version 2.1.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+#include "cprojectnode.h"
+#include "cproject.h"
+
+namespace CordovaUbuntuProjectManager {
+
+CProjectNode::CProjectNode(CProject *project, Core::IDocument *projectFile)
+    : ProjectExplorer::ProjectNode(QFileInfo(projectFile->fileName()).absoluteFilePath()),
+      m_project(project),
+      m_projectFile(projectFile) {
+    setDisplayName(QFileInfo(projectFile->fileName()).completeBaseName());
+    refresh();
+}
+
+Core::IDocument *CProjectNode::projectFile() const {
+    return m_projectFile;
+}
+
+QString CProjectNode::projectFilePath() const {
+    return m_projectFile->fileName();
+}
+
+void CProjectNode::refresh() {
+    using namespace ProjectExplorer;
+
+    removeFileNodes(fileNodes(), this);
+    removeFolderNodes(subFolderNodes(), this);
+
+    QStringList files = m_project->files(Project::AllFiles);
+    files.removeAll(m_project->filesFileName());
+
+    QHash<QString, QStringList> filesInDirectory;
+
+    foreach (const QString &fileName, files) {
+        QFileInfo fileInfo(fileName);
+
+        QString absoluteFilePath;
+        QString relativeDirectory;
+
+        if (fileInfo.isAbsolute()) {
+            absoluteFilePath = fileInfo.filePath();
+            relativeDirectory = m_project->projectDir().relativeFilePath(fileInfo.path());
+        } else {
+            absoluteFilePath = m_project->projectDir().absoluteFilePath(fileInfo.filePath());
+            relativeDirectory = fileInfo.path();
+            if (relativeDirectory == QLatin1String("."))
+                relativeDirectory.clear();
+        }
+
+        filesInDirectory[relativeDirectory].append(absoluteFilePath);
+    }
+
+    const QHash<QString, QStringList>::ConstIterator cend = filesInDirectory.constEnd();
+    for (QHash<QString, QStringList>::ConstIterator it = filesInDirectory.constBegin(); it != cend; ++it) {
+        FolderNode *folder = findOrCreateFolderByName(it.key());
+
+        QList<FileNode *> fileNodes;
+        foreach (const QString &file, it.value()) {
+            FileType fileType = SourceType; // ### FIXME
+            FileNode *fileNode = new FileNode(file, fileType, false);
+            fileNodes.append(fileNode);
+        }
+
+        addFileNodes(fileNodes, folder);
+    }
+
+    m_folderByName.clear();
+}
+
+ProjectExplorer::FolderNode *CProjectNode::findOrCreateFolderByName(const QStringList &components, int end) {
+    if (! end)
+        return 0;
+
+    QString baseDir = QFileInfo(path()).path();
+
+    QString folderName;
+    for (int i = 0; i < end; ++i) {
+        folderName.append(components.at(i));
+        folderName += QLatin1Char('/');
+    }
+
+    const QString component = components.at(end - 1);
+
+    if (component.isEmpty())
+        return this;
+
+    else if (FolderNode *folder = m_folderByName.value(folderName))
+        return folder;
+
+    FolderNode *folder = new FolderNode(baseDir + QLatin1Char('/') + folderName);
+    folder->setDisplayName(component);
+
+    m_folderByName.insert(folderName, folder);
+
+    FolderNode *parent = findOrCreateFolderByName(components, end - 1);
+    if (! parent)
+        parent = this;
+
+    addFolderNodes(QList<FolderNode*>() << folder, parent);
+
+    return folder;
+}
+
+ProjectExplorer::FolderNode *CProjectNode::findOrCreateFolderByName(const QString &filePath) {
+    QStringList components = filePath.split(QLatin1Char('/'));
+    return findOrCreateFolderByName(components, components.length());
+}
+
+bool CProjectNode::hasBuildTargets() const {
+    return true;
+}
+
+QList<ProjectExplorer::ProjectNode::ProjectAction> CProjectNode::supportedActions(Node *node) const {
+    Q_UNUSED(node);
+    QList<ProjectAction> actions;
+    actions.append(AddNewFile);
+    actions.append(EraseFile);
+    actions.append(Rename);
+    return actions;
+}
+
+bool CProjectNode::canAddSubProject(const QString &proFilePath) const {
+    Q_UNUSED(proFilePath)
+    return false;
+}
+
+bool CProjectNode::addSubProjects(const QStringList &proFilePaths) {
+    Q_UNUSED(proFilePaths)
+    return false;
+}
+
+bool CProjectNode::removeSubProjects(const QStringList &proFilePaths) {
+    Q_UNUSED(proFilePaths)
+    return false;
+}
+
+bool CProjectNode::addFiles(const ProjectExplorer::FileType, const QStringList &, QStringList *) {
+    //return m_project->addFiles(filePaths);
+    return false;
+}
+
+bool CProjectNode::removeFiles(const ProjectExplorer::FileType, const QStringList &, QStringList *) {
+    return false;
+}
+
+bool CProjectNode::deleteFiles(const ProjectExplorer::FileType, const QStringList &) {
+    return true;
+}
+
+bool CProjectNode::renameFile(const ProjectExplorer::FileType, const QString &, const QString &) {
+    return true;
+}
+
+QList<ProjectExplorer::RunConfiguration *> CProjectNode::runConfigurationsFor(Node *node) {
+    Q_UNUSED(node)
+    return QList<ProjectExplorer::RunConfiguration *>();
+}
+
+}

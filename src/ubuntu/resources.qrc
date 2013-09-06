@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/ubuntu">
+        <file>images/ubuntu-64.png</file>
+        <file>images/ubuntu-128.png</file>
+        <file>images/ubuntu-qtcreator.png</file>
+        <file>images/ubuntu-48.png</file>
+        <file>images/device.png</file>
+        <file>UbuntuProject.mimetypes.xml</file>
+        <file>images/irc.png</file>
+        <file>images/ubuntu-32.png</file>
+        <file>images/launchpad.png</file>
+        <file>images/coreapps.png</file>
+        <file>images/packaging.png</file>
+        <file>manifest.json.template</file>
+        <file>myapp.json.template</file>
+        <file>manifestlib.js</file>
+    </qresource>
+</RCC>
