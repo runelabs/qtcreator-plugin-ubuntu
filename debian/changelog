@@ -1,17 +1,19 @@
 qtcreator-plugin-ubuntu (1:0.1-0ubuntu1) UNRELEASED; urgency=low
 
   [ Juhapekka Piiroinen ]
-  * Move the plugin code from qtcreator source package to here
+  * Move the plugin code from qtcreator source package to here, fix install
   * Depend on qtcreator-dev
 
   [ Timo Jyrinki ]
   * Add epoch to version number to be higher than older Qt Creator 
     packages that this replaces
+  * Move icon out of debian/ directory
+  * Remove provides/conflicts/replaces for old PPA ubuntu-qtcreator-plugins
 
   [ Zoltán Balogh ]
   * Fixing the build dependencies
 
- -- Timo Jyrinki <timo-jyrinki@ubuntu.com>  Thu, 05 Sep 2013 08:06:33 +0300
+ -- Timo Jyrinki <timo-jyrinki@ubuntu.com>  Fri, 06 Sep 2013 07:12:02 +0300
 
 qtcreator-plugin-ubuntu (0.1-0ubuntu3) saucy; urgency=low
 
