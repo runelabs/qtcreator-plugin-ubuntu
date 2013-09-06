@@ -68,6 +68,7 @@ Architecture: any
 Depends: qtcreator-plugin-ubuntu (= ${binary:Version}),
          qtcreator-plugin-ubuntu-cordova-common,
          ${misc:Depends},
+Replaces: qtcreator-plugin-ubuntu (<= 2.7.1-0ubuntu9)
 Recommends: cordova-ubuntu-2.8,
             cordovamobilespec,
 Description: Cordova Ubuntu plugin for Qt Creator IDE
