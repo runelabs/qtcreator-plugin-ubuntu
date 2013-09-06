@@ -2,16 +2,25 @@ Source: qtcreator-plugin-ubuntu
 Section: devel
 Priority: optional
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
-Build-Depends: qt5-qmake, qtcreator-dev, debhelper (>= 9),
+Build-Depends: qtcreator-dev, debhelper (>= 9),
+               libqt5script5 (>= 5.0.2~),
+               libqt5scripttools5 (>= 5.0.2~),
+               libqt5webkit5-dev,
+               libqt5widgets5 (>= 5.0.2~),
+               libsqlite3-dev,
+               qt5-qmake (>= 5.0.2~),
+               qtdeclarative5-dev-tools (>= 5.0.2~),
+               qtdeclarative5-private-dev (>= 5.0.2~),
+               qtquick1-5-dev (>= 5.0.2~),
+               qtquick1-5-dev-tools (>= 5.0.2~),
+               qtscript5-private-dev (>= 5.0.2~),
+               qttools5-dev-tools (>= 5.0.2~),
+               qtxmlpatterns5-dev-tools,
 Standards-Version: 3.9.4
 Homepage: https://launchpad.net/qtcreator-plugin-ubuntu
 # If you aren't a member of ~ubuntu-sdk-team but need to upload packaging changes,
 # just go ahead.  ~ubuntu-sdk-team will notice and sync up the code again.
 Vcs-Bzr: https://code.launchpad.net/~ubuntu-sdk-team/qtcreator-plugin-ubuntu/trunk
-# Note: currently the qtcreator-plugin-ubuntu binary package still comes 
-# from qtcreator source package. The end goal is to have the plugin 
-# compilable separately from qtcreator sources, thus merging the plugin 
-# code also into this source package.
 
 Package: qtcreator-plugin-ubuntu
 Architecture: any
