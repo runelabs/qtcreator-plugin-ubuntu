@@ -24,6 +24,7 @@ TARGET_DEVICE_HOME=$5
 TARGET_DEVICE_DESKTOP_PATH=$6
 TARGET_DEVICE=$7
 TARGET_DEVICE_PORT=$8
+APP_ID=$(echo ${DESKTOP_FILENAME}|sed "s/\.desktop//")
 
 USAGE="$0 [serialnumber] [foldername] [desktop_filename] [main_qml] [target_device_home] [target_device_desktop_path] [target_device] [target_device_port]"
 
@@ -55,7 +56,11 @@ fi
 SCP="scp -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P${TARGET_DEVICE_PORT}"
 SSH="ssh -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p${TARGET_DEVICE_PORT} ${TARGET_DEVICE}"
 
-COMMAND="qmlscene ${TARGET_DEVICE_HOME}/${FOLDERNAME}/${MAIN_QML} --desktop_file_hint=${TARGET_DEVICE_DESKTOP_PATH}/${DESKTOP_FILENAME}"
+
+# get dbus session addrss from the device
+DBUS_SESSION_BUS_ADDRESS=`$SSH "cat ~/.cache/upstart/dbus-session|grep DBUS_SESSION_BUS_ADDRESS"`
+
+COMMAND="export ${DBUS_SESSION_BUS_ADDRESS=}; APP_ID=${APP_ID} qmlscene ${TARGET_DEVICE_HOME}/${FOLDERNAME}/${MAIN_QML} --desktop_file_hint=${TARGET_DEVICE_DESKTOP_PATH}/${DESKTOP_FILENAME}"
 
 # make a tar package
 tar -cjf ${FOLDERNAME}.tar.bz2 ${FOLDERNAME}
@@ -79,5 +84,7 @@ $SSH ln -s ${TARGET_DEVICE_HOME}/${FOLDERNAME}/${DESKTOP_FILENAME} ${TARGET_DEVI
 $SSH sed -i "s/^Exec=.*//g" ${TARGET_DEVICE_HOME}/${FOLDERNAME}/${DESKTOP_FILENAME}
 $SSH "echo 'Exec=/usr/bin/${COMMAND}' >> ${TARGET_DEVICE_HOME}/${FOLDERNAME}/${DESKTOP_FILENAME}"
 
+
 # run the application on the device
 $SSH "bash -ic '${COMMAND}'"
+
