@@ -1,35 +1,28 @@
-TEMPLATE = lib
-TARGET = Ubuntu
-DEFINES += UBUNTU_LIBRARY
+QT += network qml quick webkitwidgets script scripttools declarative
 
-QT += network qml quick webkitwidgets script scripttools
-
-PROVIDER = Canonical
-
-## Where the Qt Creator headers are located at
-QTCREATOR_SOURCES = $$(QTC_SOURCE)
-isEmpty(QTCREATOR_SOURCES):QTCREATOR_SOURCES=/usr/src/qtcreator
-
-## Where our plugin will be compiled to
-IDE_BUILD_TREE = $$(QTC_BUILD)
-isEmpty(IDE_BUILD_TREE):IDE_BUILD_TREE=../../builddir
-
-include($$QTCREATOR_SOURCES/src/qtcreatorplugin.pri)
-include($$QTCREATOR_SOURCES/src/plugins/coreplugin/coreplugin.pri)
-include($$QTCREATOR_SOURCES/src/plugins/projectexplorer/projectexplorer.pri)
-include($$QTCREATOR_SOURCES/src/plugins/qmlprojectmanager/qmlprojectmanager.pri)
-include($$QTCREATOR_SOURCES/src/plugins/qt4projectmanager/qt4projectmanager.pri)
-
-INCLUDEPATH += $$QTCREATOR_SOURCES/src
-LIBS += -L$$[QT_INSTALL_LIBS]/qtcreator
-LIBS += -L$$[QT_INSTALL_LIBS]/qtcreator/plugins/QtProject
+include(../plugin.pri)
 
 #####################################
 ## Project files
-SOURCES   += ubuntuplugin.cpp \
-             ubuntuwelcomemode.cpp \
-             ubuntuprojectapplicationwizard.cpp \
-             ubuntumenu.cpp \
+
+FORMS += \
+    ubuntudeviceswidget.ui \
+    ubuntupackagingwidget.ui
+
+RESOURCES += \
+    resources.qrc
+
+OTHER_FILES += \
+    UbuntuProject.mimetypes.xml \
+    manifest.json.template \
+    myapp.json.template \
+    manifestlib.js
+
+SOURCES += \
+    ubuntuplugin.cpp \
+    ubuntuwelcomemode.cpp \
+    ubuntuprojectapplicationwizard.cpp \
+    ubuntumenu.cpp \
     ubuntuprojectmanager.cpp \
     ubuntuproject.cpp \
     ubuntuprojectfile.cpp \
@@ -51,15 +44,19 @@ SOURCES   += ubuntuplugin.cpp \
     ubuntubzr.cpp \
     ubuntuclickmanifest.cpp \
     ubuntuwebmode.cpp \
-    ubuntupastebinmode.cpp
+    ubuntupastebinmode.cpp \
+    ubuntudeviceswidget.cpp \
+    ubuntudevicemode.cpp \
+    ubuntuprocess.cpp
 
-HEADERS   += ubuntuplugin.h \
-             ubuntu_global.h \
-             ubuntuconstants.h \
-             ubuntuwelcomemode.h \
-             ubuntuprojectapplicationwizard.h \
-             ubuntumenu.h \
-             ubuntushared.h \
+HEADERS += \
+    ubuntuplugin.h \
+    ubuntu_global.h \
+    ubuntuconstants.h \
+    ubuntuwelcomemode.h \
+    ubuntuprojectapplicationwizard.h \
+    ubuntumenu.h \
+    ubuntushared.h \
     ubuntuprojectmanager.h \
     ubuntuproject.h \
     ubuntuprojectfile.h \
@@ -81,34 +78,8 @@ HEADERS   += ubuntuplugin.h \
     ubuntubzr.h \
     ubuntuclickmanifest.h \
     ubuntuwebmode.h \
-    ubuntupastebinmode.h
-
-RESOURCES += resources.qrc
-
-HEADERS += \
-    ubuntudevicemode.h
-
-SOURCES += \
-    ubuntudevicemode.cpp
-
-HEADERS += \
-    ubuntudeviceswidget.h
-
-SOURCES += \
-    ubuntudeviceswidget.cpp
-
-FORMS += \
-    ubuntudeviceswidget.ui \
-    ubuntupackagingwidget.ui
-
-HEADERS += \
+    ubuntupastebinmode.h \
+    ubuntudevicemode.h \
+    ubuntudeviceswidget.h \
     ubuntuprocess.h
 
-SOURCES += \
-    ubuntuprocess.cpp
-
-OTHER_FILES += \
-    UbuntuProject.mimetypes.xml \
-    manifest.json.template \
-    myapp.json.template \
-    manifestlib.js

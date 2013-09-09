@@ -34,7 +34,7 @@ static bool readFile(QString fileName, QByteArray *data, QString *errorMessage) 
 
 static void printToOutputPane(QString msg) {
     QString timestamp = QDateTime::currentDateTime().toString(QString::fromLatin1("HH:mm:ss"));
-    Core::ICore::instance()->messageManager()->printToOutputPane(QString(QLatin1String("[%0] %1")).arg(timestamp).arg(msg),true);
+    Core::ICore::instance()->messageManager()->printToOutputPane(QString(QLatin1String("[%0] %1")).arg(timestamp).arg(msg),Core::MessageManager::ModeSwitch);
 }
 
 #endif // UBUNTUSHARED_H
