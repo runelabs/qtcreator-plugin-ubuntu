@@ -23,7 +23,7 @@ namespace CordovaUbuntuProjectManager {
 const char CORDOVAUBUNTUPROJECT_MIMETYPE[] = "application/x-cordovaproject";
 const char PROJECTCONTEXT[]     = "CordovaUbuntuProject.ProjectContext";
 const char RC_ID[] = "CordovaUbuntuProjectManager.CordovaUbuntuRunConfiguration";
-const char GOOGLE_CHROME_PATH[] = "/opt/google/chrome/chrome";
+const char GOOGLE_CHROME_PATH[] = "/opt/google/chrome/google-chrome";
 const char CHROMIUM_COMMAND[] = "chromium-browser";
 
 }

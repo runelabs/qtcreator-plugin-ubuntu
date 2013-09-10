@@ -48,7 +48,7 @@ bool CRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent,
     return false;
 }
 
-ProjectExplorer::RunConfiguration *CRunConfigurationFactory::create(ProjectExplorer::Target *parent, const Core::Id id) {
+ProjectExplorer::RunConfiguration *CRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, const Core::Id id) {
     if (!canCreate(parent, id))
         return nullptr;
     return new CRunConfiguration(parent, id);
@@ -58,28 +58,22 @@ bool CRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const
     return parent && canCreate(parent, ProjectExplorer::idFromMap(map));
 }
 
-ProjectExplorer::RunConfiguration *CRunConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map) {
+ProjectExplorer::RunConfiguration *CRunConfigurationFactory::doRestore(ProjectExplorer::Target *parent, const QVariantMap &map) {
     if (!canRestore(parent, map))
         return nullptr;
 
-    /*    Core::Id id = ProjectExplorer::idFromMap(map);
-    QmlProjectRunConfiguration *rc = new QmlProjectRunConfiguration(parent, id);
-    if (rc->fromMap(map))
-        return rc;
-    delete rc;*/
     return nullptr;
 }
 
 bool CRunConfigurationFactory::canClone(ProjectExplorer::Target *, ProjectExplorer::RunConfiguration *) const {
     return nullptr;
-    //    return canCreate(parent, source->id());
 }
 
 ProjectExplorer::RunConfiguration *CRunConfigurationFactory::clone(ProjectExplorer::Target *parent,
                                                                    ProjectExplorer::RunConfiguration *source) {
     if (!canClone(parent, source))
         return nullptr;
-    //  return new ProjectExplorer::RunConfiguration(parent, qobject_cast<ProjectRunConfiguration *>(source));
+
     return nullptr;
 }
 
