@@ -2,6 +2,14 @@ QT += network qml quick webkitwidgets script scripttools declarative
 
 include(../plugin.pri)
 
+
+#####################################
+# required for Ubuntu Device Notifier
+CONFIG += link_pkgconfig
+
+PKGCONFIG += libudev
+#####################################
+
 #####################################
 ## Project files
 
@@ -47,7 +55,8 @@ SOURCES += \
     ubuntupastebinmode.cpp \
     ubuntudeviceswidget.cpp \
     ubuntudevicemode.cpp \
-    ubuntuprocess.cpp
+    ubuntuprocess.cpp \
+    ubuntudevicenotifier.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -81,5 +90,6 @@ HEADERS += \
     ubuntupastebinmode.h \
     ubuntudevicemode.h \
     ubuntudeviceswidget.h \
-    ubuntuprocess.h
+    ubuntuprocess.h \
+    ubuntudevicenotifier.h
 

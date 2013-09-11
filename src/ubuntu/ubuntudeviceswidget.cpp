@@ -19,6 +19,8 @@
 #include "ubuntudeviceswidget.h"
 #include "ui_ubuntudeviceswidget.h"
 
+
+#include <coreplugin/modemanager.h>
 #include "ubuntuconstants.h"
 
 #include <QDebug>
@@ -45,7 +47,7 @@ UbuntuDevicesWidget::UbuntuDevicesWidget(QWidget *parent) :
     ui->widgetSshProperties->hide();
     ui->pushButtonSshInstall->hide();
     ui->pushButtonSshRemove->hide();
-    ui->widgetDeviceSerial->hide();
+    //hide();
     //ui->pushButtonCancel->hide();
     ui->frameNoDevices->hide();
     ui->lblLoading->hide();
@@ -53,6 +55,9 @@ UbuntuDevicesWidget::UbuntuDevicesWidget(QWidget *parent) :
 
     ui->progressBar->setMinimum(0);
     ui->progressBar->setMaximum(0);
+
+    connect(&m_ubuntuDeviceNotifier,SIGNAL(deviceConnected(QString)),this,SLOT(onDeviceConnected(QString)));
+    connect(&m_ubuntuDeviceNotifier,SIGNAL(deviceDisconnected()),this,SLOT(onDeviceDisconnected()));
 
     connect(&m_ubuntuProcess,SIGNAL(started(QString)),this,SLOT(onStarted(QString)));
     connect(&m_ubuntuProcess,SIGNAL(message(QString)),this,SLOT(onMessage(QString)));
@@ -83,28 +88,32 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
 
     if (cmd == QString::fromLatin1("%0/device_search").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
         QStringList lines = m_reply.trimmed().split(QLatin1String("\n"));
-        lines.takeFirst();
+
+        // fill combobox data
+        ui->comboBoxSerialNumber->setEnabled(false);
         foreach(QString line, lines) {
+            line = line.trimmed();
+            if (line.isEmpty()) {
+                continue;
+            }
+
             QStringList lineData = line.split(QLatin1String("       "));
+
             if (lineData.count() == 2) {
                 QString sSerialNumber = lineData.takeFirst();
                 QString sDeviceInfo = lineData.takeFirst();
-                //QString sDeviceName = lineData.takeFirst();
-
-                //ui->lblDeviceName->setText(sDeviceName.trimmed());
                 ui->comboBoxSerialNumber->addItem(sSerialNumber.trimmed(),sDeviceInfo);
-                //ui->lblSerialnumber->setText(sSerialNumber.trimmed());
-                m_deviceSerialNumber = sSerialNumber.trimmed();
-
-            } else {
-                //qDebug() << lineData.count() << lineData;
             }
         }
+        ui->comboBoxSerialNumber->setEnabled(true);
+
+        // set serial number value
+        m_deviceSerialNumber = ui->comboBoxSerialNumber->currentText();
+        m_ubuntuDeviceNotifier.startMonitoring(m_deviceSerialNumber);
 
         // if there are no devices, or if there is no permission
-        if (lines.count() == 0 || ui->comboBoxSerialNumber->currentText().startsWith(QLatin1String("???"))) {
+        if (lines.count() == 0 || m_deviceSerialNumber.isEmpty()  || ui->comboBoxSerialNumber->currentText().startsWith(QLatin1String("???"))) {
             ui->frameNoDevices->show();
-            //ui->widgetDeviceInfo->hide();
             ui->widgetDeviceSerial->hide();
             ui->comboBoxSerialNumber->clear();
             bOk = false;
@@ -112,11 +121,9 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
 
             ui->stackedWidgetDeviceConnected->setCurrentIndex(0);
             endAction(QString::fromLatin1(" * there is no device connected."));
-        }
-        if (lines.count() > 0) {
+        } else if (lines.count() > 0) {
             ui->frameNoDevices->hide();
             ui->widgetDeviceSerial->show();
-
             m_deviceDetected = true;
             ui->stackedWidgetDeviceConnected->setCurrentIndex(1);
             endAction(QString::fromLatin1(" * found %0 devices.").arg(lines.count()));
@@ -175,10 +182,7 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
         // left empty
     }
 
-    //if (bOk && bHasNetwork) {
-    //    ui->widgetDeviceInfo->show();
-    //}
-   // ui->pushButtonCancel->hide();
+
     ui->lblLoading->hide();
     m_reply.clear();
 }
@@ -241,9 +245,10 @@ void UbuntuDevicesWidget::on_pushButtonCloneNetworkConfig_clicked() {
 
 void UbuntuDevicesWidget::on_comboBoxSerialNumber_currentIndexChanged( const QString & text ) {
     m_deviceSerialNumber = text;
-    if (!text.isEmpty()) {
+    if (!text.isEmpty() && ui->comboBoxSerialNumber->isEnabled()) {
+        m_ubuntuDeviceNotifier.startMonitoring(m_deviceSerialNumber);
         ui->lblDeviceInfo->setText(ui->comboBoxSerialNumber->itemData(ui->comboBoxSerialNumber->currentIndex()).toString());
-        // FIXME this call should not be called on init
+
         detectDeviceVersion();
     }
 }
@@ -251,6 +256,39 @@ void UbuntuDevicesWidget::on_comboBoxSerialNumber_currentIndexChanged( const QSt
 void UbuntuDevicesWidget::onError(QString msg) {
     ui->plainTextEdit->appendHtml(QString::fromLatin1("<p style=\"color: red\">%0</p>").arg(msg));
 }
+
+void UbuntuDevicesWidget::onDeviceConnected(QString serialNumber) {
+
+     Core::ModeManager::activateMode(Ubuntu::Constants::UBUNTU_MODE_DEVICES);
+
+      m_reply.clear();
+
+      ui->plainTextEdit->clear();
+
+       m_ubuntuProcess.stop();
+      ui->comboBoxSerialNumber->clear();
+      ui->frameNoDevices->hide();
+      ui->frameNoNetwork->hide();
+      ui->frameProgress->show();
+ui->lblLoading->show();
+      detectDevices();
+}
+
+void UbuntuDevicesWidget::onDeviceDisconnected() {
+
+    m_reply.clear();
+
+    ui->plainTextEdit->clear();
+
+     m_ubuntuProcess.stop();
+    ui->comboBoxSerialNumber->clear();
+    ui->frameNoDevices->hide();
+    ui->frameNoNetwork->hide();
+    ui->frameProgress->show();
+ui->lblLoading->show();
+     detectDevices();
+}
+
 
 void UbuntuDevicesWidget::on_pushButtonRefresh_clicked() {
     m_deviceDetected = false;

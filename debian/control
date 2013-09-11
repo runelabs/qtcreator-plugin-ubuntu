@@ -17,6 +17,7 @@ Build-Depends: debhelper (>= 9),
                qtscript5-private-dev (>= 5.0.2~),
                qttools5-dev-tools (>= 5.0.2~),
                qtxmlpatterns5-dev-tools,
+               libudev-dev,
 Standards-Version: 3.9.4
 Homepage: https://launchpad.net/qtcreator-plugin-ubuntu
 # If you aren't a member of ~ubuntu-sdk-team but need to upload packaging changes,

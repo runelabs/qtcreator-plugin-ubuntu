@@ -15,6 +15,10 @@
 #
 # Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
 
-adb kill-server &> /dev/null
-adb start-server &> /dev/null
-adb devices -l
+adb kill-server > /dev/null
+adb start-server > /dev/null
+#adb root &> /dev/null
+#if [ $?==1 ]; then
+#  exit
+#fi
+adb devices -l | grep -Ev "List of devices attached" | sed "/^$/d"

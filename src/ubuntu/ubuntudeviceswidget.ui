@@ -481,7 +481,7 @@ Connect to a wlan or to a wwan and try again.</string>
                           <item>
                            <widget class="QLabel" name="label_10">
                             <property name="text">
-                             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;No network connection on your device!&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You will need to connect your device to a network with connection to the Internet. &lt;/p&gt;&lt;p&gt;You can &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;clone network config from host to device&lt;/span&gt; by clicking a button on the right.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;No network connection on your device!&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You will need to connect your device to a network with connection to the Internet. &lt;/p&gt;&lt;p&gt;Then replug the device to your workstation.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                             </property>
                            </widget>
                           </item>
@@ -520,13 +520,6 @@ Connect to a wlan or to a wwan and try again.</string>
                                 </size>
                                </property>
                               </spacer>
-                             </item>
-                             <item>
-                              <widget class="QPushButton" name="pushButtonCloneNetworkConfig_2">
-                               <property name="text">
-                                <string>Clone network config from host to device</string>
-                               </property>
-                              </widget>
                              </item>
                              <item>
                               <widget class="QPushButton" name="pushButtonCloneTimeConfig">

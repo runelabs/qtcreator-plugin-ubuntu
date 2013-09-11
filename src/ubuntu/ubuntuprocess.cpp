@@ -160,7 +160,7 @@ void UbuntuProcess::processCmdQueue() {
     }
 
     QString msg(QString(QLatin1String("%0 %1")).arg(cmd).arg(args.join(QLatin1String(" "))));
-    emit message(msg);
+    //emit message(msg);
     m_currentProcess.setProperty("command",cmd);
 
     if (args.length()>0) {
