@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef PROJECTMANAGER_H
-#define PROJECTMANAGER_H
+#ifndef PROJECTMANAGER_H_SASADXZ043
+#define PROJECTMANAGER_H_SASADXZ043
 
 #include "common.h"
 #include "cproject.h"
