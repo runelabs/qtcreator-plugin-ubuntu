@@ -81,5 +81,5 @@ echo $FILES
 for FILE in $FILES;
 do
  echo "Installing $FILE to device.."
- adb_shell click install --force-missing-framework ${TARGET_DEVICE_HOME}/${FILE}
+ adb shell sudo -H -u phablet pkcon install-local ${TARGET_DEVICE_HOME}/${FILE}
 done
