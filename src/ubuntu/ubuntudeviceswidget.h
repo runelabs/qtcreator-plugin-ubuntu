@@ -40,7 +40,6 @@ public:
     bool deviceDetected() { return m_deviceDetected; }
     QString serialNumber();
 
-
 signals:
     void updateDeviceActions();
     
@@ -53,6 +52,7 @@ protected slots:
     void onDeviceConnected(QString serialNumber);
     void onDeviceDisconnected();
 
+    void on_pushButtonPlatformDevelopment_clicked();
     void on_pushButtonRefresh_clicked();
     void on_pushButtonRefresh_2_clicked() { on_pushButtonRefresh_clicked(); }
     void on_pushButtonSshInstall_clicked();

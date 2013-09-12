@@ -79,6 +79,7 @@ void UbuntuDevicesWidget::onStarted(QString cmd) {
     ui->lblLoading->show();
 }
 
+
 void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
     ui->stackedWidgetConnectedDevice->setCurrentIndex(0);
     if (m_aboutToClose) { return; }
@@ -150,6 +151,9 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
             ui->widgetSshProperties->hide();
             ui->stackedWidgetDeveloperMode->setCurrentIndex(0);
         }
+
+    } else if (cmd == QString::fromLatin1("%0/qtc_device_developertools").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+        endAction(QString::fromLatin1("..platform development was enabled."));
     } else if (cmd == QString::fromLatin1("%0/openssh_remove").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
         endAction(QString::fromLatin1("..openssh-server was removed."));
         detectOpenSsh();
@@ -185,6 +189,14 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
 
     ui->lblLoading->hide();
     m_reply.clear();
+}
+
+
+void UbuntuDevicesWidget::on_pushButtonPlatformDevelopment_clicked() {
+    beginAction(QString::fromLatin1("Enable Platform Development.."));
+    m_ubuntuProcess.stop();
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/qtc_device_developertools %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1("Enable Platform Development.."));
 }
 
 void UbuntuDevicesWidget::on_pushButtonReboot_clicked() {

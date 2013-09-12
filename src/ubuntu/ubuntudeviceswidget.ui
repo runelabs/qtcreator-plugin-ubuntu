@@ -529,6 +529,13 @@ Connect to a wlan or to a wwan and try again.</string>
                               </widget>
                              </item>
                              <item>
+                              <widget class="QPushButton" name="pushButtonPlatformDevelopment">
+                               <property name="text">
+                                <string>Enable Platform Development</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
                               <widget class="QPushButton" name="pushButtonSshInstall">
                                <property name="font">
                                 <font>
@@ -543,7 +550,7 @@ Connect to a wlan or to a wwan and try again.</string>
                                 <string notr="true">padding: 10; color: #333</string>
                                </property>
                                <property name="text">
-                                <string>Enable developer mode</string>
+                                <string>Enable Developer Mode</string>
                                </property>
                                <property name="flat">
                                 <bool>false</bool>
@@ -562,7 +569,7 @@ Connect to a wlan or to a wwan and try again.</string>
                                 <string notr="true">padding: 10; color: #333</string>
                                </property>
                                <property name="text">
-                                <string>Disable developer mode</string>
+                                <string>Disable Developer Mode</string>
                                </property>
                               </widget>
                              </item>
