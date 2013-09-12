@@ -21,5 +21,5 @@ PORT=$2
 USERNAME=$3
 
 #$SCRIPTPATH/device_portforward ${PORT} 3768
-
+adb_shell service ssh start &> /dev/null
 x-terminal-emulator -e "ssh -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p $PORT $USERNAME@127.0.0.1" &

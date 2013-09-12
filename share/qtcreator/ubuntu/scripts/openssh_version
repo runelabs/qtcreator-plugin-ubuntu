@@ -17,6 +17,8 @@
 
 . `dirname $0`/functions.inc
 
+ssh-add ~/.ssh/ubuntudevice*id_rsa &> /dev/null
+
 adb_shell apt-get -f install &> /dev/null
 adb_shell apt-cache policy openssh-server|grep Installed|sed "s/Installed\://g"
-
+adb_shell service ssh start &> /dev/null
