@@ -77,14 +77,15 @@ void UbuntuPackagingWidget::openManifestForProject() {
     if (startupProject) {
         m_projectName = startupProject->displayName();
         QString fileName = QString(QLatin1String("%0/manifest.json")).arg(startupProject->projectDirectory());
-	QString no_underscore_displayName = startupProject->displayName();
-	m_projectName=no_underscore_displayName;
-	no_underscore_displayName.replace(QLatin1String("_"),QLatin1String("-"));
-	if (no_underscore_displayName != startupProject->displayName()) {
-		m_manifest.nameDashReplaced();
-		
-	}
-	QString fileAppArmorName = QString(QLatin1String("%0/%1.json")).arg(startupProject->projectDirectory()).arg(no_underscore_displayName);
+        QString no_underscore_displayName = startupProject->displayName();
+
+        m_projectName=no_underscore_displayName;
+        no_underscore_displayName.replace(QLatin1String("_"),QLatin1String("-"));
+        if (no_underscore_displayName != startupProject->displayName()) {
+            m_manifest.nameDashReplaced();
+
+        }
+        QString fileAppArmorName = QString(QLatin1String("%0/%1.json")).arg(startupProject->projectDirectory()).arg(no_underscore_displayName);
         if (QFile(fileName).exists()==false) {
             m_manifest.setFileName(fileName);
             on_pushButtonReset_clicked();
@@ -109,7 +110,8 @@ void UbuntuPackagingWidget::bzrChanged() {
     m_manifest.setMaintainer(m_bzr.whoami());
     QString userName = m_bzr.launchpadId();
     if (userName.isEmpty()) userName = QLatin1String("username");
-    m_manifest.setName(QString(QLatin1String("com.ubuntu.developer.%0.%1")).arg(userName).arg(m_projectName));
+    // Commented out for bug #1219948  - https://bugs.launchpad.net/qtcreator-plugin-ubuntu/+bug/1219948
+    //m_manifest.setName(QString(QLatin1String("com.ubuntu.developer.%0.%1")).arg(userName).arg(m_projectName));
     reload();
 }
 
@@ -161,7 +163,8 @@ void UbuntuPackagingWidget::load_manifest(QString fileName) {
     if (userName.isEmpty()) userName = QLatin1String("username");
     m_projectName.replace(QLatin1String("_"),QLatin1String("-"));
 
-    m_manifest.setName(QString(QLatin1String("com.ubuntu.developer.%0.%1")).arg(userName).arg(m_projectName));
+    // Commented out for bug #1219948  - https://bugs.launchpad.net/qtcreator-plugin-ubuntu/+bug/1219948
+    //m_manifest.setName(QString(QLatin1String("com.ubuntu.developer.%0.%1")).arg(userName).arg(m_projectName));
 }
 
 void UbuntuPackagingWidget::load_apparmor(QString fileAppArmorName) {
