@@ -90,9 +90,17 @@ pushd ${PROJECTPATH} >> /dev/null
   rm -Rf ${BUILDPATH}
   mkdir -p ${BUILDPATH}
 
+  # read .excludes file from the projectpath
+  PROJECT_EXCLUDES="--exclude .bzr --exclude .git --exclude .hg --exclude .svn --exclude *.qmlproject* --exclude tests --exclude Makefile --exclude .excludes"
+  if [[ -f ${PROJECTPATH}/.excludes ]]; then
+    for EXCLUDE in `cat ${PROJECTPATH}/.excludes`; do
+    PROJECT_EXCLUDES+=" --exclude ${EXCLUDE}"
+    done
+  fi
+
   # we are printing also a filelist to the stdout which files are going to be inside the package
   echo
-  rsync -avh --exclude ".bzr" --exclude ".git" --exclude ".hg" --exclude ".svn" --exclude "*.qmlproject*" --exclude "tests" --exclude "Makefile" ${PROJECTPATH}/* ${BUILDPATH}/
+  rsync -avh ${PROJECT_EXCLUDES} ${PROJECTPATH}/* ${BUILDPATH}/
 
   # build the build path
   click build ${BUILDPATH} > /tmp/click.log 2> /tmp/click.err
