@@ -76,6 +76,7 @@ void UbuntuPackagingWidget::openManifestForProject() {
 
     if (startupProject) {
         m_projectName = startupProject->displayName();
+
         QString fileName = QString(QLatin1String("%0/manifest.json")).arg(startupProject->projectDirectory());
         QString no_underscore_displayName = startupProject->displayName();
 
@@ -98,6 +99,9 @@ void UbuntuPackagingWidget::openManifestForProject() {
         } else {
             load_apparmor(fileAppArmorName);
         }
+
+        load_excludes(QString(QLatin1String("%0/.excludes")).arg(startupProject->projectDirectory()));
+
         ui->stackedWidget->setCurrentIndex(0);
     } else {
         m_projectName.clear();
@@ -131,30 +135,35 @@ void UbuntuPackagingWidget::on_pushButtonReset_clicked() {
 
 void UbuntuPackagingWidget::save(bool bSaveSimple) {
     switch (m_previous_tab) {
-        case 0: {
-            // set package name to lower, bug #1219877
-            m_manifest.setName(ui->lineEdit_name->text().toLower());
-            m_manifest.setMaintainer(ui->lineEdit_maintainer->text());
-            m_manifest.setVersion(ui->lineEdit_version->text());
-            m_manifest.setTitle(ui->lineEdit_title->text());
-            QStringList items;
-            for (int i=0; i<ui->listWidget->count(); i++) {
-               items.append(ui->listWidget->item(i)->text());
-            }
-            m_apparmor.setPolicyGroups(m_projectName,items);
-            break;
+    case 0: {
+        // set package name to lower, bug #1219877
+        m_manifest.setName(ui->lineEdit_name->text().toLower());
+        m_manifest.setMaintainer(ui->lineEdit_maintainer->text());
+        m_manifest.setVersion(ui->lineEdit_version->text());
+        m_manifest.setTitle(ui->lineEdit_title->text());
+        QStringList items;
+        for (int i=0; i<ui->listWidget->count(); i++) {
+           items.append(ui->listWidget->item(i)->text());
         }
-        case 1:{
-            m_manifest.setRaw(ui->plainTextEditJson->toPlainText());
-            break;
-        }
-        case 2:{
-            m_apparmor.setRaw(ui->plainTextEditAppArmorJson->toPlainText());
-            break;
-        }
+        m_apparmor.setPolicyGroups(m_projectName,items);
+        m_manifest.save();
+        break;
     }
-    m_manifest.save();
-    m_apparmor.save();
+    case 1: {
+        m_manifest.setRaw(ui->plainTextEditJson->toPlainText());
+        m_manifest.save();
+        break;
+    }
+    case 2: {
+        m_apparmor.setRaw(ui->plainTextEditAppArmorJson->toPlainText());
+        m_apparmor.save();
+        break;
+    }
+    case 3: {
+        save_excludes();
+        break;
+    }
+    }
 }
 
 void UbuntuPackagingWidget::load_manifest(QString fileName) {
@@ -172,7 +181,27 @@ void UbuntuPackagingWidget::load_apparmor(QString fileAppArmorName) {
     m_apparmor.load(fileAppArmorName,m_projectName);
 }
 
+void UbuntuPackagingWidget::load_excludes(QString excludesFile = "") {
+    if (!excludesFile.isEmpty()) m_excludesFile = excludesFile;
 
+    QFile f(m_excludesFile);
+    if (f.exists()) {
+        if (f.open(QIODevice::ReadOnly)) {
+            ui->plainTextEdit_excludes->setPlainText(QString::fromAscii(f.readAll()));
+            f.close();
+        }
+    }
+}
+
+void UbuntuPackagingWidget::save_excludes() {
+    QFile f(m_excludesFile);
+
+    if (f.open(QIODevice::WriteOnly)) {
+        f.write(ui->plainTextEdit_excludes->toPlainText().toAscii());
+        f.close();
+    }
+
+}
 
 void UbuntuPackagingWidget::reload() {
     ui->lineEdit_maintainer->setText(m_manifest.maintainer());
@@ -192,10 +221,12 @@ void UbuntuPackagingWidget::reload() {
     ui->plainTextEditJson->setPlainText(m_manifest.raw());
     ui->plainTextEditAppArmorJson->setPlainText(m_apparmor.raw());
 
+    load_excludes(QLatin1String(""));
 }
 
 void UbuntuPackagingWidget::on_tabWidget_currentChanged(int tab) {
     save((ui->tabWidget->currentWidget() != ui->tabSimple));
+
     m_previous_tab = tab;
     reload();
 }

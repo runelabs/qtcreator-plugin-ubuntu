@@ -124,7 +124,7 @@
    <item>
     <widget class="QStackedWidget" name="stackedWidget_2">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="pageAvailable">
       <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -351,6 +351,16 @@
                    <layout class="QVBoxLayout" name="verticalLayout_6">
                     <item>
                      <widget class="QPlainTextEdit" name="plainTextEditAppArmorJson"/>
+                    </item>
+                   </layout>
+                  </widget>
+                  <widget class="QWidget" name="tabExcludes">
+                   <attribute name="title">
+                    <string>Excludes</string>
+                   </attribute>
+                   <layout class="QVBoxLayout" name="verticalLayout_8">
+                    <item>
+                     <widget class="QPlainTextEdit" name="plainTextEdit_excludes"/>
                     </item>
                    </layout>
                   </widget>
