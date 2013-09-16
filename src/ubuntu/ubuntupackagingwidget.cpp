@@ -132,7 +132,8 @@ void UbuntuPackagingWidget::on_pushButtonReset_clicked() {
 void UbuntuPackagingWidget::save(bool bSaveSimple) {
     switch (m_previous_tab) {
       case 0:{
-	        m_manifest.setName(ui->lineEdit_name->text());
+            // set package name to lower, bug #1219877
+            m_manifest.setName(ui->lineEdit_name->text().toLower());
 	        m_manifest.setMaintainer(ui->lineEdit_maintainer->text());
                 m_manifest.setTitle(ui->lineEdit_title->text());
                 QStringList items;
