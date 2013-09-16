@@ -60,7 +60,7 @@ SSH="ssh -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/de
 # get dbus session addrss from the device
 DBUS_SESSION_BUS_ADDRESS=`$SSH "cat ~/.cache/upstart/dbus-session|grep DBUS_SESSION_BUS_ADDRESS"`
 
-COMMAND="export ${DBUS_SESSION_BUS_ADDRESS=}; APP_ID=${APP_ID} qmlscene ${TARGET_DEVICE_HOME}/${FOLDERNAME}/${MAIN_QML} --desktop_file_hint=${TARGET_DEVICE_DESKTOP_PATH}/${DESKTOP_FILENAME}"
+COMMAND="export ${DBUS_SESSION_BUS_ADDRESS=}; APP_ID=${APP_ID} qmlscene -platform ubuntu ${TARGET_DEVICE_HOME}/${FOLDERNAME}/${MAIN_QML} --desktop_file_hint=${TARGET_DEVICE_DESKTOP_PATH}/${DESKTOP_FILENAME}"
 
 # make a tar package
 tar -cjf ${FOLDERNAME}.tar.bz2 ${FOLDERNAME}
