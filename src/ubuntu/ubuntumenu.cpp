@@ -350,7 +350,11 @@ void UbuntuMenu::menuItemTriggered() {
 
                         QString projectDirectory = project->projectDirectory();
                         QString displayName = project->displayName();
-                        QString folderName = QFileInfo(projectDirectory).baseName();
+
+                        QString folderName = projectDirectory;
+                        // Bug 1212937 workaround
+                        folderName = folderName.replace(QString(QLatin1String("%0/")).arg(QFileInfo(projectDirectory).path()),QLatin1String(""));
+
                         QStringList projectFiles = project->files(ProjectExplorer::Project::AllFiles);
 
                         QString workingDirectoryData = act->property(Constants::UBUNTU_MENUJSON_WORKINGDIRECTORY).toString();
@@ -359,6 +363,7 @@ void UbuntuMenu::menuItemTriggered() {
                         } else {
                             workingDirectory = projectDirectory;
                         }
+
                         command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_PROJECTDIRECTORY),projectDirectory);
                         command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_FOLDERNAME),folderName);
                         command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DISPLAYNAME),displayName);
