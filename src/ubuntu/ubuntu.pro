@@ -15,7 +15,8 @@ PKGCONFIG += libudev
 
 FORMS += \
     ubuntudeviceswidget.ui \
-    ubuntupackagingwidget.ui
+    ubuntupackagingwidget.ui \
+    ubuntusettingswidget.ui
 
 RESOURCES += \
     resources.qrc
@@ -56,7 +57,9 @@ SOURCES += \
     ubuntudeviceswidget.cpp \
     ubuntudevicemode.cpp \
     ubuntuprocess.cpp \
-    ubuntudevicenotifier.cpp
+    ubuntudevicenotifier.cpp \
+    ubuntusettingspage.cpp \
+    ubuntusettingswidget.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -91,5 +94,7 @@ HEADERS += \
     ubuntudevicemode.h \
     ubuntudeviceswidget.h \
     ubuntuprocess.h \
-    ubuntudevicenotifier.h
+    ubuntudevicenotifier.h \
+    ubuntusettingspage.h \
+    ubuntusettingswidget.h
 
