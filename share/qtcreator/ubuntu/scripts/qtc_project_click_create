@@ -82,8 +82,20 @@ pushd ${PROJECTPATH} >> /dev/null
 
   # lets build the package
   cd ..
+
+  # copy project files to build directory
+
   RESULTPATH=`pwd`
-  click build ${PROJECTPATH} > /tmp/click.log 2> /tmp/click.err
+  BUILDPATH=${PROJECTPATH}_build
+  rm -Rf ${BUILDPATH}
+  mkdir -p ${BUILDPATH}
+
+  # we are printing also a filelist to the stdout which files are going to be inside the package
+  echo
+  rsync -avh --exclude ".bzr" --exclude ".git" --exclude ".hg" --exclude ".svn" --exclude "*.qmlproject*" --exclude "tests" --exclude "Makefile" ${PROJECTPATH}/* ${BUILDPATH}/
+
+  # build the build path
+  click build ${BUILDPATH} > /tmp/click.log 2> /tmp/click.err
 
   # lets check the results
   if [[ ${?} -eq 0 ]]; then
