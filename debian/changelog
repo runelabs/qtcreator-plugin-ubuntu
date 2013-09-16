@@ -2,6 +2,7 @@ qtcreator-plugin-ubuntu (2.7.2-0ubuntu2) saucy; urgency=low
 
   [ Zoltan Balogh ]
   * Fix app id and the dbus session adress (LP: #1221414).
+  * Use pkcon to install click packages (LP: #1223014)
 
   [ Timo Jyrinki ]
   * Add Cordova dependencies to the Cordova plugin (LP: #1209385)
