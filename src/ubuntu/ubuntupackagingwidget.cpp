@@ -131,27 +131,27 @@ void UbuntuPackagingWidget::on_pushButtonReset_clicked() {
 
 void UbuntuPackagingWidget::save(bool bSaveSimple) {
     switch (m_previous_tab) {
-      case 0:{
+        case 0: {
             // set package name to lower, bug #1219877
             m_manifest.setName(ui->lineEdit_name->text().toLower());
-	        m_manifest.setMaintainer(ui->lineEdit_maintainer->text());
-                m_manifest.setTitle(ui->lineEdit_title->text());
-                QStringList items;
-                for (int i=0; i<ui->listWidget->count(); i++) {
-                   items.append(ui->listWidget->item(i)->text());
-                }
-	        m_apparmor.setPolicyGroups(m_projectName,items);
-
-    		break;
-	}
-      case 1:{
-		m_manifest.setRaw(ui->plainTextEditJson->toPlainText());
-    		break;
-	}
-      case 2:{
-		m_apparmor.setRaw(ui->plainTextEditAppArmorJson->toPlainText());
-		break;
-	}
+            m_manifest.setMaintainer(ui->lineEdit_maintainer->text());
+            m_manifest.setVersion(ui->lineEdit_version->text());
+            m_manifest.setTitle(ui->lineEdit_title->text());
+            QStringList items;
+            for (int i=0; i<ui->listWidget->count(); i++) {
+               items.append(ui->listWidget->item(i)->text());
+            }
+            m_apparmor.setPolicyGroups(m_projectName,items);
+            break;
+        }
+        case 1:{
+            m_manifest.setRaw(ui->plainTextEditJson->toPlainText());
+            break;
+        }
+        case 2:{
+            m_apparmor.setRaw(ui->plainTextEditAppArmorJson->toPlainText());
+            break;
+        }
     }
     m_manifest.save();
     m_apparmor.save();
@@ -178,6 +178,7 @@ void UbuntuPackagingWidget::reload() {
     ui->lineEdit_maintainer->setText(m_manifest.maintainer());
     ui->lineEdit_name->setText(m_manifest.name());
     ui->lineEdit_title->setText(m_manifest.title());
+    ui->lineEdit_version->setText(m_manifest.version());
 
     QStringList policyGroups = m_apparmor.policyGroups(m_projectName);
 
@@ -226,7 +227,7 @@ void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {
 
     save((ui->tabWidget->currentWidget() == ui->tabSimple));
 
-    Core::Command *cmd = Core::ActionManager::instance()->command(Core::Id("Ubuntu.Build.click.build"));
+    Core::Command *cmd = Core::ActionManager::instance()->command(Core::Id("Ubuntu.Build.Package"));
     if (cmd) {
         cmd->action()->trigger();
     }

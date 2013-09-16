@@ -33,6 +33,14 @@ function getTitle() {
     return jsonData.title;
 }
 
+function setVersion($version) {
+    jsonData.version = $version;
+}
+
+function getVersion() {
+    return jsonData.version;
+}
+
 function getPolicyGroups($appname) {
 /*    var appProfile = jsonData.security.profiles[$appname];
     if (appProfile===undefined) {

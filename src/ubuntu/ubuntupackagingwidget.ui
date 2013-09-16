@@ -124,7 +124,7 @@
    <item>
     <widget class="QStackedWidget" name="stackedWidget_2">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="pageAvailable">
       <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -292,7 +292,7 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="7" column="0" colspan="2">
+                    <item row="9" column="0" colspan="2">
                      <widget class="QGroupBox" name="groupBox_2">
                       <property name="title">
                        <string>Security Policy Groups</string>
@@ -322,6 +322,16 @@
                       </layout>
                      </widget>
                     </item>
+                    <item row="8" column="0">
+                     <widget class="QLineEdit" name="lineEdit_version"/>
+                    </item>
+                    <item row="7" column="0">
+                     <widget class="QLabel" name="label_6">
+                      <property name="text">
+                       <string>Version</string>
+                      </property>
+                     </widget>
+                    </item>
                    </layout>
                   </widget>
                   <widget class="QWidget" name="tabManifest">
@@ -349,7 +359,7 @@
                 <item>
                  <widget class="QPushButton" name="pushButtonClickPackage">
                   <property name="text">
-                   <string>Create Package</string>
+                   <string>Create package</string>
                   </property>
                  </widget>
                 </item>
