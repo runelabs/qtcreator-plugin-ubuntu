@@ -64,8 +64,7 @@ protected slots:
     void on_pushButtonShutdown_clicked();
     void on_pushButtonRebootToBootloader_clicked();
     void on_pushButtonRebootToRecovery_clicked();
-    void on_pushButtonUpgradeToDailyImage_clicked();
-    void on_pushButtonUpgradeToDailyImageWithBootstrap_clicked();
+
     void on_pushButtonCloneNetworkConfig_clicked();
     void on_pushButtonCloneTimeConfig_clicked();
     void on_comboBoxSerialNumber_currentIndexChanged( const QString & text );

@@ -345,20 +345,6 @@ void UbuntuDevicesWidget::on_pushButtonSshSetupPublicKey_clicked() {
     m_ubuntuProcess.start(QString::fromLatin1("Setting up public key authentication.."));
 }
 
-void UbuntuDevicesWidget::on_pushButtonUpgradeToDailyImage_clicked() {
-    beginAction(QString::fromLatin1("Upgrade device to daily.."));
-    m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/device_flashdaily %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Upgrade device to daily.."));
-}
-
-void UbuntuDevicesWidget::on_pushButtonUpgradeToDailyImageWithBootstrap_clicked() {
-    beginAction(QString::fromLatin1("Upgrade device to daily with a full bootstrap.."));
-    m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/device_flashdaily_bootstrap %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Upgrade device to daily with a full bootstrap.."));
-}
-
 void UbuntuDevicesWidget::detectHasNetworkConnection() {
     beginAction(QString::fromLatin1("Check if the device is connected to a network.."));
     m_ubuntuProcess.stop();
