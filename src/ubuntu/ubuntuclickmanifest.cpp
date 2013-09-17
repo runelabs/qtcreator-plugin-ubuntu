@@ -68,6 +68,16 @@ QString UbuntuClickManifest::version() {
     return callGetStringFunction(QLatin1String("getVersion"));
 }
 
+void UbuntuClickManifest::setDescription(QString description) {
+    if (!isInitialized()) { return; }
+    callSetStringFunction(QLatin1String("setDescription"),description);
+    emit descriptionChanged();
+}
+
+QString UbuntuClickManifest::description() {
+    return callGetStringFunction(QLatin1String("getDescription"));
+}
+
 void UbuntuClickManifest::setMaintainer(QString maintainer) {
     if (!isInitialized()) { return; }
 

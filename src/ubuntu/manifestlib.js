@@ -41,6 +41,14 @@ function getVersion() {
     return jsonData.version;
 }
 
+function setDescription($description) {
+   jsonData.description = $description;
+}
+
+function getDescription() {
+    return jsonData.description;
+}
+
 function getPolicyGroups($appname) {
 /*    var appProfile = jsonData.security.profiles[$appname];
     if (appProfile===undefined) {

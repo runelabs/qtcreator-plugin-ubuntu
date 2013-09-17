@@ -39,6 +39,7 @@ signals:
     void titleChanged();
     void policyGroupsChanged();
     void versionChanged();
+    void descriptionChanged();
     void saved();
     void loaded();
     void error();
@@ -56,6 +57,9 @@ public slots:
 
     void setVersion(QString version);
     QString version();
+
+    void setDescription(QString description);
+    QString description();
 
     void setPolicyGroups(QString appName, QStringList groups);
     QStringList policyGroups(QString appName);

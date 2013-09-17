@@ -142,6 +142,7 @@ void UbuntuPackagingWidget::save(bool bSaveSimple) {
         m_manifest.setMaintainer(ui->lineEdit_maintainer->text());
         m_manifest.setVersion(ui->lineEdit_version->text());
         m_manifest.setTitle(ui->lineEdit_title->text());
+        m_manifest.setDescription(ui->lineEdit_description->text());
         QStringList items;
         for (int i=0; i<ui->listWidget->count(); i++) {
             // Fix bug #1221407 - make sure that there are no empty policy groups.
@@ -213,6 +214,7 @@ void UbuntuPackagingWidget::reload() {
     ui->lineEdit_name->setText(m_manifest.name());
     ui->lineEdit_title->setText(m_manifest.title());
     ui->lineEdit_version->setText(m_manifest.version());
+    ui->lineEdit_description->setText(m_manifest.description());
 
     QStringList policyGroups = m_apparmor.policyGroups(m_projectName);
 
