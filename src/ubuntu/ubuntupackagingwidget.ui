@@ -314,9 +314,6 @@
                            </property>
                           </widget>
                          </item>
-                         <item>
-                          <widget class="QLineEdit" name="lineEdit_policy"/>
-                         </item>
                         </layout>
                        </item>
                       </layout>

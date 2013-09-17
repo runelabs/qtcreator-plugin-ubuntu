@@ -17,6 +17,7 @@
  */
 
 #include "ubuntupackagingwidget.h"
+#include "ubuntusecuritypolicypickerdialog.h"
 #include "ui_ubuntupackagingwidget.h"
 
 #include <projectexplorer/projectexplorer.h>
@@ -248,10 +249,14 @@ void UbuntuPackagingWidget::on_listWidget_customContextMenuRequested(QPoint p) {
 }
 
 void UbuntuPackagingWidget::on_pushButton_addpolicy_clicked() {
-    QListWidgetItem* item = new QListWidgetItem(ui->lineEdit_policy->text());
+    UbuntuSecurityPolicyPickerDialog dialog;
+    if (dialog.exec()) {
+        ui->listWidget->addItems(dialog.selectedPolicyGroups());
+    }
+    /*QListWidgetItem* item = new QListWidgetItem(ui->lineEdit_policy->text());
     item->setFlags(item->flags() | Qt::ItemIsEditable);
     ui->listWidget->addItem(item);
-    ui->lineEdit_policy->clear();
+    ui->lineEdit_policy->clear();*/
 }
 
 void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {

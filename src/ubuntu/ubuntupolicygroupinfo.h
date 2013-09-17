@@ -16,32 +16,39 @@
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-#ifndef UBUNTUSETTINGSPAGE_H
-#define UBUNTUSETTINGSPAGE_H
+#ifndef UBUNTUPOLICYGROUPINFO_H
+#define UBUNTUPOLICYGROUPINFO_H
 
-#include <coreplugin/dialogs/ioptionspage.h>
-#include "ubuntuconstants.h"
-#include "ubuntusettingswidget.h"
-#include <QPointer>
+#include <QObject>
+#include "ubuntuprocess.h"
 
 namespace Ubuntu {
-    namespace Internal {
-        class UbuntuSettingsPage : public Core::IOptionsPage
-        {
-            Q_OBJECT
+namespace Internal {
 
-        public:
-            explicit UbuntuSettingsPage();
-            ~UbuntuSettingsPage();
+class UbuntuPolicyGroupInfo : public QObject
+{
+    Q_OBJECT
 
-            QWidget *createPage(QWidget *parent);
-            void apply();
-            void finish() { }
+public:
+    explicit UbuntuPolicyGroupInfo(QObject *parent = 0);
+    QString info() { return m_replies.join(QLatin1String("\n")); }
 
-        protected:
-            QPointer<UbuntuSettingsWidget> m_widget;
-        };
-    }
+public slots:
+    void getInfo(QString);
+    void onMessage(QString);
+    void onFinished(QString, int);
+    void onError(QString);
+
+signals:
+    void infoReady(bool);
+
+protected:
+    UbuntuProcess m_process;
+    QStringList m_replies;
+
+};
+
+}
 }
 
-#endif // UBUNTUSETTINGSPAGE_H
+#endif // UBUNTUPOLICYGROUPINFO_H

@@ -16,7 +16,8 @@ PKGCONFIG += libudev
 FORMS += \
     ubuntudeviceswidget.ui \
     ubuntupackagingwidget.ui \
-    ubuntusettingswidget.ui
+    ubuntusettingswidget.ui \
+    ubuntusecuritypolicypickerdialog.ui
 
 RESOURCES += \
     resources.qrc
@@ -59,7 +60,10 @@ SOURCES += \
     ubuntuprocess.cpp \
     ubuntudevicenotifier.cpp \
     ubuntusettingspage.cpp \
-    ubuntusettingswidget.cpp
+    ubuntusettingswidget.cpp \
+    ubuntusecuritypolicypickerdialog.cpp \
+    ubuntupolicygroupmodel.cpp \
+    ubuntupolicygroupinfo.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -96,5 +100,8 @@ HEADERS += \
     ubuntuprocess.h \
     ubuntudevicenotifier.h \
     ubuntusettingspage.h \
-    ubuntusettingswidget.h
+    ubuntusettingswidget.h \
+    ubuntusecuritypolicypickerdialog.h \
+    ubuntupolicygroupmodel.h \
+    ubuntupolicygroupinfo.h
 
