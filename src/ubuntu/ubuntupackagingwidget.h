@@ -27,7 +27,7 @@ public slots:
     void save(bool bSaveSimple = true);
     void openManifestForProject();
     void setAvailable(bool);
-    void load_excludes(QString);
+    void load_excludes(QString excludesFile = QLatin1String(""));
     void save_excludes();
 
 protected slots:

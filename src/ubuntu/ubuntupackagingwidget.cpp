@@ -181,7 +181,7 @@ void UbuntuPackagingWidget::load_apparmor(QString fileAppArmorName) {
     m_apparmor.load(fileAppArmorName,m_projectName);
 }
 
-void UbuntuPackagingWidget::load_excludes(QString excludesFile = "") {
+void UbuntuPackagingWidget::load_excludes(QString excludesFile) {
     if (!excludesFile.isEmpty()) m_excludesFile = excludesFile;
 
     QFile f(m_excludesFile);
