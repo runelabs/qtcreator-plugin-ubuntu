@@ -53,6 +53,11 @@ function getPolicyGroups($appname) {
 }
 
 function setPolicyGroups($appname,$groups) {
+    if ($groups.length === 0) {
+        jsonData.policy_groups = [];
+        return;
+    }
+
     var $parsed_groups = $groups.split(" ");
     jsonData.policy_groups = $parsed_groups;
 }

@@ -144,7 +144,11 @@ void UbuntuPackagingWidget::save(bool bSaveSimple) {
         m_manifest.setTitle(ui->lineEdit_title->text());
         QStringList items;
         for (int i=0; i<ui->listWidget->count(); i++) {
-           items.append(ui->listWidget->item(i)->text());
+            // Fix bug #1221407 - make sure that there are no empty policy groups.
+            QString policyGroup = ui->listWidget->item(i)->text().trimmed();
+            if (!policyGroup.isEmpty()) {
+                items.append(ui->listWidget->item(i)->text());
+            }
         }
         m_apparmor.setPolicyGroups(m_projectName,items);
         m_manifest.save();
