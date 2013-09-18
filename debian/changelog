@@ -13,6 +13,7 @@ qtcreator-plugin-ubuntu (2.8.1-0ubuntu1) UNRELEASED; urgency=low
   * Cannot launch application through qtcreator (LP: #1225178)
   * Application installation script problems (LP: #1213902)
   * Comment field in .desktop file should be generated on the fly (LP: #1223388)
+  * SDK should set applicationName to "name" value in the click manifest (LP: #1227085)
 
  -- Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>  Wed, 11 Sep 2013 08:26:28 +0300
 
