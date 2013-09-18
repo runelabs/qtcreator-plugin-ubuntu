@@ -71,9 +71,10 @@ void UbuntuMenu::slotUpdateActions() {
     bool isUbuntuProject = false;
     bool isCordovaProject = false;
 
+
     if (startupProject) {
         isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String("application/x-qmlproject"));
-        isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String("application/vnd.nokia.qt.qmakeprofile"));
+        isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String("application/vnd.qt.qmakeprofile"));
         isCordovaProject = (startupProject->projectManager()->mimeType() == QLatin1String("application/x-cordovaproject"));
         isUbuntuProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
     }
@@ -138,7 +139,7 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
         if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_ID))) {
             menuId = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_ID)).toString();
         }
-        Core::ActionContainer *actionContainer = Core::ActionManager::createMenu(Core::Id(menuId));
+        Core::ActionContainer *actionContainer = Core::ActionManager::createMenu(Core::Id(menuId.toUtf8().constData()));
         actionContainer->menu()->setTitle(menuName);
         actionContainer->menu()->setObjectName(menuId);
 
@@ -220,7 +221,7 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
         QAction *act= new QAction(actionName, this);
         act->setObjectName(actionId);
 
-        Core::Command *cmd = Core::ActionManager::registerAction(act, Core::Id(actionId), Core::Context(Core::Constants::C_GLOBAL));
+        Core::Command *cmd = Core::ActionManager::registerAction(act, Core::Id(actionId.toUtf8().constData()), Core::Context(Core::Constants::C_GLOBAL));
         if (actionKeySequence.isEmpty() == false) {
             cmd->setDefaultKeySequence(QKeySequence(actionKeySequence));
         }
@@ -349,7 +350,11 @@ void UbuntuMenu::menuItemTriggered() {
 
                         QString projectDirectory = project->projectDirectory();
                         QString displayName = project->displayName();
-                        QString folderName = QFileInfo(projectDirectory).baseName();
+
+                        QString folderName = projectDirectory;
+                        // Bug 1212937 workaround
+                        folderName = folderName.replace(QString(QLatin1String("%0/")).arg(QFileInfo(projectDirectory).path()),QLatin1String(""));
+
                         QStringList projectFiles = project->files(ProjectExplorer::Project::AllFiles);
 
                         QString workingDirectoryData = act->property(Constants::UBUNTU_MENUJSON_WORKINGDIRECTORY).toString();
@@ -358,6 +363,7 @@ void UbuntuMenu::menuItemTriggered() {
                         } else {
                             workingDirectory = projectDirectory;
                         }
+
                         command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_PROJECTDIRECTORY),projectDirectory);
                         command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_FOLDERNAME),folderName);
                         command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DISPLAYNAME),displayName);
@@ -405,7 +411,7 @@ void UbuntuMenu::initialize() {
                     else if (parentValue == QLatin1String(Constants::UBUNTU_MENUJSON_PARENT_FILE)) actionContainer = Core::ActionManager::actionContainer(Core::Constants::M_FILE);
                     else if (parentValue == QLatin1String(Constants::UBUNTU_MENUJSON_PARENT_BUILD)) actionContainer = Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
                     else if (parentValue == QLatin1String(Constants::UBUNTU_MENUJSON_PARENT_TOP)) actionContainer = Core::ActionManager::actionContainer(Core::Constants::MENU_BAR);
-                    else actionContainer = Core::ActionManager::actionContainer(Core::Id(parentValue));
+                    else actionContainer = Core::ActionManager::actionContainer(Core::Id(parentValue.toUtf8().constData()));
                 } else {
                     actionContainer = Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
                 }
@@ -417,7 +423,7 @@ void UbuntuMenu::initialize() {
 
                 Core::Id groupId;
                 if (!group.isEmpty()) {
-                    groupId = Core::Id(group);
+                    groupId = Core::Id(group.toUtf8().constData());
                 }
                 parseMenu(obj,actionContainer,groupId);
             }

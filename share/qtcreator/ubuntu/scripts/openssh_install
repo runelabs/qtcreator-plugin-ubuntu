@@ -17,4 +17,7 @@
 
 . `dirname $0`/functions.inc
 
+#${SCRIPTPATH}/qtc_device_developertools ${SERIALNUMBER}
+adb_shell apt-get -f install
+adb_shell apt-get update
 adb_shell apt-get install openssh-server -y

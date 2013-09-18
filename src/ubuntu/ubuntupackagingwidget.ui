@@ -250,6 +250,9 @@
                     <string>Simple</string>
                    </attribute>
                    <layout class="QGridLayout" name="gridLayout_2">
+                    <item row="8" column="0">
+                     <widget class="QLineEdit" name="lineEdit_description"/>
+                    </item>
                     <item row="1" column="0">
                      <widget class="QLabel" name="label">
                       <property name="text">
@@ -261,6 +264,13 @@
                      <widget class="QLineEdit" name="lineEdit_name">
                       <property name="text">
                        <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="0">
+                     <widget class="QLabel" name="label_4">
+                      <property name="text">
+                       <string>Title</string>
                       </property>
                      </widget>
                     </item>
@@ -278,13 +288,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="5" column="0">
-                     <widget class="QLabel" name="label_4">
-                      <property name="text">
-                       <string>Title</string>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="6" column="0" colspan="2">
                      <widget class="QLineEdit" name="lineEdit_title">
                       <property name="text">
@@ -292,7 +295,17 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="7" column="0" colspan="2">
+                    <item row="10" column="0">
+                     <widget class="QLineEdit" name="lineEdit_version"/>
+                    </item>
+                    <item row="9" column="0">
+                     <widget class="QLabel" name="label_6">
+                      <property name="text">
+                       <string>Version</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="11" column="0" colspan="2">
                      <widget class="QGroupBox" name="groupBox_2">
                       <property name="title">
                        <string>Security Policy Groups</string>
@@ -314,12 +327,16 @@
                            </property>
                           </widget>
                          </item>
-                         <item>
-                          <widget class="QLineEdit" name="lineEdit_policy"/>
-                         </item>
                         </layout>
                        </item>
                       </layout>
+                     </widget>
+                    </item>
+                    <item row="7" column="0">
+                     <widget class="QLabel" name="label_7">
+                      <property name="text">
+                       <string>Description</string>
+                      </property>
                      </widget>
                     </item>
                    </layout>
@@ -344,12 +361,22 @@
                     </item>
                    </layout>
                   </widget>
+                  <widget class="QWidget" name="tabExcludes">
+                   <attribute name="title">
+                    <string>Excludes</string>
+                   </attribute>
+                   <layout class="QVBoxLayout" name="verticalLayout_8">
+                    <item>
+                     <widget class="QPlainTextEdit" name="plainTextEdit_excludes"/>
+                    </item>
+                   </layout>
+                  </widget>
                  </widget>
                 </item>
                 <item>
                  <widget class="QPushButton" name="pushButtonClickPackage">
                   <property name="text">
-                   <string>Create Package</string>
+                   <string>Create package</string>
                   </property>
                  </widget>
                 </item>

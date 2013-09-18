@@ -16,25 +16,39 @@
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-#ifndef UBUNTUSHARED_H
-#define UBUNTUSHARED_H
+#ifndef UBUNTUPOLICYGROUPINFO_H
+#define UBUNTUPOLICYGROUPINFO_H
 
-#include <utils/fileutils.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
+#include <QObject>
+#include "ubuntuprocess.h"
 
-#include <QDateTime>
+namespace Ubuntu {
+namespace Internal {
 
-static bool readFile(QString fileName, QByteArray *data, QString *errorMessage)  {
-    Utils::FileReader reader;
-    if (!reader.fetch(fileName, errorMessage)) return false;
-    *data = reader.data();
-    return true;
+class UbuntuPolicyGroupInfo : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit UbuntuPolicyGroupInfo(QObject *parent = 0);
+    QString info() { return m_replies.join(QLatin1String("\n")); }
+
+public slots:
+    void getInfo(QString);
+    void onMessage(QString);
+    void onFinished(QString, int);
+    void onError(QString);
+
+signals:
+    void infoReady(bool);
+
+protected:
+    UbuntuProcess m_process;
+    QStringList m_replies;
+
+};
+
+}
 }
 
-static void printToOutputPane(QString msg) {
-    QString timestamp = QDateTime::currentDateTime().toString(QString::fromLatin1("HH:mm:ss"));
-    Core::ICore::instance()->messageManager()->printToOutputPane(QString(QLatin1String("[%0] %1")).arg(timestamp).arg(msg),Core::MessageManager::ModeSwitch);
-}
-
-#endif // UBUNTUSHARED_H
+#endif // UBUNTUPOLICYGROUPINFO_H

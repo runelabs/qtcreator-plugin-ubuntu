@@ -64,14 +64,14 @@ fi
 SCP="scp -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P${TARGET_DEVICE_PORT}"
 SSH="ssh -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p${TARGET_DEVICE_PORT} ${TARGET_DEVICE}"
 
-pushd ${FOLDERNAME}
+pushd "${FOLDERNAME}"
  set +e
  if [[ -f Makefile ]]; then
   make distclean
  fi
  set -e
 popd
-tar -cjf ${FOLDERNAME}.tar.bz2 ${FOLDERNAME}
+tar -cjf "${FOLDERNAME}.tar.bz2" "${FOLDERNAME}"
 
 # remove old files
 if [[ ! -z ${TARGET_DEVICE_HOME} ]]; then
@@ -81,10 +81,10 @@ fi
 # make sure that the device has the target directory
 $SSH mkdir -p ${TARGET_DEVICE_HOME}
 
-$SCP ${FOLDERNAME}.tar.bz2 ${TARGET_DEVICE}:${TARGET_DEVICE_HOME}
+$SCP "${FOLDERNAME}.tar.bz2" ${TARGET_DEVICE}:${TARGET_DEVICE_HOME}
 $SSH "cd ${TARGET_DEVICE_HOME}; tar -xvf ${FOLDERNAME}.tar.bz2"
 
-if [[ -d ${FOLDERNAME}/debian ]]; then
+if [[ -d "${FOLDERNAME}/debian" ]]; then
   echo "Packaging already exists for project."
   $SSH "cd ${TARGET_DEVICE_HOME}/${FOLDERNAME}; debuild --no-tgz-check -i -I -S -sa -us -uc"
 else

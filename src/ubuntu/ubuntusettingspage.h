@@ -16,25 +16,32 @@
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-#ifndef UBUNTUSHARED_H
-#define UBUNTUSHARED_H
+#ifndef UBUNTUSETTINGSPAGE_H
+#define UBUNTUSETTINGSPAGE_H
 
-#include <utils/fileutils.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
+#include <coreplugin/dialogs/ioptionspage.h>
+#include "ubuntuconstants.h"
+#include "ubuntusettingswidget.h"
+#include <QPointer>
 
-#include <QDateTime>
+namespace Ubuntu {
+    namespace Internal {
+        class UbuntuSettingsPage : public Core::IOptionsPage
+        {
+            Q_OBJECT
 
-static bool readFile(QString fileName, QByteArray *data, QString *errorMessage)  {
-    Utils::FileReader reader;
-    if (!reader.fetch(fileName, errorMessage)) return false;
-    *data = reader.data();
-    return true;
+        public:
+            explicit UbuntuSettingsPage();
+            ~UbuntuSettingsPage();
+
+            QWidget *createPage(QWidget *parent);
+            void apply();
+            void finish() { }
+
+        protected:
+            QPointer<UbuntuSettingsWidget> m_widget;
+        };
+    }
 }
 
-static void printToOutputPane(QString msg) {
-    QString timestamp = QDateTime::currentDateTime().toString(QString::fromLatin1("HH:mm:ss"));
-    Core::ICore::instance()->messageManager()->printToOutputPane(QString(QLatin1String("[%0] %1")).arg(timestamp).arg(msg),Core::MessageManager::ModeSwitch);
-}
-
-#endif // UBUNTUSHARED_H
+#endif // UBUNTUSETTINGSPAGE_H

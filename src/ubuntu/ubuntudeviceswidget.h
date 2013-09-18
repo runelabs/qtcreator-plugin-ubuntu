@@ -20,6 +20,7 @@
 #define UBUNTUDEVICESWIDGET_H
 
 #include <QWidget>
+#include "ubuntudevicenotifier.h"
 #include "ubuntuprocess.h"
 
 namespace Ui {
@@ -39,7 +40,6 @@ public:
     bool deviceDetected() { return m_deviceDetected; }
     QString serialNumber();
 
-
 signals:
     void updateDeviceActions();
     
@@ -49,6 +49,10 @@ protected slots:
     void onError(QString msg);
     void onStarted(QString cmd);
 
+    void onDeviceConnected(QString serialNumber);
+    void onDeviceDisconnected();
+
+    void on_pushButtonPlatformDevelopment_clicked();
     void on_pushButtonRefresh_clicked();
     void on_pushButtonRefresh_2_clicked() { on_pushButtonRefresh_clicked(); }
     void on_pushButtonSshInstall_clicked();
@@ -60,11 +64,9 @@ protected slots:
     void on_pushButtonShutdown_clicked();
     void on_pushButtonRebootToBootloader_clicked();
     void on_pushButtonRebootToRecovery_clicked();
-    void on_pushButtonUpgradeToDailyImage_clicked();
-    void on_pushButtonUpgradeToDailyImageWithBootstrap_clicked();
+
     void on_pushButtonCloneNetworkConfig_clicked();
     void on_pushButtonCloneTimeConfig_clicked();
-    void on_pushButtonCloneNetworkConfig_2_clicked() { on_pushButtonCloneNetworkConfig_clicked(); }
     void on_comboBoxSerialNumber_currentIndexChanged( const QString & text );
 
     void detectDevices();
@@ -80,6 +82,8 @@ private:
 
     Ubuntu::Internal::UbuntuProcess m_ubuntuProcess;
     QString m_reply;
+
+    UbuntuDeviceNotifier m_ubuntuDeviceNotifier;
 
     bool m_aboutToClose;
     bool m_deviceDetected;

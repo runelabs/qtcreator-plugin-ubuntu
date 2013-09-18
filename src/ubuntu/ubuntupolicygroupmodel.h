@@ -13,20 +13,42 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-#ifndef CORDOVAUBUNTUPROJECTMANAGERCONSTANTS_H
-#define CORDOVAUBUNTUPROJECTMANAGERCONSTANTS_H
+#ifndef POLICYGROUPMODEL_H
+#define POLICYGROUPMODEL_H
 
-namespace CordovaUbuntuProjectManager {
+#include <QObject>
+#include <QStringListModel>
 
-const char CORDOVAUBUNTUPROJECT_MIMETYPE[] = "application/x-cordovaproject";
-const char PROJECTCONTEXT[]     = "CordovaUbuntuProject.ProjectContext";
-const char RC_ID[] = "CordovaUbuntuProjectManager.CordovaUbuntuRunConfiguration";
-const char GOOGLE_CHROME_PATH[] = "/opt/google/chrome/google-chrome";
-const char CHROMIUM_COMMAND[] = "chromium-browser";
+#include "ubuntuprocess.h"
+
+namespace Ubuntu {
+namespace Internal {
+
+class UbuntuPolicyGroupModel : public QStringListModel
+{
+    Q_OBJECT
+
+public:
+    explicit UbuntuPolicyGroupModel(QObject *parent = 0);
+    void scanPolicyGroups();
+
+public slots:
+    void onMessage(QString);
+    void onFinished(QString, int);
+    void onError(QString);
+
+signals:
+    void scanComplete(bool);
+
+protected:
+    UbuntuProcess m_process;
+    QStringList m_replies;
+};
 
 }
+}
 
-#endif // CORDOVAUBUNTUPROJECTMANAGERCONSTANTS_H
-
+#endif // POLICYGROUPMODEL_H

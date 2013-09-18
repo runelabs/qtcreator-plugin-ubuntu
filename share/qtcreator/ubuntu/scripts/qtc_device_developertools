@@ -20,4 +20,4 @@
 adb_shell apt-get -y -f install
 adb_shell apt-get update
 adb_shell apt-get upgrade -y
-adb_shell apt-get install gdebi-core fakeroot dh-make build-essential qt5-default qtbase5-dev libqt5v8-5-dev qtdeclarative5-dev libqt5xmlpatterns5-dev qtscript5-dev qttools5-dev qt3d5-dev qtmultimedia5-dev libqt5svg5-dev libqt5graphicaleffects5 qtdeclarative5-dev-tools qttools5-dev-tools qtlocation5-dev qtsensors5-dev qtpim5-dev qt-components-ubuntu ubuntu-dev-tools debhelper openssh-server -y
+adb_shell apt-get install autopilot-touch qtdeclarative5-test-plugin gdebi-core fakeroot dh-make build-essential qt5-default qtbase5-dev libqt5v8-5-dev qtdeclarative5-dev libqt5xmlpatterns5-dev qtscript5-dev qttools5-dev qt3d5-dev qtmultimedia5-dev libqt5svg5-dev libqt5graphicaleffects5 qtdeclarative5-dev-tools qttools5-dev-tools qtlocation5-dev qtsensors5-dev qtpim5-dev qt-components-ubuntu ubuntu-dev-tools debhelper openssh-server -y

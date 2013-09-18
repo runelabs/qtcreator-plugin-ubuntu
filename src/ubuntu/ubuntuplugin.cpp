@@ -73,25 +73,43 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
         qWarning() << __PRETTY_FUNCTION__ << "failed to read from JSON.";
     }
 
-    m_ubuntuWelcomeMode = new UbuntuWelcomeMode;
-    m_ubuntuDeviceMode = new UbuntuDeviceMode;
-    m_ubuntuMenu = new UbuntuMenu;
-    m_ubuntuIRCMode = new UbuntuIRCMode;
-    m_ubuntuAPIMode = new UbuntuAPIMode;
-    m_ubuntuCoreAppsMode = new UbuntuCoreAppsMode;
-    m_ubuntuWikiMode = new UbuntuWikiMode;
-    m_ubuntuPackagingMode = new UbuntuPackagingMode;
-    m_ubuntuPastebinMode = new UbuntuPastebinMode;
-
-    addAutoReleasedObject(m_ubuntuWelcomeMode);
+    m_ubuntuDeviceMode = new UbuntuDeviceMode();
     addAutoReleasedObject(m_ubuntuDeviceMode);
-    addAutoReleasedObject(m_ubuntuMenu);
-    addAutoReleasedObject(m_ubuntuIRCMode);
-    addAutoReleasedObject(m_ubuntuAPIMode);
-    addAutoReleasedObject(m_ubuntuCoreAppsMode);
-    addAutoReleasedObject(m_ubuntuWikiMode);
+    m_ubuntuWelcomeMode = new UbuntuWelcomeMode;
+    addAutoReleasedObject(m_ubuntuWelcomeMode);
+
+    m_ubuntuPackagingMode = new UbuntuPackagingMode();
     addAutoReleasedObject(m_ubuntuPackagingMode);
-    addAutoReleasedObject(m_ubuntuPastebinMode);
+
+    QSettings settings(QLatin1String("Canonical"),QLatin1String("UbuntuSDK"));
+    settings.beginGroup(QLatin1String("Mode"));
+    if (settings.value(QLatin1String("API"),true).toBool()) {
+        m_ubuntuAPIMode = new UbuntuAPIMode;
+        addAutoReleasedObject(m_ubuntuAPIMode);
+    }
+
+    if (settings.value(QLatin1String("CoreApps"),true).toBool()) {
+        m_ubuntuCoreAppsMode = new UbuntuCoreAppsMode;
+        addAutoReleasedObject(m_ubuntuCoreAppsMode);
+    }
+    if (settings.value(QLatin1String("IRC"),true).toBool()) {
+        m_ubuntuIRCMode = new UbuntuIRCMode;
+        addAutoReleasedObject(m_ubuntuIRCMode);
+    }
+    if (settings.value(QLatin1String("Pastebin"),true).toBool()) {
+        m_ubuntuPastebinMode = new UbuntuPastebinMode;
+        addAutoReleasedObject(m_ubuntuPastebinMode);
+    }
+
+    if (settings.value(QLatin1String("Wiki"),true).toBool()) {
+        m_ubuntuWikiMode = new UbuntuWikiMode;
+        addAutoReleasedObject(m_ubuntuWikiMode);
+    }
+    settings.endGroup();
+
+    m_ubuntuMenu = new UbuntuMenu;
+    addAutoReleasedObject(m_ubuntuMenu);
+    addAutoReleasedObject(new UbuntuSettingsPage);
 
     addAutoReleasedObject(new UbuntuVersionManager);
     addAutoReleasedObject(new UbuntuFeatureProvider);
@@ -105,13 +123,13 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
 void UbuntuPlugin::extensionsInitialized()
 {
-    m_ubuntuMenu->initialize();
+    if (m_ubuntuMenu) m_ubuntuMenu->initialize();
     m_ubuntuWelcomeMode->initialize();
     m_ubuntuDeviceMode->initialize();
-    m_ubuntuIRCMode->initialize();
-    m_ubuntuAPIMode->initialize();
-    m_ubuntuCoreAppsMode->initialize();
-    m_ubuntuWikiMode->initialize();
+    if (m_ubuntuIRCMode) m_ubuntuIRCMode->initialize();
+    if (m_ubuntuAPIMode) m_ubuntuAPIMode->initialize();
+    if (m_ubuntuCoreAppsMode) m_ubuntuCoreAppsMode->initialize();
+    if (m_ubuntuWikiMode) m_ubuntuWikiMode->initialize();
     m_ubuntuPackagingMode->initialize();
     Core::ModeManager::activateMode(m_ubuntuWelcomeMode->id());
 }

@@ -53,8 +53,8 @@ else
   exit 1
 fi
 
-
-PLAIN_PACKAGE=`basename ${PACKAGE}`
+# Case lowered due to bug #1213902
+PLAIN_PACKAGE=`basename ${PACKAGE,,}`
 SCRIPTPATH=`dirname $0`
 
 SCP="scp -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P${TARGET_DEVICE_PORT}"
@@ -63,4 +63,6 @@ SSH="ssh -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/de
 # -- actions --
 $SCP ${PACKAGE} ${TARGET_DEVICE}:${TARGET_DEVICE_HOME}
 adb_shell gdebi --n ${TARGET_DEVICE_HOME}/${PLAIN_PACKAGE}
-$SCRIPTPATH/qtc_device_restart_appslense ${SERIALNUMBER}
+
+# Commented out due to bug #1213902
+#$SCRIPTPATH/qtc_device_restart_appslense ${SERIALNUMBER}

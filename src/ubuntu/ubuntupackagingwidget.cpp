@@ -17,6 +17,7 @@
  */
 
 #include "ubuntupackagingwidget.h"
+#include "ubuntusecuritypolicypickerdialog.h"
 #include "ui_ubuntupackagingwidget.h"
 
 #include <projectexplorer/projectexplorer.h>
@@ -76,15 +77,17 @@ void UbuntuPackagingWidget::openManifestForProject() {
 
     if (startupProject) {
         m_projectName = startupProject->displayName();
+
         QString fileName = QString(QLatin1String("%0/manifest.json")).arg(startupProject->projectDirectory());
-	QString no_underscore_displayName = startupProject->displayName();
-	m_projectName=no_underscore_displayName;
-	no_underscore_displayName.replace(QLatin1String("_"),QLatin1String("-"));
-	if (no_underscore_displayName != startupProject->displayName()) {
-		m_manifest.nameDashReplaced();
-		
-	}
-	QString fileAppArmorName = QString(QLatin1String("%0/%1.json")).arg(startupProject->projectDirectory()).arg(no_underscore_displayName);
+        QString no_underscore_displayName = startupProject->displayName();
+
+        m_projectName=no_underscore_displayName;
+        no_underscore_displayName.replace(QLatin1String("_"),QLatin1String("-"));
+        if (no_underscore_displayName != startupProject->displayName()) {
+            m_manifest.nameDashReplaced();
+
+        }
+        QString fileAppArmorName = QString(QLatin1String("%0/%1.json")).arg(startupProject->projectDirectory()).arg(no_underscore_displayName);
         if (QFile(fileName).exists()==false) {
             m_manifest.setFileName(fileName);
             on_pushButtonReset_clicked();
@@ -97,6 +100,9 @@ void UbuntuPackagingWidget::openManifestForProject() {
         } else {
             load_apparmor(fileAppArmorName);
         }
+
+        load_excludes(QString(QLatin1String("%0/.excludes")).arg(startupProject->projectDirectory()));
+
         ui->stackedWidget->setCurrentIndex(0);
     } else {
         m_projectName.clear();
@@ -109,7 +115,8 @@ void UbuntuPackagingWidget::bzrChanged() {
     m_manifest.setMaintainer(m_bzr.whoami());
     QString userName = m_bzr.launchpadId();
     if (userName.isEmpty()) userName = QLatin1String("username");
-    m_manifest.setName(QString(QLatin1String("com.ubuntu.developer.%0.%1")).arg(userName).arg(m_projectName));
+    // Commented out for bug #1219948  - https://bugs.launchpad.net/qtcreator-plugin-ubuntu/+bug/1219948
+    //m_manifest.setName(QString(QLatin1String("com.ubuntu.developer.%0.%1")).arg(userName).arg(m_projectName));
     reload();
 }
 
@@ -129,29 +136,40 @@ void UbuntuPackagingWidget::on_pushButtonReset_clicked() {
 
 void UbuntuPackagingWidget::save(bool bSaveSimple) {
     switch (m_previous_tab) {
-      case 0:{
-	        m_manifest.setName(ui->lineEdit_name->text());
-	        m_manifest.setMaintainer(ui->lineEdit_maintainer->text());
-                m_manifest.setTitle(ui->lineEdit_title->text());
-                QStringList items;
-                for (int i=0; i<ui->listWidget->count(); i++) {
-                   items.append(ui->listWidget->item(i)->text());
-                }
-	        m_apparmor.setPolicyGroups(m_projectName,items);
-
-    		break;
-	}
-      case 1:{
-		m_manifest.setRaw(ui->plainTextEditJson->toPlainText());
-    		break;
-	}
-      case 2:{
-		m_apparmor.setRaw(ui->plainTextEditAppArmorJson->toPlainText());
-		break;
-	}
+    case 0: {
+        // set package name to lower, bug #1219877
+        m_manifest.setName(ui->lineEdit_name->text().toLower());
+        m_manifest.setMaintainer(ui->lineEdit_maintainer->text());
+        m_manifest.setVersion(ui->lineEdit_version->text());
+        m_manifest.setTitle(ui->lineEdit_title->text());
+        m_manifest.setDescription(ui->lineEdit_description->text());
+        QStringList items;
+        for (int i=0; i<ui->listWidget->count(); i++) {
+            // Fix bug #1221407 - make sure that there are no empty policy groups.
+            QString policyGroup = ui->listWidget->item(i)->text().trimmed();
+            if (!policyGroup.isEmpty()) {
+                items.append(ui->listWidget->item(i)->text());
+            }
+        }
+        m_apparmor.setPolicyGroups(m_projectName,items);
+        m_manifest.save();
+        break;
     }
-    m_manifest.save();
-    m_apparmor.save();
+    case 1: {
+        m_manifest.setRaw(ui->plainTextEditJson->toPlainText());
+        m_manifest.save();
+        break;
+    }
+    case 2: {
+        m_apparmor.setRaw(ui->plainTextEditAppArmorJson->toPlainText());
+        m_apparmor.save();
+        break;
+    }
+    case 3: {
+        save_excludes();
+        break;
+    }
+    }
 }
 
 void UbuntuPackagingWidget::load_manifest(QString fileName) {
@@ -161,19 +179,42 @@ void UbuntuPackagingWidget::load_manifest(QString fileName) {
     if (userName.isEmpty()) userName = QLatin1String("username");
     m_projectName.replace(QLatin1String("_"),QLatin1String("-"));
 
-    m_manifest.setName(QString(QLatin1String("com.ubuntu.developer.%0.%1")).arg(userName).arg(m_projectName));
+    // Commented out for bug #1219948  - https://bugs.launchpad.net/qtcreator-plugin-ubuntu/+bug/1219948
+    //m_manifest.setName(QString(QLatin1String("com.ubuntu.developer.%0.%1")).arg(userName).arg(m_projectName));
 }
 
 void UbuntuPackagingWidget::load_apparmor(QString fileAppArmorName) {
     m_apparmor.load(fileAppArmorName,m_projectName);
 }
 
+void UbuntuPackagingWidget::load_excludes(QString excludesFile) {
+    if (!excludesFile.isEmpty()) m_excludesFile = excludesFile;
 
+    QFile f(m_excludesFile);
+    if (f.exists()) {
+        if (f.open(QIODevice::ReadOnly)) {
+            ui->plainTextEdit_excludes->setPlainText(QString::fromAscii(f.readAll()));
+            f.close();
+        }
+    }
+}
+
+void UbuntuPackagingWidget::save_excludes() {
+    QFile f(m_excludesFile);
+
+    if (f.open(QIODevice::WriteOnly)) {
+        f.write(ui->plainTextEdit_excludes->toPlainText().toAscii());
+        f.close();
+    }
+
+}
 
 void UbuntuPackagingWidget::reload() {
     ui->lineEdit_maintainer->setText(m_manifest.maintainer());
     ui->lineEdit_name->setText(m_manifest.name());
     ui->lineEdit_title->setText(m_manifest.title());
+    ui->lineEdit_version->setText(m_manifest.version());
+    ui->lineEdit_description->setText(m_manifest.description());
 
     QStringList policyGroups = m_apparmor.policyGroups(m_projectName);
 
@@ -187,10 +228,12 @@ void UbuntuPackagingWidget::reload() {
     ui->plainTextEditJson->setPlainText(m_manifest.raw());
     ui->plainTextEditAppArmorJson->setPlainText(m_apparmor.raw());
 
+    load_excludes(QLatin1String(""));
 }
 
 void UbuntuPackagingWidget::on_tabWidget_currentChanged(int tab) {
     save((ui->tabWidget->currentWidget() != ui->tabSimple));
+
     m_previous_tab = tab;
     reload();
 }
@@ -212,17 +255,21 @@ void UbuntuPackagingWidget::on_listWidget_customContextMenuRequested(QPoint p) {
 }
 
 void UbuntuPackagingWidget::on_pushButton_addpolicy_clicked() {
-    QListWidgetItem* item = new QListWidgetItem(ui->lineEdit_policy->text());
+    UbuntuSecurityPolicyPickerDialog dialog;
+    if (dialog.exec()) {
+        ui->listWidget->addItems(dialog.selectedPolicyGroups());
+    }
+    /*QListWidgetItem* item = new QListWidgetItem(ui->lineEdit_policy->text());
     item->setFlags(item->flags() | Qt::ItemIsEditable);
     ui->listWidget->addItem(item);
-    ui->lineEdit_policy->clear();
+    ui->lineEdit_policy->clear();*/
 }
 
 void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {
 
     save((ui->tabWidget->currentWidget() == ui->tabSimple));
 
-    Core::Command *cmd = Core::ActionManager::instance()->command(Core::Id("Ubuntu.Build.click.build"));
+    Core::Command *cmd = Core::ActionManager::instance()->command(Core::Id("Ubuntu.Build.Package"));
     if (cmd) {
         cmd->action()->trigger();
     }

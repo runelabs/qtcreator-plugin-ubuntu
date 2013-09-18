@@ -35,6 +35,7 @@
 #include "ubuntuwikimode.h"
 #include "ubuntupackagingmode.h"
 #include "ubuntupastebinmode.h"
+#include "ubuntusettingspage.h"
 
 #include <extensionsystem/iplugin.h>
 #include <QProcess>

@@ -1,3 +1,9 @@
+qtcreator-plugin-ubuntu (2.8.1-0ubuntu1) UNRELEASED; urgency=low
+
+  * Fix plugin to compile against Qt Creator 2.8.1.
+
+ -- Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>  Wed, 11 Sep 2013 08:26:28 +0300
+
 qtcreator-plugin-ubuntu (2.7.2-0ubuntu2) saucy; urgency=low
 
   [ Zoltan Balogh ]

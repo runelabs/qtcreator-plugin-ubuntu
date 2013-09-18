@@ -481,7 +481,7 @@ Connect to a wlan or to a wwan and try again.</string>
                           <item>
                            <widget class="QLabel" name="label_10">
                             <property name="text">
-                             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;No network connection on your device!&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You will need to connect your device to a network with connection to the Internet. &lt;/p&gt;&lt;p&gt;You can &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;clone network config from host to device&lt;/span&gt; by clicking a button on the right.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;No network connection on your device!&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You will need to connect your device to a network with connection to the Internet. &lt;/p&gt;&lt;p&gt;Then replug the device to your workstation.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                             </property>
                            </widget>
                           </item>
@@ -522,20 +522,6 @@ Connect to a wlan or to a wwan and try again.</string>
                               </spacer>
                              </item>
                              <item>
-                              <widget class="QPushButton" name="pushButtonCloneNetworkConfig_2">
-                               <property name="text">
-                                <string>Clone network config from host to device</string>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QPushButton" name="pushButtonCloneTimeConfig">
-                               <property name="text">
-                                <string>Clone time config from host to device</string>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
                               <widget class="QPushButton" name="pushButtonSshInstall">
                                <property name="font">
                                 <font>
@@ -550,7 +536,7 @@ Connect to a wlan or to a wwan and try again.</string>
                                 <string notr="true">padding: 10; color: #333</string>
                                </property>
                                <property name="text">
-                                <string>Enable developer mode</string>
+                                <string>Enable Developer Mode</string>
                                </property>
                                <property name="flat">
                                 <bool>false</bool>
@@ -569,7 +555,7 @@ Connect to a wlan or to a wwan and try again.</string>
                                 <string notr="true">padding: 10; color: #333</string>
                                </property>
                                <property name="text">
-                                <string>Disable developer mode</string>
+                                <string>Disable Developer Mode</string>
                                </property>
                               </widget>
                              </item>
@@ -598,37 +584,21 @@ Connect to a wlan or to a wwan and try again.</string>
                          <layout class="QVBoxLayout" name="verticalLayout_10">
                           <item>
                            <widget class="QWidget" name="widgetSshProperties" native="true">
-                            <layout class="QGridLayout" name="gridLayout">
-                             <property name="topMargin">
-                              <number>0</number>
-                             </property>
-                             <property name="bottomMargin">
-                              <number>0</number>
-                             </property>
-                             <item row="2" column="1">
-                              <widget class="QPushButton" name="pushButtonPortForward">
-                               <property name="styleSheet">
-                                <string notr="true">color: #333</string>
+                            <layout class="QVBoxLayout" name="verticalLayout_21">
+                             <item>
+                              <spacer name="verticalSpacer_4">
+                               <property name="orientation">
+                                <enum>Qt::Vertical</enum>
                                </property>
-                               <property name="text">
-                                <string>Enable port forward from device to localhost</string>
+                               <property name="sizeHint" stdset="0">
+                                <size>
+                                 <width>20</width>
+                                 <height>40</height>
+                                </size>
                                </property>
-                              </widget>
+                              </spacer>
                              </item>
-                             <item row="3" column="1">
-                              <widget class="QPushButton" name="pushButtonSshSetupPublicKey">
-                               <property name="enabled">
-                                <bool>true</bool>
-                               </property>
-                               <property name="styleSheet">
-                                <string notr="true">color: #333</string>
-                               </property>
-                               <property name="text">
-                                <string>Setup public key authentication</string>
-                               </property>
-                              </widget>
-                             </item>
-                             <item row="1" column="1">
+                             <item>
                               <widget class="QGroupBox" name="groupBox_3">
                                <property name="title">
                                 <string/>
@@ -706,7 +676,30 @@ Connect to a wlan or to a wwan and try again.</string>
                                </layout>
                               </widget>
                              </item>
-                             <item row="4" column="1">
+                             <item>
+                              <widget class="QPushButton" name="pushButtonPortForward">
+                               <property name="styleSheet">
+                                <string notr="true">color: #333</string>
+                               </property>
+                               <property name="text">
+                                <string>Enable port forward from device to localhost</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QPushButton" name="pushButtonSshSetupPublicKey">
+                               <property name="enabled">
+                                <bool>true</bool>
+                               </property>
+                               <property name="styleSheet">
+                                <string notr="true">color: #333</string>
+                               </property>
+                               <property name="text">
+                                <string>Setup public key authentication</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
                               <widget class="QPushButton" name="pushButtonSshConnect">
                                <property name="styleSheet">
                                 <string notr="true">color: #333</string>
@@ -716,43 +709,35 @@ Connect to a wlan or to a wwan and try again.</string>
                                </property>
                               </widget>
                              </item>
-                             <item row="5" column="1">
-                              <widget class="QGroupBox" name="groupBox_2">
-                               <property name="title">
-                                <string>Flash the device</string>
+                             <item>
+                              <spacer name="verticalSpacer_16">
+                               <property name="orientation">
+                                <enum>Qt::Vertical</enum>
                                </property>
-                               <layout class="QVBoxLayout" name="verticalLayout_9">
-                                <property name="topMargin">
-                                 <number>9</number>
-                                </property>
-                                <property name="bottomMargin">
-                                 <number>0</number>
-                                </property>
-                                <item>
-                                 <widget class="QPushButton" name="pushButtonUpgradeToDailyImage">
-                                  <property name="styleSheet">
-                                   <string notr="true">color: #333</string>
-                                  </property>
-                                  <property name="text">
-                                   <string>Upgrade to daily image</string>
-                                  </property>
-                                 </widget>
-                                </item>
-                                <item>
-                                 <widget class="QPushButton" name="pushButtonUpgradeToDailyImageWithBootstrap">
-                                  <property name="styleSheet">
-                                   <string notr="true">color: #333</string>
-                                  </property>
-                                  <property name="text">
-                                   <string>Upgrade to daily image (with full bootstrap)</string>
-                                  </property>
-                                 </widget>
-                                </item>
-                               </layout>
+                               <property name="sizeHint" stdset="0">
+                                <size>
+                                 <width>20</width>
+                                 <height>40</height>
+                                </size>
+                               </property>
+                              </spacer>
+                             </item>
+                             <item>
+                              <widget class="QPushButton" name="pushButtonCloneTimeConfig">
+                               <property name="text">
+                                <string>Clone time config from host to device</string>
+                               </property>
                               </widget>
                              </item>
-                             <item row="8" column="1">
-                              <spacer name="verticalSpacer_3">
+                             <item>
+                              <widget class="QPushButton" name="pushButtonPlatformDevelopment">
+                               <property name="text">
+                                <string>Enable Platform Development</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <spacer name="verticalSpacer_9">
                                <property name="orientation">
                                 <enum>Qt::Vertical</enum>
                                </property>
@@ -764,20 +749,7 @@ Connect to a wlan or to a wwan and try again.</string>
                                </property>
                               </spacer>
                              </item>
-                             <item row="0" column="1">
-                              <spacer name="verticalSpacer_4">
-                               <property name="orientation">
-                                <enum>Qt::Vertical</enum>
-                               </property>
-                               <property name="sizeHint" stdset="0">
-                                <size>
-                                 <width>20</width>
-                                 <height>40</height>
-                                </size>
-                               </property>
-                              </spacer>
-                             </item>
-                             <item row="7" column="1">
+                             <item>
                               <widget class="QGroupBox" name="groupBox">
                                <property name="title">
                                 <string>Device Mode</string>
@@ -858,6 +830,19 @@ Recovery</string>
                                 </item>
                                </layout>
                               </widget>
+                             </item>
+                             <item>
+                              <spacer name="verticalSpacer_3">
+                               <property name="orientation">
+                                <enum>Qt::Vertical</enum>
+                               </property>
+                               <property name="sizeHint" stdset="0">
+                                <size>
+                                 <width>20</width>
+                                 <height>40</height>
+                                </size>
+                               </property>
+                              </spacer>
                              </item>
                             </layout>
                            </widget>

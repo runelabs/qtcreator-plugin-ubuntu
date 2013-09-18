@@ -179,6 +179,8 @@ const char PLATFORM_DESKTOP_DISPLAYNAME[] = "Ubuntu %0";
 
 const char TASK_DEVICE_SCRIPT[] = "Ubuntu.Task.DeviceScript";
 
+const char UBUNTU_SETTINGS_ICON[] = ":/ubuntu/images/ubuntu-32.png";
+
 } // namespace Ubuntu
 } // namespace Constants
 

@@ -27,6 +27,8 @@ public slots:
     void save(bool bSaveSimple = true);
     void openManifestForProject();
     void setAvailable(bool);
+    void load_excludes(QString excludesFile = QLatin1String(""));
+    void save_excludes();
 
 protected slots:
     void on_pushButton_addpolicy_clicked();
@@ -46,6 +48,7 @@ private:
     QProcess m_click;
     UbuntuBzr m_bzr;
     QString m_projectName;
+    QString m_excludesFile;
     int m_previous_tab;
     Ui::UbuntuPackagingWidget *ui;
 };

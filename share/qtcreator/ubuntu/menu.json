@@ -75,9 +75,10 @@
                 "id": "Ubuntu.Build.Package",
                 "workingDirectory": "%0",
                 "projectRequired": true,
+                "qmlProjectRequired": true,
                 "saveRequired": true,
                 "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_project_create_package"
+                    "%SCRIPTDIRECTORY%/qtc_project_click_create"
                 ]
             },
             {
@@ -89,8 +90,7 @@
                 "qmlProjectRequired": true,
                 "saveRequired": true,
                 "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_project_create_package",
-                    "%SCRIPTDIRECTORY%/qtc_device_deploy_package %SERIALNUMBER% ../%FOLDERNAME%_*.deb phablet@127.0.0.1 2222 /home/phablet"
+                    "%SCRIPTDIRECTORY%/qtc_project_click_createanddeploy %SERIALNUMBER%"
                 ]
             },
             {
@@ -115,35 +115,6 @@
                 "saveRequired": true,
                 "actions": [
                     "%SCRIPTDIRECTORY%/qtc_device_buildanddeploypackage %SERIALNUMBER% %FOLDERNAME%"
-                ]
-            },
-            {
-                "name": "click",
-                "id": "Ubuntu.Build.click",
-                "submenu": [
-                    {
-                        "name": "Build",
-                        "id": "Ubuntu.Build.click.build",
-                        "workingDirectory": "%0",
-                        "projectRequired": true,
-                        "qmlProjectRequired": true,
-                        "saveRequired": true,
-                        "actions": [
-                            "%SCRIPTDIRECTORY%/qtc_project_click_create"
-                        ]
-                    },
-                    {
-                        "name": "Build and Install on Device",
-                        "id": "Ubuntu.Build.click.InstallOnDevice",
-                        "workingDirectory": "%0",
-                        "projectRequired": true,
-                        "qmlProjectRequired": true,
-                        "deviceRequired": true,
-                        "saveRequired": true,
-                        "actions": [
-                            "%SCRIPTDIRECTORY%/qtc_project_click_createanddeploy %SERIALNUMBER%"
-                        ]
-                    }
                 ]
             }
         ]

@@ -16,25 +16,35 @@
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-#ifndef UBUNTUSHARED_H
-#define UBUNTUSHARED_H
+#include "ubuntusettingspage.h"
 
-#include <utils/fileutils.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
+using namespace Ubuntu::Internal;
+using namespace Ubuntu;
 
-#include <QDateTime>
-
-static bool readFile(QString fileName, QByteArray *data, QString *errorMessage)  {
-    Utils::FileReader reader;
-    if (!reader.fetch(fileName, errorMessage)) return false;
-    *data = reader.data();
-    return true;
+UbuntuSettingsPage::UbuntuSettingsPage() :
+    m_widget(0)
+{
+    setId("A.General");
+    setDisplayName(tr("General"));
+    setCategory("Ubuntu");
+    setDisplayCategory(QLatin1String("Ubuntu"));
+    setCategoryIcon(QLatin1String(Constants::UBUNTU_SETTINGS_ICON));
 }
 
-static void printToOutputPane(QString msg) {
-    QString timestamp = QDateTime::currentDateTime().toString(QString::fromLatin1("HH:mm:ss"));
-    Core::ICore::instance()->messageManager()->printToOutputPane(QString(QLatin1String("[%0] %1")).arg(timestamp).arg(msg),Core::MessageManager::ModeSwitch);
+UbuntuSettingsPage::~UbuntuSettingsPage()
+{
 }
 
-#endif // UBUNTUSHARED_H
+QWidget *UbuntuSettingsPage::createPage(QWidget *parent)
+{
+    m_widget = new UbuntuSettingsWidget(parent);
+    return m_widget;
+}
+
+void UbuntuSettingsPage::apply()
+{
+    if (!m_widget) // page was never shown
+        return;
+
+    m_widget->apply();
+}

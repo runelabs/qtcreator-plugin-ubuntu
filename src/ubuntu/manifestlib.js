@@ -33,6 +33,22 @@ function getTitle() {
     return jsonData.title;
 }
 
+function setVersion($version) {
+    jsonData.version = $version;
+}
+
+function getVersion() {
+    return jsonData.version;
+}
+
+function setDescription($description) {
+   jsonData.description = $description;
+}
+
+function getDescription() {
+    return jsonData.description;
+}
+
 function getPolicyGroups($appname) {
 /*    var appProfile = jsonData.security.profiles[$appname];
     if (appProfile===undefined) {
@@ -45,6 +61,11 @@ function getPolicyGroups($appname) {
 }
 
 function setPolicyGroups($appname,$groups) {
+    if ($groups.length === 0) {
+        jsonData.policy_groups = [];
+        return;
+    }
+
     var $parsed_groups = $groups.split(" ");
     jsonData.policy_groups = $parsed_groups;
 }
