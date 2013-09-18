@@ -89,6 +89,10 @@ if [[ -d "${FOLDERNAME}/debian" ]]; then
   $SSH "cd ${TARGET_DEVICE_HOME}/${FOLDERNAME}; debuild --no-tgz-check -i -I -S -sa -us -uc"
 else
   $SSH "cd ${TARGET_DEVICE_HOME}/${FOLDERNAME}; dh_make -p ${FOLDERNAME}_0.1 -s -y --createorig"
+  if [[ $? -gt 0 ]]; then
+    echo "Have you enabled Platform Development Mode? (Devices > Advanced)"
+    exit
+  fi
   $SSH "cd ${TARGET_DEVICE_HOME}/${FOLDERNAME}; debuild -i -I -S -sa -us -uc"
 fi
 
