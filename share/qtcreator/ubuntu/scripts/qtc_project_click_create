@@ -82,7 +82,6 @@ pushd ${PROJECTPATH} >> /dev/null
   # lets read the manifest description and set that to desktop comment - fix bug #1223388
   MANIFEST_DESCRIPTION=`${SCRIPTPATH}/manifest_description manifest.json`
   sed -i "s/^Comment=.*/Comment=${MANIFEST_DESCRIPTION}/g" ${DESKTOPFILE}
-  cat ${DESKTOPFILE}
 
   # lets replace the Exec line
   sed -i "s/^Exec=.*/Exec=qmlscene \$@ ${MAINQML}/g" ${DESKTOPFILE}
