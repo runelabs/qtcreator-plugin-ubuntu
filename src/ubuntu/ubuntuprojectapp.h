@@ -28,6 +28,7 @@
 
 #include <QJsonObject>
 #include "ubuntuconstants.h"
+#include "ubuntubzr.h"
 
 namespace Ubuntu {
 namespace Internal {
@@ -58,6 +59,8 @@ protected:
     QString m_projectType;
     QString m_projectFileName;
 
+
+    UbuntuBzr m_bzrInfo;
     QJsonObject m_obj;
 };
 

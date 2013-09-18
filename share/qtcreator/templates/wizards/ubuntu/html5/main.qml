@@ -10,8 +10,8 @@ MainView {
     // objectName for functional testing purposes (autopilot-qt5)
     objectName: "mainView"
 
-    // Note! applicationName needs to match the .desktop filename 
-    applicationName: "%DISPLAYNAME%"
+    // Note! applicationName needs to match the "name" field of the click manifest
+    applicationName: "com.ubuntu.developer.%BZR_USERNAME%.%DISPLAYNAME%"
 
     /* 
      This property enables the application to change orientation 
