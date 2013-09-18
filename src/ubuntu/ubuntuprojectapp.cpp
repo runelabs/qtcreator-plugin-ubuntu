@@ -48,6 +48,7 @@ using namespace Ubuntu::Internal;
 UbuntuProjectApp::UbuntuProjectApp(QObject *parent) :
     QObject(parent)
 {
+    m_bzrInfo.initialize();
 }
 
 Core::GeneratedFiles UbuntuProjectApp::generateFiles(const QWizard *w, QString *errorMessage) {
@@ -286,6 +287,7 @@ QByteArray UbuntuProjectApp::processReservedWords(QByteArray data, QString proje
     data = data.replace(Constants::UBUNTU_ACTION_DISPLAYNAME_UPPER,projectName.toUpper().toLatin1());
     data = data.replace(Constants::UBUNTU_ACTION_DISPLAYNAME_CAPITAL,Utils::matchCaseReplacement(QLatin1String("Capitalize"),projectName).toLatin1());
     data = data.replace(Constants::UBUNTU_ACTION_DISPLAYNAME,projectName.toLatin1());
+    data = data.replace(Constants::UBUNTU_ACTION_BZR_USERNAME,m_bzrInfo.launchpadId().toLatin1());
     data = data.replace(Constants::UBUNTU_ACTION_SHAREDIRECTORY,Constants::UBUNTU_SHAREPATH.toLatin1());
     return data;
 }
