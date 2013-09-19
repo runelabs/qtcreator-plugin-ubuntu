@@ -1,5 +1,6 @@
 qtcreator-plugin-ubuntu (2.8.1-0ubuntu1) UNRELEASED; urgency=low
-
+  
+  * Added Settings page to Tools > Options.
   * Fix plugin to compile against Qt Creator 2.8.1.
   * USB Device connection / disconnection detection.
   * Refactored Menus.
