@@ -17,7 +17,7 @@
    <item>
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="page">
       <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -118,7 +118,7 @@
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>86</height>
+           <height>40</height>
           </size>
          </property>
         </spacer>
@@ -126,16 +126,23 @@
        <item>
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>Unable to scan policy groups.</string>
+          <string>Could not automatically detect policy groups (device not connected).</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Make sure that your device is connected.</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Policy group:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEditPolicyGroup"/>
+         </item>
+        </layout>
        </item>
        <item>
         <spacer name="verticalSpacer_3">
@@ -145,7 +152,7 @@
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>85</height>
+           <height>40</height>
           </size>
          </property>
         </spacer>

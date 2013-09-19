@@ -22,7 +22,7 @@
 using namespace Ubuntu::Internal;
 
 UbuntuPolicyGroupModel::UbuntuPolicyGroupModel(QObject *parent) :
-    QStringListModel(parent)
+    QStringListModel(parent), m_bLocal(false)
 {
     connect(&m_process,SIGNAL(message(QString)),this,SLOT(onMessage(QString)));
     connect(&m_process,SIGNAL(finished(QString,int)),this,SLOT(onFinished(QString,int)));
@@ -31,7 +31,11 @@ UbuntuPolicyGroupModel::UbuntuPolicyGroupModel(QObject *parent) :
 
 void UbuntuPolicyGroupModel::scanPolicyGroups() {
     QStringList cmd;
-    cmd << QLatin1String("adb shell aa-easyprof --list-policy-groups --policy-vendor=ubuntu --policy-version=1.0");
+    if (!isLocal()) {
+        cmd << QLatin1String("adb shell aa-easyprof --list-policy-groups --policy-vendor=ubuntu --policy-version=1.0");
+    } else {
+        cmd << QLatin1String("aa-easyprof --list-policy-groups --policy-vendor=ubuntu --policy-version=1.0");
+    }
     m_process.append(cmd);
     m_process.start(QLatin1String("Scanning policy groups"));
 }
@@ -50,5 +54,10 @@ void UbuntuPolicyGroupModel::onFinished(QString, int result) {
 void UbuntuPolicyGroupModel::onError(QString) {
     setStringList(m_replies);
     m_replies.clear();
-    emit scanComplete(false);
+    if (!isLocal()) {
+        m_bLocal = true;
+        scanPolicyGroups();
+    } else {
+        emit scanComplete(false);
+    }
 }
