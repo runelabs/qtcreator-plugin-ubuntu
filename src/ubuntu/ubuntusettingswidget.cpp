@@ -32,6 +32,9 @@ UbuntuSettingsWidget::UbuntuSettingsWidget(QWidget *parent) :
     ui->checkBox_mode_pastebin->setChecked(m_settings->value(QLatin1String("Pastebin"),true).toBool());
     ui->checkBox_mode_wiki->setChecked(m_settings->value(QLatin1String("Wiki"),true).toBool());
     m_settings->endGroup();
+    m_settings->beginGroup(QLatin1String("Devices"));
+    ui->checkBox_mode_devices_autotoggle->setChecked(m_settings->value(QLatin1String("Auto_Toggle"),true).toBool());
+    m_settings->endGroup();
 }
 
 void UbuntuSettingsWidget::apply() {
@@ -41,6 +44,9 @@ void UbuntuSettingsWidget::apply() {
     m_settings->setValue(QLatin1String("IRC"),ui->checkBox_mode_irc->isChecked());
     m_settings->setValue(QLatin1String("Pastebin"),ui->checkBox_mode_pastebin->isChecked());
     m_settings->setValue(QLatin1String("Wiki"),ui->checkBox_mode_wiki->isChecked());
+    m_settings->endGroup();
+    m_settings->beginGroup(QLatin1String("Devices"));
+    m_settings->setValue(QLatin1String("Auto_Toggle"),ui->checkBox_mode_devices_autotoggle->isChecked());
     m_settings->endGroup();
     m_settings->sync();
 }
