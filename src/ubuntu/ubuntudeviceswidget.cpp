@@ -24,6 +24,7 @@
 #include "ubuntuconstants.h"
 
 #include <QDebug>
+#include <QSettings>
 #include <QDir>
 
 
@@ -270,20 +271,23 @@ void UbuntuDevicesWidget::onError(QString msg) {
 }
 
 void UbuntuDevicesWidget::onDeviceConnected(QString serialNumber) {
+    QSettings settings(QLatin1String("Canonical"),QLatin1String("UbuntuSDK"));
+    settings.beginGroup(QLatin1String("Devices"));
+    if (settings.value(QLatin1String("Auto_Toggle"),true).toBool()) {
+        Core::ModeManager::activateMode(Ubuntu::Constants::UBUNTU_MODE_DEVICES);
+    }
 
-     Core::ModeManager::activateMode(Ubuntu::Constants::UBUNTU_MODE_DEVICES);
+    m_reply.clear();
 
-      m_reply.clear();
+    ui->plainTextEdit->clear();
 
-      ui->plainTextEdit->clear();
-
-       m_ubuntuProcess.stop();
-      ui->comboBoxSerialNumber->clear();
-      ui->frameNoDevices->hide();
-      ui->frameNoNetwork->hide();
-      ui->frameProgress->show();
-ui->lblLoading->show();
-      detectDevices();
+    m_ubuntuProcess.stop();
+    ui->comboBoxSerialNumber->clear();
+    ui->frameNoDevices->hide();
+    ui->frameNoNetwork->hide();
+    ui->frameProgress->show();
+    ui->lblLoading->show();
+    detectDevices();
 }
 
 void UbuntuDevicesWidget::onDeviceDisconnected() {
