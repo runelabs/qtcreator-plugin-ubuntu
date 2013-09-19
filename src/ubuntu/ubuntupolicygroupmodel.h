@@ -35,6 +35,8 @@ public:
     explicit UbuntuPolicyGroupModel(QObject *parent = 0);
     void scanPolicyGroups();
 
+    bool isLocal() { return m_bLocal; }
+
 public slots:
     void onMessage(QString);
     void onFinished(QString, int);
@@ -46,6 +48,8 @@ signals:
 protected:
     UbuntuProcess m_process;
     QStringList m_replies;
+
+    bool m_bLocal;
 };
 
 }

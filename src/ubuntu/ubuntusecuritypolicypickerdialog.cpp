@@ -50,9 +50,13 @@ void UbuntuSecurityPolicyPickerDialog::onScanComplete(bool ok) {
 
 QStringList UbuntuSecurityPolicyPickerDialog::selectedPolicyGroups() {
     QStringList retval;
-    QModelIndexList selected = ui->listViewPolicyGroups->selectionModel()->selectedIndexes();
-    foreach (QModelIndex idx, selected) {
-        retval.append(m_model.data(idx,Qt::DisplayRole).toString());
+    if (ui->stackedWidget->currentIndex()==2) {
+        retval.append(ui->lineEditPolicyGroup->text());
+    } else {
+        QModelIndexList selected = ui->listViewPolicyGroups->selectionModel()->selectedIndexes();
+        foreach (QModelIndex idx, selected) {
+            retval.append(m_model.data(idx,Qt::DisplayRole).toString());
+        }
     }
     return retval;
 }
