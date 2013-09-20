@@ -1,5 +1,6 @@
 qtcreator-plugin-ubuntu (2.8.1-0ubuntu1) UNRELEASED; urgency=low
 
+  * Cannot add device: device key expected before created (LP: #1227820)
   * If no device is present, try to use the system package to detect security policy groups, else, manual entry (LP: #1227618)  
   * Added Settings page to Tools > Options.
   * Fix plugin to compile against Qt Creator 2.8.1.
