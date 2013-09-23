@@ -1,8 +1,12 @@
 qtcreator-plugin-ubuntu (2.8.1-0ubuntu1) UNRELEASED; urgency=low
 
+  [ Juhapekka Piiroinen ]
   * Fix plugin to compile against Qt Creator 2.8.1.
 
- -- Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>  Wed, 11 Sep 2013 08:26:28 +0300
+  [ Maxim Ermilov ]
+  * Fixed CordovaUbuntuProjectManager to compile against Qt Creator 2.8
+
+ -- Timo Jyrinki <timo-jyrinki@ubuntu.com>  Mon, 23 Sep 2013 10:01:41 +0300
 
 qtcreator-plugin-ubuntu (2.7.2-0ubuntu5) saucy; urgency=low
 
