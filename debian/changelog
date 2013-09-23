@@ -20,6 +20,40 @@ qtcreator-plugin-ubuntu (2.8.1-0ubuntu1) UNRELEASED; urgency=low
 
  -- Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>  Wed, 11 Sep 2013 08:26:28 +0300
 
+qtcreator-plugin-ubuntu (2.7.2-0ubuntu5) saucy; urgency=low
+
+  * Cannot add device: device key expected before created (LP: #1227820)
+
+ -- Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>  Fri, 20 Sep 2013 11:04:13 +0300
+
+qtcreator-plugin-ubuntu (2.7.2-0ubuntu4) saucy; urgency=low
+
+  * If no device is present, try to use the system package to
+    detect security policy groups, else, manual entry (LP: #1227618)
+
+ -- Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>  Thu, 19 Sep 2013 16:23:02 +0300
+
+qtcreator-plugin-ubuntu (2.7.2-0ubuntu3) saucy; urgency=low
+
+  * USB Device connection / disconnection detection.
+  * Refactored Menus.
+  * Can't set version number in Packaging form (LP: #1212326)
+  * QtC cuts folder names when building on the device (LP: #1212937)
+  * Click packages need to exclude the .bzr dir (LP: #1214628)
+  * Force lower case click package name (LP: #1219877)
+  * Packaging resets package name, other attributes to default every 
+    time it's opened (LP: #1219948)
+  * please provide gui for security manifest (LP: #1221407)
+  * Cannot enable developer mode on read-only image (LP: #1223301)
+  * Cannot launch application through qtcreator (LP: #1225178)
+  * Application installation script problems (LP: #1213902)
+  * Comment field in .desktop file should be generated on the fly 
+    (LP: #1223388)
+  * SDK should set applicationName to "name" value in the click manifest 
+    (LP: #1227085)
+
+ -- Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>  Wed, 18 Sep 2013 15:36:58 +0300
+
 qtcreator-plugin-ubuntu (2.7.2-0ubuntu2) saucy; urgency=low
 
   [ Zoltan Balogh ]
