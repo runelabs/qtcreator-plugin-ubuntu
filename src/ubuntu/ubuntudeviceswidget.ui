@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1148</width>
+    <width>1456</width>
     <height>741</height>
    </rect>
   </property>
@@ -235,7 +235,7 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>1148</width>
+           <width>1456</width>
            <height>629</height>
           </rect>
          </property>
@@ -449,7 +449,7 @@ Connect to a wlan or to a wwan and try again.</string>
                       <item>
                        <widget class="QStackedWidget" name="stackedWidgetDeveloperMode">
                         <property name="currentIndex">
-                         <number>2</number>
+                         <number>0</number>
                         </property>
                         <widget class="QWidget" name="page">
                          <layout class="QVBoxLayout" name="verticalLayout_16">
@@ -677,6 +677,13 @@ Connect to a wlan or to a wwan and try again.</string>
                               </widget>
                              </item>
                              <item>
+                              <widget class="QPushButton" name="pushButtonCloneTimeConfig">
+                               <property name="text">
+                                <string>Clone time config from host to device</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
                               <widget class="QPushButton" name="pushButtonPortForward">
                                <property name="styleSheet">
                                 <string notr="true">color: #333</string>
@@ -723,17 +730,40 @@ Connect to a wlan or to a wwan and try again.</string>
                               </spacer>
                              </item>
                              <item>
-                              <widget class="QPushButton" name="pushButtonCloneTimeConfig">
-                               <property name="text">
-                                <string>Clone time config from host to device</string>
+                              <widget class="QGroupBox" name="groupBox_2">
+                               <property name="title">
+                                <string>Platform Development</string>
                                </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QPushButton" name="pushButtonPlatformDevelopment">
-                               <property name="text">
-                                <string>Enable Platform Development</string>
-                               </property>
+                               <layout class="QHBoxLayout" name="horizontalLayout_8">
+                                <item>
+                                 <widget class="QPushButton" name="pushButton_filesystem_rw_disable">
+                                  <property name="text">
+                                   <string>Disable RW filesystem</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QPushButton" name="pushButton_filesystem_rw_enable">
+                                  <property name="text">
+                                   <string>Enable RW filesystem</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QPushButton" name="pushButtonPlatformDevelopmentRemove">
+                                  <property name="text">
+                                   <string>Disable Development</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QPushButton" name="pushButtonPlatformDevelopment">
+                                  <property name="text">
+                                   <string>Enable Development</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                               </layout>
                               </widget>
                              </item>
                              <item>

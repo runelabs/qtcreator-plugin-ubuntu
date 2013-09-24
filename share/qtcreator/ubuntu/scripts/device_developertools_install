@@ -17,9 +17,9 @@
 
 . `dirname $0`/functions.inc
 
-set +e
-ssh-add ~/.ssh/ubuntudevice*id_rsa &> /dev/null
-set -e
+PACKAGES=`cat ${SCRIPTPATH}/device_developertools_packages`
 
-adb_shell apt-get -f install &> /dev/null
-adb_shell apt-cache policy openssh-server|grep Installed|sed "s/Installed\://g"
+adb_shell apt-get -y -f install
+adb_shell apt-get update
+adb_shell apt-get upgrade -y
+adb_shell apt-get install ${PACKAGES} -y

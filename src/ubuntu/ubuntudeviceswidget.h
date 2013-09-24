@@ -52,6 +52,10 @@ protected slots:
     void onDeviceConnected(QString serialNumber);
     void onDeviceDisconnected();
 
+    void on_pushButton_filesystem_rw_enable_clicked();
+    void on_pushButton_filesystem_rw_disable_clicked();
+
+    void on_pushButtonPlatformDevelopmentRemove_clicked();
     void on_pushButtonPlatformDevelopment_clicked();
     void on_pushButtonRefresh_clicked();
     void on_pushButtonRefresh_2_clicked() { on_pushButtonRefresh_clicked(); }
@@ -73,6 +77,10 @@ protected slots:
     void detectOpenSsh();
     void detectHasNetworkConnection();
     void detectDeviceVersion();
+    void detectDeviceWritableImage();
+    void detectDeveloperTools();
+
+    void startSshService();
 
 private:
     void beginAction(QString);
