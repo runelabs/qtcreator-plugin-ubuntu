@@ -17,9 +17,14 @@
 
 . `dirname $0`/functions.inc
 
-set +e
-ssh-add ~/.ssh/ubuntudevice*id_rsa &> /dev/null
-set -e
+PACKAGES=`cat ${SCRIPTPATH}/device_developertools_packages`
 
-adb_shell apt-get -f install &> /dev/null
-adb_shell apt-cache policy openssh-server|grep Installed|sed "s/Installed\://g"
+for PACKAGE in ${PACKAGES}
+do
+	IS_INSTALLED=`adb_shell dpkg -s ${PACKAGE} |grep Status|grep -o "install ok installed"|wc -l`
+	if [[ ${IS_INSTALLED} -eq "0" ]]; then
+		echo "0"
+		exit
+	fi
+done
+echo "1"

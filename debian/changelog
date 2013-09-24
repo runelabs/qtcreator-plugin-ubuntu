@@ -2,6 +2,7 @@ qtcreator-plugin-ubuntu (2.8.1-0ubuntu1) UNRELEASED; urgency=low
 
   [ Juhapekka Piiroinen ]
   * Fix plugin to compile against Qt Creator 2.8.1.
+  * Platfom development mode needs write access on the RO image (LP: #1229129)
 
   [ Maxim Ermilov ]
   * Fixed CordovaUbuntuProjectManager to compile against Qt Creator 2.8

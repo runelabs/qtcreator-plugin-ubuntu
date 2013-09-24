@@ -17,9 +17,7 @@
 
 . `dirname $0`/functions.inc
 
-set +e
-ssh-add ~/.ssh/ubuntudevice*id_rsa &> /dev/null
-set -e
+WRITABLE_IMAGE_FILE=/userdata/.writable_image
 
-adb_shell apt-get -f install &> /dev/null
-adb_shell apt-cache policy openssh-server|grep Installed|sed "s/Installed\://g"
+adb_shell rm ${WRITABLE_IMAGE_FILE}
+adb_shell reboot
