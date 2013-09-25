@@ -20,7 +20,7 @@
 #define UBUNTUSETTINGSPAGE_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include "ubuntuconstants.h"
+//#include "ubuntuconstants.h"
 #include "ubuntusettingswidget.h"
 #include <QPointer>
 

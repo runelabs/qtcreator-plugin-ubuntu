@@ -56,7 +56,7 @@
                 "qmlProjectRequired": true,
                 "saveRequired": true,
                 "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_device_run_app %SERIALNUMBER% %FOLDERNAME% %DISPLAYNAME%.desktop %DISPLAYNAME%.qml /home/phablet/dev_tmp /home/phablet/.local/share/applications"
+                    "%SCRIPTDIRECTORY%/qtc_device_run_app %SERIALNUMBER% %FOLDERNAME% %DISPLAYNAME%.desktop %DISPLAYNAME%.qml /home/%USERNAME%/dev_tmp /home/%USERNAME%/.local/share/applications %USERNAME%@%IP% %PORT%"
                 ]
             },
             {
@@ -90,7 +90,7 @@
                 "qmlProjectRequired": true,
                 "saveRequired": true,
                 "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_project_click_createanddeploy %SERIALNUMBER%"
+                    "%SCRIPTDIRECTORY%/qtc_project_click_createanddeploy %SERIALNUMBER% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp %USERNAME%"
                 ]
             },
             {
@@ -102,7 +102,7 @@
                 "qmakeProjectRequired": true,
                 "saveRequired": true,
                 "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_device_buildpackage %SERIALNUMBER% %FOLDERNAME%"
+                    "%SCRIPTDIRECTORY%/qtc_device_buildpackage %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp"
                 ]
             },
             {
@@ -114,7 +114,7 @@
                 "qmakeProjectRequired": true,
                 "saveRequired": true,
                 "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_device_buildanddeploypackage %SERIALNUMBER% %FOLDERNAME%"
+                    "%SCRIPTDIRECTORY%/qtc_device_buildanddeploypackage %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp"
                 ]
             }
         ]
@@ -204,7 +204,7 @@
                 "keysequence": "Ctrl+Shift+F1",
                 "deviceRequired": true,
                 "actions": [
-                    "nautilus ssh://phablet@127.0.0.1:2222"
+                    "nautilus ssh://%USERNAME%@%IP%:%PORT%"
                 ]
             },
             {
@@ -257,7 +257,7 @@
                         "keysequence": "Ctrl+F10",
                         "deviceRequired": true,
                         "actions": [
-                            "x-terminal-emulator -e \"ssh -i ~/.ssh/ubuntudevice_%SERIALNUMBER%_id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null phablet@127.0.0.1 -p2222\""
+                            "x-terminal-emulator -e \"ssh -i ~/.ssh/ubuntudevice_%SERIALNUMBER%_id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null %USERNAME%@%IP% -p%PORT%\""
                         ]
                     },
                     {
@@ -276,6 +276,22 @@
                             "%SCRIPTDIRECTORY%/qtc_device_close_all_apps %SERIALNUMBER%"
                         ]
                     },
+                    {
+                        "name": "Flash daily image on device",
+                        "id": "Ubuntu.Menu.Device.FlashDaily",
+                        "deviceRequired": true,
+                        "actions": [
+                            "%SCRIPTDIRECTORY%/device_flashdaily %SERIALNUMBER%"
+                        ]
+                    },
+                    {
+                        "name": "Flash daily image on device (with bootstrap)",
+                        "id": "Ubuntu.Menu.Device.FlashDailyBootstrap",
+                        "deviceRequired": true,
+                        "actions": [
+                            "%SCRIPTDIRECTORY%/device_flashdaily_bootstrap %SERIALNUMBER%"
+                        ]
+                    },                    
                     {
                         "name": "Enable",
                         "id": "Ubuntu.Menu.Device.Enable",

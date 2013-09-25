@@ -29,6 +29,7 @@
 #include <QFileInfo>
 #include <QGuiApplication>
 
+using namespace Ubuntu;
 using namespace Ubuntu::Internal;
 
 UbuntuPlugin::UbuntuPlugin()
@@ -48,7 +49,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
     Core::MimeDatabase *mimeDB = Core::ICore::mimeDatabase();
 
-    const QLatin1String mimetypesXml(":/ubuntu/UbuntuProject.mimetypes.xml");
+    const QLatin1String mimetypesXml(Constants::UBUNTU_MIMETYPE_XML);
 
     if (!mimeDB->addMimeTypes(mimetypesXml, errorString))
         return false;
@@ -70,7 +71,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
             }
         }
     } else {
-        qWarning() << __PRETTY_FUNCTION__ << "failed to read from JSON.";
+        qWarning() << __PRETTY_FUNCTION__ << Constants::ERROR_MSG_FAILED_TO_READ_JSON;
     }
 
     m_ubuntuDeviceMode = new UbuntuDeviceMode();
@@ -81,27 +82,27 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     m_ubuntuPackagingMode = new UbuntuPackagingMode();
     addAutoReleasedObject(m_ubuntuPackagingMode);
 
-    QSettings settings(QLatin1String("Canonical"),QLatin1String("UbuntuSDK"));
-    settings.beginGroup(QLatin1String("Mode"));
-    if (settings.value(QLatin1String("API"),true).toBool()) {
+    QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
+    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_MODE));
+    if (settings.value(QLatin1String(Constants::SETTINGS_KEY_API),Constants::SETTINGS_DEFAULT_API_VISIBILITY).toBool()) {
         m_ubuntuAPIMode = new UbuntuAPIMode;
         addAutoReleasedObject(m_ubuntuAPIMode);
     }
 
-    if (settings.value(QLatin1String("CoreApps"),true).toBool()) {
+    if (settings.value(QLatin1String(Constants::SETTINGS_KEY_COREAPPS),Constants::SETTINGS_DEFAULT_COREAPPS_VISIBILITY).toBool()) {
         m_ubuntuCoreAppsMode = new UbuntuCoreAppsMode;
         addAutoReleasedObject(m_ubuntuCoreAppsMode);
     }
-    if (settings.value(QLatin1String("IRC"),true).toBool()) {
+    if (settings.value(QLatin1String(Constants::SETTINGS_KEY_IRC),Constants::SETTINGS_DEFAULT_IRC_VISIBILITY).toBool()) {
         m_ubuntuIRCMode = new UbuntuIRCMode;
         addAutoReleasedObject(m_ubuntuIRCMode);
     }
-    if (settings.value(QLatin1String("Pastebin"),true).toBool()) {
+    if (settings.value(QLatin1String(Constants::SETTINGS_KEY_PASTEBIN),Constants::SETTINGS_DEFAULT_PASTEBIN_VISIBILITY).toBool()) {
         m_ubuntuPastebinMode = new UbuntuPastebinMode;
         addAutoReleasedObject(m_ubuntuPastebinMode);
     }
 
-    if (settings.value(QLatin1String("Wiki"),true).toBool()) {
+    if (settings.value(QLatin1String(Constants::SETTINGS_KEY_WIKI),Constants::SETTINGS_DEFAULT_WIKI_VISIBILITY).toBool()) {
         m_ubuntuWikiMode = new UbuntuWikiMode;
         addAutoReleasedObject(m_ubuntuWikiMode);
     }

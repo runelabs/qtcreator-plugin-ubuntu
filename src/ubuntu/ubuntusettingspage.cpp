@@ -17,6 +17,7 @@
  */
 
 #include "ubuntusettingspage.h"
+#include "ubuntuconstants.h"
 
 using namespace Ubuntu::Internal;
 using namespace Ubuntu;
@@ -28,7 +29,7 @@ UbuntuSettingsPage::UbuntuSettingsPage() :
     setDisplayName(tr("General"));
     setCategory("Ubuntu");
     setDisplayCategory(QLatin1String("Ubuntu"));
-    setCategoryIcon(QLatin1String(Constants::UBUNTU_SETTINGS_ICON));
+    setCategoryIcon(QLatin1String(Ubuntu::Constants::UBUNTU_SETTINGS_ICON));
 }
 
 UbuntuSettingsPage::~UbuntuSettingsPage()

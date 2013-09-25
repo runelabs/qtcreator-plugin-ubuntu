@@ -30,11 +30,11 @@ UbuntuBzr::UbuntuBzr(QObject *parent) :
 }
 
 void UbuntuBzr::initialize() {
-    m_cmd.start(QString(QLatin1String("%0/qtc_bzr_info")).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH));
+    m_cmd.start(QString(QLatin1String(Constants::UBUNTUBZR_INITIALIZE)).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH));
 }
 
 void UbuntuBzr::scriptExecuted(int sta) {
-    QStringList data = QString(QString::fromLatin1(m_cmd.readAllStandardOutput())).trimmed().split(QLatin1String("\n"));
+    QStringList data = QString(QString::fromLatin1(m_cmd.readAllStandardOutput())).trimmed().split(QLatin1String(Constants::LINEFEED));
 
     if (data.length()!=2) {
         return;

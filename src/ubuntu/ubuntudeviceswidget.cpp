@@ -27,6 +27,7 @@
 #include <QSettings>
 #include <QDir>
 
+using namespace Ubuntu;
 
 UbuntuDevicesWidget *UbuntuDevicesWidget::m_instance = 0;
 
@@ -45,12 +46,10 @@ UbuntuDevicesWidget::UbuntuDevicesWidget(QWidget *parent) :
     m_instance = this;
     m_deviceDetected = false;
     m_aboutToClose = false;
-    //ui->widgetDeviceInfo->hide();
     ui->widgetSshProperties->hide();
     ui->pushButtonSshInstall->hide();
     ui->pushButtonSshRemove->hide();
-    //hide();
-    //ui->pushButtonCancel->hide();
+
     ui->frameNoDevices->hide();
     ui->lblLoading->hide();
     ui->frameNoNetwork->hide();
@@ -68,6 +67,15 @@ UbuntuDevicesWidget::UbuntuDevicesWidget(QWidget *parent) :
     detectDevices();
 }
 
+
+UbuntuDevicesWidget::~UbuntuDevicesWidget()
+{
+    m_aboutToClose = true;
+    m_ubuntuProcess.stop();
+    delete ui;
+}
+
+
 void UbuntuDevicesWidget::onMessage(QString msg) {
     m_reply.append(msg);
     ui->plainTextEdit->appendPlainText(msg.trimmed());
@@ -76,21 +84,21 @@ void UbuntuDevicesWidget::onMessage(QString msg) {
 void UbuntuDevicesWidget::onStarted(QString cmd) {
     ui->stackedWidgetConnectedDevice->setCurrentIndex(1);
     ui->lblDeviceProcessInfo->setText(QFileInfo(cmd).baseName());
-    //ui->widgetDeviceInfo->hide();
-    //ui->pushButtonCancel->show();
     ui->lblLoading->show();
 }
 
 
 void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
+    Q_UNUSED(code);
+
     ui->stackedWidgetConnectedDevice->setCurrentIndex(0);
     if (m_aboutToClose) { return; }
 
     bool bOk = true;
     bool bHasNetwork = true;
 
-    if (cmd == QString::fromLatin1("%0/device_search").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-        QStringList lines = m_reply.trimmed().split(QLatin1String("\n"));
+    if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_DEVICESEARCH).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+        QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
 
         // fill combobox data
         ui->comboBoxSerialNumber->setEnabled(false);
@@ -100,7 +108,7 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
                 continue;
             }
 
-            QStringList lineData = line.split(QLatin1String("       "));
+            QStringList lineData = line.split(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_ADB_SEPARATOR));
 
             if (lineData.count() == 2) {
                 QString sSerialNumber = lineData.takeFirst();
@@ -115,7 +123,7 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
         m_ubuntuDeviceNotifier.startMonitoring(m_deviceSerialNumber);
 
         // if there are no devices, or if there is no permission
-        if (lines.count() == 0 || m_deviceSerialNumber.isEmpty()  || ui->comboBoxSerialNumber->currentText().startsWith(QLatin1String("???"))) {
+        if (lines.count() == 0 || m_deviceSerialNumber.isEmpty()  || ui->comboBoxSerialNumber->currentText().startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_ADB_NOACCESS))) {
             ui->frameNoDevices->show();
             ui->widgetDeviceSerial->hide();
             ui->comboBoxSerialNumber->clear();
@@ -123,95 +131,95 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
             m_deviceDetected = false;
 
             ui->stackedWidgetDeviceConnected->setCurrentIndex(0);
-            endAction(QString::fromLatin1(" * there is no device connected."));
+            endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_NO_DEVICE));
         } else if (lines.count() > 0) {
             ui->frameNoDevices->hide();
             ui->widgetDeviceSerial->show();
             m_deviceDetected = true;
             ui->stackedWidgetDeviceConnected->setCurrentIndex(1);
-            endAction(QString::fromLatin1(" * found %0 devices.").arg(lines.count()));
+            endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_FOUND_DEVICES).arg(lines.count()));
 
             detectDeviceVersion();
         }
         emit updateDeviceActions();
 
-    } else if (cmd == QString::fromLatin1("%0/device_version").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-        endAction(QString::fromLatin1("..device version detected."));
+    } else if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_DEVICEVERSION).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+        endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_DEVICEVERSION_DETECTED));
         detectHasNetworkConnection();
-    } else if (cmd == QString::fromLatin1("%0/device_service_ssh_start").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-        endAction(QString::fromLatin1("..openssh-server was started."));
+    } else if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_SSH_START).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+        endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SSH_WAS_STARTED));
         on_pushButtonPortForward_clicked();
-    } else if (cmd == QString::fromLatin1("%0/openssh_version").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-        if (m_reply.trimmed() != QLatin1String("(none)") && m_reply.trimmed() != QLatin1String("")) {
-            endAction(QString::fromLatin1("..openssh-server (%0) is installed.").arg(m_reply.trimmed()));
+    } else if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_SSH_VERSION).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+        if (m_reply.trimmed() != QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_NONE) && m_reply.trimmed() != QLatin1String(Constants::EMPTY)) {
+            endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SSH_IS_INSTALLED).arg(m_reply.trimmed()));
             ui->widgetSshProperties->show();
             ui->pushButtonSshInstall->hide();
             ui->pushButtonSshRemove->show();
-            ui->stackedWidgetDeveloperMode->setCurrentIndex(1);
+            ui->stackedWidgetDeveloperMode->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_DEVELOPERMODE_PAGE_ENABLED);
             startSshService();
         } else {
-            endAction(QString::fromLatin1("..openssh-server was not installed."));
+            endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SSH_NOT_INSTALLED));
             ui->pushButtonSshInstall->show();
             ui->pushButtonSshRemove->hide();
             ui->widgetSshProperties->hide();
-            ui->stackedWidgetDeveloperMode->setCurrentIndex(0);
+            ui->stackedWidgetDeveloperMode->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_DEVELOPERMODE_PAGE_DEVICEFOUND);
         }
-    } else if (cmd == QString::fromLatin1("%0/device_writableimage_set").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-        endAction(QString::fromLatin1("..writable image has been enabled, device is rebooting."));
-    } else if (cmd == QString::fromLatin1("%0/device_writableimage_unset").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-        endAction(QString::fromLatin1("..writable image has been disabled, device is rebooting."));
-    } else if (cmd == QString::fromLatin1("%0/device_developertools_remove").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-        endAction(QString::fromLatin1("..developer tools have been removed."));
+    } else if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_DEVICE_WRITABLE_SET).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+        endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_WRITABLE_ENABLED));
+    } else if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_DEVICE_WRITABLE_UNSET).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+        endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_WRITABLE_DISABLED));
+    } else if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_DEVELOPERTOOLS_REMOVED).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+        endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_DEVELOPERTOOLS_REMOVED));
         detectDeveloperTools();
-    } else if (cmd == QString::fromLatin1("%0/device_developertools_has").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-        if (m_reply.trimmed() == QLatin1String("0")) {
+    } else if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_DEVELOPERTOOLS_HAS).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+        if (m_reply.trimmed() == QLatin1String(Constants::ZERO_STR)) {
             ui->pushButtonPlatformDevelopment->show();
             ui->pushButtonPlatformDevelopmentRemove->hide();
-            endAction(QString::fromLatin1("..developer tools are not installed."));
+            endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_DEVELOPERTOOLS_NOT_INSTALLED));
         } else {
             ui->pushButtonPlatformDevelopment->hide();
             ui->pushButtonPlatformDevelopmentRemove->show();
-            endAction(QString::fromLatin1("..developer tools are already installed."));
+            endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_DEVELOPERTOOLS_INSTALLED));
         }
-    } else if (cmd == QString::fromLatin1("%0/device_writableimage_has").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-        if (m_reply.trimmed() == QLatin1String("0")) {
+    } else if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_WRITABLE_HAS).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+        if (m_reply.trimmed() == QLatin1String(Constants::ZERO_STR)) {
             ui->pushButton_filesystem_rw_enable->hide();
             ui->pushButton_filesystem_rw_disable->show();
             ui->pushButtonPlatformDevelopment->setEnabled(true);
             ui->pushButtonPlatformDevelopmentRemove->setEnabled(true);
-            endAction(QString::fromLatin1("..writable image."));
+            endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_WRITABLEIMAGE));
         } else {
             ui->pushButton_filesystem_rw_enable->show();
             ui->pushButton_filesystem_rw_disable->hide();
             ui->pushButtonPlatformDevelopment->setEnabled(false);
             ui->pushButtonPlatformDevelopmentRemove->setEnabled(false);
-            endAction(QString::fromLatin1("..read-only image."));
+            endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_READONLYIMAGE));
         }
         ui->pushButtonPlatformDevelopment->hide();
         ui->pushButtonPlatformDevelopmentRemove->hide();
         detectDeveloperTools();
-    } else if (cmd == QString::fromLatin1("%0/device_developertools_install").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-        endAction(QString::fromLatin1("..platform development was enabled."));
+    } else if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_DEVELOPERTOOLS_INSTALL).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+        endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_DEVELOPERTOOLS_WAS_INSTALLED));
         detectDeveloperTools();
-    } else if (cmd == QString::fromLatin1("%0/openssh_remove").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-        endAction(QString::fromLatin1("..openssh-server was removed."));
+    } else if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_SSH_REMOVE).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+        endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SSH_WAS_REMOVED));
         detectOpenSsh();
-    } else if (cmd == QString::fromLatin1("%0/openssh_install").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-        endAction(QString::fromLatin1("..openssh-server was installed."));
+    } else if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_SSH_INSTALL).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+        endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SSH_WAS_INSTALLED));
         detectOpenSsh();
-    } else if (cmd == QString::fromLatin1("%0/device_portforward").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-        endAction(QString::fromLatin1("..ports forwarded."));
+    } else if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_PORTFORWARD).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+        endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_PORTS_FORWARDED));
         on_pushButtonSshSetupPublicKey_clicked();
-    } else if (cmd == QString::fromLatin1("%0/openssh_publickey").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-        endAction(QString::fromLatin1("..public key authentication is now set."));
+    } else if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_PUBLICKEY).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+        endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_PUBLICKEY_AUTH_SET));
         detectDeviceWritableImage();
-    } else if (cmd == QString::fromLatin1("%0/device_network_clone").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-        endAction(QString::fromLatin1("..network configuration copied."));
+    } else if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_NETWORKCLONE).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+        endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_NETWORK_CONF_COPIED));
         detectHasNetworkConnection();
-    } else if (cmd == QString::fromLatin1("%0/device_time_clone").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-        endAction(QString::fromLatin1("..time configuration copied."));
-    } else if (cmd == QString::fromLatin1("%0/device_hasnetwork").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-        if (m_reply.trimmed() == QString::fromLatin1("1")) {
+    } else if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_TIMECLONE).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+        endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_TIME_CONF_COPIED));
+    } else if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_HASNETWORK).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+        if (m_reply.trimmed() == QString::fromLatin1(Constants::ONE_STR)) {
             // we have network
             ui->frameNoNetwork->hide();
 
@@ -220,120 +228,188 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
             // not set
             bHasNetwork = false;
             ui->frameNoNetwork->show();
-            ui->stackedWidgetDeveloperMode->setCurrentIndex(2);
+            ui->stackedWidgetDeveloperMode->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_DEVELOPERMODE_PAGE_NONETWORK);
         }
     } else {
         // left empty
     }
-
 
     ui->lblLoading->hide();
     m_reply.clear();
 }
 
 void UbuntuDevicesWidget::startSshService() {
-    beginAction(QString::fromLatin1("Start ssh service on device.."));
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_STARTSSHSERVICE));
     m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/device_service_ssh_start %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Start ssh service"));
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_STARTSSHSERVICE_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_STARTSSHSERVICE));
 }
 
 void UbuntuDevicesWidget::on_pushButton_filesystem_rw_enable_clicked() {
-    beginAction(QString::fromLatin1("Make filesystem writable.."));
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_MAKEFSWRITABLE));
     m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/device_writableimage_set %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Enable writable fs"));
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_MAKEFSWRITABLE_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_MAKEFSWRITABLE));
 }
 
 void UbuntuDevicesWidget::on_pushButton_filesystem_rw_disable_clicked() {
-    beginAction(QString::fromLatin1("Make filesystem read-only.."));
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_MAKEFSREADONLY));
     m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/device_writableimage_unset %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Disable writable fs"));
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_MAKEFSREADONLY_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_MAKEFSREADONLY));
 }
 
 void UbuntuDevicesWidget::detectDeveloperTools() {
-    beginAction(QString::fromLatin1("Are developer tools installed.."));
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVELOPERTOOLS));
     m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/device_developertools_has %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Are developer tools installed"));
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVELOPERTOOLS_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVELOPERTOOLS));
 }
 
 void UbuntuDevicesWidget::detectDeviceWritableImage() {
-    beginAction(QString::fromLatin1("Is device image read-only or writable.."));
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTWRITABLEIMAGE));
     m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/device_writableimage_has %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Is Writable Image"));
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTWRITABLEIMAGE_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTWRITABLEIMAGE));
 }
 
 void UbuntuDevicesWidget::on_pushButtonPlatformDevelopmentRemove_clicked() {
-    beginAction(QString::fromLatin1("Disable Platform Development.."));
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DISABLEPLATFORMDEVELOPMENT));
     m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/device_developertools_remove %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Disable Platform Development.."));
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DISABLEPLATFORMDEVELOPMENT_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DISABLEPLATFORMDEVELOPMENT));
 }
 
 void UbuntuDevicesWidget::on_pushButtonPlatformDevelopment_clicked() {
-    beginAction(QString::fromLatin1("Enable Platform Development.."));
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ENABLEPLATFORMDEVELOPMENT));
     m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/device_developertools_install %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Enable Platform Development.."));
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ENABLEPLATFORMDEVELOPMENT_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ENABLEPLATFORMDEVELOPMENT));
 }
 
 void UbuntuDevicesWidget::on_pushButtonReboot_clicked() {
-    beginAction(QString::fromLatin1("Reboot device.."));
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT));
     m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/device_reboot %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Reboot device.."));
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT));
 }
 
 void UbuntuDevicesWidget::on_pushButtonShutdown_clicked() {
-    beginAction(QString::fromLatin1("Shutdown device.."));
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SHUTDOWN));
     m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/device_shutdown %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Shutdown device.."));
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SHUTDOWN_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SHUTDOWN));
 }
 
 void UbuntuDevicesWidget::on_pushButtonRebootToBootloader_clicked() {
-    beginAction(QString::fromLatin1("Reboot to bootloader.."));
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_TO_BOOTLOADER));
     m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/device_reboot2bootloader %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Reboot to bootloader.."));
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_TO_BOOTLOADER_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_TO_BOOTLOADER));
 }
 
 void UbuntuDevicesWidget::on_pushButtonRebootToRecovery_clicked() {
-    beginAction(QString::fromLatin1("Reboot to recovery.."));
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_TO_RECOVERY));
     m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/device_reboot2recovery %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Reboot to recovery.."));
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_TO_RECOVERY_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_TO_RECOVERY));
 }
 
 void UbuntuDevicesWidget::detectOpenSsh() {
-    beginAction(QString::fromLatin1("Detecting if openssh-server is installed.."));
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTOPENSSH));
     m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/openssh_version %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Detecting openssh-server"));
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTOPENSSH_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTOPENSSH));
 }
 
 void UbuntuDevicesWidget::detectDevices() {
-    beginAction(QString::fromLatin1("Detecting device.."));
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES));
     m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/device_search").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Searching Ubuntu Touch device"));
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES));
 }
 
 void UbuntuDevicesWidget::on_pushButtonSshConnect_clicked() {
     m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/openssh_connect %1 %2 %3").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()).arg(ui->spinBoxSshPort->value()).arg(ui->lineEditUserName->text()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Opening ssh connection to device"));
+    QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
+    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICE_CONNECTIVITY));
+    QString deviceUsername = settings.value(QLatin1String(Constants::SETTINGS_KEY_USERNAME),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_USERNAME)).toString();
+    QString deviceIp = settings.value(QLatin1String(Constants::SETTINGS_KEY_IP),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_IP)).toString();
+    QString devicePort = settings.value(QLatin1String(Constants::SETTINGS_KEY_SSH),Constants::SETTINGS_DEFAULT_DEVICE_SSH_PORT).toString();
+
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SSHCONNECT_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()).arg(devicePort).arg(deviceUsername).arg(deviceIp) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SSHCONNECT));
 }
 
 void UbuntuDevicesWidget::on_pushButtonCloneNetworkConfig_clicked() {
-    beginAction(QString::fromLatin1("Clone network configuration from host to device.."));
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONENETWORK));
     ui->frameNoNetwork->hide();
     m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/device_network_clone %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Clone network configuration from host to device.."));
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONENETWORK_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONENETWORK));
+}
+
+void UbuntuDevicesWidget::on_pushButtonPortForward_clicked() {
+    QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
+    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICE_CONNECTIVITY));
+    QString deviceQmlPort = settings.value(QLatin1String(Constants::SETTINGS_KEY_QML),Constants::SETTINGS_DEFAULT_DEVICE_QML_PORT).toString();
+    QString deviceSshPort = settings.value(QLatin1String(Constants::SETTINGS_KEY_SSH),Constants::SETTINGS_DEFAULT_DEVICE_SSH_PORT).toString();
+
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_PORTFORWARD));
+    m_ubuntuProcess.stop();
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_PORTFORWARD_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()).arg(deviceSshPort).arg(deviceQmlPort) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_PORTFORWARD));
+}
+
+void UbuntuDevicesWidget::on_pushButtonSshSetupPublicKey_clicked() {
+    QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
+    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICE_CONNECTIVITY));
+    QString deviceUsername = settings.value(QLatin1String(Constants::SETTINGS_KEY_USERNAME),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_USERNAME)).toString();
+
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SETUP_PUBKEY_AUTH));
+    m_ubuntuProcess.stop();
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SETUP_PUBKEY_AUTH_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()).arg(deviceUsername) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SETUP_PUBKEY_AUTH));
+}
+
+void UbuntuDevicesWidget::detectHasNetworkConnection() {
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_HASNETWORK));
+    m_ubuntuProcess.stop();
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_HASNETWORK_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_HASNETWORK));
+}
+
+void UbuntuDevicesWidget::detectDeviceVersion() {
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICEVERSION));
+    m_ubuntuProcess.stop();
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICEVERSION_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICEVERSION));
+}
+
+void UbuntuDevicesWidget::on_pushButtonSshInstall_clicked() {
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SSH_INSTALL));
+    m_ubuntuProcess.stop();
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SSH_INSTALL_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SSH_INSTALL));
+}
+
+void UbuntuDevicesWidget::on_pushButtonCloneTimeConfig_clicked() {
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONETIME));
+    m_ubuntuProcess.stop();
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONETIME_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONETIME));
+}
+
+void UbuntuDevicesWidget::on_pushButtonSshRemove_clicked() {
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SSH_REMOVE));
+    m_ubuntuProcess.stop();
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SSH_REMOVE_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SSH_REMOVE));
+}
+
+
+QString UbuntuDevicesWidget::serialNumber() {
+    return ui->comboBoxSerialNumber->currentText();
 }
 
 void UbuntuDevicesWidget::on_comboBoxSerialNumber_currentIndexChanged( const QString & text ) {
@@ -346,14 +422,10 @@ void UbuntuDevicesWidget::on_comboBoxSerialNumber_currentIndexChanged( const QSt
     }
 }
 
-void UbuntuDevicesWidget::onError(QString msg) {
-    ui->plainTextEdit->appendHtml(QString::fromLatin1("<p style=\"color: red\">%0</p>").arg(msg));
-}
-
 void UbuntuDevicesWidget::onDeviceConnected(QString serialNumber) {
-    QSettings settings(QLatin1String("Canonical"),QLatin1String("UbuntuSDK"));
-    settings.beginGroup(QLatin1String("Devices"));
-    if (settings.value(QLatin1String("Auto_Toggle"),true).toBool()) {
+    QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
+    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICES));
+    if (settings.value(QLatin1String(Constants::SETTINGS_KEY_AUTOTOGGLE),Constants::SETTINGS_DEFAULT_DEVICES_AUTOTOGGLE).toBool()) {
         Core::ModeManager::activateMode(Ubuntu::Constants::UBUNTU_MODE_DEVICES);
     }
 
@@ -371,106 +443,40 @@ void UbuntuDevicesWidget::onDeviceConnected(QString serialNumber) {
 }
 
 void UbuntuDevicesWidget::onDeviceDisconnected() {
-
     m_reply.clear();
-
     ui->plainTextEdit->clear();
-
-     m_ubuntuProcess.stop();
+    m_ubuntuProcess.stop();
     ui->comboBoxSerialNumber->clear();
     ui->frameNoDevices->hide();
     ui->frameNoNetwork->hide();
     ui->frameProgress->show();
-ui->lblLoading->show();
-     detectDevices();
+    ui->lblLoading->show();
+    detectDevices();
 }
 
 
 void UbuntuDevicesWidget::on_pushButtonRefresh_clicked() {
     m_deviceDetected = false;
     m_ubuntuProcess.stop();
-
     ui->plainTextEdit->clear();
-
     m_reply.clear();
-
     ui->frameNoDevices->hide();
-
-    //ui->widgetDeviceInfo->hide();
     ui->lblLoading->show();
- //   ui->pushButtonCancel->show();
-
-    //ui->lblDeviceName->setText(QLatin1String(""));
     ui->comboBoxSerialNumber->clear();
-   // ui->lblSerialnumber->setText(QLatin1String(""));
-
     detectDevices();
 }
 
+
+void UbuntuDevicesWidget::onError(QString msg) {
+    ui->plainTextEdit->appendHtml(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONERROR).arg(msg));
+}
+
 void UbuntuDevicesWidget::beginAction(QString msg) {
-    ui->plainTextEdit->appendHtml(QString::fromLatin1("<p style=\"color: #888\">%0</p>").arg(msg));
+    ui->plainTextEdit->appendHtml(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ACTION_BEGIN).arg(msg));
 }
 
 void UbuntuDevicesWidget::endAction(QString msg) {
-    ui->plainTextEdit->appendHtml(QString::fromLatin1("<p style=\"color: #888\">%0</p>").arg(msg));
+    ui->plainTextEdit->appendHtml(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ACTION_END).arg(msg));
 }
 
-void UbuntuDevicesWidget::on_pushButtonPortForward_clicked() {
-    beginAction(QString::fromLatin1("Enabling port forward.."));
-    m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/device_portforward %1 %2 %3").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()).arg(ui->spinBoxSshPort->value()).arg(ui->spinBoxQmlPort->value()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Enabling port forward.."));
-}
 
-void UbuntuDevicesWidget::on_pushButtonSshSetupPublicKey_clicked() {
-    beginAction(QString::fromLatin1("Setting up public key authentication.."));
-    m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/openssh_publickey %1 %2").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()).arg(ui->lineEditUserName->text()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Setting up public key authentication.."));
-}
-
-void UbuntuDevicesWidget::detectHasNetworkConnection() {
-    beginAction(QString::fromLatin1("Check if the device is connected to a network.."));
-    m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/device_hasnetwork %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Check if the device is connected to a network"));
-}
-
-QString UbuntuDevicesWidget::serialNumber() {
-    return ui->comboBoxSerialNumber->currentText();
-}
-
-void UbuntuDevicesWidget::detectDeviceVersion() {
-    beginAction(QString::fromLatin1("Check device image version.."));
-    m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/device_version %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Check device image version.."));
-}
-
-UbuntuDevicesWidget::~UbuntuDevicesWidget()
-{
-    m_aboutToClose = true;
-    m_ubuntuProcess.stop();
-    delete ui;
-}
-
-void UbuntuDevicesWidget::on_pushButtonSshInstall_clicked() {
-    beginAction(QString::fromLatin1("Installing openssh-server.."));
-    m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/openssh_install %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Installing openssh-server.."));
-}
-
-void UbuntuDevicesWidget::on_pushButtonCloneTimeConfig_clicked() {
-    beginAction(QString::fromLatin1("Cloning time configuration from host to device.."));
-    m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/device_time_clone %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Cloning time configuration from host to device.."));
-}
-
-void UbuntuDevicesWidget::on_pushButtonSshRemove_clicked() {
-    beginAction(QString::fromLatin1("Removing openssh-server.."));
-    m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1("%0/openssh_remove %1").arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1("Removing openssh-server.."));
-}

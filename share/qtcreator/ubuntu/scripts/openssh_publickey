@@ -23,7 +23,7 @@ function check_key {
 	echo "Checking for keys.."
 	KEY=`cat $SSHIDENTITY.pub`
 	set +e
-	PHABLET_KEYS=`adb_shell "cat /home/phablet/.ssh/authorized_keys2"`
+	PHABLET_KEYS=`adb_shell "cat /home/$USERNAME/.ssh/authorized_keys2"`
 	KEYS=`echo $PHABLET_KEYS | grep "$KEY"`
 	set -e
 	echo
@@ -45,9 +45,9 @@ function check_key {
 function deploy_key {
 	echo "Deploy the host key to the device.."
 	KEY=`cat $SSHIDENTITY.pub`
-	phablet_shell "mkdir -p /home/phablet/.ssh"
+	phablet_shell "mkdir -p /home/$USERNAME/.ssh"
 	echo "..key folder created"
-	phablet_shell "echo $KEY >> /home/phablet/.ssh/authorized_keys2"
+	phablet_shell "echo $KEY >> /home/$USERNAME/.ssh/authorized_keys2"
 	echo "..key deployed!"
 }
 
