@@ -73,24 +73,24 @@
             {
                 "name": "Create Application Package",
                 "id": "Ubuntu.Build.Package",
-                "workingDirectory": "%0",
+                "workingDirectory": "%0/..",
                 "projectRequired": true,
                 "qmlProjectRequired": true,
                 "saveRequired": true,
                 "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_project_click_create"
+                    "%SCRIPTDIRECTORY%/qtc_project_click_create %FOLDERNAME%"
                 ]
             },
             {
                 "name": "Install Application on Device",
                 "id": "Ubuntu.Build.PackageInstall",
-                "workingDirectory": "%0",
+                "workingDirectory": "%0/..",
                 "projectRequired": true,
                 "deviceRequired": true,
                 "qmlProjectRequired": true,
                 "saveRequired": true,
                 "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_project_click_createanddeploy %SERIALNUMBER% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp %USERNAME%"
+                    "%SCRIPTDIRECTORY%/qtc_project_click_createanddeploy %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp %USERNAME%"
                 ]
             },
             {
