@@ -88,5 +88,6 @@ echo $FILES
 for FILE in $FILES;
 do
  echo "Installing $FILE to device.."
- adb shell sudo -H -u ${TARGET_DEVICE_USERNAME} pkcon install-local ${TARGET_DEVICE_HOME}/${FILE}
+ # note adb shell and adb_shell are two different things, adb_shell comes from functions.inc
+ adb_shell sudo -H -u ${TARGET_DEVICE_USERNAME} pkcon install-local ${TARGET_DEVICE_HOME}/${FILE}
 done

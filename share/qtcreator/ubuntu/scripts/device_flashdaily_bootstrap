@@ -33,7 +33,7 @@ if [[ !does_device_hw_match_image_hw ]]; then
  	echo "             phablet-flash cdimage-touch -s ${SERIALNUMBER} -d ${IMAGE_HARDWARE} -b"
   	echo
 elif [[ phablet_tools_new_syntax ]]; then
-	x-terminal-emulator -e "bash -ic 'phablet-flash cdimage-touch -s ${SERIALNUMBER}' -b"
+	x-terminal-emulator -e "bash -ic 'phablet-flash ubuntu-system -s ${SERIALNUMBER}' -b"
 else
 	x-terminal-emulator -e "bash -ic 'phablet-flash -s ${SERIALNUMBER}' -b"
 fi
