@@ -16,33 +16,31 @@
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-#include "ubuntusettingspage.h"
+#include "ubuntusettingsdeviceconnectivitypage.h"
 #include "ubuntuconstants.h"
-
 using namespace Ubuntu::Internal;
-using namespace Ubuntu;
 
-UbuntuSettingsPage::UbuntuSettingsPage() :
-    m_widget(0)
+UbuntuSettingsDeviceConnectivityPage::UbuntuSettingsDeviceConnectivityPage() :
+        m_widget(0)
 {
-    setId("A.Tabs");
-    setDisplayName(tr("Tabs"));
+    setId("A.DeviceConnectivity");
+    setDisplayName(tr("Devices"));
     setCategory("Ubuntu");
     setDisplayCategory(QLatin1String("Ubuntu"));
     setCategoryIcon(QLatin1String(Ubuntu::Constants::UBUNTU_SETTINGS_ICON));
 }
 
-UbuntuSettingsPage::~UbuntuSettingsPage()
+UbuntuSettingsDeviceConnectivityPage::~UbuntuSettingsDeviceConnectivityPage()
 {
 }
 
-QWidget *UbuntuSettingsPage::createPage(QWidget *parent)
+QWidget *UbuntuSettingsDeviceConnectivityPage::createPage(QWidget *parent)
 {
-    m_widget = new UbuntuSettingsWidget(parent);
+    m_widget = new UbuntuSettingsDeviceConnectivityWidget(parent);
     return m_widget;
 }
 
-void UbuntuSettingsPage::apply()
+void UbuntuSettingsDeviceConnectivityPage::apply()
 {
     if (!m_widget) // page was never shown
         return;

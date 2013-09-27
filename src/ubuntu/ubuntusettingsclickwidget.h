@@ -16,36 +16,30 @@
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-#include "ubuntusettingspage.h"
-#include "ubuntuconstants.h"
 
-using namespace Ubuntu::Internal;
-using namespace Ubuntu;
+#ifndef UBUNTUSETTINGSCLICKWIDGET_H
+#define UBUNTUSETTINGSCLICKWIDGET_H
 
-UbuntuSettingsPage::UbuntuSettingsPage() :
-    m_widget(0)
-{
-    setId("A.Tabs");
-    setDisplayName(tr("Tabs"));
-    setCategory("Ubuntu");
-    setDisplayCategory(QLatin1String("Ubuntu"));
-    setCategoryIcon(QLatin1String(Ubuntu::Constants::UBUNTU_SETTINGS_ICON));
+#include <QWidget>
+#include <QSettings>
+
+namespace Ui {
+class UbuntuSettingsClickWidget;
 }
 
-UbuntuSettingsPage::~UbuntuSettingsPage()
+class UbuntuSettingsClickWidget : public QWidget
 {
-}
+    Q_OBJECT
 
-QWidget *UbuntuSettingsPage::createPage(QWidget *parent)
-{
-    m_widget = new UbuntuSettingsWidget(parent);
-    return m_widget;
-}
+public:
+    explicit UbuntuSettingsClickWidget(QWidget *parent = 0);
+    ~UbuntuSettingsClickWidget();
+    void apply();
 
-void UbuntuSettingsPage::apply()
-{
-    if (!m_widget) // page was never shown
-        return;
+private:
+    Ui::UbuntuSettingsClickWidget *ui;
 
-    m_widget->apply();
-}
+    QSettings* m_settings;
+};
+
+#endif // UBUNTUSETTINGSCLICKWIDGET_H

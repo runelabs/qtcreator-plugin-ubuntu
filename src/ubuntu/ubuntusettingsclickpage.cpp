@@ -16,33 +16,32 @@
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-#include "ubuntusettingspage.h"
+#include "ubuntusettingsclickpage.h"
 #include "ubuntuconstants.h"
 
 using namespace Ubuntu::Internal;
-using namespace Ubuntu;
 
-UbuntuSettingsPage::UbuntuSettingsPage() :
+UbuntuSettingsClickPage::UbuntuSettingsClickPage() :
     m_widget(0)
 {
-    setId("A.Tabs");
-    setDisplayName(tr("Tabs"));
+    setId("A.Click");
+    setDisplayName(tr("Click"));
     setCategory("Ubuntu");
     setDisplayCategory(QLatin1String("Ubuntu"));
     setCategoryIcon(QLatin1String(Ubuntu::Constants::UBUNTU_SETTINGS_ICON));
 }
 
-UbuntuSettingsPage::~UbuntuSettingsPage()
+UbuntuSettingsClickPage::~UbuntuSettingsClickPage()
 {
 }
 
-QWidget *UbuntuSettingsPage::createPage(QWidget *parent)
+QWidget *UbuntuSettingsClickPage::createPage(QWidget *parent)
 {
-    m_widget = new UbuntuSettingsWidget(parent);
+    m_widget = new UbuntuSettingsClickWidget(parent);
     return m_widget;
 }
 
-void UbuntuSettingsPage::apply()
+void UbuntuSettingsClickPage::apply()
 {
     if (!m_widget) // page was never shown
         return;
