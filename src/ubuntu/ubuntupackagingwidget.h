@@ -5,6 +5,7 @@
 #include <QProcess>
 #include "ubuntubzr.h"
 #include "ubuntuclickmanifest.h"
+#include "ubuntuprocess.h"
 
 namespace Ui {
 class UbuntuPackagingWidget;
@@ -21,6 +22,7 @@ public:
     ~UbuntuPackagingWidget();
 
 public slots:
+    void autoSave();
     void reload();
     void load_manifest(QString fileName);
     void load_apparmor(QString fileAppArmorName);
@@ -31,9 +33,16 @@ public slots:
     void save_excludes();
 
 protected slots:
+    void onMessage(QString msg);
+    void onFinished(QString cmd, int code);
+    void onError(QString msg);
+    void onStarted(QString cmd);
+
+    void on_pushButtonClosePackageReviewTools_clicked();
     void on_pushButton_addpolicy_clicked();
     void on_pushButtonClickPackage_clicked();
     void on_pushButtonReset_clicked();
+    void on_pushButtonReviewersTools_clicked();
 
     void on_pushButtonReload_clicked();
 
@@ -50,6 +59,8 @@ private:
     QString m_projectName;
     QString m_excludesFile;
     int m_previous_tab;
+    QString m_reviewesToolsLocation;
+    UbuntuProcess m_ubuntuProcess;
     Ui::UbuntuPackagingWidget *ui;
 };
 

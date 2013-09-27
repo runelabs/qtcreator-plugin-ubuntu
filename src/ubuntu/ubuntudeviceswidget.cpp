@@ -49,6 +49,7 @@ UbuntuDevicesWidget::UbuntuDevicesWidget(QWidget *parent) :
     ui->widgetSshProperties->hide();
     ui->pushButtonSshInstall->hide();
     ui->pushButtonSshRemove->hide();
+    ui->widgetMovedToSettings->hide();
 
     ui->frameNoDevices->hide();
     ui->lblLoading->hide();

@@ -586,43 +586,49 @@ Connect to a wlan or to a wwan and try again.</string>
                            <widget class="QWidget" name="widgetSshProperties" native="true">
                             <layout class="QVBoxLayout" name="verticalLayout_21">
                              <item>
-                              <widget class="QPushButton" name="pushButtonCloneTimeConfig">
-                               <property name="text">
-                                <string>Clone time config from host to device</string>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QPushButton" name="pushButtonPortForward">
-                               <property name="styleSheet">
-                                <string notr="true">color: #333</string>
-                               </property>
-                               <property name="text">
-                                <string>Enable port forward from device to localhost</string>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QPushButton" name="pushButtonSshSetupPublicKey">
-                               <property name="enabled">
-                                <bool>true</bool>
-                               </property>
-                               <property name="styleSheet">
-                                <string notr="true">color: #333</string>
-                               </property>
-                               <property name="text">
-                                <string>Setup public key authentication</string>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QPushButton" name="pushButtonSshConnect">
-                               <property name="styleSheet">
-                                <string notr="true">color: #333</string>
-                               </property>
-                               <property name="text">
-                                <string>Open ssh connection to device</string>
-                               </property>
+                              <widget class="QWidget" name="widgetMovedToSettings" native="true">
+                               <layout class="QVBoxLayout" name="verticalLayout_9">
+                                <item>
+                                 <widget class="QPushButton" name="pushButtonCloneTimeConfig">
+                                  <property name="text">
+                                   <string>Clone time config from host to device</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QPushButton" name="pushButtonPortForward">
+                                  <property name="styleSheet">
+                                   <string notr="true">color: #333</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>Enable port forward from device to localhost</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QPushButton" name="pushButtonSshSetupPublicKey">
+                                  <property name="enabled">
+                                   <bool>true</bool>
+                                  </property>
+                                  <property name="styleSheet">
+                                   <string notr="true">color: #333</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>Setup public key authentication</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QPushButton" name="pushButtonSshConnect">
+                                  <property name="styleSheet">
+                                   <string notr="true">color: #333</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>Open ssh connection to device</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                               </layout>
                               </widget>
                              </item>
                              <item>

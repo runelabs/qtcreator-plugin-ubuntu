@@ -110,6 +110,9 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
     m_ubuntuMenu = new UbuntuMenu;
     addAutoReleasedObject(m_ubuntuMenu);
+
+    addAutoReleasedObject(new UbuntuSettingsClickPage);
+    addAutoReleasedObject(new UbuntuSettingsDeviceConnectivityPage);
     addAutoReleasedObject(new UbuntuSettingsPage);
 
     addAutoReleasedObject(new UbuntuVersionManager);

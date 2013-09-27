@@ -36,6 +36,8 @@
 #include "ubuntupackagingmode.h"
 #include "ubuntupastebinmode.h"
 #include "ubuntusettingspage.h"
+#include "ubuntusettingsdeviceconnectivitypage.h"
+#include "ubuntusettingsclickpage.h"
 
 #include <extensionsystem/iplugin.h>
 #include <QProcess>

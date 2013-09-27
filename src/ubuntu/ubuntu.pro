@@ -17,7 +17,9 @@ FORMS += \
     ubuntudeviceswidget.ui \
     ubuntupackagingwidget.ui \
     ubuntusettingswidget.ui \
-    ubuntusecuritypolicypickerdialog.ui
+    ubuntusecuritypolicypickerdialog.ui \
+    ubuntusettingsdeviceconnectivitywidget.ui \
+    ubuntusettingsclickwidget.ui
 
 RESOURCES += \
     resources.qrc
@@ -63,7 +65,11 @@ SOURCES += \
     ubuntusettingswidget.cpp \
     ubuntusecuritypolicypickerdialog.cpp \
     ubuntupolicygroupmodel.cpp \
-    ubuntupolicygroupinfo.cpp
+    ubuntupolicygroupinfo.cpp \
+    ubuntusettingsdeviceconnectivitypage.cpp \
+    ubuntusettingsdeviceconnectivitywidget.cpp \
+    ubuntusettingsclickpage.cpp \
+    ubuntusettingsclickwidget.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -103,5 +109,9 @@ HEADERS += \
     ubuntusettingswidget.h \
     ubuntusecuritypolicypickerdialog.h \
     ubuntupolicygroupmodel.h \
-    ubuntupolicygroupinfo.h
+    ubuntupolicygroupinfo.h \
+    ubuntusettingsdeviceconnectivitypage.h \
+    ubuntusettingsdeviceconnectivitywidget.h \
+    ubuntusettingsclickpage.h \
+    ubuntusettingsclickwidget.h
 

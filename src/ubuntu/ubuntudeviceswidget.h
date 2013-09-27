@@ -40,6 +40,12 @@ public:
     bool deviceDetected() { return m_deviceDetected; }
     QString serialNumber();
 
+public slots:
+    void on_pushButtonSshSetupPublicKey_clicked();
+    void on_pushButtonPortForward_clicked();
+    void on_pushButtonSshConnect_clicked();
+    void on_pushButtonCloneTimeConfig_clicked();
+
 signals:
     void updateDeviceActions();
     
@@ -61,16 +67,11 @@ protected slots:
     void on_pushButtonRefresh_2_clicked() { on_pushButtonRefresh_clicked(); }
     void on_pushButtonSshInstall_clicked();
     void on_pushButtonSshRemove_clicked();
-    void on_pushButtonSshSetupPublicKey_clicked();
-    void on_pushButtonPortForward_clicked();
-    void on_pushButtonSshConnect_clicked();
     void on_pushButtonReboot_clicked();
     void on_pushButtonShutdown_clicked();
     void on_pushButtonRebootToBootloader_clicked();
     void on_pushButtonRebootToRecovery_clicked();
-
     void on_pushButtonCloneNetworkConfig_clicked();
-    void on_pushButtonCloneTimeConfig_clicked();
     void on_comboBoxSerialNumber_currentIndexChanged( const QString & text );
 
     void detectDevices();

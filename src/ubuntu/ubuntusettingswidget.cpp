@@ -36,17 +36,6 @@ UbuntuSettingsWidget::UbuntuSettingsWidget(QWidget *parent) :
     ui->checkBox_mode_pastebin->setChecked(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_PASTEBIN),Constants::SETTINGS_DEFAULT_PASTEBIN_VISIBILITY).toBool());
     ui->checkBox_mode_wiki->setChecked(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_WIKI),Constants::SETTINGS_DEFAULT_WIKI_VISIBILITY).toBool());
     m_settings->endGroup();
-
-    m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICE_CONNECTIVITY));
-    ui->lineEditDeviceUserName->setText(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_USERNAME),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_USERNAME)).toString());
-    ui->lineEditDeviceIP->setText(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_IP),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_IP)).toString());
-    ui->spinBoxDeviceQmlPort->setValue(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_QML),Constants::SETTINGS_DEFAULT_DEVICE_QML_PORT).toInt());
-    ui->spinBoxDeviceSshPort->setValue(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_SSH),Constants::SETTINGS_DEFAULT_DEVICE_SSH_PORT).toInt());
-    m_settings->endGroup();
-
-    m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICES));
-    ui->checkBox_mode_devices_autotoggle->setChecked(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_AUTOTOGGLE),Constants::SETTINGS_DEFAULT_DEVICES_AUTOTOGGLE).toBool());
-    m_settings->endGroup();
 }
 
 void UbuntuSettingsWidget::apply() {
@@ -58,16 +47,6 @@ void UbuntuSettingsWidget::apply() {
     m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_WIKI),ui->checkBox_mode_wiki->isChecked());
     m_settings->endGroup();
 
-    m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICE_CONNECTIVITY));
-    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_USERNAME),ui->lineEditDeviceUserName->text());
-    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_IP),ui->lineEditDeviceIP->text());
-    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_QML),ui->spinBoxDeviceQmlPort->value());
-    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_SSH),ui->spinBoxDeviceSshPort->value());
-    m_settings->endGroup();
-
-    m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICES));
-    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_AUTOTOGGLE),ui->checkBox_mode_devices_autotoggle->isChecked());
-    m_settings->endGroup();
     m_settings->sync();
 }
 

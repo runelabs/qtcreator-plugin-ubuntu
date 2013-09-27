@@ -16,40 +16,35 @@
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-#ifndef UBUNTUPACKAGINGMODE_H
-#define UBUNTUPACKAGINGMODE_H
+#include "ubuntusettingsclickpage.h"
+#include "ubuntuconstants.h"
 
-#include <coreplugin/imode.h>
-#include "ubuntupackagingwidget.h"
-#include <QObject>
-#include <projectexplorer/project.h>
+using namespace Ubuntu::Internal;
 
-namespace Ubuntu {
-namespace Internal {
-
-class UbuntuPackagingMode : public Core::IMode
+UbuntuSettingsClickPage::UbuntuSettingsClickPage() :
+    m_widget(0)
 {
-    Q_OBJECT
-public:
-    explicit UbuntuPackagingMode(QObject *parent = 0);
-    void initialize();
-
-protected slots:
-    void modeChanged(Core::IMode*);
-
-    void on_projectAdded(ProjectExplorer::Project *project);
-    void on_projectRemoved(ProjectExplorer::Project *project);
-
-protected:
-    void updateModeState();
-
-    QWidget* m_modeWidget;
-    UbuntuPackagingWidget m_ubuntuPackagingWidget;
-
-    Core::Id previousMode;
-};
-
-}
+    setId("A.Click");
+    setDisplayName(tr("Click"));
+    setCategory("Ubuntu");
+    setDisplayCategory(QLatin1String("Ubuntu"));
+    setCategoryIcon(QLatin1String(Ubuntu::Constants::UBUNTU_SETTINGS_ICON));
 }
 
-#endif // UBUNTUPACKAGINGMODE_H
+UbuntuSettingsClickPage::~UbuntuSettingsClickPage()
+{
+}
+
+QWidget *UbuntuSettingsClickPage::createPage(QWidget *parent)
+{
+    m_widget = new UbuntuSettingsClickWidget(parent);
+    return m_widget;
+}
+
+void UbuntuSettingsClickPage::apply()
+{
+    if (!m_widget) // page was never shown
+        return;
+
+    m_widget->apply();
+}

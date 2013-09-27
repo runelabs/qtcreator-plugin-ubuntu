@@ -16,36 +16,33 @@
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-#include "ubuntusettingspage.h"
-#include "ubuntuconstants.h"
 
-using namespace Ubuntu::Internal;
-using namespace Ubuntu;
+#ifndef UBUNTUSETTINGSCLICKPAGE_H
+#define UBUNTUSETTINGSCLICKPAGE_H
 
-UbuntuSettingsPage::UbuntuSettingsPage() :
-    m_widget(0)
-{
-    setId("A.Tabs");
-    setDisplayName(tr("Tabs"));
-    setCategory("Ubuntu");
-    setDisplayCategory(QLatin1String("Ubuntu"));
-    setCategoryIcon(QLatin1String(Ubuntu::Constants::UBUNTU_SETTINGS_ICON));
+#include <coreplugin/dialogs/ioptionspage.h>
+#include "ubuntusettingsclickwidget.h"
+#include <QPointer>
+
+namespace Ubuntu {
+    namespace Internal {
+        class UbuntuSettingsClickPage : public Core::IOptionsPage
+        {
+            Q_OBJECT
+
+        public:
+            explicit UbuntuSettingsClickPage();
+            ~UbuntuSettingsClickPage();
+
+            QWidget *createPage(QWidget *parent);
+            void apply();
+            void finish() { }
+
+        protected:
+            QPointer<UbuntuSettingsClickWidget> m_widget;
+        };
+    }
 }
 
-UbuntuSettingsPage::~UbuntuSettingsPage()
-{
-}
 
-QWidget *UbuntuSettingsPage::createPage(QWidget *parent)
-{
-    m_widget = new UbuntuSettingsWidget(parent);
-    return m_widget;
-}
-
-void UbuntuSettingsPage::apply()
-{
-    if (!m_widget) // page was never shown
-        return;
-
-    m_widget->apply();
-}
+#endif // UBUNTUSETTINGSCLICKPAGE_H

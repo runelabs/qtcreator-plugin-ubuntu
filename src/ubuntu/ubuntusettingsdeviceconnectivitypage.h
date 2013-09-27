@@ -15,41 +15,32 @@
  *
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
+#ifndef UBUNTUSETTINGSDEVICECONNECTIVITYPAGE_H
+#define UBUNTUSETTINGSDEVICECONNECTIVITYPAGE_H
 
-#ifndef UBUNTUPACKAGINGMODE_H
-#define UBUNTUPACKAGINGMODE_H
-
-#include <coreplugin/imode.h>
-#include "ubuntupackagingwidget.h"
-#include <QObject>
-#include <projectexplorer/project.h>
+#include <coreplugin/dialogs/ioptionspage.h>
+#include "ubuntusettingsdeviceconnectivitywidget.h"
+#include <QPointer>
 
 namespace Ubuntu {
-namespace Internal {
+    namespace Internal {
+        class UbuntuSettingsDeviceConnectivityPage : public Core::IOptionsPage
+        {
+            Q_OBJECT
 
-class UbuntuPackagingMode : public Core::IMode
-{
-    Q_OBJECT
-public:
-    explicit UbuntuPackagingMode(QObject *parent = 0);
-    void initialize();
+        public:
+            explicit UbuntuSettingsDeviceConnectivityPage();
+            ~UbuntuSettingsDeviceConnectivityPage();
 
-protected slots:
-    void modeChanged(Core::IMode*);
+            QWidget *createPage(QWidget *parent);
+            void apply();
+            void finish() { }
 
-    void on_projectAdded(ProjectExplorer::Project *project);
-    void on_projectRemoved(ProjectExplorer::Project *project);
-
-protected:
-    void updateModeState();
-
-    QWidget* m_modeWidget;
-    UbuntuPackagingWidget m_ubuntuPackagingWidget;
-
-    Core::Id previousMode;
-};
-
-}
+        protected:
+            QPointer<UbuntuSettingsDeviceConnectivityWidget> m_widget;
+        };
+    }
 }
 
-#endif // UBUNTUPACKAGINGMODE_H
+
+#endif // UBUNTUSETTINGSDEVICECONNECTIVITYPAGE_H

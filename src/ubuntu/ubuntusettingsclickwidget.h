@@ -16,40 +16,32 @@
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-#ifndef UBUNTUPACKAGINGMODE_H
-#define UBUNTUPACKAGINGMODE_H
 
-#include <coreplugin/imode.h>
-#include "ubuntupackagingwidget.h"
-#include <QObject>
-#include <projectexplorer/project.h>
+#ifndef UBUNTUSETTINGSCLICKWIDGET_H
+#define UBUNTUSETTINGSCLICKWIDGET_H
 
-namespace Ubuntu {
-namespace Internal {
+#include <QWidget>
+#include <QSettings>
 
-class UbuntuPackagingMode : public Core::IMode
+namespace Ui {
+class UbuntuSettingsClickWidget;
+}
+
+class UbuntuSettingsClickWidget : public QWidget
 {
     Q_OBJECT
+
 public:
-    explicit UbuntuPackagingMode(QObject *parent = 0);
-    void initialize();
+    explicit UbuntuSettingsClickWidget(QWidget *parent = 0);
+    ~UbuntuSettingsClickWidget();
+    void apply();
 
 protected slots:
-    void modeChanged(Core::IMode*);
+    void on_pushButtonFindClickPackagingTools_clicked();
 
-    void on_projectAdded(ProjectExplorer::Project *project);
-    void on_projectRemoved(ProjectExplorer::Project *project);
-
-protected:
-    void updateModeState();
-
-    QWidget* m_modeWidget;
-    UbuntuPackagingWidget m_ubuntuPackagingWidget;
-
-    Core::Id previousMode;
+private:
+    Ui::UbuntuSettingsClickWidget *ui;
+    QSettings* m_settings;
 };
 
-}
-}
-
-#endif // UBUNTUPACKAGINGMODE_H
+#endif // UBUNTUSETTINGSCLICKWIDGET_H
