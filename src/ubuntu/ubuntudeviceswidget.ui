@@ -449,9 +449,9 @@ Connect to a wlan or to a wwan and try again.</string>
                       <item>
                        <widget class="QStackedWidget" name="stackedWidgetDeveloperMode">
                         <property name="currentIndex">
-                         <number>0</number>
+                         <number>2</number>
                         </property>
-                        <widget class="QWidget" name="page">
+                        <widget class="QWidget" name="pageDeviceDetected">
                          <layout class="QVBoxLayout" name="verticalLayout_16">
                           <item>
                            <widget class="QLabel" name="label_7">
@@ -465,7 +465,7 @@ Connect to a wlan or to a wwan and try again.</string>
                           </item>
                          </layout>
                         </widget>
-                        <widget class="QWidget" name="page_2">
+                        <widget class="QWidget" name="pageDeviceHasBeenEnabledForDeveloperUse">
                          <layout class="QVBoxLayout" name="verticalLayout_17">
                           <item>
                            <widget class="QLabel" name="label_4">
@@ -476,7 +476,7 @@ Connect to a wlan or to a wwan and try again.</string>
                           </item>
                          </layout>
                         </widget>
-                        <widget class="QWidget" name="page_7">
+                        <widget class="QWidget" name="pageNoNetwork">
                          <layout class="QVBoxLayout" name="verticalLayout_20">
                           <item>
                            <widget class="QLabel" name="label_10">
@@ -585,97 +585,6 @@ Connect to a wlan or to a wwan and try again.</string>
                           <item>
                            <widget class="QWidget" name="widgetSshProperties" native="true">
                             <layout class="QVBoxLayout" name="verticalLayout_21">
-                             <item>
-                              <spacer name="verticalSpacer_4">
-                               <property name="orientation">
-                                <enum>Qt::Vertical</enum>
-                               </property>
-                               <property name="sizeHint" stdset="0">
-                                <size>
-                                 <width>20</width>
-                                 <height>40</height>
-                                </size>
-                               </property>
-                              </spacer>
-                             </item>
-                             <item>
-                              <widget class="QGroupBox" name="groupBox_3">
-                               <property name="title">
-                                <string/>
-                               </property>
-                               <layout class="QHBoxLayout" name="horizontalLayout_5">
-                                <property name="topMargin">
-                                 <number>0</number>
-                                </property>
-                                <property name="bottomMargin">
-                                 <number>0</number>
-                                </property>
-                                <item>
-                                 <widget class="QLabel" name="label_3">
-                                  <property name="text">
-                                   <string>Username</string>
-                                  </property>
-                                 </widget>
-                                </item>
-                                <item>
-                                 <widget class="QLineEdit" name="lineEditUserName">
-                                  <property name="enabled">
-                                   <bool>false</bool>
-                                  </property>
-                                  <property name="text">
-                                   <string>phablet</string>
-                                  </property>
-                                 </widget>
-                                </item>
-                                <item>
-                                 <widget class="QLabel" name="label_6">
-                                  <property name="text">
-                                   <string>Ssh Port</string>
-                                  </property>
-                                 </widget>
-                                </item>
-                                <item>
-                                 <widget class="QSpinBox" name="spinBoxSshPort">
-                                  <property name="enabled">
-                                   <bool>false</bool>
-                                  </property>
-                                  <property name="minimum">
-                                   <number>1300</number>
-                                  </property>
-                                  <property name="maximum">
-                                   <number>32000</number>
-                                  </property>
-                                  <property name="value">
-                                   <number>2222</number>
-                                  </property>
-                                 </widget>
-                                </item>
-                                <item>
-                                 <widget class="QLabel" name="label_5">
-                                  <property name="text">
-                                   <string>QML Port</string>
-                                  </property>
-                                 </widget>
-                                </item>
-                                <item>
-                                 <widget class="QSpinBox" name="spinBoxQmlPort">
-                                  <property name="enabled">
-                                   <bool>false</bool>
-                                  </property>
-                                  <property name="minimum">
-                                   <number>1300</number>
-                                  </property>
-                                  <property name="maximum">
-                                   <number>32000</number>
-                                  </property>
-                                  <property name="value">
-                                   <number>3768</number>
-                                  </property>
-                                 </widget>
-                                </item>
-                               </layout>
-                              </widget>
-                             </item>
                              <item>
                               <widget class="QPushButton" name="pushButtonCloneTimeConfig">
                                <property name="text">

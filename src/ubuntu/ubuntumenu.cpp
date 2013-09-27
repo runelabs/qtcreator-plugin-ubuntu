@@ -73,9 +73,9 @@ void UbuntuMenu::slotUpdateActions() {
 
 
     if (startupProject) {
-        isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String("application/x-qmlproject"));
-        isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String("application/vnd.qt.qmakeprofile"));
-        isCordovaProject = (startupProject->projectManager()->mimeType() == QLatin1String("application/x-cordovaproject"));
+        isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMLPROJECT_MIMETYPE));
+        isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMAKE_MIMETYPE));
+        isCordovaProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::CORDOVAPROJECT_MIMETYPE));
         isUbuntuProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
     }
 
@@ -97,7 +97,7 @@ void UbuntuMenu::slotUpdateActions() {
 }
 
 void UbuntuMenu::onStarted(QString cmd) {
-    printToOutputPane(QString::fromLatin1("Started %0").arg(cmd));
+    printToOutputPane(QString::fromLatin1(Constants::UBUNTUMENU_ONSTARTED).arg(cmd));
 }
 
 void UbuntuMenu::onMessage(QString msg) {
@@ -105,11 +105,11 @@ void UbuntuMenu::onMessage(QString msg) {
 }
 
 void UbuntuMenu::onError(QString msg) {
-    printToOutputPane(QString::fromLatin1("%0").arg(msg));
+    printToOutputPane(QString::fromLatin1(Constants::UBUNTUMENU_ONERROR).arg(msg));
 }
 
 void UbuntuMenu::onFinished(QString cmd, int code) {
-    printToOutputPane(QString::fromLatin1("%0 finished with code %1").arg(cmd).arg(code));
+    printToOutputPane(QString::fromLatin1(Constants::UBUNTUMENU_ONFINISHED).arg(cmd).arg(code));
 }
 
 QString UbuntuMenu::menuPath(QString fileName) {
@@ -240,7 +240,7 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
         m_actions.append(act);
 
         if (parent == NULL) {
-            qWarning() << "No menu defined";
+            qWarning() << Constants::ERROR_MSG_NO_MENU_DEFINED;
         } else {
             parent->addAction(cmd,group);
         }
@@ -369,6 +369,16 @@ void UbuntuMenu::menuItemTriggered() {
                         command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DISPLAYNAME),displayName);
                         command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_PROJECTFILES),projectFiles.join(QLatin1String(" ")));
                     }
+                    
+                    QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
+                    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICE_CONNECTIVITY));
+                    QString deviceUsername = settings.value(QLatin1String(Constants::SETTINGS_KEY_USERNAME),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_USERNAME)).toString();
+                    QString deviceIp = settings.value(QLatin1String(Constants::SETTINGS_KEY_IP),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_IP)).toString();
+                    QString devicePort = settings.value(QLatin1String(Constants::SETTINGS_KEY_SSH),Constants::SETTINGS_DEFAULT_DEVICE_SSH_PORT).toString();
+
+                    command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DEVICE_IP),deviceIp);
+                    command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DEVICE_USERNAME),deviceUsername);
+                    command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DEVICE_PORT),devicePort);
 
                     command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_SHAREDIRECTORY),Constants::UBUNTU_SHAREPATH);
                     command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_SCRIPTDIRECTORY),Constants::UBUNTU_SCRIPTPATH);
@@ -385,10 +395,10 @@ void UbuntuMenu::menuItemTriggered() {
             }
             m_ubuntuProcess.start(act->text());
         } else {
-            qWarning() << __PRETTY_FUNCTION__  << "No actions defined in map";
+            qWarning() << __PRETTY_FUNCTION__  << Constants::ERROR_MSG_NOACTIONS;
         }
     } else {
-        qWarning() << __PRETTY_FUNCTION__  << "Could not cast to action";
+        qWarning() << __PRETTY_FUNCTION__  << Constants::ERROR_MSG_COULD_NOT_CAST_TO_ACTION;
     }
 }
 
@@ -429,6 +439,6 @@ void UbuntuMenu::initialize() {
             }
         }
     } else {
-        qDebug() << "json is not valid";
+        qWarning() << Constants::ERROR_MSG_UNABLE_TO_PARSE_MENUJSON;
     }
 }

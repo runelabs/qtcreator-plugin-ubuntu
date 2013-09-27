@@ -58,6 +58,7 @@ set +e
 	else
 		adb -s ${SERIALNUMBER} shell $@
 	fi
+set -e
 }
 
 function phablet_shell {

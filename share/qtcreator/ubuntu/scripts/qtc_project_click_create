@@ -83,8 +83,11 @@ pushd ${PROJECTPATH} >> /dev/null
   MANIFEST_DESCRIPTION=`${SCRIPTPATH}/manifest_description manifest.json`
   sed -i "s/^Comment=.*/Comment=${MANIFEST_DESCRIPTION}/g" ${DESKTOPFILE}
 
+  # read the arguments to qmlscene
+  QMLSCENE_ARGS=`cat ${DESKTOPFILE} | grep -o "qmlscene.*\$\@" | sed "s/\(qmlscene\|\$\@\)//g"`
+
   # lets replace the Exec line
-  sed -i "s/^Exec=.*/Exec=qmlscene \$@ ${MAINQML}/g" ${DESKTOPFILE}
+  sed -i "s/^Exec=.*/Exec=qmlscene ${QMLSCENE_ARGS} \$@ ${MAINQML}/g" ${DESKTOPFILE}
 
   # lets build the package
   cd ..

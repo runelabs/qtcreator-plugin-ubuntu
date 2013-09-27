@@ -83,12 +83,12 @@ void UbuntuPackagingMode::modeChanged(Core::IMode* currentMode) {
         bool isQmlProject = false;
         bool isQmakeProject = false;
         bool isUbuntuProject = false;
-	bool isCordovaProject = false;
+        bool isCordovaProject = false;
 
         if (startupProject) {
-            isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String("application/x-qmlproject"));
-            isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String("application/vnd.nokia.qt.qmakeprofile"));
-            isCordovaProject = (startupProject->projectManager()->mimeType() == QLatin1String("application/x-cordovaproject"));
+            isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMLPROJECT_MIMETYPE));
+            isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMAKE_MIMETYPE));
+            isCordovaProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::CORDOVAPROJECT_MIMETYPE));
             isUbuntuProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
         }
 
