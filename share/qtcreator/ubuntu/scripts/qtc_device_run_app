@@ -86,5 +86,5 @@ $SSH "echo 'Exec=/usr/bin/${COMMAND}' >> ${TARGET_DEVICE_HOME}/${FOLDERNAME}/${D
 
 
 # run the application on the device
-$SSH "bash -ic '${COMMAND}'"
+$SSH "bash -ic 'source /etc/profile; ${COMMAND}'"
 

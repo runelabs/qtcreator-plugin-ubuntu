@@ -9,6 +9,7 @@ qtcreator-plugin-ubuntu (2.8.1-0ubuntu1) UNRELEASED; urgency=low
   * Moved misc buttons from Devices tabs under Settings page.
   * Added more Settings pages.
   * execute sanity checks for click packages after generation (LP: #1230413)
+  * Can't run html5 apps on device from SDK (LP: 1232061)
 
   [ Maxim Ermilov ]
   * Fixed CordovaUbuntuProjectManager to compile against Qt Creator 2.8
