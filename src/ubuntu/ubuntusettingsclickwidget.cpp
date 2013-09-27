@@ -19,6 +19,7 @@
 #include "ubuntusettingsclickwidget.h"
 #include "ui_ubuntusettingsclickwidget.h"
 #include "ubuntuconstants.h"
+#include <QFileDialog>
 
 using namespace Ubuntu;
 
@@ -29,23 +30,17 @@ UbuntuSettingsClickWidget::UbuntuSettingsClickWidget(QWidget *parent) :
     ui->setupUi(this);
     m_settings = new QSettings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
 
-    /*m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_MODE));
-    ui->checkBox_mode_api->setChecked(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_API),Constants::SETTINGS_DEFAULT_API_VISIBILITY).toBool());
-    ui->checkBox_mode_coreapps->setChecked(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_COREAPPS),Constants::SETTINGS_DEFAULT_COREAPPS_VISIBILITY).toBool());
-    ui->checkBox_mode_irc->setChecked(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_IRC),Constants::SETTINGS_DEFAULT_IRC_VISIBILITY).toBool());
-    ui->checkBox_mode_pastebin->setChecked(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_PASTEBIN),Constants::SETTINGS_DEFAULT_PASTEBIN_VISIBILITY).toBool());
-    ui->checkBox_mode_wiki->setChecked(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_WIKI),Constants::SETTINGS_DEFAULT_WIKI_VISIBILITY).toBool());
-    m_settings->endGroup();*/
+    m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_CLICK));
+    ui->groupBox_4->setChecked(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_CLICK_REVIEWERSTOOLS),Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS).toBool());
+    ui->lineEditPackagingToolsLocation->setText(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_CLICK_REVIEWERSTOOLS_LOCATION),QLatin1String(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION)).toString());
+    m_settings->endGroup();
 }
 
 void UbuntuSettingsClickWidget::apply() {
-    /*m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_MODE));
-    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_API),ui->checkBox_mode_api->isChecked());
-    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_COREAPPS),ui->checkBox_mode_coreapps->isChecked());
-    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_IRC),ui->checkBox_mode_irc->isChecked());
-    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_PASTEBIN),ui->checkBox_mode_pastebin->isChecked());
-    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_WIKI),ui->checkBox_mode_wiki->isChecked());
-    m_settings->endGroup();*/
+    m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_CLICK));
+    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_CLICK_REVIEWERSTOOLS),ui->groupBox_4->isChecked());
+    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_CLICK_REVIEWERSTOOLS_LOCATION),ui->lineEditPackagingToolsLocation->text());
+    m_settings->endGroup();
 
     m_settings->sync();
 }
@@ -53,4 +48,10 @@ void UbuntuSettingsClickWidget::apply() {
 UbuntuSettingsClickWidget::~UbuntuSettingsClickWidget()
 {
     delete ui;
+}
+
+void UbuntuSettingsClickWidget::on_pushButtonFindClickPackagingTools_clicked() {
+    QString path = QFileDialog::getExistingDirectory(this,QLatin1String(Constants::UBUNTUSETTINGSCLICKWIDGET_FILEDIALOG));
+    if (path.isEmpty()) return;
+    ui->lineEditPackagingToolsLocation->setText(path);
 }

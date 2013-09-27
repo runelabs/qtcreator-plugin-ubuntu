@@ -8,6 +8,7 @@ qtcreator-plugin-ubuntu (2.8.1-0ubuntu1) UNRELEASED; urgency=low
   * Fixed bug where click packaging manifest files wasnt created on new application creation.
   * Moved misc buttons from Devices tabs under Settings page.
   * Added more Settings pages.
+  * execute sanity checks for click packages after generation (LP: #1230413)
 
   [ Maxim Ermilov ]
   * Fixed CordovaUbuntuProjectManager to compile against Qt Creator 2.8

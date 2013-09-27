@@ -340,6 +340,13 @@ const char  SETTINGS_KEY_QML[] = "QML";
 const char  SETTINGS_KEY_SSH[] = "SSH";
 const char  SETTINGS_KEY_AUTOTOGGLE[] = "Auto_Toggle";
 
+const char  SETTINGS_GROUP_CLICK[] = "Click";
+const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS[] = "ReviewersToolsEnabled";
+const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS_LOCATION[] = "ReviewersToolsLocation";
+const bool  SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS = false;
+const char  SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION[] = "";
+const char  UBUNTUSETTINGSCLICKWIDGET_FILEDIALOG[] = "Location of click-reviewers-tools";
+
 } // namespace Ubuntu
 } // namespace Constants
 

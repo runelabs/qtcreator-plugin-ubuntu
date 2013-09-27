@@ -36,9 +36,11 @@ public:
     ~UbuntuSettingsClickWidget();
     void apply();
 
+protected slots:
+    void on_pushButtonFindClickPackagingTools_clicked();
+
 private:
     Ui::UbuntuSettingsClickWidget *ui;
-
     QSettings* m_settings;
 };
 
