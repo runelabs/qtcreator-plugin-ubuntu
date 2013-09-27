@@ -67,9 +67,12 @@ void UbuntuPackagingWidget::setAvailable(bool available) {
 
 UbuntuPackagingWidget::~UbuntuPackagingWidget()
 {
-    save((ui->tabWidget->currentWidget() == ui->tabSimple));
-
+    autoSave();
     delete ui;
+}
+
+void UbuntuPackagingWidget::autoSave() {
+    save((ui->tabWidget->currentWidget() == ui->tabSimple));
 }
 
 void UbuntuPackagingWidget::openManifestForProject() {

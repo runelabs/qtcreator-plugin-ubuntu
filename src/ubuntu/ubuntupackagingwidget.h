@@ -21,6 +21,7 @@ public:
     ~UbuntuPackagingWidget();
 
 public slots:
+    void autoSave();
     void reload();
     void load_manifest(QString fileName);
     void load_apparmor(QString fileAppArmorName);

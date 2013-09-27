@@ -41,6 +41,8 @@ protected slots:
     void on_projectRemoved(ProjectExplorer::Project *project);
 
 protected:
+    void updateModeState();
+
     QWidget* m_modeWidget;
     UbuntuPackagingWidget m_ubuntuPackagingWidget;
 

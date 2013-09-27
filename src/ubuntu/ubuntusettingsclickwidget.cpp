@@ -16,7 +16,6 @@
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-
 #include "ubuntusettingsclickwidget.h"
 #include "ui_ubuntusettingsclickwidget.h"
 #include "ubuntuconstants.h"

@@ -44,8 +44,6 @@ UbuntuPackagingMode::UbuntuPackagingMode(QObject *parent) :
     setId(Ubuntu::Constants::UBUNTU_MODE_PACKAGING);
     setObjectName(QLatin1String(Ubuntu::Constants::UBUNTU_MODE_PACKAGING));
 
-    //TODO: enable only when there is a qml project open. Otherwise this tab should remain disabled.
-
     m_modeWidget = new QWidget;
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
@@ -66,6 +64,7 @@ UbuntuPackagingMode::UbuntuPackagingMode(QObject *parent) :
     ProjectExplorer::SessionManager* sessionManager = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
     connect(sessionManager,SIGNAL(projectAdded(ProjectExplorer::Project*)),SLOT(on_projectAdded(ProjectExplorer::Project*)));
     connect(sessionManager,SIGNAL(projectRemoved(ProjectExplorer::Project*)),SLOT(on_projectRemoved(ProjectExplorer::Project*)));
+    connect(sessionManager,SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),SLOT(on_projectAdded(ProjectExplorer::Project*)));
 
     setWidget(m_modeWidget);
     setEnabled(false);
@@ -106,13 +105,36 @@ void UbuntuPackagingMode::modeChanged(Core::IMode* currentMode) {
     previousMode = currentMode->id();
 }
 
+void UbuntuPackagingMode::updateModeState() {
+    ProjectExplorer::SessionManager* sessionManager = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
+    ProjectExplorer::ProjectExplorerPlugin* projectExplorerInstance = ProjectExplorer::ProjectExplorerPlugin::instance();
+    ProjectExplorer::Project* startupProject = projectExplorerInstance->startupProject();
+
+    bool isQmlProject = false;
+    bool isQmakeProject = false;
+    bool isUbuntuProject = false;
+    bool isCordovaProject = false;
+
+    if (startupProject) {
+        isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMLPROJECT_MIMETYPE));
+        isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMAKE_MIMETYPE));
+        isCordovaProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::CORDOVAPROJECT_MIMETYPE));
+        isUbuntuProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
+    }
+
+    this->setEnabled((sessionManager->projects().count()>0) && (isQmlProject || isUbuntuProject || isCordovaProject));
+    if (this->isEnabled()) {
+        m_ubuntuPackagingWidget.openManifestForProject();
+        m_ubuntuPackagingWidget.save();
+    }
+}
 
 void UbuntuPackagingMode::on_projectAdded(ProjectExplorer::Project *project) {
-    ProjectExplorer::SessionManager* sessionManager = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
-    this->setEnabled(sessionManager->projects().count()>0);
+    Q_UNUSED(project);
+    updateModeState();
 }
 
 void UbuntuPackagingMode::on_projectRemoved(ProjectExplorer::Project *project) {
-    ProjectExplorer::SessionManager* sessionManager = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
-    this->setEnabled(sessionManager->projects().count()>0);
+    Q_UNUSED(project);
+    updateModeState();
 }
