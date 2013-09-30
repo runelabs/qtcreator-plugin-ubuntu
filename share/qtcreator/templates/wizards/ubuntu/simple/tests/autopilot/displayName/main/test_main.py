@@ -22,5 +22,5 @@ class MainViewTestCase(%DISPLAYNAME%.ClickAppTestCase):
     def test_click_button_should_update_label(self):
         button = self.main_view.select_single(objectName="button")
         self.pointing_device.click_object(button)
-        self.assertThat(label.text, Eventually(Equals("..world!")))
         label = self.main_view.select_single(objectName="label")
+        self.assertThat(label.text, Eventually(Equals("..world!")))
