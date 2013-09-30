@@ -2,37 +2,25 @@
 
 """Tests for the Hello World"""
 
-from autopilot.matchers import Eventually
-from textwrap import dedent
-from testtools.matchers import Is, Not, Equals
-from testtools import skip
 import os
-from %DISPLAYNAME% import UbuntuTouchAppTestCase
+
+from autopilot.matchers import Eventually
+from testtools.matchers import Equals
+
+import %DISPLAYNAME%
 
 
-class GenericTests(UbuntuTouchAppTestCase):
+class MainViewTestCase(%DISPLAYNAME%.UbuntuTouchAppTestCase):
     """Generic tests for the Hello World"""
 
-    test_qml_file = "%s/%s.qml" % (os.path.dirname(os.path.realpath(__file__)),"../../../../%DISPLAYNAME%")
+    test_qml_file_path = "%s/%s.qml" % (os.path.dirname(os.path.realpath(__file__)),"../../../../%DISPLAYNAME%")
 
-    def test_0_can_select_mainView(self):
-        """Must be able to select the mainview."""
+    def test_inititial_label(self):
+        label = self.main_view.select_single(objectName="label")
+        self.assertThat(label.text, Equals("Hello.."))
 
-        mainView = self.get_mainview()
-        self.assertThat(mainView.visible,Eventually(Equals(True)))
-
-
-    def test_1_init_label(self):
-        """Check the initial text of the label"""
-
-        lbl = self.get_object(objectName="label")
-        self.assertThat(lbl.text, Equals("Hello.."))
-
-
-    def test_can_tap_button(self):
-        """Must be able to tap the button"""
-
-        lbl = self.get_object(objectName="label")
-        self.mouse_click(objectName="button")
-        self.assertThat(lbl.text, Eventually(Equals("..world!")))
-
+    def test_click_button_should_update_label(self):
+        button = self.main_view.select_single(objectName="button")
+        self.pointing_device.click_object(button)
+        self.assertThat(lable.text, Eventually(Equals("..world!")))
+        label = self.main_view.select_single(objectName="label")

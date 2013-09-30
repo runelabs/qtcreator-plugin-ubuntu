@@ -2,130 +2,80 @@
 
 """Ubuntu Touch App autopilot tests."""
 
-from os import remove
-import os.path
-from tempfile import mktemp
-import subprocess
+import os
 
-from autopilot.input import Mouse, Touch, Pointer
-from autopilot.matchers import Eventually
-from autopilot.platform import model
-from testtools.matchers import Is, Not, Equals
-from autopilot.testcase import AutopilotTestCase
+from autopilot import input, platform
+from autopilot.matchers import Equals, Eventually
+from ubuntuuitoolkit import base, emulators
 
-def get_module_include_path():
+
+def _get_module_include_path():
+    return os.path.join(get_path_to_source_root(), 'modules')
+
+
+def get_path_to_source_root():
     return os.path.abspath(
         os.path.join(
-            os.path.dirname(__file__),
-            '..',
-            '..',
-            '..',
-            '..',
-            'modules')
-        )
+            os.path.dirname(__file__), '..', '..', '..', '..'))
 
 
-class UbuntuTouchAppTestCase(AutopilotTestCase):
-    """A common test case class that provides several useful methods for the tests."""
+class ClickAppTestCase(base.UbuntuUIToolkitAppTestCase):
+    """Common test case that provides several useful methods for the tests."""
 
-    if model() == 'Desktop':
-        scenarios = [
-        ('with mouse', dict(input_device_class=Mouse))
-        ]
-    else:
-        scenarios = [
-        ('with touch', dict(input_device_class=Touch))
-        ]
-
-    @property
-    def main_window(self):
-        return MainWindow(self.app)
-
+    package_id = '' # TODO
+    app_name = '%DISPLAYNAME%'
+    desktop_file_path = '' #TODO
+    installed_app_qml_location = '' #TODO
 
     def setUp(self):
-        self.pointing_device = Pointer(self.input_device_class.create())
-        super(UbuntuTouchAppTestCase, self).setUp()
-        self.launch_test_qml()
+        super(ClickAppTestCase, self).setUp()
+        self.pointing_device = input.Pointer(self.input_device_class.create())
+        self.app_qml_source_location = self._get_app_qml_source_path()
+        self.launch_application()
 
+        self.assertThat(self.main_view.visible, Eventually(Equals(True)))
 
-    def launch_test_qml(self):
-        # If the test class has defined a 'test_qml' class attribute then we
-        # write it to disk and launch it inside the QML Scene. If not, then we
-        # silently do nothing (presumably the test has something else planned).
-        arch = subprocess.check_output(["dpkg-architecture",
-        "-qDEB_HOST_MULTIARCH"]).strip()
-        if hasattr(self, 'test_qml') and isinstance(self.test_qml, basestring):
-            qml_path = mktemp(suffix='.qml')
-            open(qml_path, 'w').write(self.test_qml)
-            self.addCleanup(remove, qml_path)
+    def _get_app_qml_source_path(self):
+        qml_file_name = '{0}.qml'.format(self.app_name)
+        return os.path.join(self._get_path_to_app_source(), qml_file_name)
 
-            self.app = self.launch_test_application(
-                "/usr/lib/" + arch + "/qt5/bin/qmlscene",
-                "-I", get_module_include_path(),
-                qml_path,
-                app_type='qt')
+    def _get_path_to_app_source(self):
+        return os.path.join(get_path_to_source_root(), self.app_name)
 
-        if hasattr(self, 'test_qml_file') and isinstance(self.test_qml_file, basestring):
-            qml_path = self.test_qml_file
-            self.app = self.launch_test_application(
-                "/usr/lib/" + arch + "/qt5/bin/qmlscene",
-                "-I", get_module_include_path(),
-                qml_path,
-                app_type='qt')
+    def launch_application(self):
+        # On the phablet, we can only run the installed application.
+        if platform.model() == 'Desktop' and self._application_source_exists():
+            self._launch_application_from_source()
+        else:
+            self._launch_installed_application()
 
-        self.assertThat(self.get_qml_view().visible, Eventually(Equals(True)))
+    def _application_source_exists(self):
+        return os.path.exists(self.app_qml_source_location)
 
+    def _launch_application_from_source(self):
+        self.app = self.launch_test_application(
+            'qmlscene', '-I' + _get_module_include_path(),
+            self.app_qml_source_location,
+            '--desktop_file_hint={0}'.format(self.desktop_file_path),
+            app_type='qt',
+            emulator_base=emulators.UbuntuUIToolkitEmulatorBase)
 
-    def get_qml_view(self):
-        """Get the main QML view"""
+    def _launch_installed_application(self):
+        if platform.model() == 'Desktop':
+            self.launch_installed_application_with_qmlscene()
+        else:
+            self.launch_installed_click_application()
+        
+    def _launch_installed_application_with_qmlscene(self):
+        self.app = self.launch_test_application(
+            'qmlscene', self.installed_app_qml_location,
+            '--desktop_file_hint={0}'.format(self.desktop_file_path),
+            app_type='qt',
+            emulator_base=emulators.UbuntuUIToolkitEmulatorBase)
 
-        return self.app.select_single("QQuickView")
-
-    def get_mainview(self):
-        """Get the QML MainView"""
-
-        mainView = self.app.select_single("MainView")
-        self.assertThat(mainView, Not(Is(None)))
-        return mainView
-
-
-    def get_object(self,objectName):
-        """Get a object based on the objectName"""
-
-        obj = self.app.select_single(objectName=objectName)
-        self.assertThat(obj, Not(Is(None)))
-        return obj
-
-
-    def mouse_click(self,objectName):
-        """Move mouse on top of the object and click on it"""
-
-        obj = self.get_object(objectName)
-        self.pointing_device.move_to_object(obj)
-        self.pointing_device.click()
-
-
-    def mouse_press(self,objectName):
-        """Move mouse on top of the object and press mouse button (without releasing it)"""
-
-        obj = self.get_object(objectName)
-        self.pointing_device.move_to_object(obj)
-        self.pointing_device.press()
-
-
-    def mouse_release(self):
-        """Release mouse button"""
-
-        self.pointing_device.release()     
-
-
-    def type_string(self, string):
-        """Type a string with keyboard"""
-
-        self.keyboard.type(string)
-
-
-    def type_key(self, key):
-        """Type a single key with keyboard"""
-
-        self.keyboard.key(key)
+    def _launch_installed_click_application(self):
+        self.app = self.launch_click_package(self.pacakge_id, self.app_name)
+        
+    @property
+    def main_view(self):
+        return self.app.select_single(emulators.MainView)    
