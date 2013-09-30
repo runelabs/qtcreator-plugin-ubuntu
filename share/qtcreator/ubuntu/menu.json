@@ -116,6 +116,32 @@
                 "actions": [
                     "%SCRIPTDIRECTORY%/qtc_device_buildanddeploypackage %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp"
                 ]
+            },
+            {
+                "name": "Translations",
+                "id": "Ubuntu.Menu.i18n",
+                "submenu": [
+                    {
+                        "name": "Update Translations Template",
+                        "id": "Ubuntu.Menu.i18n.pot",
+                        "projectRequired": true,
+                        "qmlProjectRequired": true,
+                        "saveRequired": true,
+                        "actions": [
+                            "%SCRIPTDIRECTORY%/i18n_update_template %DISPLAYNAME% %PROJECTFILES%"
+                        ]
+                    },
+                    {
+                        "name": "Build Translations",
+                        "id": "Ubuntu.Menu.i18n.mo",
+                        "projectRequired": true,
+                        "qmlProjectRequired": true,
+                        "saveRequired": true,
+                        "actions": [
+                            "msgfmt po/*.po"
+                        ]
+                    }
+                ]
             }
         ]
     },
@@ -216,33 +242,6 @@
                         "id": "Ubuntu.Menu.gpg.seahorse",
                         "actions": [
                             "seahorse"
-                        ]
-                    }
-                ]
-            },
-            {
-                "name": "Translations",
-                "id": "Ubuntu.Menu.i18n",
-                "submenu": [
-                    {
-                        "name": "Export \".pot\" File",
-                        "id": "Ubuntu.Menu.i18n.pot",
-                        "projectRequired": true,
-                        "qmlProjectRequired": true,
-                        "saveRequired": true,
-                        "actions": [
-                            "mkdir -p po",
-                            "xgettext -o po/%DISPLAYNAME%.pot --qt --c++ --add-comments=TRANSLATORS --keyword=tr %PROJECTFILES% --from-code=UTF-8"
-                        ]
-                    },
-                    {
-                        "name": "Generate \".mo\" File",
-                        "id": "Ubuntu.Menu.i18n.mo",
-                        "projectRequired": true,
-                        "qmlProjectRequired": true,
-                        "saveRequired": true,
-                        "actions": [
-                            "msgfmt po/*.po"
                         ]
                     }
                 ]
