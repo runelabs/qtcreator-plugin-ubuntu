@@ -13,6 +13,7 @@ qtcreator-plugin-ubuntu (2.8.1-0ubuntu1) UNRELEASED; urgency=low
   * created click pkg for cordova desktop has qmlscene exec (LP: #1232213)
   * do not execute i18n stuff on all project files (LP: #1176433)
   * Internationalization workflow improvements (LP: #1177449)
+  * [i18n] The .pot file generator should provide relative paths (LP: #1180325)
 
   [ Maxim Ermilov ]
   * Fixed CordovaUbuntuProjectManager to compile against Qt Creator 2.8
