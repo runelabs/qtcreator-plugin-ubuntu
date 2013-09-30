@@ -87,7 +87,7 @@ pushd ${PROJECTPATH} >> /dev/null
   QMLSCENE_ARGS=`cat ${DESKTOPFILE} | grep -o "qmlscene.*\$\@" | sed "s/\(qmlscene\|\$\@\)//g"`
 
   # lets replace the Exec line
-  sed -i "s/^Exec=qmlscene.*/Exec=qmlscene ${QMLSCENE_ARGS} \$@ ${MAINQML}/g" ${DESKTOPFILE}
+  sed -i "s/^Exec=[ a-z0-9A-Z\/]*qmlscene.*/Exec=qmlscene ${QMLSCENE_ARGS} \$@ ${MAINQML}/g" ${DESKTOPFILE}
 
   # lets build the package
   cd ..
