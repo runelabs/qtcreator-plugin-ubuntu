@@ -87,7 +87,7 @@ pushd ${PROJECTPATH} >> /dev/null
   QMLSCENE_ARGS=`cat ${DESKTOPFILE} | grep -o "qmlscene.*\$\@" | sed "s/\(qmlscene\|\$\@\)//g"`
 
   # lets replace the Exec line
-  sed -i "s/^Exec=.*/Exec=qmlscene ${QMLSCENE_ARGS} \$@ ${MAINQML}/g" ${DESKTOPFILE}
+  sed -i "s/^Exec=qmlscene.*/Exec=qmlscene ${QMLSCENE_ARGS} \$@ ${MAINQML}/g" ${DESKTOPFILE}
 
   # lets build the package
   cd ..
@@ -100,7 +100,7 @@ pushd ${PROJECTPATH} >> /dev/null
   mkdir -p ${BUILDPATH}
 
   # read .excludes file from the projectpath
-  PROJECT_EXCLUDES="--exclude .bzr --exclude .git --exclude .hg --exclude .svn --exclude *.qmlproject* --exclude tests --exclude Makefile --exclude .excludes"
+  PROJECT_EXCLUDES="--exclude .bzr --exclude .git --exclude .hg --exclude .svn --exclude *.cordovaproject --exclude *.qmlproject --exclude *.user --exclude tests --exclude Makefile --exclude .excludes"
   if [[ -f ${PROJECTPATH}/.excludes ]]; then
     for EXCLUDE in `cat ${PROJECTPATH}/.excludes`; do
     PROJECT_EXCLUDES+=" --exclude ${EXCLUDE}"
