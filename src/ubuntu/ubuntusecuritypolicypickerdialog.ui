@@ -6,18 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>682</width>
-    <height>431</height>
+    <width>744</width>
+    <height>404</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>SecurityPolicyPickerDialog</string>
+   <string>Add Security Policies</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="page">
       <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -94,12 +94,12 @@
            </widget>
           </item>
           <item>
-           <widget class="QPlainTextEdit" name="plainTextEditInfo">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+           <widget class="QTextEdit" name="textBrowserEditInfo">
+            <property name="lineWrapMode">
+             <enum>QTextEdit::NoWrap</enum>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
             </property>
            </widget>
           </item>

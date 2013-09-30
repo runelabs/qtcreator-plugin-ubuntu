@@ -42,7 +42,7 @@ void UbuntuPolicyGroupInfo::getInfo(QString policyGroup) {
 }
 
 void UbuntuPolicyGroupInfo::onMessage(QString line) {
-    m_replies.append(line.trimmed().replace(QLatin1String("\r"),QLatin1String("")).split(QLatin1String("\n")));
+    m_replies.append(line);
 }
 
 void UbuntuPolicyGroupInfo::onFinished(QString, int result) {

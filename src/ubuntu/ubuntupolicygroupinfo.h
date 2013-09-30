@@ -31,7 +31,7 @@ class UbuntuPolicyGroupInfo : public QObject
 
 public:
     explicit UbuntuPolicyGroupInfo(QObject *parent = 0);
-    QString info() { return m_replies.join(QLatin1String("\n")); }
+    QString info() { return m_replies; }
     bool isLocal() { return m_bLocal; }
 
 public slots:
@@ -45,7 +45,7 @@ signals:
 
 protected:
     UbuntuProcess m_process;
-    QStringList m_replies;
+    QString m_replies;
     QString m_policyGroup;
     bool m_bLocal;
 

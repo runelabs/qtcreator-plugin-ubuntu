@@ -75,9 +75,14 @@ void UbuntuSecurityPolicyPickerDialog::onPolicyClicked(QModelIndex idx) {
 
 void UbuntuSecurityPolicyPickerDialog::onInfoChanged(bool ok) {
     if (ok) {
-        ui->plainTextEditInfo->setPlainText(m_info.info());
-        ui->plainTextEditInfo->show();
+        QString policyGroupInfo = m_info.info();
+        policyGroupInfo = policyGroupInfo.replace(QRegExp(QLatin1String("#([^\n]*)")), QLatin1String("<span style=\"color: green\">#\\1</span>"));
+        policyGroupInfo = policyGroupInfo.replace(QRegExp(QLatin1String("(# Usage: reserved)"),Qt::CaseInsensitive), QLatin1String("<span style=\"background: red; color: white\">\\1</span>"));
+        policyGroupInfo = policyGroupInfo.replace(QRegExp(QLatin1String("\n")), QLatin1String("<br />"));
+        ui->textBrowserEditInfo->setHtml(policyGroupInfo);
+
+        ui->textBrowserEditInfo->show();
     } else {
-        ui->plainTextEditInfo->hide();
+        ui->textBrowserEditInfo->hide();
     }
 }
