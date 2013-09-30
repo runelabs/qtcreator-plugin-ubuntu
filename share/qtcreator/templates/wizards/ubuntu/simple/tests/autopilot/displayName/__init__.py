@@ -5,7 +5,8 @@
 import os
 
 from autopilot import input, platform
-from autopilot.matchers import Equals, Eventually
+from autopilot.matchers import Eventually
+from testtools.matchers import Equals
 from ubuntuuitoolkit import base, emulators
 
 
