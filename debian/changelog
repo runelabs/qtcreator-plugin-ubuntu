@@ -10,6 +10,12 @@ qtcreator-plugin-ubuntu (2.8.1-0ubuntu1) UNRELEASED; urgency=low
   * Added more Settings pages.
   * execute sanity checks for click packages after generation (LP: #1230413)
   * Can't run html5 apps on device from SDK (LP: 1232061)
+  * created click pkg for cordova desktop has qmlscene exec (LP: #1232213)
+  * do not execute i18n stuff on all project files (LP: #1176433)
+  * Internationalization workflow improvements (LP: #1177449)
+  * [i18n] The .pot file generator should provide relative paths (LP: #1180325)
+  * Split out reserved security policies from regular ones (LP: #1227814)
+  * Fixed an issue where Click package creation or installation wasnt visible for cordova projects.
 
   [ Maxim Ermilov ]
   * Fixed CordovaUbuntuProjectManager to compile against Qt Creator 2.8
