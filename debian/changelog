@@ -15,6 +15,7 @@ qtcreator-plugin-ubuntu (2.8.1-0ubuntu1) UNRELEASED; urgency=low
   * Internationalization workflow improvements (LP: #1177449)
   * [i18n] The .pot file generator should provide relative paths (LP: #1180325)
   * Split out reserved security policies from regular ones (LP: #1227814)
+  * Fixed an issue where Click package creation or installation wasnt visible for cordova projects.
 
   [ Maxim Ermilov ]
   * Fixed CordovaUbuntuProjectManager to compile against Qt Creator 2.8

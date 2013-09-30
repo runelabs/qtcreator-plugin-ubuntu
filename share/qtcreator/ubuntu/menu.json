@@ -75,7 +75,7 @@
                 "id": "Ubuntu.Build.Package",
                 "workingDirectory": "%0/..",
                 "projectRequired": true,
-                "qmlProjectRequired": true,
+                "ubuntuProjectRequired": true,
                 "saveRequired": true,
                 "actions": [
                     "%SCRIPTDIRECTORY%/qtc_project_click_create %FOLDERNAME%"
@@ -87,7 +87,7 @@
                 "workingDirectory": "%0/..",
                 "projectRequired": true,
                 "deviceRequired": true,
-                "qmlProjectRequired": true,
+                "ubuntuProjectRequired": true,
                 "saveRequired": true,
                 "actions": [
                     "%SCRIPTDIRECTORY%/qtc_project_click_createanddeploy %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp %USERNAME%"
