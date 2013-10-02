@@ -3,11 +3,18 @@
 """Ubuntu Touch App autopilot tests."""
 
 import os
+import subprocess
 
 from autopilot import input, platform
 from autopilot.matchers import Eventually
 from testtools.matchers import Equals
 from ubuntuuitoolkit import base, emulators
+
+
+def _get_qmlscene_binary_path():
+    arch = subprocess.check_output(
+        ["dpkg-architecture", "-qDEB_HOST_MULTIARCH"]).strip()
+    return '/usr/lib/' + arch + '/qt5/bin/qmlscene'
 
 
 def _get_module_include_path():
@@ -43,10 +50,11 @@ class ClickAppTestCase(base.UbuntuUIToolkitAppTestCase):
         app_qml_source_location = self._get_app_qml_source_path()
         if os.path.exists(app_qml_source_location):
             self.app = self.launch_test_application(
-                'qmlscene', '-I' + _get_module_include_path(),
+                _get_qmlscene_binary_path(),
+                '-I' + _get_module_include_path(),
                 app_qml_source_location,
-            app_type='qt',
-            emulator_base=emulators.UbuntuUIToolkitEmulatorBase)
+                app_type='qt',
+                emulator_base=emulators.UbuntuUIToolkitEmulatorBase)
         else:
             raise NotImplementedError(
                 "On desktop we can't install click packages yet, so we can "
