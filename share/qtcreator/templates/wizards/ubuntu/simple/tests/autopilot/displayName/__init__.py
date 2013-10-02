@@ -44,7 +44,7 @@ class ClickAppTestCase(base.UbuntuUIToolkitAppTestCase):
         if os.path.exists(app_qml_source_location):
             self.app = self.launch_test_application(
                 'qmlscene', '-I' + _get_module_include_path(),
-                self.app_qml_source_location,
+                app_qml_source_location,
             app_type='qt',
             emulator_base=emulators.UbuntuUIToolkitEmulatorBase)
         else:
