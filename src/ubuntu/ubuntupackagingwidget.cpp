@@ -204,6 +204,10 @@ void UbuntuPackagingWidget::save(bool bSaveSimple) {
         }
         m_apparmor.setPolicyGroups(m_projectName,items);
         m_manifest.save();
+        m_apparmor.setRaw(ui->plainTextEditAppArmorJson->toPlainText());
+        m_apparmor.save();
+        save_excludes();
+
         break;
     }
     case 1: {
