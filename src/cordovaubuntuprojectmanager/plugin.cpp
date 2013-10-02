@@ -31,7 +31,7 @@ const char *RUN_ON_DEVICE[] = {"tar -cjf ../%FOLDERNAME%.tar.bz2 ../%FOLDERNAME%
                                "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p2222 phablet@127.0.0.1 tar -xvf %FOLDERNAME%.tar.bz2",
                                "bash -ic \"echo '[Desktop Entry]\nName=PhoneGap Demo\nType=Application\nExec=cordova-ubuntu-2.8\nIcon=\n' > /tmp/%FOLDERNAME%.desktop\"",
                                "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P2222 /tmp/%FOLDERNAME%.desktop phablet@127.0.0.1:~/%FOLDERNAME%",
-                               "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p2222 phablet@127.0.0.1 \"bash -ic \'cordova-ubuntu-2.8 --desktop_file_hint=/home/phablet/%FOLDERNAME%/%FOLDERNAME%.desktop /home/phablet/%FOLDERNAME%\'\"",
+                               "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p2222 phablet@127.0.0.1 \"bash -ic \'source /etc/profile; QT_QPA_PLATFORM=ubuntu cordova-ubuntu-2.8 --desktop_file_hint=/home/phablet/%FOLDERNAME%/%FOLDERNAME%.desktop /home/phablet/%FOLDERNAME%\'\"",
                                NULL };
 
 static void printToOutputPane(QString msg) {
