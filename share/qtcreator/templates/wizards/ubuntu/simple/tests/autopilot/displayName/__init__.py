@@ -30,7 +30,7 @@ def get_path_to_source_root():
 class ClickAppTestCase(base.UbuntuUIToolkitAppTestCase):
     """Common test case that provides several useful methods for the tests."""
 
-    package_id = '' # TODO
+    package_id = ''  # TODO
     app_name = '%DISPLAYNAME%'
 
     def setUp(self):
@@ -66,12 +66,12 @@ class ClickAppTestCase(base.UbuntuUIToolkitAppTestCase):
 
     def _get_path_to_app_source(self):
         return os.path.join(get_path_to_source_root(), self.app_name)
-        
+
     def _launch_application_from_phablet(self):
         # On phablet, we only run the tests against the installed click
         # package.
         self.app = self.launch_click_package(self.pacakge_id, self.app_name)
-        
+
     @property
     def main_view(self):
-        return self.app.select_single(emulators.MainView)    
+        return self.app.select_single(emulators.MainView)
