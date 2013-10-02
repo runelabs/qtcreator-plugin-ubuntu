@@ -25,16 +25,32 @@ class ClickAppTestCase(base.UbuntuUIToolkitAppTestCase):
 
     package_id = '' # TODO
     app_name = '%DISPLAYNAME%'
-    desktop_file_path = '' #TODO
-    installed_app_qml_location = '' #TODO
 
     def setUp(self):
         super(ClickAppTestCase, self).setUp()
         self.pointing_device = input.Pointer(self.input_device_class.create())
-        self.app_qml_source_location = self._get_app_qml_source_path()
         self.launch_application()
 
         self.assertThat(self.main_view.visible, Eventually(Equals(True)))
+
+    def launch_application(self):
+        if platform.model() == 'Desktop':
+            self._launch_application_from_desktop()
+        else:
+            self._launch_application_from_phablet()
+
+    def _launch_application_from_desktop(self):
+        app_qml_source_location = self._get_app_qml_source_path()
+        if os.path.exists(app_qml_source_location):
+            self.app = self.launch_test_application(
+                'qmlscene', '-I' + _get_module_include_path(),
+                self.app_qml_source_location,
+            app_type='qt',
+            emulator_base=emulators.UbuntuUIToolkitEmulatorBase)
+        else:
+            raise NotImplementedError(
+                "On desktop we can't install click packages yet, so we can "
+                "only run from source.")
 
     def _get_app_qml_source_path(self):
         qml_file_name = '{0}.qml'.format(self.app_name)
@@ -42,39 +58,10 @@ class ClickAppTestCase(base.UbuntuUIToolkitAppTestCase):
 
     def _get_path_to_app_source(self):
         return os.path.join(get_path_to_source_root(), self.app_name)
-
-    def launch_application(self):
-        # On the phablet, we can only run the installed application.
-        if platform.model() == 'Desktop' and self._application_source_exists():
-            self._launch_application_from_source()
-        else:
-            self._launch_installed_application()
-
-    def _application_source_exists(self):
-        return os.path.exists(self.app_qml_source_location)
-
-    def _launch_application_from_source(self):
-        self.app = self.launch_test_application(
-            'qmlscene', '-I' + _get_module_include_path(),
-            self.app_qml_source_location,
-            '--desktop_file_hint={0}'.format(self.desktop_file_path),
-            app_type='qt',
-            emulator_base=emulators.UbuntuUIToolkitEmulatorBase)
-
-    def _launch_installed_application(self):
-        if platform.model() == 'Desktop':
-            self.launch_installed_application_with_qmlscene()
-        else:
-            self.launch_installed_click_application()
         
-    def _launch_installed_application_with_qmlscene(self):
-        self.app = self.launch_test_application(
-            'qmlscene', self.installed_app_qml_location,
-            '--desktop_file_hint={0}'.format(self.desktop_file_path),
-            app_type='qt',
-            emulator_base=emulators.UbuntuUIToolkitEmulatorBase)
-
-    def _launch_installed_click_application(self):
+    def _launch_application_from_phablet(self):
+        # On phablet, we only run the tests against the installed click
+        # package.
         self.app = self.launch_click_package(self.pacakge_id, self.app_name)
         
     @property

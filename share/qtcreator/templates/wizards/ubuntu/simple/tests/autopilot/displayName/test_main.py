@@ -13,9 +13,7 @@ import %DISPLAYNAME%
 class MainViewTestCase(%DISPLAYNAME%.ClickAppTestCase):
     """Generic tests for the Hello World"""
 
-    test_qml_file_path = "%s/%s.qml" % (os.path.dirname(os.path.realpath(__file__)),"../../../../%DISPLAYNAME%")
-
-    def test_inititial_label(self):
+    def test_initial_label(self):
         label = self.main_view.select_single(objectName="label")
         self.assertThat(label.text, Equals("Hello.."))
 
