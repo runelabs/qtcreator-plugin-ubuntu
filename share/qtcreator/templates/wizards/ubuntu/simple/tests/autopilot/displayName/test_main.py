@@ -14,11 +14,11 @@ class MainViewTestCase(%DISPLAYNAME%.ClickAppTestCase):
     """Generic tests for the Hello World"""
 
     def test_initial_label(self):
-        label = self.main_view.select_single(objectName="label")
-        self.assertThat(label.text, Equals("Hello.."))
+        label = self.main_view.select_single(objectName='label')
+        self.assertThat(label.text, Equals('Hello..'))
 
     def test_click_button_should_update_label(self):
-        button = self.main_view.select_single(objectName="button")
+        button = self.main_view.select_single(objectName='button')
         self.pointing_device.click_object(button)
-        label = self.main_view.select_single(objectName="label")
-        self.assertThat(label.text, Eventually(Equals("..world!")))
+        label = self.main_view.select_single(objectName='label')
+        self.assertThat(label.text, Eventually(Equals('..world!')))

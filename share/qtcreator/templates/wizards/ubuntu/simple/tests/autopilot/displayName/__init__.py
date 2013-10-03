@@ -13,7 +13,7 @@ from ubuntuuitoolkit import base, emulators
 
 def _get_qmlscene_binary_path():
     arch = subprocess.check_output(
-        ["dpkg-architecture", "-qDEB_HOST_MULTIARCH"]).strip()
+        ['dpkg-architecture', '-qDEB_HOST_MULTIARCH']).strip()
     return '/usr/lib/' + arch + '/qt5/bin/qmlscene'
 
 
