@@ -13,7 +13,7 @@
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on an
     "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-     KIND, either express or implied.  See the License for the
+    KIND, either express or implied.  See the License for the
     specific language governing permissions and limitations
     under the License.
 -->
@@ -23,29 +23,65 @@
         <meta name="format-detection" content="telephone=no" />
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
         <link rel="stylesheet" type="text/css" href="css/index.css" />
-        <title>Hello World</title>
+
+        <!-- Use Ubuntu Cordova -->
+        <script language="javascript" type="text/javascript" src="file:///usr/share/cordova-ubuntu-2.8/www/cordova-2.8.js"></script>
+
+        <!-- Ubuntu UI Style imports - Ambiance theme -->
+        <link href="/usr/share/ubuntu-html5-theme/0.1/ambiance/css/appTemplate.css" rel="stylesheet" type="text/css" />
+
+        <!-- Ubuntu UI javascript imports - Ambiance theme -->
+        <script src="/usr/share/ubuntu-html5-theme/0.1/ambiance/js/fast-buttons.js"></script>
+        <script src="/usr/share/ubuntu-html5-theme/0.1/ambiance/js/core.js"></script>
+        <script src="/usr/share/ubuntu-html5-theme/0.1/ambiance/js/buttons.js"></script>
+        <script src="/usr/share/ubuntu-html5-theme/0.1/ambiance/js/dialogs.js"></script>
+        <script src="/usr/share/ubuntu-html5-theme/0.1/ambiance/js/pagestacks.js"></script>
+
+        <!-- Application script -->
+        <script src="app.js"></script>
+
+        <title>Hello World Cordova</title>
     </head>
+
     <body>
-        <div class="app">
-            <h1>Apache Cordova</h1>
-            <div id="deviceready" class="blink">
-                <p class="event listening">Connecting to Device</p>
-                <p class="event received">Device is Ready</p>
+
+        <div data-role="page">
+
+            <header data-role="header">
+                <nav data-role="navbar" class="tabs" >
+                <div class="tabs-inner">
+                    <ul>
+                        <li class="active" role="tab">
+                            <a href="#item1" class="tab-item">HTML5/Cordova</a>
+                        </li>
+                    </ul>
+                </div>
+                </nav>
+            </header>
+
+            <div data-role="content">
+                <div data-role="pagestack">
+                    <div data-role="page" id="main">
+                        <h1>Apache Cordova Loaded</h1>
+                        <img src="img/logo.png"/>
+                    </div>
+                </div>
+            </div>
+
+            <div data-role="dialog" id="loading">
+                <section>
+                    <h1>Apache Cordova Loading</h1>
+                    <progress></progress>
+                </section>
+            </div>
+
+            <div data-role="dialog" id="deviceready">
+                <section>
+                    <h1>Deviceready event received</h1>
+                    <button data-role="button" id="devicereadyOK" class="success">OK</button>
+                </section>
             </div>
         </div>
-
-	<script language="javascript" type="text/javascript" src="file:///usr/share/cordova-ubuntu-2.8/www/cordova-2.8.js"></script>
-	<script language="javascript" type="text/javascript">
-	document.addEventListener("deviceready", function() {
-	        var parentElement = document.getElementById("deviceready");
-	        var listeningElement = parentElement.querySelector('.listening');
-	        var receivedElement = parentElement.querySelector('.received');
-
-	        listeningElement.setAttribute('style', 'display:none;');
-	        receivedElement.setAttribute('style', 'display:block;');
-	}, false);
-	</script>
-
     </body>
 </html>
 
