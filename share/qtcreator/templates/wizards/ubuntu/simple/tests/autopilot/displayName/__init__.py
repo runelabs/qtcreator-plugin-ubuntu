@@ -11,12 +11,6 @@ from testtools.matchers import Equals
 from ubuntuuitoolkit import base, emulators
 
 
-def _get_qmlscene_binary_path():
-    arch = subprocess.check_output(
-        ['dpkg-architecture', '-qDEB_HOST_MULTIARCH']).strip()
-    return '/usr/lib/' + arch + '/qt5/bin/qmlscene'
-
-
 def _get_module_include_path():
     return os.path.join(get_path_to_source_root(), 'modules')
 
@@ -50,7 +44,7 @@ class ClickAppTestCase(base.UbuntuUIToolkitAppTestCase):
         app_qml_source_location = self._get_app_qml_source_path()
         if os.path.exists(app_qml_source_location):
             self.app = self.launch_test_application(
-                _get_qmlscene_binary_path(),
+                base.get_qmlscene_launch_command(),
                 '-I' + _get_module_include_path(),
                 app_qml_source_location,
                 app_type='qt',
