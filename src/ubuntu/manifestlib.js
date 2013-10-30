@@ -41,6 +41,14 @@ function getVersion() {
     return jsonData.version;
 }
 
+function setArchitecture($architecture) {
+    jsonData.version = $architecture;
+}
+
+function getArchitecture() {
+    return jsonData.architecture;
+}
+
 function setDescription($description) {
    jsonData.description = $description;
 }
