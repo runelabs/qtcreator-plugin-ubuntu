@@ -44,9 +44,6 @@
       "hasTests": false,
       "files": [
           {
-            "fileName": "app.desktop"
-          },
-          {
             "fileName": "app.json"
           },
           {
