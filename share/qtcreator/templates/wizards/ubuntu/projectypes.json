@@ -35,6 +35,26 @@
        ]
     },
     {
+      "type": "scriptgeneratedproject",
+      "folder": "webapp",
+      "displayName": "Webapp",
+      "id": "UbuntuWebApp",
+      "description": "A simple webapp template",
+      "mainFile": "app.desktop",
+      "hasTest": false,
+      "files": [
+          {
+            "fileName": "app.desktop"
+          },
+          {
+            "fileName": "app.json"
+          },
+          {
+            "fileName": "manifest.json"
+          }
+        ]
+    },
+    {
        "type": "qmlproject",
        "folder": "tabs",
        "displayName": "Tabbed Touch UI",
