@@ -41,7 +41,7 @@
       "id": "UbuntuWebApp",
       "description": "A simple webapp template",
       "mainFile": "app.desktop",
-      "hasTest": false,
+      "hasTests": false,
       "files": [
           {
             "fileName": "app.desktop"
