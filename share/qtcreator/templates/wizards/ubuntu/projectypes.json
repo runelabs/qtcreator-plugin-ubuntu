@@ -45,9 +45,6 @@
       "files": [
           {
             "fileName": "app.json"
-          },
-          {
-            "fileName": "manifest.json"
           }
         ]
     },
