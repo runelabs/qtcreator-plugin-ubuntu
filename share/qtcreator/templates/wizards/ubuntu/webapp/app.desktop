@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=%DISPLAYNAME%
+Comment=%DISPLAYNAME% Webapp
+Type=Application
+Icon=app.png
+Exec=webbrowser-app --webapp --enable-back-forward --webappUrlPatterns=https?://m.%DISPLAYNAME%.com/* http://m.%DISPLAYNAME%.com
+Terminal=false
+X-Ubuntu-Touch=true
