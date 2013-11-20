@@ -1,8 +1,16 @@
 qtcreator-plugin-ubuntu (2.8.1-0ubuntu2) UNRELEASED; urgency=low
 
+  [ Timo Jyrinki ]
   * Automatic snapshot from revision 52 (bootstrap)
 
- -- Timo Jyrinki <timo-jyrinki@ubuntu.com>  Wed, 13 Nov 2013 11:55:29 +0200
+  [ Zoltán Balogh ]
+  * Fixing security policy groups saving bug (LP: #1252965)
+  * Welcome screen renamed from Touch to Ubuntu
+  * Cordova HTMl5 and HTML5 templates are merged
+  * Simple webapp template added
+  * References to the "Touch" platform are removed
+
+ -- Zoltán Balogh <zoltan@bakter.hu>  Wed, 20 Nov 2013 15:49:15 +0200
 
 qtcreator-plugin-ubuntu (2.8.1-0ubuntu1) trusty; urgency=low
 
