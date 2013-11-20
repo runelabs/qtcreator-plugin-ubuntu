@@ -166,27 +166,7 @@
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer_9">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButtonReviewersTools">
-           <property name="text">
-            <string>Execute tests against a click package</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer">
+          <spacer name="horizontalSpacer_5">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -202,6 +182,26 @@
           <widget class="QPushButton" name="pushButtonReset">
            <property name="text">
             <string>Reset to defaults</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_9">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonClickPackage">
+           <property name="text">
+            <string>Create package</string>
            </property>
           </widget>
          </item>
@@ -230,7 +230,7 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
-              <spacer name="horizontalSpacer_6">
+              <spacer name="horizontalSpacer_10">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -267,7 +267,7 @@
                   </property>
                   <widget class="QWidget" name="tabSimple">
                    <attribute name="title">
-                    <string>Simple</string>
+                    <string>General</string>
                    </attribute>
                    <layout class="QGridLayout" name="gridLayout_2">
                     <item row="8" column="0">
@@ -301,6 +301,9 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="10" column="0">
+                     <widget class="QLineEdit" name="lineEdit_version"/>
+                    </item>
                     <item row="4" column="0" colspan="2">
                      <widget class="QLineEdit" name="lineEdit_maintainer">
                       <property name="text">
@@ -314,9 +317,6 @@
                        <string/>
                       </property>
                      </widget>
-                    </item>
-                    <item row="10" column="0">
-                     <widget class="QLineEdit" name="lineEdit_version"/>
                     </item>
                     <item row="9" column="0">
                      <widget class="QLabel" name="label_6">
@@ -359,6 +359,13 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="12" column="0">
+                     <widget class="QPushButton" name="pushButtonReviewersTools">
+                      <property name="text">
+                       <string>Execute tests against a click package</string>
+                      </property>
+                     </widget>
+                    </item>
                    </layout>
                   </widget>
                   <widget class="QWidget" name="tabManifest">
@@ -393,18 +400,11 @@
                   </widget>
                  </widget>
                 </item>
-                <item>
-                 <widget class="QPushButton" name="pushButtonClickPackage">
-                  <property name="text">
-                   <string>Create package</string>
-                  </property>
-                 </widget>
-                </item>
                </layout>
               </widget>
              </item>
              <item>
-              <spacer name="horizontalSpacer_5">
+              <spacer name="horizontalSpacer_6">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>

@@ -247,7 +247,7 @@ const char  UBUNTU_FILENAME_DISPLAYNAME_UPPER[] = "displayName_upper";
 const char  UBUNTU_FILENAME_DISPLAYNAME_CAPITAL[] = "displayName_capital";
 
 const char  UBUNTU_MODE_WELCOME[] = "UbuntuWelcome";
-const char  UBUNTU_MODE_WELCOME_DISPLAYNAME[] = "Touch";
+const char  UBUNTU_MODE_WELCOME_DISPLAYNAME[] = "Ubuntu";
 const char  UBUNTU_MODE_WELCOME_ICON[] = ":/ubuntu/images/ubuntu-qtcreator.png";
 const int   UBUNTU_MODE_WELCOME_PRIORITY = 1;
 

@@ -41,7 +41,7 @@
         ]
     },
     "ubuntu": {
-        "name": "Ubuntu Touch",
+        "name": "Ubuntu",
         "id": "Ubuntu.Build",
         "parent": "Build",
         "group": "ProjectExplorer.Group.Run",
@@ -146,7 +146,7 @@
         ]
     },
     "ubuntuhelp": {
-        "name": "Ubuntu Touch",
+        "name": "Ubuntu",
         "id": "Ubuntu.Help",
         "parent": "Help",
         "submenu": [
@@ -200,12 +200,12 @@
         ]
     },
     "ubuntutools": {
-        "name": "Ubuntu Touch",
+        "name": "Ubuntu",
         "id": "Ubuntu.Menu",
         "parent": "Tools",
         "submenu": [
              {
-                "name": "Ubuntu Touch Showcase Gallery",
+                "name": "Showcase Gallery",
                 "keysequence": "Ctrl+Shift+S",
                 "id": "Ubuntu.Menu.Showcase",
                 "actions": [
@@ -262,6 +262,7 @@
                     {
                         "name": "Enable platform development mode",
                         "id": "Ubuntu.Menu.Device.EnablePlatformDevelopmentMode",
+			"keysequence": "Ctrl+F11",
                         "deviceRequired": true,
                         "actions": [
                             "%SCRIPTDIRECTORY%/qtc_device_developertools %SERIALNUMBER%"
@@ -291,21 +292,6 @@
                             "%SCRIPTDIRECTORY%/device_flashdaily_bootstrap %SERIALNUMBER%"
                         ]
                     },                    
-                    {
-                        "name": "Enable",
-                        "id": "Ubuntu.Menu.Device.Enable",
-                        "submenu": [
-                            {
-                                "name": "Developer Tools",
-                                "id": "Ubuntu.Menu.Device.Enable.DeveloperMode",
-                                "keysequence": "Ctrl+F11",
-                                "deviceRequired": true,
-                                "actions": [
-                                    "%SCRIPTDIRECTORY%/qtc_device_developertools %SERIALNUMBER%"
-                                    ]
-                            }
-                        ]
-                    },
                     {
                         "name": "State",
                         "id": "Ubuntu.Menu.Device.State",
