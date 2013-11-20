@@ -2,9 +2,9 @@
     {
        "type": "qmlproject",
        "folder": "simple",
-       "displayName": "Simple Touch UI",
+       "displayName": "Simple UI",
        "id": "UbuntuAppSimple",
-       "description": "A simple Ubuntu Touch UI with a Label and a Button.\n\nIncludes also unit and functional tests.",
+       "description": "Creates a Qt Quick 2 application project with a sample UI containing a Label and a Button. This project contains QML code only.\n\nIncludes also unit and functional tests.",
        "mainFile" : "main.qml",
        "hasTests" : true,
        "files": [
@@ -51,9 +51,9 @@
     {
        "type": "qmlproject",
        "folder": "tabs",
-       "displayName": "Tabbed Touch UI",
+       "displayName": "Tabbed UI",
        "id": "UbuntuAppTabs",
-       "description": "A multi-page Ubuntu Touch UI using the Tabs component.\n\nIncludes also unit and functional tests.",
+       "description": "Creates a Qt Quick 2 application project using Tabs component. This project contains QML code only.\n\nIncludes also unit and functional tests.",
        "mainFile" : "main.qml",
        "hasTests" : true,
        "files": [
@@ -96,30 +96,11 @@
        ]
     },
     {
-       "type": "qmlproject",
-       "folder": "html5",
-       "displayName": "HTML5 Touch UI",
-       "id": "UbuntuAppWebView",
-       "description": "An HTML5 UI using the QML WebView component",
-       "mainFile" : "main.qml",
-       "files": [
-           {
-               "fileName": "displayName.desktop"
-           },
-           {
-               "fileName": "html/index.html"
-           },
-           {
-               "fileName": "html/app.js"
-           }
-       ]
-    },
-    {
        "type": "cordovaproject",
        "folder": "cordovaubuntu",
-       "displayName": "Cordova Ubuntu HTML5 Touch UI",
+       "displayName": "HTML5 UI",
        "id": "UbuntuCordovaUbuntuProject",
-       "description": "An HTML5 app that makes use of the Apache Cordova APIs with a native Ubuntu Touch look and feel",
+       "description": "Creates an HTML5 application project that includes an Ubuntu Webview component with access to the Cordova APIs.",
        "mainFile" : "index.html",
        "files": [
            {
@@ -140,9 +121,9 @@
     {
        "type": "pro",
        "folder": "backend",
-       "displayName": "QML Extension Library",
+       "displayName": "QtQuick2 Extension Library",
        "id": "UbuntuAppWBackend",
-       "description": "A simple C++ based QML Extension Library.\n\nIncludes also a unit test.",
+       "description": "A simple C++ based QtQuick2 Extension Library.\n\nIncludes also a unit test.",
        "mainFile" : "modules/displayName/backend.h",
        "projectFile" : "displayName.pro",
        "files": [
@@ -159,7 +140,7 @@
        "folder": "backendplustabs",
        "displayName": "QML Extension Library + Tabbed Touch UI",
        "id": "UbuntuAppWBackendPlusTabs",
-       "description": "A simple C++ based QML Extension Library with\nTabbed Touch UI written in QML.\n\nIncludes also\n - a unit test for C++\n - unit and functional tests for QML\n",
+       "description": "A simple C++ based QtQuick2 Extension Library with\nTabbed UI written in QML.\n\nIncludes also\n - a unit test for C++\n - unit and functional tests for QML\n",
        "mainFile" : "backend/modules/displayName/backend.h",
        "projectFile" : "displayName.pro",
        "files": [
