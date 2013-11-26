@@ -55,6 +55,9 @@ protected slots:
     void onError(QString msg);
     void onStarted(QString cmd);
 
+    void on_pushButton_InstallEmulator_OK_clicked();
+
+
     void onDeviceConnected(QString serialNumber);
     void onDeviceDisconnected();
 
@@ -74,6 +77,7 @@ protected slots:
     void on_pushButtonCloneNetworkConfig_clicked();
     void on_comboBoxSerialNumber_currentIndexChanged( const QString & text );
 
+    void checkEmulator();
     void detectDevices();
     void detectOpenSsh();
     void detectHasNetworkConnection();

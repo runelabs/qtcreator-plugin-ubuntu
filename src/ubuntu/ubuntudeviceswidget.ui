@@ -266,7 +266,7 @@ border: 0;
              <enum>QTabWidget::South</enum>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>1</number>
             </property>
             <property name="usesScrollButtons">
              <bool>false</bool>
@@ -442,7 +442,7 @@ Connect to a wlan or to a wwan and try again.</string>
                   <item>
                    <widget class="QStackedWidget" name="stackedWidgetConnectedDevice">
                     <property name="currentIndex">
-                     <number>0</number>
+                     <number>1</number>
                     </property>
                     <widget class="QWidget" name="page_5">
                      <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -870,6 +870,118 @@ Recovery</string>
                       </item>
                      </layout>
                     </widget>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="tab_1">
+             <attribute name="title">
+              <string>Emulators</string>
+             </attribute>
+             <layout class="QHBoxLayout" name="horizontalLayout_10">
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QStackedWidget" name="stackedEmulatorConfigWidget">
+                <property name="currentIndex">
+                 <number>1</number>
+                </property>
+                <widget class="QWidget" name="page">
+                 <layout class="QVBoxLayout" name="verticalLayout_15">
+                  <item>
+                   <widget class="QGroupBox" name="groupBox_Emulator_Install">
+                    <property name="title">
+                     <string>Install emulator package</string>
+                    </property>
+                    <layout class="QVBoxLayout" name="verticalLayout_Install_OK_Next">
+                     <item>
+                      <widget class="QLabel" name="label_InstallEmulatorQuestion">
+                       <property name="text">
+                        <string>The android emaulator package is not installed. Do you want to install? </string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_InstallEmulatorStatus">
+                       <property name="text">
+                        <string>The installation of the emulator package is in progress. Please check the &quot;Log&quot; tab for details.</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QProgressBar" name="progressBar_InstallEmulator">
+                       <property name="value">
+                        <number>24</number>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_5">
+                       <item>
+                        <spacer name="horizontalSpacer_5">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="pushButton_InstallEmulator_OK">
+                         <property name="text">
+                          <string>OK</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_6">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                      </layout>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+                <widget class="QWidget" name="page_2">
+                 <layout class="QVBoxLayout" name="verticalLayout_CopyEmulator">
+                  <item>
+                   <widget class="QLabel" name="label_EmulatorInfo">
+                    <property name="text">
+                     <string>The &quot;version&quot; version of the &quot;packagename&quot; emulator package is installed.</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_5">
+                    <property name="text">
+                     <string>TextLabel</string>
+                    </property>
                    </widget>
                   </item>
                  </layout>
