@@ -87,6 +87,13 @@ UbuntuDevicesWidget::~UbuntuDevicesWidget()
 
 
 void UbuntuDevicesWidget::onMessage(QString msg) {
+    if (msg.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_UNABLE_TO_FETCH))) {
+     	qDebug()<< QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_UNABLE_TO_FETCH);
+        ui->progressBar_InstallEmulator->hide();
+        ui->label_InstallEmulatorStatus->hide();
+        ui->label_InstallEmulatorQuestion->show();
+        ui->pushButton_InstallEmulator_OK->show();
+    }
     m_reply.append(msg);
     ui->plainTextEdit->appendPlainText(msg.trimmed());
 }
@@ -110,17 +117,14 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
     if (cmd ==  QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_SEARCH_IMAGES).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
 	QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
         foreach(QString line, lines) {
-            line = line.trimmed();
-   
+           line = line.trimmed();
            if (line.isEmpty()) {
                 continue;
             }
            QListWidgetItem* item = new QListWidgetItem(line);
            item->setFlags(item->flags() | Qt::ItemIsEditable);
            ui->listWidget_EmulatorImages->addItem(item);
- 
-      }
-
+        }
     }
     if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_EMULATOR_INSTALLED).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
         QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
@@ -146,9 +150,18 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
         }
     }
 
-
     if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_INSTALL_EMULATOR).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
 	QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
+	foreach(QString line, lines) {
+            line = line.trimmed();
+	    if (line.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_UNABLE_TO_FETCH))) {
+		qDebug()<< QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_UNABLE_TO_FETCH);
+	        ui->progressBar_InstallEmulator->hide();
+                ui->label_InstallEmulatorStatus->hide();
+                ui->label_InstallEmulatorQuestion->show();
+		ui->pushButton_InstallEmulator_OK->hide();
+            }
+	}
 	checkEmulator();
     }
 

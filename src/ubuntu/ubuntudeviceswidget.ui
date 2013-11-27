@@ -902,7 +902,7 @@ Recovery</string>
                      <item>
                       <widget class="QLabel" name="label_InstallEmulatorQuestion">
                        <property name="text">
-                        <string>The android emaulator package is not installed. Do you want to install? </string>
+                        <string>The emulator package is not installed. Do you want to install?</string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignCenter</set>
@@ -983,11 +983,7 @@ Recovery</string>
                      <widget class="QListWidget" name="listWidget_EmulatorImages"/>
                     </item>
                     <item>
-                     <widget class="QLabel" name="label_EmulatorInfo_2">
-                      <property name="text">
-                       <string>TextLabel</string>
-                      </property>
-                     </widget>
+			<widget class="Utils::PathChooser" name="pathChooser" native="true"/>
                     </item>
                     <item>
                      <spacer name="horizontalSpacer_7">
