@@ -78,6 +78,7 @@ protected slots:
     void on_comboBoxSerialNumber_currentIndexChanged( const QString & text );
 
     void checkEmulator();
+    void checkEmulatorInstances();
     void detectDevices();
     void detectOpenSsh();
     void detectHasNetworkConnection();

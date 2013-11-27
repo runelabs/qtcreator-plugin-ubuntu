@@ -16,4 +16,6 @@
 # Author: Zoltán Balogh <zoltan.balogh@canonical.com>
 
 EMULATOR_PACKAGE=$1
-gksudo -k "sh -c 'apt-get update; apt-get -y -f install ${EMULATOR_PACKAGE}'"
+#gksudo -k "sh -c 'apt-get update; apt-get -y -f install ${EMULATOR_PACKAGE}'"
+gksudo -k "sh -c 'apt-get -y -f install ${EMULATOR_PACKAGE}'"
+

@@ -56,8 +56,10 @@ const char UBUNTUDEVICESWIDGET_ONFINISHED_SSH_NOT_INSTALLED[] = "..openssh-serve
 const int UBUNTUDEVICESWIDGET_DEVELOPERMODE_PAGE_ENABLED = 1;
 const int UBUNTUDEVICESWIDGET_DEVELOPERMODE_PAGE_DEVICEFOUND = 0;
 const int UBUNTUDEVICESWIDGET_DEVELOPERMODE_PAGE_NONETWORK = 2;
-const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_EMULATOR_INSTALLED[] = "%0/local_emulator_installed"; 
+const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_EMULATOR_INSTALLED[] = "%0/local_emulator_installed";  
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_INSTALL_EMULATOR[] = "%0/local_install_emulator";
+const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_SEARCH_IMAGES[] = "%0/local_search_images";
+
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_DEVICE_WRITABLE_SET[] = "%0/device_writableimage_set";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_DEVICE_WRITABLE_UNSET[] = "%0/device_writableimage_unset";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_WRITABLE_ENABLED[] = "..writable image has been enabled, device is rebooting.";
@@ -91,9 +93,12 @@ const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_HASNETWORK[] = "%0/device_hasne
 
 const char EMULATOR_PACKAGE_NAME[] = "zivot";
 
+const char UBUNTUDEVICESWIDGET_LOCAL_EMULATOR_INSTALLED[] = "Checking installed emulator package.";
 const char UBUNTUDEVICESWIDGET_LABEL_EMULATOR_INFO[] = "The %0 version of the %1 emulator package is installed.";
 const char UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE[] = "Install the emulator package on the system..";
 const char UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE_SCRIPT[] = "%0/local_install_emulator %1";
+const char UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES_SCRIPT[] = "%0/local_search_images";
+const char UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES[] = "Search configured emulator instances.";
 
 const char UBUNTUDEVICESWIDGET_STARTSSHSERVICE[] = "Start ssh service on device..";
 const char UBUNTUDEVICESWIDGET_STARTSSHSERVICE_SCRIPT[] = "%0/device_service_ssh_start %1";
@@ -158,7 +163,7 @@ const char UBUNTUDEVICESWIDGET_REBOOT_TO_BOOTLOADER[] = "Reboot to bootloader.."
 const char UBUNTUDEVICESWIDGET_REBOOT_TO_BOOTLOADER_SCRIPT[] = "%0/device_reboot2bootloader %1";
 const char UBUNTUDEVICESWIDGET_REBOOT_TO_RECOVERY[] = "Reboot to recovery..";
 const char UBUNTUDEVICESWIDGET_REBOOT_TO_RECOVERY_SCRIPT[] = "%0/device_reboot2recovery %1";
-const char UBUNTUDEVICESWIDGET_LOCAL_EMULATOR_INSTALLED[] = "%0/local_emulator_installed %1";
+const char UBUNTUDEVICESWIDGET_LOCAL_EMULATOR_INSTALLED_SCRIPT[] = "%0/local_emulator_installed %1";
 const char UBUNTUDEVICESWIDGET_LOCAL_INSTALL_EMULATOR[] = "%0/local_install_emulator %1";
 const char UBUNTUDEVICESWIDGET_DETECTOPENSSH[] = "Detecting if openssh-server is installed..";
 const char UBUNTUDEVICESWIDGET_DETECTOPENSSH_SCRIPT[] = "%0/openssh_version %1";
