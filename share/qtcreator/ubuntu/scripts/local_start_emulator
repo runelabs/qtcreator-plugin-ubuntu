@@ -18,3 +18,4 @@
 EMULATOR_PATH=$1
 cd ${EMULATOR_PATH}
 ./run-emulator.sh
+adb forward tcp:9999 tcp:22
