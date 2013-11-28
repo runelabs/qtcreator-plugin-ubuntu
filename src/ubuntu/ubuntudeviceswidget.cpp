@@ -163,7 +163,6 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
 
     if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_START_EMULATOR).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
 	qDebug() << "The emulator has been started";
-	ui->tabWidget_2->setCurrentIndex(0);
 	on_pushButtonRefresh_clicked();
     }
 
