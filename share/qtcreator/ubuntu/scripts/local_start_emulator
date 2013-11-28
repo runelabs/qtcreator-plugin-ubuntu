@@ -16,9 +16,5 @@
 # Author: Zoltán Balogh <zoltan.balogh@canonical.com>
 
 EMULATOR_PATH=$1
-WHOAMI=`whoami`
-cp -r /usr/share/android/emulator/ ${EMULATOR_PATH}/
-cd ${EMULATOR_PATH}/
-sed -i 's/sudo //' ./build-emulator-sdcard.sh
-pkexec sh -c "cd ${EMULATOR_PATH};./build-emulator-sdcard.sh;chown ${WHOAMI}:${WHOAMI} ./ -R"
-
+cd ${EMULATOR_PATH}
+./run-emulator.sh

@@ -62,6 +62,7 @@ const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_EMULATOR_INSTALLED[] = "%
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_INSTALL_EMULATOR[] = "%0/local_install_emulator";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_SEARCH_IMAGES[] = "%0/local_search_images";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_CREATE_EMULATOR[] = "%0/local_create_emulator";
+const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_START_EMULATOR[] = "%0/local_start_emulator";
 
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_DEVICE_WRITABLE_SET[] = "%0/device_writableimage_set";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_DEVICE_WRITABLE_UNSET[] = "%0/device_writableimage_unset";
@@ -104,6 +105,9 @@ const char UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES_SCRIPT[] = "%0/local_search_i
 const char UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES[] = "Search configured emulator instances.";
 const char UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR[] = "Creating new emulator instance.";
 const char UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT[] = "%0/local_create_emulator %1";
+const char UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR[] = "Starting the selected emulator.";
+const char UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT[] = "%0/local_start_emulator %1";
+
 
 const char UBUNTUDEVICESWIDGET_STARTSSHSERVICE[] = "Start ssh service on device..";
 const char UBUNTUDEVICESWIDGET_STARTSSHSERVICE_SCRIPT[] = "%0/device_service_ssh_start %1";
@@ -163,6 +167,7 @@ const char ERROR_MSG_UNABLE_TO_PARSE_MENUJSON[] = "Unable to parse menu.json";
 const char ERROR_MSG_EMULATOR_PATH[] = "Invalid path to create the emulator.";
 const char ERROR_MSG_EMULATOR_NAME[] = "Invalid name for the emulator.";
 const char ERROR_MSG_EMULATOR_EXISTS[] = "The emulator already exists.";
+const char MSG_EMULATOR_IS_CREATED[] = "Check the logs for details.";
 
 
 

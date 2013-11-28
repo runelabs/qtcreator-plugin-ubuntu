@@ -980,19 +980,24 @@ Recovery</string>
                   <item>
                    <layout class="QHBoxLayout" name="horizontalLayout_9">
                     <item>
-                     <widget class="QListWidget" name="listWidget_EmulatorImages"/>
+                     <widget class="QListWidget" name="listWidget_EmulatorImages">
+                         <property name="alternatingRowColors">
+                          <bool>true</bool>
+                         </property>
+		     </widget>
                     </item>
 		    <item>
 			<layout class="QVBoxLayout" name="verticalLayout_CreateStartEmulator">
 				<item>
-		                      <widget class="QLabel" name="label_NewEmulator">
-					<property name="text">
-						<string>Path to create the new emulator</string>
-        		                </property>
-                       			<property name="alignment">
-		                 	       <set>Qt::AlignLeft</set>
-                		        </property>
-                      		      </widget>
+                                     <widget class="QPushButton" name="pushButton_StartEmulator">
+                                                <property name="text">
+                                                        <string>Start selected emulator</string>
+                                                </property>
+                                                <property name="flat">
+                                                      <bool>false</bool>
+                                                </property>
+                                      </widget>
+
 				</item>
       				<item>
 				       <widget class="QLabel" name="nameLabel">
@@ -1030,6 +1035,14 @@ Recovery</string>
                                                 </property>
                                       </widget>
 				</item>
+                     <item>
+                      <widget class="QProgressBar" name="progressBar_CreateEmulator">
+                       <property name="value">
+                        <number>24</number>
+                       </property>
+                      </widget>
+                     </item>
+
 			</layout>
                     </item>
                     <item>

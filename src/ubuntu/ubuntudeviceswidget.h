@@ -20,6 +20,7 @@
 #define UBUNTUDEVICESWIDGET_H
 
 #include <QWidget>
+#include <QListWidget>
 #include "ubuntudevicenotifier.h"
 #include "ubuntuprocess.h"
 
@@ -57,7 +58,7 @@ protected slots:
 
     void on_pushButton_InstallEmulator_OK_clicked();
     void on_pushButton_CreateNewEmulator_clicked();
-
+    void on_pushButton_StartEmulator_clicked();
     void onDeviceConnected(QString serialNumber);
     void onDeviceDisconnected();
 
@@ -89,6 +90,7 @@ protected slots:
     void startSshService();
 private slots:
     void slotChanged();
+    void startEmulator(QListWidgetItem*);
 
 private:
     void beginAction(QString);

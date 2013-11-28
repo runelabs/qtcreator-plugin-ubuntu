@@ -50,6 +50,9 @@ UbuntuDevicesWidget::UbuntuDevicesWidget(QWidget *parent) :
     ui->progressBar_InstallEmulator->setMinimum(0);
     ui->progressBar_InstallEmulator->setMaximum(0);
     ui->progressBar_InstallEmulator->hide();
+    ui->progressBar_CreateEmulator->setMinimum(0);
+    ui->progressBar_CreateEmulator->setMaximum(0);
+    ui->progressBar_CreateEmulator->hide();
     ui->label_InstallEmulatorQuestion->show();
     ui->pushButton_InstallEmulator_OK->show();
     ui->widgetSshProperties->hide();
@@ -77,6 +80,8 @@ UbuntuDevicesWidget::UbuntuDevicesWidget(QWidget *parent) :
 
     connect(ui->pathChooser, SIGNAL(changed(QString)), this, SLOT(slotChanged()));
     connect(ui->nameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotChanged()));
+
+    connect(ui->listWidget_EmulatorImages, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(startEmulator(QListWidgetItem*)));
 
     detectDevices();
     checkEmulator();
@@ -156,15 +161,22 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
     bool bOk = true;
     bool bHasNetwork = true;
 
+    if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_CREATE_EMULATOR).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+	ui->progressBar_CreateEmulator->hide();
+	ui->label_EmulatorValidationMessage->setText(QLatin1String(Constants::EMPTY));
+	ui->pushButton_CreateNewEmulator->setEnabled(true);
+        checkEmulatorInstances();
+    }
+
     if (cmd ==  QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_SEARCH_IMAGES).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
 	QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
+	ui->listWidget_EmulatorImages->clear();
         foreach(QString line, lines) {
            line = line.trimmed();
            if (line.isEmpty()) {
                 continue;
             }
            QListWidgetItem* item = new QListWidgetItem(line);
-           item->setFlags(item->flags() | Qt::ItemIsEditable);
            ui->listWidget_EmulatorImages->addItem(item);
         }
     }
@@ -463,15 +475,33 @@ void UbuntuDevicesWidget::on_pushButton_InstallEmulator_OK_clicked() {
 }
 
 void UbuntuDevicesWidget::on_pushButton_CreateNewEmulator_clicked() {
-//    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
-//    m_ubuntuProcess.stop();
-    QString sEmulatorPath = ui->pathChooser->path();
-    QString sEmulatorName = ui->nameLineEdit->text();
-    qDebug() << sEmulatorPath << sEmulatorName; 
-//    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH) << QApplication::applicationDirPath());
-//    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
-
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
+    m_ubuntuProcess.stop();
+    ui->progressBar_CreateEmulator->show();
+    ui->label_EmulatorValidationMessage->setText(QLatin1String(Constants::MSG_EMULATOR_IS_CREATED));
+    ui->pushButton_CreateNewEmulator->setEnabled(false);
+    QString projectDir = ui->pathChooser->path();
+    projectDir += QDir::separator();
+    projectDir += ui->nameLineEdit->text();
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(projectDir) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
+	
 }
+
+void UbuntuDevicesWidget::on_pushButton_StartEmulator_clicked() {
+    startEmulator(ui->listWidget_EmulatorImages->currentItem());
+}
+
+void UbuntuDevicesWidget::startEmulator(QListWidgetItem * item) {
+
+    QStringList lineData = item->text().trimmed().split(QLatin1String(" "));
+    QString sEmulatorPath = lineData.takeFirst();
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR));
+    m_ubuntuProcess.stop();
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(sEmulatorPath) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR));
+}
+
 
 void UbuntuDevicesWidget::detectDevices() {
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES));
