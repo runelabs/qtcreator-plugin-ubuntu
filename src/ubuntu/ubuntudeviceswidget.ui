@@ -982,8 +982,55 @@ Recovery</string>
                     <item>
                      <widget class="QListWidget" name="listWidget_EmulatorImages"/>
                     </item>
-                    <item>
-			<widget class="Utils::PathChooser" name="pathChooser" native="true"/>
+		    <item>
+			<layout class="QVBoxLayout" name="verticalLayout_CreateStartEmulator">
+				<item>
+		                      <widget class="QLabel" name="label_NewEmulator">
+					<property name="text">
+						<string>Path to create the new emulator</string>
+        		                </property>
+                       			<property name="alignment">
+		                 	       <set>Qt::AlignLeft</set>
+                		        </property>
+                      		      </widget>
+				</item>
+      				<item>
+				       <widget class="QLabel" name="nameLabel">
+					        <property name="text">
+					         <string>Name:</string>
+					        </property>
+				       </widget>
+			      </item>
+			      <item>
+     				  <widget class="Utils::ProjectNameValidatingLineEdit" name="nameLineEdit"/>
+   			   </item>
+     			   <item>
+      				 <widget class="QLabel" name="pathLabel">
+				        <property name="text">
+				         <string>Create in:</string>
+				        </property>
+			        </widget>
+		          </item>
+		          <item>
+			       <widget class="Utils::PathChooser" name="pathChooser" native="true"/>
+		          </item>
+			  <item>
+                                      <widget class="QLabel" name="label_EmulatorValidationMessage">
+                                       </widget>
+
+			  </item>
+
+				<item>
+                                     <widget class="QPushButton" name="pushButton_CreateNewEmulator">
+                                                <property name="text">
+                                                        <string>Create new emulator</string>
+                                                </property>
+                                                <property name="flat">
+                                                      <bool>false</bool>
+                                                </property>
+                                      </widget>
+				</item>
+			</layout>
                     </item>
                     <item>
                      <spacer name="horizontalSpacer_7">
@@ -1069,6 +1116,19 @@ Recovery</string>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::ProjectNameValidatingLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">utils/projectnamevalidatinglineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

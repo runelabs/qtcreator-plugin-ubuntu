@@ -50,7 +50,6 @@ UbuntuDevicesWidget::UbuntuDevicesWidget(QWidget *parent) :
     ui->progressBar_InstallEmulator->setMinimum(0);
     ui->progressBar_InstallEmulator->setMaximum(0);
     ui->progressBar_InstallEmulator->hide();
-    ui->label_InstallEmulatorStatus->hide();
     ui->label_InstallEmulatorQuestion->show();
     ui->pushButton_InstallEmulator_OK->show();
     ui->widgetSshProperties->hide();
@@ -58,7 +57,9 @@ UbuntuDevicesWidget::UbuntuDevicesWidget(QWidget *parent) :
     ui->pushButtonSshRemove->hide();
     ui->widgetMovedToSettings->hide();
     
-
+    ui->pathChooser->setPath(QDir::currentPath());
+    ui->nameLineEdit->setText( QLatin1String(Constants::UBUNTU_EMULATOR_NAME));
+    slotChanged();
     ui->frameNoDevices->hide();
     ui->lblLoading->hide();
     ui->frameNoNetwork->hide();
@@ -73,6 +74,10 @@ UbuntuDevicesWidget::UbuntuDevicesWidget(QWidget *parent) :
     connect(&m_ubuntuProcess,SIGNAL(message(QString)),this,SLOT(onMessage(QString)));
     connect(&m_ubuntuProcess,SIGNAL(finished(QString,int)),this,SLOT(onFinished(QString, int)));
     connect(&m_ubuntuProcess,SIGNAL(error(QString)),this,SLOT(onError(QString)));
+
+    connect(ui->pathChooser, SIGNAL(changed(QString)), this, SLOT(slotChanged()));
+    connect(ui->nameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotChanged()));
+
     detectDevices();
     checkEmulator();
 }
@@ -83,6 +88,43 @@ UbuntuDevicesWidget::~UbuntuDevicesWidget()
     m_aboutToClose = true;
     m_ubuntuProcess.stop();
     delete ui;
+}
+
+bool UbuntuDevicesWidget::validate() {
+    if (!ui->pathChooser->isValid()) {
+        ui->label_EmulatorValidationMessage->setText(QLatin1String(Constants::ERROR_MSG_EMULATOR_PATH));
+	return false;
+    }
+    if (!ui->nameLineEdit->isValid()) {
+        ui->label_EmulatorValidationMessage->setText(QLatin1String(Constants::ERROR_MSG_EMULATOR_NAME));
+        return false;
+    }
+
+    // Check existence of the directory
+    QString projectDir = ui->pathChooser->path();
+    projectDir += QDir::separator();
+    projectDir += ui->nameLineEdit->text();
+    const QFileInfo projectDirFile(projectDir);
+    if (!projectDirFile.exists()) { // All happy
+        return true;
+    }
+    if (projectDirFile.isDir()) {
+	ui->label_EmulatorValidationMessage->setText(QLatin1String(Constants::ERROR_MSG_EMULATOR_EXISTS));
+        return false;
+    }
+
+    return true;
+}
+
+void UbuntuDevicesWidget::slotChanged()
+{
+    if (!validate()) {
+	ui->pushButton_CreateNewEmulator->setEnabled(false);
+    } else {
+	ui->label_EmulatorValidationMessage->setText(QLatin1String(Constants::EMPTY));
+        ui->pushButton_CreateNewEmulator->setEnabled(true);
+
+    }
 }
 
 
@@ -418,6 +460,17 @@ void UbuntuDevicesWidget::on_pushButton_InstallEmulator_OK_clicked() {
     m_ubuntuProcess.stop();
     m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(sEmulatorPackageName) << QApplication::applicationDirPath());
     m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE));
+}
+
+void UbuntuDevicesWidget::on_pushButton_CreateNewEmulator_clicked() {
+//    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
+//    m_ubuntuProcess.stop();
+    QString sEmulatorPath = ui->pathChooser->path();
+    QString sEmulatorName = ui->nameLineEdit->text();
+    qDebug() << sEmulatorPath << sEmulatorName; 
+//    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH) << QApplication::applicationDirPath());
+//    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
+
 }
 
 void UbuntuDevicesWidget::detectDevices() {

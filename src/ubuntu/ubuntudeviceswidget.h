@@ -56,7 +56,7 @@ protected slots:
     void onStarted(QString cmd);
 
     void on_pushButton_InstallEmulator_OK_clicked();
-
+    void on_pushButton_CreateNewEmulator_clicked();
 
     void onDeviceConnected(QString serialNumber);
     void onDeviceDisconnected();
@@ -87,6 +87,8 @@ protected slots:
     void detectDeveloperTools();
 
     void startSshService();
+private slots:
+    void slotChanged();
 
 private:
     void beginAction(QString);
@@ -104,6 +106,8 @@ private:
     QString m_deviceSerialNumber;
 
     static UbuntuDevicesWidget *m_instance;
+
+    bool validate();
 };
 
 

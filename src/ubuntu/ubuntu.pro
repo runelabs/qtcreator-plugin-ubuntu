@@ -2,7 +2,6 @@ QT += network qml quick webkitwidgets script scripttools declarative
 
 include(../plugin.pri)
 
-
 #####################################
 # required for Ubuntu Device Notifier
 CONFIG += link_pkgconfig
