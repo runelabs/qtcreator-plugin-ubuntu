@@ -1,4 +1,4 @@
-qtcreator-plugin-ubuntu (2.8.1-0ubuntu3~test2) trusty; urgency=low
+qtcreator-plugin-ubuntu (2.8.1-0ubuntu1~test3) trusty; urgency=low
 
   [ Timo Jyrinki ]
   * Automatic snapshot from revision 52 (bootstrap)
