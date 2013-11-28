@@ -95,7 +95,7 @@ const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_TIMECLONE[] = "%0/device_time_c
 const char UBUNTUDEVICESWIDGET_ONFINISHED_TIME_CONF_COPIED[] = "..time configuration copied.";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_HASNETWORK[] = "%0/device_hasnetwork";
 
-const char EMULATOR_PACKAGE_NAME[] = "zivot";
+const char EMULATOR_PACKAGE_NAME[] = "android-emulator";
 
 const char UBUNTUDEVICESWIDGET_LOCAL_EMULATOR_INSTALLED[] = "Checking installed emulator package.";
 const char UBUNTUDEVICESWIDGET_LABEL_EMULATOR_INFO[] = "The %0 version of the %1 emulator package is installed.";
