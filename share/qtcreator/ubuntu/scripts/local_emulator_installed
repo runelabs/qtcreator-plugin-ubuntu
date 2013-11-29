@@ -14,6 +14,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Author: Zoltán Balogh <zoltan.balogh@canonical.com>
-
+set -e
 EMULATOR_PACKAGE=$1
 dpkg -l  ${EMULATOR_PACKAGE}|grep "ii"|  awk '{print $1 " " $2 " " $3}'

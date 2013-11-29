@@ -41,8 +41,8 @@ UbuntuDevicesWidget::UbuntuDevicesWidget(QWidget *parent) :
     ui(new Ui::UbuntuDevicesWidget)
 {
     ui->setupUi(this);
-    ui->tabWidget_2->setCurrentIndex(0);
-    ui->stackedEmulatorConfigWidget->setCurrentIndex(0);
+    ui->tabWidget_DeviceControlInput->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONTROL_SIMPLE_TAB);
+    ui->stackedEmulatorConfigWidget->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_PAGE_EMULATOR_PACKAGE_CHECK);
 
     m_instance = this;
     m_deviceDetected = false;
@@ -61,7 +61,7 @@ UbuntuDevicesWidget::UbuntuDevicesWidget(QWidget *parent) :
     ui->widgetMovedToSettings->hide();
     
     ui->pathChooser->setPath(QDir::currentPath());
-    ui->nameLineEdit->setText( QLatin1String(Constants::UBUNTU_EMULATOR_NAME));
+    ui->nameLineEdit->setInitialText( QLatin1String(Constants::UBUNTU_INITIAL_EMULATOR_NAME));
     slotChanged();
     ui->frameNoDevices->hide();
     ui->lblLoading->hide();
@@ -98,7 +98,7 @@ UbuntuDevicesWidget::~UbuntuDevicesWidget()
 bool UbuntuDevicesWidget::validate() {
     if (!ui->pathChooser->isValid()) {
         ui->label_EmulatorValidationMessage->setText(QLatin1String(Constants::ERROR_MSG_EMULATOR_PATH));
-	return false;
+        return false;
     }
     if (!ui->nameLineEdit->isValid()) {
         ui->label_EmulatorValidationMessage->setText(QLatin1String(Constants::ERROR_MSG_EMULATOR_NAME));
@@ -114,7 +114,7 @@ bool UbuntuDevicesWidget::validate() {
         return true;
     }
     if (projectDirFile.isDir()) {
-	ui->label_EmulatorValidationMessage->setText(QLatin1String(Constants::ERROR_MSG_EMULATOR_EXISTS));
+        ui->label_EmulatorValidationMessage->setText(QLatin1String(Constants::ERROR_MSG_EMULATOR_EXISTS));
         return false;
     }
 
@@ -124,9 +124,9 @@ bool UbuntuDevicesWidget::validate() {
 void UbuntuDevicesWidget::slotChanged()
 {
     if (!validate()) {
-	ui->pushButton_CreateNewEmulator->setEnabled(false);
+        ui->pushButton_CreateNewEmulator->setEnabled(false);
     } else {
-	ui->label_EmulatorValidationMessage->setText(QLatin1String(Constants::EMPTY));
+        ui->label_EmulatorValidationMessage->setText(QLatin1String(Constants::EMPTY));
         ui->pushButton_CreateNewEmulator->setEnabled(true);
 
     }
@@ -135,7 +135,6 @@ void UbuntuDevicesWidget::slotChanged()
 
 void UbuntuDevicesWidget::onMessage(QString msg) {
     if (msg.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_UNABLE_TO_FETCH))) {
-     	qDebug()<< QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_UNABLE_TO_FETCH);
         ui->progressBar_InstallEmulator->hide();
         ui->label_InstallEmulatorStatus->hide();
         ui->label_InstallEmulatorQuestion->show();
@@ -146,7 +145,7 @@ void UbuntuDevicesWidget::onMessage(QString msg) {
 }
 
 void UbuntuDevicesWidget::onStarted(QString cmd) {
-    ui->stackedWidgetConnectedDevice->setCurrentIndex(1);
+    ui->stackedWidgetConnectedDevice->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONNECTIVITY_INPUT);
     ui->lblDeviceProcessInfo->setText(QFileInfo(cmd).baseName());
     ui->lblLoading->show();
 }
@@ -155,73 +154,71 @@ void UbuntuDevicesWidget::onStarted(QString cmd) {
 void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
     Q_UNUSED(code);
 
-    ui->stackedWidgetConnectedDevice->setCurrentIndex(0);
+    ui->stackedWidgetConnectedDevice->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONNECTIVITY_INFO);
     if (m_aboutToClose) { return; }
 
-    bool bOk = true;
-    bool bHasNetwork = true;
 
     if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_START_EMULATOR).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-	qDebug() << "The emulator has been started";
-	on_pushButtonRefresh_clicked();
+        on_pushButtonRefresh_clicked();
     }
 
     if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_CREATE_EMULATOR).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-	ui->progressBar_CreateEmulator->hide();
-	ui->label_EmulatorValidationMessage->setText(QLatin1String(Constants::EMPTY));
-	ui->pushButton_CreateNewEmulator->setEnabled(true);
+        ui->progressBar_CreateEmulator->hide();
+        ui->label_EmulatorValidationMessage->setText(QLatin1String(Constants::EMPTY));
+        ui->pushButton_CreateNewEmulator->setEnabled(true);
         checkEmulatorInstances();
     }
 
     if (cmd ==  QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_SEARCH_IMAGES).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-	QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
-	ui->listWidget_EmulatorImages->clear();
+        QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
+        ui->listWidget_EmulatorImages->clear();
         foreach(QString line, lines) {
-           line = line.trimmed();
-           if (line.isEmpty()) {
+            line = line.trimmed();
+            if (line.isEmpty()) {
+		ui->pushButton_StartEmulator->setEnabled(false);
                 continue;
             }
-           QListWidgetItem* item = new QListWidgetItem(line);
-           ui->listWidget_EmulatorImages->addItem(item);
+	    ui->pushButton_StartEmulator->setEnabled(true);
+            QListWidgetItem* item = new QListWidgetItem(line);
+            ui->listWidget_EmulatorImages->addItem(item);
         }
     }
     if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_EMULATOR_INSTALLED).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
         QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
-        ui->stackedEmulatorConfigWidget->setCurrentIndex(0);
+        ui->stackedEmulatorConfigWidget->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_PAGE_EMULATOR_PACKAGE_CHECK);
         foreach(QString line, lines) {
             line = line.trimmed();
             if (line.isEmpty()) {
                 continue;
             }
-	    if (line.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_LOCAL_NO_EMULATOR_INSTALLED))) {
-		ui->pushButton_InstallEmulator_OK->setEnabled(true);
-	    } else {
-                QStringList lineData = line.split(QLatin1String(" "));
-		QString sEmulatorPackageStatus = lineData.takeFirst();
-		QString sEmulatorPackageName = lineData.takeFirst();
-		QString sEmulatorPackageVersion = lineData.takeFirst();
-		if (sEmulatorPackageStatus.startsWith(QLatin1String("ii"))) {
-			checkEmulatorInstances();
-			ui->label_EmulatorInfo->setText(QString::fromLatin1(Ubuntu::Constants::UBUNTUDEVICESWIDGET_LABEL_EMULATOR_INFO).arg(sEmulatorPackageVersion).arg(sEmulatorPackageName));
-			ui->stackedEmulatorConfigWidget->setCurrentIndex(1);
-		}
+            if (line.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_LOCAL_NO_EMULATOR_INSTALLED))) {
+                ui->pushButton_InstallEmulator_OK->setEnabled(true);
+            } else {
+                QStringList lineData = line.split(QLatin1String(Constants::SPACE));
+                QString sEmulatorPackageStatus = lineData.takeFirst();
+                QString sEmulatorPackageName = lineData.takeFirst();
+                QString sEmulatorPackageVersion = lineData.takeFirst();
+                if (sEmulatorPackageStatus.startsWith(QLatin1String(Constants::INSTALLED))) {
+                    checkEmulatorInstances();
+                    ui->label_EmulatorInfo->setText(QString::fromLatin1(Ubuntu::Constants::UBUNTUDEVICESWIDGET_LABEL_EMULATOR_INFO).arg(sEmulatorPackageVersion).arg(sEmulatorPackageName));
+                    ui->stackedEmulatorConfigWidget->setCurrentIndex(Ubuntu::Constants::UBUNTUDEVICESWIDGET_PAGE_EMULATOR_INSTANCES);
+                }
             }
         }
     }
 
     if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_INSTALL_EMULATOR).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-	QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
-	foreach(QString line, lines) {
+        QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
+        foreach(QString line, lines) {
             line = line.trimmed();
-	    if (line.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_UNABLE_TO_FETCH))) {
-		qDebug()<< QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_UNABLE_TO_FETCH);
-	        ui->progressBar_InstallEmulator->hide();
+            if (line.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_UNABLE_TO_FETCH))) {
+                ui->progressBar_InstallEmulator->hide();
                 ui->label_InstallEmulatorStatus->hide();
                 ui->label_InstallEmulatorQuestion->show();
-		ui->pushButton_InstallEmulator_OK->hide();
+                ui->pushButton_InstallEmulator_OK->hide();
             }
-	}
-	checkEmulator();
+        }
+        checkEmulator();
     }
 
 
@@ -232,7 +229,7 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
         ui->comboBoxSerialNumber->setEnabled(false);
         foreach(QString line, lines) {
             line = line.trimmed();
-	    
+
             if (line.isEmpty()) {
                 continue;
             }
@@ -256,16 +253,15 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
             ui->frameNoDevices->show();
             ui->widgetDeviceSerial->hide();
             ui->comboBoxSerialNumber->clear();
-            bOk = false;
             m_deviceDetected = false;
 
-            ui->stackedWidgetDeviceConnected->setCurrentIndex(0);
+            ui->stackedWidgetDeviceConnected->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONNECTIVITY_INFO);
             endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_NO_DEVICE));
         } else if (lines.count() > 0) {
             ui->frameNoDevices->hide();
             ui->widgetDeviceSerial->show();
             m_deviceDetected = true;
-            ui->stackedWidgetDeviceConnected->setCurrentIndex(1);
+            ui->stackedWidgetDeviceConnected->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONNECTIVITY_INPUT);
             endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_FOUND_DEVICES).arg(lines.count()));
 
             detectDeviceVersion();
@@ -355,7 +351,6 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
             detectOpenSsh();
         } else {
             // not set
-            bHasNetwork = false;
             ui->frameNoNetwork->show();
             ui->stackedWidgetDeveloperMode->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_DEVELOPERMODE_PAGE_NONETWORK);
         }
@@ -490,7 +485,7 @@ void UbuntuDevicesWidget::on_pushButton_CreateNewEmulator_clicked() {
     projectDir += ui->nameLineEdit->text();
     m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(projectDir) << QApplication::applicationDirPath());
     m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
-	
+
 }
 
 void UbuntuDevicesWidget::on_pushButton_StartEmulator_clicked() {
@@ -499,7 +494,7 @@ void UbuntuDevicesWidget::on_pushButton_StartEmulator_clicked() {
 
 void UbuntuDevicesWidget::startEmulator(QListWidgetItem * item) {
 
-    QStringList lineData = item->text().trimmed().split(QLatin1String(" "));
+    QStringList lineData = item->text().trimmed().split(QLatin1String(Constants::SPACE));
     QString sEmulatorPath = lineData.takeFirst();
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR));
     m_ubuntuProcess.stop();

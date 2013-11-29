@@ -15,4 +15,6 @@
 #
 # Author: Zoltán Balogh <zoltan.balogh@canonical.com>
 
+set -e
+
 find ~/ -name "*img"  2>/dev/null |egrep "out\/target\/product\/generic"|sed  -e "s/^\(.*\)\/out.*$/\1/"|sort|uniq|xargs stat --format="%n %y" 2>&1|egrep -v "missing operand|for more information"|sed -e 's/^\(.*\) \([0-9]*-[0-9]*-[0-9]* [0-9]*:[0-9]*:[0-9]*\)\..*$/\1 \2/'

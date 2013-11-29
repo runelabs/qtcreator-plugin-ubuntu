@@ -14,9 +14,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Author: Zoltán Balogh <zoltan.balogh@canonical.com>
-
+set -e
 EMULATOR_PATH=$1
 cd ${EMULATOR_PATH}
 ./run-emulator.sh &
+set +e
 adb wait-for-device
 adb forward tcp:9999 tcp:22
+set -e

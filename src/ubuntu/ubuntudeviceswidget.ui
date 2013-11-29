@@ -266,7 +266,7 @@ border: 0;
              <enum>QTabWidget::South</enum>
             </property>
             <property name="currentIndex">
-             <number>1</number>
+             <number>0</number>
             </property>
             <property name="usesScrollButtons">
              <bool>false</bool>
@@ -442,9 +442,9 @@ Connect to a wlan or to a wwan and try again.</string>
                   <item>
                    <widget class="QStackedWidget" name="stackedWidgetConnectedDevice">
                     <property name="currentIndex">
-                     <number>1</number>
+                     <number>0</number>
                     </property>
-                    <widget class="QWidget" name="page_5">
+                    <widget class="QWidget" name="page_ConnectivityInput">
                      <layout class="QHBoxLayout" name="horizontalLayout_6">
                       <item>
                        <widget class="QStackedWidget" name="stackedWidgetDeveloperMode">
@@ -490,7 +490,7 @@ Connect to a wlan or to a wwan and try again.</string>
                        </widget>
                       </item>
                       <item>
-                       <widget class="QTabWidget" name="tabWidget_2">
+                       <widget class="QTabWidget" name="tabWidget_DeviceControlInput">
                         <property name="tabPosition">
                          <enum>QTabWidget::West</enum>
                         </property>
@@ -500,7 +500,7 @@ Connect to a wlan or to a wwan and try again.</string>
                         <property name="documentMode">
                          <bool>true</bool>
                         </property>
-                        <widget class="QWidget" name="tab_3">
+                        <widget class="QWidget" name="tab_DeviceControlSimple">
                          <attribute name="title">
                           <string>Simple</string>
                          </attribute>
@@ -577,7 +577,7 @@ Connect to a wlan or to a wwan and try again.</string>
                           </item>
                          </layout>
                         </widget>
-                        <widget class="QWidget" name="tab_4">
+                        <widget class="QWidget" name="tab_DeviceControlAdvanced">
                          <attribute name="title">
                           <string>Advanced</string>
                          </attribute>
@@ -798,7 +798,7 @@ Recovery</string>
                       </item>
                      </layout>
                     </widget>
-                    <widget class="QWidget" name="page_6">
+                    <widget class="QWidget" name="page_ConnectivityInfo">
                      <layout class="QVBoxLayout" name="verticalLayout_18">
                       <item>
                        <spacer name="verticalSpacer_7">
@@ -889,9 +889,9 @@ Recovery</string>
               <item>
                <widget class="QStackedWidget" name="stackedEmulatorConfigWidget">
                 <property name="currentIndex">
-                 <number>1</number>
+                 <number>0</number>
                 </property>
-                <widget class="QWidget" name="page">
+                <widget class="QWidget" name="page_EmulatorPackageCheck">
                  <layout class="QVBoxLayout" name="verticalLayout_15">
                   <item>
                    <widget class="QGroupBox" name="groupBox_Emulator_Install">
@@ -968,7 +968,7 @@ Recovery</string>
                   </item>
                  </layout>
                 </widget>
-                <widget class="QWidget" name="page_2">
+                <widget class="QWidget" name="page_EmulatorInstances">
                  <layout class="QVBoxLayout" name="verticalLayout_CopyEmulator">
                   <item alignment="Qt::AlignLeft">
                    <widget class="QLabel" name="label_EmulatorInfo">

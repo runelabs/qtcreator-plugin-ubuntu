@@ -15,5 +15,6 @@
 #
 # Author: Zoltán Balogh <zoltan.balogh@canonical.com>
 
+set -e
 EMULATOR_PACKAGE=$1
 pkexec sh -c "apt-get -y -f install ${EMULATOR_PACKAGE}"

@@ -30,6 +30,8 @@ const char LINEFEED[] = "\n";
 const char UNDERLINE[] = "_";
 const char DASH[] = "-";
 const char EMPTY[] = "";
+const char SPACE[] = " ";
+const char INSTALLED[] = "ii";
 const char ZERO_STR[] = "0";
 const char ONE_STR[] = "1";
 const char USERNAME[] = "username";
@@ -56,6 +58,13 @@ const char UBUNTUDEVICESWIDGET_ONFINISHED_SSH_NOT_INSTALLED[] = "..openssh-serve
 const int UBUNTUDEVICESWIDGET_DEVELOPERMODE_PAGE_ENABLED = 1;
 const int UBUNTUDEVICESWIDGET_DEVELOPERMODE_PAGE_DEVICEFOUND = 0;
 const int UBUNTUDEVICESWIDGET_DEVELOPERMODE_PAGE_NONETWORK = 2;
+const int UBUNTUDEVICESWIDGET_PAGE_EMULATOR_PACKAGE_CHECK = 0;
+const int UBUNTUDEVICESWIDGET_PAGE_EMULATOR_INSTANCES = 1;
+const int UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONNECTIVITY_INFO = 0;
+const int UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONNECTIVITY_INPUT = 1;
+const int UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONTROL_SIMPLE_TAB = 0;
+
+
 const char UBUNTUDEVICESWIDGET_ONFINISHED_UNABLE_TO_FETCH[] = "E: Unable to fetch some archives, maybe run apt-get update or try with --fix-missing?";
 
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_EMULATOR_INSTALLED[] = "%0/local_emulator_installed";  
@@ -143,7 +152,7 @@ const char UBUNTU_CORDOVAUBUNTU_TYPE[] = "cordovaproject";
 const char UBUNTU_QTPROJECT_TYPE[] = "pro";
 const char UBUNTU_QML_TYPE[] = "qml";
 const char UBUNTU_HAS_TESTS[] = "hasTests";
-const char UBUNTU_EMULATOR_NAME[] = "emulator";
+const char UBUNTU_INITIAL_EMULATOR_NAME[] = "<emulator>";
 
 const char UBUNTUBZR_INITIALIZE[] ="%0/qtc_bzr_info";
 const char UBUNTUPACKAGINGWIDGET_OPENMANIFEST[] ="%0/manifest.json";
