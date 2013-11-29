@@ -181,6 +181,7 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
 	    ui->pushButton_StartEmulator->setEnabled(true);
             QListWidgetItem* item = new QListWidgetItem(line);
             ui->listWidget_EmulatorImages->addItem(item);
+	    ui->listWidget_EmulatorImages->setCurrentItem(item);
         }
     }
     if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_EMULATOR_INSTALLED).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
