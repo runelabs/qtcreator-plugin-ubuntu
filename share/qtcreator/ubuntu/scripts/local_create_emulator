@@ -20,5 +20,6 @@ WHOAMI=`whoami`
 cp -r /usr/share/android/emulator/ ${EMULATOR_PATH}/
 cd ${EMULATOR_PATH}/
 sed -i 's/sudo //' ./build-emulator-sdcard.sh
+sed -i 's/wget/wget -nv/' ./build-emulator-sdcard.sh
 pkexec sh -c "cd ${EMULATOR_PATH};./build-emulator-sdcard.sh;chown ${WHOAMI}:${WHOAMI} ./ -R"
 
