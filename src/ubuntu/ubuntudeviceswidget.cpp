@@ -193,6 +193,7 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
                 continue;
             }
             if (line.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_LOCAL_NO_EMULATOR_INSTALLED))) {
+	        ui->label_InstallEmulatorStatus->hide();
                 ui->pushButton_InstallEmulator_OK->setEnabled(true);
             } else {
                 QStringList lineData = line.split(QLatin1String(Constants::SPACE));
