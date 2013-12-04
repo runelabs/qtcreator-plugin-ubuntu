@@ -97,10 +97,29 @@
     },
     {
        "type": "qmlproject",
-       "folder": "html5",
-       "displayName": "HTML5 Touch UI",
-       "id": "UbuntuAppWebView",
-       "description": "An HTML5 UI using the QML WebView component",
+       "folder": "html5-simple",
+       "displayName": "HTML5 Simple Touch UI",
+       "id": "UbuntuAppHTML5Simple",
+       "description": "A HTML5 UI with a Label and a Button",
+       "mainFile" : "main.qml",
+       "files": [
+           {
+               "fileName": "displayName.desktop"
+           },
+           {
+               "fileName": "html/index.html"
+           },
+           {
+               "fileName": "html/app.js"
+           }
+       ]
+    },
+    {
+       "type": "qmlproject",
+       "folder": "html5-tabs",
+       "displayName": "HTML5 Tabbed Touch UI",
+       "id": "UbuntuAppHTML5Tabs",
+       "description": "A multipage HTML5 UI using the Tabs component",
        "mainFile" : "main.qml",
        "files": [
            {
