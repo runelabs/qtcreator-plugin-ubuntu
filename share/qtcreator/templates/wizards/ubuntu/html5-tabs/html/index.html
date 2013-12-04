@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>A multipage HTML5 UI using the Tabs component</title>
+    <meta name="description" content="A multipage HTML5 UI using the Tabs component">
+    <meta name="viewport" content="width=device-width">
+
+    <!-- Ubuntu UI Style imports - Ambiance theme -->
+    <link href="/usr/share/ubuntu-html5-theme/0.1/ambiance/css/appTemplate.css" rel="stylesheet" type="text/css" />
+
+    <!-- Ubuntu UI javascript imports - Ambiance theme -->
+    <script src="/usr/share/ubuntu-html5-theme/0.1/ambiance/js/fast-buttons.js"></script>
+    <script src="/usr/share/ubuntu-html5-theme/0.1/ambiance/js/core.js"></script>
+    <script src="/usr/share/ubuntu-html5-theme/0.1/ambiance/js/buttons.js"></script>
+    <script src="/usr/share/ubuntu-html5-theme/0.1/ambiance/js/dialogs.js"></script>
+    <script src="/usr/share/ubuntu-html5-theme/0.1/ambiance/js/page.js"></script>
+    <script src="/usr/share/ubuntu-html5-theme/0.1/ambiance/js/pagestacks.js"></script>
+    <script src="/usr/share/ubuntu-html5-theme/0.1/ambiance/js/tabs.js"></script>
+
+    <!-- Application script -->
+    <script src="app.js"></script>
+  </head>
+
+  <body>
+    <div data-role="page">
+
+      <header data-role="header">
+        <ul data-role="tabs">
+          <li data-role="tab" data-page="hello-page">Hello..</li>
+          <li data-role="tab" data-page="world-page">..World!</li>
+        </ul>
+      </header>
+
+      <div data-role="content">
+
+<!-- HELLO-PAGE TAB -->
+
+          <div data-role="page" id="hello-page">
+            <div data-role="shape" style="width: 200px; height: 200px;">
+	      <span style="display: inline-block; width: 100%; height: 100%; text-align: center; vertical-align: middle;" id="mytext">
+		HelloTab
+	      </span>
+            </div>
+	    <div>
+	      You can change the Tab from Page title above.
+	    </div>
+          </div>
+
+<!-- WORLD-PAGE TAB -->
+
+          <div data-role="page" id="world-page">
+
+	    <!-- page stack -->
+            <div data-role="pagestack">
+
+	      <!-- 'main' page -->
+              <div data-role="page" id="world-page-main">
+		<div data-role="shape" style="width: 200px; height: 200px;">
+		  <span style="display: inline-block; width: 100%; height: 100%; text-align: center; vertical-align: middle;" id="mytext">
+		    WorldTab
+		  </span>
+		</div>
+		<div>
+		  Swipe from bottom to up to reveal the toolbar.
+		</div>
+	      </div>
+
+	      <!-- pagestack's footer -->
+              <footer data-role="footer">
+		<nav>
+                  <ul>
+                    <li>
+                      <a href="#">
+			<img src="/usr/share/ubuntu-html5-theme/0.1/ambiance/img/back@18.png" alt="Tap me!" />
+			<span>Tap me!</span>
+                      </a>
+                    </li>
+                  </ul>
+		</nav>
+              </footer>
+
+	    </div>
+
+          </div>
+	  
+      </div>
+      
+    </div>
+  </body>
+</html>

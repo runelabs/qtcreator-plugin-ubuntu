@@ -96,26 +96,40 @@
        ]
     },
     {
-       "type": "cordovaproject",
-       "folder": "cordovaubuntu",
-       "displayName": "HTML5 UI",
-       "id": "UbuntuCordovaUbuntuProject",
-       "description": "Creates an HTML5 application project that includes an Ubuntu Webview component with access to the Cordova APIs.",
-       "mainFile" : "index.html",
+       "folder": "html5-simple",
+       "displayName": "HTML5 Simple Touch UI",
+       "id": "UbuntuAppHTML5Simple",
+       "description": "A HTML5 UI with a Label and a Button",
+       "mainFile" : "main.qml",
        "files": [
            {
-               "fileName": "css/index.css"
+               "fileName": "displayName.desktop"
            },
            {
-               "fileName": "img/logo.png"
+               "fileName": "html/index.html"
            },
            {
-               "fileName": "plugins.xml"
-           },
-           {
-	       "fileName": "displayName.desktop"
+               "fileName": "html/app.js"
            }
-
+       ]
+    },
+    {
+       "type": "qmlproject",
+       "folder": "html5-tabs",
+       "displayName": "HTML5 Tabbed Touch UI",
+       "id": "UbuntuAppHTML5Tabs",
+       "description": "A multipage HTML5 UI using the Tabs component",
+       "mainFile" : "main.qml",
+       "files": [
+           {
+               "fileName": "displayName.desktop"
+           },
+           {
+               "fileName": "html/index.html"
+           },
+           {
+               "fileName": "html/app.js"
+           }
        ]
     },
     {

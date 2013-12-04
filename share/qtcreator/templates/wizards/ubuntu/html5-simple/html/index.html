@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Ubuntu SDK: HTML5 App</title>
+    <meta name="description" content="A HTML5 UI with a Label and a Button">
+    <meta name="viewport" content="width=device-width">
+
+    <!-- Ubuntu UI Style imports - Ambiance theme -->
+    <link href="/home/alex/dev/work/webapps/branches/ubuntu-html5-theme/add-element-func/0.1/ambiance/css/appTemplate.css" rel="stylesheet" type="text/css" />
+
+    <!-- Ubuntu UI javascript imports - Ambiance theme -->
+    <script src="/home/alex/dev/work/webapps/branches/ubuntu-html5-theme/add-element-func/0.1/ambiance/js/fast-buttons.js"></script>
+    <script src="/home/alex/dev/work/webapps/branches/ubuntu-html5-theme/add-element-func/0.1/ambiance/js/core.js"></script>
+    <script src="/home/alex/dev/work/webapps/branches/ubuntu-html5-theme/add-element-func/0.1/ambiance/js/buttons.js"></script>
+    <script src="/home/alex/dev/work/webapps/branches/ubuntu-html5-theme/add-element-func/0.1/ambiance/js/pagestacks.js"></script>
+
+    <!-- Application script -->
+    <script src="app.js"></script>
+  </head>
+
+  <body>
+
+      <!-- A way to setup the title for the current page -->
+      <header data-role="header">
+        <nav data-role="navbar" class="tabs" >
+          <div class="tabs-inner">
+            <ul>
+              <li class="active" role="tab">
+                <a href="#item1" class="tab-item">Simple</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </header>
+
+      <!-- A way to setup the title for the current page -->
+      <div data-role="page">
+	<div data-role="content">
+	  
+          <div data-role="shape" style="width: 200px; height: 200px;">
+	    <span style="display: inline-block; width: 100%; height: 100%; text-align: center; vertical-align: middle;" id="mytext">
+	      Hello..
+	    </span>
+          </div>
+	  
+          <button data-role="button" class="ubuntu" style="display: block; width: 100%" id="tapme">
+	    Tap Me!
+	  </button>
+	  
+	</div>
+      </div>
+
+  </body>
+</html>
