@@ -101,16 +101,19 @@
        "displayName": "HTML5 Tabbed Touch UI",
        "id": "UbuntuAppHTML5Tabs",
        "description": "A multipage HTML5 UI using the Tabs component",
-       "mainFile" : "main.qml",
+       "mainFile" : "html/index.html",
        "files": [
            {
                "fileName": "displayName.desktop"
            },
            {
-               "fileName": "html/index.html"
+               "fileName": "index.html"
            },
            {
-               "fileName": "html/app.js"
+               "fileName": "js/app.js"
+           },
+           {
+               "fileName": "plugins.xml"
            }
        ]
     },
