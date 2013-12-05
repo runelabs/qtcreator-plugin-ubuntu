@@ -1,3 +1,9 @@
+qtcreator-plugin-ubuntu (2.8.1bzr56saucy0+testing6+0newqtc1) trusty; urgency=low
+
+  * qt4project renamed to qmakeproject
+
+ -- Zoltán Balogh <zoltan@bakter.hu>  Thu, 05 Dec 2013 10:22:10 +0100
+
 qtcreator-plugin-ubuntu (2.8.1bzr56saucy0+testing6) saucy; urgency=low
 
   * Testing release

@@ -21,7 +21,7 @@
 
 #include <coreplugin/basefilewizard.h>
 #include <projectexplorer/baseprojectwizarddialog.h>
-#include <qmakeprojectmanager/qt4project.h>
+#include <qmakeprojectmanager/qmakeproject.h>
 #include <qmlprojectmanager/qmlproject.h>
 #include <extensionsystem/pluginmanager.h>
 
