@@ -32,7 +32,7 @@
 #include <coreplugin/icore.h>
 #include <utils/filesearch.h>
 #include <qmlprojectmanager/qmlprojectmanager.h>
-#include <qt4projectmanager/qt4projectmanager.h>
+#include <qmakeprojectmanager/qmakeprojectmanager.h>
 #include <QtGlobal>
 
 #include <QIcon>

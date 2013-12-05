@@ -27,7 +27,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/messagemanager.h>
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildmanager.h>
