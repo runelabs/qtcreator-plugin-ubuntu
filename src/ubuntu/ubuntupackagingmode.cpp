@@ -82,16 +82,14 @@ void UbuntuPackagingMode::modeChanged(Core::IMode* currentMode) {
         bool isQmlProject = false;
         bool isQmakeProject = false;
         bool isUbuntuProject = false;
-        bool isCordovaProject = false;
 
         if (startupProject) {
             isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMLPROJECT_MIMETYPE));
             isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMAKE_MIMETYPE));
-            isCordovaProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::CORDOVAPROJECT_MIMETYPE));
             isUbuntuProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
         }
 
-        if (isQmlProject || isUbuntuProject || isCordovaProject) {
+        if (isQmlProject || isUbuntuProject) {
             m_ubuntuPackagingWidget.openManifestForProject();
             m_ubuntuPackagingWidget.setAvailable(true);
         } else {
@@ -113,16 +111,14 @@ void UbuntuPackagingMode::updateModeState() {
     bool isQmlProject = false;
     bool isQmakeProject = false;
     bool isUbuntuProject = false;
-    bool isCordovaProject = false;
 
     if (startupProject) {
         isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMLPROJECT_MIMETYPE));
         isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMAKE_MIMETYPE));
-        isCordovaProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::CORDOVAPROJECT_MIMETYPE));
         isUbuntuProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
     }
 
-    this->setEnabled((sessionManager->projects().count()>0) && (isQmlProject || isUbuntuProject || isCordovaProject));
+    this->setEnabled((sessionManager->projects().count()>0) && (isQmlProject || isUbuntuProject));
     if (this->isEnabled()) {
         m_ubuntuPackagingWidget.openManifestForProject();
         m_ubuntuPackagingWidget.save();

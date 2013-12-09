@@ -69,14 +69,12 @@ void UbuntuMenu::slotUpdateActions() {
     bool isQmlProject = false;
     bool isQmakeProject = false;
     bool isUbuntuProject = false;
-    bool isCordovaProject = false;
 
 
     if (startupProject) {
         isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMLPROJECT_MIMETYPE));
         isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMAKE_MIMETYPE));
-        isCordovaProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::CORDOVAPROJECT_MIMETYPE));
-        isUbuntuProject = isQmlProject || isCordovaProject;
+        isUbuntuProject = isQmlProject;
         //isUbuntuProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
     }
 
@@ -88,10 +86,13 @@ void UbuntuMenu::slotUpdateActions() {
         bool requiresDevice = act->property(Constants::UBUNTU_MENUJSON_DEVICEREQUIRED).toBool();
         bool requiresProject = act->property(Constants::UBUNTU_MENUJSON_PROJECTREQUIRED).toBool();
         bool requiresQmlProject = act->property(Constants::UBUNTU_MENUJSON_QMLPROJECTREQUIRED).toBool();
-        bool requiresCordovaProject = act->property(Constants::UBUNTU_MENUJSON_CORDOVAPROJECTREQUIRED).toBool();
         bool requiresQmakeProject = act->property(Constants::UBUNTU_MENUJSON_QMAKEPROJECTREQUIRED).toBool();
         bool requiresUbuntuProject = act->property(Constants::UBUNTU_MENUJSON_UBUNTUPROJECTREQUIRED).toBool();
-        bool actionEnabled = ( (requiresQmakeProject ? isQmakeProject : true) && (requiresQmlProject ? isQmlProject : true) && (requiresDevice ? deviceDetected : true) && (requiresProject ? projectOpen : true) && (requiresUbuntuProject ? isUbuntuProject : true) && (requiresCordovaProject ? isCordovaProject : true));
+        bool actionEnabled = ( (requiresQmakeProject ? isQmakeProject : true) &&
+                               (requiresQmlProject ? isQmlProject : true) &&
+                               (requiresDevice ? deviceDetected : true) &&
+                               (requiresProject ? projectOpen : true) &&
+                               (requiresUbuntuProject ? isUbuntuProject : true));
 
         act->setEnabled( actionEnabled );
     }

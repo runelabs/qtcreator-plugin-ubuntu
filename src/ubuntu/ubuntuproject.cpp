@@ -19,6 +19,8 @@
 #include "ubuntuproject.h"
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <qmljs/qmljssimplereader.h>
+
 
 using namespace Ubuntu;
 using namespace Ubuntu::Internal;
@@ -46,6 +48,24 @@ UbuntuProject::UbuntuProject(UbuntuProjectManager *manager, const QString &fileN
 
     if (needsConfiguration()) {
         Core::ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
+    }
+
+    extractProjectFileData(fileName);
+}
+
+void UbuntuProject::extractProjectFileData(const QString& filename) {
+    QmlJS::SimpleReader reader;
+
+    const QmlJS::SimpleReaderNode::Ptr root =
+            reader.readFile(filename);
+
+    if (!reader.errors().isEmpty() || root.isNull())
+        return;
+
+    if (root->name().compare(QString::fromLatin1("Project")) == 0) {
+        QVariant mainFileVariant = root->property(QLatin1String("mainFile"));
+        if (mainFileVariant.isValid())
+            m_mainFile = mainFileVariant.toString();
     }
 }
 

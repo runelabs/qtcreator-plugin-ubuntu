@@ -31,9 +31,15 @@ UbuntuRunControl::UbuntuRunControl(ProjectExplorer::RunConfiguration *runConfigu
     UbuntuProject* ubuntuProject = qobject_cast<UbuntuProject*>(runConfiguration->target()->project());
 
     m_applicationLauncher.setWorkingDirectory(ubuntuProject->projectDir().absolutePath());
-
-    m_executable = QtSupport::QtKitInformation::qtVersion(runConfiguration->target()->kit())->qmlsceneCommand();
-    m_commandLineArguments = QString(QLatin1String("%0.qml")).arg(ubuntuProject->displayName());
+    if (ubuntuProject->mainFile().compare(QString::fromLatin1("index.html"), Qt::CaseInsensitive) == 0) {
+        //TODO move out
+        m_executable = QString::fromLatin1("ubuntu-html5-app-launcher");
+        m_commandLineArguments = ubuntuProject->projectDirectory();
+    }
+    else {
+        m_executable = QtSupport::QtKitInformation::qtVersion(runConfiguration->target()->kit())->qmlsceneCommand();
+        m_commandLineArguments = QString(QLatin1String("%0.qml")).arg(ubuntuProject->displayName());
+    }
 
     connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
             this, SLOT(slotAppendMessage(QString,Utils::OutputFormat)));
