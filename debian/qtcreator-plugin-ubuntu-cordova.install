@@ -1,0 +1,3 @@
+src/cordovaubuntuprojectmanager/CordovaUbuntuProject.mimetypes.xml  usr/share/mime/packages/
+usr/lib/*/qtcreator/plugins/Canonical/CordovaUbuntuProjectManager.pluginspec
+usr/lib/*/qtcreator/plugins/Canonical/libCordovaUbuntuProjectManager.so
