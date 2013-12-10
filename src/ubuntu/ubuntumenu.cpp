@@ -206,7 +206,7 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
             actionUbuntuProjectRequired = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_UBUNTUPROJECTREQUIRED)).toBool();
         }
         if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_UBUNTUHTMLPROJECTREQUIRED))) {
-            actionUbuntuHtmlProjectRequired = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_UBUNTUPROJECTREQUIRED)).toBool();
+            actionUbuntuHtmlProjectRequired = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_UBUNTUHTMLPROJECTREQUIRED)).toBool();
         }
 
         if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_SAVEREQUIRED))) {
