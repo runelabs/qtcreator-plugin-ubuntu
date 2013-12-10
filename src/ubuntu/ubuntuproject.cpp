@@ -91,7 +91,8 @@ ProjectExplorer::ProjectNode *UbuntuProject::rootProjectNode() const {
 
 static void enumChild(const QDir &dir, QStringList &res) {
     foreach (const QFileInfo &info, dir.entryInfoList(QDir::NoDotAndDotDot|QDir::Dirs|QDir::Files)) {
-        if (info.fileName().indexOf(QLatin1String(Constants::UBUNTUPROJECT_SUFFIX)) != -1)
+        if (info.fileName().indexOf(QLatin1String(Constants::UBUNTUPROJECT_SUFFIX)) != -1
+            || info.fileName().indexOf(QLatin1String(Constants::UBUNTUHTMLPROJECT_SUFFIX)) != -1)
             continue;
         if (info.isFile()) {
             res.append(info.absoluteFilePath());

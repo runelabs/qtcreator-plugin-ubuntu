@@ -4,6 +4,7 @@
   <mime-type type="application/x-ubuntuproject">
     <sub-class-of type="application/x-qml"/>
     <comment>Ubuntu Project file</comment>
+    <glob pattern="*.ubuntuhtmlproject"/>
     <glob pattern="*.ubuntuproject"/>
   </mime-type>
 </mime-info>

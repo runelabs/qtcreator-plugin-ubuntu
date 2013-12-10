@@ -104,14 +104,17 @@ const char UBUNTUPROJECT_MIMETYPE[] = "application/x-ubuntuproject";
 const char UBUNTUPROJECT_ID[] = "UbuntuProjectManager.UbuntuProject";
 const char UBUNTUPROJECT_PROJECTCONTEXT[] = "UbuntuProject.ProjectContext";
 const char UBUNTUPROJECT_SUFFIX[] = ".ubuntuproject";
+const char UBUNTUHTMLPROJECT_SUFFIX[] = ".ubuntuhtmlproject";
 const char UBUNTU_PROJECT_WIZARD_CATEGORY[] = "A.UbuntuProjects";
 const char UBUNTUPROJECT_DISPLAYNAME[] = "Ubuntu Project";
 const char UBUNTUPROJECT_RUNCONTROL_ID[] = "UbuntuProjectManager.UbuntuRunConfiguration";
 
+const char UBUNTUHTML_PROJECT_LAUNCHER_EXE[] = "ubuntu-html5-app-launcher";
+
 const char UBUNTU_PROJECT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Ubuntu");
 
 const char UBUNTU_UBUNTUPROJECT_TYPE[] = "ubuntuproject";
-const char UBUNTU_HTMLPROJECT_TYPE[] = "htmlproject";
+const char UBUNTU_HTMLPROJECT_TYPE[] = "ubuntuhtmlproject";
 const char UBUNTU_AUTOPILOTPROJECT_TYPE[] = "autopilotproject";
 const char UBUNTU_QMLPROJECT_TYPE[] = "qmlproject";
 const char UBUNTU_QTPROJECT_TYPE[] = "pro";

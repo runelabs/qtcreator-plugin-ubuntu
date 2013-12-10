@@ -31,9 +31,10 @@ UbuntuRunControl::UbuntuRunControl(ProjectExplorer::RunConfiguration *runConfigu
     UbuntuProject* ubuntuProject = qobject_cast<UbuntuProject*>(runConfiguration->target()->project());
 
     m_applicationLauncher.setWorkingDirectory(ubuntuProject->projectDir().absolutePath());
+
     if (ubuntuProject->mainFile().compare(QString::fromLatin1("index.html"), Qt::CaseInsensitive) == 0) {
-        //TODO move out
-        m_executable = QString::fromLatin1("ubuntu-html5-app-launcher");
+        //TODO move into abstracted location
+        m_executable = QString::fromLatin1(Ubuntu::Constants::UBUNTUHTML_PROJECT_LAUNCHER_EXE);
         m_commandLineArguments = ubuntuProject->projectDirectory();
     }
     else {

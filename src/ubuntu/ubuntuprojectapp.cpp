@@ -89,8 +89,7 @@ Core::GeneratedFiles UbuntuProjectApp::generateFiles(const QWizard *w, QString *
 
         const QString creatorFileName = Core::BaseFileWizard::buildFileName(projectPath,
                                                                             projectName,
-                                                                            projectType);
-
+                                                                            m_projectType);
         QString mainFileName;
 
         // load the mainFile
@@ -148,6 +147,9 @@ Core::GeneratedFiles UbuntuProjectApp::generateFiles(const QWizard *w, QString *
                 << "    }" << endl
                 << "    Files {" << endl
                 << "        filter: \"*.desktop\"" << endl
+                << "    }" << endl
+                << "    Files {" << endl
+                << "        filter: \"*.html\"" << endl
                 << "    }" << endl
                 << "    Files {" << endl
                 << "        filter: \"Makefile\"" << endl
