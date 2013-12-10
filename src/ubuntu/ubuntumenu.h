@@ -30,6 +30,10 @@
 #include <QList>
 #include <QJsonDocument>
 
+namespace ProjectExplorer {
+class Project;
+}
+
 namespace Ubuntu {
 namespace Internal {
 
@@ -67,6 +71,8 @@ protected:
 
     QList<QAction*> m_actions;
 
+private:
+    bool isProperUbuntuHtmlProject(ProjectExplorer::Project *project) const;
 };
 
 

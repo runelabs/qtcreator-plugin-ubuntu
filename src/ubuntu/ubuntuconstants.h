@@ -196,6 +196,7 @@ const char  UBUNTU_MENUJSON_DEVICEREQUIRED[] = "deviceRequired";
 const char  UBUNTU_MENUJSON_QMLPROJECTREQUIRED[] = "qmlProjectRequired";
 const char  UBUNTU_MENUJSON_QMAKEPROJECTREQUIRED[] = "qmakeProjectRequired";
 const char  UBUNTU_MENUJSON_UBUNTUPROJECTREQUIRED[] = "ubuntuProjectRequired";
+const char  UBUNTU_MENUJSON_UBUNTUHTMLPROJECTREQUIRED[] = "ubuntuHtmlProjectRequired";
 const char  UBUNTU_MENUJSON_SAVEREQUIRED[] = "saveRequired";
 const char  UBUNTU_MENUJSON_MESSAGEDIALOG[] = "messageDialog";
 
@@ -240,6 +241,7 @@ const char  UBUNTU_ACTION_BZR_USERNAME[] = "%BZR_USERNAME%";
 const char  UBUNTU_ACTION_DEVICE_USERNAME[] = "%USERNAME%";
 const char  UBUNTU_ACTION_DEVICE_IP[] = "%IP%";
 const char  UBUNTU_ACTION_DEVICE_PORT[] = "%PORT%";
+const char  UBUNTU_ACTION_APP_RUNNER_EXECNAME[] = "%APPRUNNEREXECNAME%";
 
 const char  UBUNTU_FILENAME_DISPLAYNAME[] = "displayName";
 const char  UBUNTU_FILENAME_DISPLAYNAME_LOWER[] = "displayName_lower";
