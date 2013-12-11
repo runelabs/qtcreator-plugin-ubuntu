@@ -96,29 +96,6 @@
        ]
     },
     {
-       "type": "cordovaproject",
-       "folder": "cordovaubuntu",
-       "displayName": "HTML5 UI",
-       "id": "UbuntuCordovaUbuntuProject",
-       "description": "Creates an HTML5 application project that includes an Ubuntu Webview component with access to the Cordova APIs.",
-       "mainFile" : "index.html",
-       "files": [
-           {
-               "fileName": "css/index.css"
-           },
-           {
-               "fileName": "img/logo.png"
-           },
-           {
-               "fileName": "plugins.xml"
-           },
-           {
-	       "fileName": "displayName.desktop"
-           }
-
-       ]
-    },
-    {
        "type": "pro",
        "folder": "backend",
        "displayName": "QtQuick2 Extension Library",
