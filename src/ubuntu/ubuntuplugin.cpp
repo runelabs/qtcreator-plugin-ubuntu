@@ -19,6 +19,9 @@
 #include "ubuntuplugin.h"
 #include "ubuntuconstants.h"
 #include "ubuntuprojectapplicationwizard.h"
+#include "ubuntuprojectmanager.h"
+#include "ubunturunconfiguration.h"
+#include "ubunturunconfigurationfactory.h"
 
 #include <coreplugin/modemanager.h>
 
@@ -118,9 +121,10 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     addAutoReleasedObject(new UbuntuVersionManager);
     addAutoReleasedObject(new UbuntuFeatureProvider);
 
-    //addAutoReleasedObject(new UbuntuProjectManager);
-    //addAutoReleasedObject(new UbuntuRunConfigurationFactory);
-    //addAutoReleasedObject(new UbuntuRunControlFactory);
+    // Handle new project type files
+    addAutoReleasedObject(new UbuntuProjectManager);
+    addAutoReleasedObject(new UbuntuRunConfigurationFactory);
+    addAutoReleasedObject(new UbuntuRunControlFactory);
 
     return true;
 }

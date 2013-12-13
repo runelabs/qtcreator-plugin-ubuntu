@@ -32,8 +32,15 @@ UbuntuRunControl::UbuntuRunControl(ProjectExplorer::RunConfiguration *runConfigu
 
     m_applicationLauncher.setWorkingDirectory(ubuntuProject->projectDir().absolutePath());
 
-    m_executable = QtSupport::QtKitInformation::qtVersion(runConfiguration->target()->kit())->qmlsceneCommand();
-    m_commandLineArguments = QString(QLatin1String("%0.qml")).arg(ubuntuProject->displayName());
+    if (ubuntuProject->mainFile().compare(QString::fromLatin1("index.html"), Qt::CaseInsensitive) == 0) {
+        //TODO move into abstracted location
+        m_executable = QString::fromLatin1(Ubuntu::Constants::UBUNTUHTML_PROJECT_LAUNCHER_EXE);
+        m_commandLineArguments = QString(QLatin1String("--www=%0")).arg(ubuntuProject->projectDirectory());
+    }
+    else {
+        m_executable = QtSupport::QtKitInformation::qtVersion(runConfiguration->target()->kit())->qmlsceneCommand();
+        m_commandLineArguments = QString(QLatin1String("%0.qml")).arg(ubuntuProject->displayName());
+    }
 
     connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
             this, SLOT(slotAppendMessage(QString,Utils::OutputFormat)));

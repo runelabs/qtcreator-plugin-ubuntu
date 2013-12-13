@@ -48,17 +48,17 @@ bool UbuntuRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent,
     return false;
 }
 
-ProjectExplorer::RunConfiguration *UbuntuRunConfigurationFactory::create(ProjectExplorer::Target *parent, const Core::Id id) {
+bool UbuntuRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const {
+    return parent && canCreate(parent, ProjectExplorer::idFromMap(map));
+}
+
+ProjectExplorer::RunConfiguration *UbuntuRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, const Core::Id id) {
     if (!canCreate(parent, id))
         return NULL;
     return new UbuntuRunConfiguration(parent, id);
 }
 
-bool UbuntuRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const {
-    return parent && canCreate(parent, ProjectExplorer::idFromMap(map));
-}
-
-ProjectExplorer::RunConfiguration *UbuntuRunConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map) {
+ProjectExplorer::RunConfiguration *UbuntuRunConfigurationFactory::doRestore(ProjectExplorer::Target *parent, const QVariantMap &map) {
     if (!canRestore(parent, map))
         return NULL;
 

@@ -44,6 +44,7 @@ ProjectExplorer::RunControl *UbuntuRunControlFactory::create(ProjectExplorer::Ru
         runControl = new UbuntuRunControl(runConfiguration, mode, false);
     else if (mode == ProjectExplorer::DebugRunMode)
         runControl = new UbuntuRunControl(runConfiguration, mode, true);
+
     return runControl;
 }
 

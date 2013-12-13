@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS = src/ubuntu src/cordovaubuntuprojectmanager
+SUBDIRS = src/ubuntu

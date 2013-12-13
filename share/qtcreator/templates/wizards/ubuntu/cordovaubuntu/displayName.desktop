@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=%DISPLAYNAME%
-Comment=Description of %DISPLAYNAME%
-Exec=cordova-ubuntu-2.8 .
-Icon=qmlscene
-Terminal=false
-Type=Application
-X-Ubuntu-Touch=true

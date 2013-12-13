@@ -20,6 +20,7 @@
 #include "ubuntushared.h"
 #include "ubuntuconstants.h"
 #include "ubuntudeviceswidget.h"
+#include "ubuntuproject.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -69,15 +70,14 @@ void UbuntuMenu::slotUpdateActions() {
     bool isQmlProject = false;
     bool isQmakeProject = false;
     bool isUbuntuProject = false;
-    bool isCordovaProject = false;
-
+    bool isUbuntuHtmlProject = false;
 
     if (startupProject) {
         isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMLPROJECT_MIMETYPE));
         isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMAKE_MIMETYPE));
-        isCordovaProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::CORDOVAPROJECT_MIMETYPE));
-        isUbuntuProject = isQmlProject || isCordovaProject;
-        //isUbuntuProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
+        isUbuntuProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
+        isUbuntuHtmlProject = isProperUbuntuHtmlProject(startupProject);
+        isUbuntuProject = isUbuntuProject || isUbuntuHtmlProject || isQmlProject;
     }
 
     //bool canRun = projectExplorerInstance->canRun(startupProject,ProjectExplorer::NormalRunMode);
@@ -88,10 +88,15 @@ void UbuntuMenu::slotUpdateActions() {
         bool requiresDevice = act->property(Constants::UBUNTU_MENUJSON_DEVICEREQUIRED).toBool();
         bool requiresProject = act->property(Constants::UBUNTU_MENUJSON_PROJECTREQUIRED).toBool();
         bool requiresQmlProject = act->property(Constants::UBUNTU_MENUJSON_QMLPROJECTREQUIRED).toBool();
-        bool requiresCordovaProject = act->property(Constants::UBUNTU_MENUJSON_CORDOVAPROJECTREQUIRED).toBool();
         bool requiresQmakeProject = act->property(Constants::UBUNTU_MENUJSON_QMAKEPROJECTREQUIRED).toBool();
         bool requiresUbuntuProject = act->property(Constants::UBUNTU_MENUJSON_UBUNTUPROJECTREQUIRED).toBool();
-        bool actionEnabled = ( (requiresQmakeProject ? isQmakeProject : true) && (requiresQmlProject ? isQmlProject : true) && (requiresDevice ? deviceDetected : true) && (requiresProject ? projectOpen : true) && (requiresUbuntuProject ? isUbuntuProject : true) && (requiresCordovaProject ? isCordovaProject : true));
+        bool requiresUbuntuHtmlProject = act->property(Constants::UBUNTU_MENUJSON_UBUNTUHTMLPROJECTREQUIRED).toBool();
+        bool actionEnabled = ( (requiresQmakeProject ? isQmakeProject : true) &&
+                               (requiresQmlProject ? isQmlProject : true) &&
+                               (requiresUbuntuHtmlProject ? isUbuntuHtmlProject : true) &&
+                               (requiresDevice ? deviceDetected : true) &&
+                               (requiresProject ? projectOpen : true) &&
+                               (requiresUbuntuProject ? isUbuntuProject : true));
 
         act->setEnabled( actionEnabled );
     }
@@ -170,6 +175,7 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
         bool actionQmlProjectRequired = false;
         bool actionQmakeProjectRequired = false;
         bool actionUbuntuProjectRequired = false;
+        bool actionUbuntuHtmlProjectRequired = false;
         bool actionSaveRequired = false;
 
         if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_NAME))) {
@@ -196,9 +202,11 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
         if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_QMAKEPROJECTREQUIRED))) {
             actionQmakeProjectRequired = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_QMAKEPROJECTREQUIRED)).toBool();
         }
-
         if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_UBUNTUPROJECTREQUIRED))) {
             actionUbuntuProjectRequired = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_UBUNTUPROJECTREQUIRED)).toBool();
+        }
+        if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_UBUNTUHTMLPROJECTREQUIRED))) {
+            actionUbuntuHtmlProjectRequired = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_UBUNTUHTMLPROJECTREQUIRED)).toBool();
         }
 
         if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_SAVEREQUIRED))) {
@@ -235,6 +243,7 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
         act->setProperty(Constants::UBUNTU_MENUJSON_QMAKEPROJECTREQUIRED,actionQmakeProjectRequired);
         act->setProperty(Constants::UBUNTU_MENUJSON_QMLPROJECTREQUIRED,actionQmlProjectRequired);
         act->setProperty(Constants::UBUNTU_MENUJSON_UBUNTUPROJECTREQUIRED,actionUbuntuProjectRequired);
+        act->setProperty(Constants::UBUNTU_MENUJSON_UBUNTUHTMLPROJECTREQUIRED,actionUbuntuHtmlProjectRequired);
         act->setProperty(Constants::UBUNTU_MENUJSON_SAVEREQUIRED,actionSaveRequired);
 
         connect(act, SIGNAL(triggered()), this, SLOT(menuItemTriggered()));
@@ -247,6 +256,18 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
         }
     }
 
+}
+
+bool UbuntuMenu::isProperUbuntuHtmlProject(ProjectExplorer::Project *project) const
+{
+    if (Q_UNLIKELY(NULL == project))
+        return false;
+
+    UbuntuProject* ubuntuProject = qobject_cast<UbuntuProject*>(project);
+    if (NULL == ubuntuProject)
+        return false;
+
+    return ubuntuProject->filesFileName().endsWith(QLatin1String(Constants::UBUNTUHTMLPROJECT_SUFFIX));
 }
 
 void UbuntuMenu::menuItemTriggered() {
@@ -369,6 +390,11 @@ void UbuntuMenu::menuItemTriggered() {
                         command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_FOLDERNAME),folderName);
                         command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DISPLAYNAME),displayName);
                         command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_PROJECTFILES),projectFiles.join(QLatin1String(" ")));
+
+                        if (isProperUbuntuHtmlProject(project)) {
+                            command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_APP_RUNNER_EXECNAME),
+                                                      QLatin1String(Constants::UBUNTUHTML_PROJECT_LAUNCHER_EXE));
+                        }
                     }
                     
                     QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
