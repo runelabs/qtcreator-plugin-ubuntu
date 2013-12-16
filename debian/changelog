@@ -6,7 +6,7 @@ qtcreator-plugin-ubuntu (2.8.1-0ubuntu3) UNRELEASED; urgency=low
   [ Alexandre Abreu ]
   * Update Ubunt QtC template to account for a new/converged html5 template.
 
- -- Zoltán Balogh <zoltan@bakter.hu>  Fri, 29 Nov 2013 08:30:41 +0200
+ -- Zoltán Balogh <zoltan@bakter.hu>  Mon, 16 Dec 2013 12:25:41 +0200
 
 qtcreator-plugin-ubuntu (2.8.1-0ubuntu2) UNRELEASED; urgency=low
 
