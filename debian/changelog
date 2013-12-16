@@ -1,10 +1,14 @@
-qtcreator-plugin-ubuntu (2.8.1bzr56saucy0+testing6) saucy; urgency=low
+qtcreator-plugin-ubuntu (2.8.1-0ubuntu3) UNRELEASED; urgency=low
 
-  * Testing release
+  [ Zoltán Balogh ]
+  * Add Emulator support
+
+  [ Alexandre Abreu ]
+  * Update Ubunt QtC template to account for a new/converged html5 template.
 
  -- Zoltán Balogh <zoltan@bakter.hu>  Fri, 29 Nov 2013 08:30:41 +0200
 
-qtcreator-plugin-ubuntu (2.8.1-0ubuntu2~test1) trusty; urgency=low
+qtcreator-plugin-ubuntu (2.8.1-0ubuntu2) UNRELEASED; urgency=low
 
   [ Timo Jyrinki ]
   * Automatic snapshot from revision 52 (bootstrap)
@@ -15,8 +19,7 @@ qtcreator-plugin-ubuntu (2.8.1-0ubuntu2~test1) trusty; urgency=low
   * Cordova HTMl5 and HTML5 templates are merged
   * Simple webapp template added
   * References to the "Touch" platform are removed
-  * Add Emulator support 
-
+  
  -- Zoltán Balogh <zoltan@bakter.hu>  Mon, 25 Nov 2013 14:13:21 +0200
 
 qtcreator-plugin-ubuntu (2.8.1-0ubuntu1) trusty; urgency=low
