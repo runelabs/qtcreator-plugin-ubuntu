@@ -73,10 +73,17 @@ public:
         return m_fileName;
     }
 
+    QString mainFile() const {
+        return m_mainFile;
+    }
+
 private:
+    void extractProjectFileData(const QString& filename);
+
     UbuntuProjectManager *m_manager;
     QString m_projectName;
     QSharedPointer<UbuntuProjectFile> m_file;
+    QString m_mainFile;
 
     QString m_fileName;
     QSharedPointer<UbuntuProjectNode> m_rootNode;

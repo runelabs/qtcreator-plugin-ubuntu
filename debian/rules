@@ -26,4 +26,4 @@ override_dh_auto_install:
 	dh_auto_install --destdir=debian/tmp/usr
 
 override_dh_shlibdeps:
-	dh_shlibdeps -XlibUbuntu.so -XlibCordovaUbuntuProjectManager.so
+	dh_shlibdeps -XlibUbuntu.so
