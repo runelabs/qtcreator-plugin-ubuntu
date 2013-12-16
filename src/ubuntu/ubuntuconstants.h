@@ -30,6 +30,8 @@ const char LINEFEED[] = "\n";
 const char UNDERLINE[] = "_";
 const char DASH[] = "-";
 const char EMPTY[] = "";
+const char SPACE[] = " ";
+const char INSTALLED[] = "ii";
 const char ZERO_STR[] = "0";
 const char ONE_STR[] = "1";
 const char USERNAME[] = "username";
@@ -40,6 +42,7 @@ const char UBUNTUDEVICESWIDGET_ONERROR[] = "<p style=\"color: red\">%0</p>";
 const char UBUNTUDEVICESWIDGET_ACTION_BEGIN[] = "<p style=\"color: #888\">%0</p>";
 const char UBUNTUDEVICESWIDGET_ACTION_END[] = "<p style=\"color: #888\">%0</p>";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_DEVICESEARCH[] = "%0/device_search";
+const char UBUNTUDEVICESWIDGET_ONFINISHED_LOCAL_NO_EMULATOR_INSTALLED[] = "dpkg-query: no packages found matching";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_ADB_SEPARATOR[] = "       ";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_ADB_NOACCESS[] = "???";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_NO_DEVICE[] = " * there is no device connected.";
@@ -55,6 +58,21 @@ const char UBUNTUDEVICESWIDGET_ONFINISHED_SSH_NOT_INSTALLED[] = "..openssh-serve
 const int UBUNTUDEVICESWIDGET_DEVELOPERMODE_PAGE_ENABLED = 1;
 const int UBUNTUDEVICESWIDGET_DEVELOPERMODE_PAGE_DEVICEFOUND = 0;
 const int UBUNTUDEVICESWIDGET_DEVELOPERMODE_PAGE_NONETWORK = 2;
+const int UBUNTUDEVICESWIDGET_PAGE_EMULATOR_PACKAGE_CHECK = 0;
+const int UBUNTUDEVICESWIDGET_PAGE_EMULATOR_INSTANCES = 1;
+const int UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONNECTIVITY_INFO = 0;
+const int UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONNECTIVITY_INPUT = 1;
+const int UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONTROL_SIMPLE_TAB = 0;
+
+
+const char UBUNTUDEVICESWIDGET_ONFINISHED_UNABLE_TO_FETCH[] = "E: Unable to fetch some archives, maybe run apt-get update or try with --fix-missing?";
+
+const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_EMULATOR_INSTALLED[] = "%0/local_emulator_installed";  
+const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_INSTALL_EMULATOR[] = "%0/local_install_emulator";
+const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_SEARCH_IMAGES[] = "%0/local_search_images";
+const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_CREATE_EMULATOR[] = "%0/local_create_emulator";
+const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_START_EMULATOR[] = "%0/local_start_emulator";
+
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_DEVICE_WRITABLE_SET[] = "%0/device_writableimage_set";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_DEVICE_WRITABLE_UNSET[] = "%0/device_writableimage_unset";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_WRITABLE_ENABLED[] = "..writable image has been enabled, device is rebooting.";
@@ -85,8 +103,24 @@ const char UBUNTUDEVICESWIDGET_ONFINISHED_NETWORK_CONF_COPIED[] = "..network con
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_TIMECLONE[] = "%0/device_time_clone";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_TIME_CONF_COPIED[] = "..time configuration copied.";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_HASNETWORK[] = "%0/device_hasnetwork";
+
+const char EMULATOR_PACKAGE_NAME[] = "android-emulator";
+
+const char UBUNTUDEVICESWIDGET_LOCAL_EMULATOR_INSTALLED[] = "Checking installed emulator package.";
+const char UBUNTUDEVICESWIDGET_LABEL_EMULATOR_INFO[] = "The %0 version of the %1 emulator package is installed.";
+const char UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE[] = "Install the emulator package on the system..";
+const char UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE_SCRIPT[] = "%0/local_install_emulator %1";
+const char UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES_SCRIPT[] = "%0/local_search_images";
+const char UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES[] = "Search configured emulator instances.";
+const char UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR[] = "Creating new emulator instance.";
+const char UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT[] = "%0/local_create_emulator %1";
+const char UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR[] = "Starting the selected emulator.";
+const char UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT[] = "%0/local_start_emulator %1";
+
+
 const char UBUNTUDEVICESWIDGET_STARTSSHSERVICE[] = "Start ssh service on device..";
 const char UBUNTUDEVICESWIDGET_STARTSSHSERVICE_SCRIPT[] = "%0/device_service_ssh_start %1";
+
 const char UBUNTUDEVICESWIDGET_MAKEFSWRITABLE[] = "Make filesystem writable..";
 const char UBUNTUDEVICESWIDGET_MAKEFSWRITABLE_SCRIPT[] = "%0/device_writableimage_set %1";
 const char UBUNTUDEVICESWIDGET_MAKEFSREADONLY[] = "Make filesystem read-only..";
@@ -120,6 +154,7 @@ const char UBUNTU_QMLPROJECT_TYPE[] = "qmlproject";
 const char UBUNTU_QTPROJECT_TYPE[] = "pro";
 const char UBUNTU_QML_TYPE[] = "qml";
 const char UBUNTU_HAS_TESTS[] = "hasTests";
+const char UBUNTU_INITIAL_EMULATOR_NAME[] = "<emulator>";
 
 const char UBUNTUBZR_INITIALIZE[] ="%0/qtc_bzr_info";
 const char UBUNTUPACKAGINGWIDGET_OPENMANIFEST[] ="%0/manifest.json";
@@ -139,6 +174,14 @@ const char ERROR_MSG_NOACTIONS[] = "No actions defined in map";
 const char ERROR_MSG_NO_MENU_DEFINED[] = "No menu defined";
 const char ERROR_MSG_COULD_NOT_CAST_TO_ACTION[] = "Could not cast to action";
 const char ERROR_MSG_UNABLE_TO_PARSE_MENUJSON[] = "Unable to parse menu.json";
+const char ERROR_MSG_EMULATOR_PATH[] = "Invalid path to create the emulator.";
+const char ERROR_MSG_EMULATOR_NAME[] = "Invalid name for the emulator.";
+const char ERROR_MSG_EMULATOR_EXISTS[] = "The emulator already exists.";
+const char MSG_EMULATOR_IS_CREATED[] = "Check the logs for details.";
+
+
+
+
 
 const char UBUNTUDEVICESWIDGET_REBOOT[] = "Reboot device..";
 const char UBUNTUDEVICESWIDGET_REBOOT_SCRIPT[] = "%0/device_reboot %1";
@@ -148,6 +191,8 @@ const char UBUNTUDEVICESWIDGET_REBOOT_TO_BOOTLOADER[] = "Reboot to bootloader.."
 const char UBUNTUDEVICESWIDGET_REBOOT_TO_BOOTLOADER_SCRIPT[] = "%0/device_reboot2bootloader %1";
 const char UBUNTUDEVICESWIDGET_REBOOT_TO_RECOVERY[] = "Reboot to recovery..";
 const char UBUNTUDEVICESWIDGET_REBOOT_TO_RECOVERY_SCRIPT[] = "%0/device_reboot2recovery %1";
+const char UBUNTUDEVICESWIDGET_LOCAL_EMULATOR_INSTALLED_SCRIPT[] = "%0/local_emulator_installed %1";
+const char UBUNTUDEVICESWIDGET_LOCAL_INSTALL_EMULATOR[] = "%0/local_install_emulator %1";
 const char UBUNTUDEVICESWIDGET_DETECTOPENSSH[] = "Detecting if openssh-server is installed..";
 const char UBUNTUDEVICESWIDGET_DETECTOPENSSH_SCRIPT[] = "%0/openssh_version %1";
 const char UBUNTUDEVICESWIDGET_DETECTDEVICES[] = "Detecting device..";
