@@ -85,24 +85,22 @@ Core::GeneratedFiles UbuntuProjectApp::generateFiles(const QWizard *w, QString *
     if (m_projectType == QLatin1String(Constants::UBUNTU_QMLPROJECT_TYPE)
             || m_projectType == QLatin1String(Constants::UBUNTU_AUTOPILOTPROJECT_TYPE)
             || m_projectType == QLatin1String(Constants::UBUNTU_HTMLPROJECT_TYPE)
-            || m_projectType == QLatin1String(Constants::UBUNTU_UBUNTUPROJECT_TYPE)
-            || m_projectType == QLatin1String(Constants::UBUNTU_CORDOVAUBUNTU_TYPE)) {
+            || m_projectType == QLatin1String(Constants::UBUNTU_UBUNTUPROJECT_TYPE)) {
 
         const QString creatorFileName = Core::BaseFileWizard::buildFileName(projectPath,
                                                                             projectName,
-                                                                            projectType);
-
+                                                                            m_projectType);
         QString mainFileName;
 
         // load the mainFile
-        if (m_projectType == QLatin1String(Constants::UBUNTU_CORDOVAUBUNTU_TYPE)) {
+        if (m_projectType == QLatin1String(Constants::UBUNTU_HTMLPROJECT_TYPE)) {
             mainFileName = Core::BaseFileWizard::buildFileName(projectPath,
                                                               QLatin1String("index"),
                                                               QLatin1String("html"));
         } else {
             mainFileName = Core::BaseFileWizard::buildFileName(projectPath,
-                                                                         projectName,
-                                                                         QLatin1String(Constants::UBUNTU_QML_TYPE));
+                                                               projectName,
+                                                               QLatin1String(Constants::UBUNTU_QML_TYPE));
         }
         QJsonValue tmp_mainFile = m_obj.value(QLatin1String(Constants::UBUNTU_PROJECTJSON_MAINFILE));
 
@@ -149,6 +147,9 @@ Core::GeneratedFiles UbuntuProjectApp::generateFiles(const QWizard *w, QString *
                 << "    }" << endl
                 << "    Files {" << endl
                 << "        filter: \"*.desktop\"" << endl
+                << "    }" << endl
+                << "    Files {" << endl
+                << "        filter: \"*.html\"" << endl
                 << "    }" << endl
                 << "    Files {" << endl
                 << "        filter: \"Makefile\"" << endl

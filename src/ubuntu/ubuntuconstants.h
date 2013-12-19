@@ -138,17 +138,19 @@ const char UBUNTUPROJECT_MIMETYPE[] = "application/x-ubuntuproject";
 const char UBUNTUPROJECT_ID[] = "UbuntuProjectManager.UbuntuProject";
 const char UBUNTUPROJECT_PROJECTCONTEXT[] = "UbuntuProject.ProjectContext";
 const char UBUNTUPROJECT_SUFFIX[] = ".ubuntuproject";
+const char UBUNTUHTMLPROJECT_SUFFIX[] = ".ubuntuhtmlproject";
 const char UBUNTU_PROJECT_WIZARD_CATEGORY[] = "A.UbuntuProjects";
 const char UBUNTUPROJECT_DISPLAYNAME[] = "Ubuntu Project";
 const char UBUNTUPROJECT_RUNCONTROL_ID[] = "UbuntuProjectManager.UbuntuRunConfiguration";
 
+const char UBUNTUHTML_PROJECT_LAUNCHER_EXE[] = "ubuntu-html5-app-launcher";
+
 const char UBUNTU_PROJECT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Ubuntu");
 
 const char UBUNTU_UBUNTUPROJECT_TYPE[] = "ubuntuproject";
-const char UBUNTU_HTMLPROJECT_TYPE[] = "htmlproject";
+const char UBUNTU_HTMLPROJECT_TYPE[] = "ubuntuhtmlproject";
 const char UBUNTU_AUTOPILOTPROJECT_TYPE[] = "autopilotproject";
 const char UBUNTU_QMLPROJECT_TYPE[] = "qmlproject";
-const char UBUNTU_CORDOVAUBUNTU_TYPE[] = "cordovaproject";
 const char UBUNTU_QTPROJECT_TYPE[] = "pro";
 const char UBUNTU_QML_TYPE[] = "qml";
 const char UBUNTU_HAS_TESTS[] = "hasTests";
@@ -163,7 +165,6 @@ const char UBUNTUPACKAGINGWIDGET_BUILDPACKAGE_ID[] ="Ubuntu.Build.Package";
 const char UBUNTUPACKAGINGWIDGET_DEFAULT_MANIFEST[] =":/ubuntu/manifest.json.template";
 const char UBUNTUPACKAGINGWIDGET_DEFAULT_MYAPP[] =":/ubuntu/myapp.json.template";
 const char UBUNTUPACKAGINGWIDGET_DEFAULT_NAME[] ="com.ubuntu.developer.%0.%1";
-const char CORDOVAPROJECT_MIMETYPE[] = "application/x-cordovaproject";
 const char QMAKE_MIMETYPE[] = "application/vnd.qt.qmakeprofile";
 const char QMLPROJECT_MIMETYPE[] = "application/x-qmlproject";
 const char UBUNTUMENU_ONFINISHED[] = "%0 finished with code %1";
@@ -238,9 +239,9 @@ const char  UBUNTU_MENUJSON_WORKINGDIRECTORY[] = "workingDirectory";
 const char  UBUNTU_MENUJSON_PROJECTREQUIRED[] = "projectRequired";
 const char  UBUNTU_MENUJSON_DEVICEREQUIRED[] = "deviceRequired";
 const char  UBUNTU_MENUJSON_QMLPROJECTREQUIRED[] = "qmlProjectRequired";
-const char  UBUNTU_MENUJSON_CORDOVAPROJECTREQUIRED[] = "cordovaProjectRequired";
 const char  UBUNTU_MENUJSON_QMAKEPROJECTREQUIRED[] = "qmakeProjectRequired";
 const char  UBUNTU_MENUJSON_UBUNTUPROJECTREQUIRED[] = "ubuntuProjectRequired";
+const char  UBUNTU_MENUJSON_UBUNTUHTMLPROJECTREQUIRED[] = "ubuntuHtmlProjectRequired";
 const char  UBUNTU_MENUJSON_SAVEREQUIRED[] = "saveRequired";
 const char  UBUNTU_MENUJSON_MESSAGEDIALOG[] = "messageDialog";
 
@@ -285,6 +286,7 @@ const char  UBUNTU_ACTION_BZR_USERNAME[] = "%BZR_USERNAME%";
 const char  UBUNTU_ACTION_DEVICE_USERNAME[] = "%USERNAME%";
 const char  UBUNTU_ACTION_DEVICE_IP[] = "%IP%";
 const char  UBUNTU_ACTION_DEVICE_PORT[] = "%PORT%";
+const char  UBUNTU_ACTION_APP_RUNNER_EXECNAME[] = "%APPRUNNEREXECNAME%";
 
 const char  UBUNTU_FILENAME_DISPLAYNAME[] = "displayName";
 const char  UBUNTU_FILENAME_DISPLAYNAME_LOWER[] = "displayName_lower";
