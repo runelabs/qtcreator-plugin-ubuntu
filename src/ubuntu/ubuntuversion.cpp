@@ -61,6 +61,10 @@ Core::FeatureSet UbuntuVersion::features() {
     if (codename()==QLatin1String(Constants::SAUCY)) {
         retval |= Core::FeatureSet(Constants::FEATURE_UBUNTU_SAUCY);
         retval |= Core::FeatureSet(Constants::FEATURE_UNITY_SCOPE);
+    } else
+    if  (codename()==QLatin1String(Constants::TRUSTY)) {
+        retval |= Core::FeatureSet(Constants::FEATURE_UBUNTU_TRUSTY);
+        retval |= Core::FeatureSet(Constants::FEATURE_UNITY_SCOPE);
     }
     return retval;
 }
