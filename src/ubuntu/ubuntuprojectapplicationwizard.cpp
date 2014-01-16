@@ -51,9 +51,10 @@ UbuntuProjectApplicationWizardDialog::UbuntuProjectApplicationWizardDialog(QWidg
 }
 
 UbuntuProjectApplicationWizard::UbuntuProjectApplicationWizard(QJsonObject obj)
-    : Core::BaseFileWizard(parameters(obj)),
+    : Core::BaseFileWizard(),
       m_app(new UbuntuProjectApp())
 {
+    m_app->setupParameters(obj,this);
     m_app->setData(obj);
 }
 
@@ -70,12 +71,6 @@ Core::FeatureSet UbuntuProjectApplicationWizard::requiredFeatures() const
          | Core::Feature(m_app->requiredFeature());
 #endif
 }
-
-Core::BaseFileWizardParameters UbuntuProjectApplicationWizard::parameters(QJsonObject params)
-{
-    return m_app->parameters(params);
-}
-
 
 QWizard *UbuntuProjectApplicationWizard::createWizardDialog(QWidget *parent,
                                                          const Core::WizardDialogParameters &wizardDialogParameters) const
@@ -99,8 +94,8 @@ bool UbuntuProjectApplicationWizard::postGenerateFiles(const QWizard *, const Co
     bool retval = true;
     // make sure that the project gets configured properly
     if (m_app->projectType() == QLatin1String(Constants::UBUNTU_QTPROJECT_TYPE)) {
-        Qt4ProjectManager::Qt4Manager *manager = ExtensionSystem::PluginManager::getObject<Qt4ProjectManager::Qt4Manager>();
-        ProjectExplorer::Project* project = new Qt4ProjectManager::Qt4Project(manager, m_app->projectFileName());
+        QmakeProjectManager::QmakeManager *manager = ExtensionSystem::PluginManager::getObject<QmakeProjectManager::QmakeManager>();
+        ProjectExplorer::Project* project = new QmakeProjectManager::QmakeProject(manager, m_app->projectFileName());
         retval = BaseFileWizard::postGenerateOpenEditors(l,errorMessage);
         ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(m_app->projectFileName(), errorMessage);
         if (project->needsConfiguration()) {

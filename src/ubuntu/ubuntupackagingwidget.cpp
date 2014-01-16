@@ -104,8 +104,7 @@ UbuntuPackagingWidget::~UbuntuPackagingWidget()
 }
 
 void UbuntuPackagingWidget::on_pushButtonReviewersTools_clicked() {
-    ProjectExplorer::ProjectExplorerPlugin* projectExplorerInstance = ProjectExplorer::ProjectExplorerPlugin::instance();
-    ProjectExplorer::Project* startupProject = projectExplorerInstance->startupProject();
+    ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
 
     QString clickPackage = QFileDialog::getOpenFileName(this,QString(QLatin1String("Select click package which you want to test")),QString(QLatin1String("%0/..")).arg(startupProject->projectDirectory()),QLatin1String("*.click"));
     if (clickPackage.isEmpty()) return;
@@ -121,10 +120,8 @@ void UbuntuPackagingWidget::autoSave() {
 }
 
 void UbuntuPackagingWidget::openManifestForProject() {
-
-    ProjectExplorer::ProjectExplorerPlugin* projectExplorerInstance = ProjectExplorer::ProjectExplorerPlugin::instance();
     //ProjectExplorer::SessionManager* sessionManager = projectExplorerInstance->session();
-    ProjectExplorer::Project* startupProject = projectExplorerInstance->startupProject();
+    ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
 
     if (startupProject) {
         m_projectName = startupProject->displayName();

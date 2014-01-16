@@ -30,6 +30,7 @@
 #include <coreplugin/messagemanager.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/compileoutputwindow.h>
@@ -65,8 +66,7 @@ UbuntuMenu::UbuntuMenu(QObject *parent) :
 
 
 void UbuntuMenu::slotUpdateActions() {
-    ProjectExplorer::ProjectExplorerPlugin* projectExplorerInstance = ProjectExplorer::ProjectExplorerPlugin::instance();
-    ProjectExplorer::Project* startupProject = projectExplorerInstance->startupProject();
+    ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
     bool isQmlProject = false;
     bool isQmakeProject = false;
     bool isUbuntuProject = false;
@@ -283,7 +283,7 @@ void UbuntuMenu::menuItemTriggered() {
         ProjectExplorer::Project* project = NULL;
 
         if (projectRequired.isValid() && projectRequired.toBool() == true) {
-            project = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
+            project = ProjectExplorer::SessionManager::startupProject();
 
             if (project == NULL) {
                 QMessageBox::information(Core::ICore::mainWindow(),QLatin1String(Constants::UBUNTU_DIALOG_NO_PROJECTOPEN_TITLE),QLatin1String(Constants::UBUNTU_DIALOG_NO_PROJECTOPEN_TEXT));

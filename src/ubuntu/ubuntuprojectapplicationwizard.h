@@ -48,8 +48,6 @@ public:
     virtual ~UbuntuProjectApplicationWizard();
     virtual Core::FeatureSet requiredFeatures() const;
 
-    Core::BaseFileWizardParameters parameters(QJsonObject);
-
     static QByteArray getProjectTypesJSON();
 
     static QString templatesPath(QString fileName);

@@ -49,7 +49,7 @@ void UbuntuProcess::initializeProgressBar(QString title, int max) {
 
     m_futureInterface->setProgressRange(0,max);
 
-    Core::FutureProgress* futureProgress = Core::ICore::progressManager()->addTask(m_futureInterface->future(),title,QLatin1String(Constants::TASK_DEVICE_SCRIPT));
+    Core::FutureProgress* futureProgress = Core::ProgressManager::addTask(m_futureInterface->future(),title,Constants::TASK_DEVICE_SCRIPT);
 
     connect(futureProgress,SIGNAL(clicked()),this,SLOT(stop()));
 }

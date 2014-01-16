@@ -41,7 +41,7 @@ UbuntuProject::UbuntuProject(UbuntuProjectManager *manager, const QString &fileN
     m_rootNode = QSharedPointer<UbuntuProjectNode>(new UbuntuProjectNode(this, m_file.data()));
     m_manager->registerProject(this);
 
-    QList<ProjectExplorer::Kit *> kits = ProjectExplorer::KitManager::instance()->kits();
+    QList<ProjectExplorer::Kit *> kits = ProjectExplorer::KitManager::kits();
     foreach (ProjectExplorer::Kit *kit, kits) {
         addTarget(createTarget(kit));
     }

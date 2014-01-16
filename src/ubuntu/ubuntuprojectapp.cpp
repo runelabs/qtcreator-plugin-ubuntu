@@ -293,7 +293,11 @@ QByteArray UbuntuProjectApp::processReservedWords(QByteArray data, QString proje
     return data;
 }
 
-Core::BaseFileWizardParameters UbuntuProjectApp::parameters(QJsonObject params) {
+/*!
+  Initializes a Core::IWizard with the internal Ubuntu parameters
+ */
+void UbuntuProjectApp::setupParameters(QJsonObject params, Core::IWizard* wizard)
+{
     QString displayName, id, description, category, displayCategory;
     category = QLatin1String(Ubuntu::Constants::UBUNTU_PROJECT_WIZARD_CATEGORY);
     displayCategory = QLatin1String(Ubuntu::Constants::UBUNTU_PROJECT_WIZARD_CATEGORY_DISPLAY);
@@ -323,16 +327,14 @@ Core::BaseFileWizardParameters UbuntuProjectApp::parameters(QJsonObject params) 
         displayCategory = tmp.toString();
     }
 
-    Core::BaseFileWizardParameters parameters;
-    parameters.setIcon(QIcon(QLatin1String(QtSupport::Constants::QML_WIZARD_ICON)));
-    parameters.setDisplayName(displayName);
-    parameters.setId(id);
-    parameters.setKind(Core::IWizard::ProjectWizard);
-    parameters.setFlags(Core::IWizard::PlatformIndependent);
-    parameters.setDescription(description);
-    parameters.setCategory(category);
-    parameters.setDisplayCategory(displayCategory);
-    return parameters;
+    wizard->setIcon(QIcon(QLatin1String(QtSupport::Constants::QML_WIZARD_ICON)));
+    wizard->setDisplayName(displayName);
+    wizard->setId(id);
+    wizard->setWizardKind(Core::IWizard::ProjectWizard);
+    wizard->setFlags(Core::IWizard::PlatformIndependent);
+    wizard->setDescription(description);
+    wizard->setCategory(category);
+    wizard->setDisplayCategory(displayCategory);
 }
 
 Core::Feature UbuntuProjectApp::requiredFeature() {

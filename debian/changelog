@@ -1,3 +1,9 @@
+qtcreator-plugin-ubuntu (2.8.1bzr56saucy0+testing6+0newqtc1ubuntu1) UNRELEASED; urgency=medium
+
+  * local build
+
+ -- Benjamin Zeller <benjamin@zeller-online.org>  Thu, 16 Jan 2014 08:44:37 +0100
+
 qtcreator-plugin-ubuntu (2.8.1bzr56saucy0+testing6+0newqtc1) trusty; urgency=low
 
   * qt4project renamed to qmakeproject

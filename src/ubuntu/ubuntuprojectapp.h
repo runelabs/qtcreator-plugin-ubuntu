@@ -47,7 +47,7 @@ public:
     void setProjectFileName(QString projectFileName) { m_projectFileName = projectFileName; }
 
     void setData(QJsonObject obj) { m_obj = obj; }
-    Core::BaseFileWizardParameters parameters(QJsonObject params);
+    void setupParameters(QJsonObject params, Core::IWizard* wizard);
 
     QByteArray processReservedWords(QByteArray data, QString projectPath, QString projectName);
     QString processReservedWordsInFileName(QString data, QString projectName) { return QString::fromLatin1(processReservedWordsInFileName(data.toLatin1(),projectName)); }

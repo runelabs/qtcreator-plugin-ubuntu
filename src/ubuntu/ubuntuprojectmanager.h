@@ -56,7 +56,7 @@ public:
     UbuntuProjectManager();
     virtual QString mimeType() const;
 
-    ProjectExplorer::Project* openProject(const QString &fileName, QString *errorString);
+    ProjectExplorer::Project* openProject(const QString &filePath, QString *errorString);
     void registerProject(UbuntuProject *project);
     void unregisterProject(UbuntuProject *project);
 
