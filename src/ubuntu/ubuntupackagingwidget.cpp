@@ -76,7 +76,7 @@ void UbuntuPackagingWidget::onFinished(QString cmd, int code) {
     ui->plainTextEditPackageReview->appendPlainText(QLatin1String("*** DONE ***"));
     if (cmd == QString::fromLatin1(Constants::UBUNTUWIDGETS_ONFINISHED_SCRIPT_LOCAL_PACKAGE_INSTALLED).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
         QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
-	QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
+	QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY), QLatin1String(Constants::SETTINGS_PRODUCT));
         settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_CLICK));
         foreach(QString line, lines) {
             line = line.trimmed();
