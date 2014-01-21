@@ -60,7 +60,6 @@ QString UbuntuProjectManager::mimeType() const {
 }
 
 void UbuntuProjectManager::onProjectAdded(ProjectExplorer::Project* addedProject) {
-    qDebug() << "project added" << addedProject->displayName();
     QString mimeType = addedProject->projectManager()->mimeType();
     qDebug() << mimeType;
 }

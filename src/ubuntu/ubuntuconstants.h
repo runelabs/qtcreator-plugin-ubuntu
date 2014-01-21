@@ -105,6 +105,7 @@ const char UBUNTUDEVICESWIDGET_ONFINISHED_TIME_CONF_COPIED[] = "..time configura
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_HASNETWORK[] = "%0/device_hasnetwork";
 
 const char EMULATOR_PACKAGE_NAME[] = "android-emulator";
+const char REVIEWER_PACKAGE_NAME[] = "click-reviewers-tools";
 
 const char UBUNTUDEVICESWIDGET_LOCAL_EMULATOR_INSTALLED[] = "Checking installed emulator package.";
 const char UBUNTUDEVICESWIDGET_LABEL_EMULATOR_INFO[] = "The %0 version of the %1 emulator package is installed.";
@@ -165,7 +166,11 @@ const char UBUNTUPACKAGINGWIDGET_BUILDPACKAGE_ID[] ="Ubuntu.Build.Package";
 const char UBUNTUPACKAGINGWIDGET_DEFAULT_MANIFEST[] =":/ubuntu/manifest.json.template";
 const char UBUNTUPACKAGINGWIDGET_DEFAULT_MYAPP[] =":/ubuntu/myapp.json.template";
 const char UBUNTUPACKAGINGWIDGET_DEFAULT_NAME[] ="com.ubuntu.developer.%0.%1";
-const char UBUNTUDEVICESWIDGET_LOCAL_CLICK_REVIEWER_INSTALLED[] = "Checking installed emulator package.";
+const char UBUNTUPACKAGINGWIDGET_LOCAL_REVIEWER_INSTALLED[] = "Checking installed click reviewer tools package.";
+const char UBUNTUPACKAGINGWIDGET_ONFINISHED_LOCAL_NO_EMULATOR_INSTALLED[] = "The package is not installed.";
+const char UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE[] = "Click Reviewers tools against %0";
+const char UBUNTU_CLICK_PACKAGE_MASK[] = "*.click";
+const char UBUNTU_CLICK_PACKAGE_SELECTOR_TEXT[] = "Select click package which you want to test";
 
 const char QMAKE_MIMETYPE[] = "application/vnd.qt.qmakeprofile";
 const char QMLPROJECT_MIMETYPE[] = "application/x-qmlproject";
@@ -395,7 +400,8 @@ const char  SETTINGS_GROUP_CLICK[] = "Click";
 const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS[] = "ReviewersToolsEnabled";
 const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS_LOCATION[] = "ReviewersToolsLocation";
 const bool  SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS = false;
-const char  SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION[] = "";
+const bool  SETTINGS_CLICK_REVIEWERSTOOLS_TRUE = true;
+const char  SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION[] = "/usr/bin/click-run-checks %0";
 const char  UBUNTUSETTINGSCLICKWIDGET_FILEDIALOG[] = "Location of click-reviewers-tools";
 
 } // namespace Ubuntu

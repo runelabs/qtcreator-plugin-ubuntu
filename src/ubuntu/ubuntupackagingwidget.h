@@ -51,12 +51,14 @@ protected slots:
     void on_listWidget_customContextMenuRequested(QPoint);
     void bzrChanged();
 
+    void checkClickReviewerTool();
 private:
     UbuntuClickManifest m_manifest;
     UbuntuClickManifest m_apparmor;
     QProcess m_click;
     UbuntuBzr m_bzr;
     QString m_projectName;
+    QString m_reply;
     QString m_excludesFile;
     int m_previous_tab;
     QString m_reviewesToolsLocation;

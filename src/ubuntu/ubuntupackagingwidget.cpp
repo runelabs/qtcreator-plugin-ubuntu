@@ -47,12 +47,6 @@ UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
     ui->setupUi(this);
     ui->pushButtonReviewersTools->hide();
 
-    QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
-    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_CLICK));
-    if (settings.value(QLatin1String(Constants::SETTINGS_KEY_CLICK_REVIEWERSTOOLS),Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS).toBool()) {
-        ui->pushButtonReviewersTools->show();
-        m_reviewesToolsLocation = settings.value(QLatin1String(Constants::SETTINGS_KEY_CLICK_REVIEWERSTOOLS_LOCATION),QLatin1String(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION)).toString();
-    }
     ui->tabWidget->setCurrentIndex(0);
     ui->stackedWidget->setCurrentIndex(1);
     ui->listWidget->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -65,6 +59,7 @@ UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
     connect(&m_ubuntuProcess,SIGNAL(finished(QString,int)),this,SLOT(onFinished(QString, int)));
     connect(&m_ubuntuProcess,SIGNAL(error(QString)),this,SLOT(onError(QString)));
     m_bzr.initialize();
+    checkClickReviewerTool();
 }
 
 void UbuntuPackagingWidget::on_pushButtonClosePackageReviewTools_clicked() {
@@ -72,11 +67,42 @@ void UbuntuPackagingWidget::on_pushButtonClosePackageReviewTools_clicked() {
 }
 
 void UbuntuPackagingWidget::onMessage(QString msg) {
+    m_reply.append(msg);
+
     ui->plainTextEditPackageReview->appendPlainText(msg);
 }
 
 void UbuntuPackagingWidget::onFinished(QString cmd, int code) {
     ui->plainTextEditPackageReview->appendPlainText(QLatin1String("*** DONE ***"));
+    if (cmd == QString::fromLatin1(Constants::UBUNTUWIDGETS_ONFINISHED_SCRIPT_LOCAL_PACKAGE_INSTALLED).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+        QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
+	QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
+        settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_CLICK));
+        foreach(QString line, lines) {
+            line = line.trimmed();
+            if (line.isEmpty()) {
+                continue;
+            }
+            if (line.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_LOCAL_NO_EMULATOR_INSTALLED))) {
+		// There is no click reviewer tool installed
+                ui->pushButtonReviewersTools->hide();
+                settings.setValue(QLatin1String(Constants::SETTINGS_KEY_CLICK_REVIEWERSTOOLS_LOCATION), QLatin1String(Constants::EMPTY));
+                settings.setValue(QLatin1String(Constants::SETTINGS_KEY_CLICK_REVIEWERSTOOLS), Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS);
+            } else {
+                QStringList lineData = line.split(QLatin1String(Constants::SPACE));
+                QString sEmulatorPackageStatus = lineData.takeFirst();
+                QString sEmulatorPackageName = lineData.takeFirst();
+                QString sEmulatorPackageVersion = lineData.takeFirst();
+                if (sEmulatorPackageStatus.startsWith(QLatin1String(Constants::INSTALLED))) {
+			// There is click reviewer tool installed
+			ui->pushButtonReviewersTools->show();
+			settings.setValue(QLatin1String(Constants::SETTINGS_KEY_CLICK_REVIEWERSTOOLS_LOCATION), QLatin1String(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION));
+			settings.setValue(QLatin1String(Constants::SETTINGS_KEY_CLICK_REVIEWERSTOOLS), Constants::SETTINGS_CLICK_REVIEWERSTOOLS_TRUE);
+                }
+            }
+        }
+    }
+    m_reply.clear();
 }
 
 void UbuntuPackagingWidget::onError(QString msg) {
@@ -104,16 +130,14 @@ UbuntuPackagingWidget::~UbuntuPackagingWidget()
 }
 
 void UbuntuPackagingWidget::on_pushButtonReviewersTools_clicked() {
+    m_ubuntuProcess.stop();
     ProjectExplorer::ProjectExplorerPlugin* projectExplorerInstance = ProjectExplorer::ProjectExplorerPlugin::instance();
     ProjectExplorer::Project* startupProject = projectExplorerInstance->startupProject();
-
-    QString clickPackage = QFileDialog::getOpenFileName(this,QString(QLatin1String("Select click package which you want to test")),QString(QLatin1String("%0/..")).arg(startupProject->projectDirectory()),QLatin1String("*.click"));
+    QString clickPackage = QFileDialog::getOpenFileName(this,QString(QLatin1String(Constants::UBUNTU_CLICK_PACKAGE_SELECTOR_TEXT)),QString(QLatin1String("%0/..")).arg(startupProject->projectDirectory()),QLatin1String(Constants::UBUNTU_CLICK_PACKAGE_MASK));
     if (clickPackage.isEmpty()) return;
-
-    m_ubuntuProcess.append(QStringList() << QString(QLatin1String("%0/bin/click-run-checks %1")).arg(this->m_reviewesToolsLocation).arg(clickPackage));
-
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION).arg(clickPackage));
     ui->stackedWidget->setCurrentIndex(2);
-    m_ubuntuProcess.start(QString(QLatin1String("Click Reviewers tools against %0")).arg(clickPackage));
+    m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(clickPackage));
 }
 
 void UbuntuPackagingWidget::autoSave() {
@@ -123,7 +147,7 @@ void UbuntuPackagingWidget::autoSave() {
 void UbuntuPackagingWidget::openManifestForProject() {
 
     ProjectExplorer::ProjectExplorerPlugin* projectExplorerInstance = ProjectExplorer::ProjectExplorerPlugin::instance();
-    //ProjectExplorer::SessionManager* sessionManager = projectExplorerInstance->session();
+    ///ProjectExplorer::SessionManager* sessionManager = projectExplorerInstance->session();
     ProjectExplorer::Project* startupProject = projectExplorerInstance->startupProject();
 
     if (startupProject) {
@@ -324,3 +348,11 @@ void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {
         cmd->action()->trigger();
     }
 }
+
+void UbuntuPackagingWidget::checkClickReviewerTool() {
+    m_ubuntuProcess.stop();
+    QString sReviewerPackageName = QLatin1String(Ubuntu::Constants::REVIEWER_PACKAGE_NAME);
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUWIDGETS_LOCAL_PACKAGE_INSTALLED_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(sReviewerPackageName) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_LOCAL_REVIEWER_INSTALLED));
+}
+
