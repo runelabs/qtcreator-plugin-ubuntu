@@ -16,4 +16,5 @@
 # Author: Zoltán Balogh <zoltan.balogh@canonical.com>
 set -e
 EMULATOR_PACKAGE=$1
-dpkg -l  ${EMULATOR_PACKAGE}|grep "ii"|  awk '{print $1 " " $2 " " $3}'
+
+dpkg -l ${EMULATOR_PACKAGE} 2>&1 |egrep -v "no packages found matching"|  awk '{print $1 " " $2 " " $3}' | grep "ii" || echo "The package is not installed."
