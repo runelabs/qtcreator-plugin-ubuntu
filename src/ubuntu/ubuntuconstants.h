@@ -42,7 +42,7 @@ const char UBUNTUDEVICESWIDGET_ONERROR[] = "<p style=\"color: red\">%0</p>";
 const char UBUNTUDEVICESWIDGET_ACTION_BEGIN[] = "<p style=\"color: #888\">%0</p>";
 const char UBUNTUDEVICESWIDGET_ACTION_END[] = "<p style=\"color: #888\">%0</p>";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_DEVICESEARCH[] = "%0/device_search";
-const char UBUNTUDEVICESWIDGET_ONFINISHED_LOCAL_NO_EMULATOR_INSTALLED[] = "dpkg-query: no packages found matching";
+const char UBUNTUDEVICESWIDGET_ONFINISHED_LOCAL_NO_EMULATOR_INSTALLED[] = "The package is not installed.";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_ADB_SEPARATOR[] = "       ";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_ADB_NOACCESS[] = "???";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_NO_DEVICE[] = " * there is no device connected.";
@@ -67,7 +67,7 @@ const int UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONTROL_SIMPLE_TAB = 0;
 
 const char UBUNTUDEVICESWIDGET_ONFINISHED_UNABLE_TO_FETCH[] = "E: Unable to fetch some archives, maybe run apt-get update or try with --fix-missing?";
 
-const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_EMULATOR_INSTALLED[] = "%0/local_emulator_installed";  
+const char UBUNTUWIDGETS_ONFINISHED_SCRIPT_LOCAL_PACKAGE_INSTALLED[] = "%0/local_package_installed";  
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_INSTALL_EMULATOR[] = "%0/local_install_emulator";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_SEARCH_IMAGES[] = "%0/local_search_images";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_LOCAL_CREATE_EMULATOR[] = "%0/local_create_emulator";
@@ -165,6 +165,8 @@ const char UBUNTUPACKAGINGWIDGET_BUILDPACKAGE_ID[] ="Ubuntu.Build.Package";
 const char UBUNTUPACKAGINGWIDGET_DEFAULT_MANIFEST[] =":/ubuntu/manifest.json.template";
 const char UBUNTUPACKAGINGWIDGET_DEFAULT_MYAPP[] =":/ubuntu/myapp.json.template";
 const char UBUNTUPACKAGINGWIDGET_DEFAULT_NAME[] ="com.ubuntu.developer.%0.%1";
+const char UBUNTUDEVICESWIDGET_LOCAL_CLICK_REVIEWER_INSTALLED[] = "Checking installed emulator package.";
+
 const char QMAKE_MIMETYPE[] = "application/vnd.qt.qmakeprofile";
 const char QMLPROJECT_MIMETYPE[] = "application/x-qmlproject";
 const char UBUNTUMENU_ONFINISHED[] = "%0 finished with code %1";
@@ -191,7 +193,7 @@ const char UBUNTUDEVICESWIDGET_REBOOT_TO_BOOTLOADER[] = "Reboot to bootloader.."
 const char UBUNTUDEVICESWIDGET_REBOOT_TO_BOOTLOADER_SCRIPT[] = "%0/device_reboot2bootloader %1";
 const char UBUNTUDEVICESWIDGET_REBOOT_TO_RECOVERY[] = "Reboot to recovery..";
 const char UBUNTUDEVICESWIDGET_REBOOT_TO_RECOVERY_SCRIPT[] = "%0/device_reboot2recovery %1";
-const char UBUNTUDEVICESWIDGET_LOCAL_EMULATOR_INSTALLED_SCRIPT[] = "%0/local_emulator_installed %1";
+const char UBUNTUWIDGETS_LOCAL_PACKAGE_INSTALLED_SCRIPT[] = "%0/local_package_installed %1";
 const char UBUNTUDEVICESWIDGET_LOCAL_INSTALL_EMULATOR[] = "%0/local_install_emulator %1";
 const char UBUNTUDEVICESWIDGET_DETECTOPENSSH[] = "Detecting if openssh-server is installed..";
 const char UBUNTUDEVICESWIDGET_DETECTOPENSSH_SCRIPT[] = "%0/openssh_version %1";
