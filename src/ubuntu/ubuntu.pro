@@ -68,7 +68,8 @@ SOURCES += \
     ubuntusettingsdeviceconnectivitypage.cpp \
     ubuntusettingsdeviceconnectivitywidget.cpp \
     ubuntusettingsclickpage.cpp \
-    ubuntusettingsclickwidget.cpp
+    ubuntusettingsclickwidget.cpp \
+    ubuntuclicktool.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -112,5 +113,6 @@ HEADERS += \
     ubuntusettingsdeviceconnectivitypage.h \
     ubuntusettingsdeviceconnectivitywidget.h \
     ubuntusettingsclickpage.h \
-    ubuntusettingsclickwidget.h
+    ubuntusettingsclickwidget.h \
+    ubuntuclicktool.h
 
