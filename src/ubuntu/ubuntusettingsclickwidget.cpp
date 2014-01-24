@@ -75,22 +75,53 @@ void UbuntuSettingsClickWidget::on_pushButtonFindClickPackagingTools_clicked() {
 
 void UbuntuSettingsClickWidget::on_pushButtonCreateClickTarget_clicked()
 {
-    qDebug()<<"Create new chroot";
+    Internal::UbuntuClickDialog::createClickChrootModal();
+    listExistingClickTargets();
 }
 
 void UbuntuSettingsClickWidget::on_deleteClickChroot(const int index)
 {
-    qDebug()<<"delete chroot "<<index;
+    QTreeWidgetItem* item = ui->treeWidgetClickTargets->topLevelItem(index);
+    if(!item)
+        return;
+
+    Internal::UbuntuClickTool::Target t;
+    t.architecture = item->text(1);
+    t.framework    = item->text(0);
+
+    qDebug()<<"delete chroot "<<index<<" "<<t.architecture<<" "<<t.framework;
+
+    Internal::UbuntuClickDialog::maintainClickModal(t,Internal::UbuntuClickTool::Delete);
+    listExistingClickTargets();
 }
 
 void UbuntuSettingsClickWidget::on_maintainClickChroot(const int index)
 {
-    qDebug()<<"maintain chroot "<<index;
+    QTreeWidgetItem* item = ui->treeWidgetClickTargets->topLevelItem(index);
+    if(!item)
+        return;
+
+    Internal::UbuntuClickTool::Target t;
+    t.architecture = item->text(1);
+    t.framework    = item->text(0);
+
+    qDebug()<<"maintain chroot "<<index<<" "<<t.architecture<<" "<<t.framework;
+    Internal::UbuntuClickTool::openChrootTerminal(t);
 }
 
 void UbuntuSettingsClickWidget::on_upgradeClickChroot(const int index)
 {
-    qDebug()<<"upgrade chroot "<<index;
+    QTreeWidgetItem* item = ui->treeWidgetClickTargets->topLevelItem(index);
+    if(!item)
+        return;
+
+    Internal::UbuntuClickTool::Target t;
+    t.architecture = item->text(1);
+    t.framework    = item->text(0);
+
+    qDebug()<<"upgrade chroot "<<index<<" "<<t.architecture<<" "<<t.framework;
+
+    Internal::UbuntuClickDialog::maintainClickModal(t,Internal::UbuntuClickTool::Upgrade);
 }
 
 /**
