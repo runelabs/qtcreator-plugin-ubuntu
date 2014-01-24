@@ -30,6 +30,11 @@ UbuntuClickTool::UbuntuClickTool()
 {
 }
 
+/**
+ * @brief UbuntuClickTool::parametersForCreateChroot
+ * Initializes a ProjectExplorer::ProcessParameters object with command and arguments
+ * to create a new chroot
+ */
 void UbuntuClickTool::parametersForCreateChroot(const QString &arch, const QString &series, ProjectExplorer::ProcessParameters *params)
 {
     params->setCommand(QLatin1String("pkexec"));
@@ -129,6 +134,11 @@ void UbuntuClickTool::parametersForMake(const UbuntuClickTool::Target &target, c
     params->setArguments(Utils::QtcProcess::joinArgs(arguments));
 }
 
+/**
+ * @brief UbuntuClickTool::openChrootTerminal
+ * Opens a new terminal logged into the chroot specified by \a target
+ * The terminal emulator used is specified in the Creator environment option page
+ */
 void UbuntuClickTool::openChrootTerminal(const UbuntuClickTool::Target &target)
 {
     QStringList args = Utils::QtcProcess::splitArgs(Utils::ConsoleProcess::terminalEmulator(Core::ICore::settings()));
