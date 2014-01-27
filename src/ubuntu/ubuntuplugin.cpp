@@ -22,6 +22,7 @@
 #include "ubuntuprojectmanager.h"
 #include "ubunturunconfiguration.h"
 #include "ubunturunconfigurationfactory.h"
+#include "ubuntuclicktool.h"
 
 #include <coreplugin/modemanager.h>
 
@@ -111,6 +112,9 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     }
     settings.endGroup();
 
+
+    Core::ActionContainer *mproject = Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
+
     m_ubuntuMenu = new UbuntuMenu;
     addAutoReleasedObject(m_ubuntuMenu);
 
@@ -126,6 +130,10 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     addAutoReleasedObject(new UbuntuRunConfigurationFactory);
     addAutoReleasedObject(new UbuntuRunControlFactory);
 
+    //cmake build support, hack until we have a better solution
+    m_ubuntuClickManager = new UbuntuClickManager();
+    addAutoReleasedObject(m_ubuntuClickManager);
+
     return true;
 }
 
@@ -139,6 +147,7 @@ void UbuntuPlugin::extensionsInitialized()
     if (m_ubuntuCoreAppsMode) m_ubuntuCoreAppsMode->initialize();
     if (m_ubuntuWikiMode) m_ubuntuWikiMode->initialize();
     m_ubuntuPackagingMode->initialize();
+    m_ubuntuClickManager->initialize();
     Core::ModeManager::activateMode(m_ubuntuWelcomeMode->id());
 }
 

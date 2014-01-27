@@ -4,6 +4,8 @@
 #include <QList>
 #include <QString>
 #include <QDialog>
+#include <QFutureInterface>
+#include <QQueue>
 #include <projectexplorer/processparameters.h>
 #include <utils/qtcprocess.h>
 
@@ -11,9 +13,17 @@
 class QDialogButtonBox;
 class QPlainTextEdit;
 class QLabel;
+class QAction;
+
+namespace ProjectExplorer {
+    class Project;
+    class Target;
+}
 
 namespace Ubuntu {
 namespace Internal {
+
+class UbuntuClickBuildConfiguration;
 
 class UbuntuClickTool
 {
@@ -35,7 +45,7 @@ public:
     static void parametersForMaintainChroot (const MaintainMode &mode,const Target& target,ProjectExplorer::ProcessParameters* params);
     static void parametersForCmake        (const Target& target, const QString &buildDir
                                     , const QString &relPathToSource,ProjectExplorer::ProcessParameters* params);
-    static void parametersForMake         (const Target& target, const QString &buildDir,ProjectExplorer::ProcessParameters* params);
+    static void parametersForMake         (const Target& target, const QString &buildDir,bool doClean, ProjectExplorer::ProcessParameters* params);
 
     static void openChrootTerminal (const Target& target);
 
@@ -74,6 +84,57 @@ private:
     Utils::QtcProcess *m_process;
     QPlainTextEdit    *m_output;
     QLabel            *m_exitStatus;
+};
+
+class UbuntuClickManager : public QObject
+{
+    Q_OBJECT
+public:
+
+    enum BuildState {
+        NotStarted,
+        MakeClean,
+        Cmake,
+        FixMoc,
+        Make,
+        Finished
+    };
+
+    struct Build {
+        ProjectExplorer::Target* buildTarget;
+        UbuntuClickTool::Target  targetChroot;
+        BuildState currentState;
+        QString buildDir;
+    };
+
+
+    UbuntuClickManager (QObject* parent = 0);
+    void initialize ();
+
+protected:
+    void startProcess (const ProjectExplorer::ProcessParameters& params);
+
+public slots:
+    void processBuildQueue ();
+    void stop();
+
+protected slots:
+    void cleanup  ();
+    void nextStep ();
+    void updateSelectedProject (ProjectExplorer::Project *project);
+
+    void on_buildInChrootAction();
+    void on_processFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void on_processReadyRead();
+private:
+    ProjectExplorer::Project *m_currentProject;
+    QAction                  *m_buildInChrootAction;
+
+    bool                    m_failOnError; //should we fail if the current step has errors?
+    Utils::QtcProcess      *m_process;
+    QFutureInterface<void> *m_futureInterface;
+    Build                  *m_currentBuild;
+    QQueue<Build*>          m_pendingBuilds;
 };
 
 } // namespace Internal
