@@ -1,6 +1,24 @@
+/*
+ * Copyright 2014 Canonical Ltd.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; version 2.1.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Author: Benjamin Zeller <benjamin.zeller@canonical.com>
+ */
+
 #include "ubuntuclicktool.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QDir>
 #include <QDebug>
 #include <QPlainTextEdit>
@@ -179,7 +197,7 @@ void UbuntuClickTool::openChrootTerminal(const UbuntuClickTool::Target &target)
 QList<UbuntuClickTool::Target> UbuntuClickTool::listAvailableTargets()
 {
     QList<Target> items;
-    QDir chrootDir(QLatin1String("/var/lib/schroot/chroots"));
+    QDir chrootDir(QLatin1String(Constants::UBUNTU_CLICK_CHROOT_BASEPATH));
 
     //if the dir does not exist there are no available chroots
     if(!chrootDir.exists())
@@ -187,28 +205,63 @@ QList<UbuntuClickTool::Target> UbuntuClickTool::listAvailableTargets()
 
     QStringList availableChroots = chrootDir.entryList(QDir::Dirs);
 
-    QRegExp clickFilter(QLatin1String("^click-(.*)-([A-Za-z0-9]+)$"));
+    QRegularExpression clickFilter(QLatin1String("^click-(.*)-([A-Za-z0-9]+)$"));
 
     //iterate over all chroots and check if they are click chroots
     foreach (const QString &chroot, availableChroots) {
-        if(!clickFilter.exactMatch(chroot)) {
-            qDebug()<<"Skipping: "<<chroot<<" Matched: "<<clickFilter.matchedLength();
-            continue;
-        }
-
-        //we need at least 3 captures
-        if ( clickFilter.captureCount() < 2 ) {
-            qDebug()<<"Skipping: "<<chroot<<" Not enough matches: "<<clickFilter.capturedTexts();
+        QRegularExpressionMatch match = clickFilter.match(chroot);
+        if(!match.hasMatch()) {
+            qDebug()<<"Skipping: "<<chroot;
             continue;
         }
 
         Target t;
-        t.framework    = clickFilter.cap(1);
-        t.architecture = clickFilter.cap(2);
+        t.framework    = match.captured(1);
+        t.architecture = match.captured(2);
         items.append(t);
     }
 
     return items;
+}
+
+/**
+ * @brief UbuntuClickTool::targetVersion
+ * Reads the ubuntu version from the lsb-release file
+ * @returns a QPair containing the major and minor version information
+ */
+QPair<int, int> UbuntuClickTool::targetVersion(const UbuntuClickTool::Target &target)
+{
+    QFile f(QString::fromLatin1("%0/click-%1-%2/%3")
+            .arg(QLatin1String(Constants::UBUNTU_CLICK_CHROOT_BASEPATH))
+            .arg(target.framework)
+            .arg(target.architecture)
+            .arg(QLatin1String("/etc/lsb-release")));
+
+    if (!f.open(QIODevice::ReadOnly)) {
+        //there is no lsb-release file... what now?
+        return qMakePair(-1,-1);
+    }
+
+    QString info = QString::fromLatin1(f.readAll());
+
+    QRegularExpression grep(QLatin1String("^DISTRIB_RELEASE=([0-9]+)\\.([0-9]+)$"),QRegularExpression::MultilineOption);
+    QRegularExpressionMatch match = grep.match(info);
+
+    if(!match.hasMatch()) {
+        qDebug()<<"No version information found....";
+        return qMakePair(-1,-1);
+    }
+
+    bool ok = false;
+    int majorV = match.captured(1).toInt(&ok);
+    if(!ok) {
+        qDebug()<<"Failed to convert: "<<match.captured(0);
+        return qMakePair(-1,-1);
+    }
+
+    int minorV = match.captured(2).toInt();
+
+    return qMakePair(majorV,minorV);
 }
 
 UbuntuClickDialog::UbuntuClickDialog(QWidget *parent)
@@ -401,6 +454,12 @@ void UbuntuClickDialog::on_clickReadyReadStandardError(const QString txt)
         cursor.insertText(txt, tf);
 }
 
+/**
+ * @class UbuntuClickManager
+ * Build support for click chroot targets, this is a
+ * temporary solution until we find a way to make cmakeplugin
+ * work like we need it
+ */
 UbuntuClickManager::UbuntuClickManager(QObject *parent)
     : QObject(parent)
     , m_currentProject(0)
@@ -580,7 +639,34 @@ void UbuntuClickManager::nextStep()
     }
     case Cmake:{
         m_currentBuild->currentState = FixMoc;
-        nextStep();
+
+        QPair<int,int> chrootVersion = UbuntuClickTool::targetVersion(m_currentBuild->targetChroot);
+        if(chrootVersion.first == -1) {
+            printToOutputPane(tr("Could not find any version information in click target: click-%0-%1")
+                              .arg(m_currentBuild->targetChroot.framework)
+                              .arg(m_currentBuild->targetChroot.architecture));
+            stop();
+            return;
+        }
+
+        if(chrootVersion.first >= 14) { //the fix script needs to run only on targets older than trusty
+            nextStep();
+            break;
+        }
+
+        ProjectExplorer::ProcessParameters params;
+        QStringList arguments;
+        arguments << QLatin1String("-c")
+                  << QLatin1String("find . -name AutomocInfo.cmake | xargs sed -i 's;AM_QT_MOC_EXECUTABLE .*;AM_QT_MOC_EXECUTABLE \"/usr/lib/'$(dpkg-architecture -qDEB_BUILD_MULTIARCH)'/qt5/bin/moc\");'");
+
+        params.setWorkingDirectory(m_currentBuild->buildDir);
+        params.setCommand(QLatin1String("/bin/bash"));
+        params.setArguments(Utils::QtcProcess::joinArgs(arguments));
+        params.setEnvironment(Utils::Environment::systemEnvironment());
+
+        m_futureInterface->setProgressValueAndText(3,tr("Fixing build script"));
+        printToOutputPane(tr("Fixing build script"));
+        startProcess(params);
         break;
     }
     case FixMoc:{
@@ -614,6 +700,8 @@ void UbuntuClickManager::nextStep()
         m_buildInChrootAction->setEnabled(true);
         break;
     }
+    default:
+        Q_ASSERT(false); //this should never happen
     }
 }
 

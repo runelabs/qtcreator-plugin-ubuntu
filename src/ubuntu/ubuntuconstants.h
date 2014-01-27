@@ -405,16 +405,8 @@ const char  SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION[] = "/usr/bin/click-r
 const char  UBUNTUSETTINGSCLICKWIDGET_FILEDIALOG[] = "Location of click-reviewers-tools";
 
 //build configuration
-const char UBUNTU_CLICK_BC_ID[] = "UbuntuClickBuildConfiguration";
-const char UBUNTU_CLICK_BCSTEP_ID[] = "UbuntuClickBuildConfiguration.CMakeBuildStep";
-const char UBUNTU_CLICK_BCSTEP_DISPLAYNAME[] = "Click-Cmake";
-const char UBUNTU_CLICK_BCMAKESTEP_ID[] = "UbuntuClickBuildConfiguration.MakeBuildStep";
-const char UBUNTU_CLICK_BCMAKESTEP_DISPLAYNAME[] = "Click-Make";
-const char UBUNTU_CLICK_ARCH[]  = "armhf";
-const char UBUNTU_CLICK_BC_NAME[] = "Ubuntu-Click";
-const char UBUNTU_CLICK_BC_DISPLAY_NAME[] = "Default";
-const char UBUNTU_CLICK_BC_WIDGET_NAME[] = "Ubuntu-Click";
 const char UBUNTU_CLICK_BUILD_CONTEXTMENU[] = "UbuntuProjectManager.RunClickBuildContextMenu";
+const char UBUNTU_CLICK_CHROOT_BASEPATH[] = "/var/lib/schroot/chroots";
 
 } // namespace Ubuntu
 } // namespace Constants
