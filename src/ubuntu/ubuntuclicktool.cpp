@@ -54,6 +54,10 @@
 namespace Ubuntu {
 namespace Internal {
 
+
+const char* UBUNTU_CLICK_SUPPORTED_ARCHS[]  = {"armhf","i386","amd64","\0"};
+const char* UBUNTU_CLICK_SUPPORTED_SERIES[] = {"saucy","trusty","\0"};
+
 /**
  * @brief UbuntuClickTool::UbuntuClickTool
  * Implements functionality needed for executing the click
@@ -70,24 +74,13 @@ UbuntuClickTool::UbuntuClickTool()
  */
 void UbuntuClickTool::parametersForCreateChroot(const QString &arch, const QString &series, ProjectExplorer::ProcessParameters *params)
 {
+    QString command = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_CREATE_ARGS)
+            .arg(arch)
+            .arg(series);
+
     params->setCommand(QLatin1String("pkexec"));
-
-    QStringList clickArgs;
-    clickArgs << QLatin1String("click")
-              << QLatin1String("chroot")
-              << QLatin1String("-a")
-              << arch
-              << QLatin1String("-s")
-              << series
-              << QLatin1String("create");
-
-    QStringList sudoArgs;
-    sudoArgs << QLatin1String("sh")
-             << QLatin1String("-c")
-             << Utils::QtcProcess::joinArgs(clickArgs);
-
     params->setEnvironment(Utils::Environment::systemEnvironment());
-    params->setArguments(Utils::QtcProcess::joinArgs(sudoArgs));
+    params->setArguments(command);
 }
 
 /**
@@ -97,7 +90,7 @@ void UbuntuClickTool::parametersForCreateChroot(const QString &arch, const QStri
  */
 void UbuntuClickTool::parametersForMaintainChroot(const UbuntuClickTool::MaintainMode &mode, const Target &target, ProjectExplorer::ProcessParameters *params)
 {
-    params->setCommand(QLatin1String("click"));
+    params->setCommand(QLatin1String(Constants::UBUNTU_CLICK_BINARY));
 
     QString strMode;
     switch (mode) {
@@ -109,16 +102,13 @@ void UbuntuClickTool::parametersForMaintainChroot(const UbuntuClickTool::Maintai
         break;
     }
 
-    QStringList arguments;
-    arguments << QLatin1String("chroot")
-              << QLatin1String("-a")
-              << target.architecture
-              << QLatin1String("-f")
-              << target.framework
-              << strMode;
+    QString arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_MAINTAIN_ARGS)
+            .arg(target.architecture)
+            .arg(target.framework)
+            .arg(strMode);
 
     params->setEnvironment(Utils::Environment::systemEnvironment());
-    params->setArguments(Utils::QtcProcess::joinArgs(arguments));
+    params->setArguments(arguments);
 }
 
 /**
@@ -129,20 +119,15 @@ void UbuntuClickTool::parametersForMaintainChroot(const UbuntuClickTool::Maintai
 void UbuntuClickTool::parametersForCmake(const Target &target, const QString &buildDir
                                          ,const QString &relPathToSource, ProjectExplorer::ProcessParameters *params)
 {
-    QStringList arguments;
-    arguments << QLatin1String("chroot")
-              << QLatin1String("-a")
-              << target.architecture
-              << QLatin1String("-f")
-              << target.framework
-              << QLatin1String("run")
-              << QLatin1String("cmake")
-              << QLatin1String("-DCMAKE_TOOLCHAIN_FILE=/etc/dpkg-cross/cmake/CMakeCross.txt")
-              << relPathToSource;
+
+    QString arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_CMAKE_ARGS)
+            .arg(target.architecture)
+            .arg(target.framework)
+            .arg(relPathToSource);
 
     params->setWorkingDirectory(buildDir);
-    params->setCommand(QLatin1String("click"));
-    params->setArguments(Utils::QtcProcess::joinArgs(arguments));
+    params->setCommand(QLatin1String(Constants::UBUNTU_CLICK_BINARY));
+    params->setArguments(arguments);
     params->setEnvironment(Utils::Environment::systemEnvironment());
 }
 
@@ -154,21 +139,14 @@ void UbuntuClickTool::parametersForCmake(const Target &target, const QString &bu
 void UbuntuClickTool::parametersForMake(const UbuntuClickTool::Target &target, const QString &buildDir
                                         , bool doClean, ProjectExplorer::ProcessParameters *params)
 {
-    QStringList arguments;
-    arguments << QLatin1String("chroot")
-              << QLatin1String("-a")
-              << target.architecture
-              << QLatin1String("-f")
-              << target.framework
-              << QLatin1String("run")
-              << QLatin1String("make");
-
-    if(doClean)
-        arguments << QLatin1String("clean");
+    QString arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_MAKE_ARGS)
+            .arg(target.architecture)
+            .arg(target.framework)
+            .arg(doClean ? QLatin1String("clean") : QLatin1String(""));
 
     params->setWorkingDirectory(buildDir);
-    params->setCommand(QLatin1String("click"));
-    params->setArguments(Utils::QtcProcess::joinArgs(arguments));
+    params->setCommand(QLatin1String(Constants::UBUNTU_CLICK_BINARY));
+    params->setArguments(arguments);
     params->setEnvironment(Utils::Environment::systemEnvironment());
 }
 
@@ -184,7 +162,7 @@ void UbuntuClickTool::openChrootTerminal(const UbuntuClickTool::Target &target)
 
     qDebug()<<"Going to use terminal emulator: "<<term;
 
-    args << QString(QLatin1String("click chroot -a %0 -f %1 maint /bin/bash")).arg(target.architecture).arg(target.framework);
+    args << QString(QLatin1String(Constants::UBUNTU_CLICK_OPEN_TERMINAL)).arg(target.architecture).arg(target.framework);
     if(!QProcess::startDetached(term,args,QDir::homePath())) {
         qDebug()<<"Error when starting terminal";
     }
@@ -205,7 +183,7 @@ QList<UbuntuClickTool::Target> UbuntuClickTool::listAvailableTargets()
 
     QStringList availableChroots = chrootDir.entryList(QDir::Dirs);
 
-    QRegularExpression clickFilter(QLatin1String("^click-(.*)-([A-Za-z0-9]+)$"));
+    QRegularExpression clickFilter(QLatin1String(Constants::UBUNTU_CLICK_TARGETS_REGEX));
 
     //iterate over all chroots and check if they are click chroots
     foreach (const QString &chroot, availableChroots) {
@@ -244,7 +222,7 @@ QPair<int, int> UbuntuClickTool::targetVersion(const UbuntuClickTool::Target &ta
 
     QString info = QString::fromLatin1(f.readAll());
 
-    QRegularExpression grep(QLatin1String("^DISTRIB_RELEASE=([0-9]+)\\.([0-9]+)$"),QRegularExpression::MultilineOption);
+    QRegularExpression grep(QLatin1String(Constants::UBUNTU_CLICK_VERSION_REGEX),QRegularExpression::MultilineOption);
     QRegularExpressionMatch match = grep.match(info);
 
     if(!match.hasMatch()) {
@@ -337,23 +315,20 @@ void UbuntuClickDialog::runClickModal(ProjectExplorer::ProcessParameters *params
 
 void UbuntuClickDialog::createClickChrootModal()
 {
-    const char* supportedArchs[]  = {"armhf","i386","amd64","\0"};
-    const char* supportedSeries[] = {"saucy","trusty","\0"};
-
     QDialog dlg;
     QFormLayout* layout = new QFormLayout(&dlg);
     dlg.setLayout(layout);
 
     //add supported architectures
     QComboBox* cbArch = new QComboBox(&dlg);
-    for(int i = 0; supportedArchs[i][0] != '\0' ;i++) {
-        cbArch->addItem(QLatin1String(supportedArchs[i]));
+    for(int i = 0; UBUNTU_CLICK_SUPPORTED_ARCHS[i][0] != '\0' ;i++) {
+        cbArch->addItem(QLatin1String(UBUNTU_CLICK_SUPPORTED_ARCHS[i]));
     }
 
     //add supported series
     QComboBox* cbSeries = new QComboBox(&dlg);
-    for(int i = 0; supportedSeries[i][0] != '\0' ;i++) {
-        cbSeries->addItem(QLatin1String(supportedSeries[i]));
+    for(int i = 0; UBUNTU_CLICK_SUPPORTED_SERIES[i][0] != '\0' ;i++) {
+        cbSeries->addItem(QLatin1String(UBUNTU_CLICK_SUPPORTED_SERIES[i]));
     }
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -375,8 +350,8 @@ void UbuntuClickDialog::createClickChrootModal()
 void UbuntuClickDialog::maintainClickModal(const UbuntuClickTool::Target &target, const UbuntuClickTool::MaintainMode &mode)
 {
     if(mode == UbuntuClickTool::Delete) {
-        QString title = tr("Delete click chroot");
-        QString text  = tr("Are you sure you want to delete this chroot?");
+        QString title = tr(Constants::UBUNTU_CLICK_DELETE_TITLE);
+        QString text  = tr(Constants::UBUNTU_CLICK_DELETE_MESSAGE);
         if( QMessageBox::question(Core::ICore::mainWindow(),title,text) != QMessageBox::Yes )
             return;
     }
@@ -391,8 +366,8 @@ void UbuntuClickDialog::done(int code)
     if(code == QDialog::Rejected) {
         if(m_process->state() != QProcess::NotRunning) {
             //ask the user if he really wants to do that
-            QString title = tr("Stop click tool");
-            QString text  = tr("Are you sure you want to stop click? This could break your chroot!");
+            QString title = tr(Constants::UBUNTU_CLICK_STOP_TITLE);
+            QString text  = tr(Constants::UBUNTU_CLICK_STOP_MESSAGE);
             if( QMessageBox::question(Core::ICore::mainWindow(),title,text)!= QMessageBox::Yes )
                 return;
 
@@ -400,7 +375,7 @@ void UbuntuClickDialog::done(int code)
             m_process->waitForFinished(100);
             m_process->kill();
 
-            m_exitStatus->setText(tr("Waiting for click to stop"));
+            m_exitStatus->setText(tr(Constants::UBUNTU_CLICK_STOP_WAIT_MESSAGE));
             m_exitStatus->setVisible(true);
             return;
         }
@@ -415,9 +390,9 @@ void UbuntuClickDialog::on_clickFinished(int exitCode)
     m_buttonBox->addButton(QDialogButtonBox::Close);
 
     if (exitCode != 0) {
-        on_clickReadyReadStandardError(tr("---Click exited with errors, please check the output---"));
+        on_clickReadyReadStandardError(tr("---%0---").arg(QLatin1String(Constants::UBUNTU_CLICK_ERROR_EXIT_MESSAGE)));
     } else {
-        on_clickReadyReadStandardOutput(tr("---Click exited with no errors---"));
+        on_clickReadyReadStandardOutput(tr("---%0---").arg(QLatin1String(Constants::UBUNTU_CLICK_SUCCESS_EXIT_MESSAGE)));
     }
 }
 
@@ -487,9 +462,9 @@ void UbuntuClickManager::initialize()
     //only visible for a cmake project
     const Core::Context projectContext(CMakeProjectManager::Constants::PROJECTCONTEXT);
 
-    m_buildInChrootAction = new QAction(QIcon(), tr("Build in chroot"), this);
+    m_buildInChrootAction = new QAction(QIcon(), tr(Constants::UBUNTU_CLICK_BUILD_CONTEXTMENU_TEXT), this);
     Core::Command *command = Core::ActionManager::registerAction(m_buildInChrootAction,
-                                                                 Constants::UBUNTU_CLICK_BUILD_CONTEXTMENU, projectContext);
+                                                                 Constants::UBUNTU_CLICK_BUILD_CONTEXTMENU_ID, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
 
@@ -512,7 +487,9 @@ void UbuntuClickManager::processBuildQueue()
         m_futureInterface = new QFutureInterface<void>();
         m_futureInterface->setProgressRange(0,5);
 
-        Core::FutureProgress* futureProgress = Core::ICore::progressManager()->addTask(m_futureInterface->future(),tr("Building"),QLatin1String("UbuntuClickManager.Build"));
+        Core::FutureProgress* futureProgress = Core::ICore::progressManager()->addTask(m_futureInterface->future()
+                                                                                       ,tr(Constants::UBUNTU_CLICK_BUILDTASK_TITLE)
+                                                                                       ,QLatin1String(Constants::UBUNTU_CLICK_BUILDTASK_ID));
         connect(futureProgress,SIGNAL(clicked()),this,SLOT(stop()));
     }
 
@@ -523,7 +500,9 @@ void UbuntuClickManager::processBuildQueue()
         delete m_currentBuild;
         m_currentBuild = 0;
 
-        printToOutputPane(tr("--- Building %0 failed, No active build configuration ---").arg(m_currentBuild->buildTarget->project()->displayName()));
+        printToOutputPane(tr("--- %0 ---")
+                          .arg(QLatin1String(Constants::UBUNTU_CLICK_NOBUILDCONFIG_ERROR))
+                          .arg(m_currentBuild->buildTarget->project()->displayName()));
 
         QMetaObject::invokeMethod(this,"processBuildQueue",Qt::QueuedConnection);
         return;
@@ -554,7 +533,7 @@ void UbuntuClickManager::stop()
         m_futureInterface->reportFinished();
 
         if (m_process->state() != QProcess::NotRunning) {
-            printToOutputPane(tr("--- Build canceled ---"));
+            printToOutputPane(tr("--- %0 ---").arg(QLatin1String(Constants::UBUNTU_CLICK_BUILD_CANCELED_MESSAGE)));
             m_process->kill();
             m_process->waitForFinished();
         }
@@ -609,10 +588,10 @@ void UbuntuClickManager::nextStep()
         m_failOnError = false;
 
         m_futureInterface->reportStarted();
-        m_futureInterface->setProgressValueAndText(1,tr("Cleaning old build"));
-        printToOutputPane(tr("Starting to build %0").arg(m_currentBuild->buildTarget->project()->displayName()));
-        printToOutputPane(tr("Using build directory %0").arg(m_currentBuild->buildDir));
-        printToOutputPane(tr("Cleaning old build"));
+        m_futureInterface->setProgressValueAndText(1,tr(Constants::UBUNTU_CLICK_BUILD_CLEAN_MESSAGE));
+        printToOutputPane(tr(Constants::UBUNTU_CLICK_BUILD_START_MESSAGE).arg(m_currentBuild->buildTarget->project()->displayName()));
+        printToOutputPane(tr(Constants::UBUNTU_CLICK_BUILDDIR_MESSAGE).arg(m_currentBuild->buildDir));
+        printToOutputPane(tr(Constants::UBUNTU_CLICK_BUILD_CLEAN_MESSAGE));
         startProcess(params);
         break;
     }
@@ -632,8 +611,8 @@ void UbuntuClickManager::nextStep()
         params.resolveAll();
         m_failOnError = true;
 
-        m_futureInterface->setProgressValueAndText(2,tr("Running CMake"));
-        printToOutputPane(tr("Running CMake"));
+        m_futureInterface->setProgressValueAndText(2,tr(Constants::UBUNTU_CLICK_BUILD_CMAKE_MESSAGE));
+        printToOutputPane(tr(Constants::UBUNTU_CLICK_BUILD_CMAKE_MESSAGE));
         startProcess(params);
         break;
     }
@@ -642,7 +621,7 @@ void UbuntuClickManager::nextStep()
 
         QPair<int,int> chrootVersion = UbuntuClickTool::targetVersion(m_currentBuild->targetChroot);
         if(chrootVersion.first == -1) {
-            printToOutputPane(tr("Could not find any version information in click target: click-%0-%1")
+            printToOutputPane(tr(Constants::UBUNTU_CLICK_NOVERSIONINFO_ERROR)
                               .arg(m_currentBuild->targetChroot.framework)
                               .arg(m_currentBuild->targetChroot.architecture));
             stop();
@@ -655,17 +634,17 @@ void UbuntuClickManager::nextStep()
         }
 
         ProjectExplorer::ProcessParameters params;
-        QStringList arguments;
-        arguments << QLatin1String("-c")
-                  << QLatin1String("find . -name AutomocInfo.cmake | xargs sed -i 's;AM_QT_MOC_EXECUTABLE .*;AM_QT_MOC_EXECUTABLE \"/usr/lib/'$(dpkg-architecture -qDEB_BUILD_MULTIARCH)'/qt5/bin/moc\");'");
+
+        QString arguments = QString::fromLatin1("-c \"%0\"")
+                .arg(QLatin1String(Constants::UBUNTU_CLICK_FIXAUTOMOC_SCRIPT));
 
         params.setWorkingDirectory(m_currentBuild->buildDir);
         params.setCommand(QLatin1String("/bin/bash"));
-        params.setArguments(Utils::QtcProcess::joinArgs(arguments));
+        params.setArguments(arguments);
         params.setEnvironment(Utils::Environment::systemEnvironment());
 
-        m_futureInterface->setProgressValueAndText(3,tr("Fixing build script"));
-        printToOutputPane(tr("Fixing build script"));
+        m_futureInterface->setProgressValueAndText(3,tr(Constants::UBUNTU_CLICK_FIXAUTOMOC_MESSAGE));
+        printToOutputPane(tr(Constants::UBUNTU_CLICK_FIXAUTOMOC_MESSAGE));
         startProcess(params);
         break;
     }
@@ -680,8 +659,8 @@ void UbuntuClickManager::nextStep()
 
         params.resolveAll();
         m_failOnError = true;
-        m_futureInterface->setProgressValueAndText(4,tr("Running Make"));
-        printToOutputPane(tr("Running Make"));
+        m_futureInterface->setProgressValueAndText(4,tr(Constants::UBUNTU_CLICK_MAKE_MESSAGE));
+        printToOutputPane(tr(Constants::UBUNTU_CLICK_MAKE_MESSAGE));
         startProcess(params);
         break;
     }
@@ -692,7 +671,7 @@ void UbuntuClickManager::nextStep()
         m_currentBuild = 0;
 
         m_futureInterface->reportFinished();
-        printToOutputPane(tr("--- Build was finished successfully ---"));
+        printToOutputPane(tr("--- %0 ---").arg(QLatin1String(Constants::UBUNTU_CLICK_BUILD_OK_MESSAGE)));
 
         //give the UI time to show we are finished
         QMetaObject::invokeMethod(this,"processBuildQueue",Qt::QueuedConnection);
@@ -711,7 +690,7 @@ void UbuntuClickManager::nextStep()
  */
 void UbuntuClickManager::startProcess(const ProjectExplorer::ProcessParameters &params)
 {
-    printToOutputPane(tr("Running command: %0 %1").arg(params.command()).arg(params.arguments()));
+    printToOutputPane(tr(Constants::UBUNTU_CLICK_RUN_COMMAND_MESSAGE).arg(params.command()).arg(params.arguments()));
     m_process->setCommand(params.command(),params.arguments());
     m_process->setWorkingDirectory(params.workingDirectory());
     m_process->setEnvironment(params.environment());
@@ -734,8 +713,8 @@ void UbuntuClickManager::on_buildInChrootAction()
     QList<UbuntuClickTool::Target> targets = UbuntuClickTool::listAvailableTargets();
     if (!targets.size()) {
         QMessageBox::warning(Core::ICore::mainWindow()
-                             ,tr("No click build targets available")
-                             ,tr("There are no click build targets available.\nPlease create a target in the Ubuntu option page."));
+                             ,tr(Constants::UBUNTU_CLICK_NOTARGETS_TITLE)
+                             ,tr(Constants::UBUNTU_CLICK_NOTARGETS_MESSAGE));
         return;
     }
 
@@ -745,8 +724,8 @@ void UbuntuClickManager::on_buildInChrootAction()
 
     bool ok = false;
     QString item = QInputDialog::getItem(Core::ICore::mainWindow()
-                                         ,tr("Select build target")
-                                         ,tr("Build target")
+                                         ,tr(Constants::UBUNTU_CLICK_SELECT_TARGET_TITLE)
+                                         ,tr(Constants::UBUNTU_CLICK_SELECT_TARGET_LABEL)
                                          ,items,0,false,&ok);
     //get index of item in the targets list
     int idx = items.indexOf(item);
@@ -769,7 +748,7 @@ void UbuntuClickManager::on_processFinished(int exitCode, QProcess::ExitStatus e
         printToOutputPane(QString::fromLocal8Bit(m_process->readAllStandardError()));
 
         if(m_failOnError) {
-            printToOutputPane(tr("--- Build failed ---"));
+            printToOutputPane(tr("--- %0 ---").arg(QLatin1String(Constants::UBUNTU_CLICK_SELECT_TARGET_LABEL)));
             stop();
         }
     }
