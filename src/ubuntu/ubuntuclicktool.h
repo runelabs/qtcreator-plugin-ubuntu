@@ -132,6 +132,7 @@ public:
 
 protected:
     void startProcess (const ProjectExplorer::ProcessParameters& params);
+    void setBuildActionsEnabled (const bool enabled = true);
 
 public slots:
     void processBuildQueue ();
@@ -140,14 +141,12 @@ public slots:
 protected slots:
     void cleanup  ();
     void nextStep ();
-    void updateSelectedProject (ProjectExplorer::Project *project);
 
     void on_buildInChrootAction();
     void on_processFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void on_processReadyRead();
 private:
-    ProjectExplorer::Project *m_currentProject;
-    QAction                  *m_buildInChrootAction;
+    QAction                *m_buildInChrootAction; //shown in the project context and global build menu
 
     bool                    m_failOnError; //should we fail if the current step has errors?
     Utils::QtcProcess      *m_process;

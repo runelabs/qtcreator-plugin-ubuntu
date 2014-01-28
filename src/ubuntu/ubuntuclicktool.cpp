@@ -437,7 +437,6 @@ void UbuntuClickDialog::on_clickReadyReadStandardError(const QString txt)
  */
 UbuntuClickManager::UbuntuClickManager(QObject *parent)
     : QObject(parent)
-    , m_currentProject(0)
     , m_buildInChrootAction(0)
     , m_failOnError(true)
     , m_process(0)
@@ -451,13 +450,11 @@ UbuntuClickManager::UbuntuClickManager(QObject *parent)
 
 void UbuntuClickManager::initialize()
 {
-    qDebug()<<"Registering build menu";
-    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
-    connect(projectExplorer, SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)),
-            this, SLOT(updateSelectedProject(ProjectExplorer::Project*)));
-
     Core::ActionContainer *mproject =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
+
+    Core::ActionContainer *mbuild =
+            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
 
     //only visible for a cmake project
     const Core::Context projectContext(CMakeProjectManager::Constants::PROJECTCONTEXT);
@@ -467,6 +464,12 @@ void UbuntuClickManager::initialize()
                                                                  Constants::UBUNTU_CLICK_BUILD_CONTEXTMENU_ID, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
+
+    if(mbuild) {
+        mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
+    } else {
+        qDebug()<<"Could not get a pointer to the menu";
+    }
 
     connect(m_buildInChrootAction,SIGNAL(triggered()),this,SLOT(on_buildInChrootAction()));
 }
@@ -509,7 +512,7 @@ void UbuntuClickManager::processBuildQueue()
     }
 
     //only one build at a time
-    m_buildInChrootAction->setEnabled(false);
+    setBuildActionsEnabled(false);
 
     QString buildDirStr = bc->buildDirectory();
     buildDirStr.append(QString::fromLatin1("/%0-%1")
@@ -559,7 +562,7 @@ void UbuntuClickManager::cleanup()
         m_futureInterface = 0;
     }
 
-    m_buildInChrootAction->setEnabled(true);
+    setBuildActionsEnabled(true);
 }
 
 /*
@@ -629,6 +632,7 @@ void UbuntuClickManager::nextStep()
         }
 
         if(chrootVersion.first >= 14) { //the fix script needs to run only on targets older than trusty
+            printToOutputPane(tr("Building for Ubuntu Version: %0.%1, skipping Automoc Fix").arg(chrootVersion.first).arg(chrootVersion.second));
             nextStep();
             break;
         }
@@ -676,7 +680,7 @@ void UbuntuClickManager::nextStep()
         //give the UI time to show we are finished
         QMetaObject::invokeMethod(this,"processBuildQueue",Qt::QueuedConnection);
 
-        m_buildInChrootAction->setEnabled(true);
+        setBuildActionsEnabled(true);
         break;
     }
     default:
@@ -698,15 +702,26 @@ void UbuntuClickManager::startProcess(const ProjectExplorer::ProcessParameters &
 }
 
 /**
+ * @brief UbuntuClickManager::setBuildActionsEnabled
+ * Enables or disables the build actions shown in the menu, for example
+ * if a build is currently running
+ */
+void UbuntuClickManager::setBuildActionsEnabled(const bool enabled)
+{
+    m_buildInChrootAction->setEnabled(enabled);
+}
+
+/**
  * @brief UbuntuClickManager::on_buildInChrootAction
  * callback slot that is called by the action
  */
 void UbuntuClickManager::on_buildInChrootAction()
 {
-    if(!m_currentProject)
+    ProjectExplorer::Project* currentProject = ProjectExplorer::ProjectExplorerPlugin::currentProject();
+    if(!currentProject)
         return;
 
-    ProjectExplorer::Target* buildTarget = m_currentProject->activeTarget();
+    ProjectExplorer::Target* buildTarget = currentProject->activeTarget();
     if(!buildTarget)
         return;
 
@@ -770,11 +785,6 @@ void UbuntuClickManager::on_processReadyRead() {
     if (!stdout.isEmpty()) {
         printToOutputPane(stdout);
     }
-}
-
-void UbuntuClickManager::updateSelectedProject(ProjectExplorer::Project *project)
-{
-    m_currentProject = project;
 }
 
 } // namespace Internal
