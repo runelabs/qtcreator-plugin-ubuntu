@@ -56,6 +56,7 @@ protected slots:
 private:
     UbuntuClickManifest m_manifest;
     UbuntuClickManifest m_apparmor;
+    QMetaObject::Connection m_UbuntuMenu_connection;
     QProcess m_click;
     UbuntuBzr m_bzr;
     QString m_projectName;

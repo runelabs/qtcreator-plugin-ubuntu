@@ -60,7 +60,6 @@ UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
     connect(&m_ubuntuProcess,SIGNAL(message(QString)),this,SLOT(onMessage(QString)));
     connect(&m_ubuntuProcess,SIGNAL(finished(QString,int)),this,SLOT(onFinished(QString, int)));
     connect(&m_ubuntuProcess,SIGNAL(error(QString)),this,SLOT(onError(QString)));
-    connect(UbuntuMenu::instance(),SIGNAL(finished_action(QString)),this,SLOT(onFinishedAction(QString)));
 
     m_bzr.initialize();
     checkClickReviewerTool();
@@ -84,6 +83,7 @@ void UbuntuPackagingWidget::onFinishedAction(QString cmd) {
 		m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION).arg(sClickPackagePath));
 		ui->stackedWidget->setCurrentIndex(2);
 		m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(sClickPackagePath));
+		disconnect(m_UbuntuMenu_connection);
 	}
 }
 
@@ -368,6 +368,7 @@ void UbuntuPackagingWidget::on_pushButton_addpolicy_clicked() {
 }
 
 void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {
+    m_UbuntuMenu_connection =  QObject::connect(UbuntuMenu::instance(),SIGNAL(finished_action(QString)),this,SLOT(onFinishedAction(QString)));
     save((ui->tabWidget->currentWidget() == ui->tabSimple));
     Core::Command *cmd = Core::ActionManager::instance()->command(Core::Id(Constants::UBUNTUPACKAGINGWIDGET_BUILDPACKAGE_ID));
     if (cmd) {
