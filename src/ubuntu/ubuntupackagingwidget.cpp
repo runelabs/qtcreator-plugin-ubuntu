@@ -66,7 +66,7 @@ UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
 }
 
 void UbuntuPackagingWidget::onFinishedAction(QString cmd) {
-	if (cmd == QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_ONFINISHED_ACTION_CLICK_CREATE).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+	if ((cmd == QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_ONFINISHED_ACTION_CLICK_CREATE).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) && (ui->pushButtonReviewersTools->isVisible()) ) {
 		QString sClickPackageName = QString::fromLatin1("%0_%1_all.click").arg(ui->lineEdit_name->text()).arg(ui->lineEdit_version->text());
 		ProjectExplorer::ProjectExplorerPlugin* projectExplorerInstance = ProjectExplorer::ProjectExplorerPlugin::instance();
 		ProjectExplorer::Project* startupProject = projectExplorerInstance->startupProject();
@@ -117,10 +117,10 @@ void UbuntuPackagingWidget::onFinished(QString cmd, int code) {
                 settings.setValue(QLatin1String(Constants::SETTINGS_KEY_CLICK_REVIEWERSTOOLS), Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS);
             } else {
                 QStringList lineData = line.split(QLatin1String(Constants::SPACE));
-                QString sEmulatorPackageStatus = lineData.takeFirst();
-                QString sEmulatorPackageName = lineData.takeFirst();
-                QString sEmulatorPackageVersion = lineData.takeFirst();
-                if (sEmulatorPackageStatus.startsWith(QLatin1String(Constants::INSTALLED))) {
+                QString sReviewerToolPackageStatus = lineData.takeFirst();
+                QString sReviewerToolPackageName = lineData.takeFirst();
+                QString sReviewerToolPackageVersion = lineData.takeFirst();
+                if (sReviewerToolPackageStatus.startsWith(QLatin1String(Constants::INSTALLED))) {
 			// There is click reviewer tool installed
 			ui->pushButtonReviewersTools->show();
 			settings.setValue(QLatin1String(Constants::SETTINGS_KEY_CLICK_REVIEWERSTOOLS_LOCATION), QLatin1String(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION));
