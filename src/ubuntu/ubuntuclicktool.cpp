@@ -78,7 +78,7 @@ void UbuntuClickTool::parametersForCreateChroot(const QString &arch, const QStri
             .arg(arch)
             .arg(series);
 
-    params->setCommand(QLatin1String("pkexec"));
+    params->setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
     params->setEnvironment(Utils::Environment::systemEnvironment());
     params->setArguments(command);
 }
@@ -90,22 +90,22 @@ void UbuntuClickTool::parametersForCreateChroot(const QString &arch, const QStri
  */
 void UbuntuClickTool::parametersForMaintainChroot(const UbuntuClickTool::MaintainMode &mode, const Target &target, ProjectExplorer::ProcessParameters *params)
 {
-    params->setCommand(QLatin1String(Constants::UBUNTU_CLICK_BINARY));
-
-    QString strMode;
+    QString arguments;
     switch (mode) {
     case Upgrade:
-        strMode = QLatin1String("upgrade");
+        params->setCommand(QLatin1String(Constants::UBUNTU_CLICK_BINARY));
+        arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_UPGRADE_ARGS)
+                .arg(target.architecture)
+                .arg(target.framework);
         break;
     case Delete:
-        strMode = QLatin1String("destroy");
+        params->setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
+        arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_DESTROY_ARGS)
+                .arg(target.architecture)
+                .arg(target.framework);
         break;
     }
 
-    QString arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_MAINTAIN_ARGS)
-            .arg(target.architecture)
-            .arg(target.framework)
-            .arg(strMode);
 
     params->setEnvironment(Utils::Environment::systemEnvironment());
     params->setArguments(arguments);

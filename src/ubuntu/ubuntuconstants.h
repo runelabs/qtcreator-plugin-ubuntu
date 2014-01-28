@@ -412,10 +412,12 @@ const char UBUNTU_CLICK_TARGETS_REGEX[] = "^click-(.*)-([A-Za-z0-9]+)$";
 const char UBUNTU_CLICK_VERSION_REGEX[] = "^DISTRIB_RELEASE=([0-9]+)\\.([0-9]+)$";
 const char UBUNTU_CLICK_FIXAUTOMOC_SCRIPT[] = "find . -name AutomocInfo.cmake | xargs sed -i 's;AM_QT_MOC_EXECUTABLE .*;AM_QT_MOC_EXECUTABLE \"/usr/lib/'$(dpkg-architecture -qDEB_BUILD_MULTIARCH)'/qt5/bin/moc\");'";
 
-const char UBUNTU_CLICK_BINARY[] = "click";
+const char UBUNTU_CLICK_BINARY[]  = "/usr/bin/click";
+const char UBUNTU_SUDO_BINARY[]   = "/usr/bin/pkexec";
 const char UBUNTU_CLICK_CHROOT_BASEPATH[] = "/var/lib/schroot/chroots";
-const char UBUNTU_CLICK_CHROOT_CREATE_ARGS[] = "sh -c \"click chroot -a %0 -s %0 create\"";
-const char UBUNTU_CLICK_CHROOT_MAINTAIN_ARGS[] = "chroot -a %0 -f %1 %2";
+const char UBUNTU_CLICK_CHROOT_CREATE_ARGS[]  = "sh -c \"click chroot -a %0 -s %1 create\"";
+const char UBUNTU_CLICK_CHROOT_DESTROY_ARGS[] = "sh -c \"click chroot -a %0 -f %1 destroy\"";
+const char UBUNTU_CLICK_CHROOT_UPGRADE_ARGS[] = "chroot -a %0 -f %1 upgrade";
 const char UBUNTU_CLICK_CHROOT_CMAKE_ARGS[] = "chroot -a %0 -f %1 run cmake -DCMAKE_TOOLCHAIN_FILE=/etc/dpkg-cross/cmake/CMakeCross.txt %2";
 const char UBUNTU_CLICK_CHROOT_MAKE_ARGS[] = "chroot -a %0 -f %1 run make %2";
 
