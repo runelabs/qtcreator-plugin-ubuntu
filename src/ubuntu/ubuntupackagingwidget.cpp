@@ -20,6 +20,7 @@
 #include "ubuntusecuritypolicypickerdialog.h"
 #include "ui_ubuntupackagingwidget.h"
 #include "ubuntuconstants.h"
+#include "ubuntumenu.h"
 
 using namespace Ubuntu;
 
@@ -36,6 +37,7 @@ using namespace Ubuntu;
 #include <QMenu>
 #include <QMessageBox>
 #include <QScriptEngine>
+#include <QRegularExpression>
 
 using namespace Ubuntu::Internal;
 
@@ -58,9 +60,33 @@ UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
     connect(&m_ubuntuProcess,SIGNAL(message(QString)),this,SLOT(onMessage(QString)));
     connect(&m_ubuntuProcess,SIGNAL(finished(QString,int)),this,SLOT(onFinished(QString, int)));
     connect(&m_ubuntuProcess,SIGNAL(error(QString)),this,SLOT(onError(QString)));
+    connect(UbuntuMenu::instance(),SIGNAL(finished_action(QString)),this,SLOT(onFinishedAction(QString)));
+
     m_bzr.initialize();
     checkClickReviewerTool();
 }
+
+void UbuntuPackagingWidget::onFinishedAction(QString cmd) {
+	if (cmd == QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_ONFINISHED_ACTION_CLICK_CREATE).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+		QString sClickPackageName = QString::fromLatin1("%0_%1_all.click").arg(ui->lineEdit_name->text()).arg(ui->lineEdit_version->text());
+		ProjectExplorer::ProjectExplorerPlugin* projectExplorerInstance = ProjectExplorer::ProjectExplorerPlugin::instance();
+		ProjectExplorer::Project* startupProject = projectExplorerInstance->startupProject();
+		QString sClickPackagePath = startupProject->projectDirectory();
+		QRegularExpression re(QLatin1String("\\/\\w+$")); // search for the project name in the path
+		QRegularExpressionMatch match = re.match(sClickPackagePath);
+		if (match.hasMatch()) {
+			QString matched = match.captured(0);
+			sClickPackagePath.chop(matched.length()-1); //leave the slash
+		}
+		sClickPackagePath.append(sClickPackageName);
+		m_ubuntuProcess.stop();
+		if (sClickPackagePath.isEmpty()) return;
+		m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION).arg(sClickPackagePath));
+		ui->stackedWidget->setCurrentIndex(2);
+		m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(sClickPackagePath));
+	}
+}
+
 
 void UbuntuPackagingWidget::on_pushButtonClosePackageReviewTools_clicked() {
     ui->stackedWidget->setCurrentIndex(0);
@@ -73,6 +99,7 @@ void UbuntuPackagingWidget::onMessage(QString msg) {
 }
 
 void UbuntuPackagingWidget::onFinished(QString cmd, int code) {
+    Q_UNUSED(code);
     ui->plainTextEditPackageReview->appendPlainText(QLatin1String("*** DONE ***"));
     if (cmd == QString::fromLatin1(Constants::UBUNTUWIDGETS_ONFINISHED_SCRIPT_LOCAL_PACKAGE_INSTALLED).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
         QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
@@ -210,6 +237,7 @@ void UbuntuPackagingWidget::on_pushButtonReset_clicked() {
 }
 
 void UbuntuPackagingWidget::save(bool bSaveSimple) {
+    Q_UNUSED(bSaveSimple);
     switch (m_previous_tab) {
     case 0: {
         // set package name to lower, bug #1219877
@@ -340,12 +368,10 @@ void UbuntuPackagingWidget::on_pushButton_addpolicy_clicked() {
 }
 
 void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {
-
     save((ui->tabWidget->currentWidget() == ui->tabSimple));
-
     Core::Command *cmd = Core::ActionManager::instance()->command(Core::Id(Constants::UBUNTUPACKAGINGWIDGET_BUILDPACKAGE_ID));
     if (cmd) {
-        cmd->action()->trigger();
+        cmd->action()->trigger(); // build the click package
     }
 }
 

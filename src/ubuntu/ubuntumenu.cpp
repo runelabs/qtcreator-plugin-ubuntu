@@ -49,9 +49,17 @@
 using namespace Ubuntu;
 using namespace Ubuntu::Internal;
 
+UbuntuMenu *UbuntuMenu::m_instance = 0;
+
+UbuntuMenu *UbuntuMenu::instance()
+{
+    return m_instance;
+}
+
 UbuntuMenu::UbuntuMenu(QObject *parent) :
     QObject(parent)
 {
+    m_instance = this;
     m_obj = getMenuJSON();
 
     connect(&m_ubuntuProcess,SIGNAL(message(QString)),this,SLOT(onMessage(QString)));
@@ -115,6 +123,7 @@ void UbuntuMenu::onError(QString msg) {
 }
 
 void UbuntuMenu::onFinished(QString cmd, int code) {
+    emit finished_action(cmd);
     printToOutputPane(QString::fromLatin1(Constants::UBUNTUMENU_ONFINISHED).arg(cmd).arg(code));
 }
 
