@@ -20,6 +20,7 @@
 #include "ui_ubuntusettingsclickwidget.h"
 #include "ubuntuconstants.h"
 #include "ubuntuclicktool.h"
+#include "ubuntuclickdialog.h"
 #include <QFileDialog>
 #include <QDir>
 #include <QRegExp>
@@ -89,8 +90,6 @@ void UbuntuSettingsClickWidget::on_deleteClickChroot(const int index)
     t.architecture = item->text(1);
     t.framework    = item->text(0);
 
-    qDebug()<<"delete chroot "<<index<<" "<<t.architecture<<" "<<t.framework;
-
     Internal::UbuntuClickDialog::maintainClickModal(t,Internal::UbuntuClickTool::Delete);
     listExistingClickTargets();
 }
@@ -105,7 +104,6 @@ void UbuntuSettingsClickWidget::on_maintainClickChroot(const int index)
     t.architecture = item->text(1);
     t.framework    = item->text(0);
 
-    qDebug()<<"maintain chroot "<<index<<" "<<t.architecture<<" "<<t.framework;
     Internal::UbuntuClickTool::openChrootTerminal(t);
 }
 
@@ -118,8 +116,6 @@ void UbuntuSettingsClickWidget::on_upgradeClickChroot(const int index)
     Internal::UbuntuClickTool::Target t;
     t.architecture = item->text(1);
     t.framework    = item->text(0);
-
-    qDebug()<<"upgrade chroot "<<index<<" "<<t.architecture<<" "<<t.framework;
 
     Internal::UbuntuClickDialog::maintainClickModal(t,Internal::UbuntuClickTool::Upgrade);
 }

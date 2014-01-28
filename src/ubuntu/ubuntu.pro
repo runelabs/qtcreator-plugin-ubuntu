@@ -18,7 +18,9 @@ FORMS += \
     ubuntusettingswidget.ui \
     ubuntusecuritypolicypickerdialog.ui \
     ubuntusettingsdeviceconnectivitywidget.ui \
-    ubuntusettingsclickwidget.ui
+    ubuntusettingsclickwidget.ui \
+    ubuntuclickdialog.ui \
+    ubuntucreatenewchrootdialog.ui
 
 RESOURCES += \
     resources.qrc
@@ -69,7 +71,9 @@ SOURCES += \
     ubuntusettingsdeviceconnectivitywidget.cpp \
     ubuntusettingsclickpage.cpp \
     ubuntusettingsclickwidget.cpp \
-    ubuntuclicktool.cpp
+    ubuntuclicktool.cpp \
+    ubuntucreatenewchrootdialog.cpp \
+    ubuntuclickdialog.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -114,5 +118,7 @@ HEADERS += \
     ubuntusettingsdeviceconnectivitywidget.h \
     ubuntusettingsclickpage.h \
     ubuntusettingsclickwidget.h \
-    ubuntuclicktool.h
+    ubuntuclicktool.h \
+    ubuntucreatenewchrootdialog.h \
+    ubuntuclickdialog.h
 

@@ -408,6 +408,7 @@ const char  UBUNTUSETTINGSCLICKWIDGET_FILEDIALOG[] = "Location of click-reviewer
 const char UBUNTU_CLICK_BUILD_CONTEXTMENU_ID[] = "UbuntuProjectManager.RunClickBuildContextMenu";
 const char UBUNTU_CLICK_BUILD_CONTEXTMENU_TEXT[] = "Build in chroot";
 const char UBUNTU_CLICK_OPEN_TERMINAL[] = "click chroot -a %0 -f %1 maint /bin/bash";
+const char UBUNTU_CLICK_OPEN_TERMINAL_ERROR[] = "Error when starting terminal";
 const char UBUNTU_CLICK_TARGETS_REGEX[] = "^click-(.*)-([A-Za-z0-9]+)$";
 const char UBUNTU_CLICK_VERSION_REGEX[] = "^DISTRIB_RELEASE=([0-9]+)\\.([0-9]+)$";
 const char UBUNTU_CLICK_FIXAUTOMOC_SCRIPT[] = "find . -name AutomocInfo.cmake | xargs sed -i 's;AM_QT_MOC_EXECUTABLE .*;AM_QT_MOC_EXECUTABLE \"/usr/lib/'$(dpkg-architecture -qDEB_BUILD_MULTIARCH)'/qt5/bin/moc\");'";
@@ -446,6 +447,8 @@ const char UBUNTU_CLICK_NOTARGETS_TITLE[] = "No click build targets available";
 const char UBUNTU_CLICK_NOTARGETS_MESSAGE[] = "There are no click build targets available.\nPlease create a target in the Ubuntu option page.";
 const char UBUNTU_CLICK_SELECT_TARGET_TITLE[] = "Select build target";
 const char UBUNTU_CLICK_SELECT_TARGET_LABEL[] = "Build target";
+extern const char* UBUNTU_CLICK_SUPPORTED_ARCHS[];
+extern const char* UBUNTU_CLICK_SUPPORTED_SERIES[];
 
 
 } // namespace Ubuntu

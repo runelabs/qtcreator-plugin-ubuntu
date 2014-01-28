@@ -75,39 +75,6 @@ private:
     Utils::QtcProcess *m_clickProcess;
 };
 
-class UbuntuClickDialog : public QDialog
-{
-    Q_OBJECT
-public:
-    UbuntuClickDialog (QWidget* parent = 0);
-    ~UbuntuClickDialog ();
-
-    void setParameters (ProjectExplorer::ProcessParameters* params);
-
-public slots:
-    void runClick ();
-
-    static void runClickModal (ProjectExplorer::ProcessParameters* params);
-    static void createClickChrootModal ();
-    static void maintainClickModal (const UbuntuClickTool::Target &target, const UbuntuClickTool::MaintainMode &mode);
-
-    // QDialog interface
-    virtual void done(int code);
-
-protected:
-    void disableCloseButton (const bool &disabled = true);
-
-protected slots:
-    void on_clickFinished(int exitCode);
-    void on_clickReadyReadStandardOutput(const QString txt = QString());
-    void on_clickReadyReadStandardError(const QString txt = QString());
-private:
-    QDialogButtonBox  *m_buttonBox;
-    Utils::QtcProcess *m_process;
-    QPlainTextEdit    *m_output;
-    QLabel            *m_exitStatus;
-};
-
 class UbuntuClickManager : public QObject
 {
     Q_OBJECT
