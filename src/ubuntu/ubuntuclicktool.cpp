@@ -31,6 +31,7 @@
 #include <QMessageBox>
 #include <QAction>
 #include <QInputDialog>
+#include <QPushButton>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -298,10 +299,12 @@ void UbuntuClickDialog::setParameters(ProjectExplorer::ProcessParameters *params
 
 void UbuntuClickDialog::runClick( )
 {
+#if 0
     //change the button to cancel
     m_buttonBox->clear();
     m_buttonBox->addButton(QDialogButtonBox::Cancel);
-
+#endif
+    disableCloseButton(true);
     m_process->start();
 }
 
@@ -383,11 +386,20 @@ void UbuntuClickDialog::done(int code)
     QDialog::done(code);
 }
 
+void UbuntuClickDialog::disableCloseButton(const bool &disabled)
+{
+    QPushButton* bt = m_buttonBox->button(QDialogButtonBox::Close);
+    if(bt) bt->setDisabled(disabled);
+}
+
 void UbuntuClickDialog::on_clickFinished(int exitCode)
 {
+    disableCloseButton(false);
+#if 0
     //set the button to close again
     m_buttonBox->clear();
     m_buttonBox->addButton(QDialogButtonBox::Close);
+#endif
 
     if (exitCode != 0) {
         on_clickReadyReadStandardError(tr("---%0---").arg(QLatin1String(Constants::UBUNTU_CLICK_ERROR_EXIT_MESSAGE)));

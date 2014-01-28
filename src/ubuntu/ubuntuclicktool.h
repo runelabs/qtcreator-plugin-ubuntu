@@ -94,6 +94,9 @@ public slots:
     // QDialog interface
     virtual void done(int code);
 
+protected:
+    void disableCloseButton (const bool &disabled = true);
+
 protected slots:
     void on_clickFinished(int exitCode);
     void on_clickReadyReadStandardOutput(const QString txt = QString());
