@@ -112,9 +112,6 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     }
     settings.endGroup();
 
-
-    Core::ActionContainer *mproject = Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
-
     m_ubuntuMenu = new UbuntuMenu;
     addAutoReleasedObject(m_ubuntuMenu);
 
