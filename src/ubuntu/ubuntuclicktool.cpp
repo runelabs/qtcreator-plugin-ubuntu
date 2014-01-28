@@ -493,7 +493,7 @@ void UbuntuClickManager::processBuildQueue()
         Core::FutureProgress* futureProgress = Core::ICore::progressManager()->addTask(m_futureInterface->future()
                                                                                        ,tr(Constants::UBUNTU_CLICK_BUILDTASK_TITLE)
                                                                                        ,QLatin1String(Constants::UBUNTU_CLICK_BUILDTASK_ID));
-        connect(futureProgress,SIGNAL(clicked()),this,SLOT(stop()));
+        connect(futureProgress,SIGNAL(canceled()),this,SLOT(stop()));
     }
 
     m_currentBuild = m_pendingBuilds.dequeue();
