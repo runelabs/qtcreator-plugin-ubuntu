@@ -404,6 +404,54 @@ const bool  SETTINGS_CLICK_REVIEWERSTOOLS_TRUE = true;
 const char  SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION[] = "/usr/bin/click-run-checks %0";
 const char  UBUNTUSETTINGSCLICKWIDGET_FILEDIALOG[] = "Location of click-reviewers-tools";
 
+//build configuration
+const char UBUNTU_CLICK_BUILD_CONTEXTMENU_ID[] = "UbuntuProjectManager.RunClickBuildContextMenu";
+const char UBUNTU_CLICK_BUILD_CONTEXTMENU_TEXT[] = "Build in chroot";
+const char UBUNTU_CLICK_OPEN_TERMINAL[] = "click chroot -a %0 -f %1 maint /bin/bash";
+const char UBUNTU_CLICK_OPEN_TERMINAL_ERROR[] = "Error when starting terminal";
+const char UBUNTU_CLICK_TARGETS_REGEX[] = "^click-(.*)-([A-Za-z0-9]+)$";
+const char UBUNTU_CLICK_VERSION_REGEX[] = "^DISTRIB_RELEASE=([0-9]+)\\.([0-9]+)$";
+const char UBUNTU_CLICK_FIXAUTOMOC_SCRIPT[] = "find . -name AutomocInfo.cmake | xargs sed -i 's;AM_QT_MOC_EXECUTABLE .*;AM_QT_MOC_EXECUTABLE \"/usr/lib/'$(dpkg-architecture -qDEB_BUILD_MULTIARCH)'/qt5/bin/moc\");'";
+
+const char UBUNTU_CLICK_BINARY[]  = "/usr/bin/click";
+const char UBUNTU_SUDO_BINARY[]   = "/usr/bin/pkexec";
+const char UBUNTU_CLICK_CHROOT_BASEPATH[] = "/var/lib/schroot/chroots";
+const char UBUNTU_CLICK_CHROOT_CREATE_ARGS[]  = "sh -c \"click chroot -a %0 -s %1 create\"";
+const char UBUNTU_CLICK_CHROOT_DESTROY_ARGS[] = "sh -c \"click chroot -a %0 -f %1 destroy\"";
+const char UBUNTU_CLICK_CHROOT_UPGRADE_ARGS[] = "chroot -a %0 -f %1 upgrade";
+const char UBUNTU_CLICK_CHROOT_CMAKE_ARGS[] = "chroot -a %0 -f %1 run cmake -DCMAKE_TOOLCHAIN_FILE=/etc/dpkg-cross/cmake/CMakeCross.txt %2";
+const char UBUNTU_CLICK_CHROOT_MAKE_ARGS[] = "chroot -a %0 -f %1 run make %2";
+
+const char UBUNTU_CLICK_DELETE_TITLE[] = "Delete click chroot";
+const char UBUNTU_CLICK_DELETE_MESSAGE[] = "Are you sure you want to delete this chroot?";
+const char UBUNTU_CLICK_STOP_TITLE[] = "Stop click tool";
+const char UBUNTU_CLICK_STOP_MESSAGE[] = "Are you sure you want to stop click? This could break your chroot!";
+const char UBUNTU_CLICK_STOP_WAIT_MESSAGE[] = "Waiting for click to stop";
+const char UBUNTU_CLICK_ERROR_EXIT_MESSAGE[] = "Click exited with errors, please check the output";
+const char UBUNTU_CLICK_SUCCESS_EXIT_MESSAGE[] = "Click exited with no errors";
+const char UBUNTU_CLICK_BUILDTASK_ID[] = "UbuntuClickManager.Build";
+const char UBUNTU_CLICK_BUILDTASK_TITLE[] = "Building";
+const char UBUNTU_CLICK_NOBUILDCONFIG_ERROR[] = "Building %1 failed, No active build configuration";
+const char UBUNTU_CLICK_BUILD_CANCELED_MESSAGE[] = "Build canceled";
+const char UBUNTU_CLICK_BUILD_START_MESSAGE[] = "Starting to build %0";
+const char UBUNTU_CLICK_BUILD_CLEAN_MESSAGE[] = "Cleaning old build";
+const char UBUNTU_CLICK_BUILD_CMAKE_MESSAGE[] = "Running CMake";
+const char UBUNTU_CLICK_BUILDDIR_MESSAGE[] = "Using build directory %0";
+const char UBUNTU_CLICK_NOVERSIONINFO_ERROR[] = "Could not find any version information in click target: click-%0-%1";
+const char UBUNTU_CLICK_FIXAUTOMOC_MESSAGE[] = "Fixing build script";
+const char UBUNTU_CLICK_MAKE_MESSAGE[] = "Running Make";
+const char UBUNTU_CLICK_BUILD_OK_MESSAGE[] = "Build was finished successfully";
+const char UBUNTU_CLICK_BUILD_FAILED_MESSAGE[] = "Build failed";
+const char UBUNTU_CLICK_RUN_COMMAND_MESSAGE[] = "Running command: %0 %1";
+const char UBUNTU_CLICK_NOTARGETS_TITLE[] = "No click build targets available";
+const char UBUNTU_CLICK_NOTARGETS_MESSAGE[] = "There are no click build targets available.\nPlease create a target in the Ubuntu option page.";
+const char UBUNTU_CLICK_SELECT_TARGET_TITLE[] = "Select build target";
+const char UBUNTU_CLICK_SELECT_TARGET_LABEL[] = "Build target";
+extern const char* UBUNTU_CLICK_SUPPORTED_ARCHS[];
+extern const char* UBUNTU_CLICK_SUPPORTED_SERIES[];
+extern const char* UBUNTU_CLICK_SUPPORTED_SERIES_DISPLAYNAMES[];
+
+
 } // namespace Ubuntu
 } // namespace Constants
 

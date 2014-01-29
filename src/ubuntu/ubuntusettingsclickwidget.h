@@ -22,6 +22,7 @@
 
 #include <QWidget>
 #include <QSettings>
+#include <QSignalMapper>
 
 namespace Ui {
 class UbuntuSettingsClickWidget;
@@ -38,10 +39,20 @@ public:
 
 protected slots:
     void on_pushButtonFindClickPackagingTools_clicked();
+    void on_pushButtonCreateClickTarget_clicked();
+    void on_deleteClickChroot (const int index);
+    void on_maintainClickChroot (const int index);
+    void on_upgradeClickChroot (const int index);
+
+private:
+    void listExistingClickTargets ();
 
 private:
     Ui::UbuntuSettingsClickWidget *ui;
     QSettings* m_settings;
+    QSignalMapper* m_deleteMapper;
+    QSignalMapper* m_updateMapper;
+    QSignalMapper* m_maintainMapper;
 };
 
 #endif // UBUNTUSETTINGSCLICKWIDGET_H
