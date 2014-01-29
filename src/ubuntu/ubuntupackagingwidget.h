@@ -37,6 +37,7 @@ protected slots:
     void onFinished(QString cmd, int code);
     void onError(QString msg);
     void onStarted(QString cmd);
+    void onFinishedAction(QString cmd);
 
     void on_pushButtonClosePackageReviewTools_clicked();
     void on_pushButton_addpolicy_clicked();
@@ -55,6 +56,7 @@ protected slots:
 private:
     UbuntuClickManifest m_manifest;
     UbuntuClickManifest m_apparmor;
+    QMetaObject::Connection m_UbuntuMenu_connection;
     QProcess m_click;
     UbuntuBzr m_bzr;
     QString m_projectName;

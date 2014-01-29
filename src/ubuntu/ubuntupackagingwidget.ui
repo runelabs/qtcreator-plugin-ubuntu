@@ -362,7 +362,7 @@
                     <item row="12" column="0">
                      <widget class="QPushButton" name="pushButtonReviewersTools">
                       <property name="text">
-                       <string>Execute tests against a click package</string>
+                       <string>Validate Click package</string>
                       </property>
                      </widget>
                     </item>
