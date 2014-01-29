@@ -85,9 +85,6 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     m_ubuntuWelcomeMode = new UbuntuWelcomeMode;
     addAutoReleasedObject(m_ubuntuWelcomeMode);
 
-    m_ubuntuPackagingMode = new UbuntuPackagingMode();
-    addAutoReleasedObject(m_ubuntuPackagingMode);
-
     QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
     settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_MODE));
     if (settings.value(QLatin1String(Constants::SETTINGS_KEY_API),Constants::SETTINGS_DEFAULT_API_VISIBILITY).toBool()) {
@@ -116,6 +113,9 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
     m_ubuntuMenu = new UbuntuMenu;
     addAutoReleasedObject(m_ubuntuMenu);
+
+    m_ubuntuPackagingMode = new UbuntuPackagingMode();
+    addAutoReleasedObject(m_ubuntuPackagingMode);
 
     addAutoReleasedObject(new UbuntuSettingsClickPage);
     addAutoReleasedObject(new UbuntuSettingsDeviceConnectivityPage);

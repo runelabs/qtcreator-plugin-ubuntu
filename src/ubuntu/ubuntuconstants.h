@@ -158,6 +158,7 @@ const char UBUNTU_HAS_TESTS[] = "hasTests";
 const char UBUNTU_INITIAL_EMULATOR_NAME[] = "<emulator>";
 
 const char UBUNTUBZR_INITIALIZE[] ="%0/qtc_bzr_info";
+const char UBUNTUPACKAGINGWIDGET_ONFINISHED_ACTION_CLICK_CREATE[] = "%0/qtc_project_click_create";
 const char UBUNTUPACKAGINGWIDGET_OPENMANIFEST[] ="%0/manifest.json";
 const char UBUNTUPACKAGINGWIDGET_APPARMOR[] ="%0/%1.json";
 const char UBUNTUPACKAGINGWIDGET_EXCLUDES[] ="%0/.excludes";

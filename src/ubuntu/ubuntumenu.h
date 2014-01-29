@@ -46,6 +46,8 @@ public:
 
     void initialize();
 
+    static UbuntuMenu* instance();
+
     void parseMenu(QJsonObject obj, Core::ActionContainer*& parent, const Core::Id &group = Core::Id());
 
     QString menuPath(QString fileName);
@@ -53,6 +55,9 @@ public:
 
 public slots:
     void slotUpdateActions();
+
+signals:
+    void finished_action(QString);
     
 protected slots:
     void menuItemTriggered();
@@ -73,6 +78,8 @@ protected:
 
 private:
     bool isProperUbuntuHtmlProject(ProjectExplorer::Project *project) const;
+    static UbuntuMenu *m_instance;
+
 };
 
 
