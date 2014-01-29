@@ -449,6 +449,7 @@ const char UBUNTU_CLICK_SELECT_TARGET_TITLE[] = "Select build target";
 const char UBUNTU_CLICK_SELECT_TARGET_LABEL[] = "Build target";
 extern const char* UBUNTU_CLICK_SUPPORTED_ARCHS[];
 extern const char* UBUNTU_CLICK_SUPPORTED_SERIES[];
+extern const char* UBUNTU_CLICK_SUPPORTED_SERIES_DISPLAYNAMES[];
 
 
 } // namespace Ubuntu
