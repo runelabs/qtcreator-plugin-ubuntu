@@ -51,6 +51,8 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
+    qDebug()<<"Going to load ressources from root path: "<<Constants::UBUNTU_RESOURCE_PATH;
+
     Core::MimeDatabase *mimeDB = Core::ICore::mimeDatabase();
 
     const QLatin1String mimetypesXml(Constants::UBUNTU_MIMETYPE_XML);

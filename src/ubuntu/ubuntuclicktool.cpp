@@ -50,6 +50,8 @@
 #include "ubuntuconstants.h"
 #include "ubuntushared.h"
 
+#include <QDebug>
+
 namespace Ubuntu {
 namespace Internal {
 
@@ -67,11 +69,13 @@ UbuntuClickTool::UbuntuClickTool()
  * Initializes a ProjectExplorer::ProcessParameters object with command and arguments
  * to create a new chroot
  */
-void UbuntuClickTool::parametersForCreateChroot(const QString &arch, const QString &series, ProjectExplorer::ProcessParameters *params)
+void UbuntuClickTool::parametersForCreateChroot(const Target &target, ProjectExplorer::ProcessParameters *params)
 {
     QString command = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_CREATE_ARGS)
-            .arg(arch)
-            .arg(series);
+            .arg(Constants::UBUNTU_SCRIPTPATH)
+            .arg(target.architecture)
+            .arg(target.framework)
+            .arg(target.series);
 
     params->setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
     params->setEnvironment(Utils::Environment::systemEnvironment());
@@ -91,13 +95,16 @@ void UbuntuClickTool::parametersForMaintainChroot(const UbuntuClickTool::Maintai
         params->setCommand(QLatin1String(Constants::UBUNTU_CLICK_BINARY));
         arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_UPGRADE_ARGS)
                 .arg(target.architecture)
-                .arg(target.framework);
+                .arg(target.framework)
+                .arg(target.series);
         break;
     case Delete:
         params->setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
         arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_DESTROY_ARGS)
+                .arg(Constants::UBUNTU_SCRIPTPATH)
                 .arg(target.architecture)
-                .arg(target.framework);
+                .arg(target.framework)
+                .arg(target.series);
         break;
     }
 
@@ -118,6 +125,7 @@ void UbuntuClickTool::parametersForCmake(const Target &target, const QString &bu
     QString arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_CMAKE_ARGS)
             .arg(target.architecture)
             .arg(target.framework)
+            .arg(target.series)
             .arg(relPathToSource);
 
     params->setWorkingDirectory(buildDir);
@@ -137,6 +145,7 @@ void UbuntuClickTool::parametersForMake(const UbuntuClickTool::Target &target, c
     QString arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_MAKE_ARGS)
             .arg(target.architecture)
             .arg(target.framework)
+            .arg(target.series)
             .arg(doClean ? QLatin1String("clean") : QLatin1String(""));
 
     params->setWorkingDirectory(buildDir);
@@ -155,7 +164,12 @@ void UbuntuClickTool::openChrootTerminal(const UbuntuClickTool::Target &target)
     QStringList args = Utils::QtcProcess::splitArgs(Utils::ConsoleProcess::terminalEmulator(Core::ICore::settings()));
     QString     term = args.takeFirst();
 
-    args << QString(QLatin1String(Constants::UBUNTU_CLICK_OPEN_TERMINAL)).arg(target.architecture).arg(target.framework);
+    qDebug()<<"Open terminal for target: "<<target;
+    args << QString(QLatin1String(Constants::UBUNTU_CLICK_OPEN_TERMINAL))
+            .arg(target.architecture)
+            .arg(target.framework)
+            .arg(target.series);
+
     if(!QProcess::startDetached(term,args,QDir::homePath())) {
         printToOutputPane(QLatin1String(Constants::UBUNTU_CLICK_OPEN_TERMINAL_ERROR));
     }
@@ -186,8 +200,60 @@ QList<UbuntuClickTool::Target> UbuntuClickTool::listAvailableTargets()
         }
 
         Target t;
+        t.maybeBroken  = false; //we are optimistic
         t.framework    = match.captured(1);
         t.architecture = match.captured(2);
+
+        //now read informations about the target
+        QFile f(QString::fromLatin1("%0/click-%1-%2/%3")
+                .arg(QLatin1String(Constants::UBUNTU_CLICK_CHROOT_BASEPATH))
+                .arg(t.framework)
+                .arg(t.architecture)
+                .arg(QLatin1String("/etc/lsb-release")));
+
+        if (!f.open(QIODevice::ReadOnly)) {
+            //there is no lsb-release file... what now?
+            t.maybeBroken = true;
+
+        } else {
+            QString info = QString::fromLatin1(f.readAll());
+
+            //read version
+            QRegularExpression grep(QLatin1String(Constants::UBUNTU_CLICK_VERSION_REGEX),QRegularExpression::MultilineOption);
+            QRegularExpressionMatch match = grep.match(info);
+
+            if(!match.hasMatch()) {
+                t.maybeBroken = true;
+            } else {
+                bool ok = false;
+
+                t.majorVersion = match.captured(1).toInt(&ok);
+                if(!ok) {
+                    t.maybeBroken = true;
+                    t.majorVersion = -1;
+                }
+
+                t.minorVersion = match.captured(2).toInt(&ok);
+                if(!ok) {
+                    t.maybeBroken = true;
+                    t.minorVersion = -1;
+                }
+            }
+
+            //read series
+            grep.setPattern(QString::fromLatin1(Constants::UBUNTU_CLICK_SERIES_REGEX));
+            grep.setPatternOptions(QRegularExpression::MultilineOption);
+            match = grep.match(info);
+
+            if(!match.hasMatch()) {
+                t.maybeBroken = true;
+            } else {
+                t.series = match.captured(1);
+            }
+        }
+
+        qDebug()<<"Adding target: "<<t;
+
         items.append(t);
     }
 
@@ -586,6 +652,18 @@ void UbuntuClickManager::on_processReadyRead() {
     if (!stdout.isEmpty()) {
         printToOutputPane(stdout);
     }
+}
+
+QDebug operator<<(QDebug dbg, const UbuntuClickTool::Target& t)
+{
+    dbg.nospace() << "("<<"series: "<<t.series<<" "
+                        <<"arch: "<<t.architecture<<" "
+                        <<"framework: "<<t.framework<<" "
+                        <<"version: "<<t.majorVersion<<"."<<t.minorVersion<<" "
+                        <<"broken "<<t.maybeBroken
+                        <<")";
+
+    return dbg.space();
 }
 
 } // namespace Internal

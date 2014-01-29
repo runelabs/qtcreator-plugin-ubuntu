@@ -224,11 +224,17 @@ const char UBUNTUDEVICESWIDGET_CLONETIME_SCRIPT[] = "%0/device_time_clone %1";
 const char UBUNTUDEVICESWIDGET_SSH_REMOVE[] = "Removing openssh-server..";
 const char UBUNTUDEVICESWIDGET_SSH_REMOVE_SCRIPT[] = "%0/openssh_remove %1";
 
-const QString UBUNTU_WELCOMESCREEN_QML = Core::ICore::resourcePath() + QLatin1String("/ubuntu/welcome/welcome.qml");
-const QString UBUNTU_TEMPLATESPATH = Core::ICore::resourcePath() + QLatin1String("/templates/wizards/ubuntu/");
-const QString UBUNTU_MENUPATH = Core::ICore::resourcePath() + QLatin1String("/ubuntu/");
-const QString UBUNTU_SHAREPATH = Core::ICore::resourcePath() + QLatin1String("/ubuntu/");
-const QString UBUNTU_SCRIPTPATH = Core::ICore::resourcePath() + QLatin1String("/ubuntu/scripts");
+#ifdef UBUNTU_BUILD_LOCAL
+const QString UBUNTU_RESOURCE_PATH = QLatin1String(UBUNTU_RESOURCE_PATH_LOCAL);
+#else
+const QString UBUNTU_RESOURCE_PATH = Core::ICore::resourcePath();
+#endif
+
+const QString UBUNTU_WELCOMESCREEN_QML = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/welcome/welcome.qml");
+const QString UBUNTU_TEMPLATESPATH = UBUNTU_RESOURCE_PATH + QLatin1String("/templates/wizards/ubuntu/");
+const QString UBUNTU_MENUPATH = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/");
+const QString UBUNTU_SHAREPATH = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/");
+const QString UBUNTU_SCRIPTPATH = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/scripts");
 
 const char  UBUNTU_MENUJSON[] = "menu.json";
 const char  UBUNTU_MENUJSON_NAME[] = "name";
@@ -407,20 +413,21 @@ const char  UBUNTUSETTINGSCLICKWIDGET_FILEDIALOG[] = "Location of click-reviewer
 //build configuration
 const char UBUNTU_CLICK_BUILD_CONTEXTMENU_ID[] = "UbuntuProjectManager.RunClickBuildContextMenu";
 const char UBUNTU_CLICK_BUILD_CONTEXTMENU_TEXT[] = "Build in chroot";
-const char UBUNTU_CLICK_OPEN_TERMINAL[] = "click chroot -a %0 -f %1 maint /bin/bash";
 const char UBUNTU_CLICK_OPEN_TERMINAL_ERROR[] = "Error when starting terminal";
 const char UBUNTU_CLICK_TARGETS_REGEX[] = "^click-(.*)-([A-Za-z0-9]+)$";
 const char UBUNTU_CLICK_VERSION_REGEX[] = "^DISTRIB_RELEASE=([0-9]+)\\.([0-9]+)$";
+const char UBUNTU_CLICK_SERIES_REGEX[]  = "^DISTRIB_CODENAME=([A-Za-z]+)$";
 const char UBUNTU_CLICK_FIXAUTOMOC_SCRIPT[] = "find . -name AutomocInfo.cmake | xargs sed -i 's;AM_QT_MOC_EXECUTABLE .*;AM_QT_MOC_EXECUTABLE \"/usr/lib/'$(dpkg-architecture -qDEB_BUILD_MULTIARCH)'/qt5/bin/moc\");'";
 
 const char UBUNTU_CLICK_BINARY[]  = "/usr/bin/click";
 const char UBUNTU_SUDO_BINARY[]   = "/usr/bin/pkexec";
 const char UBUNTU_CLICK_CHROOT_BASEPATH[] = "/var/lib/schroot/chroots";
-const char UBUNTU_CLICK_CHROOT_CREATE_ARGS[]  = "sh -c \"click chroot -a %0 -s %1 create\"";
-const char UBUNTU_CLICK_CHROOT_DESTROY_ARGS[] = "sh -c \"click chroot -a %0 -f %1 destroy\"";
-const char UBUNTU_CLICK_CHROOT_UPGRADE_ARGS[] = "chroot -a %0 -f %1 upgrade";
-const char UBUNTU_CLICK_CHROOT_CMAKE_ARGS[] = "chroot -a %0 -f %1 run cmake -DCMAKE_TOOLCHAIN_FILE=/etc/dpkg-cross/cmake/CMakeCross.txt %2";
-const char UBUNTU_CLICK_CHROOT_MAKE_ARGS[] = "chroot -a %0 -f %1 run make %2";
+const char UBUNTU_CLICK_CHROOT_CREATE_ARGS[]  = "sh -c \"%0/click_create_target %1 %2 %3\"";
+const char UBUNTU_CLICK_CHROOT_DESTROY_ARGS[] = "sh -c \"%0/click_destroy_target %1 %2 %3\"";
+const char UBUNTU_CLICK_CHROOT_UPGRADE_ARGS[] = "chroot -a %0 -f %1 -s %2 upgrade";
+const char UBUNTU_CLICK_CHROOT_CMAKE_ARGS[] = "chroot -a %0 -f %1 -s %2 run cmake -DCMAKE_TOOLCHAIN_FILE=/etc/dpkg-cross/cmake/CMakeCross.txt %3";
+const char UBUNTU_CLICK_CHROOT_MAKE_ARGS[] = "chroot -a %0 -f %1 -s %2 run make %3";
+const char UBUNTU_CLICK_OPEN_TERMINAL[] = "click chroot -a %0 -f %1 -s %2 maint /bin/bash";
 
 const char UBUNTU_CLICK_DELETE_TITLE[] = "Delete click chroot";
 const char UBUNTU_CLICK_DELETE_MESSAGE[] = "Are you sure you want to delete this chroot?";
@@ -448,8 +455,7 @@ const char UBUNTU_CLICK_NOTARGETS_MESSAGE[] = "There are no click build targets 
 const char UBUNTU_CLICK_SELECT_TARGET_TITLE[] = "Select build target";
 const char UBUNTU_CLICK_SELECT_TARGET_LABEL[] = "Build target";
 extern const char* UBUNTU_CLICK_SUPPORTED_ARCHS[];
-extern const char* UBUNTU_CLICK_SUPPORTED_SERIES[];
-extern const char* UBUNTU_CLICK_SUPPORTED_SERIES_DISPLAYNAMES[];
+extern const char* UBUNTU_CLICK_SUPPORTED_TARGETS[][3];
 
 
 } // namespace Ubuntu
