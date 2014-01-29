@@ -85,6 +85,8 @@ void UbuntuSettingsClickWidget::on_deleteClickChroot(const int index)
     if(index < 0 || index > m_availableTargets.size())
         return;
 
+    qDebug()<<"Destroying chroot "<< m_availableTargets.at(index);
+
     Internal::UbuntuClickDialog::maintainClickModal(m_availableTargets.at(index),Internal::UbuntuClickTool::Delete);
     listExistingClickTargets();
 }
