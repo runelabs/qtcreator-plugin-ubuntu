@@ -280,11 +280,11 @@ void UbuntuPackagingWidget::save(bool bSaveSimple) {
 
 void UbuntuPackagingWidget::load_manifest(QString fileName) {
     m_manifest.load(fileName,m_projectName);
-    m_manifest.setMaintainer(m_bzr.whoami());
+    // Commented out for bug #1274265 https://bugs.launchpad.net/qtcreator-plugin-ubuntu/+bug/1274265
+    //m_manifest.setMaintainer(m_bzr.whoami());
     QString userName = m_bzr.launchpadId();
     if (userName.isEmpty()) userName = QLatin1String(Constants::USERNAME);
     m_projectName.replace(QLatin1String(Constants::UNDERLINE),QLatin1String(Constants::DASH));
-
     // Commented out for bug #1219948  - https://bugs.launchpad.net/qtcreator-plugin-ubuntu/+bug/1219948
     //m_manifest.setName(QString(QLatin1String("com.ubuntu.developer.%0.%1")).arg(userName).arg(m_projectName));
 }
