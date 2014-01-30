@@ -426,8 +426,12 @@ const char UBUNTU_CLICK_CHROOT_BASEPATH[] = "/var/lib/schroot/chroots";
 const char UBUNTU_CLICK_CHROOT_CREATE_ARGS[]  = "sh -c \"%0/click_create_target %1 %2 %3\"";
 const char UBUNTU_CLICK_CHROOT_DESTROY_ARGS[] = "sh -c \"%0/click_destroy_target %1 %2 %3\"";
 const char UBUNTU_CLICK_CHROOT_UPGRADE_ARGS[] = "chroot -a %0 -f %1 -s %2 upgrade";
-const char UBUNTU_CLICK_CHROOT_CMAKE_ARGS[] = "chroot -a %0 -f %1 -s %2 run cmake -DCMAKE_TOOLCHAIN_FILE=/etc/dpkg-cross/cmake/CMakeCross.txt %3";
-const char UBUNTU_CLICK_CHROOT_MAKE_ARGS[] = "chroot -a %0 -f %1 -s %2 run make %3";
+const char UBUNTU_CLICK_CHROOT_CMAKE_SCRIPT[] = "%0/qtc_chroot_cmake";
+const char UBUNTU_CLICK_CHROOT_CMAKE_ARGS[]   = "%0 %1 %2 %3";
+const char UBUNTU_CLICK_CHROOT_MAKE_SCRIPT[]  = "%0/qtc_chroot_make";
+const char UBUNTU_CLICK_CHROOT_MAKE_ARGS[]    = "%0 %1 %2 %4";
+const char UBUNTU_CLICK_CHROOT_MAKE_CLEAN_ARGS[]   = "clean";
+const char UBUNTU_CLICK_CHROOT_MAKE_INSTALL_ARGS[] = "DESTDIR=click_package install";
 const char UBUNTU_CLICK_OPEN_TERMINAL[] = "click chroot -a %0 -f %1 -s %2 maint /bin/bash";
 
 const char UBUNTU_CLICK_DELETE_TITLE[] = "Delete click chroot";

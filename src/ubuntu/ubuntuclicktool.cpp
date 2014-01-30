@@ -129,7 +129,7 @@ void UbuntuClickTool::parametersForCmake(const Target &target, const QString &bu
             .arg(relPathToSource);
 
     params->setWorkingDirectory(buildDir);
-    params->setCommand(QLatin1String(Constants::UBUNTU_CLICK_BINARY));
+    params->setCommand(QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_CMAKE_SCRIPT).arg(Constants::UBUNTU_SCRIPTPATH));
     params->setArguments(arguments);
     params->setEnvironment(Utils::Environment::systemEnvironment());
 }
@@ -140,16 +140,16 @@ void UbuntuClickTool::parametersForCmake(const Target &target, const QString &bu
  * @note does not call ProjectExplorer::ProcessParameters::resolveAll()
  */
 void UbuntuClickTool::parametersForMake(const UbuntuClickTool::Target &target, const QString &buildDir
-                                        , bool doClean, ProjectExplorer::ProcessParameters *params)
+                                        , const QString& makeArgs, ProjectExplorer::ProcessParameters *params)
 {
     QString arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_MAKE_ARGS)
             .arg(target.architecture)
             .arg(target.framework)
             .arg(target.series)
-            .arg(doClean ? QLatin1String("clean") : QLatin1String(""));
+            .arg(makeArgs);
 
     params->setWorkingDirectory(buildDir);
-    params->setCommand(QLatin1String(Constants::UBUNTU_CLICK_BINARY));
+    params->setCommand(QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_MAKE_SCRIPT).arg(Constants::UBUNTU_SCRIPTPATH));
     params->setArguments(arguments);
     params->setEnvironment(Utils::Environment::systemEnvironment());
 }
@@ -450,7 +450,7 @@ void UbuntuClickManager::nextStep()
 
         UbuntuClickTool::parametersForMake(m_currentBuild->targetChroot
                                            ,m_currentBuild->buildDir
-                                           ,true //do clean
+                                           ,QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_MAKE_CLEAN_ARGS)
                                            ,&params);
 
         params.resolveAll();
@@ -525,7 +525,7 @@ void UbuntuClickManager::nextStep()
 
         UbuntuClickTool::parametersForMake(m_currentBuild->targetChroot
                                            ,m_currentBuild->buildDir
-                                           ,false //do clean
+                                           ,QString::fromLatin1("")
                                            ,&params);
 
         params.resolveAll();
@@ -536,6 +536,22 @@ void UbuntuClickManager::nextStep()
         break;
     }
     case Make:{
+        m_currentBuild->currentState = MakeInstall;
+        ProjectExplorer::ProcessParameters params;
+
+        UbuntuClickTool::parametersForMake(m_currentBuild->targetChroot
+                                           ,m_currentBuild->buildDir
+                                           ,QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_MAKE_INSTALL_ARGS)
+                                           ,&params);
+
+        params.resolveAll();
+        m_failOnError = true;
+        m_futureInterface->setProgressValueAndText(4,tr(Constants::UBUNTU_CLICK_MAKE_MESSAGE));
+        printToOutputPane(tr(Constants::UBUNTU_CLICK_MAKE_MESSAGE));
+        startProcess(params);
+        break;
+    }
+    case MakeInstall:{
         m_currentBuild->currentState = Finished;
 
         delete m_currentBuild;
