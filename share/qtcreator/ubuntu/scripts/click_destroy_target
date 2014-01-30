@@ -39,7 +39,7 @@ do
         echo "Unmount failed... trying to force"
         umount -f -l $MOUNTPOINT
 
-        if [$? -ne 0 ]
+        if [ $? -ne 0 ]
         then
             echo "Unmounting ${MOUNTPOINT} failed"
             exit 1
