@@ -38,6 +38,7 @@ Depends: android-tools-adb,
          ubuntu-html5-theme,
          ubuntu-ui-toolkit-doc,
          ubuntu-ui-toolkit-examples,
+         rsync,
          ${misc:Depends},
 Recommends: ubuntu-sdk
 Suggests: click-reviewers-tools
