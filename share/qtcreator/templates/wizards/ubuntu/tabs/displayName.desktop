@@ -1,6 +1,5 @@
 [Desktop Entry]
 Name=%DISPLAYNAME%
-Comment=
 Exec=/usr/bin/qmlscene $@ /usr/share/%DISPLAYNAME%/%DISPLAYNAME%.qml
 Icon=qmlscene
 Terminal=false
