@@ -24,13 +24,10 @@
                "fileName": "tests/autopilot/run"
            },
            {
-               "fileName": "tests/autopilot/displayName/main/test_main.py"
+               "fileName": "tests/autopilot/displayName/test_main.py"
            },
 		   {
                "fileName": "tests/autopilot/displayName/__init__.py"
-           },
-           {
-               "fileName": "tests/autopilot/displayName/main/__init__.py"
            }
        ]
     },
