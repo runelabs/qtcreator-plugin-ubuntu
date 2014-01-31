@@ -81,7 +81,18 @@ pushd ${PROJECTPATH} >> /dev/null
 
   # lets read the manifest description and set that to desktop comment - fix bug #1223388
   MANIFEST_DESCRIPTION=`${SCRIPTPATH}/manifest_description manifest.json`
-  sed -i "s/^Comment=.*/Comment=${MANIFEST_DESCRIPTION}/g" ${DESKTOPFILE}
+
+  #lets check if there is a Comment
+  grep -e "^Comment=.*$" ${DESKTOPFILE}
+
+  if [ $? -eq 0 ]
+  then
+    #replace the Comment with description from manifest, if it is empty
+    sed -i "s/^Comment=[\w]?$/Comment=${MANIFEST_DESCRIPTION}/g" ${DESKTOPFILE}
+  else
+    #add a comment if none is in the desktopfile
+    echo -e "Comment=${MANIFEST_DESCRIPTION}\n" >> ${DESKTOPFILE}
+  fi
 
   # read the arguments to qmlscene
   QMLSCENE_ARGS=`cat ${DESKTOPFILE} | grep -o "qmlscene.*\$\@" | sed "s/\(qmlscene\|\$\@\)//g"`

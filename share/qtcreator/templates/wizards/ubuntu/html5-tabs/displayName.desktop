@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=%DISPLAYNAME%
-Comment=Project description
+Comment=
 Exec=/usr/bin/ubuntu-html5-app-launcher $@ --www=/usr/share/%DISPLAYNAME%/index.html
 Icon=qmlscene
 Terminal=false
