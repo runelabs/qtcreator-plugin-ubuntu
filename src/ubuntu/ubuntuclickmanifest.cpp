@@ -130,7 +130,7 @@ void UbuntuClickManifest::save(QString fileName) {
         return;
     }
 
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(callGetStringFunction(QLatin1String("toJSON")).toLatin1());
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(callGetStringFunction(QLatin1String("toJSON")).toUtf8());
     file.write(jsonDoc.toJson());
 
     file.close();
@@ -144,7 +144,7 @@ void UbuntuClickManifest::reload() {
 
 QString UbuntuClickManifest::raw() {
     if (!isInitialized()) { return QString(); }
-    return QString::fromLatin1(QJsonDocument::fromJson(callGetStringFunction(QLatin1String("toJSON")).toLatin1()).toJson());
+    return QString::fromUtf8(QJsonDocument::fromJson(callGetStringFunction(QLatin1String("toJSON")).toUtf8()).toJson());
 }
 
 void UbuntuClickManifest::setRaw(QString data) {
@@ -172,7 +172,7 @@ void UbuntuClickManifest::load(QString fileName, QString projectName) {
         return;
     }
 
-    QString data = QString::fromLatin1(file.readAll());
+    QString data = QString::fromUtf8(file.readAll());
     file.close();
 
     if (fileName == QLatin1String(":/ubuntu/manifest.json.template")) {
