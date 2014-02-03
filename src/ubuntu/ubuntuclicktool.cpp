@@ -164,7 +164,6 @@ void UbuntuClickTool::openChrootTerminal(const UbuntuClickTool::Target &target)
     QStringList args = Utils::QtcProcess::splitArgs(Utils::ConsoleProcess::terminalEmulator(Core::ICore::settings()));
     QString     term = args.takeFirst();
 
-    qDebug()<<"Open terminal for target: "<<target;
     args << QString(QLatin1String(Constants::UBUNTU_CLICK_OPEN_TERMINAL))
             .arg(target.architecture)
             .arg(target.framework)
@@ -173,6 +172,34 @@ void UbuntuClickTool::openChrootTerminal(const UbuntuClickTool::Target &target)
     if(!QProcess::startDetached(term,args,QDir::homePath())) {
         printToOutputPane(QLatin1String(Constants::UBUNTU_CLICK_OPEN_TERMINAL_ERROR));
     }
+}
+
+bool UbuntuClickTool::getTargetFromUser(Target *target)
+{
+    QList<UbuntuClickTool::Target> targets = UbuntuClickTool::listAvailableTargets();
+    if (!targets.size()) {
+        QMessageBox::warning(Core::ICore::mainWindow()
+                             ,QCoreApplication::translate("UbuntuClickTool",Constants::UBUNTU_CLICK_NOTARGETS_TITLE)
+                             ,QCoreApplication::translate("UbuntuClickTool",Constants::UBUNTU_CLICK_NOTARGETS_MESSAGE));
+        return false;
+    }
+
+    QStringList items;
+    foreach(const UbuntuClickTool::Target& t, targets)
+        items << QString::fromLatin1("%0-%1").arg(t.framework).arg(t.architecture);
+
+    bool ok = false;
+    QString item = QInputDialog::getItem(Core::ICore::mainWindow()
+                                         ,QCoreApplication::translate("UbuntuClickTool",Constants::UBUNTU_CLICK_SELECT_TARGET_TITLE)
+                                         ,QCoreApplication::translate("UbuntuClickTool",Constants::UBUNTU_CLICK_SELECT_TARGET_LABEL)
+                                         ,items,0,false,&ok);
+    //get index of item in the targets list
+    int idx = items.indexOf(item);
+    if(!ok || idx < 0 || idx >= targets.size())
+        return false;
+
+    *target = targets[idx];
+    return true;
 }
 
 /**
@@ -252,8 +279,6 @@ QList<UbuntuClickTool::Target> UbuntuClickTool::listAvailableTargets()
             }
         }
 
-        qDebug()<<"Adding target: "<<t;
-
         items.append(t);
     }
 
@@ -317,6 +342,11 @@ UbuntuClickManager::UbuntuClickManager(QObject *parent)
     m_process = new Utils::QtcProcess(this);
     connect(m_process,SIGNAL(readyRead()),this,SLOT(on_processReadyRead()));
     connect(m_process,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(on_processFinished(int,QProcess::ExitStatus)));
+}
+
+UbuntuClickManager::~UbuntuClickManager()
+{
+    cleanup();
 }
 
 void UbuntuClickManager::initialize()
@@ -608,31 +638,13 @@ void UbuntuClickManager::on_buildInChrootAction()
     if(!buildTarget)
         return;
 
-    QList<UbuntuClickTool::Target> targets = UbuntuClickTool::listAvailableTargets();
-    if (!targets.size()) {
-        QMessageBox::warning(Core::ICore::mainWindow()
-                             ,tr(Constants::UBUNTU_CLICK_NOTARGETS_TITLE)
-                             ,tr(Constants::UBUNTU_CLICK_NOTARGETS_MESSAGE));
-        return;
-    }
-
-    QStringList items;
-    foreach(const UbuntuClickTool::Target& t, targets)
-        items << QString::fromLatin1("%0-%1").arg(t.framework).arg(t.architecture);
-
-    bool ok = false;
-    QString item = QInputDialog::getItem(Core::ICore::mainWindow()
-                                         ,tr(Constants::UBUNTU_CLICK_SELECT_TARGET_TITLE)
-                                         ,tr(Constants::UBUNTU_CLICK_SELECT_TARGET_LABEL)
-                                         ,items,0,false,&ok);
-    //get index of item in the targets list
-    int idx = items.indexOf(item);
-    if(!ok || idx < 0 || idx >= targets.size())
+    UbuntuClickTool::Target clickTarget;
+    if(!UbuntuClickTool::getTargetFromUser(&clickTarget))
         return;
 
     Build* b = new Build();
-    b->targetChroot = targets[idx];
-    b->buildTarget = buildTarget;
+    b->targetChroot = clickTarget;
+    b->buildTarget  = buildTarget;
     b->currentState = NotStarted;
 
     m_pendingBuilds.enqueue(b);

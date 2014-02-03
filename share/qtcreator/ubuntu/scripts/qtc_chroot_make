@@ -16,7 +16,7 @@
 # Author: Benjamin Zeller<benjamin.zeller@canonical.com>
 
 
-USAGE="Usage: $0 targetArch targetFramework targetSeries cmakeOptions"
+USAGE="Usage: $0 targetArch targetFramework targetSeries makeOptions"
 
 if [ $# -lt 3 ]; then
 	echo "$USAGE"
@@ -30,7 +30,7 @@ shift
 SERIES=$1
 shift
 
-echo $1 $2 $3
+export QT_SELECT=qt5:$ARCH
 
 /usr/bin/click chroot -a $ARCH -f $FRAMEWORK -s $SERIES run make $@
 

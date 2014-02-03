@@ -1,0 +1,57 @@
+#!/bin/bash
+# Copyright 2014 Canonical Ltd.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; version 2.1.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Author: Benjamin Zeller <benjamin.zeller@canonical.com>
+
+USAGE="Usage: $0 targetArch targetFramework targetSeries projectDir"
+
+if [ $# -lt 3 ]; then
+        echo "$USAGE"
+        exit 1
+fi
+
+ARCH=$1
+shift
+FRAMEWORK=$1
+shift
+SERIES=$1
+shift
+PROJECTDIR=$1
+shift
+
+SCRIPTPATH=$(dirname $0)
+BUILDDIR="${FRAMEWORK}-${ARCH}"
+INSTALLDIR="click_package"
+
+#make sure the project was already built, if not build it
+if [ ! -d ${BUILDDIR} ]
+then
+    mkdir ${BUILDDIR}
+fi
+
+cd ${BUILDDIR}
+
+#make sure the binaries are up to date and installed in our click directory
+set -e
+${SCRIPTPATH}/qtc_chroot_cmake ${ARCH} ${FRAMEWORK} ${SERIES} ${PROJECTDIR}
+${SCRIPTPATH}/qtc_chroot_make ${ARCH} ${FRAMEWORK} ${SERIES}
+${SCRIPTPATH}/qtc_chroot_make ${ARCH} ${FRAMEWORK} ${SERIES} DESTDIR=${INSTALLDIR} install
+set +e
+
+#create the package
+click build ${INSTALLDIR}
+
+#back into working dir
+cd ..

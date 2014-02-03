@@ -159,11 +159,13 @@ const char UBUNTU_INITIAL_EMULATOR_NAME[] = "<emulator>";
 
 const char UBUNTUBZR_INITIALIZE[] ="%0/qtc_bzr_info";
 const char UBUNTUPACKAGINGWIDGET_ONFINISHED_ACTION_CLICK_CREATE[] = "%0/qtc_project_click_create";
+const char UBUNTUPACKAGINGWIDGET_ONFINISHED_ACTION_CLICK_CMAKECREATE[] = "%0/qtc_cmakeproject_click_create";
 const char UBUNTUPACKAGINGWIDGET_OPENMANIFEST[] ="%0/manifest.json";
 const char UBUNTUPACKAGINGWIDGET_APPARMOR[] ="%0/%1.json";
 const char UBUNTUPACKAGINGWIDGET_EXCLUDES[] ="%0/.excludes";
 const char UBUNTUPACKAGINGWIDGET_MENU_REMOVE[] ="Remove";
 const char UBUNTUPACKAGINGWIDGET_BUILDPACKAGE_ID[] ="Ubuntu.Build.Package";
+const char UBUNTUPACKAGINGWIDGET_BUILDCMAKEPACKAGE_ID[] ="Ubuntu.Build.PackageCMake";
 const char UBUNTUPACKAGINGWIDGET_DEFAULT_MANIFEST[] =":/ubuntu/manifest.json.template";
 const char UBUNTUPACKAGINGWIDGET_DEFAULT_MYAPP[] =":/ubuntu/myapp.json.template";
 const char UBUNTUPACKAGINGWIDGET_DEFAULT_NAME[] ="com.ubuntu.developer.%0.%1";
@@ -256,8 +258,11 @@ const char  UBUNTU_MENUJSON_QMLPROJECTREQUIRED[] = "qmlProjectRequired";
 const char  UBUNTU_MENUJSON_QMAKEPROJECTREQUIRED[] = "qmakeProjectRequired";
 const char  UBUNTU_MENUJSON_UBUNTUPROJECTREQUIRED[] = "ubuntuProjectRequired";
 const char  UBUNTU_MENUJSON_UBUNTUHTMLPROJECTREQUIRED[] = "ubuntuHtmlProjectRequired";
+const char  UBUNTU_MENUJSON_CLICKTARGETREQUIRED[] = "needsClickTarget"; //will ask the user to choose a click target
 const char  UBUNTU_MENUJSON_SAVEREQUIRED[] = "saveRequired";
 const char  UBUNTU_MENUJSON_MESSAGEDIALOG[] = "messageDialog";
+const char  UBUNTU_MENUJSON_CONTEXT[] = "context";
+
 
 const char  UBUNTU_MENUJSON_PARENT_TOOLS[] = "Tools";
 const char  UBUNTU_MENUJSON_PARENT_WINDOW[] = "Window";
@@ -301,6 +306,9 @@ const char  UBUNTU_ACTION_DEVICE_USERNAME[] = "%USERNAME%";
 const char  UBUNTU_ACTION_DEVICE_IP[] = "%IP%";
 const char  UBUNTU_ACTION_DEVICE_PORT[] = "%PORT%";
 const char  UBUNTU_ACTION_APP_RUNNER_EXECNAME[] = "%APPRUNNEREXECNAME%";
+const char  UBUNTU_ACTION_CLICK_ARCH[] = "%CLICK_ARCH%";
+const char  UBUNTU_ACTION_CLICK_FRAMEWORK[] = "%CLICK_FRAMEWORK%";
+const char  UBUNTU_ACTION_CLICK_SERIES[] = "%CLICK_SERIES%";
 
 const char  UBUNTU_FILENAME_DISPLAYNAME[] = "displayName";
 const char  UBUNTU_FILENAME_DISPLAYNAME_LOWER[] = "displayName_lower";

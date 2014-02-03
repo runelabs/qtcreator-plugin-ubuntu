@@ -21,6 +21,7 @@
 #include "ubuntuconstants.h"
 #include "ubuntudeviceswidget.h"
 #include "ubuntuproject.h"
+#include "ubuntuclicktool.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -34,6 +35,7 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/compileoutputwindow.h>
 #include <projectexplorer/iprojectmanager.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <utils/qtcprocess.h>
 
 #include <QProcessEnvironment>
@@ -179,6 +181,7 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
         QString actionId;
         QString actionKeySequence;
         QString actionWorkingDirectory;
+        QString context = QLatin1String(Core::Constants::C_GLOBAL);
         bool actionProjectRequired = false;
         bool actionDeviceRequired = false;
         bool actionQmlProjectRequired = false;
@@ -186,6 +189,7 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
         bool actionUbuntuProjectRequired = false;
         bool actionUbuntuHtmlProjectRequired = false;
         bool actionSaveRequired = false;
+        bool clickTargetRequired = false;
 
         if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_NAME))) {
             actionName = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_NAME)).toString();
@@ -217,9 +221,14 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
         if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_UBUNTUHTMLPROJECTREQUIRED))) {
             actionUbuntuHtmlProjectRequired = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_UBUNTUHTMLPROJECTREQUIRED)).toBool();
         }
-
         if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_SAVEREQUIRED))) {
             actionSaveRequired = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_SAVEREQUIRED)).toBool();
+        }
+        if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_CONTEXT))) {
+            context = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_CONTEXT)).toString();
+        }
+        if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_CLICKTARGETREQUIRED))) {
+            clickTargetRequired = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_CLICKTARGETREQUIRED)).toBool();
         }
 
         if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_ACTIONS)) && obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_ACTIONS)).isArray()) {
@@ -239,13 +248,16 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
         QAction *act= new QAction(actionName, this);
         act->setObjectName(actionId);
 
-        Core::Command *cmd = Core::ActionManager::registerAction(act, Core::Id(actionId.toUtf8().constData()), Core::Context(Core::Constants::C_GLOBAL));
+        Core::Command *cmd = Core::ActionManager::registerAction(act, Core::Id(actionId.toUtf8().constData()), Core::Context(context.toUtf8().constData()));
         if (actionKeySequence.isEmpty() == false) {
             cmd->setDefaultKeySequence(QKeySequence(actionKeySequence));
         }
         if (actionWorkingDirectory.isEmpty() == false) {
             act->setProperty(Constants::UBUNTU_MENUJSON_WORKINGDIRECTORY,actionWorkingDirectory);
         }
+
+        //hide if the context does not match creators current context
+        cmd->setAttribute(Core::Command::CA_Hide);
 
         act->setProperty(Constants::UBUNTU_MENUJSON_PROJECTREQUIRED,actionProjectRequired);
         act->setProperty(Constants::UBUNTU_MENUJSON_DEVICEREQUIRED,actionDeviceRequired);
@@ -254,6 +266,7 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
         act->setProperty(Constants::UBUNTU_MENUJSON_UBUNTUPROJECTREQUIRED,actionUbuntuProjectRequired);
         act->setProperty(Constants::UBUNTU_MENUJSON_UBUNTUHTMLPROJECTREQUIRED,actionUbuntuHtmlProjectRequired);
         act->setProperty(Constants::UBUNTU_MENUJSON_SAVEREQUIRED,actionSaveRequired);
+        act->setProperty(Constants::UBUNTU_MENUJSON_CLICKTARGETREQUIRED,clickTargetRequired);
 
         connect(act, SIGNAL(triggered()), this, SLOT(menuItemTriggered()));
         m_actions.append(act);
@@ -403,6 +416,26 @@ void UbuntuMenu::menuItemTriggered() {
                         if (isProperUbuntuHtmlProject(project)) {
                             command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_APP_RUNNER_EXECNAME),
                                                       QLatin1String(Constants::UBUNTUHTML_PROJECT_LAUNCHER_EXE));
+                        }
+
+                        QVariant clickTargetRequired = act->property(Constants::UBUNTU_MENUJSON_CLICKTARGETREQUIRED);
+                        if(clickTargetRequired.isValid() && clickTargetRequired.toBool()) {
+                            UbuntuClickTool::Target clickTarget;
+                            if(!UbuntuClickTool::getTargetFromUser(&clickTarget))
+                                return;
+
+                            command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_CLICK_ARCH),clickTarget.architecture);
+                            command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_CLICK_FRAMEWORK),clickTarget.framework);
+                            command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_CLICK_SERIES),clickTarget.series);
+
+                            //this is a clicktarget, so we change the builddirectory to the current active buildconfig
+                            //directory
+                            ProjectExplorer::Target* qtcTarget = project->activeTarget();
+                            if(!qtcTarget)
+                                return;
+
+                            ProjectExplorer::BuildConfiguration* qtcBuildConfig = qtcTarget->activeBuildConfiguration();
+                            workingDirectory = qtcBuildConfig->buildDirectory();
                         }
                     }
                     

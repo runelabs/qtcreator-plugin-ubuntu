@@ -72,6 +72,8 @@ public:
 
     static void openChrootTerminal (const Target& target);
 
+    static bool getTargetFromUser (Target* target);
+
     static QList<Target> listAvailableTargets ();
     static QPair<int,int> targetVersion (const Target& target);
 
@@ -104,6 +106,7 @@ public:
 
 
     UbuntuClickManager (QObject* parent = 0);
+    virtual ~UbuntuClickManager ( );
     void initialize ();
 
 protected:
