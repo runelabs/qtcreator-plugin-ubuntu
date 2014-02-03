@@ -672,8 +672,8 @@ void UbuntuClickManager::on_processFinished(int exitCode, QProcess::ExitStatus e
 }
 
 void UbuntuClickManager::on_processReadyRead() {
-    QString stderr = QString::fromLatin1(m_process->readAllStandardError());
-    QString stdout = QString::fromLatin1(m_process->readAllStandardOutput());
+    QString stderr = QString::fromLocal8Bit(m_process->readAllStandardError());
+    QString stdout = QString::fromLocal8Bit(m_process->readAllStandardOutput());
     if (!stderr.isEmpty()) {
         printToOutputPane(stderr);
     }

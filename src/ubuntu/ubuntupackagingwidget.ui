@@ -359,13 +359,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="12" column="0">
-                     <widget class="QPushButton" name="pushButtonReviewersTools">
-                      <property name="text">
-                       <string>Validate Click package</string>
-                      </property>
-                     </widget>
-                    </item>
                    </layout>
                   </widget>
                   <widget class="QWidget" name="tabManifest">
@@ -398,6 +391,13 @@
                     </item>
                    </layout>
                   </widget>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pushButtonReviewersTools">
+                  <property name="text">
+                   <string>Validate Click package</string>
+                  </property>
                  </widget>
                 </item>
                </layout>

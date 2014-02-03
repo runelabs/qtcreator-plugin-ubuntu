@@ -24,22 +24,19 @@
                "fileName": "tests/autopilot/run"
            },
            {
-               "fileName": "tests/autopilot/displayName/main/test_main.py"
+               "fileName": "tests/autopilot/displayName/test_main.py"
            },
 		   {
                "fileName": "tests/autopilot/displayName/__init__.py"
-           },
-           {
-               "fileName": "tests/autopilot/displayName/main/__init__.py"
            }
        ]
     },
     {
       "type": "scriptgeneratedproject",
       "folder": "webapp",
-      "displayName": "Webapp",
+      "displayName": "Web App",
       "id": "UbuntuWebApp",
-      "description": "A simple webapp template",
+      "description": "Web App template, for converting a web site into a standalone application. Web Apps are restricted to using available W3C APIs only, unlike HTML5 Apps which have full platform access.",
       "mainFile": "app.desktop",
       "hasTests": false,
       "files": [
@@ -98,9 +95,9 @@
     {
        "type": "ubuntuhtmlproject",
        "folder": "html5-tabs",
-       "displayName": "HTML5 Tabbed Touch UI",
+       "displayName": "HTML5 App",
        "id": "UbuntuAppHTML5Tabs",
-       "description": "A multipage HTML5 UI using the Tabs component",
+       "description": "Template for creating a native HTML5 app Native HTML5 apps have unrestricted access to Platform APIs. This project contains only HTML/CSS and Javascript code. \n\nThe UI is designed for a mobile form-factor and uses the Ubuntu Touch design building blocks.\n\nUnlike the default Qt HTML5 template, there is no C++ code or compilation necessary for this application type",
        "mainFile" : "index.html",
        "files": [
            {
