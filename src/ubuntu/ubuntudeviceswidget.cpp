@@ -60,7 +60,6 @@ UbuntuDevicesWidget::UbuntuDevicesWidget(QWidget *parent) :
     ui->pushButtonSshRemove->hide();
     ui->widgetMovedToSettings->hide();
     
-    ui->pathChooser->setPath(QDir::currentPath());
     ui->nameLineEdit->setInitialText( QLatin1String(Constants::UBUNTU_INITIAL_EMULATOR_NAME));
     slotChanged();
     ui->frameNoDevices->hide();
@@ -78,7 +77,6 @@ UbuntuDevicesWidget::UbuntuDevicesWidget(QWidget *parent) :
     connect(&m_ubuntuProcess,SIGNAL(finished(QString,int)),this,SLOT(onFinished(QString, int)));
     connect(&m_ubuntuProcess,SIGNAL(error(QString)),this,SLOT(onError(QString)));
 
-    connect(ui->pathChooser, SIGNAL(changed(QString)), this, SLOT(slotChanged()));
     connect(ui->nameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotChanged()));
 
     connect(ui->listWidget_EmulatorImages, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(startEmulator(QListWidgetItem*)));
@@ -95,17 +93,15 @@ UbuntuDevicesWidget::~UbuntuDevicesWidget()
 }
 
 bool UbuntuDevicesWidget::validate() {
-    if (!ui->pathChooser->isValid()) {
-        ui->label_EmulatorValidationMessage->setText(QLatin1String(Constants::ERROR_MSG_EMULATOR_PATH));
-        return false;
-    }
     if (!ui->nameLineEdit->isValid()) {
         ui->label_EmulatorValidationMessage->setText(QLatin1String(Constants::ERROR_MSG_EMULATOR_NAME));
         return false;
     }
 
     // Check existence of the directory
-    QString projectDir = ui->pathChooser->path();
+    QString projectDir = QDir::homePath();
+    projectDir += QDir::separator();
+    projectDir += QLatin1String(Constants::DEFAULT_EMULATOR_PATH);
     projectDir += QDir::separator();
     projectDir += ui->nameLineEdit->text();
     const QFileInfo projectDirFile(projectDir);
@@ -483,7 +479,7 @@ void UbuntuDevicesWidget::on_pushButton_CreateNewEmulator_clicked() {
     ui->progressBar_CreateEmulator->show();
     ui->label_EmulatorValidationMessage->setText(QLatin1String(Constants::MSG_EMULATOR_IS_CREATED));
     ui->pushButton_CreateNewEmulator->setEnabled(false);
-    QString projectDir = ui->pathChooser->path();
+    QString projectDir = QDir::homePath();//ui->pathChooser->path();
     projectDir += QDir::separator();
     projectDir += ui->nameLineEdit->text();
     m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(projectDir) << QApplication::applicationDirPath());
