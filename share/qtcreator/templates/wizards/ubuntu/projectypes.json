@@ -163,6 +163,39 @@
            { "fileName": "backend/backend.pro" }
        ]
     },
+    {
+       "type": "cmake",
+       "folder": "backendplustabscmake",
+       "displayName": "QML Extension Library + Tabbed Touch UI +CMake",
+       "id": "UbuntuAppWBackendPlusTabsCMake",
+       "description": "A simple C++ based QtQuick2 Extension Library with\nTabbed UI written in QML.\n\nIncludes also\n - a unit test for C++\n - unit and functional tests for QML\n",
+       "mainFile" : "backend/modules/displayName/backend.h",
+       "projectFile" : "CMakeLists.txt",
+       "files": [
+           { "fileName": "backend/CMakeLists.txt" },
+           { "fileName": "backend/modules/displayName/backend.cpp" },
+           { "fileName": "backend/modules/displayName/mytype.h" },
+           { "fileName": "backend/modules/displayName/mytype.cpp" },
+           { "fileName": "backend/modules/displayName/qmldir" },
+           { "fileName": "backend/tests/unit/tst_mytype.qml" },
+           { "fileName": "app/graphics/toolbarIcon@8.png" },
+           { "fileName": "app/displayName.desktop.in" },
+           { "fileName": "app/displayName.qml" },
+           { "fileName": "app/tests/unit/tst_hellocomponent.qml" },
+           { "fileName": "app/components/CMakeLists.txt" },
+           { "fileName": "app/components/HelloComponent.qml" },
+           { "fileName": "app/ui/CMakeLists.txt" },
+           { "fileName": "app/ui/WorldTabTools.qml" },
+           { "fileName": "app/ui/WorldTab.qml" },
+           { "fileName": "app/ui/HelloTab.qml" },
+           { "fileName": "app/CMakeLists.txt" },
+           { "fileName": "app/tests/autopilot/run" },
+           { "fileName": "app/tests/autopilot/displayName/main/test_main.py" },
+           { "fileName": "app/tests/autopilot/displayName/__init__.py" },
+           { "fileName": "app/tests/autopilot/displayName/main/__init__.py" },
+           { "fileName": "cmake/Click.cmake"}
+       ]
+    },
    {
        "type": "pro",
        "folder": "scope",

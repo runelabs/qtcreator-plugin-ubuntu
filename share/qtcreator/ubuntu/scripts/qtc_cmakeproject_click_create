@@ -80,7 +80,23 @@ ${SCRIPTPATH}/qtc_fix_desktop_comment ${DESKTOPFILE}
 popd
 
 #create the package
-click build ${INSTALLDIR}
+click build ${INSTALLDIR} > /tmp/click.log 2> /tmp/click.err
+
+# lets check the results
+if [[ ${?} -eq 0 ]]; then
+    echo
+    echo "Package has been created to"
+    PACKAGENAME=`cat /tmp/click.log|sed "s/.*\('.*'\).*/\1/" | sed "s/'//g" | sed "s/.\///" | xargs -ICLICKPACKAGE echo $(pwd)/CLICKPACKAGE`
+    echo "$PACKAGENAME"
+else
+    echo
+    echo "There was some failure when creating the package."
+    echo "See /tmp/click.err for details."
+    echo
+
+    cd ..
+    exit 1
+fi
 
 #back into working dir
 cd ..
