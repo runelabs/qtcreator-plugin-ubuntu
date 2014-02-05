@@ -519,28 +519,17 @@ void UbuntuClickManager::nextStep()
     case Cmake:{
         m_currentBuild->currentState = FixMoc;
 
-        QPair<int,int> chrootVersion = UbuntuClickTool::targetVersion(m_currentBuild->targetChroot);
-        if(chrootVersion.first == -1) {
-            printToOutputPane(tr(Constants::UBUNTU_CLICK_NOVERSIONINFO_ERROR)
-                              .arg(m_currentBuild->targetChroot.framework)
-                              .arg(m_currentBuild->targetChroot.architecture));
-            stop();
-            return;
-        }
-
-        if(chrootVersion.first >= 14) { //the fix script needs to run only on targets older than trusty
-            printToOutputPane(tr("Building for Ubuntu Version: %0.%1, skipping Automoc Fix").arg(chrootVersion.first).arg(chrootVersion.second));
-            nextStep();
-            break;
-        }
-
         ProjectExplorer::ProcessParameters params;
 
-        QString arguments = QString::fromLatin1("-c \"%0\"")
-                .arg(QLatin1String(Constants::UBUNTU_CLICK_FIXAUTOMOC_SCRIPT));
+        QString arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_CMAKE_ARGS)
+                .arg(m_currentBuild->targetChroot.architecture)
+                .arg(m_currentBuild->targetChroot.framework)
+                .arg(m_currentBuild->targetChroot.series);
 
         params.setWorkingDirectory(m_currentBuild->buildDir);
-        params.setCommand(QLatin1String("/bin/bash"));
+        params.setCommand(QString::fromLatin1(Constants::UBUNTU_CLICK_FIXAUTOMOC_SCRIPT)
+                          .arg(Constants::UBUNTU_SCRIPTPATH));
+
         params.setArguments(arguments);
         params.setEnvironment(Utils::Environment::systemEnvironment());
 

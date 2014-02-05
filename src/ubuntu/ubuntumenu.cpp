@@ -58,6 +58,14 @@ UbuntuMenu *UbuntuMenu::instance()
     return m_instance;
 }
 
+QAction *UbuntuMenu::menuAction(const Core::Id &id)
+{
+    UbuntuMenu* men = UbuntuMenu::instance();
+    if(men->m_actions.contains(id))
+        return men->m_actions[id];
+    return 0;
+}
+
 UbuntuMenu::UbuntuMenu(QObject *parent) :
     QObject(parent)
 {
@@ -66,6 +74,7 @@ UbuntuMenu::UbuntuMenu(QObject *parent) :
 
     connect(&m_ubuntuProcess,SIGNAL(message(QString)),this,SLOT(onMessage(QString)));
     connect(&m_ubuntuProcess,SIGNAL(finished(QString,int)),this,SLOT(onFinished(QString,int)));
+    connect(&m_ubuntuProcess,SIGNAL(finished(const QProcess*,QString,int)),this,SLOT(onFinished(const QProcess*,QString,int)));
     connect(&m_ubuntuProcess,SIGNAL(started(QString)),this,SLOT(onStarted(QString)));
     connect(&m_ubuntuProcess,SIGNAL(error(QString)),this,SLOT(onError(QString)));
 
@@ -127,6 +136,11 @@ void UbuntuMenu::onError(QString msg) {
 void UbuntuMenu::onFinished(QString cmd, int code) {
     emit finished_action(cmd);
     printToOutputPane(QString::fromLatin1(Constants::UBUNTUMENU_ONFINISHED).arg(cmd).arg(code));
+}
+
+void UbuntuMenu::onFinished(const QProcess *programm, QString cmd, int)
+{
+    emit finished_action(programm,cmd);
 }
 
 QString UbuntuMenu::menuPath(QString fileName) {
@@ -269,7 +283,7 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
         act->setProperty(Constants::UBUNTU_MENUJSON_CLICKTARGETREQUIRED,clickTargetRequired);
 
         connect(act, SIGNAL(triggered()), this, SLOT(menuItemTriggered()));
-        m_actions.append(act);
+        m_actions.insert(cmd->id(),act);
 
         if (parent == NULL) {
             qWarning() << Constants::ERROR_MSG_NO_MENU_DEFINED;
@@ -435,6 +449,9 @@ void UbuntuMenu::menuItemTriggered() {
                                 return;
 
                             ProjectExplorer::BuildConfiguration* qtcBuildConfig = qtcTarget->activeBuildConfiguration();
+                            if(!qtcBuildConfig)
+                                return;
+
                             workingDirectory = qtcBuildConfig->buildDirectory();
                         }
                     }

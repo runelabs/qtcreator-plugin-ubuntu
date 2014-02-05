@@ -37,7 +37,7 @@ protected slots:
     void onFinished(QString cmd, int code);
     void onError(QString msg);
     void onStarted(QString cmd);
-    void onFinishedAction(QString cmd);
+    void onFinishedAction(const QProcess* proc,QString cmd);
 
     void on_pushButtonClosePackageReviewTools_clicked();
     void on_pushButton_addpolicy_clicked();

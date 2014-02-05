@@ -15,7 +15,7 @@
 #
 # Author: Benjamin Zeller <benjamin.zeller@canonical.com>
 
-USAGE="Usage: $0 targetArch targetFramework targetSeries projectDir"
+USAGE="Usage: $0 targetArch targetFramework targetSeries projectDir projectName"
 
 if [ $# -lt 3 ]; then
         echo "$USAGE"
@@ -30,6 +30,10 @@ SERIES=$1
 shift
 PROJECTDIR=$1
 shift
+PROJECTNAME=$1
+shift
+
+echo "Building package for ${PROJECTNAME}"
 
 SCRIPTPATH=$(dirname $0)
 BUILDDIR="${FRAMEWORK}-${ARCH}"
@@ -46,9 +50,34 @@ cd ${BUILDDIR}
 #make sure the binaries are up to date and installed in our click directory
 set -e
 ${SCRIPTPATH}/qtc_chroot_cmake ${ARCH} ${FRAMEWORK} ${SERIES} ${PROJECTDIR}
+${SCRIPTPATH}/qtc_fixmoc ${ARCH} ${FRAMEWORK} ${SERIES}
 ${SCRIPTPATH}/qtc_chroot_make ${ARCH} ${FRAMEWORK} ${SERIES}
+
+#cleanup the install dir
+rm -rf ${INSTALLDIR}
+
+#install the click package tree
 ${SCRIPTPATH}/qtc_chroot_make ${ARCH} ${FRAMEWORK} ${SERIES} DESTDIR=${INSTALLDIR} install
+
+#make sure the manifest file contains our arch
+sed -i 's/"architecture".*,/"architecture": "'${ARCH}'",/g' ${INSTALLDIR}/manifest.json
 set +e
+
+pushd .
+cd ${INSTALLDIR}
+
+DESKTOPFILE=$(${SCRIPTPATH}/qtc_find_desktopfile ${PROJECTNAME})
+if [[ ! $? -eq 0 ]]
+then
+echo " /!\\ no desktop file found /!\\"
+echo "  You will have to create one."
+exit 1
+fi
+
+echo "Found a desktopfile: ${DESKTOPFILE}"
+
+${SCRIPTPATH}/qtc_fix_desktop_comment ${DESKTOPFILE}
+popd
 
 #create the package
 click build ${INSTALLDIR}

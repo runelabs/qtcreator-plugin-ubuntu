@@ -104,7 +104,7 @@
                 "context": "CMakeProject.ProjectContext",
                 "saveRequired": true,
                 "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_cmakeproject_click_create %CLICK_ARCH% %CLICK_FRAMEWORK% %CLICK_SERIES% %PROJECTDIRECTORY%"
+                    "%SCRIPTDIRECTORY%/qtc_cmakeproject_click_create %CLICK_ARCH% %CLICK_FRAMEWORK% %CLICK_SERIES% %PROJECTDIRECTORY% %DISPLAYNAME%"
                 ]
             },
             {

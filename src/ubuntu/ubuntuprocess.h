@@ -48,6 +48,7 @@ signals:
     void message(QString);
     void error(QString);
     void finished(QString,int);
+    void finished(const QProcess*,QString,int);
     void started(QString);
 
 protected slots:

@@ -152,6 +152,7 @@ const char UBUNTU_UBUNTUPROJECT_TYPE[] = "ubuntuproject";
 const char UBUNTU_HTMLPROJECT_TYPE[] = "ubuntuhtmlproject";
 const char UBUNTU_AUTOPILOTPROJECT_TYPE[] = "autopilotproject";
 const char UBUNTU_QMLPROJECT_TYPE[] = "qmlproject";
+const char UBUNTU_CMAKEPROJECT_TYPE[] = "cmake";
 const char UBUNTU_QTPROJECT_TYPE[] = "pro";
 const char UBUNTU_QML_TYPE[] = "qml";
 const char UBUNTU_HAS_TESTS[] = "hasTests";
@@ -426,7 +427,6 @@ const char UBUNTU_CLICK_OPEN_TERMINAL_ERROR[] = "Error when starting terminal";
 const char UBUNTU_CLICK_TARGETS_REGEX[] = "^click-(.*)-([A-Za-z0-9]+)$";
 const char UBUNTU_CLICK_VERSION_REGEX[] = "^DISTRIB_RELEASE=([0-9]+)\\.([0-9]+)$";
 const char UBUNTU_CLICK_SERIES_REGEX[]  = "^DISTRIB_CODENAME=([A-Za-z]+)$";
-const char UBUNTU_CLICK_FIXAUTOMOC_SCRIPT[] = "find . -name AutomocInfo.cmake | xargs sed -i 's;AM_QT_MOC_EXECUTABLE .*;AM_QT_MOC_EXECUTABLE \"/usr/lib/'$(dpkg-architecture -qDEB_BUILD_MULTIARCH)'/qt5/bin/moc\");'";
 
 const char UBUNTU_CLICK_BINARY[]  = "/usr/bin/click";
 const char UBUNTU_SUDO_BINARY[]   = "/usr/bin/pkexec";
@@ -440,6 +440,8 @@ const char UBUNTU_CLICK_CHROOT_MAKE_SCRIPT[]  = "%0/qtc_chroot_make";
 const char UBUNTU_CLICK_CHROOT_MAKE_ARGS[]    = "%0 %1 %2 %4";
 const char UBUNTU_CLICK_CHROOT_MAKE_CLEAN_ARGS[]   = "clean";
 const char UBUNTU_CLICK_CHROOT_MAKE_INSTALL_ARGS[] = "DESTDIR=click_package install";
+const char UBUNTU_CLICK_FIXAUTOMOC_SCRIPT[] = "%0/qtc_fixmoc";
+const char UBUNTU_CLICK_FIXAUTOMOC_ARGS[]   = "%0 %1 %2";
 const char UBUNTU_CLICK_OPEN_TERMINAL[] = "click chroot -a %0 -f %1 -s %2 maint /bin/bash";
 
 const char UBUNTU_CLICK_DELETE_TITLE[] = "Delete click chroot";
