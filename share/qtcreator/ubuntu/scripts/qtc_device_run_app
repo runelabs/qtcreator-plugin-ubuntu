@@ -61,14 +61,39 @@ fi
 SCP="scp -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P${TARGET_DEVICE_PORT}"
 SSH="ssh -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p${TARGET_DEVICE_PORT} ${TARGET_DEVICE}"
 
-
 # get dbus session addrss from the device
 DBUS_SESSION_BUS_ADDRESS=`$SSH "cat ~/.cache/upstart/dbus-session|grep DBUS_SESSION_BUS_ADDRESS"`
 
-COMMAND="export ${DBUS_SESSION_BUS_ADDRESS=}; APP_ID=${APP_ID} ${APP_LAUNCHER} ${TARGET_DEVICE_HOME}/${FOLDERNAME}/${MAIN_QML} --desktop_file_hint=${TARGET_DEVICE_DESKTOP_PATH}/${DESKTOP_FILENAME}"
+#read additional arguments from the desktop file
+echo "Trying to read additional arguments from ${FOLDERNAME}/${DESKTOP_FILENAME}"
+ARGS_FROM_DESKTOP=
+IFS=', ' read -a ARGUMENTS <<< $(cat "${FOLDERNAME}/${DESKTOP_FILENAME}" | grep Exec | cut -d = -f 2)
+LIMIT=${#ARGUMENTS[@]}
+for ((a=1; a <= LIMIT ; a++))  # Double parentheses, and naked "LIMIT"
+do
+  #if we have a relative path, prefix it with the target home path
+  if [[ ${ARGUMENTS[$a]} == "-I" ]]
+  then
+     IMPORT_PATH=${ARGUMENTS[$a+1]}
+     if [[ "${IMPORT_PATH}" != /*  ]]
+     then
+        IMPORT_PATH=$(echo "${IMPORT_PATH}" | sed "s;\./;;" | sed "s;^;${TARGET_DEVICE_HOME}\/${APP_ID}\/${FOLDERNAME}\/;")
+     else
+        echo "Please use only relative paths for imports in the desktop file"
+        exit 1
+     fi
+     ARGS_FROM_DESKTOP="-I ${IMPORT_PATH} ${ARGS_FROM_DESKTOP}"
+  fi
+done
+echo "IMPORT: ${ARGS_FROM_DESKTOP}"
+
+COMMAND="export ${DBUS_SESSION_BUS_ADDRESS=}; APP_ID=${APP_ID} ${APP_LAUNCHER} ${ARGS_FROM_DESKTOP} ${TARGET_DEVICE_HOME}/${APP_ID}/${FOLDERNAME}/${MAIN_QML} --desktop_file_hint=${TARGET_DEVICE_DESKTOP_PATH}/${DESKTOP_FILENAME}"
+echo "Going to execute: ${COMMAND}"
 
 # make a tar package
 tar -cjf ${FOLDERNAME}.tar.bz2 ${FOLDERNAME}
+
+TAR_PACKAGE_NAME=$(basename ${FOLDERNAME}.tar.bz2)
 
 # remove old files
 $SSH rm -f ${TARGET_DEVICE_DESKTOP_PATH}/${DESKTOP_FILENAME}
@@ -76,18 +101,19 @@ $SSH rm -rf ${TARGET_DEVICE_HOME}
 
 # make sure that the device has the target directory
 $SSH mkdir -p ${TARGET_DEVICE_HOME}
+$SSH mkdir -p ${TARGET_DEVICE_HOME}/${APP_ID}
 $SSH mkdir -p ${TARGET_DEVICE_DESKTOP_PATH}
 
 # transfer and extract the tar package to the device
-$SCP ${FOLDERNAME}.tar.bz2 ${TARGET_DEVICE}:${TARGET_DEVICE_HOME}
-$SSH "cd ${TARGET_DEVICE_HOME}; tar -xvf ${FOLDERNAME}.tar.bz2"
+$SCP ${FOLDERNAME}.tar.bz2 ${TARGET_DEVICE}:${TARGET_DEVICE_HOME}/${APP_ID}
+$SSH "cd ${TARGET_DEVICE_HOME}/${APP_ID}; tar -xvf ${TAR_PACKAGE_NAME}"
 
 # install desktop file on the device
-$SSH ln -s ${TARGET_DEVICE_HOME}/${FOLDERNAME}/${DESKTOP_FILENAME} ${TARGET_DEVICE_DESKTOP_PATH}
+$SSH ln -s ${TARGET_DEVICE_HOME}/${APP_ID}/${FOLDERNAME}/${DESKTOP_FILENAME} ${TARGET_DEVICE_DESKTOP_PATH}
 
 # fix the desktopfile Exec path
-$SSH sed -i "s/^Exec=.*//g" ${TARGET_DEVICE_HOME}/${FOLDERNAME}/${DESKTOP_FILENAME}
-$SSH "echo 'Exec=/usr/bin/${COMMAND}' >> ${TARGET_DEVICE_HOME}/${FOLDERNAME}/${DESKTOP_FILENAME}"
+$SSH sed -i "s/^Exec=.*//g" ${TARGET_DEVICE_HOME}/${APP_ID}/${FOLDERNAME}/${DESKTOP_FILENAME}
+$SSH "echo 'Exec=/usr/bin/${COMMAND}' >> ${TARGET_DEVICE_HOME}/${APP_ID}/${FOLDERNAME}/${DESKTOP_FILENAME}"
 
 
 # run the application on the device

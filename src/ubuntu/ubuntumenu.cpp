@@ -438,6 +438,8 @@ void UbuntuMenu::menuItemTriggered() {
                             if(!UbuntuClickTool::getTargetFromUser(&clickTarget))
                                 return;
 
+                            command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_CLICK_PACKAGING_FOLDER)
+                                                      ,QString::fromLatin1(Constants::UBUNTU_CLICK_CLICK_PACKAGE_DIR));
                             command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_CLICK_ARCH),clickTarget.architecture);
                             command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_CLICK_FRAMEWORK),clickTarget.framework);
                             command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_CLICK_SERIES),clickTarget.series);

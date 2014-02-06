@@ -62,7 +62,7 @@
             },
             {
                 "name": "Run CMake Application on Device",
-                "id": "Ubuntu.Build.Run",
+                "id": "Ubuntu.Build.RunCMake",
                 "projectRequired": true,
                 "keysequence": "Ctrl+F12",
                 "deviceRequired": true,
@@ -70,7 +70,7 @@
                 "needsClickTarget" : true,
                 "saveRequired": true,
                 "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_device_run_app %SERIALNUMBER% qmlscene %FOLDERNAME% %DISPLAYNAME%.desktop %DISPLAYNAME%.qml /home/%USERNAME%/dev_tmp /home/%USERNAME%/.local/share/applications %USERNAME%@%IP% %PORT%"
+                    "%SCRIPTDIRECTORY%/qtc_device_run_app %SERIALNUMBER% qmlscene %CLICK_PACKAGING_FOLDER% %DISPLAYNAME%.desktop share/qml/%DISPLAYNAME%/%DISPLAYNAME%.qml /home/%USERNAME%/dev_tmp /home/%USERNAME%/.local/share/applications %USERNAME%@%IP% %PORT%"
                 ]
             },
             {
