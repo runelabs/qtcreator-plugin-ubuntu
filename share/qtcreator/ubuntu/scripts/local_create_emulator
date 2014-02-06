@@ -16,4 +16,4 @@
 # Author: Zoltán Balogh <zoltan.balogh@canonical.com>
 set -e
 EMULATOR_NAME=$1
-pkexec sh -c "ubuntu-emulator create ${EMULATOR_NAME}"
+pkexec sh -c "HOME=$HOME ubuntu-emulator create ${EMULATOR_NAME}"
