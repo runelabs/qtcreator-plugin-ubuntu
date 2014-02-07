@@ -1,0 +1,85 @@
+#!/bin/bash
+# Copyright 2013 Canonical Ltd.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; version 2.1.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Author: David Barth <david.barth@canonical.com>
+
+SCRIPTPATH=`dirname $0`
+PROJECTPATH=$1
+
+if [[ -z ${PROJECTPATH} ]]; then
+  PROJECTPATH=`pwd`
+fi
+
+CORDOVA_PACKAGE="cordova-ubuntu-dev"
+CORDOVA_CACHE=${HOME}/.cache/cordova
+
+download_arch () {
+    ARCH2=$1
+    ARCH3=$2
+
+    ARCH=`apt-config dump | grep "APT::Architecture " | cut -d\" -f2`
+    URI=`apt-get download --print-uris ${CORDOVA_PACKAGE} | grep ^\' | cut -d\' -f2`
+
+    mkdir -p ${CORDOVA_CACHE}/lib/${ARCH3}
+
+    PACKAGE_FILENAME=`apt-get download --print-uris ${CORDOVA_PACKAGE} | grep ^\' | cut -d\  -f2 | sed "s/_${ARCH}.deb$/_${ARCH2}.deb/"`
+
+    (
+        cd /tmp
+        wget `echo $URI | sed "s/_${ARCH}.deb$/_${ARCH2}.deb/"`
+
+        dpkg-deb -x ${PACKAGE_FILENAME} ${CORDOVA_CACHE}/lib/${ARCH3}
+
+        rm -f ${PACKAGE_FILENAME}
+    )
+}
+
+install_arch () {
+    ARCH3=$1
+
+    mv ${CORDOVA_CACHE}/lib/${ARCH3}/click/* ${CORDOVA_CACHE}/lib/${ARCH3}
+
+    for f in `find ${CORDOVA_CACHE}/lib/${ARCH3} | grep .so$`
+    do
+        mv ${f} ${CORDOVA_CACHE}/lib/${ARCH3}
+    done
+
+    cp -Rf ${CORDOVA_CACHE}/lib/${ARCH3}/CordovaUbuntu.?.? ${CORDOVA_CACHE}
+    cp -Rf ${CORDOVA_CACHE}/lib/${ARCH3}/www/* ${CORDOVA_CACHE}/CordovaUbuntu.?.?
+    cp -Rf ${CORDOVA_CACHE}/lib/${ARCH3}/qml/* ${CORDOVA_CACHE}/CordovaUbuntu.?.?
+
+    rm -rf ${CORDOVA_CACHE}/lib/${ARCH3}/click
+    rm -rf ${CORDOVA_CACHE}/lib/${ARCH3}/usr
+    rm -rf ${CORDOVA_CACHE}/lib/${ARCH3}/www
+    rm -rf ${CORDOVA_CACHE}/lib/${ARCH3}/qml
+    rm -rf ${CORDOVA_CACHE}/lib/${ARCH3}/CordovaUbuntu.?.?
+}
+
+
+echo
+echo "Trying to download a pre-built Cordova runtime to accelerate project creation..."
+echo
+
+rm -rf ${CORDOVA_CACHE}
+
+download_arch "i386" "i386-linux-gnu"
+download_arch "amd64" "x86_64-linux-gnu"
+download_arch "armhf" "arm-linux-gnueabihf"
+
+install_arch "i386-linux-gnu"
+install_arch "x86_64-linux-gnu"
+install_arch "arm-linux-gnueabihf"
+
+find ${CORDOVA_CACHE}
