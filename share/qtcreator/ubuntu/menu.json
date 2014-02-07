@@ -61,7 +61,7 @@
                 ]
             },
             {
-                "name": "Run CMake Application on Device",
+                "name": "Run Application on Device",
                 "id": "Ubuntu.Build.RunCMake",
                 "projectRequired": true,
                 "keysequence": "Ctrl+F12",
@@ -110,7 +110,7 @@
                 ]
             },
             {
-                "name": "Create Application Package CMake",
+                "name": "Create Application Package",
                 "id": "Ubuntu.Build.PackageCMake",
                 "workingDirectory": "%0/..",
                 "projectRequired": true,
@@ -135,7 +135,7 @@
                 ]
             },
             {
-                "name": "Install Application on Device CMake",
+                "name": "Install Application on Device",
                 "id": "Ubuntu.Build.PackageInstallCMake",
                 "workingDirectory": "%0/..",
                 "projectRequired": true,
