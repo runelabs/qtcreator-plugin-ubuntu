@@ -14,12 +14,14 @@ set(CMAKE_AUTOMOC ON)
 include(GNUInstallDirs)
 
 # components PATH
-#execute_process(
-#    COMMAND qmake -query QT_INSTALL_QML
-#    OUTPUT_VARIABLE QT_IMPORTS_DIR
-#    OUTPUT_STRIP_TRAILING_WHITESPACE
-#)
-set(QT_IMPORTS_DIR "/usr/lib/arm-linux-gnueabihf/qt5/qml")
+if(NOT QT_IMPORTS_DIR)
+    MESSAGE( STATUS "Query qmake for QT_IMPORTS_DIR" )
+    execute_process(
+        COMMAND qmake -query QT_INSTALL_QML
+        OUTPUT_VARIABLE QT_IMPORTS_DIR
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+endif (NOT QT_IMPORTS_DIR)
 
 option(INSTALL_TESTS "Install the tests on make install" on)
 option(CLICK_MODE "Installs to a contained location" off)
