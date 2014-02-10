@@ -104,6 +104,7 @@ bool UbuntuDevicesWidget::validate() {
     projectDir += QLatin1String(Constants::DEFAULT_EMULATOR_PATH);
     projectDir += QDir::separator();
     projectDir += ui->nameLineEdit->text();
+    qDebug() << projectDir;
     const QFileInfo projectDirFile(projectDir);
     if (!projectDirFile.exists()) { // All happy
         return true;

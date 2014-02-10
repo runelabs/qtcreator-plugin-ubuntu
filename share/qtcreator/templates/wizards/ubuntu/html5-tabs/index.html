@@ -9,9 +9,6 @@
     <!-- Ubuntu UI Style imports - Ambiance theme -->
     <link href="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/css/appTemplate.css" rel="stylesheet" type="text/css" />
 
-    <!-- Use Ubuntu Cordova as our platform access layer -->
-    <script language="javascript" type="text/javascript" src="file:///usr/share/cordova-ubuntu-2.8/www/cordova-2.8.js"></script>
-
     <!-- Ubuntu UI javascript imports - Ambiance theme -->
     <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/fast-buttons.js"></script>
     <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/core.js"></script>
@@ -54,37 +51,32 @@
 
           <div data-role="page" id="world-page">
 
-	    <!-- page stack -->
-            <div data-role="pagestack">
-
-	      <!-- 'main' page -->
-              <div data-role="page" id="world-page-main">
-		<div data-role="shape" style="width: 200px; height: 200px;">
-		  <span style="display: inline-block; width: 100%; height: 100%; text-align: center; vertical-align: middle;" id="mytext">
-		    WorldTab
-		  </span>
-		</div>
-		<div>
-		  Swipe from bottom to up to reveal the toolbar.
-		</div>
+	    <!-- 'main' page -->
+            <div data-role="page" id="world-page-main">
+	      <div data-role="shape" style="width: 200px; height: 200px;">
+		<span style="display: inline-block; width: 100%; height: 100%; text-align: center; vertical-align: middle;" id="mytext">
+		  WorldTab
+		</span>
 	      </div>
-
-	      <!-- pagestack's footer -->
-              <footer data-role="footer">
-		<nav>
-                  <ul>
-                    <li>
-                      <a href="#">
-			<img src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/img/back@18.png" alt="Tap me!" />
-			<span>Tap me!</span>
-                      </a>
-                    </li>
-                  </ul>
-		</nav>
-              </footer>
-
+	      <div>
+		Swipe from bottom to up to reveal the toolbar.
+	      </div>
 	    </div>
-
+	    
+	    <!-- pagestack's footer -->
+            <footer data-role="footer">
+	      <nav>
+                <ul>
+                  <li>
+                    <a href="#">
+		      <img src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/img/back@18.png" alt="Tap me!" />
+		      <span>Tap me!</span>
+                    </a>
+                  </li>
+                </ul>
+	      </nav>
+            </footer>
+	    
           </div>
 	  
       </div>

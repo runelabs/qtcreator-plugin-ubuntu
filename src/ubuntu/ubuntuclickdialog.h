@@ -27,13 +27,14 @@ public:
     ~UbuntuClickDialog ();
 
     void setParameters (ProjectExplorer::ProcessParameters* params);
+    int lastExitCode () const;
 
 public slots:
     void runClick ();
 
-    static void runClickModal (ProjectExplorer::ProcessParameters* params);
-    static void createClickChrootModal ();
-    static void maintainClickModal (const UbuntuClickTool::Target &target, const UbuntuClickTool::MaintainMode &mode);
+    static int runClickModal (ProjectExplorer::ProcessParameters* params);
+    static int createClickChrootModal ();
+    static int maintainClickModal (const UbuntuClickTool::Target &target, const UbuntuClickTool::MaintainMode &mode);
 
     // QDialog interface
     virtual void done(int code);
@@ -48,6 +49,7 @@ protected slots:
 private:
     Utils::QtcProcess *m_process;
     Ui::UbuntuClickDialog *m_ui;
+    int m_exitCode;
 };
 
 } // namespace Internal

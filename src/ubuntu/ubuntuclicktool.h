@@ -26,6 +26,7 @@
 #include <QQueue>
 #include <projectexplorer/processparameters.h>
 #include <utils/qtcprocess.h>
+#include <QDebug>
 
 
 class QDialogButtonBox;
@@ -53,19 +54,25 @@ public:
     };
 
     struct Target {
+        bool    maybeBroken;
+        int     majorVersion;
+        int     minorVersion;
+        QString series;
         QString framework;
         QString architecture;
     };
 
     UbuntuClickTool();
 
-    static void parametersForCreateChroot   (const QString &arch, const QString &series,ProjectExplorer::ProcessParameters* params);
+    static void parametersForCreateChroot   (const Target &target, ProjectExplorer::ProcessParameters* params);
     static void parametersForMaintainChroot (const MaintainMode &mode,const Target& target,ProjectExplorer::ProcessParameters* params);
     static void parametersForCmake        (const Target& target, const QString &buildDir
                                     , const QString &relPathToSource,ProjectExplorer::ProcessParameters* params);
-    static void parametersForMake         (const Target& target, const QString &buildDir,bool doClean, ProjectExplorer::ProcessParameters* params);
+    static void parametersForMake         (const Target& target, const QString &buildDir, const QString &makeArgs, ProjectExplorer::ProcessParameters* params);
 
     static void openChrootTerminal (const Target& target);
+
+    static bool getTargetFromUser (Target* target);
 
     static QList<Target> listAvailableTargets ();
     static QPair<int,int> targetVersion (const Target& target);
@@ -86,6 +93,7 @@ public:
         Cmake,
         FixMoc,
         Make,
+        MakeInstall,
         Finished
     };
 
@@ -98,6 +106,7 @@ public:
 
 
     UbuntuClickManager (QObject* parent = 0);
+    virtual ~UbuntuClickManager ( );
     void initialize ();
 
 protected:
@@ -124,6 +133,8 @@ private:
     Build                  *m_currentBuild;
     QQueue<Build*>          m_pendingBuilds;
 };
+
+QDebug operator<<(QDebug dbg, const UbuntuClickTool::Target& t);
 
 } // namespace Internal
 } // namespace Ubuntu
