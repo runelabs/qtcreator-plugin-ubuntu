@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2013 Canonical Ltd.
+# Copyright 2014 Canonical Ltd.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -14,26 +14,22 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
+# Author: Benjamin Zeller <benjamin.zeller@canonical.com>
 
-. `dirname $0`/functions.inc
+SCRIPTPATH=$(dirname $0)
+DESKTOPFILE=$1
 
-FOLDERNAME=$2
+# lets read the manifest description and set that to desktop comment - fix bug #1223388
+MANIFEST_DESCRIPTION=`${SCRIPTPATH}/manifest_description manifest.json`
 
-set +e
-echo "Lets create the click package for the project."
-${SCRIPTPATH}/qtc_project_click_create ${FOLDERNAME} > /tmp/qtc_click_create.log
+#lets check if there is a Comment
+grep -e "^Comment=.*$" ${DESKTOPFILE}
 
-if [[ $? -eq 0 ]]; then
-	set -e
-	PACKAGENAME=`cat /tmp/qtc_click_create.log|tail -n1`
-	echo "$PACKAGENAME has been created."
+if [ $? -eq 0 ]
+then
+#replace the Comment with description from manifest, if it is empty
+sed -i "s/^Comment=.*/Comment=${MANIFEST_DESCRIPTION}/g" ${DESKTOPFILE}
 else
-	cat /tmp/qtc_click_create.log
-	exit -1
+#add a comment if none is in the desktopfile
+echo -e "Comment=${MANIFEST_DESCRIPTION}\n" >> ${DESKTOPFILE}
 fi
-
-echo "${SCRIPTPATH}/qtc_project_click_deploy"
-${SCRIPTPATH}/qtc_project_click_deploy $1 ${PACKAGENAME} $3 $4 $5 $6
-
-
-

@@ -49,7 +49,7 @@ UbuntuSettingsClickWidget::UbuntuSettingsClickWidget(QWidget *parent) :
     connect(m_updateMapper, SIGNAL(mapped(int)),this, SLOT(on_upgradeClickChroot(int)));
 
     QStringList headers;
-    headers << tr("Framework") << tr("Architecture")<<QLatin1String("")<<QLatin1String("")<<QLatin1String("");
+    headers << tr("Series")<< tr("Framework") << tr("Architecture")<<QLatin1String("")<<QLatin1String("")<<QLatin1String("");
     ui->treeWidgetClickTargets->setHeaderLabels(headers);
     listExistingClickTargets();
 }
@@ -82,42 +82,27 @@ void UbuntuSettingsClickWidget::on_pushButtonCreateClickTarget_clicked()
 
 void UbuntuSettingsClickWidget::on_deleteClickChroot(const int index)
 {
-    QTreeWidgetItem* item = ui->treeWidgetClickTargets->topLevelItem(index);
-    if(!item)
+    if(index < 0 || index > m_availableTargets.size())
         return;
 
-    Internal::UbuntuClickTool::Target t;
-    t.architecture = item->text(1);
-    t.framework    = item->text(0);
+    qDebug()<<"Destroying chroot "<< m_availableTargets.at(index);
 
-    Internal::UbuntuClickDialog::maintainClickModal(t,Internal::UbuntuClickTool::Delete);
+    Internal::UbuntuClickDialog::maintainClickModal(m_availableTargets.at(index),Internal::UbuntuClickTool::Delete);
     listExistingClickTargets();
 }
 
 void UbuntuSettingsClickWidget::on_maintainClickChroot(const int index)
 {
-    QTreeWidgetItem* item = ui->treeWidgetClickTargets->topLevelItem(index);
-    if(!item)
+    if(index < 0 || index > m_availableTargets.size())
         return;
-
-    Internal::UbuntuClickTool::Target t;
-    t.architecture = item->text(1);
-    t.framework    = item->text(0);
-
-    Internal::UbuntuClickTool::openChrootTerminal(t);
+    Internal::UbuntuClickTool::openChrootTerminal(m_availableTargets.at(index));
 }
 
 void UbuntuSettingsClickWidget::on_upgradeClickChroot(const int index)
 {
-    QTreeWidgetItem* item = ui->treeWidgetClickTargets->topLevelItem(index);
-    if(!item)
+    if(index < 0 || index > m_availableTargets.size())
         return;
-
-    Internal::UbuntuClickTool::Target t;
-    t.architecture = item->text(1);
-    t.framework    = item->text(0);
-
-    Internal::UbuntuClickDialog::maintainClickModal(t,Internal::UbuntuClickTool::Upgrade);
+    Internal::UbuntuClickDialog::maintainClickModal(m_availableTargets.at(index),Internal::UbuntuClickTool::Upgrade);
 }
 
 /**
@@ -131,6 +116,7 @@ void UbuntuSettingsClickWidget::listExistingClickTargets()
     ui->treeWidgetClickTargets->clear();
 
     QList<Internal::UbuntuClickTool::Target> items = Internal::UbuntuClickTool::listAvailableTargets();
+    m_availableTargets = items;
 
     QAbstractItemModel* model = ui->treeWidgetClickTargets->model();
 
@@ -139,24 +125,25 @@ void UbuntuSettingsClickWidget::listExistingClickTargets()
         const Internal::UbuntuClickTool::Target& target = items.at(i);
 
         QTreeWidgetItem* chrootItem = new QTreeWidgetItem;
-        chrootItem->setText(0,target.framework);
-        chrootItem->setText(1,target.architecture);
+        chrootItem->setText(0,target.series);
+        chrootItem->setText(1,target.framework);
+        chrootItem->setText(2,target.architecture);
 
         ui->treeWidgetClickTargets->addTopLevelItem(chrootItem);
 
         QPushButton* push = new QPushButton(tr("Update"));
         m_updateMapper->setMapping(push,i);
         connect(push,SIGNAL(clicked()),m_updateMapper,SLOT(map()));
-        ui->treeWidgetClickTargets->setIndexWidget(model->index(i,2), push);
+        ui->treeWidgetClickTargets->setIndexWidget(model->index(i,3), push);
 
         push = new QPushButton(tr("Maintain"));
         m_maintainMapper->setMapping(push,i);
         connect(push,SIGNAL(clicked()),m_maintainMapper,SLOT(map()));
-        ui->treeWidgetClickTargets->setIndexWidget(model->index(i,3), push);
+        ui->treeWidgetClickTargets->setIndexWidget(model->index(i,4), push);
 
         push = new QPushButton(tr("Delete"));
         m_deleteMapper->setMapping(push,i);
         connect(push,SIGNAL(clicked()),m_deleteMapper,SLOT(map()));
-        ui->treeWidgetClickTargets->setIndexWidget(model->index(i,4), push);
+        ui->treeWidgetClickTargets->setIndexWidget(model->index(i,5), push);
     }
 }
