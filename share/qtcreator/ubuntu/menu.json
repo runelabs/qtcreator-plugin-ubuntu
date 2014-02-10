@@ -250,7 +250,7 @@
                 "name": "Download pre-built Cordova runtime",
                 "id": "Ubuntu.Menu.DownloadCordovaRuntime",
                 "actions": [
-                    "%SCRIPTDIRECTORY%/download_prebuilt_cordova_runtime"
+                    "%SCRIPTDIRECTORY%/local_get_cordova_runtime"
                 ]
             },
             {
