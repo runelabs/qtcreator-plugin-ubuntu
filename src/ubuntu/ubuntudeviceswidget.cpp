@@ -104,7 +104,7 @@ bool UbuntuDevicesWidget::validate() {
     projectDir += QLatin1String(Constants::DEFAULT_EMULATOR_PATH);
     projectDir += QDir::separator();
     projectDir += ui->nameLineEdit->text();
-    qDebug() << projectDir;
+    qDebug() << QLatin1String(qgetenv("XDG_DATA_HOME"));
     const QFileInfo projectDirFile(projectDir);
     if (!projectDirFile.exists()) { // All happy
         return true;
@@ -492,8 +492,10 @@ void UbuntuDevicesWidget::on_pushButton_StartEmulator_clicked() {
 
 void UbuntuDevicesWidget::startEmulator(QListWidgetItem * item) {
 
-    QStringList lineData = item->text().trimmed().split(QLatin1String(Constants::SPACE));
+    QStringList lineData = item->text().trimmed().split(QLatin1String(Constants::TAB));
     QString sEmulatorPath = lineData.takeFirst();
+    qDebug() << lineData;
+    qDebug() << sEmulatorPath;
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR));
     m_ubuntuProcess.stop();
     m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(sEmulatorPath) << QApplication::applicationDirPath());

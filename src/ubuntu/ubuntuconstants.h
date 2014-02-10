@@ -31,6 +31,7 @@ const char UNDERLINE[] = "_";
 const char DASH[] = "-";
 const char EMPTY[] = "";
 const char SPACE[] = " ";
+const char TAB[] = "	";
 const char INSTALLED[] = "ii";
 const char ZERO_STR[] = "0";
 const char ONE_STR[] = "1";
