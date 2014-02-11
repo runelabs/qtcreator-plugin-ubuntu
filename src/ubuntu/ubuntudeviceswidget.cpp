@@ -481,8 +481,12 @@ void UbuntuDevicesWidget::on_pushButton_CreateNewEmulator_clicked() {
     ui->progressBar_CreateEmulator->show();
     ui->label_EmulatorValidationMessage->setText(QLatin1String(Constants::MSG_EMULATOR_IS_CREATED));
     ui->pushButton_CreateNewEmulator->setEnabled(false);
-    QString projectDir = ui->nameLineEdit->text();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(projectDir) << QApplication::applicationDirPath());
+    QString strEmulatorName = ui->nameLineEdit->text();
+    QString strEmulatorPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
+    strEmulatorPath += QDir::separator();
+    strEmulatorPath += QLatin1String(Constants::DEFAULT_EMULATOR_PATH);
+    strEmulatorPath += QDir::separator();
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(strEmulatorPath).arg(strEmulatorName) << QApplication::applicationDirPath());
     m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
 
 }
@@ -495,8 +499,6 @@ void UbuntuDevicesWidget::startEmulator(QListWidgetItem * item) {
 
     QStringList lineData = item->text().trimmed().split(QLatin1String(Constants::TAB));
     QString sEmulatorPath = lineData.takeFirst();
-    qDebug() << lineData;
-    qDebug() << sEmulatorPath;
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR));
     m_ubuntuProcess.stop();
     m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(sEmulatorPath) << QApplication::applicationDirPath());

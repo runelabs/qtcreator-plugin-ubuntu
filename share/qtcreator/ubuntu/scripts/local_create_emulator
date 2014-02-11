@@ -15,6 +15,7 @@
 #
 # Author: Zoltán Balogh <zoltan.balogh@canonical.com>
 set -e
-EMULATOR_NAME=$1
+EMULATOR_NAME=$2
+EMULATOR_PATH=$1
 WHOAMI=`whoami`
-pkexec sh -c "HOME=$HOME ubuntu-emulator create ${EMULATOR_NAME};chown ${WHOAMI}:${WHOAMI} $HOME/.local/share/ubuntu-emulator/${EMULATOR_NAME} -R"
+pkexec sh -c "HOME=$HOME ubuntu-emulator create ${EMULATOR_NAME};chown ${WHOAMI}:${WHOAMI} ${EMULATOR_PATH}/${EMULATOR_NAME} -R"
