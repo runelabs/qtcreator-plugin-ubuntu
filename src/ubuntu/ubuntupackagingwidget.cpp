@@ -173,9 +173,9 @@ void UbuntuPackagingWidget::onStarted(QString cmd) {
 
 void UbuntuPackagingWidget::setAvailable(bool available) {
     if (available) {
-        ui->stackedWidget_2->setCurrentWidget(ui->pageAvailable);
+
     } else {
-        ui->stackedWidget_2->setCurrentWidget(ui->pageNotAvailable);
+        //TODO add enable/disable tabs
     }
 }
 
@@ -192,7 +192,6 @@ void UbuntuPackagingWidget::on_pushButtonReviewersTools_clicked() {
     QString clickPackage = QFileDialog::getOpenFileName(this,QString(QLatin1String(Constants::UBUNTU_CLICK_PACKAGE_SELECTOR_TEXT)),QString(QLatin1String("%0/..")).arg(startupProject->projectDirectory()),QLatin1String(Constants::UBUNTU_CLICK_PACKAGE_MASK));
     if (clickPackage.isEmpty()) return;
     m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION).arg(clickPackage));
-    ui->stackedWidget->setCurrentIndex(2);
     m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(clickPackage));
 }
 
@@ -411,8 +410,9 @@ void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {
         action = UbuntuMenu::menuAction(Core::Id(Constants::UBUNTUPACKAGINGWIDGET_BUILDPACKAGE_ID));
     }
 
-    if(action)
+    if(action) {
         action->trigger();
+    }
 }
 
 void UbuntuPackagingWidget::checkClickReviewerTool() {
