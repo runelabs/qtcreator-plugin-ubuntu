@@ -23,6 +23,7 @@
 #include <QWidget>
 #include <QSettings>
 #include <QSignalMapper>
+#include "ubuntuclicktool.h"
 
 namespace Ui {
 class UbuntuSettingsClickWidget;
@@ -53,6 +54,7 @@ private:
     QSignalMapper* m_deleteMapper;
     QSignalMapper* m_updateMapper;
     QSignalMapper* m_maintainMapper;
+    QList<Ubuntu::Internal::UbuntuClickTool::Target> m_availableTargets;
 };
 
 #endif // UBUNTUSETTINGSCLICKWIDGET_H

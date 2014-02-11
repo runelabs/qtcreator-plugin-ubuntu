@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2013 Canonical Ltd.
+# Copyright 2014 Canonical Ltd.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -13,27 +13,25 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
+# Author: Benjamin Zeller<benjamin.zeller@canonical.com>
 
-. `dirname $0`/functions.inc
 
-FOLDERNAME=$2
+USAGE="Usage: $0 targetArch targetFramework targetSeries makeOptions"
 
-set +e
-echo "Lets create the click package for the project."
-${SCRIPTPATH}/qtc_project_click_create ${FOLDERNAME} > /tmp/qtc_click_create.log
-
-if [[ $? -eq 0 ]]; then
-	set -e
-	PACKAGENAME=`cat /tmp/qtc_click_create.log|tail -n1`
-	echo "$PACKAGENAME has been created."
-else
-	cat /tmp/qtc_click_create.log
-	exit -1
+if [ $# -lt 3 ]; then
+	echo "$USAGE"
+	exit 1
 fi
 
-echo "${SCRIPTPATH}/qtc_project_click_deploy"
-${SCRIPTPATH}/qtc_project_click_deploy $1 ${PACKAGENAME} $3 $4 $5 $6
+ARCH=$1
+shift
+FRAMEWORK=$1
+shift
+SERIES=$1
+shift
 
+export QT_SELECT=qt5:$ARCH
+
+/usr/bin/click chroot -a $ARCH -f $FRAMEWORK -s $SERIES run make $@
 
 

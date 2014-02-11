@@ -45,6 +45,11 @@ void UbuntuClickDialog::setParameters(ProjectExplorer::ProcessParameters *params
     m_process->setWorkingDirectory(params->workingDirectory());
 }
 
+int UbuntuClickDialog::lastExitCode() const
+{
+    return m_exitCode;
+}
+
 void UbuntuClickDialog::runClick( )
 {
 #if 0
@@ -56,39 +61,40 @@ void UbuntuClickDialog::runClick( )
     m_process->start();
 }
 
-void UbuntuClickDialog::runClickModal(ProjectExplorer::ProcessParameters *params)
+int UbuntuClickDialog::runClickModal(ProjectExplorer::ProcessParameters *params)
 {
     UbuntuClickDialog dlg;
     dlg.setParameters(params);
     QMetaObject::invokeMethod(&dlg,"runClick",Qt::QueuedConnection);
     dlg.exec();
+
+    return dlg.m_exitCode;
 }
 
-void UbuntuClickDialog::createClickChrootModal()
+int UbuntuClickDialog::createClickChrootModal()
 {
 
-    QPair<QString,QString> chroot = UbuntuCreateNewChrootDialog::getNewChrootParams();
-    //if the user presses cancel the pair is empty
-    if(chroot.first.isEmpty())
-        return;
+    UbuntuClickTool::Target t;
+    if(!UbuntuCreateNewChrootDialog::getNewChrootTarget(&t))
+        return 0;
 
     ProjectExplorer::ProcessParameters params;
-    UbuntuClickTool::parametersForCreateChroot(chroot.first,chroot.second,&params);
-    runClickModal(&params);
+    UbuntuClickTool::parametersForCreateChroot(t,&params);
+    return runClickModal(&params);
 }
 
-void UbuntuClickDialog::maintainClickModal(const UbuntuClickTool::Target &target, const UbuntuClickTool::MaintainMode &mode)
+int UbuntuClickDialog::maintainClickModal(const UbuntuClickTool::Target &target, const UbuntuClickTool::MaintainMode &mode)
 {
     if(mode == UbuntuClickTool::Delete) {
         QString title = tr(Constants::UBUNTU_CLICK_DELETE_TITLE);
         QString text  = tr(Constants::UBUNTU_CLICK_DELETE_MESSAGE);
         if( QMessageBox::question(Core::ICore::mainWindow(),title,text) != QMessageBox::Yes )
-            return;
+            return 0;
     }
 
     ProjectExplorer::ProcessParameters params;
     UbuntuClickTool::parametersForMaintainChroot(mode,target,&params);
-    runClickModal(&params);
+    return runClickModal(&params);
 }
 
 void UbuntuClickDialog::done(int code)
@@ -133,6 +139,8 @@ void UbuntuClickDialog::on_clickFinished(int exitCode)
     } else {
         on_clickReadyReadStandardOutput(tr("---%0---").arg(QLatin1String(Constants::UBUNTU_CLICK_SUCCESS_EXIT_MESSAGE)));
     }
+
+    m_exitCode = exitCode;
 }
 
 void UbuntuClickDialog::on_clickReadyReadStandardOutput(const QString txt)

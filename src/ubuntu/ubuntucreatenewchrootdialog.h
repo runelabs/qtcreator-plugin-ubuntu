@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QPair>
+#include "ubuntuclicktool.h"
 
 namespace Ubuntu {
 namespace Internal {
@@ -19,7 +20,7 @@ public:
     explicit UbuntuCreateNewChrootDialog(QWidget *parent = 0);
     ~UbuntuCreateNewChrootDialog();
 
-    static QPair<QString,QString> getNewChrootParams ();
+    static bool getNewChrootTarget(UbuntuClickTool::Target *target);
 
 private:
     Ui::UbuntuCreateNewChrootDialog *ui;
