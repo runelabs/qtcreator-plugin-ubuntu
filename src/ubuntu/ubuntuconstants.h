@@ -31,6 +31,7 @@ const char UNDERLINE[] = "_";
 const char DASH[] = "-";
 const char EMPTY[] = "";
 const char SPACE[] = " ";
+const char TAB[] = "	";
 const char INSTALLED[] = "ii";
 const char ZERO_STR[] = "0";
 const char ONE_STR[] = "1";
@@ -104,7 +105,8 @@ const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_TIMECLONE[] = "%0/device_time_c
 const char UBUNTUDEVICESWIDGET_ONFINISHED_TIME_CONF_COPIED[] = "..time configuration copied.";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_HASNETWORK[] = "%0/device_hasnetwork";
 
-const char EMULATOR_PACKAGE_NAME[] = "android-emulator";
+const char EMULATOR_PACKAGE_NAME[] = "ubuntu-emulator";
+const char DEFAULT_EMULATOR_PATH[] = "ubuntu-emulator";
 const char REVIEWER_PACKAGE_NAME[] = "click-reviewers-tools";
 
 const char UBUNTUDEVICESWIDGET_LOCAL_EMULATOR_INSTALLED[] = "Checking installed emulator package.";
@@ -114,7 +116,7 @@ const char UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE_SCRIPT[] = "%0/local_ins
 const char UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES_SCRIPT[] = "%0/local_search_images";
 const char UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES[] = "Search configured emulator instances.";
 const char UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR[] = "Creating new emulator instance.";
-const char UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT[] = "%0/local_create_emulator %1";
+const char UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT[] = "%0/local_create_emulator %1 %2";
 const char UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR[] = "Starting the selected emulator.";
 const char UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT[] = "%0/local_start_emulator %1";
 
