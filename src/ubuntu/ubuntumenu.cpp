@@ -246,7 +246,6 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
         }
 
         if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_ACTIONS)) && obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_ACTIONS)).isArray()) {
-
             QJsonValue actions = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_ACTIONS));
             if (actions.isArray()) {
                 QJsonArray actionsArray = actions.toArray();
@@ -255,7 +254,7 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
                     QJsonValue actionItem = actionsArray.at(idx);
                     actionsList.append(actionItem);
                 }
-                m_commandMap.insert(actionName,actionsList);
+                m_commandMap.insert(actionId,actionsList);
             }
         }
 
@@ -332,8 +331,8 @@ void UbuntuMenu::menuItemTriggered() {
             ProjectExplorer::ProjectExplorerPlugin::instance()->saveModifiedFiles();
         }
 
-        if (m_commandMap.contains(act->text())) {
-            QJsonValueList actions = m_commandMap.value(act->text());
+        if (m_commandMap.contains(act->objectName())) {
+            QJsonValueList actions = m_commandMap.value(act->objectName());
 
             QString queryData;
             bool bQueryOk = false;

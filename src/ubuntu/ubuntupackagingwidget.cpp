@@ -410,8 +410,9 @@ void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {
         action = UbuntuMenu::menuAction(Core::Id(Constants::UBUNTUPACKAGINGWIDGET_BUILDPACKAGE_ID));
     }
 
-    if(action)
+    if(action) {
         action->trigger();
+    }
 }
 
 void UbuntuPackagingWidget::checkClickReviewerTool() {
