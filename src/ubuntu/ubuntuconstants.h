@@ -106,7 +106,7 @@ const char UBUNTUDEVICESWIDGET_ONFINISHED_TIME_CONF_COPIED[] = "..time configura
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_HASNETWORK[] = "%0/device_hasnetwork";
 
 const char EMULATOR_PACKAGE_NAME[] = "ubuntu-emulator";
-const char DEFAULT_EMULATOR_PATH[] = ".local/share/ubuntu-emulator";
+const char DEFAULT_EMULATOR_PATH[] = "ubuntu-emulator";
 const char REVIEWER_PACKAGE_NAME[] = "click-reviewers-tools";
 
 const char UBUNTUDEVICESWIDGET_LOCAL_EMULATOR_INSTALLED[] = "Checking installed emulator package.";

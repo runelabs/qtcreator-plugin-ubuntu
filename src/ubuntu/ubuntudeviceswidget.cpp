@@ -26,6 +26,8 @@
 #include <QDebug>
 #include <QSettings>
 #include <QDir>
+#include <QStandardPaths>
+#include <QDesktopServices>
 
 using namespace Ubuntu;
 
@@ -99,12 +101,11 @@ bool UbuntuDevicesWidget::validate() {
     }
 
     // Check existence of the directory
-    QString projectDir = QDir::homePath();
+    QString projectDir = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
     projectDir += QDir::separator();
     projectDir += QLatin1String(Constants::DEFAULT_EMULATOR_PATH);
     projectDir += QDir::separator();
     projectDir += ui->nameLineEdit->text();
-    qDebug() << QLatin1String(qgetenv("XDG_DATA_HOME"));
     const QFileInfo projectDirFile(projectDir);
     if (!projectDirFile.exists()) { // All happy
         return true;
