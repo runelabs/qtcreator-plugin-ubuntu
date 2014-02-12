@@ -113,6 +113,9 @@ void UbuntuProcess::processFinished(int code) {
         emit error(QString::fromLocal8Bit(m_currentProcess.readAllStandardError()));
         m_pendingProcesses.clear();
         setProgressBarCancelled();
+
+        //failing process has to emit finished too
+        emit finished(m_currentProcess.program(), code);
         return;
     }
     QString errorMsg = QString::fromLocal8Bit(m_currentProcess.readAllStandardError());

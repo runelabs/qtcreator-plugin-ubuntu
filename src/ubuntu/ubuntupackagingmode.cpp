@@ -67,6 +67,7 @@ UbuntuPackagingMode::UbuntuPackagingMode(QObject *parent) :
     connect(sessionManager,SIGNAL(projectAdded(ProjectExplorer::Project*)),SLOT(on_projectAdded(ProjectExplorer::Project*)));
     connect(sessionManager,SIGNAL(projectRemoved(ProjectExplorer::Project*)),SLOT(on_projectRemoved(ProjectExplorer::Project*)));
     connect(sessionManager,SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),SLOT(on_projectAdded(ProjectExplorer::Project*)));
+    connect(&m_ubuntuPackagingWidget,SIGNAL(reviewToolsInstalledChanged(bool)),this,SLOT(updateModeState()));
 
     setWidget(m_modeWidget);
     setEnabled(false);
@@ -116,6 +117,7 @@ void UbuntuPackagingMode::updateModeState() {
     bool isQmakeProject = false;
     bool isUbuntuProject = false;
     bool isCMakeProject = false;
+    bool reviewToolsInstalled = m_ubuntuPackagingWidget.reviewToolsInstalled();
 
     if (startupProject) {
         isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMLPROJECT_MIMETYPE));
@@ -124,7 +126,7 @@ void UbuntuPackagingMode::updateModeState() {
         isCMakeProject  = (startupProject->projectManager()->mimeType() == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
     }
 
-    this->setEnabled((sessionManager->projects().count()>0) && (isQmlProject || isUbuntuProject || isCMakeProject));
+    this->setEnabled((isQmlProject || isUbuntuProject || isCMakeProject || reviewToolsInstalled));
     if (this->isEnabled()) {
         m_ubuntuPackagingWidget.openManifestForProject();
         m_ubuntuPackagingWidget.save();

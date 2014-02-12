@@ -195,7 +195,7 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
         QString actionId;
         QString actionKeySequence;
         QString actionWorkingDirectory;
-        QString context = QLatin1String(Core::Constants::C_GLOBAL);
+        QStringList contexts = QStringList()<<QLatin1String(Core::Constants::C_GLOBAL);
         bool actionProjectRequired = false;
         bool actionDeviceRequired = false;
         bool actionQmlProjectRequired = false;
@@ -239,7 +239,22 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
             actionSaveRequired = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_SAVEREQUIRED)).toBool();
         }
         if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_CONTEXT))) {
-            context = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_CONTEXT)).toString();
+            //contexts can contains either a string, or a array of strings
+            QJsonValue v = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_CONTEXT));
+            if(v.isArray()) {
+                QJsonArray jsonContexts = v.toArray();
+
+                QStringList tmp_contexts;
+                for (int i = 0; i < jsonContexts.size(); i++) {
+                    tmp_contexts.append(jsonContexts.at(i).toString());
+                }
+
+                if(!tmp_contexts.isEmpty())
+                    contexts = tmp_contexts;
+
+            } else {
+                contexts = QStringList()<<obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_CONTEXT)).toString();
+            }
         }
         if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_CLICKTARGETREQUIRED))) {
             clickTargetRequired = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_CLICKTARGETREQUIRED)).toBool();
@@ -260,18 +275,6 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
 
         QAction *act= new QAction(actionName, this);
         act->setObjectName(actionId);
-
-        Core::Command *cmd = Core::ActionManager::registerAction(act, Core::Id(actionId.toUtf8().constData()), Core::Context(context.toUtf8().constData()));
-        if (actionKeySequence.isEmpty() == false) {
-            cmd->setDefaultKeySequence(QKeySequence(actionKeySequence));
-        }
-        if (actionWorkingDirectory.isEmpty() == false) {
-            act->setProperty(Constants::UBUNTU_MENUJSON_WORKINGDIRECTORY,actionWorkingDirectory);
-        }
-
-        //hide if the context does not match creators current context
-        cmd->setAttribute(Core::Command::CA_Hide);
-
         act->setProperty(Constants::UBUNTU_MENUJSON_PROJECTREQUIRED,actionProjectRequired);
         act->setProperty(Constants::UBUNTU_MENUJSON_DEVICEREQUIRED,actionDeviceRequired);
         act->setProperty(Constants::UBUNTU_MENUJSON_QMAKEPROJECTREQUIRED,actionQmakeProjectRequired);
@@ -282,12 +285,25 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
         act->setProperty(Constants::UBUNTU_MENUJSON_CLICKTARGETREQUIRED,clickTargetRequired);
 
         connect(act, SIGNAL(triggered()), this, SLOT(menuItemTriggered()));
-        m_actions.insert(cmd->id(),act);
+        m_actions.insert(Core::Id(actionId.toUtf8().constData()),act);
 
-        if (parent == NULL) {
-            qWarning() << Constants::ERROR_MSG_NO_MENU_DEFINED;
-        } else {
-            parent->addAction(cmd,group);
+        foreach(const QString& context,contexts) {
+            Core::Command *cmd = Core::ActionManager::registerAction(act, Core::Id(actionId.toUtf8().constData()), Core::Context(context.toUtf8().constData()));
+            if (actionKeySequence.isEmpty() == false) {
+                cmd->setDefaultKeySequence(QKeySequence(actionKeySequence));
+            }
+            if (actionWorkingDirectory.isEmpty() == false) {
+                act->setProperty(Constants::UBUNTU_MENUJSON_WORKINGDIRECTORY,actionWorkingDirectory);
+            }
+
+            //hide if the context does not match creators current context
+            cmd->setAttribute(Core::Command::CA_Hide);
+
+            if (parent == NULL) {
+                qWarning() << Constants::ERROR_MSG_NO_MENU_DEFINED;
+            } else {
+                parent->addAction(cmd,group);
+            }
         }
     }
 

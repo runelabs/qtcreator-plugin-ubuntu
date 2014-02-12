@@ -127,8 +127,7 @@
                 "workingDirectory": "%0/..",
                 "projectRequired": true,
                 "deviceRequired": true,
-                "ubuntuProjectRequired": true,
-                "context": "QmlProject.ProjectContext",
+                "context": ["QmlProject.ProjectContext","UbuntuProject.ProjectContext"],
                 "saveRequired": true,
                 "actions": [
                     "%SCRIPTDIRECTORY%/qtc_project_click_createanddeploy %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp %USERNAME%"

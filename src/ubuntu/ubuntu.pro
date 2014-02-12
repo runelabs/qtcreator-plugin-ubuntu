@@ -73,7 +73,8 @@ SOURCES += \
     ubuntusettingsclickwidget.cpp \
     ubuntuclicktool.cpp \
     ubuntucreatenewchrootdialog.cpp \
-    ubuntuclickdialog.cpp
+    ubuntuclickdialog.cpp \
+    ubuntuvalidationresultmodel.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -120,5 +121,6 @@ HEADERS += \
     ubuntusettingsclickwidget.h \
     ubuntuclicktool.h \
     ubuntucreatenewchrootdialog.h \
-    ubuntuclickdialog.h
+    ubuntuclickdialog.h \
+    ubuntuvalidationresultmodel.h
 
