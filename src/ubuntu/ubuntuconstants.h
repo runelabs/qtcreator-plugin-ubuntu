@@ -175,7 +175,7 @@ const char UBUNTUPACKAGINGWIDGET_DEFAULT_NAME[] ="com.ubuntu.developer.%0.%1";
 const char UBUNTUPACKAGINGWIDGET_LOCAL_REVIEWER_INSTALLED[] = "Checking installed click reviewer tools package.";
 const char UBUNTUPACKAGINGWIDGET_ONFINISHED_LOCAL_NO_EMULATOR_INSTALLED[] = "The package is not installed.";
 const char UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE[] = "Click Reviewers tools against %0";
-const char UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_LINK_DISPLAYTEXT[] = "<a href=\"%0\">Click Here for more information!</a>";
+const char UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_LINK_DISPLAYTEXT[] = "<a href=\"%0\">%0</a>";
 const char UBUNTU_CLICK_PACKAGE_MASK[] = "*.click";
 const char UBUNTU_CLICK_PACKAGE_SELECTOR_TEXT[] = "Select click package which you want to test";
 
