@@ -259,6 +259,8 @@ void ClickRunChecksParser::parseJsonSection(const QString &sectionName, int offs
     QString sectionData = m_data.mid(offset,length);
     sectionData = sectionData.trimmed();
 
+    if(sectionData.startsWith(QLatin1String("E")))
+
     qDebug()<<"Parsing JSON: "<<sectionData;
     QJsonDocument doc = QJsonDocument::fromJson(sectionData.toUtf8(),&error);
 

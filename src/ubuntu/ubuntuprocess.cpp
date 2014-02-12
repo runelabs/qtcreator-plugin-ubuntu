@@ -124,6 +124,7 @@ void UbuntuProcess::processFinished(int code) {
     if (msg.trimmed().length()>0) emit message(msg);
 
     emit finished(m_currentProcess.program(), code);
+    emit finished(&m_currentProcess,m_currentProcess.program(),code);
     processCmdQueue();
 }
 

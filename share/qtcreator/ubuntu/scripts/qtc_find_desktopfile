@@ -14,26 +14,28 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
+# Author: Benjamin Zeller <benjamin.zeller@canonical.com>
 
-. `dirname $0`/functions.inc
+SCRIPTPATH=$(dirname $0)
 
-FOLDERNAME=$2
+PROJECTNAME=$1
 
-set +e
-echo "Lets create the click package for the project."
-${SCRIPTPATH}/qtc_project_click_create ${FOLDERNAME} > /tmp/qtc_click_create.log
-
-if [[ $? -eq 0 ]]; then
-	set -e
-	PACKAGENAME=`cat /tmp/qtc_click_create.log|tail -n1`
-	echo "$PACKAGENAME has been created."
+DESKTOPFILE_COUNT=`ls *.desktop|wc -l`
+DESKTOPFILE=""
+if [[ ${DESKTOPFILE_COUNT} -eq 1 ]]; then
+    DESKTOPFILE=`ls *.desktop`
+elif [[ ${DESKTOPFILE_COUNT} -eq 0 ]]; then
+    exit 1
 else
-	cat /tmp/qtc_click_create.log
-	exit -1
+    # do we have a desktop file which has the same name as projectname
+    if [[ -f ${PROJECTNAME}.desktop ]]; then
+        # found one lets use it
+        DESKTOPFILE=${PROJECTNAME}.desktop
+    else
+        # it seems that we did not have one, lets use the latest desktop file.
+        DESKTOPFILE=`ls -t *.desktop|head -n1`
+    fi
 fi
 
-echo "${SCRIPTPATH}/qtc_project_click_deploy"
-${SCRIPTPATH}/qtc_project_click_deploy $1 ${PACKAGENAME} $3 $4 $5 $6
-
-
-
+echo "${DESKTOPFILE}"
+exit 0

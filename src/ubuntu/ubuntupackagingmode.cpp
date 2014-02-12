@@ -33,6 +33,8 @@
 #include <QVBoxLayout>
 #include <QScrollArea>
 
+#include <cmakeprojectmanager/cmakeprojectconstants.h>
+
 using namespace Ubuntu::Internal;
 
 UbuntuPackagingMode::UbuntuPackagingMode(QObject *parent) :
@@ -82,14 +84,16 @@ void UbuntuPackagingMode::modeChanged(Core::IMode* currentMode) {
         bool isQmlProject = false;
         bool isQmakeProject = false;
         bool isUbuntuProject = false;
+        bool isCMakeProject = false;
 
         if (startupProject) {
             isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMLPROJECT_MIMETYPE));
             isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMAKE_MIMETYPE));
             isUbuntuProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
+            isCMakeProject  = (startupProject->projectManager()->mimeType() == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
         }
 
-        if (isQmlProject || isUbuntuProject) {
+        if (isQmlProject || isUbuntuProject || isCMakeProject) {
             m_ubuntuPackagingWidget.openManifestForProject();
             m_ubuntuPackagingWidget.setAvailable(true);
         } else {
@@ -111,14 +115,16 @@ void UbuntuPackagingMode::updateModeState() {
     bool isQmlProject = false;
     bool isQmakeProject = false;
     bool isUbuntuProject = false;
+    bool isCMakeProject = false;
 
     if (startupProject) {
         isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMLPROJECT_MIMETYPE));
         isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMAKE_MIMETYPE));
         isUbuntuProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
+        isCMakeProject  = (startupProject->projectManager()->mimeType() == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
     }
 
-    this->setEnabled((sessionManager->projects().count()>0) && (isQmlProject || isUbuntuProject));
+    this->setEnabled((sessionManager->projects().count()>0) && (isQmlProject || isUbuntuProject || isCMakeProject));
     if (this->isEnabled()) {
         m_ubuntuPackagingWidget.openManifestForProject();
         m_ubuntuPackagingWidget.save();
