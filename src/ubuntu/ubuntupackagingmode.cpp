@@ -126,7 +126,7 @@ void UbuntuPackagingMode::updateModeState() {
         isCMakeProject  = (startupProject->projectManager()->mimeType() == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
     }
 
-    this->setEnabled((sessionManager->projects().count()>0) && (isQmlProject || isUbuntuProject || isCMakeProject || reviewToolsInstalled));
+    this->setEnabled((isQmlProject || isUbuntuProject || isCMakeProject || reviewToolsInstalled));
     if (this->isEnabled()) {
         m_ubuntuPackagingWidget.openManifestForProject();
         m_ubuntuPackagingWidget.save();

@@ -50,7 +50,6 @@ protected slots:
     void onNewValidationData();
     void onValidationItemSelected(const QModelIndex &index );
 
-    void on_pushButtonClosePackageReviewTools_clicked();
     void on_pushButton_addpolicy_clicked();
     void on_pushButtonClickPackage_clicked();
     void on_pushButtonReset_clicked();

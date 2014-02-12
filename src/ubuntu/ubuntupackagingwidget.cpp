@@ -57,7 +57,6 @@ UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
     ui->groupBoxValidate->hide();
 
     ui->tabWidget->setCurrentIndex(0);
-    ui->stackedWidget->setCurrentIndex(1);
     ui->listWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 
     m_inputParser = new ClickRunChecksParser(this);
@@ -126,7 +125,6 @@ void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd) 
     }
 
     m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION).arg(sClickPackagePath));
-    ui->stackedWidget->setCurrentIndex(2);
     m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(sClickPackagePath));
 
     disconnect(m_UbuntuMenu_connection);
@@ -157,11 +155,6 @@ void UbuntuPackagingWidget::onValidationItemSelected(const QModelIndex &index)
         ui->labelErrorType->setText(m_validationModel->data(index,UbuntuValidationResultModel::TypeRole).toString());
         ui->plainTextEditDescription->setPlainText(m_validationModel->data(index,UbuntuValidationResultModel::DescriptionRole).toString());
     }
-}
-
-
-void UbuntuPackagingWidget::on_pushButtonClosePackageReviewTools_clicked() {
-    ui->stackedWidget->setCurrentIndex(0);
 }
 
 void UbuntuPackagingWidget::onMessage(QString msg) {
@@ -246,7 +239,11 @@ void UbuntuPackagingWidget::on_pushButtonReviewersTools_clicked() {
     m_ubuntuProcess.stop();
     ProjectExplorer::ProjectExplorerPlugin* projectExplorerInstance = ProjectExplorer::ProjectExplorerPlugin::instance();
     ProjectExplorer::Project* startupProject = projectExplorerInstance->startupProject();
-    QString clickPackage = QFileDialog::getOpenFileName(this,QString(QLatin1String(Constants::UBUNTU_CLICK_PACKAGE_SELECTOR_TEXT)),QString(QLatin1String("%0/..")).arg(startupProject->projectDirectory()),QLatin1String(Constants::UBUNTU_CLICK_PACKAGE_MASK));
+
+    QString directory = QDir::homePath();
+    if(startupProject) directory = startupProject->projectDirectory();
+
+    QString clickPackage = QFileDialog::getOpenFileName(this,QString(QLatin1String(Constants::UBUNTU_CLICK_PACKAGE_SELECTOR_TEXT)),QString(QLatin1String("%0/..")).arg(directory),QLatin1String(Constants::UBUNTU_CLICK_PACKAGE_MASK));
     if (clickPackage.isEmpty()) return;
     m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION).arg(clickPackage));
     m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(clickPackage));
@@ -289,11 +286,8 @@ void UbuntuPackagingWidget::openManifestForProject() {
         }
 
         load_excludes(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_EXCLUDES)).arg(startupProject->projectDirectory()));
-
-        ui->stackedWidget->setCurrentIndex(0);
     } else {
         m_projectName.clear();
-        ui->stackedWidget->setCurrentIndex(1);
     }
 }
 
