@@ -289,6 +289,13 @@
                 ]
             },
             {
+                "name": "Download pre-built Cordova runtime",
+                "id": "Ubuntu.Menu.DownloadCordovaRuntime",
+                "actions": [
+                    "%SCRIPTDIRECTORY%/local_get_cordova_runtime"
+                ]
+            },
+            {
                 "name": "GPG",
                 "id": "Ubuntu.Menu.gpg",
                 "submenu": [
