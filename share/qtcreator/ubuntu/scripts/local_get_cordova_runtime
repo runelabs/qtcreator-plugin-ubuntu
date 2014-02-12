@@ -22,7 +22,8 @@ if [[ -z ${PROJECTPATH} ]]; then
   PROJECTPATH=`pwd`
 fi
 
-CORDOVA_PACKAGE="cordova-ubuntu-dev"
+CORDOVA_PACKAGE="cordova-ubuntu-3.4-dev"
+PAYLOAD_DIR="/usr/share/cordova-ubuntu-3.4/"
 CORDOVA_CACHE=${HOME}/.cache/cordova
 
 download_arch () {
@@ -49,7 +50,7 @@ download_arch () {
 install_arch () {
     ARCH3=$1
 
-    mv ${CORDOVA_CACHE}/lib/${ARCH3}/click/* ${CORDOVA_CACHE}/lib/${ARCH3}
+    mv ${CORDOVA_CACHE}/lib/${ARCH3}/${PAYLOAD_DIR}/* ${CORDOVA_CACHE}/lib/${ARCH3}
 
     for f in `find ${CORDOVA_CACHE}/lib/${ARCH3} | grep .so$`
     do
@@ -60,7 +61,7 @@ install_arch () {
     cp -Rf ${CORDOVA_CACHE}/lib/${ARCH3}/www/* ${CORDOVA_CACHE}/CordovaUbuntu.?.?
     cp -Rf ${CORDOVA_CACHE}/lib/${ARCH3}/qml/* ${CORDOVA_CACHE}/CordovaUbuntu.?.?
 
-    rm -rf ${CORDOVA_CACHE}/lib/${ARCH3}/click
+    rm -rf ${CORDOVA_CACHE}/lib/${ARCH3}/${PAYLOAD_DIR}
     rm -rf ${CORDOVA_CACHE}/lib/${ARCH3}/usr
     rm -rf ${CORDOVA_CACHE}/lib/${ARCH3}/www
     rm -rf ${CORDOVA_CACHE}/lib/${ARCH3}/qml
