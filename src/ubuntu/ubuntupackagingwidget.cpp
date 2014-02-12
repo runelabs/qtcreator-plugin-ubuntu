@@ -38,6 +38,7 @@ using namespace Ubuntu;
 #include <QMessageBox>
 #include <QScriptEngine>
 #include <QRegularExpression>
+#include "ubuntuvalidationresultmodel.h"
 
 using namespace Ubuntu::Internal;
 
@@ -46,12 +47,21 @@ UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
     ui(new Ui::UbuntuPackagingWidget)
 {
     m_previous_tab = 0;
+
     ui->setupUi(this);
     ui->pushButtonReviewersTools->hide();
 
     ui->tabWidget->setCurrentIndex(0);
     ui->stackedWidget->setCurrentIndex(1);
     ui->listWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    m_inputParser = new ClickRunChecksParser(this);
+    m_validationModel = new UbuntuValidationResultModel(this);
+
+    connect(m_inputParser,&ClickRunChecksParser::parsedNewTopLevelItem
+            ,m_validationModel,&UbuntuValidationResultModel::appendItem);
+
+    ui->treeViewValidate->setModel(m_validationModel);
 
     connect(&m_bzr,SIGNAL(initializedChanged()),SLOT(bzrChanged()));
     connect(&m_manifest,SIGNAL(loaded()),SLOT(reload()));
@@ -93,13 +103,12 @@ void UbuntuPackagingWidget::on_pushButtonClosePackageReviewTools_clicked() {
 
 void UbuntuPackagingWidget::onMessage(QString msg) {
     m_reply.append(msg);
-
-    ui->plainTextEditPackageReview->appendPlainText(msg);
+    m_inputParser->addRecievedData(msg);
 }
 
 void UbuntuPackagingWidget::onFinished(QString cmd, int code) {
     Q_UNUSED(code);
-    ui->plainTextEditPackageReview->appendPlainText(QLatin1String("*** DONE ***"));
+    m_inputParser->endRecieveData();
     if (cmd == QString::fromLatin1(Constants::UBUNTUWIDGETS_ONFINISHED_SCRIPT_LOCAL_PACKAGE_INSTALLED).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
         QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
         QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY), QLatin1String(Constants::SETTINGS_PRODUCT));
@@ -132,12 +141,15 @@ void UbuntuPackagingWidget::onFinished(QString cmd, int code) {
 }
 
 void UbuntuPackagingWidget::onError(QString msg) {
-    ui->plainTextEditPackageReview->appendPlainText(msg);
+    if(msg.isEmpty())
+        return;
+
+    m_inputParser->emitTextItem(msg,ClickRunChecksParser::Error);
 }
 
 void UbuntuPackagingWidget::onStarted(QString cmd) {
-    ui->plainTextEditPackageReview->clear();
-    ui->plainTextEditPackageReview->appendPlainText(cmd);
+    m_validationModel->clear();
+    m_inputParser->emitTextItem(cmd,ClickRunChecksParser::NoIcon);
 }
 
 
@@ -380,4 +392,3 @@ void UbuntuPackagingWidget::checkClickReviewerTool() {
     m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUWIDGETS_LOCAL_PACKAGE_INSTALLED_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(sReviewerPackageName) << QApplication::applicationDirPath());
     m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_LOCAL_REVIEWER_INSTALLED));
 }
-

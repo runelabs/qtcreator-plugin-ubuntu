@@ -311,7 +311,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPlainTextEdit" name="plainTextEditPackageReview"/>
+           <widget class="QTreeView" name="treeViewValidate"/>
           </item>
          </layout>
         </widget>

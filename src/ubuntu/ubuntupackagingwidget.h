@@ -3,12 +3,20 @@
 
 #include <QWidget>
 #include <QProcess>
+#include <QAbstractListModel>
 #include "ubuntubzr.h"
 #include "ubuntuclickmanifest.h"
 #include "ubuntuprocess.h"
 
 namespace Ui {
 class UbuntuPackagingWidget;
+}
+
+namespace Ubuntu{
+namespace Internal{
+class UbuntuValidationResultModel;
+class ClickRunChecksParser;
+}
 }
 
 using namespace Ubuntu::Internal;
@@ -66,6 +74,7 @@ private:
     QString m_reviewesToolsLocation;
     UbuntuProcess m_ubuntuProcess;
     Ui::UbuntuPackagingWidget *ui;
+    UbuntuValidationResultModel *m_validationModel;
+    ClickRunChecksParser* m_inputParser;
 };
-
 #endif // UBUNTUPACKAGINGWIDGET_H
