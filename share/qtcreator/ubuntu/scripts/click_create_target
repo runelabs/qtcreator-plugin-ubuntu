@@ -46,7 +46,7 @@ if [ $? -eq 0 ]
 then
     echo "The click target was created successfully, installing required packages"
 
-    click chroot -a $ARCHITECTURE -f $FRAMEWORK -s $SERIES maint apt-get install cmake
+    click chroot -a $ARCHITECTURE -f $FRAMEWORK -s $SERIES maint apt-get install -y cmake
 
     exit 0
 fi
