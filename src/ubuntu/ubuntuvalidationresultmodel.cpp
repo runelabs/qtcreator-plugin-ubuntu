@@ -23,6 +23,8 @@ UbuntuValidationResultModel::UbuntuValidationResultModel(QObject *parent)
     m_rootItem->type = QLatin1String("RootItem");
     QHash<int,QByteArray> roleNames;
     roleNames[TypeRole] = "TypeRole";
+    roleNames[LinkRole] = "LinkRole";
+    roleNames[DescriptionRole] = "DescriptionRole";
 
     setRoleNames(roleNames);
 }
@@ -117,7 +119,6 @@ QVariant UbuntuValidationResultModel::data(const QModelIndex &index, int role) c
         break;
     }
     case LinkRole: {
-        return QUrl::fromUserInput(QLatin1String("http://google.com"));
         return item->link;
         break;
     }
@@ -294,8 +295,6 @@ bool ClickRunChecksParser::tryParseNextSection(bool dataComplete)
     type.remove(QLatin1String("="));
     type = type.trimmed();
 
-    qDebug()<<"Found section type: "<<type;
-
     if(type == QLatin1String("click-check-lint")
             || type == QLatin1String("click-check-desktop")
             || type == QLatin1String("click-check-security")
@@ -331,7 +330,6 @@ void ClickRunChecksParser::parseJsonSection(const QString &sectionName, int offs
         return;
     }
 
-    qDebug()<<"Parsing JSON: "<<sectionData;
     QJsonDocument doc = QJsonDocument::fromJson(sectionData.toUtf8(),&error);
 
     if(error.error != QJsonParseError::NoError) {
@@ -435,7 +433,6 @@ void ClickRunChecksParser::parseJsonSection(const QString &sectionName, int offs
  */
 void ClickRunChecksParser::emitParseErrorItem(const QString &text)
 {
-    qDebug()<<"Appending error "<<text;
     DataItem *elem = new DataItem();
     elem->icon = Error;
     elem->type = QLatin1String("Error");
@@ -450,7 +447,6 @@ void ClickRunChecksParser::emitParseErrorItem(const QString &text)
  */
 void ClickRunChecksParser::emitTextItem(const QString& type,const QString &text, const ItemIcon icon)
 {
-    qDebug()<<"Appending text "<<text;
     DataItem *elem = new DataItem();
     elem->icon = icon;
     elem->type = type;

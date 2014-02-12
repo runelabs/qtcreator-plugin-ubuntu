@@ -135,8 +135,6 @@ void UbuntuPackagingWidget::onNewValidationData()
     if(!ui->treeViewValidate->selectionModel()->hasSelection()) {
         QModelIndex index = m_validationModel->findFirstErrorItem();
 
-        qDebug()<<index;
-
         ui->treeViewValidate->setCurrentIndex(index);
     }
 }
