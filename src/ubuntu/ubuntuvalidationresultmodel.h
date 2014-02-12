@@ -38,7 +38,7 @@ public:
     void addRecievedData (const QString& data);
     void endRecieveData  (const QString& data = QString());
 
-    void emitTextItem (const QString &text, const ItemIcon icon = NoIcon);
+    void emitTextItem (const QString &type, const QString &text, const ItemIcon icon = NoIcon);
 protected:
     bool tryParseNextSection ( bool dataComplete = false);
     void emitParseErrorItem  (const QString &text);

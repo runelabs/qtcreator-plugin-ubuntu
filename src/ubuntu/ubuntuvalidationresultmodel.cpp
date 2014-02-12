@@ -101,7 +101,7 @@ QVariant UbuntuValidationResultModel::data(const QModelIndex &index, int role) c
     switch(role) {
     case Qt::DisplayRole:
     case Qt::EditRole: {
-        QString text = (item->type+QString::fromLatin1(": ")+item->text);
+        QString text = (item->type+QString::fromLatin1("\n")+item->text);
         return text;
         break;
     }
@@ -264,7 +264,7 @@ void ClickRunChecksParser::parseJsonSection(const QString &sectionName, int offs
         QString errLine = lines.size() > 0 ? lines[0] : sectionData;
 
         errLine.remove(QLatin1String("ERROR:"));
-        emitTextItem(sectionName+QLatin1String(": ")+errLine,Error);
+        emitTextItem(sectionName,errLine,Error);
         return;
     }
 
@@ -372,12 +372,12 @@ void ClickRunChecksParser::emitParseErrorItem(const QString &text)
     emit parsedNewTopLevelItem(elem);
 }
 
-void ClickRunChecksParser::emitTextItem(const QString &text, const ItemIcon icon)
+void ClickRunChecksParser::emitTextItem(const QString& type,const QString &text, const ItemIcon icon)
 {
     qDebug()<<"Appending text "<<text;
     DataItem *elem = new DataItem();
     elem->icon = icon;
-    elem->type = QLatin1String("Text");
+    elem->type = type;
     elem->text = text;
 
     emit parsedNewTopLevelItem(elem);

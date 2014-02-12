@@ -325,7 +325,7 @@ const char  UBUNTU_MODE_WELCOME_ICON[] = ":/ubuntu/images/ubuntu-qtcreator.png";
 const int   UBUNTU_MODE_WELCOME_PRIORITY = 1;
 
 const char  UBUNTU_MODE_PACKAGING[] = "UbuntuPackaging";
-const char  UBUNTU_MODE_PACKAGING_DISPLAYNAME[] = "Packaging";
+const char  UBUNTU_MODE_PACKAGING_DISPLAYNAME[] = "Publish";
 const char  UBUNTU_MODE_PACKAGING_ICON[] = ":/ubuntu/images/packaging.png";
 const int   UBUNTU_MODE_PACKAGING_PRIORITY = 80;
 

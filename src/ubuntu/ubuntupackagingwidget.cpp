@@ -53,7 +53,8 @@ UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
     m_previous_tab = 0;
 
     ui->setupUi(this);
-    ui->pushButtonReviewersTools->hide();
+    ui->groupBoxPackaging->hide();
+    ui->groupBoxValidate->hide();
 
     ui->tabWidget->setCurrentIndex(0);
     ui->stackedWidget->setCurrentIndex(1);
@@ -76,6 +77,8 @@ UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
     connect(&m_ubuntuProcess,SIGNAL(error(QString)),this,SLOT(onError(QString)));
 
     m_bzr.initialize();
+
+    m_reviewToolsInstalled = false;
     checkClickReviewerTool();
 }
 
@@ -140,6 +143,7 @@ void UbuntuPackagingWidget::onFinished(QString cmd, int code) {
     Q_UNUSED(code);
     m_inputParser->endRecieveData();
     if (cmd == QString::fromLatin1(Constants::UBUNTUWIDGETS_ONFINISHED_SCRIPT_LOCAL_PACKAGE_INSTALLED).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
+        m_validationModel->clear();
         QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
         QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY), QLatin1String(Constants::SETTINGS_PRODUCT));
         settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_CLICK));
@@ -150,9 +154,12 @@ void UbuntuPackagingWidget::onFinished(QString cmd, int code) {
             }
             if (line.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_LOCAL_NO_EMULATOR_INSTALLED))) {
                 // There is no click reviewer tool installed
-                ui->pushButtonReviewersTools->hide();
+                m_reviewToolsInstalled = false;
+                ui->groupBoxValidate->hide();
                 settings.setValue(QLatin1String(Constants::SETTINGS_KEY_CLICK_REVIEWERSTOOLS_LOCATION), QLatin1String(Constants::EMPTY));
                 settings.setValue(QLatin1String(Constants::SETTINGS_KEY_CLICK_REVIEWERSTOOLS), Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS);
+
+                emit reviewToolsInstalledChanged(m_reviewToolsInstalled);
             } else {
                 QStringList lineData = line.split(QLatin1String(Constants::SPACE));
                 QString sReviewerToolPackageStatus = lineData.takeFirst();
@@ -160,9 +167,12 @@ void UbuntuPackagingWidget::onFinished(QString cmd, int code) {
                 QString sReviewerToolPackageVersion = lineData.takeFirst();
                 if (sReviewerToolPackageStatus.startsWith(QLatin1String(Constants::INSTALLED))) {
                     // There is click reviewer tool installed
-                    ui->pushButtonReviewersTools->show();
+                    ui->groupBoxValidate->show();
+                    m_reviewToolsInstalled = true;
                     settings.setValue(QLatin1String(Constants::SETTINGS_KEY_CLICK_REVIEWERSTOOLS_LOCATION), QLatin1String(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION));
                     settings.setValue(QLatin1String(Constants::SETTINGS_KEY_CLICK_REVIEWERSTOOLS), Constants::SETTINGS_CLICK_REVIEWERSTOOLS_TRUE);
+
+                    emit reviewToolsInstalledChanged(m_reviewToolsInstalled);
                 }
             }
         }
@@ -174,20 +184,20 @@ void UbuntuPackagingWidget::onError(QString msg) {
     if(msg.isEmpty())
         return;
 
-    m_inputParser->emitTextItem(msg,ClickRunChecksParser::Error);
+    m_inputParser->emitTextItem(QLatin1String("Error"),msg,ClickRunChecksParser::Error);
 }
 
 void UbuntuPackagingWidget::onStarted(QString cmd) {
     m_validationModel->clear();
-    m_inputParser->emitTextItem(cmd,ClickRunChecksParser::NoIcon);
+    m_inputParser->emitTextItem(QLatin1String("Start Command"),cmd,ClickRunChecksParser::NoIcon);
 }
 
 
 void UbuntuPackagingWidget::setAvailable(bool available) {
     if (available) {
-
+        ui->groupBoxPackaging->setVisible(true);
     } else {
-        //TODO add enable/disable tabs
+        ui->groupBoxPackaging->setVisible(false);
     }
 }
 
@@ -195,6 +205,11 @@ UbuntuPackagingWidget::~UbuntuPackagingWidget()
 {
     autoSave();
     delete ui;
+}
+
+bool UbuntuPackagingWidget::reviewToolsInstalled()
+{
+    return m_reviewToolsInstalled;
 }
 
 void UbuntuPackagingWidget::on_pushButtonReviewersTools_clicked() {

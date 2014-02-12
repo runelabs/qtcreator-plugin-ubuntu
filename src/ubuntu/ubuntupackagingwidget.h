@@ -29,6 +29,7 @@ public:
     explicit UbuntuPackagingWidget(QWidget *parent = 0);
     ~UbuntuPackagingWidget();
 
+    bool reviewToolsInstalled ();
 public slots:
     void autoSave();
     void reload();
@@ -61,7 +62,12 @@ protected slots:
     void bzrChanged();
 
     void checkClickReviewerTool();
+
+signals:
+    void reviewToolsInstalledChanged(const bool& installed);
+
 private:
+    bool m_reviewToolsInstalled;
     UbuntuClickManifest m_manifest;
     UbuntuClickManifest m_apparmor;
     QMetaObject::Connection m_UbuntuMenu_connection;

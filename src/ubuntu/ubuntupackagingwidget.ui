@@ -68,7 +68,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Ubuntu Packaging</string>
+        <string>Ubuntu Publish</string>
        </property>
       </widget>
      </item>
@@ -123,7 +123,7 @@
      <widget class="QWidget" name="page_package">
       <layout class="QHBoxLayout" name="horizontalLayout_8">
        <item>
-        <widget class="QGroupBox" name="groupBox_5">
+        <widget class="QGroupBox" name="groupBoxPackaging">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -298,7 +298,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_7">
+        <widget class="QGroupBox" name="groupBoxValidate">
          <property name="title">
           <string>Validation</string>
          </property>
