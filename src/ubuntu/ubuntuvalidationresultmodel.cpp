@@ -11,7 +11,10 @@
 
 namespace Ubuntu {
 namespace Internal {
-
+/*!
+ * \class UbuntuValidationResultModel
+ * Implements a model to show the output of the click-run-checks parser
+ */
 UbuntuValidationResultModel::UbuntuValidationResultModel(QObject *parent)
     : QAbstractItemModel(parent)
     , m_rootItem(new ClickRunChecksParser::DataItem())
@@ -101,12 +104,21 @@ QVariant UbuntuValidationResultModel::data(const QModelIndex &index, int role) c
     switch(role) {
     case Qt::DisplayRole:
     case Qt::EditRole: {
-        QString text = (item->type+QString::fromLatin1("\n")+item->text);
+        QString text = item->type;
         return text;
         break;
     }
     case TypeRole: {
         return item->type;
+        break;
+    }
+    case DescriptionRole: {
+        return item->text;
+        break;
+    }
+    case LinkRole: {
+        return QUrl::fromUserInput(QLatin1String("http://google.com"));
+        return item->link;
         break;
     }
     case Qt::DecorationRole:
@@ -129,6 +141,29 @@ QVariant UbuntuValidationResultModel::data(const QModelIndex &index, int role) c
 Qt::ItemFlags UbuntuValidationResultModel::flags(const QModelIndex &index) const
 {
     return QAbstractItemModel::flags(index);
+}
+
+QModelIndex UbuntuValidationResultModel::findFirstErrorItem() const
+{
+    int parentRow = 0;
+    foreach(const ClickRunChecksParser::DataItem* parentItem, m_rootItem->children) {
+        int innerRow = 0;
+        bool found = false;
+        foreach(const ClickRunChecksParser::DataItem* item, parentItem->children) {
+            if(item->icon == ClickRunChecksParser::Error || item->icon == ClickRunChecksParser::Warning) {
+                found = true;
+                break;
+            }
+            innerRow++;
+        }
+
+        if(found) {
+            QModelIndex idx = index(innerRow,0,index(parentRow,0,QModelIndex()));
+            return idx;
+        }
+        parentRow++;
+    }
+    return QModelIndex();
 }
 
 void UbuntuValidationResultModel::appendItem(ClickRunChecksParser::DataItem *item)
@@ -165,6 +200,12 @@ ClickRunChecksParser::DataItem::~DataItem()
 }
 
 
+/*!
+ * \class ClickRunChecksParser
+ * Implements a incremental parser for the click-run-checks output
+ * As soon as a complete section is available (marked by start of
+ * a new one) the section is parsed and a new item is emitted
+ */
 ClickRunChecksParser::ClickRunChecksParser(QObject *parent)
     : QObject(parent)
     , m_nextSectionOffset(0)
@@ -174,6 +215,10 @@ ClickRunChecksParser::ClickRunChecksParser(QObject *parent)
 
 }
 
+/*!
+ * \brief ClickRunChecksParser::beginRecieveData
+ * Clear alls internal data and starts a completely new parse
+ */
 void ClickRunChecksParser::beginRecieveData(const QString &data)
 {
     m_data.clear();
@@ -184,6 +229,13 @@ void ClickRunChecksParser::beginRecieveData(const QString &data)
     while(canContinue) canContinue=tryParseNextSection();
 }
 
+/*!
+ * \brief ClickRunChecksParser::addRecievedData
+ * Appends new \a data to the internal buffer and tries to read
+ * as far as possible and emit new items, the parser always requires
+ * to find a new section start before considering the current section
+ * to be available completely
+ */
 void ClickRunChecksParser::addRecievedData(const QString &data)
 {
     m_data.append(data);
@@ -192,6 +244,11 @@ void ClickRunChecksParser::addRecievedData(const QString &data)
     while(canContinue) canContinue=tryParseNextSection();
 }
 
+/*!
+ * \brief ClickRunChecksParser::endRecieveData
+ * Tells the parser every data is available now and it should just
+ * parse until the end of the internal buffer
+ */
 void ClickRunChecksParser::endRecieveData(const QString &data)
 {
     m_data.append(data);
@@ -200,11 +257,11 @@ void ClickRunChecksParser::endRecieveData(const QString &data)
     while(canContinue) canContinue=tryParseNextSection(true);
 }
 
-/**
- * @brief UbuntuValidationResultModel::tryParseNextSection
+/*!
+ * \brief UbuntuValidationResultModel::tryParseNextSection
  * Tries to parse the next output section from the dataString
  *
- * @return false if there is no next section
+ * \return false if there is no next section
  */
 bool ClickRunChecksParser::tryParseNextSection(bool dataComplete)
 {
@@ -252,6 +309,12 @@ bool ClickRunChecksParser::tryParseNextSection(bool dataComplete)
     return true;
 }
 
+/*!
+ * \brief ClickRunChecksParser::parseJsonSection
+ * Parses a part of the input data, that can contain only a JSON object
+ * or alternatively a single line starting with the string ERROR:
+ * emits parsedNewItem if the section was parsed successfully
+ */
 void ClickRunChecksParser::parseJsonSection(const QString &sectionName, int offset, int length)
 {
     QJsonParseError error;
@@ -284,8 +347,8 @@ void ClickRunChecksParser::parseJsonSection(const QString &sectionName, int offs
     bool hasErrors = false;
     bool hasWarnings = false;
     DataItem* item = new DataItem();
-    item->text = sectionName;
-    item->type = QLatin1String("ResultData");
+    item->text = QLatin1String("No description");
+    item->type = sectionName;
     item->icon = Check; // we are optimisic
 
     QJsonObject obj = doc.object();
@@ -309,6 +372,11 @@ void ClickRunChecksParser::parseJsonSection(const QString &sectionName, int offs
                 subItem->text = text;
                 subItem->type = key;
                 subItem->icon = Error;
+
+                if(messageObject.keys().contains(QLatin1String("link"))) {
+                    subItem->link = QUrl::fromUserInput(messageObject.value(QLatin1String("link")).toString());
+                }
+
                 item->children.append(subItem);
             }
         }
@@ -361,6 +429,10 @@ void ClickRunChecksParser::parseJsonSection(const QString &sectionName, int offs
     emit parsedNewTopLevelItem(item);
 }
 
+/*!
+ * \brief ClickRunChecksParser::emitParseErrorItem
+ * Creates a new Error DataItem and emits it
+ */
 void ClickRunChecksParser::emitParseErrorItem(const QString &text)
 {
     qDebug()<<"Appending error "<<text;
@@ -372,6 +444,10 @@ void ClickRunChecksParser::emitParseErrorItem(const QString &text)
     emit parsedNewTopLevelItem(elem);
 }
 
+/*!
+ * \brief ClickRunChecksParser::emitTextItem
+ * Creates a new text item and emits it
+ */
 void ClickRunChecksParser::emitTextItem(const QString& type,const QString &text, const ItemIcon icon)
 {
     qDebug()<<"Appending text "<<text;

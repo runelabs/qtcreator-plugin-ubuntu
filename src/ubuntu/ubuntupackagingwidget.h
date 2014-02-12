@@ -47,6 +47,8 @@ protected slots:
     void onError(QString msg);
     void onStarted(QString cmd);
     void onFinishedAction(const QProcess* proc,QString cmd);
+    void onNewValidationData();
+    void onValidationItemSelected(const QModelIndex &index );
 
     void on_pushButtonClosePackageReviewTools_clicked();
     void on_pushButton_addpolicy_clicked();

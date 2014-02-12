@@ -76,6 +76,9 @@ UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
     connect(&m_ubuntuProcess,SIGNAL(finished(QString,int)),this,SLOT(onFinished(QString, int)));
     connect(&m_ubuntuProcess,SIGNAL(error(QString)),this,SLOT(onError(QString)));
 
+    connect(ui->treeViewValidate->selectionModel(),SIGNAL(currentChanged(QModelIndex,QModelIndex)),this,SLOT(onValidationItemSelected(QModelIndex)));
+    connect(m_validationModel,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(onNewValidationData()));
+
     m_bzr.initialize();
 
     m_reviewToolsInstalled = false;
@@ -127,6 +130,33 @@ void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd) 
     m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(sClickPackagePath));
 
     disconnect(m_UbuntuMenu_connection);
+}
+
+void UbuntuPackagingWidget::onNewValidationData()
+{
+    if(!ui->treeViewValidate->selectionModel()->hasSelection()) {
+        QModelIndex index = m_validationModel->findFirstErrorItem();
+
+        qDebug()<<index;
+
+        ui->treeViewValidate->setCurrentIndex(index);
+    }
+}
+
+void UbuntuPackagingWidget::onValidationItemSelected(const QModelIndex &index)
+{
+    if(index.isValid()) {
+        QUrl link = m_validationModel->data(index,UbuntuValidationResultModel::LinkRole).toUrl();
+        if(link.isValid()) {
+            ui->labelErrorLink->setText(
+                        QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_LINK_DISPLAYTEXT)
+                        .arg(link.toString(QUrl::FullyEncoded)));
+        } else {
+            ui->labelErrorLink->setText(QLatin1String(""));
+        }
+        ui->labelErrorType->setText(m_validationModel->data(index,UbuntuValidationResultModel::TypeRole).toString());
+        ui->plainTextEditDescription->setPlainText(m_validationModel->data(index,UbuntuValidationResultModel::DescriptionRole).toString());
+    }
 }
 
 

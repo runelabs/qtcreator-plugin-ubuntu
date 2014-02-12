@@ -4,6 +4,7 @@
 #include <QAbstractItemModel>
 #include <QMetaType>
 #include <QSharedPointer>
+#include <QUrl>
 
 namespace Ubuntu {
 namespace Internal {
@@ -28,6 +29,7 @@ public:
 
         QString type;
         QString text;
+        QUrl link;
         ItemIcon icon;
 
         QList<DataItem*> children;
@@ -60,7 +62,9 @@ class UbuntuValidationResultModel : public QAbstractItemModel
 
 public:
     enum Roles {
-        TypeRole = Qt::UserRole+1
+        TypeRole = Qt::UserRole+1,
+        LinkRole,
+        DescriptionRole
     };
 
     UbuntuValidationResultModel(QObject *parent = 0);
@@ -73,6 +77,8 @@ public:
     virtual int columnCount(const QModelIndex &parent) const;
     virtual QVariant data(const QModelIndex &index, int role) const;
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+
+    QModelIndex findFirstErrorItem () const;
 
 public slots:
     void appendItem  ( ClickRunChecksParser::DataItem* item );
