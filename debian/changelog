@@ -1,8 +1,40 @@
-qtcreator-plugin-ubuntu (2.8.1.1~campo~saucy) saucy; urgency=low
+qtcreator-plugin-ubuntu (2.8.1.2-0ubuntu1) trusty; urgency=medium
 
-  * Saucy test package
+  [Benjamin Zeller]
+  * Enable Publish tab if the click-review tools are installed
+  * Show detailed information about a error under the validation treeview
+  * Install cmake to the click chroots
+  * Packaging tab is renamed to Publish
+  * Parser for click-run-checks output and show results in a itemview
+  * Fix run on device for cmake projects
+  * New cmake project template
+  * cmake project deployment to the device
+  * Automatically validate click packages created from CMake projects
+  * Build click package for cmake projects
+  * The  menu.json parser is refactored to show menus only in a special context
+  * New option to menu.json if a clicktarget is required for executing the action
+  * Tweaking build files to allow local build.
+  * Do not ship a comment in the desktop file, because manifest should take precedence
+  * The manifest desciption always takes precedence over the desktop file (LP: #1264404)
+  * Read script output with QString::fromLocal8Bit instead of fromLatin1 (LP: #1211169)
+  * Added cmake build and maintenance support for click chroots
 
- -- David Barth <david.barth@canonical.com>  Wed, 12 Feb 2014 11:28:43 +0100
+  [Alexandre Abreu]
+  * HTML5 app deployment on device is fixed
+  * Fixed HTML5 template to have a cleaner example of tabs implementation
+  * Updated HTML5 tab structure
+
+  [David Barth]
+  * Tool to download a pre-compiled cordova runtime (LP: #1277667)
+
+  [Zoltan Balogh]
+  * Emulator features rebased on ubuntu-emulator
+  * Remove forced update of the maintainer in the manifest.json (LP: #1274265)
+  * Removed gksu from the dependency list (LP: #1235531)
+  * The click package reviewing tool is executed on the click package created in the Packaging tab.
+  * Enable scope templates on Trusty (LP: #1263593) 
+
+ -- Zoltán Balogh <zoltan@bakter.hu>  Thu, 13 Feb 2014 11:50:52 +0200
 
 qtcreator-plugin-ubuntu (2.8.1.1-0ubuntu1) trusty; urgency=low
 
