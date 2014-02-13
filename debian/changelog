@@ -1,9 +1,3 @@
-qtcreator-plugin-ubuntu (2.8.1.1~campo~saucy) saucy; urgency=low
-
-  * Saucy test package
-
- -- David Barth <david.barth@canonical.com>  Wed, 12 Feb 2014 11:28:43 +0100
-
 qtcreator-plugin-ubuntu (2.8.1.1-0ubuntu1) trusty; urgency=low
 
   [ Timo Jyrinki ]
