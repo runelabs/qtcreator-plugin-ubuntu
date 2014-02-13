@@ -469,7 +469,7 @@ void UbuntuMenu::menuItemTriggered() {
                             if(!qtcBuildConfig)
                                 return;
 
-                            workingDirectory = qtcBuildConfig->buildDirectory();
+                            workingDirectory = qtcBuildConfig->buildDirectory().toString();
                         }
                     }
                     
