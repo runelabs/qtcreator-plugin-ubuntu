@@ -46,6 +46,9 @@ public:
 
     void initialize();
 
+    static UbuntuMenu* instance();
+    static QAction* menuAction(const Core::Id& id);
+
     void parseMenu(QJsonObject obj, Core::ActionContainer*& parent, const Core::Id &group = Core::Id());
 
     QString menuPath(QString fileName);
@@ -53,6 +56,10 @@ public:
 
 public slots:
     void slotUpdateActions();
+
+signals:
+    void finished_action(QString);
+    void finished_action(const QProcess* process, QString cmd);
     
 protected slots:
     void menuItemTriggered();
@@ -60,6 +67,7 @@ protected slots:
     void onMessage(QString);
     void onError(QString);
     void onFinished(QString cmd, int code);
+    void onFinished(const QProcess* programm, QString cmd, int code);
 
 protected:
     typedef QList<QJsonValue> QJsonValueList;
@@ -69,10 +77,12 @@ protected:
 
     UbuntuProcess m_ubuntuProcess;
 
-    QList<QAction*> m_actions;
+    QMap<Core::Id,QAction*> m_actions;
 
 private:
     bool isProperUbuntuHtmlProject(ProjectExplorer::Project *project) const;
+    static UbuntuMenu *m_instance;
+
 };
 
 

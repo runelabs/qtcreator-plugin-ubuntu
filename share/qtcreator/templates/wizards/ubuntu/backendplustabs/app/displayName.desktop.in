@@ -1,8 +1,10 @@
 [Desktop Entry]
 Name=%DISPLAYNAME%
 Comment=My project description
-Exec=/usr/bin/qmlscene $@ /usr/share/%DISPLAYNAME%/%DISPLAYNAME%.qml
-Icon=qmlscene
+Exec=@EXEC@
+Icon=@ICON@
 Terminal=false
 Type=Application
 X-Ubuntu-Touch=true
+
+

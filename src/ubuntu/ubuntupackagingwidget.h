@@ -3,12 +3,20 @@
 
 #include <QWidget>
 #include <QProcess>
+#include <QAbstractListModel>
 #include "ubuntubzr.h"
 #include "ubuntuclickmanifest.h"
 #include "ubuntuprocess.h"
 
 namespace Ui {
 class UbuntuPackagingWidget;
+}
+
+namespace Ubuntu{
+namespace Internal{
+class UbuntuValidationResultModel;
+class ClickRunChecksParser;
+}
 }
 
 using namespace Ubuntu::Internal;
@@ -21,6 +29,7 @@ public:
     explicit UbuntuPackagingWidget(QWidget *parent = 0);
     ~UbuntuPackagingWidget();
 
+    bool reviewToolsInstalled ();
 public slots:
     void autoSave();
     void reload();
@@ -37,8 +46,10 @@ protected slots:
     void onFinished(QString cmd, int code);
     void onError(QString msg);
     void onStarted(QString cmd);
+    void onFinishedAction(const QProcess* proc,QString cmd);
+    void onNewValidationData();
+    void onValidationItemSelected(const QModelIndex &index );
 
-    void on_pushButtonClosePackageReviewTools_clicked();
     void on_pushButton_addpolicy_clicked();
     void on_pushButtonClickPackage_clicked();
     void on_pushButtonReset_clicked();
@@ -51,17 +62,26 @@ protected slots:
     void on_listWidget_customContextMenuRequested(QPoint);
     void bzrChanged();
 
+    void checkClickReviewerTool();
+
+signals:
+    void reviewToolsInstalledChanged(const bool& installed);
+
 private:
+    bool m_reviewToolsInstalled;
     UbuntuClickManifest m_manifest;
     UbuntuClickManifest m_apparmor;
+    QMetaObject::Connection m_UbuntuMenu_connection;
     QProcess m_click;
     UbuntuBzr m_bzr;
     QString m_projectName;
+    QString m_reply;
     QString m_excludesFile;
     int m_previous_tab;
     QString m_reviewesToolsLocation;
     UbuntuProcess m_ubuntuProcess;
     Ui::UbuntuPackagingWidget *ui;
+    UbuntuValidationResultModel *m_validationModel;
+    ClickRunChecksParser* m_inputParser;
 };
-
 #endif // UBUNTUPACKAGINGWIDGET_H

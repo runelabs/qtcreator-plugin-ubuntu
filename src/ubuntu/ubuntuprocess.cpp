@@ -110,23 +110,27 @@ void UbuntuProcess::start(QString taskTitle) {
 
 void UbuntuProcess::processFinished(int code) {
     if (code != 0) {
-        emit error(QString(QLatin1String(m_currentProcess.readAllStandardError())));
+        emit error(QString::fromLocal8Bit(m_currentProcess.readAllStandardError()));
         m_pendingProcesses.clear();
         setProgressBarCancelled();
+
+        //failing process has to emit finished too
+        emit finished(m_currentProcess.program(), code);
         return;
     }
-    QString errorMsg = QString::fromLatin1(m_currentProcess.readAllStandardError());
+    QString errorMsg = QString::fromLocal8Bit(m_currentProcess.readAllStandardError());
     if (errorMsg.trimmed().length()>0) emit error(errorMsg);
-    QString msg = QString::fromLatin1(m_currentProcess.readAllStandardOutput());
+    QString msg = QString::fromLocal8Bit(m_currentProcess.readAllStandardOutput());
     if (msg.trimmed().length()>0) emit message(msg);
 
     emit finished(m_currentProcess.program(), code);
+    emit finished(&m_currentProcess,m_currentProcess.program(),code);
     processCmdQueue();
 }
 
 void UbuntuProcess::processReadyRead() {
-    QString stderr = QString::fromLatin1(m_currentProcess.readAllStandardError());
-    QString stdout = QString::fromLatin1(m_currentProcess.readAllStandardOutput());
+    QString stderr = QString::fromLocal8Bit(m_currentProcess.readAllStandardError());
+    QString stdout = QString::fromLocal8Bit(m_currentProcess.readAllStandardOutput());
     if (!stderr.isEmpty()) {
         emit message(stderr);
     }
