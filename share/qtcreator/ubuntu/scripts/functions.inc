@@ -72,7 +72,7 @@ function phablet_tools_new_syntax {
 }
 
 function ubuntu_stamp {
-	adb_shell cat /system/*ubuntu_stamp
+	adb_shell cat /etc/ubuntu-build
 }
 
 function device_hardware {
@@ -92,7 +92,7 @@ function does_device_hw_match_image_hw {
 }
 
 function device_image_version {
-	ubuntu_stamp | grep JENKINS|sed "s/JENKINS_BUILD=//g"
+	ubuntu_stamp 
 }
 
 function device_network_state_connected {
