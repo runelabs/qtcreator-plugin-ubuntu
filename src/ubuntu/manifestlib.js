@@ -57,6 +57,14 @@ function getDescription() {
     return jsonData.description;
 }
 
+function getFrameworkName() {
+    return jsonData.framework;
+}
+
+function setFrameworkName($name) {
+   jsonData.framework = $name;
+}
+
 function getPolicyGroups($appname) {
 /*    var appProfile = jsonData.security.profiles[$appname];
     if (appProfile===undefined) {

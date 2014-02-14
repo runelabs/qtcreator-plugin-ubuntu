@@ -117,6 +117,19 @@ QStringList UbuntuClickManifest::policyGroups(QString appName) {
     return retval;
 }
 
+void UbuntuClickManifest::setFrameworkName(const QString &name)
+{
+    if (!isInitialized()) { return; }
+    callSetStringFunction(QLatin1String("setFrameworkName"),name);
+    emit frameworkNameChanged(name);
+}
+
+QString UbuntuClickManifest::frameworkName()
+{
+    if (!isInitialized()) { return QString(); }
+    return callGetStringFunction(QLatin1String("getFrameworkName"));
+}
+
 void UbuntuClickManifest::save(QString fileName) {
     if (!isInitialized()) { return; }
 

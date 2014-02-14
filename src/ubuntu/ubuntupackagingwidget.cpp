@@ -323,6 +323,7 @@ void UbuntuPackagingWidget::save(bool bSaveSimple) {
         m_manifest.setVersion(ui->lineEdit_version->text());
         m_manifest.setTitle(ui->lineEdit_title->text());
         m_manifest.setDescription(ui->lineEdit_description->text());
+        m_manifest.setFrameworkName(ui->comboBoxFramework->currentText());
         QStringList items;
         for (int i=0; i<ui->listWidget->count(); i++) {
             // Fix bug #1221407 - make sure that there are no empty policy groups.
@@ -398,6 +399,10 @@ void UbuntuPackagingWidget::reload() {
     ui->lineEdit_title->setText(m_manifest.title());
     ui->lineEdit_version->setText(m_manifest.version());
     ui->lineEdit_description->setText(m_manifest.description());
+
+    int idx = ui->comboBoxFramework->findText(m_manifest.frameworkName());
+    //if the framework name is not valid set to empty item
+    ui->comboBoxFramework->setCurrentIndex(idx < 0 ? ui->comboBoxFramework->count()-1 : idx);
 
     QStringList policyGroups = m_apparmor.policyGroups(m_projectName);
 
