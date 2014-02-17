@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2013 Canonical Ltd.
+# Copyright 2014 Canonical Ltd.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -22,9 +22,9 @@ if [[ -z ${PROJECTPATH} ]]; then
   PROJECTPATH=`pwd`
 fi
 
-CORDOVA_PACKAGE="cordova-ubuntu-3.4-dev"
-PAYLOAD_DIR="/usr/share/cordova-ubuntu-3.4/"
-CORDOVA_CACHE=${HOME}/.cache/cordova
+CORDOVA_PACKAGE="ubuntu-html5-platform-3.4-dev"
+PAYLOAD_DIR="/usr/share/ubuntu-html5-platform-3.4/"
+CORDOVA_CACHE=${HOME}/.cache/ubuntu-html5-platform
 
 download_arch () {
     ARCH2=$1
@@ -42,7 +42,8 @@ download_arch () {
         cd /tmp
         wget `echo $URI | sed "s/_${ARCH}.deb$/_${ARCH2}.deb/"`
 
-        dpkg-deb -x ${PACKAGE_FILENAME} ${CORDOVA_CACHE}/lib/${ARCH3}
+	# extract in plain lib since the packages are already configured w/ arch specific install paths
+        dpkg-deb -x ${PACKAGE_FILENAME} ${CORDOVA_CACHE}/lib
 
         rm -f ${PACKAGE_FILENAME}
     )
@@ -53,7 +54,7 @@ install_arch () {
 
     [ -z "$ARCH3" ] && exit "install_arch"
 
-    mv ${CORDOVA_CACHE}/lib/${ARCH3}/${PAYLOAD_DIR}/* ${CORDOVA_CACHE}/lib/${ARCH3}
+    mv ${CORDOVA_CACHE}/lib/${PAYLOAD_DIR}/${ARCH3}/* ${CORDOVA_CACHE}/lib/${ARCH3}
 
     for f in `find ${CORDOVA_CACHE}/lib/${ARCH3} | grep .so$`
     do
