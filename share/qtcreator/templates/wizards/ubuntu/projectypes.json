@@ -95,9 +95,9 @@
     {
        "type": "ubuntuhtmlproject",
        "folder": "html5-simple",
-       "displayName": "Simple HTML5 App",
+       "displayName": "HTML5 App",
        "id": "UbuntuAppSimpleHtml5",
-       "description": "Template for creating a simple native HTML5 app Native HTML5 apps have unrestricted access to Platform APIs. This project contains only HTML/CSS and Javascript code. \n\nThe UI is designed for a mobile form-factor and uses the Ubuntu Touch design building blocks.\n\nUnlike the default Qt HTML5 template, there is no C++ code or compilation necessary for this application type",
+       "description": "Template for creating a native HTML5 app Native HTML5 apps have unrestricted access to Platform APIs. This project contains only HTML/CSS and Javascript code. \n\nThe UI is designed for a mobile form-factor and uses the Ubuntu Touch design building blocks.\n\nUnlike the default Qt HTML5 template, there is no C++ code or compilation necessary for this application type",
        "mainFile" : "index.html",
        "files": [
            {
