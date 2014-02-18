@@ -2,9 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>A multipage HTML5 UI using the Tabs component</title>
-    <meta name="description" content="A multipage HTML5 UI using the Tabs component">
-    <meta name="viewport" content="width=device-width">
+    <title>An Ubuntu HTML5 application</title>
+    <meta name="description" content="An Ubuntu HTML5 application">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
 
     <!-- Ubuntu UI Style imports - Ambiance theme -->
     <link href="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/css/appTemplate.css" rel="stylesheet" type="text/css" />
@@ -18,11 +18,15 @@
     <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/pagestacks.js"></script>
     <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/tabs.js"></script>
 
+    <!-- Cordova platform API access - Uncomment this to have access to the Javascript APIs -->
+    <!-- <script src="cordova.js"></script> -->
+
     <!-- Application script -->
     <script src="js/app.js"></script>
   </head>
 
   <body>
+
     <div data-role="mainview">
 
       <header data-role="header">
@@ -33,50 +37,92 @@
 
       <div data-role="content">
 
+          <!-- The application main page -->
+
           <div data-role="page" id="hello-page">
 
             <section data-role="list">
                 <header class="large-font">My List Header</header>
-                <ul data-role="listview">
+                <ul data-role="listview" id="contacts">
+
                     <li>
-                        <a href="#">
-                            <aside>
-                                <img alt="placeholder" src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/img/avatar_contacts_list@8.png">
-                            </aside>
-                            <p>Jane</p>
-                        </a>
+                        <aside>
+                            <img alt="placeholder" src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/img/avatar_contacts_list@8.png">
+                        </aside>
+
+                        <p>Jane</p>
+
+                        <!-- A list item side control -->
+                        <label>
+                            <input type="checkbox" data-type="switch">
+                            <span class="toggle">
+                                <span class="toggle-handle"></span>
+                                <span class="toggle-bg"></span>
+                            </span>
+                        </label>
                     </li>
+
                     <li>
-                        <a href="#">
-                            <aside>
-                                <img alt="placeholder" src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/img/avatar_contacts_list@8.png">
-                            </aside>
-                            <p>Mark</p>
-                        </a>
+                        <aside>
+                            <img alt="placeholder" src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/img/avatar_contacts_list@8.png">
+                        </aside>
+
+                        <p>Mark</p>
+
+                        <!-- A list item side control -->
+                        <label>
+                            <input type="checkbox" data-type="switch">
+                            <span class="toggle">
+                                <span class="toggle-handle"></span>
+                                <span class="toggle-bg"></span>
+                            </span>
+                        </label>
                     </li>
+
                     <li>
-                        <a href="#">
-                            <aside>
-                                <img alt="placeholder" src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/img/avatar_contacts_list@8.png">
-                            </aside>
-                            <p>Olivier</p>
-                        </a>
+                        <aside>
+                            <img alt="placeholder" src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/img/avatar_contacts_list@8.png">
+                        </aside>
+
+                        <p>Olivier</p>
+
+                        <!-- A list item side control -->
+                        <label>
+                            <input type="checkbox" data-type="switch">
+                            <span class="toggle">
+                                <span class="toggle-handle"></span>
+                                <span class="toggle-bg"></span>
+                            </span>
+                        </label>
                     </li>
+
                 </ul>
 
             </section>
 
             <div class="inset" style="margin-top: 1em; text-align: center" >
 
-              <button data-role="button" class="ubuntu">
-		<span class="icon icon-call"></span>
-	      </button>
+                <div>
+                    <button id="text" data-role="button" class="ubuntu" style="width: 100%">
+                      Text
+                    </button>
+                </div>
+                <div>
+                    <button id="call" data-role="button" class="ubuntu" style="width: 100%">
+                      Call
+                      <span class="icon icon-call"></span>
+                    </button>
+                 </div>
 
-              <button data-role="button" class="ubuntu">
-		Call
-		<span class="icon icon-call"></span>
-	      </button>
+            </div>
 
+            <div data-role="dialog" id="dialog1">
+                <section>
+                    <h1></h1>
+                    <menu>
+                        <button data-role="button" id="no">Cancel</button>
+                    </menu>
+                </section>
             </div>
 
           </div>
