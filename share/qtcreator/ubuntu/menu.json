@@ -83,7 +83,7 @@
                 "ubuntuHtmlProjectRequired": true,
                 "saveRequired": true,
                 "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_device_run_app %SERIALNUMBER% %APPRUNNEREXECNAME% %FOLDERNAME% %DISPLAYNAME%.desktop ../%FOLDERNAME% /home/%USERNAME%/dev_tmp /home/%USERNAME%/.local/share/applications %USERNAME%@%IP% %PORT% --www="
+                    "%SCRIPTDIRECTORY%/qtc_device_run_app %SERIALNUMBER% %APPRUNNEREXECNAME% %FOLDERNAME% %DISPLAYNAME%.desktop ../%FOLDERNAME% /home/%USERNAME%/dev_tmp /home/%USERNAME%/.local/share/applications %USERNAME%@%IP% %PORT% --www= --inspector"
                 ]
             },
             {
