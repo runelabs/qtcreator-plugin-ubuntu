@@ -1,3 +1,10 @@
+qtcreator-plugin-ubuntu (2.8.1.2-0ubuntu2) trusty; urgency=medium
+
+  [ Alexandre Abreu ]
+  * Fix location and name of cordova runtime. (LP: #1281012)
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Tue, 18 Feb 2014 09:35:50 +0100
+
 qtcreator-plugin-ubuntu (2.8.1.2-0ubuntu1) trusty; urgency=medium
 
   [Benjamin Zeller]
