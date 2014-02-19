@@ -35,6 +35,4 @@ else
     exit
 fi
 
-pkill -9 -x qtcreator||true
-kill -9 $xvfb_pid ||true
 rc=0
