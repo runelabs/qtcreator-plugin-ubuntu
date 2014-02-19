@@ -23,6 +23,7 @@ Homepage: https://launchpad.net/qtcreator-plugin-ubuntu
 # If you aren't a member of ~ubuntu-sdk-team but need to upload packaging changes,
 # just go ahead. ~ubuntu-sdk-team will notice and sync up the code again.
 Vcs-Bzr: https://code.launchpad.net/~ubuntu-sdk-team/qtcreator-plugin-ubuntu/trunk
+XS-Testsuite: autopkgtest
 
 Package: qtcreator-plugin-ubuntu
 Architecture: any
