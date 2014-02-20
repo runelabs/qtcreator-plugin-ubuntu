@@ -94,7 +94,7 @@ Core::GeneratedFiles UbuntuProjectApp::generateFiles(const QWizard *w, QString *
 
         // load the mainFile
         if (m_projectType == QLatin1String(Constants::UBUNTU_HTMLPROJECT_TYPE)) {
-            mainFileName = Core::BaseFileWizard::buildFileName(projectPath,
+            mainFileName = Core::BaseFileWizard::buildFileName(projectPath + QLatin1String("/www"),
                                                               QLatin1String("index"),
                                                               QLatin1String("html"));
         } else {
@@ -149,24 +149,29 @@ Core::GeneratedFiles UbuntuProjectApp::generateFiles(const QWizard *w, QString *
                 << "        filter: \"*.desktop\"" << endl
                 << "    }" << endl
                 << "    Files {" << endl
-                << "        filter: \"*.html\"" << endl
+                << "        filter: \"www/*.html\"" << endl
                 << "    }" << endl
                 << "    Files {" << endl
                 << "        filter: \"Makefile\"" << endl
                 << "    }" << endl;
 
                 out << "    Files {" << endl
-                    << "        directory: \"html\"" << endl
+                    << "        directory: \"www\"" << endl
                     << "        filter: \"*\"" << endl
                     << "    }" << endl;
 
                 out << "    Files {" << endl
-                    << "        directory: \"img/\"" << endl
+                    << "        directory: \"www/img/\"" << endl
                     << "        filter: \"*\"" << endl
                     << "    }" << endl;
 
                 out << "    Files {" << endl
-                    << "        directory: \"css/\"" << endl
+                    << "        directory: \"www/css/\"" << endl
+                    << "        filter: \"*\"" << endl
+                    << "    }" << endl;
+
+                out << "    Files {" << endl
+                    << "        directory: \"www/js/\"" << endl
                     << "        filter: \"*\"" << endl
                     << "    }" << endl;
 
