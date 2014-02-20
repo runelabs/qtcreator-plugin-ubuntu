@@ -23,7 +23,7 @@ if [[ -z ${PROJECTPATH} ]]; then
 fi
 
 CORDOVA_PACKAGE="ubuntu-html5-platform-3.4-dev"
-PAYLOAD_DIR="/usr/share/ubuntu-html5-platform-3.4/"
+PAYLOAD_DIR="usr/share/ubuntu-html5-platform-3.4/"
 CORDOVA_CACHE=${HOME}/.cache/ubuntu-html5-platform
 
 download_arch () {
@@ -42,8 +42,8 @@ download_arch () {
         cd /tmp
         wget `echo $URI | sed "s/_${ARCH}.deb$/_${ARCH2}.deb/"`
 
-	# extract in plain lib since the packages are already configured w/ arch specific install paths
-        dpkg-deb -x ${PACKAGE_FILENAME} ${CORDOVA_CACHE}/lib
+	# plain extraction since the packages are already configured w/ arch specific install paths
+        dpkg-deb -x ${PACKAGE_FILENAME} ${CORDOVA_CACHE}/download
 
         rm -f ${PACKAGE_FILENAME}
     )
@@ -54,22 +54,20 @@ install_arch () {
 
     [ -z "$ARCH3" ] && exit "install_arch"
 
-    mv ${CORDOVA_CACHE}/lib/${PAYLOAD_DIR}/${ARCH3}/* ${CORDOVA_CACHE}/lib/${ARCH3}
+    mkdir -p ${CORDOVA_CACHE}/lib/${ARCH3}
+    mkdir -p ${CORDOVA_CACHE}/www/cordova
 
-    for f in `find ${CORDOVA_CACHE}/lib/${ARCH3} | grep .so$`
-    do
-        mv ${f} ${CORDOVA_CACHE}/lib/${ARCH3}
-    done
+    rm -rf ${CORDOVA_CACHE}/download/${PAYLOAD_DIR}/${ARCH3}/cordova-ubuntu
 
-    cp -Rf ${CORDOVA_CACHE}/lib/${ARCH3}/CordovaUbuntu.?.? ${CORDOVA_CACHE}
-    cp -Rf ${CORDOVA_CACHE}/lib/${ARCH3}/www/* ${CORDOVA_CACHE}/CordovaUbuntu.?.?
-    cp -Rf ${CORDOVA_CACHE}/lib/${ARCH3}/qml/* ${CORDOVA_CACHE}/CordovaUbuntu.?.?
+    cp -Rf ${CORDOVA_CACHE}/download/${PAYLOAD_DIR}/${ARCH3}/CordovaUbuntu.?.? ${CORDOVA_CACHE}/lib/${ARCH3}
+    cp -Rf ${CORDOVA_CACHE}/download/${PAYLOAD_DIR}/${ARCH3}/qml ${CORDOVA_CACHE}
+    cp -Rf ${CORDOVA_CACHE}/download/${PAYLOAD_DIR}/${ARCH3}/www/plugins ${CORDOVA_CACHE}/www/cordova
+    cp -Rf ${CORDOVA_CACHE}/download/${PAYLOAD_DIR}/${ARCH3}/www/cordova.js ${CORDOVA_CACHE}/www/cordova
+    cp -Rf ${CORDOVA_CACHE}/download/${PAYLOAD_DIR}/${ARCH3}/www/cordova_plugins.js ${CORDOVA_CACHE}/www/cordova
 
-    rm -rf ${CORDOVA_CACHE}/lib/${ARCH3}/${PAYLOAD_DIR}
-    rm -rf ${CORDOVA_CACHE}/lib/${ARCH3}/usr
-    rm -rf ${CORDOVA_CACHE}/lib/${ARCH3}/www
-    rm -rf ${CORDOVA_CACHE}/lib/${ARCH3}/qml
-    rm -rf ${CORDOVA_CACHE}/lib/${ARCH3}/CordovaUbuntu.?.?
+    cp ${CORDOVA_CACHE}/download/${PAYLOAD_DIR}/${ARCH3}/www/libcoreplugins.so ${CORDOVA_CACHE}/www/libcoreplugins-${ARCH3}.so
+
+    rm -rf ${CORDOVA_CACHE}/download/${PAYLOAD_DIR}/${ARCH3}
 }
 
 
