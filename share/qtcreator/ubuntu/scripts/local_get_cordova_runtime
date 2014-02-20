@@ -65,7 +65,7 @@ download_arch () {
     ARCH3=$2
     RELEASE=$3
 
-    [ -z "$RELEASE" ] || \
+    [ -z "$RELEASE" -o "$RELEASE" == "`lsb_release -c | cut -f 2`" ] || \
         setup_apt_conf_for_release $RELEASE; \
         APT_CONFIG=${DOWNLOAD_DIR}/apt/downloader.conf
 
