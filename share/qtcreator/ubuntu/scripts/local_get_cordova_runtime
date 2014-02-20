@@ -54,7 +54,7 @@ deb http://archive.ubuntu.com/ubuntu ${RELEASE} main restricted universe
 deb http://archive.ubuntu.com/ubuntu ${RELEASE}-updates main restricted universe
 deb http://security.ubuntu.com/ubuntu ${RELEASE}-security main restricted universe
 
-deb http://ppa.launchpad.net/ubuntu-sdk-team/ppa/ubuntu trusty main 
+deb http://ppa.launchpad.net/ubuntu-sdk-team/ppa/ubuntu ${RELEASE} main 
 EOF
 
     APT_CONFIG=${DOWNLOAD_DIR}/apt/downloader.conf apt-get update
