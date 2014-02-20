@@ -32,10 +32,10 @@ UbuntuRunControl::UbuntuRunControl(ProjectExplorer::RunConfiguration *runConfigu
 
     m_applicationLauncher.setWorkingDirectory(ubuntuProject->projectDir().absolutePath());
 
-    if (ubuntuProject->mainFile().compare(QString::fromLatin1("index.html"), Qt::CaseInsensitive) == 0) {
+    if (ubuntuProject->mainFile().compare(QString::fromLatin1("www/index.html"), Qt::CaseInsensitive) == 0) {
         //TODO move into abstracted location
         m_executable = QString::fromLatin1(Ubuntu::Constants::UBUNTUHTML_PROJECT_LAUNCHER_EXE);
-        m_commandLineArguments = QString(QLatin1String("--www=%0 --inspector")).arg(ubuntuProject->projectDirectory());
+        m_commandLineArguments = QString(QLatin1String("--www=%0/www --inspector")).arg(ubuntuProject->projectDirectory());
     }
     else {
         m_executable = QtSupport::QtKitInformation::qtVersion(runConfiguration->target()->kit())->qmlsceneCommand();
