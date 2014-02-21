@@ -23,18 +23,58 @@ if [[ -z ${PROJECTPATH} ]]; then
 fi
 
 CORDOVA_PACKAGE="ubuntu-html5-platform-3.4-dev"
-PAYLOAD_DIR="/usr/share/ubuntu-html5-platform-3.4/"
+PAYLOAD_DIR="usr/share/ubuntu-html5-platform-3.4/"
 CORDOVA_CACHE=${HOME}/.cache/ubuntu-html5-platform
+DOWNLOAD_DIR=${CORDOVA_CACHE}/download
+
+# based on the blog post of Andreas Olsson
+# http://blog.bogosity.se/2012/11/03/fully-using-apt-get-download/
+setup_apt_conf_for_release () {
+    RELEASE=$1
+
+    [ -z "$RELEASE" ] && exit "setup_apt_conf_for_release"
+
+    mkdir -p ${DOWNLOAD_DIR}/apt/{apt.conf.d,preferences.d,trusted.gpg.d,cache/lists/partial}
+    touch ${DOWNLOAD_DIR}/apt/status
+    ln -s /usr/share/keyrings/debian-archive-keyring.gpg \
+        ${DOWNLOAD_DIR}/apt/trusted.gpg.d/
+    ln -s /usr/share/keyrings/ubuntu-archive-keyring.gpg \
+        ${DOWNLOAD_DIR}/apt/trusted.gpg.d/
+    
+    cat > ${DOWNLOAD_DIR}/apt/downloader.conf <<EOF
+Dir::Cache "${DOWNLOAD_DIR}/apt/cache";
+Dir::Etc "${DOWNLOAD_DIR}/apt";
+Dir::State::Lists "${DOWNLOAD_DIR}/apt/cache/lists";
+Dir::State::status "${DOWNLOAD_DIR}/apt/status";
+Acquire::Languages "none";
+EOF
+
+    cat > ${DOWNLOAD_DIR}/apt/sources.list <<EOF
+deb http://archive.ubuntu.com/ubuntu ${RELEASE} main restricted universe
+deb http://archive.ubuntu.com/ubuntu ${RELEASE}-updates main restricted universe
+deb http://security.ubuntu.com/ubuntu ${RELEASE}-security main restricted universe
+
+deb http://ppa.launchpad.net/ubuntu-sdk-team/ppa/ubuntu ${RELEASE} main 
+EOF
+
+    APT_CONFIG=${DOWNLOAD_DIR}/apt/downloader.conf apt-get update
+}
 
 download_arch () {
     ARCH2=$1
     ARCH3=$2
+    RELEASE=$3
+
+    [ -z "$RELEASE" -o "$RELEASE" == "`lsb_release -c | cut -f 2`" ] || \
+        setup_apt_conf_for_release $RELEASE; \
+        APT_CONFIG=${DOWNLOAD_DIR}/apt/downloader.conf
 
     [ -z "$ARCH2" -o -z "$ARCH3" ] && exit "download_arch"
 
     ARCH=`apt-config dump | grep "APT::Architecture " | cut -d\" -f2`
-    URI=`apt-get download --print-uris ${CORDOVA_PACKAGE} | grep ^\' | cut -d\' -f2`
-    PACKAGE_FILENAME=`apt-get download --print-uris ${CORDOVA_PACKAGE} | grep ^\' | cut -d\  -f2 | sed "s/_${ARCH}.deb$/_${ARCH2}.deb/"`
+
+    URI=`APT_CONFIG=${APT_CONFIG} apt-get download --print-uris ${CORDOVA_PACKAGE} | grep ^\' | cut -d\' -f2`
+    PACKAGE_FILENAME=`APT_CONFIG=${APT_CONFIG} apt-get download --print-uris ${CORDOVA_PACKAGE} | grep ^\' | cut -d\  -f2 | sed "s/_${ARCH}.deb$/_${ARCH2}.deb/"`
 
     mkdir -p ${CORDOVA_CACHE}/lib/${ARCH3}
 
@@ -42,11 +82,13 @@ download_arch () {
         cd /tmp
         wget `echo $URI | sed "s/_${ARCH}.deb$/_${ARCH2}.deb/"`
 
-	# extract in plain lib since the packages are already configured w/ arch specific install paths
-        dpkg-deb -x ${PACKAGE_FILENAME} ${CORDOVA_CACHE}/lib
+	# plain extraction since the packages are already configured w/ arch specific install paths
+        dpkg-deb -x ${PACKAGE_FILENAME} ${CORDOVA_CACHE}/download
 
         rm -f ${PACKAGE_FILENAME}
     )
+
+    rm -rf ${CORDOVA_CACHE}/download/apt
 }
 
 install_arch () {
@@ -54,22 +96,20 @@ install_arch () {
 
     [ -z "$ARCH3" ] && exit "install_arch"
 
-    mv ${CORDOVA_CACHE}/lib/${PAYLOAD_DIR}/${ARCH3}/* ${CORDOVA_CACHE}/lib/${ARCH3}
+    mkdir -p ${CORDOVA_CACHE}/lib/${ARCH3}
+    mkdir -p ${CORDOVA_CACHE}/www/cordova
 
-    for f in `find ${CORDOVA_CACHE}/lib/${ARCH3} | grep .so$`
-    do
-        mv ${f} ${CORDOVA_CACHE}/lib/${ARCH3}
-    done
+    rm -rf ${CORDOVA_CACHE}/download/${PAYLOAD_DIR}/${ARCH3}/cordova-ubuntu
 
-    cp -Rf ${CORDOVA_CACHE}/lib/${ARCH3}/CordovaUbuntu.?.? ${CORDOVA_CACHE}
-    cp -Rf ${CORDOVA_CACHE}/lib/${ARCH3}/www/* ${CORDOVA_CACHE}/CordovaUbuntu.?.?
-    cp -Rf ${CORDOVA_CACHE}/lib/${ARCH3}/qml/* ${CORDOVA_CACHE}/CordovaUbuntu.?.?
+    cp -Rf ${CORDOVA_CACHE}/download/${PAYLOAD_DIR}/${ARCH3}/CordovaUbuntu.?.? ${CORDOVA_CACHE}/lib/${ARCH3}
+    cp -Rf ${CORDOVA_CACHE}/download/${PAYLOAD_DIR}/${ARCH3}/qml ${CORDOVA_CACHE}
+    cp -Rf ${CORDOVA_CACHE}/download/${PAYLOAD_DIR}/${ARCH3}/www/plugins ${CORDOVA_CACHE}/www/cordova
+    cp -Rf ${CORDOVA_CACHE}/download/${PAYLOAD_DIR}/${ARCH3}/www/cordova.js ${CORDOVA_CACHE}/www/cordova
+    cp -Rf ${CORDOVA_CACHE}/download/${PAYLOAD_DIR}/${ARCH3}/www/cordova_plugins.js ${CORDOVA_CACHE}/www/cordova
 
-    rm -rf ${CORDOVA_CACHE}/lib/${ARCH3}/${PAYLOAD_DIR}
-    rm -rf ${CORDOVA_CACHE}/lib/${ARCH3}/usr
-    rm -rf ${CORDOVA_CACHE}/lib/${ARCH3}/www
-    rm -rf ${CORDOVA_CACHE}/lib/${ARCH3}/qml
-    rm -rf ${CORDOVA_CACHE}/lib/${ARCH3}/CordovaUbuntu.?.?
+    cp ${CORDOVA_CACHE}/download/${PAYLOAD_DIR}/${ARCH3}/www/libcoreplugins.so ${CORDOVA_CACHE}/www/libcoreplugins-${ARCH3}.so
+
+    rm -rf ${CORDOVA_CACHE}/download/${PAYLOAD_DIR}/${ARCH3}
 }
 
 
@@ -81,7 +121,7 @@ rm -rf ${CORDOVA_CACHE}
 
 download_arch "i386" "i386-linux-gnu"
 download_arch "amd64" "x86_64-linux-gnu"
-download_arch "armhf" "arm-linux-gnueabihf"
+download_arch "armhf" "arm-linux-gnueabihf" trusty
 
 install_arch "i386-linux-gnu"
 install_arch "x86_64-linux-gnu"
