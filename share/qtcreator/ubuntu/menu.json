@@ -292,7 +292,6 @@
                 "id": "Ubuntu.Menu.DownloadCordovaRuntime",
                 "workingDirectory": "%0/..",
                 "projectRequired": true,
-                "deviceRequired": true,
                 "ubuntuHtmlProjectRequired": true,
                 "saveRequired": true,
                 "actions": [
