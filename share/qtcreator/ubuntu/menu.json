@@ -288,10 +288,14 @@
                 ]
             },
             {
-                "name": "Download pre-built Cordova runtime",
+                "name": "Add Cordova runtime to HTML5 project",
                 "id": "Ubuntu.Menu.DownloadCordovaRuntime",
+                "workingDirectory": "%0/..",
+                "projectRequired": true,
+                "ubuntuHtmlProjectRequired": true,
+                "saveRequired": true,
                 "actions": [
-                    "%SCRIPTDIRECTORY%/local_get_cordova_runtime"
+                    "%SCRIPTDIRECTORY%/local_get_cordova_runtime %FOLDERNAME%"
                 ]
             },
             {
