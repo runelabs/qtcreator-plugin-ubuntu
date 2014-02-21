@@ -16,11 +16,7 @@
 # Author: David Barth <david.barth@canonical.com>
 
 SCRIPTPATH=`dirname $0`
-PROJECTPATH=$1
-
-if [[ -z ${PROJECTPATH} ]]; then
-  PROJECTPATH=`pwd`
-fi
+PROJECTPATH=`pwd`/$1
 
 CORDOVA_PACKAGE="ubuntu-html5-platform-3.4-dev"
 PAYLOAD_DIR="usr/share/ubuntu-html5-platform-3.4/"
@@ -112,6 +108,13 @@ install_arch () {
     rm -rf ${CORDOVA_CACHE}/download/${PAYLOAD_DIR}/${ARCH3}
 }
 
+copy_to_project () {
+    echo "Copying runtime platform files to ${PROJECTPATH}"
+
+    cp -Rf ${CORDOVA_CACHE}/lib ${PROJECTPATH}
+    cp -Rf ${CORDOVA_CACHE}/qml ${PROJECTPATH}
+    cp -Rf ${CORDOVA_CACHE}/www ${PROJECTPATH}
+}
 
 echo
 echo "Trying to download a pre-built Cordova runtime to accelerate project creation..."
@@ -128,3 +131,6 @@ install_arch "x86_64-linux-gnu"
 install_arch "arm-linux-gnueabihf"
 
 find ${CORDOVA_CACHE}
+
+[ -z "$PROJECTPATH" ] || copy_to_project
+
