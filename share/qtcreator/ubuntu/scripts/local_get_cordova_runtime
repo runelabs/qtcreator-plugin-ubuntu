@@ -111,6 +111,8 @@ install_arch () {
 copy_to_project () {
     echo "Copying runtime platform files to ${PROJECTPATH}"
 
+    [ ! -d ${PROJECTPATH}/www ] && echo "Could not find a required www/ subfolder in your HTML5 project. Please recreate your project."; exit 1;
+
     cp -Rf ${CORDOVA_CACHE}/lib ${PROJECTPATH}
     cp -Rf ${CORDOVA_CACHE}/qml ${PROJECTPATH}
     cp -Rf ${CORDOVA_CACHE}/www ${PROJECTPATH}
