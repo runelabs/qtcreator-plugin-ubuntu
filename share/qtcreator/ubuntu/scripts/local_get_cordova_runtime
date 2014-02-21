@@ -53,7 +53,7 @@ deb http://security.ubuntu.com/ubuntu ${RELEASE}-security main restricted univer
 deb http://ppa.launchpad.net/ubuntu-sdk-team/ppa/ubuntu ${RELEASE} main 
 EOF
 
-    APT_CONFIG=${DOWNLOAD_DIR}/apt/downloader.conf apt-get update
+    APT_CONFIG=${DOWNLOAD_DIR}/apt/downloader.conf apt-get -qq update
 }
 
 download_arch () {
@@ -61,28 +61,37 @@ download_arch () {
     ARCH3=$2
     RELEASE=$3
 
-    [ -z "$RELEASE" -o "$RELEASE" == "`lsb_release -c | cut -f 2`" ] || \
-        setup_apt_conf_for_release $RELEASE; \
+    echo "Downloading runtime platform files for $ARCH2"
+    if [ -z "$RELEASE" -o "$RELEASE" == "`lsb_release -c | cut -f 2`" ]; then
+        APT_CONFIG=""
+    else
+        echo "(specifically from release $RELEASE)"
+        setup_apt_conf_for_release $RELEASE
         APT_CONFIG=${DOWNLOAD_DIR}/apt/downloader.conf
+    fi
 
     [ -z "$ARCH2" -o -z "$ARCH3" ] && exit "download_arch"
 
     ARCH=`apt-config dump | grep "APT::Architecture " | cut -d\" -f2`
 
-    URI=`APT_CONFIG=${APT_CONFIG} apt-get download --print-uris ${CORDOVA_PACKAGE} | grep ^\' | cut -d\' -f2`
-    PACKAGE_FILENAME=`APT_CONFIG=${APT_CONFIG} apt-get download --print-uris ${CORDOVA_PACKAGE} | grep ^\' | cut -d\  -f2 | sed "s/_${ARCH}.deb$/_${ARCH2}.deb/"`
+    URI=`apt-get -qq download --print-uris ${CORDOVA_PACKAGE} | grep ^\' | cut -d\' -f2`
+    PACKAGE_FILENAME=`apt-get -qq download --print-uris ${CORDOVA_PACKAGE} | grep ^\' | cut -d\  -f2 | sed "s/_${ARCH}.deb$/_${ARCH2}.deb/"`
+
+    echo $PACKAGE_FILENAME
 
     mkdir -p ${CORDOVA_CACHE}/lib/${ARCH3}
 
     (
         cd /tmp
-        wget `echo $URI | sed "s/_${ARCH}.deb$/_${ARCH2}.deb/"`
+        wget -q `echo $URI | sed "s/_${ARCH}.deb$/_${ARCH2}.deb/"`
 
 	# plain extraction since the packages are already configured w/ arch specific install paths
         dpkg-deb -x ${PACKAGE_FILENAME} ${CORDOVA_CACHE}/download
 
         rm -f ${PACKAGE_FILENAME}
     )
+
+    echo
 
     rm -rf ${CORDOVA_CACHE}/download/apt
 }
@@ -109,17 +118,24 @@ install_arch () {
 }
 
 copy_to_project () {
+
     echo "Copying runtime platform files to ${PROJECTPATH}"
 
-    [ ! -d ${PROJECTPATH}/www ] && echo "Could not find a required www/ subfolder in your HTML5 project. Please recreate your project."; exit 1;
+    if [ -d ${PROJECTPATH}/www ]; then
+        cp -Rf ${CORDOVA_CACHE}/lib ${PROJECTPATH}
+        cp -Rf ${CORDOVA_CACHE}/qml ${PROJECTPATH}
+        cp -Rf ${CORDOVA_CACHE}/www ${PROJECTPATH}
 
-    cp -Rf ${CORDOVA_CACHE}/lib ${PROJECTPATH}
-    cp -Rf ${CORDOVA_CACHE}/qml ${PROJECTPATH}
-    cp -Rf ${CORDOVA_CACHE}/www ${PROJECTPATH}
+        find ${PROJECTPATH}/www
+    else
+        echo "Could not find the required www/ subfolder in your HTML5 project (${PROJECTPATH})"
+        echo "Please verify your project."
+        return 1
+    fi
 }
 
 echo
-echo "Trying to download a pre-built Cordova runtime to accelerate project creation..."
+echo "Trying to download a pre-built Cordova runtime..."
 echo
 
 rm -rf ${CORDOVA_CACHE}
@@ -131,8 +147,6 @@ download_arch "armhf" "arm-linux-gnueabihf" trusty
 install_arch "i386-linux-gnu"
 install_arch "x86_64-linux-gnu"
 install_arch "arm-linux-gnueabihf"
-
-find ${CORDOVA_CACHE}
 
 [ -z "$PROJECTPATH" ] || copy_to_project
 

@@ -1,3 +1,9 @@
+qtcreator-plugin-ubuntu (2.8.1.3-0ubuntu2) saucy; urgency=low
+
+  * local build
+
+ -- David Barth <david.barth@canonical.com>  Fri, 21 Feb 2014 16:41:44 +0100
+
 qtcreator-plugin-ubuntu (2.8.1.3-0ubuntu1) trusty; urgency=medium
 
   [ Alexandre Abreu ]
