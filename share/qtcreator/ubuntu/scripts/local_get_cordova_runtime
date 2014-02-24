@@ -16,7 +16,6 @@
 # Author: David Barth <david.barth@canonical.com>
 
 SCRIPTPATH=`dirname $0`
-PROJECTPATH=`pwd`/$1
 
 CORDOVA_PACKAGE="ubuntu-html5-platform-3.4-dev"
 PAYLOAD_DIR="usr/share/ubuntu-html5-platform-3.4/"
@@ -45,13 +44,24 @@ Dir::State::status "${DOWNLOAD_DIR}/apt/status";
 Acquire::Languages "none";
 EOF
 
-    cat > ${DOWNLOAD_DIR}/apt/sources.list <<EOF
+
+    if [ "$RELEASE" == "armhf" ]; then
+        cat > ${DOWNLOAD_DIR}/apt/sources.list <<EOF
+deb http://ports.ubuntu.com/ubuntu-ports/ ${RELEASE} main restricted universe
+deb http://ports.ubuntu.com/ubuntu-ports/ ${RELEASE}-updates main restricted universe
+deb http://ports.ubuntu.com/ubuntu-ports/ ${RELEASE}-security main restricted universe
+
+deb http://ppa.launchpad.net/ubuntu-sdk-team/ppa/ubuntu ${RELEASE} main 
+EOF
+    else
+        cat > ${DOWNLOAD_DIR}/apt/sources.list <<EOF
 deb http://archive.ubuntu.com/ubuntu ${RELEASE} main restricted universe
 deb http://archive.ubuntu.com/ubuntu ${RELEASE}-updates main restricted universe
 deb http://security.ubuntu.com/ubuntu ${RELEASE}-security main restricted universe
 
 deb http://ppa.launchpad.net/ubuntu-sdk-team/ppa/ubuntu ${RELEASE} main 
 EOF
+    fi
 
     APT_CONFIG=${DOWNLOAD_DIR}/apt/downloader.conf apt-get -qq update
 }
@@ -66,7 +76,7 @@ download_arch () {
         APT_CONFIG=""
     else
         echo "(specifically from release $RELEASE)"
-        setup_apt_conf_for_release $RELEASE
+        setup_apt_conf_for_release $RELEASE $ARCH2
         APT_CONFIG=${DOWNLOAD_DIR}/apt/downloader.conf
     fi
 
@@ -134,19 +144,48 @@ copy_to_project () {
     fi
 }
 
-echo
-echo "Trying to download a pre-built Cordova runtime..."
-echo
 
-rm -rf ${CORDOVA_CACHE}
 
-download_arch "i386" "i386-linux-gnu"
-download_arch "amd64" "x86_64-linux-gnu"
-download_arch "armhf" "arm-linux-gnueabihf" trusty
+SKIP_DOWNLOAD=0
 
-install_arch "i386-linux-gnu"
-install_arch "x86_64-linux-gnu"
-install_arch "arm-linux-gnueabihf"
+if [ "$1" == "-h" -o "$1" == "--help" ]; then
+    echo "Usage: $SCRIPTPATH [-n] [project_path]"
+    exit
+fi
 
-[ -z "$PROJECTPATH" ] || copy_to_project
+if [ "$1" == "-n" ]; then
+    SKIP_DOWNLOAD=1
+    PROJECTPATH=`pwd`/$2
+else
+    PROJECTPATH=`pwd`/$1
+fi
 
+if [ -x /usr/bin/nm-tool ]; then
+    if [ `nm-tool | grep State|cut -f2 -d' '` != "connected" ]; then
+        echo "No network link detected, skipping the download step..."
+        echo
+        SKIP_DOWNLOAD=1
+    fi
+fi
+
+if [ $SKIP_DOWNLOAD -eq 0 ]; then
+    echo
+    echo "Trying to download a pre-built Cordova runtime..."
+    echo
+
+    rm -rf ${CORDOVA_CACHE}
+
+    download_arch "i386" "i386-linux-gnu"
+    download_arch "amd64" "x86_64-linux-gnu"
+    download_arch "armhf" "arm-linux-gnueabihf" trusty
+
+    install_arch "i386-linux-gnu"
+    install_arch "x86_64-linux-gnu"
+    install_arch "arm-linux-gnueabihf"
+fi
+
+if [ -z "$PROJECTPATH" ]; then
+    exit "no project path specified"
+fi
+
+copy_to_project
