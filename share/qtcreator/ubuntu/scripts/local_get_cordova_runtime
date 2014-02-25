@@ -24,18 +24,17 @@ DOWNLOAD_DIR=${CORDOVA_CACHE}/download
 
 # based on the blog post of Andreas Olsson
 # http://blog.bogosity.se/2012/11/03/fully-using-apt-get-download/
-setup_apt_conf_for_release () {
-    RELEASE=$1
-
-    [ -z "$RELEASE" ] && exit "setup_apt_conf_for_release"
-
+setup_apt_conf () {
     mkdir -p ${DOWNLOAD_DIR}/apt/{apt.conf.d,preferences.d,trusted.gpg.d,cache/lists/partial}
     touch ${DOWNLOAD_DIR}/apt/status
     ln -s /usr/share/keyrings/debian-archive-keyring.gpg \
         ${DOWNLOAD_DIR}/apt/trusted.gpg.d/
     ln -s /usr/share/keyrings/ubuntu-archive-keyring.gpg \
         ${DOWNLOAD_DIR}/apt/trusted.gpg.d/
-    
+    apt-key --keyring ${DOWNLOAD_DIR}/apt/trusted.gpg.d/ppa.gpg adv \
+        --keyserver keyserver.ubuntu.com --recv-keys C7122F9B 1>/dev/null
+    echo
+
     cat > ${DOWNLOAD_DIR}/apt/downloader.conf <<EOF
 Dir::Cache "${DOWNLOAD_DIR}/apt/cache";
 Dir::Etc "${DOWNLOAD_DIR}/apt";
@@ -43,23 +42,37 @@ Dir::State::Lists "${DOWNLOAD_DIR}/apt/cache/lists";
 Dir::State::status "${DOWNLOAD_DIR}/apt/status";
 Acquire::Languages "none";
 EOF
+}
 
+setup_apt_conf_for_release () {
+    RELEASE=$1
+    ARCH=$2
 
-    if [ "$RELEASE" == "armhf" ]; then
+    [ -z "$RELEASE" ] && exit "setup_apt_conf_for_release"
+
+    # echo "Apt::Architecture \"${ARCH}\";" >> \
+    #    ${DOWNLOAD_DIR}/apt/downloader.conf
+
+    if [ "$ARCH" == "armhf" ]; then
         cat > ${DOWNLOAD_DIR}/apt/sources.list <<EOF
-deb http://ports.ubuntu.com/ubuntu-ports/ ${RELEASE} main restricted universe
-deb http://ports.ubuntu.com/ubuntu-ports/ ${RELEASE}-updates main restricted universe
-deb http://ports.ubuntu.com/ubuntu-ports/ ${RELEASE}-security main restricted universe
+# Do not use the archive for now
+# deb http://ports.ubuntu.com/ubuntu-ports/ ${RELEASE} main restricted universe
+# deb http://ports.ubuntu.com/ubuntu-ports/ ${RELEASE}-updates main restricted universe
+# deb http://ports.ubuntu.com/ubuntu-ports/ ${RELEASE}-security main restricted universe
 
-deb http://ppa.launchpad.net/ubuntu-sdk-team/ppa/ubuntu ${RELEASE} main 
+# use the SDK PPA instead
+deb http://ppa.launchpad.net/ubuntu-sdk-team/ppa/ubuntu ${RELEASE} main
 EOF
     else
         cat > ${DOWNLOAD_DIR}/apt/sources.list <<EOF
-deb http://archive.ubuntu.com/ubuntu ${RELEASE} main restricted universe
-deb http://archive.ubuntu.com/ubuntu ${RELEASE}-updates main restricted universe
-deb http://security.ubuntu.com/ubuntu ${RELEASE}-security main restricted universe
+# Do not use the archive for now
+# deb http://archive.ubuntu.com/ubuntu ${RELEASE} main restricted universe
+# deb http://archive.ubuntu.com/ubuntu ${RELEASE}-updates main restricted universe
+# deb http://security.ubuntu.com/ubuntu ${RELEASE}-security main restricted universe
+# deb http://ppa.launchpad.net/ubuntu-sdk-team/ppa/ubuntu ${RELEASE} main
 
-deb http://ppa.launchpad.net/ubuntu-sdk-team/ppa/ubuntu ${RELEASE} main 
+# use the SDK PPA instead
+deb http://ppa.launchpad.net/ubuntu-sdk-team/ppa/ubuntu ${RELEASE} main
 EOF
     fi
 
@@ -71,39 +84,39 @@ download_arch () {
     ARCH3=$2
     RELEASE=$3
 
+    [ -z "$ARCH2" -o -z "$ARCH3" ] && exit "download_arch"
+    LOCAL_ARCH=`apt-config dump | grep "APT::Architecture " | cut -d\" -f2`
+
     echo "Downloading runtime platform files for $ARCH2"
     if [ -z "$RELEASE" -o "$RELEASE" == "`lsb_release -c | cut -f 2`" ]; then
-        APT_CONFIG=""
+        RELEASE=`lsb_release -c | cut -f 2`
     else
         echo "(specifically from release $RELEASE)"
-        setup_apt_conf_for_release $RELEASE $ARCH2
-        APT_CONFIG=${DOWNLOAD_DIR}/apt/downloader.conf
     fi
 
-    [ -z "$ARCH2" -o -z "$ARCH3" ] && exit "download_arch"
+    setup_apt_conf_for_release $RELEASE # $ARCH2
+    URI=`APT_CONFIG=${DOWNLOAD_DIR}/apt/downloader.conf apt-get -qq download --print-uris ${CORDOVA_PACKAGE} | grep ^\' | cut -d\' -f2`
+    PACKAGE_FILENAME=`APT_CONFIG=${DOWNLOAD_DIR}/apt/downloader.conf apt-get -qq download --print-uris ${CORDOVA_PACKAGE} | grep ^\' | cut -d\  -f2 | sed "s/_${LOCAL_ARCH}.deb$/_${ARCH2}.deb/"`
 
-    ARCH=`apt-config dump | grep "APT::Architecture " | cut -d\" -f2`
-
-    URI=`apt-get -qq download --print-uris ${CORDOVA_PACKAGE} | grep ^\' | cut -d\' -f2`
-    PACKAGE_FILENAME=`apt-get -qq download --print-uris ${CORDOVA_PACKAGE} | grep ^\' | cut -d\  -f2 | sed "s/_${ARCH}.deb$/_${ARCH2}.deb/"`
+    if [ $? -eq 1 ]; then
+        exit "$CORDOVA_PACKAGE not found ($URI)"
+    fi
 
     echo $PACKAGE_FILENAME
-
+    
     mkdir -p ${CORDOVA_CACHE}/lib/${ARCH3}
 
     (
         cd /tmp
-        wget -q `echo $URI | sed "s/_${ARCH}.deb$/_${ARCH2}.deb/"`
+        wget -q `echo $URI | sed "s/_${LOCAL_ARCH}.deb$/_${ARCH2}.deb/"`
 
-	# plain extraction since the packages are already configured w/ arch specific install paths
+	    # plain extraction since the packages are already configured w/ arch specific install paths
         dpkg-deb -x ${PACKAGE_FILENAME} ${CORDOVA_CACHE}/download
 
         rm -f ${PACKAGE_FILENAME}
     )
 
     echo
-
-    rm -rf ${CORDOVA_CACHE}/download/apt
 }
 
 install_arch () {
@@ -129,21 +142,19 @@ install_arch () {
 
 copy_to_project () {
 
-    echo "Copying runtime platform files to ${PROJECTPATH}"
-
     if [ -d ${PROJECTPATH}/www ]; then
+        echo "Copying runtime platform files to ${PROJECTPATH}"
+
         cp -Rf ${CORDOVA_CACHE}/lib ${PROJECTPATH}
         cp -Rf ${CORDOVA_CACHE}/qml ${PROJECTPATH}
         cp -Rf ${CORDOVA_CACHE}/www ${PROJECTPATH}
 
-        find ${PROJECTPATH}/www
+        # find ${PROJECTPATH}/www
     else
-        echo "Could not find the required www/ subfolder in your HTML5 project (${PROJECTPATH})"
-        echo "Please verify your project."
+        echo "No www/ subfolder in ${PROJECTPATH} to install the runtime"
         return 1
     fi
 }
-
 
 
 SKIP_DOWNLOAD=0
@@ -175,17 +186,16 @@ if [ $SKIP_DOWNLOAD -eq 0 ]; then
 
     rm -rf ${CORDOVA_CACHE}
 
+    setup_apt_conf
+
     download_arch "i386" "i386-linux-gnu"
-    download_arch "amd64" "x86_64-linux-gnu"
-    download_arch "armhf" "arm-linux-gnueabihf" trusty
-
     install_arch "i386-linux-gnu"
+    download_arch "amd64" "x86_64-linux-gnu"
     install_arch "x86_64-linux-gnu"
+    download_arch "armhf" "arm-linux-gnueabihf" trusty
     install_arch "arm-linux-gnueabihf"
-fi
 
-if [ -z "$PROJECTPATH" ]; then
-    exit "no project path specified"
+    rm -rf ${CORDOVA_CACHE}/download/apt
 fi
 
 copy_to_project
