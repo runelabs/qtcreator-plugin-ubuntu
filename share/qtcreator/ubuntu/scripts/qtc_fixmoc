@@ -1,0 +1,58 @@
+#!/bin/bash
+# Copyright 2014 Canonical Ltd.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; version 2.1.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Author: Benjamin Zeller<benjamin.zeller@canonical.com>
+
+USAGE="Usage: $0 targetArch targetFramework targetSeries makeOptions"
+
+if [ $# -lt 3 ]; then
+        echo "$USAGE"
+        exit 1
+fi
+
+ARCH=$1
+shift
+FRAMEWORK=$1
+shift
+SERIES=$1
+shift
+
+SCHROOT_PATH="/var/lib/schroot/chroots/click-${FRAMEWORK}-${ARCH}"
+SCHROOT_LSBRELEASE="${SCHROOT_PATH}/etc/lsb-release"
+
+if [ ! -d ${SCHROOT_PATH} ]
+then
+    echo "No target for the specified architecture and framework available"
+    exit 1
+fi
+
+if [ ! -f ${SCHROOT_LSBRELEASE} ]
+then
+    echo "Could not read any version information from the target, it might be broken"
+    exit 1
+fi
+
+#get the chroot framework major version
+set -e
+MAJ_VER=$( egrep "^DISTRIB_RELEASE=.*" ${SCHROOT_PATH}/etc/lsb-release | cut -d= -f2 | cut -d. -f1 )
+set +e
+
+if [[ ${MAJ_VER} -ge 14 ]]
+then
+    echo "Skipping FixMoc step, building for framework version >= 14.x"
+    exit 0
+fi
+
+find . -name AutomocInfo.cmake | xargs sed -i 's;AM_QT_MOC_EXECUTABLE .*;AM_QT_MOC_EXECUTABLE "/usr/lib/'$(dpkg-architecture -qDEB_BUILD_MULTIARCH)'/qt5/bin/moc");'

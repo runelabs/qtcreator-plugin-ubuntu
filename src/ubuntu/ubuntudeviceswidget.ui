@@ -266,7 +266,7 @@ border: 0;
              <enum>QTabWidget::South</enum>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>1</number>
             </property>
             <property name="usesScrollButtons">
              <bool>false</bool>
@@ -1013,18 +1013,7 @@ Recovery</string>
                        </layout>
                       </item>
                       <item>
-                       <layout class="QHBoxLayout" name="horizontalLayout_12">
-                        <item>
-                         <widget class="QLabel" name="pathLabel">
-                          <property name="text">
-                           <string>Create in:</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="Utils::PathChooser" name="pathChooser" native="true"/>
-                        </item>
-                       </layout>
+                       <layout class="QHBoxLayout" name="horizontalLayout_12"/>
                       </item>
                       <item>
                        <widget class="QLabel" name="label_EmulatorValidationMessage"/>
@@ -1148,12 +1137,6 @@ Recovery</string>
    <class>Utils::ProjectNameValidatingLineEdit</class>
    <extends>QLineEdit</extends>
    <header location="global">utils/projectnamevalidatinglineedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>Utils::PathChooser</class>
-   <extends>QWidget</extends>
-   <header location="global">utils/pathchooser.h</header>
-   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

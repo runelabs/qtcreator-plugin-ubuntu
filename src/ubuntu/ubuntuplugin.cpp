@@ -22,6 +22,7 @@
 #include "ubuntuprojectmanager.h"
 #include "ubunturunconfiguration.h"
 #include "ubunturunconfigurationfactory.h"
+#include "ubuntuclicktool.h"
 
 #include <coreplugin/modemanager.h>
 
@@ -49,6 +50,8 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
+
+    qDebug()<<"Going to load ressources from root path: "<<Constants::UBUNTU_RESOURCE_PATH;
 
     const QLatin1String mimetypesXml(Constants::UBUNTU_MIMETYPE_XML);
 
@@ -80,9 +83,6 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     m_ubuntuWelcomeMode = new UbuntuWelcomeMode;
     addAutoReleasedObject(m_ubuntuWelcomeMode);
 
-    m_ubuntuPackagingMode = new UbuntuPackagingMode();
-    addAutoReleasedObject(m_ubuntuPackagingMode);
-
     QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
     settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_MODE));
     if (settings.value(QLatin1String(Constants::SETTINGS_KEY_API),Constants::SETTINGS_DEFAULT_API_VISIBILITY).toBool()) {
@@ -112,6 +112,9 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     m_ubuntuMenu = new UbuntuMenu;
     addAutoReleasedObject(m_ubuntuMenu);
 
+    m_ubuntuPackagingMode = new UbuntuPackagingMode();
+    addAutoReleasedObject(m_ubuntuPackagingMode);
+
     addAutoReleasedObject(new UbuntuSettingsClickPage);
     addAutoReleasedObject(new UbuntuSettingsDeviceConnectivityPage);
     addAutoReleasedObject(new UbuntuSettingsPage);
@@ -123,6 +126,10 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     addAutoReleasedObject(new UbuntuProjectManager);
     addAutoReleasedObject(new UbuntuRunConfigurationFactory);
     addAutoReleasedObject(new UbuntuRunControlFactory);
+
+    //cmake build support, hack until we have a better solution
+    m_ubuntuClickManager = new UbuntuClickManager();
+    addAutoReleasedObject(m_ubuntuClickManager);
 
     return true;
 }
@@ -137,6 +144,7 @@ void UbuntuPlugin::extensionsInitialized()
     if (m_ubuntuCoreAppsMode) m_ubuntuCoreAppsMode->initialize();
     if (m_ubuntuWikiMode) m_ubuntuWikiMode->initialize();
     m_ubuntuPackagingMode->initialize();
+    m_ubuntuClickManager->initialize();
     Core::ModeManager::activateMode(m_ubuntuWelcomeMode->id());
 }
 

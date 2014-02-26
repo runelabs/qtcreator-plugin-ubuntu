@@ -33,6 +33,8 @@
 #include <QVBoxLayout>
 #include <QScrollArea>
 
+#include <cmakeprojectmanager/cmakeprojectconstants.h>
+
 using namespace Ubuntu::Internal;
 
 UbuntuPackagingMode::UbuntuPackagingMode(QObject *parent) :
@@ -65,6 +67,7 @@ UbuntuPackagingMode::UbuntuPackagingMode(QObject *parent) :
     connect(sessionManager,SIGNAL(projectAdded(ProjectExplorer::Project*)),SLOT(on_projectAdded(ProjectExplorer::Project*)));
     connect(sessionManager,SIGNAL(projectRemoved(ProjectExplorer::Project*)),SLOT(on_projectRemoved(ProjectExplorer::Project*)));
     connect(sessionManager,SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),SLOT(on_projectAdded(ProjectExplorer::Project*)));
+    connect(&m_ubuntuPackagingWidget,SIGNAL(reviewToolsInstalledChanged(bool)),this,SLOT(updateModeState()));
 
     setWidget(m_modeWidget);
     setEnabled(false);
@@ -81,14 +84,16 @@ void UbuntuPackagingMode::modeChanged(Core::IMode* currentMode) {
         bool isQmlProject = false;
         bool isQmakeProject = false;
         bool isUbuntuProject = false;
+        bool isCMakeProject = false;
 
         if (startupProject) {
             isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMLPROJECT_MIMETYPE));
             isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMAKE_MIMETYPE));
             isUbuntuProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
+            isCMakeProject  = (startupProject->projectManager()->mimeType() == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
         }
 
-        if (isQmlProject || isUbuntuProject) {
+        if (isQmlProject || isUbuntuProject || isCMakeProject) {
             m_ubuntuPackagingWidget.openManifestForProject();
             m_ubuntuPackagingWidget.setAvailable(true);
         } else {
@@ -108,14 +113,17 @@ void UbuntuPackagingMode::updateModeState() {
     bool isQmlProject = false;
     bool isQmakeProject = false;
     bool isUbuntuProject = false;
+    bool isCMakeProject = false;
+    bool reviewToolsInstalled = m_ubuntuPackagingWidget.reviewToolsInstalled();
 
     if (startupProject) {
         isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMLPROJECT_MIMETYPE));
         isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMAKE_MIMETYPE));
         isUbuntuProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
+        isCMakeProject  = (startupProject->projectManager()->mimeType() == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
     }
 
-    this->setEnabled((ProjectExplorer::SessionManager::projects().count()>0) && (isQmlProject || isUbuntuProject));
+    this->setEnabled((isQmlProject || isUbuntuProject || isCMakeProject || reviewToolsInstalled));
     if (this->isEnabled()) {
         m_ubuntuPackagingWidget.openManifestForProject();
         m_ubuntuPackagingWidget.save();

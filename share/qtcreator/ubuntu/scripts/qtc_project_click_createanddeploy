@@ -18,35 +18,6 @@
 . `dirname $0`/functions.inc
 
 FOLDERNAME=$2
-TARGET_DEVICE=$3
-TARGET_DEVICE_PORT=$4
-TARGET_DEVICE_HOME=$5
-TARGET_DEVICE_USERNAME=$6
-
-if [[ -z ${FOLDERNAME} ]]; then
-	FOLDERNAME=`pwd`
-fi
-
-if [[ -z ${TARGET_DEVICE_PORT} ]]; then
-    TARGET_DEVICE_PORT=2222
-fi
-
-if [[ -z ${TARGET_DEVICE_USERNAME} ]]; then
-    TARGET_DEVICE_USERNAME=phablet
-fi
-
-if [[ -z ${TARGET_DEVICE} ]]; then
-    TARGET_DEVICE=${TARGET_DEVICE_USERNAME}@127.0.0.1
-fi
-
-if [[ -z ${TARGET_DEVICE_HOME} ]]; then
-    TARGET_DEVICE_HOME=/home/${TARGET_DEVICE_USERNAME}/dev_tmp/
-fi
-
-
-
-SCP="scp -v -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P${TARGET_DEVICE_PORT}"
-SSH="ssh -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p${TARGET_DEVICE_PORT} ${TARGET_DEVICE}"
 
 set +e
 echo "Lets create the click package for the project."
@@ -61,33 +32,8 @@ else
 	exit -1
 fi
 
-# remove old files
-if [[ ! -z ${TARGET_DEVICE_HOME} ]]; then
-	echo "Lets clear the device tmp folder at ${TARGET_DEVICE}:${TARGET_DEVICE_PORT}${TARGET_DEVICE_HOME}"
-	$SSH rm -rf ${TARGET_DEVICE_HOME}/* 2> /dev/null
-fi
+echo "${SCRIPTPATH}/qtc_project_click_deploy"
+${SCRIPTPATH}/qtc_project_click_deploy $1 ${PACKAGENAME} $3 $4 $5 $6
 
-# make sure that the device has the target directory
-echo "Lets create the device tmp folder to ${TARGET_DEVICE}:${TARGET_DEVICE_PORT}${TARGET_DEVICE_HOME}"
-$SSH mkdir -vp ${TARGET_DEVICE_HOME} 2> /dev/null
 
-# transfer click package to device
-echo "Transfer the click package to the device"
-set +e
-$SCP ${PACKAGENAME} ${TARGET_DEVICE}:${TARGET_DEVICE_HOME} 2> /dev/null
-if [[ ${?} -eq 0 ]]; then
-	echo "..transfer complete!"
-else
-	echo " /!\\ transfer failed /!\\"
-	exit -1
-fi
 
-echo "List all available click packages on the device"
-FILES=`$SSH -q "cd ${TARGET_DEVICE_HOME}; ls -1 *.click"`
-echo $FILES
-for FILE in $FILES;
-do
- echo "Installing $FILE to device.."
- # note adb shell and adb_shell are two different things, adb_shell comes from functions.inc
- adb_shell sudo -H -u ${TARGET_DEVICE_USERNAME} pkcon install-local ${TARGET_DEVICE_HOME}/${FILE}
-done

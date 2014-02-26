@@ -55,8 +55,22 @@
                 "deviceRequired": true,
                 "qmlProjectRequired": true,
                 "saveRequired": true,
+                "context" : "QmlProject.ProjectContext",
                 "actions": [
                     "%SCRIPTDIRECTORY%/qtc_device_run_app %SERIALNUMBER% qmlscene %FOLDERNAME% %DISPLAYNAME%.desktop %DISPLAYNAME%.qml /home/%USERNAME%/dev_tmp /home/%USERNAME%/.local/share/applications %USERNAME%@%IP% %PORT%"
+                ]
+            },
+            {
+                "name": "Run Application on Device",
+                "id": "Ubuntu.Build.RunCMake",
+                "projectRequired": true,
+                "keysequence": "Ctrl+F12",
+                "deviceRequired": true,
+                "context" : "CMakeProject.ProjectContext",
+                "needsClickTarget" : true,
+                "saveRequired": true,
+                "actions": [
+                    "%SCRIPTDIRECTORY%/qtc_device_run_app %SERIALNUMBER% qmlscene %CLICK_PACKAGING_FOLDER% %DISPLAYNAME%.desktop share/qml/%DISPLAYNAME%/%DISPLAYNAME%.qml /home/%USERNAME%/dev_tmp /home/%USERNAME%/.local/share/applications %USERNAME%@%IP% %PORT%"
                 ]
             },
             {
@@ -69,7 +83,7 @@
                 "ubuntuHtmlProjectRequired": true,
                 "saveRequired": true,
                 "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_device_run_app %SERIALNUMBER% %APPRUNNEREXECNAME% %FOLDERNAME% %DISPLAYNAME%.desktop ../%FOLDERNAME% /home/%USERNAME%/dev_tmp /home/%USERNAME%/.local/share/applications %USERNAME%@%IP% %PORT%"
+                    "%SCRIPTDIRECTORY%/qtc_device_run_app %SERIALNUMBER% %APPRUNNEREXECNAME% %FOLDERNAME% %DISPLAYNAME%.desktop ../%FOLDERNAME% /home/%USERNAME%/dev_tmp /home/%USERNAME%/.local/share/applications %USERNAME%@%IP% %PORT% --www="
                 ]
             },
             {
@@ -88,10 +102,23 @@
                 "id": "Ubuntu.Build.Package",
                 "workingDirectory": "%0/..",
                 "projectRequired": true,
+                "context": "QmlProject.ProjectContext",
                 "ubuntuProjectRequired": true,
                 "saveRequired": true,
                 "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_project_click_create %FOLDERNAME%"
+                    "%SCRIPTDIRECTORY%/qtc_project_click_create %FOLDERNAME% %BUILDDIR%"
+                ]
+            },
+            {
+                "name": "Create Application Package",
+                "id": "Ubuntu.Build.PackageCMake",
+                "workingDirectory": "%0/..",
+                "projectRequired": true,
+                "needsClickTarget": true,
+                "context": "CMakeProject.ProjectContext",
+                "saveRequired": true,
+                "actions": [
+                    "%SCRIPTDIRECTORY%/qtc_cmakeproject_click_create %CLICK_ARCH% %CLICK_FRAMEWORK% %CLICK_SERIES% %PROJECTDIRECTORY% %DISPLAYNAME%"
                 ]
             },
             {
@@ -100,10 +127,24 @@
                 "workingDirectory": "%0/..",
                 "projectRequired": true,
                 "deviceRequired": true,
-                "ubuntuProjectRequired": true,
+                "context": ["QmlProject.ProjectContext","UbuntuProject.ProjectContext"],
                 "saveRequired": true,
                 "actions": [
                     "%SCRIPTDIRECTORY%/qtc_project_click_createanddeploy %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp %USERNAME%"
+                ]
+            },
+            {
+                "name": "Install Application on Device",
+                "id": "Ubuntu.Build.PackageInstallCMake",
+                "workingDirectory": "%0/..",
+                "projectRequired": true,
+                "deviceRequired": true,
+                "ubuntuProjectRequired": false,
+                "saveRequired": true,
+                "needsClickTarget": true,
+                "context": "CMakeProject.ProjectContext",
+                "actions": [
+                    "%SCRIPTDIRECTORY%/qtc_cmakeproject_click_createanddeploy %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp %USERNAME% %CLICK_ARCH% %CLICK_FRAMEWORK% %CLICK_SERIES% %PROJECTDIRECTORY% %DISPLAYNAME%"
                 ]
             },
             {
@@ -244,6 +285,13 @@
                 "deviceRequired": true,
                 "actions": [
                     "nautilus ssh://%USERNAME%@%IP%:%PORT%"
+                ]
+            },
+            {
+                "name": "Download pre-built Cordova runtime",
+                "id": "Ubuntu.Menu.DownloadCordovaRuntime",
+                "actions": [
+                    "%SCRIPTDIRECTORY%/local_get_cordova_runtime"
                 ]
             },
             {

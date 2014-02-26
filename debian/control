@@ -35,11 +35,12 @@ Depends: android-tools-adb,
          libqt5scripttools5,
          qtcreator (>= 2.8.1),
          qtcreator-plugin-ubuntu-common,
-         ubuntu-html5-theme,
          ubuntu-ui-toolkit-doc,
          ubuntu-ui-toolkit-examples,
+         rsync,
          ${misc:Depends},
 Recommends: ubuntu-sdk
+Suggests: click-reviewers-tools
 Description: Ubuntu plugin for Qt Creator IDE
  Qt Creator is a new, lightweight, cross-platform integrated development
  environment (IDE) designed to make development with the Qt application
@@ -52,8 +53,7 @@ Description: Ubuntu plugin for Qt Creator IDE
 
 Package: qtcreator-plugin-ubuntu-common
 Architecture: all
-Depends: gksu,
-         ${misc:Depends},
+Depends: ${misc:Depends},
 Recommends: qtcreator-plugin-ubuntu
 Replaces: qtcreator-plugin-ubuntu (<= 2.7.1-0ubuntu4),
 Conflicts: qtcreator-plugin-ubuntu (<= 2.7.1-0ubuntu4),

@@ -8,6 +8,16 @@ isEmpty(QTCREATOR_SOURCES):QTCREATOR_SOURCES=/usr/src/qtcreator
 IDE_BUILD_TREE = $$(QTC_BUILD)
 isEmpty(IDE_BUILD_TREE):IDE_BUILD_TREE=../../builddir
 
+UBUNTU_LOCAL_BUILD = $$(UBUNTU_QTC_PLUGIN_LOCALBUILD)
+!isEmpty(UBUNTU_LOCAL_BUILD) {
+    message("!!!!!!!!!!BUILDING LOCAL VERSION OF PLUGIN !!!!!!!!!!!!!!!!!!!")
+    USE_USER_DESTDIR = yes
+    PATHSTR = '\\"$${PWD}/../share/qtcreator\\"'
+
+    DEFINES += UBUNTU_RESOURCE_PATH_LOCAL=\"$${PATHSTR}\" UBUNTU_BUILD_LOCAL
+}
+
+
 include($$QTCREATOR_SOURCES/src/qtcreatorplugin.pri)
 
 INCLUDEPATH += $$QTCREATOR_SOURCES/src/
