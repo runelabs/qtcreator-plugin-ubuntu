@@ -74,12 +74,10 @@ public:
 
     static bool getTargetFromUser (Target* target);
 
+    static bool          targetExists (const Target& target);
     static QList<Target> listAvailableTargets ();
     static QPair<int,int> targetVersion (const Target& target);
-
-
-private:
-    Utils::QtcProcess *m_clickProcess;
+    static bool        targetFromPath(const QString& targetPath, Target* tg);
 };
 
 class UbuntuClickManager : public QObject

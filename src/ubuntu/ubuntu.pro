@@ -74,7 +74,9 @@ SOURCES += \
     ubuntuclicktool.cpp \
     ubuntucreatenewchrootdialog.cpp \
     ubuntuclickdialog.cpp \
-    ubuntuvalidationresultmodel.cpp
+    ubuntuvalidationresultmodel.cpp \
+    clicktoolchain.cpp \
+    ubuntukitmanager.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -122,5 +124,7 @@ HEADERS += \
     ubuntuclicktool.h \
     ubuntucreatenewchrootdialog.h \
     ubuntuclickdialog.h \
-    ubuntuvalidationresultmodel.h
+    ubuntuvalidationresultmodel.h \
+    clicktoolchain.h \
+    ubuntukitmanager.h
 

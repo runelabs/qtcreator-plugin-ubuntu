@@ -477,6 +477,11 @@ const char UBUNTU_CLICK_SELECT_TARGET_LABEL[] = "Build target";
 extern const char* UBUNTU_CLICK_SUPPORTED_ARCHS[];
 extern const char* UBUNTU_CLICK_SUPPORTED_TARGETS[][3];
 
+//Buildsupport
+const char UBUNTU_CLICK_TOOLCHAIN_ID[] = "ubuntugcc";
+const char UBUNTU_CLICK_MAKE_WRAPPER[] = "%0/qtc_chroot_make2";
+const char UBUNTU_CLICK_GCC_WRAPPER[]  = "%0/qtc_chroot_gcc";
+
 
 } // namespace Ubuntu
 } // namespace Constants

@@ -5,4 +5,7 @@ QTC_PLUGIN_DEPENDS += \
     coreplugin \
     projectexplorer \
     qmakeprojectmanager \
-    qmlprojectmanager
+    qmlprojectmanager \
+    cmakeprojectmanager \
+    debugger \
+    qtsupport

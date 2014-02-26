@@ -202,6 +202,19 @@ bool UbuntuClickTool::getTargetFromUser(Target *target)
     return true;
 }
 
+/*!
+ * \brief UbuntuClickTool::targetExists
+ * checks if the target is still available
+ */
+bool UbuntuClickTool::targetExists(const UbuntuClickTool::Target &target)
+{
+    QPair<int,int> targetVer = targetVersion(target);
+    if(targetVer.first == -1)
+        return false;
+
+    return true;
+}
+
 /**
  * @brief UbuntuClickTool::listAvailableTargets
  * @return all currently existing chroot targets in the system
@@ -217,71 +230,14 @@ QList<UbuntuClickTool::Target> UbuntuClickTool::listAvailableTargets()
 
     QStringList availableChroots = chrootDir.entryList(QDir::Dirs);
 
-    QRegularExpression clickFilter(QLatin1String(Constants::UBUNTU_CLICK_TARGETS_REGEX));
-
     //iterate over all chroots and check if they are click chroots
     foreach (const QString &chroot, availableChroots) {
-        QRegularExpressionMatch match = clickFilter.match(chroot);
-        if(!match.hasMatch()) {
-            continue;
-        }
-
         Target t;
-        t.maybeBroken  = false; //we are optimistic
-        t.framework    = match.captured(1);
-        t.architecture = match.captured(2);
-
-        //now read informations about the target
-        QFile f(QString::fromLatin1("%0/click-%1-%2/%3")
-                .arg(QLatin1String(Constants::UBUNTU_CLICK_CHROOT_BASEPATH))
-                .arg(t.framework)
-                .arg(t.architecture)
-                .arg(QLatin1String("/etc/lsb-release")));
-
-        if (!f.open(QIODevice::ReadOnly)) {
-            //there is no lsb-release file... what now?
-            t.maybeBroken = true;
-
-        } else {
-            QString info = QString::fromLatin1(f.readAll());
-
-            //read version
-            QRegularExpression grep(QLatin1String(Constants::UBUNTU_CLICK_VERSION_REGEX),QRegularExpression::MultilineOption);
-            QRegularExpressionMatch match = grep.match(info);
-
-            if(!match.hasMatch()) {
-                t.maybeBroken = true;
-            } else {
-                bool ok = false;
-
-                t.majorVersion = match.captured(1).toInt(&ok);
-                if(!ok) {
-                    t.maybeBroken = true;
-                    t.majorVersion = -1;
-                }
-
-                t.minorVersion = match.captured(2).toInt(&ok);
-                if(!ok) {
-                    t.maybeBroken = true;
-                    t.minorVersion = -1;
-                }
-            }
-
-            //read series
-            grep.setPattern(QString::fromLatin1(Constants::UBUNTU_CLICK_SERIES_REGEX));
-            grep.setPatternOptions(QRegularExpression::MultilineOption);
-            match = grep.match(info);
-
-            if(!match.hasMatch()) {
-                t.maybeBroken = true;
-            } else {
-                t.series = match.captured(1);
-            }
-        }
+        if(!targetFromPath(chroot,&t))
+            continue;
 
         items.append(t);
     }
-
     return items;
 }
 
@@ -321,6 +277,77 @@ QPair<int, int> UbuntuClickTool::targetVersion(const UbuntuClickTool::Target &ta
     int minorV = match.captured(2).toInt();
 
     return qMakePair(majorV,minorV);
+}
+
+/*!
+ * \brief UbuntuClickTool::targetFromPath
+ * returns true if the given path is a click target
+ * if it is, \a tg will be initialized with that targets values
+ */
+bool UbuntuClickTool::targetFromPath(const QString &targetPath, UbuntuClickTool::Target *tg)
+{
+    QRegularExpression clickFilter(QLatin1String(Constants::UBUNTU_CLICK_TARGETS_REGEX));
+
+    QRegularExpressionMatch match = clickFilter.match(targetPath);
+    if(!match.hasMatch()) {
+        return false;
+    }
+
+    Target t;
+    t.maybeBroken  = false; //we are optimistic
+    t.framework    = match.captured(1);
+    t.architecture = match.captured(2);
+
+    //now read informations about the target
+    QFile f(QString::fromLatin1("%0/click-%1-%2/%3")
+            .arg(QLatin1String(Constants::UBUNTU_CLICK_CHROOT_BASEPATH))
+            .arg(t.framework)
+            .arg(t.architecture)
+            .arg(QLatin1String("/etc/lsb-release")));
+
+    if (!f.open(QIODevice::ReadOnly)) {
+        //there is no lsb-release file... what now?
+        t.maybeBroken = true;
+
+    } else {
+        QString info = QString::fromLatin1(f.readAll());
+
+        //read version
+        QRegularExpression grep(QLatin1String(Constants::UBUNTU_CLICK_VERSION_REGEX),QRegularExpression::MultilineOption);
+        QRegularExpressionMatch match = grep.match(info);
+
+        if(!match.hasMatch()) {
+            t.maybeBroken = true;
+        } else {
+            bool ok = false;
+
+            t.majorVersion = match.captured(1).toInt(&ok);
+            if(!ok) {
+                t.maybeBroken = true;
+                t.majorVersion = -1;
+            }
+
+            t.minorVersion = match.captured(2).toInt(&ok);
+            if(!ok) {
+                t.maybeBroken = true;
+                t.minorVersion = -1;
+            }
+        }
+
+        //read series
+        grep.setPattern(QString::fromLatin1(Constants::UBUNTU_CLICK_SERIES_REGEX));
+        grep.setPatternOptions(QRegularExpression::MultilineOption);
+        match = grep.match(info);
+
+        if(!match.hasMatch()) {
+            t.maybeBroken = true;
+        } else {
+            t.series = match.captured(1);
+        }
+    }
+
+    *tg = t;
+    return true;
 }
 
 

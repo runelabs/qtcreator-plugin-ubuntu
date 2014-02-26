@@ -60,6 +60,9 @@ public:
     virtual bool initialize(const QStringList &arguments, QString *errorString);
     virtual void extensionsInitialized();
 
+private slots:
+    void onKitsLoaded ();
+
 protected:
     UbuntuWelcomeMode*      m_ubuntuWelcomeMode;
     UbuntuDeviceMode*       m_ubuntuDeviceMode;
