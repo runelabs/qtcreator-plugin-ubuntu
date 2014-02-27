@@ -58,6 +58,10 @@ private:
 
 private:
     UbuntuClickTool::Target m_clickTarget;
+
+    // ToolChain interface
+public:
+    virtual Utils::FileName compilerCommand() const;
 };
 
 class ClickToolChainFactory : public ProjectExplorer::ToolChainFactory

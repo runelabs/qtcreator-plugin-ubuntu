@@ -478,9 +478,11 @@ extern const char* UBUNTU_CLICK_SUPPORTED_ARCHS[];
 extern const char* UBUNTU_CLICK_SUPPORTED_TARGETS[][3];
 
 //Buildsupport
-const char UBUNTU_CLICK_TOOLCHAIN_ID[] = "ubuntugcc";
-const char UBUNTU_CLICK_MAKE_WRAPPER[] = "%0/qtc_chroot_make2";
-const char UBUNTU_CLICK_GCC_WRAPPER[]  = "%0/qtc_chroot_gcc";
+const char UBUNTU_CLICK_TOOLCHAIN_ID[]   = "UbuntuProjectManager.UbuntuGccToolChain";
+const char UBUNTU_CLICK_CMAKE_TOOL_ID[]  = "UbuntuProjectManager.UbuntuCMake";
+const char UBUNTU_CLICK_CMAKE_WRAPPER[]  = "%0/qtc_chroot_cmake2";
+const char UBUNTU_CLICK_MAKE_WRAPPER[]   = "%0/qtc_chroot_make2";
+const char UBUNTU_CLICK_GCC_WRAPPER[]    = "%0/qtc_chroot_gcc";
 
 
 } // namespace Ubuntu

@@ -53,7 +53,7 @@ QList<Utils::FileName> ClickToolChain::suggestedMkspecList() const
 
 Utils::FileName ClickToolChain::suggestedDebugger() const
 {
-    return GccToolChain::suggestedDebugger();
+    return Utils::FileName::fromString(QLatin1String("/usr/bin/gdb-multiarch"));
 }
 
 QString ClickToolChain::type() const
@@ -81,7 +81,8 @@ void ClickToolChain::addToEnvironment(Utils::Environment &env) const
 
 QString ClickToolChain::makeCommand(const Utils::Environment &) const
 {
-    QString::fromLatin1(Constants::UBUNTU_CLICK_MAKE_WRAPPER).arg(Constants::UBUNTU_SCRIPTPATH);
+    QString command = QString::fromLatin1(Constants::UBUNTU_CLICK_MAKE_WRAPPER).arg(Constants::UBUNTU_SCRIPTPATH);
+    return command;
 }
 
 bool ClickToolChain::operator ==(const ProjectExplorer::ToolChain &tc) const
@@ -89,7 +90,9 @@ bool ClickToolChain::operator ==(const ProjectExplorer::ToolChain &tc) const
     if (!GccToolChain::operator ==(tc))
         return false;
 
-    return true;
+    return (m_clickTarget.architecture == m_clickTarget.architecture
+            && m_clickTarget.framework == m_clickTarget.framework
+            && m_clickTarget.series == m_clickTarget.series);
 }
 
 ProjectExplorer::ToolChainConfigWidget *ClickToolChain::configurationWidget()
@@ -138,6 +141,11 @@ bool ClickToolChain::fromMap(const QVariantMap &data)
     fixAbi();
 
     return isValid();
+}
+
+Utils::FileName ClickToolChain::compilerCommand() const
+{
+    return GccToolChain::compilerCommand();
 }
 
 ClickToolChain::ClickToolChain(const UbuntuClickTool::Target &target, Detection d)
@@ -226,6 +234,3 @@ QList<ProjectExplorer::ToolChain *> ClickToolChainFactory::createToolChainsForCl
 
 } // namespace Internal
 } // namespace Ubuntu
-
-
-

@@ -24,6 +24,7 @@
 #include "ubunturunconfigurationfactory.h"
 #include "ubuntuclicktool.h"
 #include "ubuntukitmanager.h"
+#include "ubuntucmaketool.h"
 #include "clicktoolchain.h"
 
 #include <coreplugin/modemanager.h>
@@ -54,6 +55,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
+    qDebug()<<"init";
     qDebug()<<"Going to load ressources from root path: "<<Constants::UBUNTU_RESOURCE_PATH;
 
     const QLatin1String mimetypesXml(Constants::UBUNTU_MIMETYPE_XML);
@@ -88,7 +90,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
     QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
     settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_MODE));
-#if 0
+
     if (settings.value(QLatin1String(Constants::SETTINGS_KEY_API),Constants::SETTINGS_DEFAULT_API_VISIBILITY).toBool()) {
         m_ubuntuAPIMode = new UbuntuAPIMode;
         addAutoReleasedObject(m_ubuntuAPIMode);
@@ -111,7 +113,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
         m_ubuntuWikiMode = new UbuntuWikiMode;
         addAutoReleasedObject(m_ubuntuWikiMode);
     }
-#endif
+
     settings.endGroup();
 
     m_ubuntuMenu = new UbuntuMenu;
@@ -134,6 +136,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
     // Build support
     addAutoReleasedObject(new ClickToolChainFactory);
+    addAutoReleasedObject(new UbuntuCMakeToolFactory);
 
     //cmake build support, hack until we have a better solution
     m_ubuntuClickManager = new UbuntuClickManager();
@@ -148,6 +151,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
 void UbuntuPlugin::extensionsInitialized()
 {
+    qDebug()<<"extensions loaded";
     if (m_ubuntuMenu) m_ubuntuMenu->initialize();
     m_ubuntuWelcomeMode->initialize();
     m_ubuntuDeviceMode->initialize();
@@ -162,6 +166,7 @@ void UbuntuPlugin::extensionsInitialized()
 
 void UbuntuPlugin::onKitsLoaded()
 {
+    qDebug()<<"Kits loaded";
     UbuntuKitManager::autoDetectKits();
     disconnect(ProjectExplorer::KitManager::instance(),SIGNAL(kitsLoaded())
                ,this,SLOT(onKitsLoaded()));

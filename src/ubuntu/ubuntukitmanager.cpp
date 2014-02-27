@@ -1,6 +1,7 @@
 #include "ubuntukitmanager.h"
 #include "clicktoolchain.h"
 #include "ubuntuconstants.h"
+#include "ubuntucmaketool.h"
 
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kit.h>
@@ -10,6 +11,8 @@
 #include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggerkitinformation.h>
 #include <qtsupport/qtkitinformation.h>
+#include <cmakeprojectmanager/cmakekitinformation.h>
+#include <cmakeprojectmanager/cmaketoolmanager.h>
 
 namespace Ubuntu {
 namespace Internal {
@@ -29,11 +32,13 @@ void UbuntuKitManager::autoDetectKits()
     // having a empty toolchains list will remove all autodetected kits for android
     // exactly what we want in that case
     foreach (ProjectExplorer::ToolChain *tc, ProjectExplorer::ToolChainManager::toolChains()) {
-        if (!tc->isAutoDetected())
-            continue;
-        if (tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
-            continue;
-        toolchains << static_cast<ClickToolChain *>(tc);
+        if(tc) {
+            if (!tc->isAutoDetected())
+                continue;
+            if (tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
+                continue;
+            toolchains << static_cast<ClickToolChain *>(tc);
+        }
     }
 
     QList<ProjectExplorer::Kit *> existingKits;
@@ -42,6 +47,15 @@ void UbuntuKitManager::autoDetectKits()
             continue;
         if (k->isSdkProvided())
             continue;
+
+        CMakeProjectManager::ICMakeTool* icmake = CMakeProjectManager::CMakeKitInformation::cmakeTool(k);
+        UbuntuCMakeTool* cmake = qobject_cast<UbuntuCMakeTool*>(icmake);
+        if(!cmake)
+            continue;
+
+        Utils::Environment env = Utils::Environment::systemEnvironment();
+        k->addToEnvironment(env);
+        cmake->setEnvironment(env);
 
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
         if (tc && tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
@@ -101,13 +115,8 @@ void UbuntuKitManager::autoDetectKits()
     //all kits remaining need to be removed if they don't have all informations
     foreach (ProjectExplorer::Kit *k, existingKits) {
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
-        if(!tc) {
-            qDebug()<<"Found Kit with empty TC";
-        } else {
-            if(tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
-                qDebug()<<"Found Kit with wrong type "<<tc->type();
-        }
-        if (tc && tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
+        CMakeProjectManager::ICMakeTool* icmake = CMakeProjectManager::CMakeKitInformation::cmakeTool(k);
+        if (tc && tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID) && icmake && icmake->isValid()) {
             //existing targets are not autodetected anymore
             k->makeUnSticky();
             k->setAutoDetected(false);
@@ -136,14 +145,35 @@ ProjectExplorer::Kit *UbuntuKitManager::createKit(ClickToolChain *tc)
     newKit->setIconPath(Utils::FileName::fromString(QLatin1String(Constants::UBUNTU_MODE_WEB_ICON)));
     ProjectExplorer::ToolChainKitInformation::setToolChain(newKit, tc);
 
-    Debugger::DebuggerItem debugger;
-    debugger.setCommand(tc->suggestedDebugger());
-    debugger.setEngineType(Debugger::GdbEngineType);
-    debugger.setDisplayName(tr("Ubuntu Debugger for %1").arg(tc->displayName()));
-    debugger.setAutoDetected(true);
-    debugger.setAbi(tc->targetAbi());
-    QVariant id = Debugger::DebuggerItemManager::registerDebugger(debugger);
-    Debugger::DebuggerKitInformation::setDebugger(newKit, id);
+    bool found=false;
+    QList<Debugger::DebuggerItem> debuggers = Debugger::DebuggerItemManager::debuggers();
+    foreach(const Debugger::DebuggerItem& debugger,debuggers) {
+        if(debugger.command() == tc->suggestedDebugger()) {
+            found = true;
+            Debugger::DebuggerKitInformation::setDebugger(newKit, debugger.id());
+        }
+    }
+
+    if(!found) {
+        Debugger::DebuggerItem debugger;
+        debugger.setCommand(tc->suggestedDebugger());
+        debugger.setEngineType(Debugger::GdbEngineType);
+        debugger.setDisplayName(tr("Ubuntu Debugger for %1").arg(tc->displayName()));
+        debugger.setAutoDetected(true);
+        //multiarch debugger
+        //debugger.setAbi(tc->targetAbi());
+        QVariant id = Debugger::DebuggerItemManager::registerDebugger(debugger);
+        Debugger::DebuggerKitInformation::setDebugger(newKit,id);
+    }
+
+    //every kit gets its own instance of CMakeTool
+    UbuntuCMakeTool* cmake = new UbuntuCMakeTool;
+    Utils::Environment env = Utils::Environment::systemEnvironment();
+    newKit->addToEnvironment(env);
+    cmake->setEnvironment(env);
+
+    CMakeProjectManager::CMakeToolManager::registerCMakeTool(cmake);
+    CMakeProjectManager::CMakeKitInformation::setCMakeTool(newKit,cmake->id());
 
     //@TODO add gdbserver support
     //@TODO add device type

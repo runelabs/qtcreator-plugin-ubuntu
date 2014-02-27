@@ -76,7 +76,8 @@ SOURCES += \
     ubuntuclickdialog.cpp \
     ubuntuvalidationresultmodel.cpp \
     clicktoolchain.cpp \
-    ubuntukitmanager.cpp
+    ubuntukitmanager.cpp \
+    ubuntucmaketool.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -126,5 +127,6 @@ HEADERS += \
     ubuntuclickdialog.h \
     ubuntuvalidationresultmodel.h \
     clicktoolchain.h \
-    ubuntukitmanager.h
+    ubuntukitmanager.h \
+    ubuntucmaketool.h
 
