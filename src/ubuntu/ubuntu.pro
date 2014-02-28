@@ -77,7 +77,8 @@ SOURCES += \
     ubuntuvalidationresultmodel.cpp \
     clicktoolchain.cpp \
     ubuntukitmanager.cpp \
-    ubuntucmaketool.cpp
+    ubuntucmaketool.cpp \
+    ubuntucmakebuildconfiguration.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -128,5 +129,6 @@ HEADERS += \
     ubuntuvalidationresultmodel.h \
     clicktoolchain.h \
     ubuntukitmanager.h \
-    ubuntucmaketool.h
+    ubuntucmaketool.h \
+    ubuntucmakebuildconfiguration.h
 

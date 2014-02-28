@@ -4,6 +4,10 @@
 #include "clicktoolchain.h"
 #include <projectexplorer/kit.h>
 
+namespace Debugger{
+class DebuggerItem;
+}
+
 namespace Ubuntu {
 namespace Internal {
 
@@ -15,6 +19,8 @@ public:
 
     static void autoDetectKits ();
     static ProjectExplorer::Kit *createKit (ClickToolChain* tc);
+    static QVariant createOrFindDebugger(const Utils::FileName &path);
+    static void fixKit (ProjectExplorer::Kit* k);
 };
 
 } // namespace Internal

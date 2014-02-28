@@ -480,6 +480,8 @@ extern const char* UBUNTU_CLICK_SUPPORTED_TARGETS[][3];
 //Buildsupport
 const char UBUNTU_CLICK_TOOLCHAIN_ID[]   = "UbuntuProjectManager.UbuntuGccToolChain";
 const char UBUNTU_CLICK_CMAKE_TOOL_ID[]  = "UbuntuProjectManager.UbuntuCMake";
+const char UBUNTU_CLICK_CMAKE_BC_ID[]       = "UbuntuProjectManager.UbuntuCMake.BuildConfiguration";
+const char UBUNTU_CLICK_CMAKE_MAKESTEP_ID[] = "UbuntuProjectManager.UbuntuCMake.MakeStep";
 const char UBUNTU_CLICK_CMAKE_WRAPPER[]  = "%0/qtc_chroot_cmake2";
 const char UBUNTU_CLICK_MAKE_WRAPPER[]   = "%0/qtc_chroot_make2";
 const char UBUNTU_CLICK_GCC_WRAPPER[]    = "%0/qtc_chroot_gcc";

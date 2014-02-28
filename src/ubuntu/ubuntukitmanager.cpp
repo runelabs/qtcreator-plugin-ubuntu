@@ -48,21 +48,20 @@ void UbuntuKitManager::autoDetectKits()
         if (k->isSdkProvided())
             continue;
 
-        CMakeProjectManager::ICMakeTool* icmake = CMakeProjectManager::CMakeKitInformation::cmakeTool(k);
-        UbuntuCMakeTool* cmake = qobject_cast<UbuntuCMakeTool*>(icmake);
-        if(!cmake)
-            continue;
-
-        Utils::Environment env = Utils::Environment::systemEnvironment();
-        k->addToEnvironment(env);
-        cmake->setEnvironment(env);
-
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
         if (tc && tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
             continue;
 
-        //@TODO check for ubuntu device information
+        CMakeProjectManager::ICMakeTool* icmake = CMakeProjectManager::CMakeKitInformation::cmakeTool(k);
+        UbuntuCMakeTool* cmake = qobject_cast<UbuntuCMakeTool*>(icmake);
+        //if the kit has no valid UbuntuCMakeTool, let it be removed from the code later
+        if(cmake) {
+            Utils::Environment env = Utils::Environment::systemEnvironment();
+            k->addToEnvironment(env);
+            cmake->setEnvironment(env);
+        }
 
+        //@TODO check for ubuntu device information
         qDebug()<<"Found possible Ubuntu Kit: "<<k->displayName();
         existingKits << k;
     }
@@ -103,9 +102,13 @@ void UbuntuKitManager::autoDetectKits()
             ProjectExplorer::Kit *newKit = newKits.at(j);
             if (equalKits(existingKit, newKit)) {
                 // Kit is already registered, nothing to do
+                ProjectExplorer::Kit *oldKit = existingKits.takeAt(i);
+                oldKit->makeSticky();
+
+                //make sure kit has all required informations
+                fixKit(oldKit);
+
                 newKits.removeAt(j);
-                existingKits.at(i)->makeSticky();
-                existingKits.removeAt(i);
                 ProjectExplorer::KitManager::deleteKit(newKit);
                 j = newKits.count();
             }
@@ -116,10 +119,13 @@ void UbuntuKitManager::autoDetectKits()
     foreach (ProjectExplorer::Kit *k, existingKits) {
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
         CMakeProjectManager::ICMakeTool* icmake = CMakeProjectManager::CMakeKitInformation::cmakeTool(k);
-        if (tc && tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID) && icmake && icmake->isValid()) {
+        if (tc && tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
+                && icmake && icmake->id().toString().startsWith(QLatin1String(Constants::UBUNTU_CLICK_CMAKE_TOOL_ID))
+                && icmake->isValid()) {
             //existing targets are not autodetected anymore
             k->makeUnSticky();
             k->setAutoDetected(false);
+            fixKit(k);
         } else {
             //has not all informations, go away
             ProjectExplorer::KitManager::deregisterKit(k);
@@ -137,6 +143,11 @@ void UbuntuKitManager::autoDetectKits()
     }
 }
 
+/*!
+ * \brief UbuntuKitManager::createKit
+ * Creates a new Kit for the Ubunut toolchain and sets default
+ * values
+ */
 ProjectExplorer::Kit *UbuntuKitManager::createKit(ClickToolChain *tc)
 {
     //@TODO find a qt version
@@ -145,26 +156,9 @@ ProjectExplorer::Kit *UbuntuKitManager::createKit(ClickToolChain *tc)
     newKit->setIconPath(Utils::FileName::fromString(QLatin1String(Constants::UBUNTU_MODE_WEB_ICON)));
     ProjectExplorer::ToolChainKitInformation::setToolChain(newKit, tc);
 
-    bool found=false;
-    QList<Debugger::DebuggerItem> debuggers = Debugger::DebuggerItemManager::debuggers();
-    foreach(const Debugger::DebuggerItem& debugger,debuggers) {
-        if(debugger.command() == tc->suggestedDebugger()) {
-            found = true;
-            Debugger::DebuggerKitInformation::setDebugger(newKit, debugger.id());
-        }
-    }
-
-    if(!found) {
-        Debugger::DebuggerItem debugger;
-        debugger.setCommand(tc->suggestedDebugger());
-        debugger.setEngineType(Debugger::GdbEngineType);
-        debugger.setDisplayName(tr("Ubuntu Debugger for %1").arg(tc->displayName()));
-        debugger.setAutoDetected(true);
-        //multiarch debugger
-        //debugger.setAbi(tc->targetAbi());
-        QVariant id = Debugger::DebuggerItemManager::registerDebugger(debugger);
-        Debugger::DebuggerKitInformation::setDebugger(newKit,id);
-    }
+    QVariant debId = createOrFindDebugger(tc->suggestedDebugger());
+    if(debId.isValid())
+        Debugger::DebuggerKitInformation::setDebugger(newKit,debId);
 
     //every kit gets its own instance of CMakeTool
     UbuntuCMakeTool* cmake = new UbuntuCMakeTool;
@@ -181,6 +175,60 @@ ProjectExplorer::Kit *UbuntuKitManager::createKit(ClickToolChain *tc)
     QtSupport::QtKitInformation::setQtVersion(newKit, 0);
 
     return newKit;
+}
+
+/*!
+ * \brief UbuntuKitManager::createOrFindDebugger
+ * Tries to find a already existing ubuntu debugger, if it can not find one
+ * it is registered and returned
+ */
+QVariant UbuntuKitManager::createOrFindDebugger(const Utils::FileName &path)
+{
+    if(path.isEmpty())
+        return QVariant();
+
+    QList<Debugger::DebuggerItem> debuggers = Debugger::DebuggerItemManager::debuggers();
+    foreach(const Debugger::DebuggerItem& debugger,debuggers) {
+        if(debugger.command() == path) {
+            return debugger.id();
+        }
+    }
+
+
+    Debugger::DebuggerItem debugger;
+    debugger.setCommand(path);
+    debugger.setEngineType(Debugger::GdbEngineType);
+    debugger.setDisplayName(tr("Ubuntu SDK Debugger"));
+    debugger.setAutoDetected(true);
+    //multiarch debugger
+    ProjectExplorer::Abi abi(ProjectExplorer::Abi::UnknownArchitecture
+                             ,ProjectExplorer::Abi::LinuxOS
+                             ,ProjectExplorer::Abi::GenericLinuxFlavor
+                             ,ProjectExplorer::Abi::UnknownFormat
+                             ,0);
+    debugger.setAbi(abi);
+    return Debugger::DebuggerItemManager::registerDebugger(debugger);
+}
+
+/*!
+ * \brief UbuntuKitManager::fixKit
+ * Tries to fix a Kit if there is missing information
+ */
+void UbuntuKitManager::fixKit(ProjectExplorer::Kit *k)
+{
+    ProjectExplorer::ToolChain* tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
+    if(!tc) {
+        //make kit editable for user
+        k->setAutoDetected(false);
+        return;
+    }
+
+    if(!Debugger::DebuggerKitInformation::debugger(k)) {
+        QVariant dId = createOrFindDebugger(tc->suggestedDebugger());
+        if(dId.isValid())
+            Debugger::DebuggerKitInformation::setDebugger(k,dId);
+    }
+
 }
 
 } // namespace Internal

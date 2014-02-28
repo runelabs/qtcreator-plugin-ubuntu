@@ -26,6 +26,7 @@
 #include "ubuntukitmanager.h"
 #include "ubuntucmaketool.h"
 #include "clicktoolchain.h"
+#include "ubuntucmakebuildconfiguration.h"
 
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -137,6 +138,8 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     // Build support
     addAutoReleasedObject(new ClickToolChainFactory);
     addAutoReleasedObject(new UbuntuCMakeToolFactory);
+    addAutoReleasedObject(new UbuntuCMakeMakeStepFactory);
+    addAutoReleasedObject(new UbuntuCMakeBuildConfigurationFactory);
 
     //cmake build support, hack until we have a better solution
     m_ubuntuClickManager = new UbuntuClickManager();
