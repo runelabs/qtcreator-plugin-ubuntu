@@ -82,7 +82,11 @@ QList<ProjectExplorer::BuildInfo *> UbuntuCMakeBuildConfigurationFactory::availa
     if(!canHandle(parent))
         QList<ProjectExplorer::BuildInfo *>();
 
-    return CMakeBuildConfigurationFactory::availableBuilds(parent);
+    QList<ProjectExplorer::BuildInfo *> infos = CMakeBuildConfigurationFactory::availableBuilds(parent);
+    foreach(ProjectExplorer::BuildInfo* info, infos)
+        info->typeName = tr("Ubuntu SDK Build");
+
+    return infos;
 }
 
 int UbuntuCMakeBuildConfigurationFactory::priority(const ProjectExplorer::Kit *k, const QString &projectPath) const
@@ -99,7 +103,11 @@ int UbuntuCMakeBuildConfigurationFactory::priority(const ProjectExplorer::Kit *k
 
 QList<ProjectExplorer::BuildInfo *> UbuntuCMakeBuildConfigurationFactory::availableSetups(const ProjectExplorer::Kit *k, const QString &projectPath) const
 {
-    return CMakeBuildConfigurationFactory::availableSetups(k,projectPath);
+    QList<ProjectExplorer::BuildInfo *> infos = CMakeBuildConfigurationFactory::availableSetups(k,projectPath);
+    foreach(ProjectExplorer::BuildInfo* info, infos)
+        info->typeName = tr("Ubuntu SDK Build");
+
+    return infos;
 }
 
 UbuntuCMakeBuildConfiguration *UbuntuCMakeBuildConfigurationFactory::create(ProjectExplorer::Target *parent, const ProjectExplorer::BuildInfo *info) const
