@@ -35,8 +35,10 @@ public:
 public slots:
     void startMonitoring(QString serialNumber);
     void stopMonitoring();
+    bool isConnected () const;
 
 signals:
+    void deviceConnected();
     void deviceConnected(QString serialNumber);
     void deviceDisconnected();
 

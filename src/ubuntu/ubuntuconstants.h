@@ -486,6 +486,9 @@ const char UBUNTU_CLICK_CMAKE_WRAPPER[]  = "%0/qtc_chroot_cmake2";
 const char UBUNTU_CLICK_MAKE_WRAPPER[]   = "%0/qtc_chroot_make2";
 const char UBUNTU_CLICK_GCC_WRAPPER[]    = "%0/qtc_chroot_gcc";
 
+//Devicesupport
+const char UBUNTU_DEVICE_ID[] = "UbuntuProjectManager.DeviceTypeId";
+
 
 } // namespace Ubuntu
 } // namespace Constants

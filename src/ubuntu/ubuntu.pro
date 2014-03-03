@@ -78,7 +78,9 @@ SOURCES += \
     clicktoolchain.cpp \
     ubuntukitmanager.cpp \
     ubuntucmaketool.cpp \
-    ubuntucmakebuildconfiguration.cpp
+    ubuntucmakebuildconfiguration.cpp \
+    ubuntudevicefactory.cpp \
+    ubuntudevice.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -130,5 +132,7 @@ HEADERS += \
     clicktoolchain.h \
     ubuntukitmanager.h \
     ubuntucmaketool.h \
-    ubuntucmakebuildconfiguration.h
+    ubuntucmakebuildconfiguration.h \
+    ubuntudevicefactory.h \
+    ubuntudevice.h
 

@@ -25,6 +25,7 @@
 #include "ubuntuclicktool.h"
 #include "ubuntukitmanager.h"
 #include "ubuntucmaketool.h"
+#include "ubuntudevicefactory.h"
 #include "clicktoolchain.h"
 #include "ubuntucmakebuildconfiguration.h"
 
@@ -141,9 +142,15 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     addAutoReleasedObject(new UbuntuCMakeMakeStepFactory);
     addAutoReleasedObject(new UbuntuCMakeBuildConfigurationFactory);
 
+    //ubuntu device support
+    addAutoReleasedObject(new UbuntuDeviceFactory);
+
     //cmake build support, hack until we have a better solution
     m_ubuntuClickManager = new UbuntuClickManager();
     addAutoReleasedObject(m_ubuntuClickManager);
+
+
+
 
     //trigger kit autodetection and update after projectexplorer loaded the kits
     connect(ProjectExplorer::KitManager::instance(),SIGNAL(kitsLoaded())

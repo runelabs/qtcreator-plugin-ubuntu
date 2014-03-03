@@ -266,7 +266,7 @@ border: 0;
              <enum>QTabWidget::South</enum>
             </property>
             <property name="currentIndex">
-             <number>1</number>
+             <number>0</number>
             </property>
             <property name="usesScrollButtons">
              <bool>false</bool>
@@ -495,7 +495,7 @@ Connect to a wlan or to a wwan and try again.</string>
                          <enum>QTabWidget::West</enum>
                         </property>
                         <property name="currentIndex">
-                         <number>0</number>
+                         <number>1</number>
                         </property>
                         <property name="documentMode">
                          <bool>true</bool>

@@ -172,28 +172,28 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
         foreach(QString line, lines) {
             line = line.trimmed();
             if (line.isEmpty()) {
-		ui->pushButton_StartEmulator->setEnabled(false);
+                ui->pushButton_StartEmulator->setEnabled(false);
                 continue;
             }
-	    ui->pushButton_StartEmulator->setEnabled(true);
+            ui->pushButton_StartEmulator->setEnabled(true);
             QListWidgetItem* item = new QListWidgetItem(line);
             ui->listWidget_EmulatorImages->addItem(item);
-	    ui->listWidget_EmulatorImages->setCurrentItem(item);
+            ui->listWidget_EmulatorImages->setCurrentItem(item);
         }
-	detectDevices();
+        detectDevices();
     }
     if (cmd == QString::fromLatin1(Constants::UBUNTUWIDGETS_ONFINISHED_SCRIPT_LOCAL_PACKAGE_INSTALLED).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
         QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
         ui->stackedEmulatorConfigWidget->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_PAGE_EMULATOR_PACKAGE_CHECK);
         foreach(QString line, lines) {
             line = line.trimmed();
-	    if (line.isEmpty()) {
+            if (line.isEmpty()) {
                 continue;
             }
             if (line.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_LOCAL_NO_EMULATOR_INSTALLED))) {
-	        ui->label_InstallEmulatorStatus->hide();
+                ui->label_InstallEmulatorStatus->hide();
                 ui->pushButton_InstallEmulator_OK->setEnabled(true);
-		detectDevices();
+                detectDevices();
             } else {
                 QStringList lineData = line.split(QLatin1String(Constants::SPACE));
                 QString sEmulatorPackageStatus = lineData.takeFirst();

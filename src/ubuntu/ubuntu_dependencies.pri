@@ -8,4 +8,5 @@ QTC_PLUGIN_DEPENDS += \
     qmlprojectmanager \
     cmakeprojectmanager \
     debugger \
-    qtsupport
+    qtsupport \
+    remotelinux

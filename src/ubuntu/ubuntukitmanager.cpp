@@ -2,6 +2,7 @@
 #include "clicktoolchain.h"
 #include "ubuntuconstants.h"
 #include "ubuntucmaketool.h"
+#include "ubuntudevice.h"
 
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kit.h>
@@ -156,10 +157,6 @@ ProjectExplorer::Kit *UbuntuKitManager::createKit(ClickToolChain *tc)
     newKit->setIconPath(Utils::FileName::fromString(QLatin1String(Constants::UBUNTU_MODE_WEB_ICON)));
     ProjectExplorer::ToolChainKitInformation::setToolChain(newKit, tc);
 
-    QVariant debId = createOrFindDebugger(tc->suggestedDebugger());
-    if(debId.isValid())
-        Debugger::DebuggerKitInformation::setDebugger(newKit,debId);
-
     //every kit gets its own instance of CMakeTool
     UbuntuCMakeTool* cmake = new UbuntuCMakeTool;
     Utils::Environment env = Utils::Environment::systemEnvironment();
@@ -170,10 +167,10 @@ ProjectExplorer::Kit *UbuntuKitManager::createKit(ClickToolChain *tc)
     CMakeProjectManager::CMakeKitInformation::setCMakeTool(newKit,cmake->id());
 
     //@TODO add gdbserver support
-    //@TODO add device type
     //@TODO add real qt version
     QtSupport::QtKitInformation::setQtVersion(newKit, 0);
 
+    fixKit(newKit);
     return newKit;
 }
 
@@ -218,16 +215,28 @@ void UbuntuKitManager::fixKit(ProjectExplorer::Kit *k)
 {
     ProjectExplorer::ToolChain* tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
     if(!tc) {
-        //make kit editable for user
+        //make kit editable for user (i think)
         k->setAutoDetected(false);
         return;
     }
 
+    //make sure we have the multiarch debugger
     if(!Debugger::DebuggerKitInformation::debugger(k)) {
         QVariant dId = createOrFindDebugger(tc->suggestedDebugger());
         if(dId.isValid())
             Debugger::DebuggerKitInformation::setDebugger(k,dId);
     }
+
+    //make sure we point to a ubuntu device
+    Core::Id devId = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k);
+    if(devId != Constants::UBUNTU_DEVICE_ID || !devId.isValid()) {
+        ProjectExplorer::DeviceTypeKitInformation::setDeviceTypeId(k,Core::Id(Constants::UBUNTU_DEVICE_ID));
+        ProjectExplorer::DeviceKitInformation::setDevice(k,ProjectExplorer::IDevice::ConstPtr());
+    }
+
+    //values the user can change
+    k->setSticky(ProjectExplorer::DeviceKitInformation::id(),false);
+    k->setSticky(Debugger::DebuggerKitInformation::id(),false);
 
 }
 
