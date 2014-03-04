@@ -39,7 +39,7 @@ public:
 
     static UbuntuDevicesWidget* instance();
 
-    bool deviceDetected() { return m_deviceDetected; }
+    bool deviceDetected();
     QString serialNumber();
 
 signals:
@@ -55,7 +55,7 @@ protected slots:
     void on_pushButton_CreateNewEmulator_clicked();
     void on_pushButton_StartEmulator_clicked();
 
-    void onDeviceConnected(QString serialNumber);
+    void onDeviceConnected(const QString&);
 
     void on_pushButtonRefresh_clicked();
     void on_pushButtonRefresh_2_clicked() { on_pushButtonRefresh_clicked(); }
@@ -69,10 +69,10 @@ private slots:
     void readDevicesFromSettings();
     void deviceAdded (const Core::Id& id);
     void deviceRemoved (const Core::Id& id);
-    void knownDeviceConnected ();
-    void knownDeviceDisconnected ();
+    void deviceUpdated (const Core::Id& id);
     void slotChanged();
     void startEmulator(QListWidgetItem*);
+    void setupDevicePage ();
 
 private:
     void beginAction(QString);
@@ -91,7 +91,6 @@ private:
     UbuntuDeviceNotifier m_ubuntuDeviceNotifier;
 
     bool m_aboutToClose;
-    bool m_deviceDetected;
     QString m_deviceSerialNumber;
 
     static UbuntuDevicesWidget *m_instance;

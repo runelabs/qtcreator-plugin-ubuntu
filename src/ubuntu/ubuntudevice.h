@@ -59,6 +59,7 @@ protected slots:
     void processFinished ( const QString&, const int code);
     void deviceConnected ();
     void deviceDisconnected ();
+    void toGeneralMessages (const QString &msg) const;
 
 private:
     QString m_reply;
@@ -135,16 +136,17 @@ public:
     ProcessState detectionState () const;
 
     // IDevice interface
-    virtual ProjectExplorer::IDeviceWidget *createWidget() override;
-    virtual QList<Core::Id> actionIds() const override;
-    virtual QString displayType() const override;
+    virtual ProjectExplorer::IDeviceWidget *createWidget();
+    virtual QList<Core::Id> actionIds() const;
+    virtual QString displayType() const;
+    virtual ProjectExplorer::IDevice::Ptr clone() const;
 
     Ptr sharedFromThis ();
 protected:
     UbuntuDevice();
     UbuntuDevice(const QString &name,MachineType machineType, Origin origin, Core::Id id);
     UbuntuDevice(const UbuntuDevice &other);
-    void loadDefaultSSHParams();
+    void loadDefaultConfig();
 private:
     UbuntuDeviceHelper* m_helper;
     FeatureState    m_openSSHStarted;
@@ -157,7 +159,6 @@ private:
 
 private:
     UbuntuDevice &operator=(const UbuntuDevice &);
-
 };
 
 } // namespace Internal

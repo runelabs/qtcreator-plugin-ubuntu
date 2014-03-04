@@ -442,7 +442,7 @@ Connect to a wlan or to a wwan and try again.</string>
                   <item>
                    <widget class="QStackedWidget" name="stackedWidgetConnectedDevice">
                     <property name="currentIndex">
-                     <number>0</number>
+                     <number>1</number>
                     </property>
                     <widget class="QWidget" name="page_ConnectivityInput">
                      <layout class="QHBoxLayout" name="horizontalLayout_6">

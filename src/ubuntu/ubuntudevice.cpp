@@ -5,7 +5,9 @@
 #include "ubuntudeviceconfigurationwidget.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <coreplugin/messagemanager.h>
 #include <ssh/sshconnection.h>
+#include <utils/portlist.h>
 #include <QCoreApplication>
 
 namespace Ubuntu {
@@ -26,6 +28,9 @@ UbuntuDeviceHelper::UbuntuDeviceHelper(UbuntuDevice *dev)
     connect(m_deviceWatcher,SIGNAL(deviceConnected()),this,SLOT(deviceConnected()));
     connect(m_deviceWatcher,SIGNAL(deviceDisconnected()),this,SLOT(deviceDisconnected()));
     connect(m_process,SIGNAL(finished(QString,int)),this,SLOT(processFinished(QString,int)));
+    connect(m_process,SIGNAL(message(QString)),this,SLOT(onMessage(QString)));
+    connect(m_process,SIGNAL(error(QString)),this,SLOT(onError(QString)));
+    connect(this,SIGNAL(message(QString)),this,SLOT(toGeneralMessages(QString)));
 }
 
 UbuntuDeviceHelper::~UbuntuDeviceHelper()
@@ -205,7 +210,6 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
 
 void UbuntuDeviceHelper::onMessage(const QString &msg) {
     m_reply.append(msg);
-
     emit message(msg);
 }
 
@@ -346,6 +350,11 @@ void UbuntuDeviceHelper::deviceDisconnected()
     ProjectExplorer::DeviceManager::instance()->setDeviceState(m_dev->id(),ProjectExplorer::IDevice::DeviceDisconnected);
     resetToDefaults();
     emit disconnected();
+}
+
+void UbuntuDeviceHelper::toGeneralMessages(const QString &msg) const
+{
+    Core::MessageManager::write(QString(QLatin1String("%0")).arg(msg),Core::MessageManager::NoModeSwitch);
 }
 
 void UbuntuDeviceHelper::resetToDefaults()
@@ -497,7 +506,7 @@ UbuntuDevice::UbuntuDevice()
     , m_processState(NotStarted)
 {
     setDeviceState(ProjectExplorer::IDevice::DeviceStateUnknown);
-    loadDefaultSSHParams();
+    loadDefaultConfig();
 }
 
 UbuntuDevice::UbuntuDevice(const QString &name, ProjectExplorer::IDevice::MachineType machineType, ProjectExplorer::IDevice::Origin origin, Core::Id id)
@@ -506,7 +515,7 @@ UbuntuDevice::UbuntuDevice(const QString &name, ProjectExplorer::IDevice::Machin
     , m_processState(NotStarted)
 {
     setDeviceState(ProjectExplorer::IDevice::DeviceStateUnknown);
-    loadDefaultSSHParams();
+    loadDefaultConfig();
     m_helper->init();
 }
 
@@ -517,26 +526,36 @@ UbuntuDevice::UbuntuDevice(const UbuntuDevice &other)
     , m_processState(NotStarted)
 {
     setDeviceState(ProjectExplorer::IDevice::DeviceDisconnected);
-    loadDefaultSSHParams();
+    m_helper->init();
 }
 
 /*!
- * \brief UbuntuDevice::loadDefaultSSHParams
- * loads the default ssh connect parameters from settings
+ * \brief UbuntuDevice::loadDefaultConfig
+ * loads the default ssh connect and generic parameters from settings
  *
  * \note call this before fromMap() so every device can have its own settings
  */
-void UbuntuDevice::loadDefaultSSHParams()
+void UbuntuDevice::loadDefaultConfig()
 {
     QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
     settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICE_CONNECTIVITY));
 
+    QString ip            = settings.value(QLatin1String(Constants::SETTINGS_KEY_IP),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_IP)).toString();
+    QString username      = settings.value(QLatin1String(Constants::SETTINGS_KEY_USERNAME),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_USERNAME)).toString();
     QString deviceSshPort = settings.value(QLatin1String(Constants::SETTINGS_KEY_SSH),Constants::SETTINGS_DEFAULT_DEVICE_SSH_PORT).toString();
+    QString qmlPort       = settings.value(QLatin1String(Constants::SETTINGS_KEY_QML),Constants::SETTINGS_DEFAULT_DEVICE_QML_PORT).toString();
 
     QSsh::SshConnectionParameters params;
     params.authenticationType = QSsh::SshConnectionParameters::AuthenticationTypePublicKey;
-    params.host = QLatin1String("127.0.0.1");
+    params.host = ip;
     params.port = deviceSshPort.toUInt();
+    params.userName = username;
+
+    Utils::PortList ports;
+    ports.addRange(10000,10100);
+    setFreePorts(ports);
+
+    setSshParameters(params);
 }
 
 UbuntuDevice::~UbuntuDevice()
@@ -720,6 +739,11 @@ QList<Core::Id> UbuntuDevice::actionIds() const
 QString UbuntuDevice::displayType() const
 {
     return tr("Ubuntu Device");
+}
+
+ProjectExplorer::IDevice::Ptr  UbuntuDevice::clone() const
+{
+    return UbuntuDevice::Ptr(new UbuntuDevice(*this));
 }
 
 UbuntuDevice::Ptr UbuntuDevice::sharedFromThis()
