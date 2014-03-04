@@ -20,7 +20,8 @@ FORMS += \
     ubuntusettingsdeviceconnectivitywidget.ui \
     ubuntusettingsclickwidget.ui \
     ubuntuclickdialog.ui \
-    ubuntucreatenewchrootdialog.ui
+    ubuntucreatenewchrootdialog.ui \
+    ubuntudeviceconfigurationwidget.ui
 
 RESOURCES += \
     resources.qrc
@@ -80,7 +81,8 @@ SOURCES += \
     ubuntucmaketool.cpp \
     ubuntucmakebuildconfiguration.cpp \
     ubuntudevicefactory.cpp \
-    ubuntudevice.cpp
+    ubuntudevice.cpp \
+    ubuntudeviceconfigurationwidget.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -134,5 +136,6 @@ HEADERS += \
     ubuntucmaketool.h \
     ubuntucmakebuildconfiguration.h \
     ubuntudevicefactory.h \
-    ubuntudevice.h
+    ubuntudevice.h \
+    ubuntudeviceconfigurationwidget.h
 

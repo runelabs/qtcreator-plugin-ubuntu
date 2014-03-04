@@ -17,13 +17,13 @@ UbuntuDeviceFactory::UbuntuDeviceFactory(QObject *parent) : ProjectExplorer::IDe
 
 QString Ubuntu::Internal::UbuntuDeviceFactory::displayNameForId(Core::Id type) const
 {
-    QTC_ASSERT(type == Constants::UBUNTU_DEVICE_ID, return QString());
+    QTC_ASSERT(type == Constants::UBUNTU_DEVICE_TYPE_ID, return QString());
     return tr("Ubuntu Device");
 }
 
 QList<Core::Id> Ubuntu::Internal::UbuntuDeviceFactory::availableCreationIds() const
 {
-    return QList<Core::Id>() << Core::Id(Constants::UBUNTU_DEVICE_ID);
+    return QList<Core::Id>() << Core::Id(Constants::UBUNTU_DEVICE_TYPE_ID);
 }
 
 bool Ubuntu::Internal::UbuntuDeviceFactory::canCreate() const
@@ -38,8 +38,10 @@ ProjectExplorer::IDevice::Ptr Ubuntu::Internal::UbuntuDeviceFactory::create(Core
 
 bool Ubuntu::Internal::UbuntuDeviceFactory::canRestore(const QVariantMap &map) const
 {
+    return false;
 }
 
 ProjectExplorer::IDevice::Ptr Ubuntu::Internal::UbuntuDeviceFactory::restore(const QVariantMap &map) const
 {
+    return UbuntuDevice::Ptr ();
 }

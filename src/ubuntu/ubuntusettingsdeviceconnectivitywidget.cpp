@@ -61,31 +61,3 @@ void UbuntuSettingsDeviceConnectivityWidget::apply() {
 
     m_settings->sync();
 }
-
-void UbuntuSettingsDeviceConnectivityWidget::on_pushButtonSshSetupPublicKey_clicked() {
-    UbuntuDevicesWidget* devices = UbuntuDevicesWidget::instance();
-    if (devices) {
-        devices->on_pushButtonSshSetupPublicKey_clicked();
-    }
-}
-
-void UbuntuSettingsDeviceConnectivityWidget::on_pushButtonPortForward_clicked() {
-    UbuntuDevicesWidget* devices = UbuntuDevicesWidget::instance();
-    if (devices) {
-        devices->on_pushButtonPortForward_clicked();
-    }
-}
-
-void UbuntuSettingsDeviceConnectivityWidget::on_pushButtonSshConnect_clicked() {
-    UbuntuDevicesWidget* devices = UbuntuDevicesWidget::instance();
-    if (devices) {
-        devices->on_pushButtonSshConnect_clicked();
-    }
-}
-
-void UbuntuSettingsDeviceConnectivityWidget::on_pushButtonCloneTimeConfig_clicked() {
-    UbuntuDevicesWidget* devices = UbuntuDevicesWidget::instance();
-    if (devices) {
-        devices->on_pushButtonCloneTimeConfig_clicked();
-    }
-}

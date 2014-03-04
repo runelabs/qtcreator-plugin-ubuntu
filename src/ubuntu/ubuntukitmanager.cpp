@@ -123,10 +123,11 @@ void UbuntuKitManager::autoDetectKits()
         if (tc && tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
                 && icmake && icmake->id().toString().startsWith(QLatin1String(Constants::UBUNTU_CLICK_CMAKE_TOOL_ID))
                 && icmake->isValid()) {
+            fixKit(k);
+
             //existing targets are not autodetected anymore
             k->makeUnSticky();
             k->setAutoDetected(false);
-            fixKit(k);
         } else {
             //has not all informations, go away
             ProjectExplorer::KitManager::deregisterKit(k);
@@ -229,14 +230,17 @@ void UbuntuKitManager::fixKit(ProjectExplorer::Kit *k)
 
     //make sure we point to a ubuntu device
     Core::Id devId = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k);
-    if(devId != Constants::UBUNTU_DEVICE_ID || !devId.isValid()) {
-        ProjectExplorer::DeviceTypeKitInformation::setDeviceTypeId(k,Core::Id(Constants::UBUNTU_DEVICE_ID));
+    if(devId != Constants::UBUNTU_DEVICE_TYPE_ID || !devId.isValid()) {
+        ProjectExplorer::DeviceTypeKitInformation::setDeviceTypeId(k,Core::Id(Constants::UBUNTU_DEVICE_TYPE_ID));
         ProjectExplorer::DeviceKitInformation::setDevice(k,ProjectExplorer::IDevice::ConstPtr());
     }
 
     //values the user can change
     k->setSticky(ProjectExplorer::DeviceKitInformation::id(),false);
     k->setSticky(Debugger::DebuggerKitInformation::id(),false);
+
+    //values the user cannot change
+    k->setSticky(ProjectExplorer::SysRootKitInformation::id(),true);
 
 }
 

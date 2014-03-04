@@ -37,6 +37,7 @@ protected:
     void detectOpenSsh();
     void startSshService();
     void enableDeveloperMode();
+    void disableDeveloperMode();
     void detectHasNetworkConnection();
     void detectDeviceVersion();
     void detectDeviceWritableImage();
@@ -44,9 +45,17 @@ protected:
     void beginAction(QString msg);
     void endAction(QString msg);
     void resetToDefaults();
+    void cloneTimeConfig ();
+    void enableRWImage ();
+    void disableRWImage ();
+    void enablePortForward ();
+    void installDevTools ();
+    void removeDevTools  ();
+    void deployPublicKey ();
 
 protected slots:
-    void onMessage(QString msg);
+    void onMessage(const QString &msg);
+    void onError(const QString &error);
     void processFinished ( const QString&, const int code);
     void deviceConnected ();
     void deviceDisconnected ();
@@ -66,9 +75,9 @@ class UbuntuDevice : public RemoteLinux::LinuxDevice
 
 public:
     enum FeatureState {
-        NotAvailable,
-        Unknown,
-        Available
+        NotAvailable, //Feature is not available on the device
+        Unknown,      //Feature is not detected yet
+        Available     //Feature is available on the device
     };
 
     enum ProcessState {
@@ -77,11 +86,18 @@ public:
         DetectNetworkConnection,
         DetectOpenSSH,
         InstallOpenSSH,
+        RemoveOpenSSH,
         StartOpenSSH,
         EnablePortForwarding,
         DeployPublicKey,
         DetectDeviceWriteableImage,
         DetectDeveloperTools,
+        FirstNonCriticalTask,
+        CloneTimeConfig,
+        EnableRWImage,
+        DisableRWImage,
+        InstallDevTools,
+        RemoveDevTools,
         Done
     };
 
@@ -96,10 +112,34 @@ public:
     QString serialNumber () const;
     UbuntuDeviceHelper *helper () const;
 
-    bool    developerModeEnabled ();
-    void    enableDeveloperMode  ();
+    void openTerminal    ();
+    void cloneTimeConfig ();
+    void enablePortForward ();
+    void shutdown ();
+    void reboot   ();
+    void rebootToRecovery   ();
+    void rebootToBootloader ();
+    void deployPublicKey    ();
+    void setDeveloperModeEnabled     ( const bool enabled = true );
+    void setWriteableImageEnabled    ( const bool enabled = true );
+    void setDeveloperToolsInstalled  ( const bool installed = true );
 
+    void setDeviceInfoString (const QString &info);
+    QString deviceInfoString () const;
 
+    FeatureState developerModeEnabled () const;
+    FeatureState hasNetworkConnection () const;
+    FeatureState hasWriteableImage    () const;
+    FeatureState hasDeveloperTools    () const;
+
+    ProcessState detectionState () const;
+
+    // IDevice interface
+    virtual ProjectExplorer::IDeviceWidget *createWidget() override;
+    virtual QList<Core::Id> actionIds() const override;
+    virtual QString displayType() const override;
+
+    Ptr sharedFromThis ();
 protected:
     UbuntuDevice();
     UbuntuDevice(const QString &name,MachineType machineType, Origin origin, Core::Id id);
@@ -113,6 +153,11 @@ private:
     FeatureState    m_hasWriteableImage;
     FeatureState    m_hasDeveloperTools;
     ProcessState    m_processState;
+    QString         m_deviceInfoString;
+
+private:
+    UbuntuDevice &operator=(const UbuntuDevice &);
+
 };
 
 } // namespace Internal

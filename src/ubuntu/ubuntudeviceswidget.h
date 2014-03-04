@@ -23,6 +23,7 @@
 #include <QListWidget>
 #include "ubuntudevicenotifier.h"
 #include "ubuntuprocess.h"
+#include "ubuntudevice.h"
 
 namespace Ui {
 class UbuntuDevicesWidget;
@@ -41,12 +42,6 @@ public:
     bool deviceDetected() { return m_deviceDetected; }
     QString serialNumber();
 
-public slots:
-    void on_pushButtonSshSetupPublicKey_clicked();
-    void on_pushButtonPortForward_clicked();
-    void on_pushButtonSshConnect_clicked();
-    void on_pushButtonCloneTimeConfig_clicked();
-
 signals:
     void updateDeviceActions();
     
@@ -59,42 +54,34 @@ protected slots:
     void on_pushButton_InstallEmulator_OK_clicked();
     void on_pushButton_CreateNewEmulator_clicked();
     void on_pushButton_StartEmulator_clicked();
+
     void onDeviceConnected(QString serialNumber);
-    void onDeviceDisconnected();
 
-    void on_pushButton_filesystem_rw_enable_clicked();
-    void on_pushButton_filesystem_rw_disable_clicked();
-
-    void on_pushButtonPlatformDevelopmentRemove_clicked();
-    void on_pushButtonPlatformDevelopment_clicked();
     void on_pushButtonRefresh_clicked();
     void on_pushButtonRefresh_2_clicked() { on_pushButtonRefresh_clicked(); }
-    void on_pushButtonSshInstall_clicked();
-    void on_pushButtonSshRemove_clicked();
-    void on_pushButtonReboot_clicked();
-    void on_pushButtonShutdown_clicked();
-    void on_pushButtonRebootToBootloader_clicked();
-    void on_pushButtonRebootToRecovery_clicked();
-    void on_pushButtonCloneNetworkConfig_clicked();
     void on_comboBoxSerialNumber_currentIndexChanged( const QString & text );
 
     void checkEmulator();
     void checkEmulatorInstances();
     void detectDevices();
-    void detectOpenSsh();
-    void detectHasNetworkConnection();
-    void detectDeviceVersion();
-    void detectDeviceWritableImage();
-    void detectDeveloperTools();
 
-    void startSshService();
 private slots:
+    void readDevicesFromSettings();
+    void deviceAdded (const Core::Id& id);
+    void deviceRemoved (const Core::Id& id);
+    void knownDeviceConnected ();
+    void knownDeviceDisconnected ();
     void slotChanged();
     void startEmulator(QListWidgetItem*);
 
 private:
     void beginAction(QString);
     void endAction(QString);
+    int  addDevice(Ubuntu::Internal::UbuntuDevice* dev);
+    void removeDevice(Ubuntu::Internal::UbuntuDevice* dev);
+
+    QMap<int,Ubuntu::Internal::UbuntuDevice::Ptr> m_knownDevices;
+
 
     Ui::UbuntuDevicesWidget *ui;
 
