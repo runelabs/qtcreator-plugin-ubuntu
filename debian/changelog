@@ -1,8 +1,21 @@
-qtcreator-plugin-ubuntu (2.8.1.3-0ubuntu2) saucy; urgency=low
+qtcreator-plugin-ubuntu (3.0.1-0ubuntu1) trusty; urgency=medium
 
-  * local build
+  [ Alexandre Abreu ]
+  * Updateed HTML5 template
+  * Exec line from qtc html5 desktop which should refer to absolute path (LP: #1283183)
+  * Automatically copy the prebuild cordova runtime packages to the project structure after the download completes
+  * Update to follow new html5 project code layout necessary to embed the current cordova runtime.
 
- -- David Barth <david.barth@canonical.com>  Fri, 21 Feb 2014 16:41:44 +0100
+  [ Jean-Baptiste Lallement ]
+  * Enable autopkgtest to check that ubuntu-sdk is installable and qtcreator can be launched.
+
+  [ David Barth ]
+  * Pick the trusty (device release) for the armhf libs
+
+  [Benjamin Zeller]
+  * Plugin code adopted to QtCreator 3.0
+
+ -- Zoltán Balogh <zoltan@bakter.hu>  Thu, 05 Mar 2014 12:50:52 +0200
 
 qtcreator-plugin-ubuntu (2.8.1.3-0ubuntu1) trusty; urgency=medium
 
