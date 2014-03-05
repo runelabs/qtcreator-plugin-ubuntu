@@ -42,6 +42,7 @@ Depends: android-tools-adb,
          ubuntu-ui-toolkit-examples,
          rsync,
 	 qtcreator-plugin-cmake,
+         qtdeclarative5-controls-plugin,
          ${misc:Depends},
 Recommends: ubuntu-sdk
 Suggests: click-reviewers-tools
