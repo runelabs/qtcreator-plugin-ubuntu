@@ -1,3 +1,26 @@
+qtcreator-plugin-ubuntu (2.8.1.3-0ubuntu2) saucy; urgency=low
+
+  * local build
+
+ -- David Barth <david.barth@canonical.com>  Fri, 21 Feb 2014 16:41:44 +0100
+
+qtcreator-plugin-ubuntu (2.8.1.3-0ubuntu1) trusty; urgency=medium
+
+  [ Alexandre Abreu ]
+  * Project template implements tab navigation by default, and has an
+    alternative pagestack example bundled in. (LP: #1271611)
+  * Enable the web inspector mode by default when running HTML5 apps from
+    QtCreator. (LP: #1281611)
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Tue, 18 Feb 2014 18:20:06 +0100
+
+qtcreator-plugin-ubuntu (2.8.1.2-0ubuntu2) trusty; urgency=medium
+
+  [ Alexandre Abreu ]
+  * Fix location and name of cordova runtime. (LP: #1281012)
+
+ -- Daniel Holbach <daniel.holbach@ubuntu.com>  Tue, 18 Feb 2014 09:35:50 +0100
+
 qtcreator-plugin-ubuntu (2.8.1.2-0ubuntu1) trusty; urgency=medium
 
   [Benjamin Zeller]
