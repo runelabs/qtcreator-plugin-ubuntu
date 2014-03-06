@@ -16,4 +16,5 @@
 # Author: Zoltán Balogh <zoltan.balogh@canonical.com>
 
 set -e
-ubuntu-emulator list|sed -n  '/ubuntu=/p'
+
+ubuntu-emulator list 2>&1|grep -v "no such file or directory"
