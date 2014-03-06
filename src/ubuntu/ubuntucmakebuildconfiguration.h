@@ -75,12 +75,10 @@ class UbuntuCMakeMakeStep : public CMakeProjectManager::MakeStep
 
 public:
     UbuntuCMakeMakeStep(ProjectExplorer::BuildStepList *bsl);
+    UbuntuCMakeMakeStep(ProjectExplorer::BuildStepList *bsl, UbuntuCMakeMakeStep *bs);
     virtual ~UbuntuCMakeMakeStep();
 
     virtual QString makeCommand(ProjectExplorer::ToolChain *tc, const Utils::Environment &env) const;
-
-protected:
-    UbuntuCMakeMakeStep(ProjectExplorer::BuildStepList *bsl, UbuntuCMakeMakeStep *bs);
 
     friend class UbuntuCMakeMakeStepFactory;
 };

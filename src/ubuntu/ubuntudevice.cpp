@@ -9,9 +9,12 @@
 #include <ssh/sshconnection.h>
 #include <utils/portlist.h>
 #include <QCoreApplication>
+#include <QDir>
 
 namespace Ubuntu {
 namespace Internal {
+
+const QLatin1String DEVICE_INFO_KEY("UbuntuDevice.InfoString");
 
 /*!
  * \class UbuntuDeviceHelper
@@ -22,8 +25,8 @@ namespace Internal {
 UbuntuDeviceHelper::UbuntuDeviceHelper(UbuntuDevice *dev)
     : QObject(0)
     , m_dev(dev)
-    , m_deviceWatcher(new UbuntuDeviceNotifier(this))
     , m_process(0)
+    , m_deviceWatcher(new UbuntuDeviceNotifier(this))
 {
     connect(m_deviceWatcher,SIGNAL(deviceConnected()),this,SLOT(deviceConnected()));
     connect(m_deviceWatcher,SIGNAL(deviceDisconnected()),this,SLOT(deviceDisconnected()));
@@ -34,6 +37,8 @@ UbuntuDeviceHelper::UbuntuDeviceHelper(UbuntuDevice *dev)
     connect(m_process,SIGNAL(error(QString)),this,SLOT(onError(QString)));
 #endif
     connect(this,SIGNAL(message(QString)),this,SLOT(toGeneralMessages(QString)));
+
+    resetToDefaults();
 }
 
 UbuntuDeviceHelper::~UbuntuDeviceHelper()
@@ -64,15 +69,17 @@ void UbuntuDeviceHelper::refresh()
 
 void UbuntuDeviceHelper::init()
 {
-    if(!m_dev->serialNumber().isEmpty())
+    if(!m_dev->serialNumber().isEmpty()) {
+        m_deviceWatcher->stopMonitoring();
         m_deviceWatcher->startMonitoring(m_dev->id().toSetting().toString());
+    }
 
     if(m_deviceWatcher->isConnected()) {
         deviceConnected();
     }
 }
 
-void UbuntuDeviceHelper::processFinished(const QString &command, const int code)
+void UbuntuDeviceHelper::processFinished(const QString &, const int code)
 {
     Q_UNUSED(code)
 
@@ -594,16 +601,18 @@ UbuntuDevice::UbuntuDevice(const QString &name, ProjectExplorer::IDevice::Machin
 {
     setDeviceState(ProjectExplorer::IDevice::DeviceStateUnknown);
     loadDefaultConfig();
+    setupPrivateKey();
     m_helper->init();
 }
 
-//@TODO make sure this is required, we maybe don't want to clone a device at all
 UbuntuDevice::UbuntuDevice(const UbuntuDevice &other)
     : LinuxDevice(other)
     , m_helper(new UbuntuDeviceHelper(this))
     , m_processState(NotStarted)
+    , m_deviceInfoString(other.deviceInfoString())
 {
     setDeviceState(ProjectExplorer::IDevice::DeviceDisconnected);
+    setupPrivateKey();
     m_helper->init();
 }
 
@@ -628,10 +637,22 @@ void UbuntuDevice::loadDefaultConfig()
     params.host = ip;
     params.port = deviceSshPort.toUInt();
     params.userName = username;
+    params.timeout = 20;
 
     Utils::PortList ports;
     ports.addRange(10000,10100);
     setFreePorts(ports);
+
+    setSshParameters(params);
+}
+
+void UbuntuDevice::setupPrivateKey()
+{
+    if(!id().isValid())
+        return;
+
+    QSsh::SshConnectionParameters params = this->sshParameters();
+    params.privateKeyFile = QString::fromLatin1(Constants::UBUNTU_DEVICE_SSHIDENTITY).arg(QDir::homePath()).arg(id().toSetting().toString());
 
     setSshParameters(params);
 }
@@ -822,6 +843,23 @@ QString UbuntuDevice::displayType() const
 ProjectExplorer::IDevice::Ptr  UbuntuDevice::clone() const
 {
     return UbuntuDevice::Ptr(new UbuntuDevice(*this));
+}
+
+void UbuntuDevice::fromMap(const QVariantMap &map)
+{
+    LinuxDevice::fromMap(map);
+    if(map.contains(DEVICE_INFO_KEY))
+        m_deviceInfoString = map[DEVICE_INFO_KEY].toString();
+
+    setupPrivateKey();
+    m_helper->init();
+}
+
+QVariantMap UbuntuDevice::toMap() const
+{
+    QVariantMap map = LinuxDevice::toMap();
+    map.insert(DEVICE_INFO_KEY,m_deviceInfoString);
+    return map;
 }
 
 UbuntuDevice::Ptr UbuntuDevice::sharedFromThis()

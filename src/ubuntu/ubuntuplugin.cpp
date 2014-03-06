@@ -28,6 +28,7 @@
 #include "ubuntudevicefactory.h"
 #include "clicktoolchain.h"
 #include "ubuntucmakebuildconfiguration.h"
+#include "ubuntudeployconfiguration.h"
 
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -144,6 +145,10 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
     //ubuntu device support
     addAutoReleasedObject(new UbuntuDeviceFactory);
+
+    //deploy support
+    addAutoReleasedObject(new UbuntuDeployConfigurationFactory);
+    addAutoReleasedObject(new UbuntuDeployStepFactory);
 
     //cmake build support, hack until we have a better solution
     m_ubuntuClickManager = new UbuntuClickManager();

@@ -16,9 +16,9 @@
 # Author: Benjamin Zeller<benjamin.zeller@canonical.com>
 
 
-${CLICK_SDK_ARCH:?"Need to set CLICK_SDK_ARCH non-empty"}
-${CLICK_SDK_FRAMEWORK:?"Need to set CLICK_SDK_FRAMEWORK non-empty"}
-${CLICK_SDK_SERIES:?"Need to set CLICK_SDK_SERIES non-empty"}
+: ${CLICK_SDK_ARCH:?"Need to set CLICK_SDK_ARCH non-empty"}
+: ${CLICK_SDK_FRAMEWORK:?"Need to set CLICK_SDK_FRAMEWORK non-empty"}
+: ${CLICK_SDK_SERIES:?"Need to set CLICK_SDK_SERIES non-empty"}
 
 export QT_SELECT=qt5:$ARCH
 /usr/bin/click chroot -a ${CLICK_SDK_ARCH} -f ${CLICK_SDK_FRAMEWORK} -s ${CLICK_SDK_SERIES} run make $@

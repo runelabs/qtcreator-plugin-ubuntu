@@ -55,7 +55,7 @@ protected slots:
     void on_pushButton_CreateNewEmulator_clicked();
     void on_pushButton_StartEmulator_clicked();
 
-    void onDeviceConnected(const QString&);
+    void onDeviceConnected(const QString&id);
 
     void on_pushButtonRefresh_clicked();
     void on_pushButtonRefresh_2_clicked() { on_pushButtonRefresh_clicked(); }

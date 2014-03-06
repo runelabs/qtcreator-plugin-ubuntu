@@ -62,7 +62,7 @@ protected slots:
     void onProcessError     (const QProcess::ProcessError error);
     void onMessage(const QString &msg);
     void onError(const QString &error);
-    void processFinished (const QString&command, const int code);
+    void processFinished (const QString&, const int code);
     void deviceConnected ();
     void deviceDisconnected ();
     void toGeneralMessages (const QString &msg) const;
@@ -151,6 +151,8 @@ public:
     virtual QList<Core::Id> actionIds() const;
     virtual QString displayType() const;
     virtual ProjectExplorer::IDevice::Ptr clone() const;
+    virtual void fromMap(const QVariantMap &map);
+    virtual QVariantMap toMap() const;
 
     Ptr sharedFromThis ();
 protected:
@@ -158,6 +160,7 @@ protected:
     UbuntuDevice(const QString &name,MachineType machineType, Origin origin, Core::Id id);
     UbuntuDevice(const UbuntuDevice &other);
     void loadDefaultConfig();
+    void setupPrivateKey  ();
 private:
     UbuntuDeviceHelper* m_helper;
     FeatureState    m_openSSHStarted;

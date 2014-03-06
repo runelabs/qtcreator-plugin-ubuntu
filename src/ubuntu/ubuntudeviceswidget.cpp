@@ -530,18 +530,24 @@ void UbuntuDevicesWidget::on_comboBoxSerialNumber_currentIndexChanged( const QSt
     int idx = ui->comboBoxSerialNumber->findText(text);
     Q_ASSERT_X(idx >= 0, Q_FUNC_INFO, "Index can not be invalid");
 
+    int devId = ui->comboBoxSerialNumber->itemData(idx).toInt();
+
     ui->stackedWidgetDeviceConfig->setCurrentIndex(idx);
-    ui->lblDeviceInfo->setText(tr("Device Info Here"));
+    ui->lblDeviceInfo->setText(m_knownDevices[devId]->deviceInfoString());
 
     setupDevicePage();
 }
 
-void UbuntuDevicesWidget::onDeviceConnected(const QString &) {
+void UbuntuDevicesWidget::onDeviceConnected(const QString &id) {
     QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
     settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICES));
     if (settings.value(QLatin1String(Constants::SETTINGS_KEY_AUTOTOGGLE),Constants::SETTINGS_DEFAULT_DEVICES_AUTOTOGGLE).toBool()) {
         Core::ModeManager::activateMode(Ubuntu::Constants::UBUNTU_MODE_DEVICES);
     }
+
+    Core::Id qtcid = Core::Id::fromSetting(id);
+    if(m_knownDevices.contains(qtcid.uniqueIdentifier()))
+        return;
 
     m_reply.clear();
 

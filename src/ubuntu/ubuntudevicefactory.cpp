@@ -38,10 +38,13 @@ ProjectExplorer::IDevice::Ptr Ubuntu::Internal::UbuntuDeviceFactory::create(Core
 
 bool Ubuntu::Internal::UbuntuDeviceFactory::canRestore(const QVariantMap &map) const
 {
-    return false;
+    return ProjectExplorer::IDevice::typeFromMap(map) == Constants::UBUNTU_DEVICE_TYPE_ID;
 }
 
 ProjectExplorer::IDevice::Ptr Ubuntu::Internal::UbuntuDeviceFactory::restore(const QVariantMap &map) const
 {
-    return UbuntuDevice::Ptr ();
+    QTC_ASSERT(canRestore(map), return UbuntuDevice::Ptr());
+    const ProjectExplorer::IDevice::Ptr device = UbuntuDevice::create();
+    device->fromMap(map);
+    return device;
 }

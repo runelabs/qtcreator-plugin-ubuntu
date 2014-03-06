@@ -82,7 +82,8 @@ SOURCES += \
     ubuntucmakebuildconfiguration.cpp \
     ubuntudevicefactory.cpp \
     ubuntudevice.cpp \
-    ubuntudeviceconfigurationwidget.cpp
+    ubuntudeviceconfigurationwidget.cpp \
+    ubuntudeployconfiguration.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -137,5 +138,6 @@ HEADERS += \
     ubuntucmakebuildconfiguration.h \
     ubuntudevicefactory.h \
     ubuntudevice.h \
-    ubuntudeviceconfigurationwidget.h
+    ubuntudeviceconfigurationwidget.h \
+    ubuntudeployconfiguration.h
 

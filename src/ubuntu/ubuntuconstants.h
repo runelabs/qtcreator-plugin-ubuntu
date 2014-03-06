@@ -490,7 +490,11 @@ const char UBUNTU_CLICK_GCC_WRAPPER[]    = "%0/qtc_chroot_gcc";
 
 //Devicesupport
 const char UBUNTU_DEVICE_TYPE_ID[] = "UbuntuProjectManager.DeviceTypeId";
+const char UBUNTU_DEVICE_SSHIDENTITY[] = "%0/.ssh/ubuntudevice_%1_id_rsa";
 
+//Deploysupport
+const char UBUNTU_DEPLOYCONFIGURATION_ID[] = "UbuntuProjectManager.DeployConfiguration";
+const char UBUNTU_DEPLOY_UPLOADSTEP_ID[] = "UbuntuProjectManager.UploadStep";
 
 } // namespace Ubuntu
 } // namespace Constants
