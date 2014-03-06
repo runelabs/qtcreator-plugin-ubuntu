@@ -21,7 +21,7 @@ WHOAMI=`whoami`
 
 if [ ! -d ${EMULATOR_PATH} ]
 then
-	mkdir ${EMULATOR_PATH}
+	mkdir -p ${EMULATOR_PATH}
 fi
 
 pkexec sh -c "HOME=$HOME ubuntu-emulator create ${EMULATOR_NAME};chown ${WHOAMI}:${WHOAMI} ${EMULATOR_PATH} -R"
