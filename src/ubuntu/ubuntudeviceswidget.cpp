@@ -46,11 +46,17 @@ bool UbuntuDevicesWidget::deviceDetected()
     return ui->comboBoxSerialNumber->count();
 }
 
-UbuntuDevicesWidget::UbuntuDevicesWidget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::UbuntuDevicesWidget)
+UbuntuDevicesWidget::UbuntuDevicesWidget(QWidget *parent)
+    : QWidget(parent)
+    , ui(new Ui::UbuntuDevicesWidget)
+    , m_ubuntuProcess(new Ubuntu::Internal::UbuntuProcess(this))
+    , m_refreshKnownAfterScan(false)
+
 {
     ui->setupUi(this);
+    //Disable the clone network button for now
+    ui->pushButtonCloneNetworkConfig->setVisible(false);
+
     ui->stackedEmulatorConfigWidget->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_PAGE_EMULATOR_PACKAGE_CHECK);
 
     m_instance = this;
@@ -66,17 +72,17 @@ UbuntuDevicesWidget::UbuntuDevicesWidget(QWidget *parent) :
     
     ui->nameLineEdit->setInitialText( QLatin1String(Constants::UBUNTU_INITIAL_EMULATOR_NAME));
     slotChanged();
-    ui->frameNoDevices->hide();
-    ui->lblLoading->hide();
-    ui->frameNoNetwork->hide();
+
+    //devices page
+    setupDevicePage();
 
     ui->progressBar->setMinimum(0);
     ui->progressBar->setMaximum(0);
 
-    connect(&m_ubuntuProcess,SIGNAL(started(QString)),this,SLOT(onStarted(QString)));
-    connect(&m_ubuntuProcess,SIGNAL(message(QString)),this,SLOT(onMessage(QString)));
-    connect(&m_ubuntuProcess,SIGNAL(finished(QString,int)),this,SLOT(onFinished(QString, int)));
-    connect(&m_ubuntuProcess,SIGNAL(error(QString)),this,SLOT(onError(QString)));
+    connect(m_ubuntuProcess,SIGNAL(started(QString)),this,SLOT(onStarted(QString)));
+    connect(m_ubuntuProcess,SIGNAL(message(QString)),this,SLOT(onMessage(QString)));
+    connect(m_ubuntuProcess,SIGNAL(finished(QString,int)),this,SLOT(onFinished(QString, int)));
+    connect(m_ubuntuProcess,SIGNAL(error(QString)),this,SLOT(onError(QString)));
 
     connect(ui->nameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotChanged()));
 
@@ -89,15 +95,13 @@ UbuntuDevicesWidget::UbuntuDevicesWidget(QWidget *parent) :
     connect(devMgr,SIGNAL(deviceAdded(Core::Id)),this,SLOT(deviceAdded(Core::Id)));
     connect(devMgr,SIGNAL(deviceRemoved(Core::Id)),this,SLOT(deviceRemoved(Core::Id)));
     connect(devMgr,SIGNAL(deviceUpdated(Core::Id)),this,SLOT(deviceUpdated(Core::Id)));
-
-    checkEmulator();
 }
 
 
 UbuntuDevicesWidget::~UbuntuDevicesWidget()
 {
     m_aboutToClose = true;
-    m_ubuntuProcess.stop();
+    m_ubuntuProcess->stop();
     delete ui;
 }
 
@@ -152,6 +156,7 @@ void UbuntuDevicesWidget::onStarted(QString cmd) {
     ui->stackedWidgetConnectedDevice->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONNECTIVITY_INPUT);
     ui->lblDeviceProcessInfo->setText(QFileInfo(cmd).baseName());
     ui->lblLoading->show();
+    ui->progressBar->show();
 }
 
 
@@ -233,6 +238,17 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
     if (cmd == QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_DEVICESEARCH).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
         QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
 
+        //ugly hack to prevent running the search script and device
+        //detection scripts at the same time
+        if(m_refreshKnownAfterScan) {
+            m_refreshKnownAfterScan = false;
+
+            foreach(Ubuntu::Internal::UbuntuDevice::Ptr ptr, m_knownDevices) {
+                removeDevice(ptr.data());
+                ptr->helper()->refresh();
+            }
+        }
+
         // fill combobox data
         ui->comboBoxSerialNumber->setEnabled(false);
         foreach(QString line, lines) {
@@ -305,13 +321,16 @@ void UbuntuDevicesWidget::readDevicesFromSettings()
             Ubuntu::Internal::UbuntuDevice* cPtr = qSharedPointerCast<const Ubuntu::Internal::UbuntuDevice>(dev)->helper()->device();
             if(cPtr) {
                 m_knownDevices.insert(cPtr->id().uniqueIdentifier(),cPtr->sharedFromThis());
+                connect(cPtr->helper(),SIGNAL(featureDetected()),this,SLOT(knownDeviceFeatureChange()));
                 addDevice(cPtr);
             }
         }
     }
 
-    //add all unknown devices
-    detectDevices();
+    setupDevicePage();
+
+    //will trigger detectDevices
+    checkEmulator();
 }
 
 /*!
@@ -322,6 +341,7 @@ void UbuntuDevicesWidget::readDevicesFromSettings()
  */
 void UbuntuDevicesWidget::deviceAdded(const Core::Id &id)
 {
+    qDebug()<<"Device Manager reports device added: "<<id.toString();
     if(m_knownDevices.contains(id.uniqueIdentifier()))
         return;
 
@@ -342,6 +362,8 @@ void UbuntuDevicesWidget::deviceAdded(const Core::Id &id)
     if(dev->deviceState() == ProjectExplorer::IDevice::DeviceConnected) {
         addDevice(dev);
     }
+
+    connect(dev->helper(),SIGNAL(featureDetected()),this,SLOT(knownDeviceFeatureChange()));
 }
 
 /*!
@@ -351,6 +373,7 @@ void UbuntuDevicesWidget::deviceAdded(const Core::Id &id)
  */
 void UbuntuDevicesWidget::deviceRemoved(const Core::Id &id)
 {
+    qDebug()<<"Device Manager reports device removed: "<<id.toString();
     if(!m_knownDevices.contains(id.uniqueIdentifier()))
         return;
 
@@ -370,28 +393,38 @@ void UbuntuDevicesWidget::deviceUpdated(const Core::Id &id)
         return;
 
     Ubuntu::Internal::UbuntuDevice::Ptr dev = m_knownDevices[id.uniqueIdentifier()];
-    if(dev->deviceState() == ProjectExplorer::IDevice::DeviceConnected) {
-        ui->comboBoxSerialNumber->addItem(dev->id().toSetting().toString());
-        ui->stackedWidgetDeviceConfig->addWidget(dev->createWidget());
+    if(dev->deviceState() == ProjectExplorer::IDevice::DeviceConnected
+            || dev->deviceState() == ProjectExplorer::IDevice::DeviceReadyToUse) {
+
+        qDebug()<<"Trying to add device "<<id.toString()<<" Because its in connected state";
+        addDevice(dev.data());
     } else {
         removeDevice(dev.data());
     }
 }
 
+void UbuntuDevicesWidget::knownDeviceFeatureChange()
+{
+    Ubuntu::Internal::UbuntuDeviceHelper* hlpr = qobject_cast<Ubuntu::Internal::UbuntuDeviceHelper*>(sender());
+    if(!hlpr) return;
+    if(hlpr->device()->id().uniqueIdentifier() == ui->comboBoxSerialNumber->currentData().toInt())
+        setupDevicePage();
+}
+
 void UbuntuDevicesWidget::checkEmulatorInstances(){
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES));
-    m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES));
+    m_ubuntuProcess->stop();
+    m_ubuntuProcess->append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH) << QApplication::applicationDirPath());
+    m_ubuntuProcess->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES));
 
 }
 
 void UbuntuDevicesWidget::checkEmulator() {
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_EMULATOR_INSTALLED));
-    m_ubuntuProcess.stop();
+    m_ubuntuProcess->stop();
     QString sEmulatorPackageName = QLatin1String(Ubuntu::Constants::EMULATOR_PACKAGE_NAME);
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUWIDGETS_LOCAL_PACKAGE_INSTALLED_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(sEmulatorPackageName) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_EMULATOR_INSTALLED));
+    m_ubuntuProcess->append(QStringList() << QString::fromLatin1(Constants::UBUNTUWIDGETS_LOCAL_PACKAGE_INSTALLED_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(sEmulatorPackageName) << QApplication::applicationDirPath());
+    m_ubuntuProcess->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_EMULATOR_INSTALLED));
 }
 
 void UbuntuDevicesWidget::on_pushButton_InstallEmulator_OK_clicked() {
@@ -401,14 +434,14 @@ void UbuntuDevicesWidget::on_pushButton_InstallEmulator_OK_clicked() {
     ui->pushButton_InstallEmulator_OK->hide();
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE));
     QString sEmulatorPackageName = QLatin1String(Ubuntu::Constants::EMULATOR_PACKAGE_NAME);
-    m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(sEmulatorPackageName) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE));
+    m_ubuntuProcess->stop();
+    m_ubuntuProcess->append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(sEmulatorPackageName) << QApplication::applicationDirPath());
+    m_ubuntuProcess->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE));
 }
 
 void UbuntuDevicesWidget::on_pushButton_CreateNewEmulator_clicked() {
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
-    m_ubuntuProcess.stop();
+    m_ubuntuProcess->stop();
     ui->progressBar_CreateEmulator->show();
     ui->label_EmulatorValidationMessage->setText(QLatin1String(Constants::MSG_EMULATOR_IS_CREATED));
     ui->pushButton_CreateNewEmulator->setEnabled(false);
@@ -417,8 +450,8 @@ void UbuntuDevicesWidget::on_pushButton_CreateNewEmulator_clicked() {
     strEmulatorPath += QDir::separator();
     strEmulatorPath += QLatin1String(Constants::DEFAULT_EMULATOR_PATH);
     strEmulatorPath += QDir::separator();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(strEmulatorPath).arg(strEmulatorName) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
+    m_ubuntuProcess->append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(strEmulatorPath).arg(strEmulatorName) << QApplication::applicationDirPath());
+    m_ubuntuProcess->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
 
 }
 
@@ -431,9 +464,9 @@ void UbuntuDevicesWidget::startEmulator(QListWidgetItem * item) {
     QStringList lineData = item->text().trimmed().split(QLatin1String(Constants::TAB));
     QString sEmulatorPath = lineData.takeFirst();
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR));
-    m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(sEmulatorPath) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR));
+    m_ubuntuProcess->stop();
+    m_ubuntuProcess->append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(sEmulatorPath) << QApplication::applicationDirPath());
+    m_ubuntuProcess->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR));
 }
 
 void UbuntuDevicesWidget::setupDevicePage()
@@ -444,31 +477,43 @@ void UbuntuDevicesWidget::setupDevicePage()
         ui->comboBoxSerialNumber->clear();
         ui->comboBoxSerialNumber->setEnabled(false);
 
-        ui->stackedWidgetDeviceConnected->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONNECTIVITY_INFO);
+        ui->stackedWidgetDeviceConnected->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONNECTIVITY_NODEVICE_CONNECTED);
     } else {
+        ui->stackedWidgetDeviceConnected->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONNECTIVITY_DEVICE_CONNECTED);
         ui->frameNoDevices->hide();
-        ui->frameNoNetwork->hide();
         ui->widgetDeviceSerial->show();
-        ui->stackedWidgetConnectedDevice->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONNECTIVITY_INPUT);
         ui->comboBoxSerialNumber->setEnabled(true);
+
+        int devId = ui->comboBoxSerialNumber->currentData().toInt();
+        if(m_knownDevices.contains(devId)) {
+            Ubuntu::Internal::UbuntuDevice::Ptr dev = m_knownDevices[devId];
+            if(dev->hasNetworkConnection() != Ubuntu::Internal::UbuntuDevice::Available) {
+                ui->stackedWidgetDeveloperMode->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_DEVELOPERMODE_PAGE_NONETWORK);
+            } else {
+                if(dev->developerModeEnabled() == Ubuntu::Internal::UbuntuDevice::Available) {
+                    ui->stackedWidgetDeveloperMode->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_DEVELOPERMODE_PAGE_ENABLED);
+                } else {
+                    ui->stackedWidgetDeveloperMode->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_DEVELOPERMODE_PAGE_DEVICEFOUND);
+                }
+            }
+        }
     }
 }
 
 void UbuntuDevicesWidget::detectDevices() {
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES));
-    m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES));
+    m_ubuntuProcess->stop();
+    m_ubuntuProcess->append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH) << QApplication::applicationDirPath());
+    m_ubuntuProcess->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES));
 }
 
 #if 0
 //this was not used, still needed?
 void UbuntuDevicesWidget::on_pushButtonCloneNetworkConfig_clicked() {
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONENETWORK));
-    ui->frameNoNetwork->hide();
-    m_ubuntuProcess.stop();
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONENETWORK_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONENETWORK));
+    m_ubuntuProcess->stop();
+    m_ubuntuProcess->append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONENETWORK_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(serialNumber()) << QApplication::applicationDirPath());
+    m_ubuntuProcess->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONENETWORK));
 }
 #endif
 
@@ -487,6 +532,8 @@ void UbuntuDevicesWidget::on_comboBoxSerialNumber_currentIndexChanged( const QSt
 
     ui->stackedWidgetDeviceConfig->setCurrentIndex(idx);
     ui->lblDeviceInfo->setText(tr("Device Info Here"));
+
+    setupDevicePage();
 }
 
 void UbuntuDevicesWidget::onDeviceConnected(const QString &) {
@@ -500,10 +547,9 @@ void UbuntuDevicesWidget::onDeviceConnected(const QString &) {
 
     ui->plainTextEdit->clear();
 
-    m_ubuntuProcess.stop();
+    m_ubuntuProcess->stop();
 
     ui->frameNoDevices->hide();
-    ui->frameNoNetwork->hide();
     ui->frameProgress->show();
     ui->lblLoading->show();
     detectDevices();
@@ -511,12 +557,10 @@ void UbuntuDevicesWidget::onDeviceConnected(const QString &) {
 
 
 void UbuntuDevicesWidget::on_pushButtonRefresh_clicked() {
-    m_ubuntuProcess.stop();
+    m_refreshKnownAfterScan = true;
+    m_ubuntuProcess->stop();
     ui->plainTextEdit->clear();
     m_reply.clear();
-    ui->frameNoDevices->hide();
-    ui->lblLoading->show();
-    ui->comboBoxSerialNumber->clear();
     detectDevices();
 }
 
@@ -540,9 +584,15 @@ void UbuntuDevicesWidget::endAction(QString msg) {
  */
 int UbuntuDevicesWidget::addDevice(Internal::UbuntuDevice *dev)
 {
-    int idx = -1;
-    if(dev->deviceState() != ProjectExplorer::IDevice::DeviceStateUnknown) {
-        ui->comboBoxSerialNumber->addItem(dev->id().toSetting().toString());
+    int idx = ui->comboBoxSerialNumber->findData(dev->id().uniqueIdentifier());
+
+    //already there
+    if(idx >= 0)
+        return idx;
+
+    if(dev->deviceState() == ProjectExplorer::IDevice::DeviceConnected
+            || dev->deviceState() == ProjectExplorer::IDevice::DeviceReadyToUse) {
+        ui->comboBoxSerialNumber->addItem(dev->id().toSetting().toString(),dev->id().uniqueIdentifier());
 
         //pointer ownership goes to the stack
         idx = ui->stackedWidgetDeviceConfig->addWidget(dev->createWidget());
@@ -558,7 +608,7 @@ int UbuntuDevicesWidget::addDevice(Internal::UbuntuDevice *dev)
  */
 void UbuntuDevicesWidget::removeDevice(Internal::UbuntuDevice *dev)
 {
-    int idx = ui->comboBoxSerialNumber->findText(dev->id().toSetting().toString());
+    int idx = ui->comboBoxSerialNumber->findData(dev->id().uniqueIdentifier());
     if(idx < 0)
         return;
 

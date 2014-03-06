@@ -19,6 +19,7 @@
 #include "ubuntuprocess.h"
 
 #include <QVariant>
+#include <QUuid>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/icore.h>
@@ -27,15 +28,16 @@
 using namespace Ubuntu;
 using namespace Ubuntu::Internal;
 
-UbuntuProcess::UbuntuProcess(QObject *parent) :
-    QObject(parent),
-    m_futureInterface(0)
+UbuntuProcess::UbuntuProcess(QObject *parent)
+    : QObject(parent)
+    , m_currentProcess(new QProcess(this))
+    , m_futureInterface(0)
 {
-    connect(&m_currentProcess,SIGNAL(readyReadStandardError()),this,SLOT(processReadyRead()));
-    connect(&m_currentProcess,SIGNAL(started()),this,SLOT(processStarted()));
-    connect(&m_currentProcess,SIGNAL(finished(int)),this,SLOT(processFinished(int)));
-    connect(&m_currentProcess,SIGNAL(readyRead()),this,SLOT(processReadyRead()));
-    connect(&m_currentProcess,SIGNAL(error(QProcess::ProcessError)),this,SLOT(processError(QProcess::ProcessError)));
+    connect(m_currentProcess,SIGNAL(readyReadStandardError()),this,SLOT(processReadyRead()));
+    connect(m_currentProcess,SIGNAL(started()),this,SLOT(processStarted()));
+    connect(m_currentProcess,SIGNAL(finished(int)),this,SLOT(processFinished(int)));
+    connect(m_currentProcess,SIGNAL(readyRead()),this,SLOT(processReadyRead()));
+    connect(m_currentProcess,SIGNAL(error(QProcess::ProcessError)),this,SLOT(processError(QProcess::ProcessError)));
 }
 
 void UbuntuProcess::initializeProgressBar(QString title, int max) {
@@ -49,8 +51,8 @@ void UbuntuProcess::initializeProgressBar(QString title, int max) {
 
     m_futureInterface->setProgressRange(0,max);
 
-    Core::FutureProgress* futureProgress = Core::ProgressManager::addTask(m_futureInterface->future(),title,Constants::TASK_DEVICE_SCRIPT);
-
+    Core::Id id(Constants::TASK_DEVICE_SCRIPT);
+    Core::FutureProgress* futureProgress = Core::ProgressManager::addTask(m_futureInterface->future(),title,id.withSuffix(QUuid::createUuid().toString()));
     connect(futureProgress,SIGNAL(clicked()),this,SLOT(stop()));
 }
 
@@ -73,8 +75,8 @@ void UbuntuProcess::setProgressBarCancelled() {
 }
 
 void UbuntuProcess::close() {
-    m_currentProcess.close();
-    m_currentProcess.waitForFinished();
+    m_currentProcess->close();
+    m_currentProcess->waitForFinished();
 }
 
 void UbuntuProcess::stop() {
@@ -82,20 +84,22 @@ void UbuntuProcess::stop() {
 }
 
 void UbuntuProcess::processStarted() {
-    increaseProgress(m_currentProcess.program());
-    emit started(m_currentProcess.program());
+    increaseProgress(m_currentProcess->program());
+    emit started(m_currentProcess->program());
 }
 
 void UbuntuProcess::kill() {
     this->clear();
-    m_currentProcess.kill();
-    m_currentProcess.waitForFinished();
+    m_currentProcess->kill();
+    m_currentProcess->waitForFinished();
+    if(m_futureInterface)
+        m_futureInterface->reportFinished();
 }
 
 void UbuntuProcess::processError(QProcess::ProcessError err) {
     Q_UNUSED(err);
-    if (m_currentProcess.exitCode() == 0) { return; }
-    emit error(QString(QLatin1String("ERROR: (%0) %1")).arg(m_currentProcess.program()).arg(m_currentProcess.errorString()));
+    if (m_currentProcess->exitCode() == 0) { return; }
+    emit error(QString(QLatin1String("ERROR: (%0) %1")).arg(m_currentProcess->program()).arg(m_currentProcess->errorString()));
 
     // lets clear the remaining actions
     m_pendingProcesses.clear();
@@ -110,27 +114,27 @@ void UbuntuProcess::start(QString taskTitle) {
 
 void UbuntuProcess::processFinished(int code) {
     if (code != 0) {
-        emit error(QString::fromLocal8Bit(m_currentProcess.readAllStandardError()));
+        emit error(QString::fromLocal8Bit(m_currentProcess->readAllStandardError()));
         m_pendingProcesses.clear();
         setProgressBarCancelled();
 
         //failing process has to emit finished too
-        emit finished(m_currentProcess.program(), code);
+        emit finished(m_currentProcess->program(), code);
         return;
     }
-    QString errorMsg = QString::fromLocal8Bit(m_currentProcess.readAllStandardError());
+    QString errorMsg = QString::fromLocal8Bit(m_currentProcess->readAllStandardError());
     if (errorMsg.trimmed().length()>0) emit error(errorMsg);
-    QString msg = QString::fromLocal8Bit(m_currentProcess.readAllStandardOutput());
+    QString msg = QString::fromLocal8Bit(m_currentProcess->readAllStandardOutput());
     if (msg.trimmed().length()>0) emit message(msg);
 
-    emit finished(m_currentProcess.program(), code);
-    emit finished(&m_currentProcess,m_currentProcess.program(),code);
+    emit finished(m_currentProcess->program(), code);
+    emit finished(m_currentProcess,m_currentProcess->program(),code);
     processCmdQueue();
 }
 
 void UbuntuProcess::processReadyRead() {
-    QString stderr = QString::fromLocal8Bit(m_currentProcess.readAllStandardError());
-    QString stdout = QString::fromLocal8Bit(m_currentProcess.readAllStandardOutput());
+    QString stderr = QString::fromLocal8Bit(m_currentProcess->readAllStandardError());
+    QString stdout = QString::fromLocal8Bit(m_currentProcess->readAllStandardOutput());
     if (!stderr.isEmpty()) {
         emit message(stderr);
     }
@@ -160,16 +164,16 @@ void UbuntuProcess::processCmdQueue() {
     }
 
     if (!workingDirectory.isEmpty()) {
-        m_currentProcess.setWorkingDirectory(workingDirectory);
+        m_currentProcess->setWorkingDirectory(workingDirectory);
     }
 
     QString msg(QString(QLatin1String("%0 %1")).arg(cmd).arg(args.join(QLatin1String(" "))));
     //emit message(msg);
-    m_currentProcess.setProperty("command",cmd);
+    m_currentProcess->setProperty("command",cmd);
 
     if (args.length()>0) {
-        m_currentProcess.start(cmd,args);
+        m_currentProcess->start(cmd,args);
     } else {
-        m_currentProcess.start(cmd);
+        m_currentProcess->start(cmd);
     }
 }

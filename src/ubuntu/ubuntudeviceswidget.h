@@ -70,6 +70,7 @@ private slots:
     void deviceAdded (const Core::Id& id);
     void deviceRemoved (const Core::Id& id);
     void deviceUpdated (const Core::Id& id);
+    void knownDeviceFeatureChange ();
     void slotChanged();
     void startEmulator(QListWidgetItem*);
     void setupDevicePage ();
@@ -85,11 +86,12 @@ private:
 
     Ui::UbuntuDevicesWidget *ui;
 
-    Ubuntu::Internal::UbuntuProcess m_ubuntuProcess;
+    Ubuntu::Internal::UbuntuProcess *m_ubuntuProcess;
     QString m_reply;
 
     UbuntuDeviceNotifier m_ubuntuDeviceNotifier;
 
+    bool m_refreshKnownAfterScan;
     bool m_aboutToClose;
     QString m_deviceSerialNumber;
 

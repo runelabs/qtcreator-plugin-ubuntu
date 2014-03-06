@@ -38,7 +38,7 @@ public:
 
     void append(QStringList cmds) { m_pendingProcesses << cmds; }
 
-    QProcess::ProcessState state() { return m_currentProcess.state(); }
+    QProcess::ProcessState state() { return m_currentProcess->state(); }
 
 public slots:
     void stop();
@@ -63,7 +63,7 @@ protected:
     void kill();
 
     QList<QStringList> m_pendingProcesses;
-    QProcess m_currentProcess;
+    QProcess *m_currentProcess;
     QFutureInterface<void> *m_futureInterface;
 
     void initializeProgressBar(QString title, int max);
@@ -73,6 +73,9 @@ protected:
     void setProgressBarStarted();
 
     bool m_bForceStop;
+
+private:
+    Q_DISABLE_COPY(UbuntuProcess)
 
 };
 

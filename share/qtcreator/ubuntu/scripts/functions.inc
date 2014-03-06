@@ -23,7 +23,7 @@ SSHIDENTITY=~/.ssh/ubuntudevice_${SERIALNUMBER}_id_rsa
 USERNAME=phablet
 
 function adb_root {
-	adb -s ${SERIALNUMBER} root &> /dev/null
+	adb -s ${SERIALNUMBER} root &> /dev/null 
 	adb -s ${SERIALNUMBER} wait-for-device &> /dev/null
 }
 

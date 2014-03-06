@@ -3,13 +3,13 @@
 
 #include <remotelinux/linuxdevice.h>
 #include <coreplugin/id.h>
+#include <QProcess>
 
 class UbuntuDeviceNotifier;
 
 namespace Ubuntu {
 namespace Internal {
 
-class UbuntuProcess;
 class UbuntuDevice;
 class UbuntuDeviceFactory;
 
@@ -23,6 +23,8 @@ public:
     ~UbuntuDeviceHelper();
 
     UbuntuDevice *device () const;
+    QString log () const;
+    void refresh ();
 
 signals:
     void connected        ();
@@ -52,19 +54,28 @@ protected:
     void installDevTools ();
     void removeDevTools  ();
     void deployPublicKey ();
+    void startProcess    (const QString& command);
 
 protected slots:
+    void onProcessReadyRead ();
+    void onProcessFinished  (const int code);
+    void onProcessError     (const QProcess::ProcessError error);
     void onMessage(const QString &msg);
     void onError(const QString &error);
-    void processFinished ( const QString&, const int code);
+    void processFinished (const QString&command, const int code);
     void deviceConnected ();
     void deviceDisconnected ();
     void toGeneralMessages (const QString &msg) const;
 
+protected:
+    void stopProcess ();
+    void addToLog (const QString &msg);
+
 private:
+    QString m_log;
     QString m_reply;
     UbuntuDevice  *m_dev;
-    UbuntuProcess *m_process;
+    QProcess *m_process;
     UbuntuDeviceNotifier *m_deviceWatcher;
 };
 

@@ -14,6 +14,10 @@ UbuntuDeviceConfigurationWidget::UbuntuDeviceConfigurationWidget(const ProjectEx
     connect(m_ubuntuDev->helper(),SIGNAL(featureDetected()),this,SLOT(updateWidgets()));
     connect(m_ubuntuDev->helper(),SIGNAL(disconnected()),this,SLOT(updateWidgets()));
     connect(m_ubuntuDev->helper(),SIGNAL(connected()),this,SLOT(updateWidgets()));
+    connect(m_ubuntuDev->helper(),SIGNAL(message(QString)),this,SLOT(on_message(QString)));
+
+    ui->plainTextEdit->appendHtml(m_ubuntuDev->helper()->log());
+
     updateWidgets();
 }
 
