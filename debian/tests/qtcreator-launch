@@ -1,0 +1,38 @@
+#!/bin/sh
+#
+# autopkgtest check to verify that qtcreator can be launched
+#
+# (C) 2014 Canonical Ltd
+# Author: Jean-Baptiste Lallement <jean-baptiste.lallement@ubuntu.com>
+#
+set -e
+
+DISPNUM=100
+xvfb_pid=0
+rc=1
+
+on_exit() {
+    pkill -9 -x qtcreator||true
+    kill -9 $xvfb_pid ||true
+    exit $rc
+}
+trap on_exit EXIT INT QUIT ABRT PIPE TERM
+
+
+Xvfb :$DISPNUM -screen 0 1024x768x24 -nolisten tcp -auth /dev/null 2>&1 &
+xvfb_pid=$!
+export DISPLAY=:$DISPNUM
+
+qtcreator 2>&1 &
+qtc_pid=$!
+sleep 10
+
+if kill -0 $qtc_pid 2>/dev/null; then
+    echo "I: The following qtcreator processes are running"
+    ps ax|grep -w qtcreator
+else
+    echo "E: QTCreator failed to start!"
+    exit
+fi
+
+rc=0
