@@ -1,6 +1,7 @@
 qtcreator-plugin-ubuntu (3.0.1-0ubuntu2) UNRELEASED; urgency=medium
 
-  * 
+  [ Benjamin Zeller ]
+  * Fix ubuntuproject loading
 
  -- Timo Jyrinki <timo-jyrinki@ubuntu.com>  Mon, 10 Mar 2014 08:16:24 +0200
 
