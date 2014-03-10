@@ -59,13 +59,22 @@ void UbuntuProject::extractProjectFileData(const QString& filename) {
     const QmlJS::SimpleReaderNode::Ptr root =
             reader.readFile(filename);
 
-    if (!reader.errors().isEmpty() || root.isNull())
+    if(!reader.errors().isEmpty()) {
+        foreach(const QString &error, reader.errors()) {
+            qWarning()<<qPrintable(tr("Error in projectfile: %0").arg(error));
+        }
+        return;
+    }
+
+    if(root.isNull())
         return;
 
     if (root->name().compare(QString::fromLatin1("Project")) == 0) {
         QVariant mainFileVariant = root->property(QLatin1String("mainFile"));
         if (mainFileVariant.isValid())
             m_mainFile = mainFileVariant.toString();
+    } else  {
+        qWarning()<< tr("There is no Project root element in the projectfile");
     }
 }
 
