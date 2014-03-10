@@ -1,3 +1,9 @@
+qtcreator-plugin-ubuntu (3.0.1-0ubuntu3) UNRELEASED; urgency=medium
+
+  * 
+
+ -- Timo Jyrinki <timo-jyrinki@ubuntu.com>  Mon, 10 Mar 2014 08:50:41 +0200
+
 qtcreator-plugin-ubuntu (3.0.1-0ubuntu2) trusty; urgency=medium
 
   [ Benjamin Zeller ]
