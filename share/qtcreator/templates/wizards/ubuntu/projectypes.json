@@ -164,30 +164,48 @@
            { "fileName": "cmake/Click.cmake"}
        ]
     },
-   {
-       "type": "pro",
+    {
+       "type": "cmake",
        "folder": "scope",
-       "displayName": "Unity Scope",
+       "displayName": "Unity Scope Template",
        "id": "UbuntuUnityScope",
        "description": "A Unity Scope template",
-       "mainFile" : "displayName.c",
-       "projectFile" : "displayName.pro",
+       "mainFile" : "src/displayName-scope.cpp",
+       "projectFile" : "CMakeLists.txt",
        "requiredFeature": "Ubuntu.Wizards.FeatureUnityScope",
        "files": [
            {
-               "fileName": "data/unity-scope-displayName_lower.service.in"
+               "fileName": "src/displayName-preview.cpp"
            },
            {
-               "fileName": "data/displayName_lower.scope"
+               "fileName": "src/CMakeLists.txt"
            },
            {
-               "fileName": "config.h"
+               "fileName": "src/displayName-preview.h"
            },
            {
-               "fileName": "displayName-parser.c"
+               "fileName": "src/displayName-query.cpp"
            },
            {
-               "fileName": "displayName-parser.h"
+               "fileName": "src/displayName-query.h"
+           },
+           {
+               "fileName": "src/displayName-scope.h"
+           },
+           {
+               "fileName": "data/displayName-scope.ini.in"
+           },
+           {
+               "fileName": "data/CMakeLists.txt"
+           },
+           {
+               "fileName": "test/simpletest.cpp"
+           },
+           {
+               "fileName": "test/CMakeLists.txt"
+           },
+           {
+               "fileName": "readme.txt"
            }
        ]
     }
