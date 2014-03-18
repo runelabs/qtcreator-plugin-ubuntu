@@ -63,7 +63,7 @@ UbuntuPackagingMode::UbuntuPackagingMode(QObject *parent) :
 
     connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)), SLOT(modeChanged(Core::IMode*)));
 
-    ProjectExplorer::SessionManager* sessionManager = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
+    QObject* sessionManager = ProjectExplorer::SessionManager::instance();
     connect(sessionManager,SIGNAL(projectAdded(ProjectExplorer::Project*)),SLOT(on_projectAdded(ProjectExplorer::Project*)));
     connect(sessionManager,SIGNAL(projectRemoved(ProjectExplorer::Project*)),SLOT(on_projectRemoved(ProjectExplorer::Project*)));
     connect(sessionManager,SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),SLOT(on_projectAdded(ProjectExplorer::Project*)));
@@ -79,8 +79,7 @@ void UbuntuPackagingMode::initialize() {
 
 void UbuntuPackagingMode::modeChanged(Core::IMode* currentMode) {
     if (currentMode->id() == id()) {
-        ProjectExplorer::ProjectExplorerPlugin* projectExplorerInstance = ProjectExplorer::ProjectExplorerPlugin::instance();
-        ProjectExplorer::Project* startupProject = projectExplorerInstance->startupProject();
+        ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
 
         bool isQmlProject = false;
         bool isQmakeProject = false;
@@ -109,9 +108,7 @@ void UbuntuPackagingMode::modeChanged(Core::IMode* currentMode) {
 }
 
 void UbuntuPackagingMode::updateModeState() {
-    ProjectExplorer::SessionManager* sessionManager = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
-    ProjectExplorer::ProjectExplorerPlugin* projectExplorerInstance = ProjectExplorer::ProjectExplorerPlugin::instance();
-    ProjectExplorer::Project* startupProject = projectExplorerInstance->startupProject();
+    ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
 
     bool isQmlProject = false;
     bool isQmakeProject = false;

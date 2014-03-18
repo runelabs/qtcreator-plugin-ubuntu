@@ -66,7 +66,7 @@ public:
     QStringList files(FilesMode fileMode) const;
 
     QDir projectDir() const {
-        return QFileInfo(document()->fileName()).dir();
+        return projectDirectory();
     }
 
     QString filesFileName() const {

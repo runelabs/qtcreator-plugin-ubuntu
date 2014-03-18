@@ -21,9 +21,10 @@
 
 #include <coreplugin/basefilewizard.h>
 #include <projectexplorer/baseprojectwizarddialog.h>
-#include <qt4projectmanager/qt4project.h>
+#include <qmakeprojectmanager/qmakeproject.h>
 #include <qmlprojectmanager/qmlproject.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/targetsetuppage.h>
 
 #include <QJsonObject>
 #include "ubuntuprojectapp.h"
@@ -37,6 +38,16 @@ class UbuntuProjectApplicationWizardDialog : public ProjectExplorer::BaseProject
 public:
     explicit UbuntuProjectApplicationWizardDialog(QWidget *parent,
                                                const Core::WizardDialogParameters &parameters);
+
+    int addTargetSetupPage(int id = -1);
+    bool writeUserFile(const QString &cmakeFileName) const;
+
+private slots:
+    void on_projectParametersChanged(const QString &projectName, const QString &path);
+
+
+private:
+    ProjectExplorer::TargetSetupPage *m_targetSetupPage;
 };
 
 class UbuntuProjectApplicationWizard : public Core::BaseFileWizard
@@ -47,8 +58,6 @@ public:
     UbuntuProjectApplicationWizard(QJsonObject);
     virtual ~UbuntuProjectApplicationWizard();
     virtual Core::FeatureSet requiredFeatures() const;
-
-    Core::BaseFileWizardParameters parameters(QJsonObject);
 
     static QByteArray getProjectTypesJSON();
 
@@ -65,6 +74,7 @@ protected:
 
 private:
     UbuntuProjectApp* m_app;
+    QString           m_projectType;
 };
 
 } // Internal

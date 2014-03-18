@@ -23,27 +23,26 @@
 using namespace Ubuntu::Internal;
 
 UbuntuProjectManager::UbuntuProjectManager() {
-    ProjectExplorer::SessionManager* sessionManager = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
+    QObject* sessionManager = ProjectExplorer::SessionManager::instance();
 
     connect(sessionManager,SIGNAL(projectAdded(ProjectExplorer::Project*)),SLOT(onProjectAdded(ProjectExplorer::Project*)));
 }
 
-ProjectExplorer::Project* UbuntuProjectManager::openProject(const QString &fileName, QString *errorString) {
-    QFileInfo fileInfo(fileName);
-    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
+ProjectExplorer::Project* UbuntuProjectManager::openProject(const QString &filePath, QString *errorString) {
+    QFileInfo fileInfo(filePath);
 
-    foreach (ProjectExplorer::Project *pi, projectExplorer->session()->projects()) {
-        if (fileName == pi->document()->fileName()) {
+    foreach (ProjectExplorer::Project *pi, ProjectExplorer::SessionManager::projects()) {
+        if (filePath == pi->document()->filePath()) {
             if (errorString)
-                *errorString = tr("Failed opening project '%1': Project already open") .arg(QDir::toNativeSeparators(fileName));
+                *errorString = tr("Failed opening project '%1': Project already open") .arg(QDir::toNativeSeparators(filePath));
             return 0;
         }
     }
 
     if (fileInfo.isFile())
-        return new UbuntuProject(this, fileName);
+        return new UbuntuProject(this, filePath);
 
-    *errorString = tr("Failed opening project '%1': Project file is not a file").arg(QDir::toNativeSeparators(fileName));
+    *errorString = tr("Failed opening project '%1': Project file is not a file").arg(QDir::toNativeSeparators(filePath));
     return 0;
 }
 

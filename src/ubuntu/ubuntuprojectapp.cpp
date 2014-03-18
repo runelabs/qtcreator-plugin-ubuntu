@@ -32,7 +32,7 @@
 #include <coreplugin/icore.h>
 #include <utils/filesearch.h>
 #include <qmlprojectmanager/qmlprojectmanager.h>
-#include <qt4projectmanager/qt4projectmanager.h>
+#include <qmakeprojectmanager/qmakeprojectmanager.h>
 #include <QtGlobal>
 
 #include <QIcon>
@@ -94,7 +94,7 @@ Core::GeneratedFiles UbuntuProjectApp::generateFiles(const QWizard *w, QString *
 
         // load the mainFile
         if (m_projectType == QLatin1String(Constants::UBUNTU_HTMLPROJECT_TYPE)) {
-            mainFileName = Core::BaseFileWizard::buildFileName(projectPath,
+            mainFileName = Core::BaseFileWizard::buildFileName(projectPath + QLatin1String("/www"),
                                                               QLatin1String("index"),
                                                               QLatin1String("html"));
         } else {
@@ -149,24 +149,29 @@ Core::GeneratedFiles UbuntuProjectApp::generateFiles(const QWizard *w, QString *
                 << "        filter: \"*.desktop\"" << endl
                 << "    }" << endl
                 << "    Files {" << endl
-                << "        filter: \"*.html\"" << endl
+                << "        filter: \"www/*.html\"" << endl
                 << "    }" << endl
                 << "    Files {" << endl
                 << "        filter: \"Makefile\"" << endl
                 << "    }" << endl;
 
                 out << "    Files {" << endl
-                    << "        directory: \"html\"" << endl
+                    << "        directory: \"www\"" << endl
                     << "        filter: \"*\"" << endl
                     << "    }" << endl;
 
                 out << "    Files {" << endl
-                    << "        directory: \"img/\"" << endl
+                    << "        directory: \"www/img/\"" << endl
                     << "        filter: \"*\"" << endl
                     << "    }" << endl;
 
                 out << "    Files {" << endl
-                    << "        directory: \"css/\"" << endl
+                    << "        directory: \"www/css/\"" << endl
+                    << "        filter: \"*\"" << endl
+                    << "    }" << endl;
+
+                out << "    Files {" << endl
+                    << "        directory: \"www/js/\"" << endl
                     << "        filter: \"*\"" << endl
                     << "    }" << endl;
 
@@ -299,7 +304,11 @@ QByteArray UbuntuProjectApp::processReservedWords(QByteArray data, QString proje
     return data;
 }
 
-Core::BaseFileWizardParameters UbuntuProjectApp::parameters(QJsonObject params) {
+/*!
+  Initializes a Core::IWizard with the internal Ubuntu parameters
+ */
+void UbuntuProjectApp::setupParameters(QJsonObject params, Core::IWizard* wizard)
+{
     QString displayName, id, description, category, displayCategory;
     category = QLatin1String(Ubuntu::Constants::UBUNTU_PROJECT_WIZARD_CATEGORY);
     displayCategory = QLatin1String(Ubuntu::Constants::UBUNTU_PROJECT_WIZARD_CATEGORY_DISPLAY);
@@ -329,16 +338,14 @@ Core::BaseFileWizardParameters UbuntuProjectApp::parameters(QJsonObject params) 
         displayCategory = tmp.toString();
     }
 
-    Core::BaseFileWizardParameters parameters;
-    parameters.setIcon(QIcon(QLatin1String(QtSupport::Constants::QML_WIZARD_ICON)));
-    parameters.setDisplayName(displayName);
-    parameters.setId(id);
-    parameters.setKind(Core::IWizard::ProjectWizard);
-    parameters.setFlags(Core::IWizard::PlatformIndependent);
-    parameters.setDescription(description);
-    parameters.setCategory(category);
-    parameters.setDisplayCategory(displayCategory);
-    return parameters;
+    wizard->setIcon(QIcon(QLatin1String(QtSupport::Constants::QML_WIZARD_ICON)));
+    wizard->setDisplayName(displayName);
+    wizard->setId(id);
+    wizard->setWizardKind(Core::IWizard::ProjectWizard);
+    wizard->setFlags(Core::IWizard::PlatformIndependent);
+    wizard->setDescription(description);
+    wizard->setCategory(category);
+    wizard->setDisplayCategory(displayCategory);
 }
 
 Core::Feature UbuntuProjectApp::requiredFeature() {

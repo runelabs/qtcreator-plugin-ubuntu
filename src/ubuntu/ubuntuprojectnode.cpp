@@ -21,10 +21,10 @@
 using namespace Ubuntu::Internal;
 
 UbuntuProjectNode::UbuntuProjectNode(UbuntuProject *project, Core::IDocument *projectFile)
-    : ProjectExplorer::ProjectNode(QFileInfo(projectFile->fileName()).absoluteFilePath()),
+    : ProjectExplorer::ProjectNode(QFileInfo(projectFile->filePath()).absoluteFilePath()),
       m_project(project),
       m_projectFile(projectFile) {
-    setDisplayName(QFileInfo(projectFile->fileName()).completeBaseName());
+    setDisplayName(QFileInfo(projectFile->filePath()).completeBaseName());
     refresh();
 }
 
@@ -33,7 +33,7 @@ Core::IDocument *UbuntuProjectNode::projectFile() const {
 }
 
 QString UbuntuProjectNode::projectFilePath() const {
-    return m_projectFile->fileName();
+    return m_projectFile->filePath();
 }
 
 void UbuntuProjectNode::refresh() {
@@ -150,19 +150,19 @@ bool UbuntuProjectNode::removeSubProjects(const QStringList &proFilePaths) {
     return false;
 }
 
-bool UbuntuProjectNode::addFiles(const ProjectExplorer::FileType, const QStringList &, QStringList *) {
+bool UbuntuProjectNode::addFiles(const QStringList &, QStringList *) {
     return false;
 }
 
-bool UbuntuProjectNode::removeFiles(const ProjectExplorer::FileType, const QStringList &, QStringList *) {
+bool UbuntuProjectNode::removeFiles(const QStringList &, QStringList *) {
     return false;
 }
 
-bool UbuntuProjectNode::deleteFiles(const ProjectExplorer::FileType, const QStringList &) {
+bool UbuntuProjectNode::deleteFiles(const QStringList &) {
     return true;
 }
 
-bool UbuntuProjectNode::renameFile(const ProjectExplorer::FileType, const QString &, const QString &) {
+bool UbuntuProjectNode::renameFile(const QString &, const QString &) {
     return true;
 }
 

@@ -388,9 +388,9 @@ void UbuntuClickManager::processBuildQueue()
         m_futureInterface = new QFutureInterface<void>();
         m_futureInterface->setProgressRange(0,5);
 
-        Core::FutureProgress* futureProgress = Core::ICore::progressManager()->addTask(m_futureInterface->future()
-                                                                                       ,tr(Constants::UBUNTU_CLICK_BUILDTASK_TITLE)
-                                                                                       ,QLatin1String(Constants::UBUNTU_CLICK_BUILDTASK_ID));
+        Core::FutureProgress* futureProgress = Core::ProgressManager::addTask(m_futureInterface->future()
+                                                                              ,tr(Constants::UBUNTU_CLICK_BUILDTASK_TITLE)
+                                                                              ,Core::Id(Constants::UBUNTU_CLICK_BUILDTASK_ID));
         connect(futureProgress,SIGNAL(canceled()),this,SLOT(stop()));
     }
 
@@ -412,7 +412,7 @@ void UbuntuClickManager::processBuildQueue()
     //only one build at a time
     setBuildActionsEnabled(false);
 
-    QString buildDirStr = bc->buildDirectory();
+    QString buildDirStr = bc->buildDirectory().toString();
     buildDirStr.append(QString::fromLatin1("/%0-%1")
                        .arg(m_currentBuild->targetChroot.framework)
                        .arg(m_currentBuild->targetChroot.architecture));

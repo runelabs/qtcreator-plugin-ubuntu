@@ -22,7 +22,7 @@ SERIES=$3
 CLEANUP_DIRS=("/var/lib/schroot/chroots/click-${FRAMEWORK}-${ARCHITECTURE}")
 CLEANUP_FILES=("/etc/schroot/chroot.d/click-${FRAMEWORK}-${ARCHITECTURE}")
 
-click chroot -a $ARCHITECTURE -f $FRAMEWORK -s $SERIES destroy
+click chroot -a $ARCHITECTURE -f $FRAMEWORK destroy
 
 if [ $? -eq 0 ]
 then
