@@ -53,11 +53,9 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
     qDebug()<<"Going to load ressources from root path: "<<Constants::UBUNTU_RESOURCE_PATH;
 
-    Core::MimeDatabase *mimeDB = Core::ICore::mimeDatabase();
-
     const QLatin1String mimetypesXml(Constants::UBUNTU_MIMETYPE_XML);
 
-    if (!mimeDB->addMimeTypes(mimetypesXml, errorString))
+    if (!Core::MimeDatabase::addMimeTypes(mimetypesXml, errorString))
         return false;
 
     QJsonDocument jsonDoc = QJsonDocument::fromJson(Internal::UbuntuProjectApplicationWizard::getProjectTypesJSON());

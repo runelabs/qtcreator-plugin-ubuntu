@@ -89,8 +89,7 @@ void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd) 
     const bool isCMakeCmd = (cmd == QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_ONFINISHED_ACTION_CLICK_CMAKECREATE).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) && (ui->pushButtonReviewersTools->isVisible());
     const bool isQmlCmd   = (cmd == QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_ONFINISHED_ACTION_CLICK_CREATE).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) && (ui->pushButtonReviewersTools->isVisible());
 
-    ProjectExplorer::ProjectExplorerPlugin* projectExplorerInstance = ProjectExplorer::ProjectExplorerPlugin::instance();
-    ProjectExplorer::Project* startupProject = projectExplorerInstance->startupProject();
+    ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
 
     QString sClickPackageName;
     QString sClickPackagePath;
@@ -101,7 +100,7 @@ void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd) 
         QString framework = args[1];
         sClickPackageName = QString::fromLatin1("%0_%1_%2.click").arg(ui->lineEdit_name->text()).arg(ui->lineEdit_version->text()).arg(arch);
         sClickPackagePath = QString::fromLatin1("%0/%1-%2/")
-                .arg(startupProject->activeTarget()->activeBuildConfiguration()->buildDirectory())
+                .arg(startupProject->activeTarget()->activeBuildConfiguration()->buildDirectory().toString())
                 .arg(framework)
                 .arg(arch);
         qDebug()<<"Going to verify: "<<sClickPackageName<<sClickPackagePath;
@@ -234,9 +233,8 @@ bool UbuntuPackagingWidget::reviewToolsInstalled()
 }
 
 void UbuntuPackagingWidget::on_pushButtonReviewersTools_clicked() {
+    ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
     m_ubuntuProcess.stop();
-    ProjectExplorer::ProjectExplorerPlugin* projectExplorerInstance = ProjectExplorer::ProjectExplorerPlugin::instance();
-    ProjectExplorer::Project* startupProject = projectExplorerInstance->startupProject();
 
     QString directory = QDir::homePath();
     if(startupProject) directory = startupProject->projectDirectory();
@@ -252,10 +250,8 @@ void UbuntuPackagingWidget::autoSave() {
 }
 
 void UbuntuPackagingWidget::openManifestForProject() {
-
-    ProjectExplorer::ProjectExplorerPlugin* projectExplorerInstance = ProjectExplorer::ProjectExplorerPlugin::instance();
-    ///ProjectExplorer::SessionManager* sessionManager = projectExplorerInstance->session();
-    ProjectExplorer::Project* startupProject = projectExplorerInstance->startupProject();
+    //ProjectExplorer::SessionManager* sessionManager = projectExplorerInstance->session();
+    ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
 
     if (startupProject) {
         m_projectName = startupProject->displayName();
@@ -452,7 +448,7 @@ void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {
         qDebug()<<"Could not connect signals";
 
     QAction* action = 0;
-    if(ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject()->projectManager()->mimeType()
+    if(ProjectExplorer::SessionManager::startupProject()->projectManager()->mimeType()
             == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE)) {
         action = UbuntuMenu::menuAction(Core::Id(Constants::UBUNTUPACKAGINGWIDGET_BUILDCMAKEPACKAGE_ID));
     } else {

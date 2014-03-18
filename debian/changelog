@@ -1,8 +1,34 @@
-qtcreator-plugin-ubuntu (2.8.1.3-0ubuntu2) saucy; urgency=low
+qtcreator-plugin-ubuntu (3.0.1-0ubuntu3) UNRELEASED; urgency=medium
 
-  * local build
+  * 
 
- -- David Barth <david.barth@canonical.com>  Fri, 21 Feb 2014 16:41:44 +0100
+ -- Timo Jyrinki <timo-jyrinki@ubuntu.com>  Mon, 10 Mar 2014 08:50:41 +0200
+
+qtcreator-plugin-ubuntu (3.0.1-0ubuntu2) trusty; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Fix ubuntuproject loading
+
+ -- Timo Jyrinki <timo-jyrinki@ubuntu.com>  Mon, 10 Mar 2014 08:47:44 +0200
+
+qtcreator-plugin-ubuntu (3.0.1-0ubuntu1) trusty; urgency=medium
+
+  [ Alexandre Abreu ]
+  * Updateed HTML5 template
+  * Exec line from qtc html5 desktop which should refer to absolute path (LP: #1283183)
+  * Automatically copy the prebuild cordova runtime packages to the project structure after the download completes
+  * Update to follow new html5 project code layout necessary to embed the current cordova runtime.
+
+  [ Jean-Baptiste Lallement ]
+  * Enable autopkgtest to check that ubuntu-sdk is installable and qtcreator can be launched.
+
+  [ David Barth ]
+  * Pick the trusty (device release) for the armhf libs
+
+  [ Benjamin Zeller ]
+  * Plugin code adopted to QtCreator 3.0
+
+ -- Zoltán Balogh <zoltan@bakter.hu>  Thu, 05 Mar 2014 12:50:52 +0200
 
 qtcreator-plugin-ubuntu (2.8.1.3-0ubuntu1) trusty; urgency=medium
 
@@ -72,6 +98,18 @@ qtcreator-plugin-ubuntu (2.8.1.1-0ubuntu1) trusty; urgency=low
   * References to the "Touch" platform are removed
   
  -- Zoltán Balogh <zoltan@bakter.hu>  Mon, 25 Nov 2013 14:13:21 +0200
+
+qtcreator-plugin-ubuntu (2.8.1bzr56saucy0+testing6+0newqtc1ubuntu1) UNRELEASED; urgency=medium
+
+  * local build
+
+ -- Benjamin Zeller <benjamin@zeller-online.org>  Thu, 16 Jan 2014 08:44:37 +0100
+
+qtcreator-plugin-ubuntu (2.8.1bzr56saucy0+testing6+0newqtc1) trusty; urgency=low
+
+  * qt4project renamed to qmakeproject
+
+ -- Zoltán Balogh <zoltan@bakter.hu>  Thu, 05 Dec 2013 10:22:10 +0100
 
 qtcreator-plugin-ubuntu (2.8.1-0ubuntu1) trusty; urgency=low
 

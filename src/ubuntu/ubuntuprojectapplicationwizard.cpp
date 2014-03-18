@@ -30,7 +30,11 @@
 #include <coreplugin/icore.h>
 #include <utils/filesearch.h>  // Utils::matchCaseReplacement
 #include <qmlprojectmanager/qmlprojectmanager.h>
-#include <qt4projectmanager/qt4projectmanager.h>
+#include <qmakeprojectmanager/qmakeprojectmanager.h>
+#include <cmakeprojectmanager/cmakekitinformation.h>
+#include <cmakeprojectmanager/cmakeprojectmanager.h>
+#include <cmakeprojectmanager/cmakeproject.h>
+#include <qtsupport/qtkitinformation.h>
 #include <QtGlobal>
 
 #include <QIcon>
@@ -43,18 +47,71 @@
 using namespace Ubuntu::Internal;
 
 UbuntuProjectApplicationWizardDialog::UbuntuProjectApplicationWizardDialog(QWidget *parent,
-                                                                     const Core::WizardDialogParameters &parameters) :
-    ProjectExplorer::BaseProjectWizardDialog(parent, parameters)
+                                                                           const Core::WizardDialogParameters &parameters)
+    : ProjectExplorer::BaseProjectWizardDialog(parent, parameters)
+    , m_targetSetupPage(0)
 {
     setWindowTitle(tr("New Ubuntu QML Project"));
     setIntroDescription(tr("This wizard generates a Ubuntu QML project based on Ubuntu Components."));
+    connect(this,SIGNAL(projectParametersChanged(QString,QString)),this,SLOT(on_projectParametersChanged(QString,QString)));
+}
+
+int UbuntuProjectApplicationWizardDialog::addTargetSetupPage(int id)
+{
+    m_targetSetupPage = new ProjectExplorer::TargetSetupPage;
+    const QString platform = selectedPlatform();
+
+    //prefer Qt Desktop or Platform Kit
+    Core::FeatureSet features = Core::FeatureSet(QtSupport::Constants::FEATURE_DESKTOP);
+    if (platform.isEmpty())
+        m_targetSetupPage->setPreferredKitMatcher(new QtSupport::QtVersionKitMatcher(features));
+    else
+        m_targetSetupPage->setPreferredKitMatcher(new QtSupport::QtPlatformKitMatcher(platform));
+
+    //make sure only CMake compatible Kits are shown
+    m_targetSetupPage->setRequiredKitMatcher(new CMakeProjectManager::CMakeKitMatcher());
+
+    resize(900, 450);
+    if (id >= 0)
+        setPage(id, m_targetSetupPage);
+    else
+        id = addPage(m_targetSetupPage);
+
+    wizardProgress()->item(id)->setTitle(tr("Kits"));
+    return id;
+}
+
+bool UbuntuProjectApplicationWizardDialog::writeUserFile(const QString &cmakeFileName) const
+{
+    if (!m_targetSetupPage)
+        return false;
+
+    CMakeProjectManager::CMakeManager *manager = ExtensionSystem::PluginManager::getObject<CMakeProjectManager::CMakeManager>();
+    Q_ASSERT(manager);
+
+    CMakeProjectManager::CMakeProject *pro = new CMakeProjectManager::CMakeProject(manager, cmakeFileName);
+    bool success = m_targetSetupPage->setupProject(pro);
+    if (success)
+        pro->saveSettings();
+    delete pro;
+    return success;
+}
+
+void UbuntuProjectApplicationWizardDialog::on_projectParametersChanged(const QString &projectName, const QString &path)
+{
+    if(m_targetSetupPage) {
+        m_targetSetupPage->setProjectPath(path+QDir::separator()+projectName+QDir::separator()+QLatin1String("CMakeLists.txt"));
+    }
 }
 
 UbuntuProjectApplicationWizard::UbuntuProjectApplicationWizard(QJsonObject obj)
-    : Core::BaseFileWizard(parameters(obj)),
+    : Core::BaseFileWizard(),
       m_app(new UbuntuProjectApp())
 {
+    m_app->setupParameters(obj,this);
     m_app->setData(obj);
+
+    m_projectType = obj.value(QLatin1String(Constants::UBUNTU_PROJECTJSON_TYPE)).toString();
 }
 
 UbuntuProjectApplicationWizard::~UbuntuProjectApplicationWizard()
@@ -66,21 +123,19 @@ Core::FeatureSet UbuntuProjectApplicationWizard::requiredFeatures() const
     return Core::Feature(m_app->requiredFeature());
 #else
     return Core::Feature(QtSupport::Constants::FEATURE_QMLPROJECT)
-         | Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2)
-         | Core::Feature(m_app->requiredFeature());
+            | Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2)
+            | Core::Feature(m_app->requiredFeature());
 #endif
 }
 
-Core::BaseFileWizardParameters UbuntuProjectApplicationWizard::parameters(QJsonObject params)
-{
-    return m_app->parameters(params);
-}
-
-
 QWizard *UbuntuProjectApplicationWizard::createWizardDialog(QWidget *parent,
-                                                         const Core::WizardDialogParameters &wizardDialogParameters) const
+                                                            const Core::WizardDialogParameters &wizardDialogParameters) const
 {
     UbuntuProjectApplicationWizardDialog *wizard = new UbuntuProjectApplicationWizardDialog(parent, wizardDialogParameters);
+
+    if(m_projectType == QLatin1String(Constants::UBUNTU_CMAKEPROJECT_TYPE)) {
+        wizard->addTargetSetupPage(1);
+    }
     wizard->setProjectName(UbuntuProjectApplicationWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
     wizard->addExtensionPages(wizardDialogParameters.extensionPages());
     return wizard;
@@ -88,26 +143,35 @@ QWizard *UbuntuProjectApplicationWizard::createWizardDialog(QWidget *parent,
 
 
 Core::GeneratedFiles UbuntuProjectApplicationWizard::generateFiles(const QWizard *w,
-                                                     QString *errorMessage) const
+                                                                   QString *errorMessage) const
 {
     return m_app->generateFiles(w,errorMessage);
 }
 
-bool UbuntuProjectApplicationWizard::postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage)
+bool UbuntuProjectApplicationWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage)
 {
-
+    const UbuntuProjectApplicationWizardDialog *dialog = qobject_cast<const UbuntuProjectApplicationWizardDialog *>(w);
     bool retval = true;
     // make sure that the project gets configured properly
     if (m_app->projectType() == QLatin1String(Constants::UBUNTU_QTPROJECT_TYPE)) {
-        Qt4ProjectManager::Qt4Manager *manager = ExtensionSystem::PluginManager::getObject<Qt4ProjectManager::Qt4Manager>();
-        ProjectExplorer::Project* project = new Qt4ProjectManager::Qt4Project(manager, m_app->projectFileName());
+        QmakeProjectManager::QmakeManager *manager = ExtensionSystem::PluginManager::getObject<QmakeProjectManager::QmakeManager>();
+        ProjectExplorer::Project* project = new QmakeProjectManager::QmakeProject(manager, m_app->projectFileName());
         retval = BaseFileWizard::postGenerateOpenEditors(l,errorMessage);
         ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(m_app->projectFileName(), errorMessage);
         if (project->needsConfiguration()) {
-                Core::ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
+            Core::ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
         }
         delete project;
     } else {
+        if(m_app->projectType() == QLatin1String(Constants::UBUNTU_CMAKEPROJECT_TYPE)) {
+            // Generate user settings
+            foreach (const Core::GeneratedFile &file, l)
+                if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute) {
+                    dialog->writeUserFile(file.path());
+                    break;
+                }
+        }
+
         retval = ProjectExplorer::CustomProjectWizard::postGenerateOpen(l,errorMessage);
     }
 
