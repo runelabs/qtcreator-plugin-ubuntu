@@ -40,6 +40,8 @@ fi
 
 export QT_SELECT=qt5:$ARCH
 
-/usr/bin/click chroot -a $ARCH -f $FRAMEWORK -s $SERIES run cmake -DCMAKE_TOOLCHAIN_FILE=/etc/dpkg-cross/cmake/CMakeCross.txt -DINSTALL_TESTS=off -DCLICK_MODE=on ${ARCH_ARGS}  $@
+rm  -rf CMakeFiles  CMakeCache.txt  cmake_install.cmake  Makefile
+
+/usr/bin/click chroot -a $ARCH -f $FRAMEWORK -s $SERIES run cmake -DINSTALL_TESTS=off -DCLICK_MODE=on ${ARCH_ARGS}  $@
 
 
