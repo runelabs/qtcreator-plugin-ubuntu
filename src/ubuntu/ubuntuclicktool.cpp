@@ -46,6 +46,7 @@
 #include <utils/consoleprocess.h>
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
+#include <cmakeprojectmanager/cmakebuildconfiguration.h>
 
 #include "ubuntuconstants.h"
 #include "ubuntushared.h"
@@ -119,13 +120,14 @@ void UbuntuClickTool::parametersForMaintainChroot(const UbuntuClickTool::Maintai
  * @note does not call ProjectExplorer::ProcessParameters::resolveAll()
  */
 void UbuntuClickTool::parametersForCmake(const Target &target, const QString &buildDir
-                                         ,const QString &relPathToSource, ProjectExplorer::ProcessParameters *params)
+                                         , const QString &relPathToSource, const QStringList &userArgs, ProjectExplorer::ProcessParameters *params)
 {
 
     QString arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_CMAKE_ARGS)
             .arg(target.architecture)
             .arg(target.framework)
             .arg(target.series)
+            .arg(userArgs.join(QChar::fromLatin1(' ')))
             .arg(relPathToSource);
 
     params->setWorkingDirectory(buildDir);
@@ -499,6 +501,13 @@ void UbuntuClickManager::nextStep()
         m_currentBuild->currentState = Cmake;
         ProjectExplorer::ProcessParameters params;
 
+        QStringList userArgs;
+        CMakeProjectManager::CMakeBuildConfiguration* conf
+                = qobject_cast<CMakeProjectManager::CMakeBuildConfiguration *>(m_currentBuild->buildTarget->activeBuildConfiguration());
+        if(conf) {
+            userArgs = conf->arguments();
+        }
+
         //get relative directory to source dir
         QDir bd(m_currentBuild->buildDir);
         QString relPath = bd.relativeFilePath(m_currentBuild->buildTarget->project()->projectDirectory());
@@ -506,6 +515,7 @@ void UbuntuClickManager::nextStep()
         UbuntuClickTool::parametersForCmake(m_currentBuild->targetChroot
                                            ,m_currentBuild->buildDir
                                            ,relPath
+                                           ,userArgs
                                            ,&params);
 
         params.resolveAll();
