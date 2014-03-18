@@ -1,8 +1,12 @@
 qtcreator-plugin-ubuntu (3.0.1-0ubuntu5) UNRELEASED; urgency=medium
 
-  * New Unity scope template
+  [ Benjamin Zeller ]
   * Pass user arguments to cmake running in the chroot (LP: #1292892)
+
+  [ Zoltán Balogh ]
+  * New Unity scope template
   * Forced clean up before running cmake
+  * Remove redundant file listing from HTML5 template (LP: #1289870)
 
  -- Zoltán Balogh <zoltan@bakter.hu>  Tue, 18 Mar 2014 10:38:16 +0200
 
