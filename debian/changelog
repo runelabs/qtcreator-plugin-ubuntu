@@ -15,6 +15,7 @@ qtcreator-plugin-ubuntu (3.0.1-0ubuntu5) UNRELEASED; urgency=medium
   * Save framework version only if the combobox does not show the empty/unknown framework item
   * automatically change the policy version when the framework is changed
   * Show frameworks with higher versions first when selecting a build target.
+  * List only frameworks that are available on the development host
   * Pass user arguments to cmake running in the chroot (LP: #1292892)
 
   

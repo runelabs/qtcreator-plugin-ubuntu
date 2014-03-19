@@ -218,6 +218,79 @@ bool UbuntuClickTool::getTargetFromUser(Target *target, const QString &framework
     return true;
 }
 
+/*!
+ * \brief UbuntuClickTool::getSupportedFrameworks
+ * returns all available frameworks on the host system
+ */
+QStringList UbuntuClickTool::getSupportedFrameworks()
+{
+    QStringList items;
+    QDir frameworksDir(QLatin1String(Constants::UBUNTU_CLICK_FRAMEWORKS_BASEPATH));
+
+    if(!frameworksDir.exists())
+        return items;
+
+    QStringList availableFrameworkFiles = frameworksDir.entryList(QStringList()<<QLatin1String("*.framework"),
+                                                           QDir::Files | QDir::NoDotAndDotDot,
+                                                           QDir::Name | QDir::Reversed);
+
+    QStringList availableFrameworks;
+    foreach(QString fw, availableFrameworkFiles) {
+        fw.replace(QLatin1String(".framework"),QString());
+        availableFrameworks.append(fw);
+    }
+
+    qDebug()<<"Available Frameworks on the host"<<availableFrameworks;
+    return availableFrameworks;
+
+}
+
+/*!
+ * \brief UbuntuClickTool::getMostRecentFramework
+ * returns the framework with the highest number supporting the subFramework
+ * or a empty string of no framework with the given \a subFramework was found
+ */
+QString UbuntuClickTool::getMostRecentFramework(const QString &subFramework)
+{
+    //returned list is ordered from newest -> oldest framework
+    QStringList allFws = getSupportedFrameworks();
+
+    QString currFw;
+    foreach(const QString &framework, allFws) {
+
+        QString basename;
+        QStringList extensions;
+
+        QRegularExpression expr(QLatin1String(Constants::UBUNTU_CLICK_BASE_FRAMEWORK_REGEX));
+        QRegularExpressionMatch match = expr.match(framework);
+        if(match.hasMatch()) {
+            basename = match.captured(1);
+            extensions = QString(framework).replace(basename,
+                                                    QString()).split(QChar::fromLatin1('-'),
+                                                                     QString::SkipEmptyParts);
+        } else {
+            continue;
+        }
+
+        //this is a multi purpose framework
+        if (extensions.size() == 0
+                || (extensions.size() == 1 && extensions[0].startsWith(QLatin1String("dev")) )) {
+            if (currFw.isEmpty()) {
+                currFw = framework;
+            }
+            //if the subframework is empty we return
+            //the first baseframework we can find
+            if(subFramework.isEmpty())
+                return currFw;
+            continue;
+        }
+
+        if(extensions.contains(subFramework))
+            return framework;
+    }
+    return currFw;
+}
+
 /**
  * @brief UbuntuClickTool::listAvailableTargets
  * @return all currently existing chroot targets in the system

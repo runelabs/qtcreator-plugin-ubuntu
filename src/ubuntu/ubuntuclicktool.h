@@ -73,6 +73,8 @@ public:
     static void openChrootTerminal (const Target& target);
 
     static bool getTargetFromUser (Target* target, const QString &framework=QString());
+    static QStringList getSupportedFrameworks ();
+    static QString getMostRecentFramework ( const QString &subFramework );
 
     static QList<Target> listAvailableTargets (const QString &framework=QString());
     static QPair<int,int> targetVersion (const Target& target);

@@ -21,6 +21,7 @@
 #include "ui_ubuntupackagingwidget.h"
 #include "ubuntuconstants.h"
 #include "ubuntumenu.h"
+#include "ubuntuclicktool.h"
 
 using namespace Ubuntu;
 
@@ -79,6 +80,10 @@ UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
     connect(m_validationModel,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(onNewValidationData()));
 
     m_bzr.initialize();
+
+    ui->comboBoxFramework->blockSignals(true);
+    ui->comboBoxFramework->addItems(UbuntuClickTool::getSupportedFrameworks());
+    ui->comboBoxFramework->blockSignals(false);
 
     m_reviewToolsInstalled = false;
     checkClickReviewerTool();

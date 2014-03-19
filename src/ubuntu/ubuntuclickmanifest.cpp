@@ -18,6 +18,7 @@
 
 #include "ubuntuclickmanifest.h"
 #include "ubuntuconstants.h"
+#include "ubuntuclicktool.h"
 
 #include <QFile>
 #include <QtScriptTools/QScriptEngineDebugger>
@@ -216,9 +217,17 @@ void UbuntuClickManifest::load(const QString &fileName, const QString &projectNa
         bool isUbuntuProject = (mimeType == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
         bool isUbuntuHtmlProject = proName.endsWith(QLatin1String(Constants::UBUNTUHTMLPROJECT_SUFFIX));
 
-        QString defFramework = QLatin1String(Constants::UBUNTU_DEFAULT_QML_FRAMEWORK);
+        QString defFramework;
         if(isUbuntuProject && isUbuntuHtmlProject) {
-            defFramework = QLatin1String(Constants::UBUNTU_DEFAULT_HTML_FRAMEWORK);
+            defFramework = UbuntuClickTool::getMostRecentFramework(QLatin1String("html"));
+
+            if(defFramework.isEmpty())
+                defFramework = QLatin1String(Constants::UBUNTU_DEFAULT_HTML_FRAMEWORK);
+        } else {
+            defFramework = UbuntuClickTool::getMostRecentFramework(QLatin1String("qml"));
+
+            if(defFramework.isEmpty())
+                defFramework = QLatin1String(Constants::UBUNTU_DEFAULT_QML_FRAMEWORK);
         }
         data.replace(QLatin1String("myFramework"),defFramework);
 

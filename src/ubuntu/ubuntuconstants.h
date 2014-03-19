@@ -437,6 +437,7 @@ const char UBUNTU_CLICK_SERIES_REGEX[]  = "^DISTRIB_CODENAME=([A-Za-z]+)$";
 const char UBUNTU_CLICK_BINARY[]  = "/usr/bin/click";
 const char UBUNTU_SUDO_BINARY[]   = "/usr/bin/pkexec";
 const char UBUNTU_CLICK_CHROOT_BASEPATH[] = "/var/lib/schroot/chroots";
+const char UBUNTU_CLICK_FRAMEWORKS_BASEPATH[] = "/usr/share/click/frameworks";
 const char UBUNTU_CLICK_CLICK_PACKAGE_DIR[] = "%CLICK_FRAMEWORK%-%CLICK_ARCH%/click_package";
 const char UBUNTU_CLICK_CHROOT_CREATE_ARGS[]  = "sh -c \"%0/click_create_target %1 %2 %3\"";
 const char UBUNTU_CLICK_CHROOT_DESTROY_ARGS[] = "sh -c \"%0/click_destroy_target %1 %2 %3\"";
