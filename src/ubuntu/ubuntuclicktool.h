@@ -67,7 +67,7 @@ public:
     static void parametersForCreateChroot   (const Target &target, ProjectExplorer::ProcessParameters* params);
     static void parametersForMaintainChroot (const MaintainMode &mode,const Target& target,ProjectExplorer::ProcessParameters* params);
     static void parametersForCmake        (const Target& target, const QString &buildDir
-                                    , const QString &relPathToSource,ProjectExplorer::ProcessParameters* params);
+                                    , const QString &relPathToSource, const QStringList& userArgs, ProjectExplorer::ProcessParameters* params);
     static void parametersForMake         (const Target& target, const QString &buildDir, const QString &makeArgs, ProjectExplorer::ProcessParameters* params);
 
     static void openChrootTerminal (const Target& target);

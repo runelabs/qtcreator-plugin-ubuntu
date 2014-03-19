@@ -1,10 +1,11 @@
 qtcreator-plugin-ubuntu (3.0.1-0ubuntu5) UNRELEASED; urgency=medium
 
-  [Zolt�n Balogh]
+  [ Zoltán Balogh ]
   * New Unity scope template
   * Forced clean up before running cmake
+  * Remove redundant file listing from HTML5 template (LP: #1289870)
 
-  [Benjamin Zeller]
+  [ Benjamin Zeller ]
   * Switch to framework ubuntu-sdk-14.04
   * Adds combobox for selecting the framework in publish tab
   * Remove Series from the scripts
@@ -14,6 +15,8 @@ qtcreator-plugin-ubuntu (3.0.1-0ubuntu5) UNRELEASED; urgency=medium
   * Save framework version only if the combobox does not show the empty/unknown framework item
   * automatically change the policy version when the framework is changed
   * Show frameworks with higher versions first when selecting a build target.
+  * Pass user arguments to cmake running in the chroot (LP: #1292892)
+
   
  -- Zoltán Balogh <zoltan@bakter.hu>  Tue, 18 Mar 2014 10:38:16 +0200
 
