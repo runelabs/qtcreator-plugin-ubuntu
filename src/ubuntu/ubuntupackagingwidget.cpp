@@ -321,7 +321,10 @@ void UbuntuPackagingWidget::save(bool bSaveSimple) {
         m_manifest.setVersion(ui->lineEdit_version->text());
         m_manifest.setTitle(ui->lineEdit_title->text());
         m_manifest.setDescription(ui->lineEdit_description->text());
-        m_manifest.setFrameworkName(ui->comboBoxFramework->currentText());
+
+        if(!ui->comboBoxFramework->currentText().trimmed().isEmpty())
+            m_manifest.setFrameworkName(ui->comboBoxFramework->currentText());
+
         QStringList items;
         for (int i=0; i<ui->listWidget->count(); i++) {
             // Fix bug #1221407 - make sure that there are no empty policy groups.
