@@ -36,7 +36,7 @@ public slots:
     void load_manifest(QString fileName);
     void load_apparmor(QString fileAppArmorName);
     void save(bool bSaveSimple = true);
-    void openManifestForProject();
+    bool openManifestForProject();
     void setAvailable(bool);
     void load_excludes(QString excludesFile = QLatin1String(""));
     void save_excludes();

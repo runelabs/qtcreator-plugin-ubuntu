@@ -125,8 +125,10 @@ void UbuntuPackagingMode::updateModeState() {
 
     this->setEnabled((isQmlProject || isUbuntuProject || isCMakeProject || reviewToolsInstalled));
     if (this->isEnabled()) {
-        m_ubuntuPackagingWidget.openManifestForProject();
-        m_ubuntuPackagingWidget.save();
+        //save only if something was loaded
+        if(m_ubuntuPackagingWidget.openManifestForProject()) {
+            m_ubuntuPackagingWidget.save();
+        }
     }
 }
 

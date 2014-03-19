@@ -262,7 +262,32 @@
              <widget class="QComboBox" name="comboBoxFramework">
               <item>
                <property name="text">
-                <string>ubuntu-sdk-14.04-dev</string>
+                <string>ubuntu-sdk-14.04-qml</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>ubuntu-sdk-14.04-html</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>ubuntu-sdk-14.04-papi</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>ubuntu-sdk-14.04-qml-dev1</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>ubuntu-sdk-14.04-html-dev1</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>ubuntu-sdk-14.04-papi-dev1</string>
                </property>
               </item>
               <item>

@@ -70,7 +70,7 @@ public slots:
 
     void save() { save(m_fileName); }
     void save(QString fileName);
-    void load(QString fileName, QString projectName);
+    void load(const QString &fileName, const QString &projectName);
     void reload();
 
     QString raw();

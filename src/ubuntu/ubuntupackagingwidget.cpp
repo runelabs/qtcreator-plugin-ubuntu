@@ -249,8 +249,8 @@ void UbuntuPackagingWidget::autoSave() {
     save((ui->tabWidget->currentWidget() == ui->tabSimple));
 }
 
-void UbuntuPackagingWidget::openManifestForProject() {
-    //ProjectExplorer::SessionManager* sessionManager = projectExplorerInstance->session();
+bool UbuntuPackagingWidget::openManifestForProject() {
+
     ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
 
     if (startupProject) {
@@ -280,9 +280,11 @@ void UbuntuPackagingWidget::openManifestForProject() {
         }
 
         load_excludes(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_EXCLUDES)).arg(startupProject->projectDirectory()));
+        return true;
     } else {
         m_projectName.clear();
     }
+    return false;
 }
 
 void UbuntuPackagingWidget::bzrChanged() {

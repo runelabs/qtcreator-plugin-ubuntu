@@ -6,7 +6,7 @@ function fromJSON($data) {
 }
 
 function toJSON() {
-    return JSON.stringify(jsonData);
+    return JSON.stringify(jsonData,null,4);
 }
 
 function getName() {
