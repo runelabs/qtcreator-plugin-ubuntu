@@ -429,6 +429,8 @@ const char UBUNTU_CLICK_BUILD_CONTEXTMENU_ID[] = "UbuntuProjectManager.RunClickB
 const char UBUNTU_CLICK_BUILD_CONTEXTMENU_TEXT[] = "Build in chroot";
 const char UBUNTU_CLICK_OPEN_TERMINAL_ERROR[] = "Error when starting terminal";
 const char UBUNTU_CLICK_TARGETS_REGEX[] = "^click-(.*)-([A-Za-z0-9]+)$";
+const char UBUNTU_CLICK_TARGETS_FRAMEWORK_REGEX[] = "^click-(%1)-([A-Za-z0-9]+)$";
+const char UBUNTU_CLICK_BASE_FRAMEWORK_REGEX[] = "(ubuntu-sdk-[0-9]{1,2}.[0-9]{1,2})";
 const char UBUNTU_CLICK_VERSION_REGEX[] = "^DISTRIB_RELEASE=([0-9]+)\\.([0-9]+)$";
 const char UBUNTU_CLICK_SERIES_REGEX[]  = "^DISTRIB_CODENAME=([A-Za-z]+)$";
 
@@ -472,6 +474,7 @@ const char UBUNTU_CLICK_BUILD_FAILED_MESSAGE[] = "Build failed";
 const char UBUNTU_CLICK_RUN_COMMAND_MESSAGE[] = "Running command: %0 %1";
 const char UBUNTU_CLICK_NOTARGETS_TITLE[] = "No click build targets available";
 const char UBUNTU_CLICK_NOTARGETS_MESSAGE[] = "There are no click build targets available.\nPlease create a target in the Ubuntu option page.";
+const char UBUNTU_CLICK_NOTARGETS_FRAMEWORK_MESSAGE[] = "There are no click build targets for framework %1 available.\nPlease create a target in the Ubuntu option page.";
 const char UBUNTU_CLICK_SELECT_TARGET_TITLE[] = "Select build target";
 const char UBUNTU_CLICK_SELECT_TARGET_LABEL[] = "Build target";
 extern const char* UBUNTU_CLICK_SUPPORTED_ARCHS[];

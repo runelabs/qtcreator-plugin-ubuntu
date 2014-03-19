@@ -232,6 +232,16 @@ bool UbuntuPackagingWidget::reviewToolsInstalled()
     return m_reviewToolsInstalled;
 }
 
+UbuntuClickManifest *UbuntuPackagingWidget::manifest()
+{
+    return &m_manifest;
+}
+
+UbuntuClickManifest *UbuntuPackagingWidget::appArmor()
+{
+    return &m_apparmor;
+}
+
 void UbuntuPackagingWidget::on_pushButtonReviewersTools_clicked() {
     ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
     m_ubuntuProcess.stop();

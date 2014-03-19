@@ -30,6 +30,8 @@ public:
     ~UbuntuPackagingWidget();
 
     bool reviewToolsInstalled ();
+    UbuntuClickManifest *manifest ();
+    UbuntuClickManifest *appArmor ();
 public slots:
     void autoSave();
     void reload();

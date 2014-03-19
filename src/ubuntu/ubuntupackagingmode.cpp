@@ -37,9 +37,14 @@
 
 using namespace Ubuntu::Internal;
 
+UbuntuPackagingMode *UbuntuPackagingMode::m_instance = 0;
+
 UbuntuPackagingMode::UbuntuPackagingMode(QObject *parent) :
     Core::IMode(parent)
 {
+    Q_ASSERT(m_instance == 0);
+    m_instance = this;
+
     setDisplayName(tr(Ubuntu::Constants::UBUNTU_MODE_PACKAGING_DISPLAYNAME));
     setIcon(QIcon(QLatin1String(Ubuntu::Constants::UBUNTU_MODE_PACKAGING_ICON)));
     setPriority(Ubuntu::Constants::UBUNTU_MODE_PACKAGING_PRIORITY);
@@ -75,6 +80,16 @@ UbuntuPackagingMode::UbuntuPackagingMode(QObject *parent) :
 
 void UbuntuPackagingMode::initialize() {
 
+}
+
+UbuntuClickManifest *UbuntuPackagingMode::manifest()
+{
+    return m_instance->m_ubuntuPackagingWidget.manifest();
+}
+
+UbuntuClickManifest *UbuntuPackagingMode::appArmor()
+{
+    return m_instance->m_ubuntuPackagingWidget.appArmor();
 }
 
 void UbuntuPackagingMode::modeChanged(Core::IMode* currentMode) {

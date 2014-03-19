@@ -72,9 +72,9 @@ public:
 
     static void openChrootTerminal (const Target& target);
 
-    static bool getTargetFromUser (Target* target);
+    static bool getTargetFromUser (Target* target, const QString &framework=QString());
 
-    static QList<Target> listAvailableTargets ();
+    static QList<Target> listAvailableTargets (const QString &framework=QString());
     static QPair<int,int> targetVersion (const Target& target);
 
 
