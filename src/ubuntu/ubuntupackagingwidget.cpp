@@ -399,8 +399,13 @@ void UbuntuPackagingWidget::reload() {
     ui->lineEdit_description->setText(m_manifest.description());
 
     int idx = ui->comboBoxFramework->findText(m_manifest.frameworkName());
+
+    //disable the currentIndexChanged signal, reloading the files
+    //should never change the contents of the files (e.g. policy_version)
+    ui->comboBoxFramework->blockSignals(true);
     //if the framework name is not valid set to empty item
     ui->comboBoxFramework->setCurrentIndex(idx < 0 ? ui->comboBoxFramework->count()-1 : idx);
+    ui->comboBoxFramework->blockSignals(false);
 
     QStringList policyGroups = m_apparmor.policyGroups(m_projectName);
 
@@ -472,4 +477,13 @@ void UbuntuPackagingWidget::checkClickReviewerTool() {
     QString sReviewerPackageName = QLatin1String(Ubuntu::Constants::REVIEWER_PACKAGE_NAME);
     m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUWIDGETS_LOCAL_PACKAGE_INSTALLED_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(sReviewerPackageName) << QApplication::applicationDirPath());
     m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_LOCAL_REVIEWER_INSTALLED));
+}
+
+void UbuntuPackagingWidget::on_comboBoxFramework_currentIndexChanged(const QString &arg1)
+{
+    if(arg1.startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_14_04_BASENAME)))
+        m_apparmor.setPolicyVersion(QLatin1String("1.1"));
+    else
+        m_apparmor.setPolicyVersion(QLatin1String("1.0"));
+    m_apparmor.save();
 }

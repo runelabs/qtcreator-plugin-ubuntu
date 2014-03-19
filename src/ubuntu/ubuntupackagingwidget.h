@@ -67,6 +67,9 @@ protected slots:
 signals:
     void reviewToolsInstalledChanged(const bool& installed);
 
+private slots:
+    void on_comboBoxFramework_currentIndexChanged(const QString &arg1);
+
 private:
     bool m_reviewToolsInstalled;
     UbuntuClickManifest m_manifest;

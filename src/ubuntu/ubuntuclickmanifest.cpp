@@ -108,6 +108,20 @@ QString UbuntuClickManifest::title() {
     return callGetStringFunction(QLatin1String("getTitle"));
 }
 
+void UbuntuClickManifest::setPolicyVersion(const QString &version) {
+    if (!isInitialized()) { return; }
+
+    QStringList args;
+    args << version;
+    callSetStringListFunction(QLatin1String("setPolicyVersion"),args);
+    emit policyVersionChanged();
+}
+
+QString UbuntuClickManifest::policyVersion () {
+    if (!isInitialized()) { return QString(); }
+    return callGetStringFunction(QLatin1String("getPolicyVersion"));
+}
+
 void UbuntuClickManifest::setPolicyGroups(QString appName, QStringList groups) {
     if (!isInitialized()) { return; }
 

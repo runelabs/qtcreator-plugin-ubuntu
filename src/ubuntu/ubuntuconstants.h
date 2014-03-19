@@ -477,8 +477,9 @@ const char UBUNTU_CLICK_SELECT_TARGET_LABEL[] = "Build target";
 extern const char* UBUNTU_CLICK_SUPPORTED_ARCHS[];
 extern const char* UBUNTU_CLICK_SUPPORTED_TARGETS[][3];
 
-const char UBUNTU_DEFAULT_QML_FRAMEWORK[] = "ubuntu-sdk-14.04-qml";
-const char UBUNTU_DEFAULT_HTML_FRAMEWORK[] = "ubuntu-sdk-14.04-html";
+const char UBUNTU_FRAMEWORK_14_04_BASENAME[] = "ubuntu-sdk-14.04";
+const char UBUNTU_DEFAULT_QML_FRAMEWORK[]    = "ubuntu-sdk-14.04-qml";
+const char UBUNTU_DEFAULT_HTML_FRAMEWORK[]   = "ubuntu-sdk-14.04-html";
 
 
 } // namespace Ubuntu

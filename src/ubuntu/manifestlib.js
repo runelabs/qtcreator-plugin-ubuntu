@@ -85,3 +85,11 @@ function setPolicyGroups($appname,$groups) {
     var $parsed_groups = $groups.split(" ");
     jsonData.policy_groups = $parsed_groups;
 }
+
+function getPolicyVersion() {
+  return jsonData.policy_version.toString();
+}
+
+function setPolicyVersion($string_version) {
+    jsonData.policy_version = parseFloat($string_version);
+}
