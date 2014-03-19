@@ -215,7 +215,8 @@ QList<UbuntuClickTool::Target> UbuntuClickTool::listAvailableTargets()
     if(!chrootDir.exists())
         return items;
 
-    QStringList availableChroots = chrootDir.entryList(QDir::Dirs);
+    QStringList availableChroots = chrootDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot,
+                                                       QDir::Name | QDir::Reversed);
 
     QRegularExpression clickFilter(QLatin1String(Constants::UBUNTU_CLICK_TARGETS_REGEX));
 
