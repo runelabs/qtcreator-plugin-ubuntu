@@ -322,7 +322,7 @@ void UbuntuPackagingWidget::save(bool bSaveSimple) {
         m_manifest.setTitle(ui->lineEdit_title->text());
         m_manifest.setDescription(ui->lineEdit_description->text());
 
-        if(!ui->comboBoxFramework->currentText().trimmed().isEmpty())
+        if(ui->comboBoxFramework->currentText() != tr(Constants::UBUNTU_UNKNOWN_FRAMEWORK_NAME))
             m_manifest.setFrameworkName(ui->comboBoxFramework->currentText());
 
         QStringList items;
@@ -407,7 +407,19 @@ void UbuntuPackagingWidget::reload() {
     //should never change the contents of the files (e.g. policy_version)
     ui->comboBoxFramework->blockSignals(true);
     //if the framework name is not valid set to empty item
-    ui->comboBoxFramework->setCurrentIndex(idx < 0 ? ui->comboBoxFramework->count()-1 : idx);
+
+    //just some data to easily find the unknown framework item without
+    //using string compare
+    if(idx < 0) {
+        if(ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA) < 0)
+            ui->comboBoxFramework->addItem(tr(Constants::UBUNTU_UNKNOWN_FRAMEWORK_NAME),Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA);
+
+        ui->comboBoxFramework->setCurrentIndex(ui->comboBoxFramework->count()-1);
+    } else {
+        ui->comboBoxFramework->setCurrentIndex(idx);
+        ui->comboBoxFramework->removeItem(ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA));
+    }
+
     ui->comboBoxFramework->blockSignals(false);
 
     QStringList policyGroups = m_apparmor.policyGroups(m_projectName);
@@ -482,11 +494,17 @@ void UbuntuPackagingWidget::checkClickReviewerTool() {
     m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_LOCAL_REVIEWER_INSTALLED));
 }
 
-void UbuntuPackagingWidget::on_comboBoxFramework_currentIndexChanged(const QString &arg1)
+void UbuntuPackagingWidget::on_comboBoxFramework_currentIndexChanged(int index)
 {
-    if(arg1.startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_14_04_BASENAME)))
+    if(ui->comboBoxFramework->itemText(index).startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_14_04_BASENAME))) {
+        ui->comboBoxFramework->removeItem(ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA));
         m_apparmor.setPolicyVersion(QLatin1String("1.1"));
-    else
+    } else if(ui->comboBoxFramework->itemText(index).startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_13_10_BASENAME))) {
+        ui->comboBoxFramework->removeItem(ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA));
         m_apparmor.setPolicyVersion(QLatin1String("1.0"));
+    } else {
+        return;
+    }
+
     m_apparmor.save();
 }

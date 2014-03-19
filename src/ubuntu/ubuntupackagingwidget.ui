@@ -295,11 +295,6 @@
                 <string>ubuntu-sdk-13.10</string>
                </property>
               </item>
-              <item>
-               <property name="text">
-                <string/>
-               </property>
-              </item>
              </widget>
             </item>
             <item row="11" column="0">

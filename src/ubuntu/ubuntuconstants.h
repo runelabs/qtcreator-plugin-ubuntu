@@ -478,9 +478,11 @@ extern const char* UBUNTU_CLICK_SUPPORTED_ARCHS[];
 extern const char* UBUNTU_CLICK_SUPPORTED_TARGETS[][3];
 
 const char UBUNTU_FRAMEWORK_14_04_BASENAME[] = "ubuntu-sdk-14.04";
+const char UBUNTU_FRAMEWORK_13_10_BASENAME[] = "ubuntu-sdk-13.10";
 const char UBUNTU_DEFAULT_QML_FRAMEWORK[]    = "ubuntu-sdk-14.04-qml";
 const char UBUNTU_DEFAULT_HTML_FRAMEWORK[]   = "ubuntu-sdk-14.04-html";
-
+const char UBUNTU_UNKNOWN_FRAMEWORK_NAME[]   = "Unknown framework";
+const int  UBUNTU_UNKNOWN_FRAMEWORK_DATA     = 0xdeadbeef;
 
 } // namespace Ubuntu
 } // namespace Constants
