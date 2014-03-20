@@ -17,6 +17,9 @@
  */
 
 #include "ubuntuclickmanifest.h"
+#include "ubuntuconstants.h"
+#include "ubuntuclicktool.h"
+
 #include <QFile>
 #include <QtScriptTools/QScriptEngineDebugger>
 #include <QJsonDocument>
@@ -24,6 +27,11 @@
 #include <QDebug>
 #include <QMainWindow>
 #include <QAction>
+
+#include <cmakeprojectmanager/cmakeprojectconstants.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/iprojectmanager.h>
 
 using namespace Ubuntu::Internal;
 
@@ -101,6 +109,20 @@ QString UbuntuClickManifest::title() {
     return callGetStringFunction(QLatin1String("getTitle"));
 }
 
+void UbuntuClickManifest::setPolicyVersion(const QString &version) {
+    if (!isInitialized()) { return; }
+
+    QStringList args;
+    args << version;
+    callSetStringListFunction(QLatin1String("setPolicyVersion"),args);
+    emit policyVersionChanged();
+}
+
+QString UbuntuClickManifest::policyVersion () {
+    if (!isInitialized()) { return QString(); }
+    return callGetStringFunction(QLatin1String("getPolicyVersion"));
+}
+
 void UbuntuClickManifest::setPolicyGroups(QString appName, QStringList groups) {
     if (!isInitialized()) { return; }
 
@@ -117,6 +139,19 @@ QStringList UbuntuClickManifest::policyGroups(QString appName) {
     return retval;
 }
 
+void UbuntuClickManifest::setFrameworkName(const QString &name)
+{
+    if (!isInitialized()) { return; }
+    callSetStringFunction(QLatin1String("setFrameworkName"),name);
+    emit frameworkNameChanged(name);
+}
+
+QString UbuntuClickManifest::frameworkName()
+{
+    if (!isInitialized()) { return QString(); }
+    return callGetStringFunction(QLatin1String("getFrameworkName"));
+}
+
 void UbuntuClickManifest::save(QString fileName) {
     if (!isInitialized()) { return; }
 
@@ -130,9 +165,8 @@ void UbuntuClickManifest::save(QString fileName) {
         return;
     }
 
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(callGetStringFunction(QLatin1String("toJSON")).toUtf8());
-    file.write(jsonDoc.toJson());
-
+    QString jsonData = callGetStringFunction(QLatin1String("toJSON"));
+    file.write(jsonData.toUtf8());
     file.close();
 
     emit saved();
@@ -144,7 +178,7 @@ void UbuntuClickManifest::reload() {
 
 QString UbuntuClickManifest::raw() {
     if (!isInitialized()) { return QString(); }
-    return QString::fromUtf8(QJsonDocument::fromJson(callGetStringFunction(QLatin1String("toJSON")).toUtf8()).toJson());
+    return callGetStringFunction(QLatin1String("toJSON"));
 }
 
 void UbuntuClickManifest::setRaw(QString data) {
@@ -153,7 +187,7 @@ void UbuntuClickManifest::setRaw(QString data) {
     emit loaded();
 }
 
-void UbuntuClickManifest::load(QString fileName, QString projectName) {
+void UbuntuClickManifest::load(const QString &fileName, const QString &projectName) {
     setFileName(fileName);
     m_projectName = projectName;
 
@@ -176,17 +210,39 @@ void UbuntuClickManifest::load(QString fileName, QString projectName) {
     file.close();
 
     if (fileName == QLatin1String(":/ubuntu/manifest.json.template")) {
-	projectName.replace(QLatin1String("_"),QLatin1String("-"));
-        data.replace(QLatin1String("myapp"),projectName);
-	QString original_security_manifest_name = QString(QLatin1String("%0.json")).arg(projectName);
-	QString replaced_security_manifest_name = original_security_manifest_name;
-	replaced_security_manifest_name.replace(QLatin1String("_"),QLatin1String("-"));
-	data.replace(original_security_manifest_name,replaced_security_manifest_name);
-	QString original_desktop_file = QString(QLatin1String("%0.desktop")).arg(projectName);
-	if (m_bNameDashReplaced) {
-	       original_desktop_file.replace(QLatin1String("-"),QLatin1String("_"));
-	       data.replace(QString(QLatin1String("%0.desktop")).arg(projectName),original_desktop_file);
-	}
+
+        QString mimeType = ProjectExplorer::SessionManager::startupProject()->projectManager()->mimeType();
+        QString proName  = ProjectExplorer::SessionManager::startupProject()->projectFilePath();
+
+        bool isUbuntuProject = (mimeType == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
+        bool isUbuntuHtmlProject = proName.endsWith(QLatin1String(Constants::UBUNTUHTMLPROJECT_SUFFIX));
+
+        QString defFramework;
+        if(isUbuntuProject && isUbuntuHtmlProject) {
+            defFramework = UbuntuClickTool::getMostRecentFramework(QLatin1String("html"));
+
+            if(defFramework.isEmpty())
+                defFramework = QLatin1String(Constants::UBUNTU_DEFAULT_HTML_FRAMEWORK);
+        } else {
+            defFramework = UbuntuClickTool::getMostRecentFramework(QLatin1String("qml"));
+
+            if(defFramework.isEmpty())
+                defFramework = QLatin1String(Constants::UBUNTU_DEFAULT_QML_FRAMEWORK);
+        }
+        data.replace(QLatin1String("myFramework"),defFramework);
+
+        QString tmpProjectName = projectName;
+        tmpProjectName.replace(QLatin1String("_"),QLatin1String("-"));
+        data.replace(QLatin1String("myapp"),tmpProjectName);
+        QString original_security_manifest_name = QString(QLatin1String("%0.json")).arg(tmpProjectName);
+        QString replaced_security_manifest_name = original_security_manifest_name;
+        replaced_security_manifest_name.replace(QLatin1String("_"),QLatin1String("-"));
+        data.replace(original_security_manifest_name,replaced_security_manifest_name);
+        QString original_desktop_file = QString(QLatin1String("%0.desktop")).arg(tmpProjectName);
+        if (m_bNameDashReplaced) {
+            original_desktop_file.replace(QLatin1String("-"),QLatin1String("_"));
+            data.replace(QString(QLatin1String("%0.desktop")).arg(tmpProjectName),original_desktop_file);
+        }
     }
 
     callSetStringFunction(QLatin1String("fromJSON"),data);

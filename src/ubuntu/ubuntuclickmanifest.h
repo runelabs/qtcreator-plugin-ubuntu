@@ -38,12 +38,14 @@ signals:
     void maintainerChanged();
     void titleChanged();
     void policyGroupsChanged();
+    void policyVersionChanged();
     void versionChanged();
     void descriptionChanged();
     void saved();
     void loaded();
     void error();
     void fileNameChanged(QString);
+    void frameworkNameChanged(const QString& name);
 
 public slots:
     void setName(QString name);
@@ -64,9 +66,15 @@ public slots:
     void setPolicyGroups(QString appName, QStringList groups);
     QStringList policyGroups(QString appName);
 
+    void setPolicyVersion(const QString &version);
+    QString policyVersion();
+
+    void setFrameworkName (const QString& name);
+    QString frameworkName ();
+
     void save() { save(m_fileName); }
     void save(QString fileName);
-    void load(QString fileName, QString projectName);
+    void load(const QString &fileName, const QString &projectName);
     void reload();
 
     QString raw();
@@ -75,7 +83,7 @@ public slots:
     QString fileName() { return m_fileName; }
     void setFileName(QString fileName) { m_fileName = fileName; emit fileNameChanged(fileName); }
 
-    bool isInitialized() { return m_bInitialized; }
+    bool isInitialized() const { return m_bInitialized; }
     void nameDashReplaced(){ m_bNameDashReplaced = true; }
 
 protected:
