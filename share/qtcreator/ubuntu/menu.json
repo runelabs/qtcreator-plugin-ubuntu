@@ -153,7 +153,7 @@
                 "workingDirectory": "%0/..",
                 "projectRequired": true,
                 "deviceRequired": true,
-                "qmakeProjectRequired": true,
+                "context": ["Qt4.Qt4Project","CMakeProject.ProjectContext"],
                 "saveRequired": true,
                 "actions": [
                     "%SCRIPTDIRECTORY%/qtc_device_buildpackage %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp"
