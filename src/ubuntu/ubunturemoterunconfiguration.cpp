@@ -65,6 +65,7 @@ Utils::Environment UbuntuRemoteRunConfiguration::environment() const
     Utils::Environment env = m_env;
     env.set(QLatin1String("gnutriplet"),QLatin1String("arm-linux-gnueabihf"));
     env.set(QLatin1String("pkgdir"),workingDirectory());
+    env.set(QLatin1String("APP_ID"),m_appId);
     return env;
 }
 
@@ -150,7 +151,13 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
     }
 
     m_desktopFile = QDir::cleanPath(package_dir.absoluteFilePath(hook[QLatin1String("desktop")].toString()));
-    return readDesktopFile(errorMessage);
+    if(!readDesktopFile(errorMessage))
+        return false;
+
+    m_arguments.append(QString::fromLatin1("--desktop_file_hint=/home/phablet/dev_tmp/%1/%2")
+                       .arg(target()->project()->displayName())
+                       .arg(hook[QLatin1String("desktop")].toString()));
+    return true;
 }
 
 bool UbuntuRemoteRunConfiguration::fromMap(const QVariantMap &map)
@@ -202,11 +209,11 @@ bool UbuntuRemoteRunConfiguration::readDesktopFile(QString *errorMessage)
 
         line = line.mid(0,line.indexOf(QChar::fromLatin1('#'))).trimmed();
         if(line.startsWith(QLatin1String("Exec"),Qt::CaseInsensitive)) {
-            execLine = line.mid(line.indexOf(QChar::fromLatin1('=')));
+            execLine = line.mid(line.indexOf(QChar::fromLatin1('='))+1);
             qDebug()<<"Found exec line: "<<execLine;
             continue;
         } else if(line.startsWith(QLatin1String("Name"),Qt::CaseInsensitive)) {
-            name = line.mid(line.indexOf(QChar::fromLatin1('=')));
+            name = line.mid(line.indexOf(QChar::fromLatin1('='))+1);
             qDebug()<<"Found name line: "<<name;
             continue;
         }

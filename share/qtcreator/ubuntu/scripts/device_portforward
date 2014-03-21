@@ -30,4 +30,7 @@ fi
 
 adb_forward_tcp ${SSHPORT} 22
 adb_forward_tcp ${QMLPORT} 3768
+adb_forward_tcp 10000 10000
+adb_forward_tcp 10001 10001
+adb_forward_tcp 10002 10002
 
