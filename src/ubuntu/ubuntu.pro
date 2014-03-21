@@ -83,7 +83,8 @@ SOURCES += \
     ubuntudevicefactory.cpp \
     ubuntudevice.cpp \
     ubuntudeviceconfigurationwidget.cpp \
-    ubuntudeployconfiguration.cpp
+    ubuntudeployconfiguration.cpp \
+    ubunturemoterunconfiguration.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -139,5 +140,6 @@ HEADERS += \
     ubuntudevicefactory.h \
     ubuntudevice.h \
     ubuntudeviceconfigurationwidget.h \
-    ubuntudeployconfiguration.h
+    ubuntudeployconfiguration.h \
+    ubunturemoterunconfiguration.h
 

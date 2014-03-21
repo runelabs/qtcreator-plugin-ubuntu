@@ -56,6 +56,7 @@ class UbuntuRunConfiguration : public ProjectExplorer::RunConfiguration
     Q_OBJECT
 public:
     UbuntuRunConfiguration(ProjectExplorer::Target *parent, Core::Id id) : ProjectExplorer::RunConfiguration(parent, id) {}
+    UbuntuRunConfiguration(ProjectExplorer::Target *parent, UbuntuRunConfiguration* source) : ProjectExplorer::RunConfiguration(parent,source) {}
 
     QWidget *createConfigurationWidget() {
         return NULL;

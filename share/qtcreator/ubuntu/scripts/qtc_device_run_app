@@ -33,9 +33,21 @@ APP_ID=$(echo ${DESKTOP_FILENAME}|sed "s/\.desktop//")
 
 USAGE="$0 [serialnumber] [app_launcher] [foldername] [desktop_filename] [main_qml] [target_device_home] [target_device_desktop_path] [target_device] [target_device_port] [app_launch_prefix]"
 
-if [[ -z ${DESKTOP_FILENAME} || -z ${FOLDERNAME} ]]; then
+
+if [[ -z ${FOLDERNAME} ]]; then
 	echo ${USAGE}
 	exit
+fi
+
+if [[ ! -e "${FOLDERNAME}/${DESKTOP_FILENAME}" ]]; then
+	echo "Reading desktop file from manifest"
+	DESKTOP_FILENAME=$(grep desktop ${FOLDERNAME}/manifest.json | cut -d: -f2 | sed "s/\"//g" | tr -d ' ')
+	echo "Trying ${PWD}/${FOLDERNAME}/${DESKTOP_FILENAME}"
+
+	if [[ ! -e "${FOLDERNAME}/${DESKTOP_FILENAME}" ]]; then
+		echo "No desktop file found";
+		exit 1;
+	fi
 fi
 
 if [[ -z ${APP_LAUNCHER} ]]; then

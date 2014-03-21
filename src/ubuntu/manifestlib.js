@@ -57,6 +57,10 @@ function getDescription() {
     return jsonData.description;
 }
 
+function getHooks() {
+    return jsonData.hooks;
+}
+
 function getPolicyGroups($appname) {
 /*    var appProfile = jsonData.security.profiles[$appname];
     if (appProfile===undefined) {

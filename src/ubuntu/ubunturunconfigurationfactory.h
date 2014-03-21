@@ -62,7 +62,7 @@ public:
 
     bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
-    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const;
+    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *product) const;
     ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source);
 
 private:

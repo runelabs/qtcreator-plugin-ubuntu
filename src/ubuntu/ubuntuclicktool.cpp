@@ -202,6 +202,14 @@ bool UbuntuClickTool::getTargetFromUser(Target *target)
     return true;
 }
 
+QString UbuntuClickTool::targetBasePath(const UbuntuClickTool::Target &target)
+{
+    return QString::fromLatin1("%1/click-%2-%3")
+            .arg(QLatin1String(Constants::UBUNTU_CLICK_CHROOT_BASEPATH))
+            .arg(target.framework)
+            .arg(target.architecture);
+}
+
 /*!
  * \brief UbuntuClickTool::targetExists
  * checks if the target is still available
@@ -248,11 +256,9 @@ QList<UbuntuClickTool::Target> UbuntuClickTool::listAvailableTargets()
  */
 QPair<int, int> UbuntuClickTool::targetVersion(const UbuntuClickTool::Target &target)
 {
-    QFile f(QString::fromLatin1("%0/click-%1-%2/%3")
-            .arg(QLatin1String(Constants::UBUNTU_CLICK_CHROOT_BASEPATH))
-            .arg(target.framework)
-            .arg(target.architecture)
-            .arg(QLatin1String("/etc/lsb-release")));
+    QFile f(QString::fromLatin1("%1/%2")
+            .arg(targetBasePath(target))
+            .arg(QLatin1String("etc/lsb-release")));
 
     if (!f.open(QIODevice::ReadOnly)) {
         //there is no lsb-release file... what now?
@@ -299,10 +305,8 @@ bool UbuntuClickTool::targetFromPath(const QString &targetPath, UbuntuClickTool:
     t.architecture = match.captured(2);
 
     //now read informations about the target
-    QFile f(QString::fromLatin1("%0/click-%1-%2/%3")
-            .arg(QLatin1String(Constants::UBUNTU_CLICK_CHROOT_BASEPATH))
-            .arg(t.framework)
-            .arg(t.architecture)
+    QFile f(QString::fromLatin1("%1/%2")
+            .arg(targetBasePath(t))
             .arg(QLatin1String("/etc/lsb-release")));
 
     if (!f.open(QIODevice::ReadOnly)) {

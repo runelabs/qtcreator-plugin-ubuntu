@@ -18,6 +18,8 @@
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
+#include <QDir>
+
 namespace Ubuntu {
 namespace Internal {
 
@@ -35,6 +37,7 @@ UbuntuDirectUploadStep::UbuntuDirectUploadStep(ProjectExplorer::BuildStepList *b
     setDefaultDisplayName(displayName());
 
     connect(target()->project(),SIGNAL(displayNameChanged()),this,SLOT(projectNameChanged()));
+    connect(target(),SIGNAL(applicationTargetsChanged()),this,SLOT(projectNameChanged()));
 }
 
 UbuntuDirectUploadStep::~UbuntuDirectUploadStep()
@@ -82,11 +85,48 @@ QString UbuntuDirectUploadStep::displayName()
     return tr("Upload files to Ubuntu Device");
 }
 
+static void createFileList(const QDir &rootDir
+                           , const QString& subDir
+                           , const QString& remoteRoot
+                           , QList<ProjectExplorer::DeployableFile>* list)
+{
+    QDir currentDir(rootDir.absolutePath()+subDir);
+    if(!currentDir.exists())
+        return;
+
+    QFileInfoList entries = currentDir.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
+    foreach (const QFileInfo &entry, entries) {
+        if(entry.isDir()) {
+            QString newSub = (subDir.endsWith(QLatin1String("/"))) ? (QString)(subDir+entry.fileName()) : (QString)(subDir+(QLatin1String("/")+entry.fileName()));
+            createFileList(rootDir,newSub,remoteRoot,list);
+        } else {
+            QString targetPath = QDir::cleanPath(remoteRoot
+                    + subDir
+                    + QLatin1String("/"));
+
+            qDebug()<<"Uploading: "<<entry.fileName();
+            qDebug()<<" to "<<targetPath;
+            list->append(ProjectExplorer::DeployableFile(entry.absoluteFilePath()
+                                                         , targetPath
+                                                         , entry.isExecutable() ? ProjectExplorer::DeployableFile::TypeExecutable
+                                                                                : ProjectExplorer::DeployableFile::TypeNormal));
+        }
+    }
+}
+
 void UbuntuDirectUploadStep::projectNameChanged()
 {
-    ProjectExplorer::DeployableFile f(target()->activeBuildConfiguration()->buildDirectory().toString()+QDir::separator()+QLatin1String("package")
-                                      ,QString::fromLatin1("/home/phablet/dev_tmp/%1").arg(target()->project()->displayName()));
-    m_deployService->setDeployableFiles(QList<ProjectExplorer::DeployableFile>()<<f);
+    qDebug()<<"------------------------ Updating DEPLOYLIST ---------------------------";
+    //iterate over the .deploy dir and put all files in the list
+    QDir d(target()->activeBuildConfiguration()->buildDirectory().toString()+QDir::separator()+QLatin1String("package"));
+
+    QList<ProjectExplorer::DeployableFile> list;
+    createFileList(  d
+                     , QLatin1String("/")
+                     , QString::fromLatin1("/home/phablet/dev_tmp/%1").arg(target()->project()->displayName())
+                     , &list);
+
+    m_deployService->setDeployableFiles(list);
     target()->project()->displayName();
 }
 
@@ -102,13 +142,20 @@ QList<Core::Id> UbuntuDeployConfigurationFactory::availableCreationIds(ProjectEx
     QList<Core::Id> ids;
     if (!parent->project()->supportsKit(parent->kit()))
         return ids;
+
     ProjectExplorer::ToolChain *tc
             = ProjectExplorer::ToolChainKitInformation::toolChain(parent->kit());
     if (!tc || tc->targetAbi().os() != ProjectExplorer::Abi::LinuxOS)
         return ids;
+
+    //for now only support cmake projects
+    if(parent->project()->id() != CMakeProjectManager::Constants::CMAKEPROJECT_ID)
+        return ids;
+
     const Core::Id devType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(parent->kit());
     if (devType == Constants::UBUNTU_DEVICE_TYPE_ID)
         ids << Core::Id(Constants::UBUNTU_DEPLOYCONFIGURATION_ID);
+
     return ids;
 }
 
@@ -125,7 +172,7 @@ bool UbuntuDeployConfigurationFactory::canCreate(ProjectExplorer::Target *parent
 }
 
 ProjectExplorer::DeployConfiguration *UbuntuDeployConfigurationFactory::create(ProjectExplorer::Target *parent,
-    const Core::Id id)
+                                                                               const Core::Id id)
 {
     Q_ASSERT(canCreate(parent, id));
 
@@ -155,7 +202,7 @@ bool UbuntuDeployConfigurationFactory::canRestore(ProjectExplorer::Target *paren
 }
 
 ProjectExplorer::DeployConfiguration *UbuntuDeployConfigurationFactory::restore(ProjectExplorer::Target *parent,
-    const QVariantMap &map)
+                                                                                const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
@@ -171,7 +218,7 @@ ProjectExplorer::DeployConfiguration *UbuntuDeployConfigurationFactory::restore(
 }
 
 ProjectExplorer::DeployConfiguration *UbuntuDeployConfigurationFactory::clone(ProjectExplorer::Target *parent,
-    ProjectExplorer::DeployConfiguration *product)
+                                                                              ProjectExplorer::DeployConfiguration *product)
 {
     if (!canClone(parent, product))
         return 0;
@@ -185,8 +232,8 @@ QList<Core::Id> UbuntuDeployStepFactory::availableCreationIds(ProjectExplorer::B
         return QList<Core::Id>();
     return QList<Core::Id>()
             <<Constants::UBUNTU_DEPLOY_UPLOADSTEP_ID
-            <<RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep::stepId()
-            <<Constants::UBUNTU_CLICK_CMAKE_MAKESTEP_ID;
+           <<Constants::UBUNTU_CLICK_CMAKE_MAKESTEP_ID;
+    //<<RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep::stepId();
 }
 
 QString UbuntuDeployStepFactory::displayNameForId(const Core::Id id) const
@@ -262,9 +309,9 @@ ProjectExplorer::BuildStep *UbuntuDeployStepFactory::clone(ProjectExplorer::Buil
         return new UbuntuDirectUploadStep(parent, static_cast<UbuntuDirectUploadStep *>(product));
     else if(id == RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep::stepId())
         return new RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep(parent
-                                             ,static_cast<RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep *>(product));
+                                                                     ,static_cast<RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep *>(product));
     else if(id == Constants::UBUNTU_CLICK_CMAKE_MAKESTEP_ID) {
-         return new UbuntuCMakeMakeStep(parent, static_cast<UbuntuCMakeMakeStep *>(product));
+        return new UbuntuCMakeMakeStep(parent, static_cast<UbuntuCMakeMakeStep *>(product));
     }
     return 0;
 }

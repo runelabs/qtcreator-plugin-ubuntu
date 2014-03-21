@@ -117,6 +117,12 @@ QStringList UbuntuClickManifest::policyGroups(QString appName) {
     return retval;
 }
 
+QScriptValue UbuntuClickManifest::hooks()
+{
+    if (!isInitialized()) { return QScriptValue(); }
+    return callGetFunction(QLatin1String("getHooks"),QScriptValueList());
+}
+
 void UbuntuClickManifest::save(QString fileName) {
     if (!isInitialized()) { return; }
 
@@ -153,7 +159,7 @@ void UbuntuClickManifest::setRaw(QString data) {
     emit loaded();
 }
 
-void UbuntuClickManifest::load(QString fileName, QString projectName) {
+bool UbuntuClickManifest::load(QString fileName, QString projectName) {
     setFileName(fileName);
     m_projectName = projectName;
 
@@ -162,14 +168,14 @@ void UbuntuClickManifest::load(QString fileName, QString projectName) {
     if (!file.exists()) {
         emit error();
         qDebug() << QLatin1String("file does not exist");
-        return;
+        return false;
     }
 
     if (!file.open(QIODevice::ReadOnly)) {
         emit error();
         qDebug() << QLatin1String("unable to open file for reading");
 
-        return;
+        return false;
     }
 
     QString data = QString::fromUtf8(file.readAll());
@@ -193,6 +199,7 @@ void UbuntuClickManifest::load(QString fileName, QString projectName) {
 
     m_bInitialized = true;
     emit loaded();
+    return true;
 }
 
 QScriptValue UbuntuClickManifest::callFunction(QString functionName, QScriptValueList args) {

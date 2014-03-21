@@ -23,6 +23,7 @@
 #include <QScriptProgram>
 #include <QScriptEngine>
 #include <QStringList>
+#include <QScriptValue>
 
 namespace Ubuntu {
 namespace Internal {
@@ -64,9 +65,11 @@ public slots:
     void setPolicyGroups(QString appName, QStringList groups);
     QStringList policyGroups(QString appName);
 
+    QScriptValue hooks ();
+
     void save() { save(m_fileName); }
     void save(QString fileName);
-    void load(QString fileName, QString projectName);
+    bool load(QString fileName, QString projectName);
     void reload();
 
     QString raw();

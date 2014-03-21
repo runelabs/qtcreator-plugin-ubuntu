@@ -20,7 +20,15 @@
 : ${CLICK_SDK_FRAMEWORK:?"Need to set CLICK_SDK_FRAMEWORK non-empty"}
 : ${CLICK_SDK_SERIES:?"Need to set CLICK_SDK_SERIES non-empty"}
 
+#architecture specific arguments
+ARCH_ARGS=
+
+if [ ${CLICK_SDK_ARCH} == "armhf" ]
+then
+    ARCH_ARGS='-DQT_IMPORTS_DIR=/usr/lib/arm-linux-gnueabihf/qt5/qml'
+fi
+
 export QT_SELECT=qt5:$ARCH
-/usr/bin/click chroot -a $CLICK_SDK_ARCH -f $CLICK_SDK_FRAMEWORK -s $CLICK_SDK_SERIES run cmake "$@"
+/usr/bin/click chroot -a $CLICK_SDK_ARCH -f $CLICK_SDK_FRAMEWORK -s $CLICK_SDK_SERIES run cmake -DINSTALL_TESTS=off -DCLICK_MODE=on ${ARCH_ARGS} "$@"
 
 

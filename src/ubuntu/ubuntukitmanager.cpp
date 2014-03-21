@@ -142,6 +142,7 @@ void UbuntuKitManager::autoDetectKits()
                             .arg(tc->clickTarget().framework)
                             .arg(tc->clickTarget().series));
         ProjectExplorer::KitManager::registerKit(kit);
+        fixKit(kit);
     }
 }
 
@@ -170,8 +171,6 @@ ProjectExplorer::Kit *UbuntuKitManager::createKit(ClickToolChain *tc)
     //@TODO add gdbserver support
     //@TODO add real qt version
     QtSupport::QtKitInformation::setQtVersion(newKit, 0);
-
-    fixKit(newKit);
     return newKit;
 }
 

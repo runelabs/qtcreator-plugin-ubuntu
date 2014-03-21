@@ -13,33 +13,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Author: Benjamin Zeller<benjamin.zeller@canonical.com>
+# Author: Benjamin Zeller <benjamin.zeller@canonical.com>
 
+. `dirname $0`/functions.inc
 
-USAGE="Usage: $0 targetArch targetFramework targetSeries cmakeOptions"
-
-if [ $# -lt 3 ]; then
-	echo "$USAGE"
-	exit 1
-fi
-
-ARCH=$1
-shift
-FRAMEWORK=$1
-shift
-SERIES=$1
-shift
-
-#architecture specific arguments
-ARCH_ARGS=
-
-if [ ${ARCH} == "armhf" ]
-then
-    ARCH_ARGS='-DQT_IMPORTS_DIR=/usr/lib/arm-linux-gnueabihf/qt5/qml'
-fi
-
-export QT_SELECT=qt5:$ARCH
-
-rm  -rf CMakeFiles  CMakeCache.txt  cmake_install.cmake  Makefile
-
-/usr/bin/click chroot -a $ARCH -f $FRAMEWORK -s $SERIES run cmake -DINSTALL_TESTS=off -DCLICK_MODE=on ${ARCH_ARGS}  $@
+adb_shell "su -c 'test -f /etc/lsb-release && (cat /etc/lsb-release | grep DISTRIB_ID) || echo \"DISTRIB_ID=UnknownAdbDevice\"'"

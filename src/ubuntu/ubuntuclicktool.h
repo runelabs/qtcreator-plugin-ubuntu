@@ -73,6 +73,7 @@ public:
     static void openChrootTerminal (const Target& target);
 
     static bool getTargetFromUser (Target* target);
+    static QString targetBasePath (const Target& target);
 
     static bool          targetExists (const Target& target);
     static QList<Target> listAvailableTargets ();
