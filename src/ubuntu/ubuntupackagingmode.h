@@ -27,12 +27,17 @@
 namespace Ubuntu {
 namespace Internal {
 
+class UbuntuClickManifest;
+
 class UbuntuPackagingMode : public Core::IMode
 {
     Q_OBJECT
 public:
     explicit UbuntuPackagingMode(QObject *parent = 0);
     void initialize();
+
+    static UbuntuClickManifest *manifest ();
+    static UbuntuClickManifest *appArmor ();
 
 protected slots:
     void modeChanged(Core::IMode*);
@@ -46,6 +51,9 @@ protected:
     UbuntuPackagingWidget m_ubuntuPackagingWidget;
 
     Core::Id previousMode;
+
+private:
+    static UbuntuPackagingMode* m_instance;
 };
 
 }

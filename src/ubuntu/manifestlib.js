@@ -6,7 +6,7 @@ function fromJSON($data) {
 }
 
 function toJSON() {
-    return JSON.stringify(jsonData);
+    return JSON.stringify(jsonData,null,4);
 }
 
 function getName() {
@@ -61,6 +61,14 @@ function getHooks() {
     return jsonData.hooks;
 }
 
+function getFrameworkName() {
+    return jsonData.framework;
+}
+
+function setFrameworkName($name) {
+   jsonData.framework = $name;
+}
+
 function getPolicyGroups($appname) {
 /*    var appProfile = jsonData.security.profiles[$appname];
     if (appProfile===undefined) {
@@ -80,4 +88,12 @@ function setPolicyGroups($appname,$groups) {
 
     var $parsed_groups = $groups.split(" ");
     jsonData.policy_groups = $parsed_groups;
+}
+
+function getPolicyVersion() {
+  return jsonData.policy_version.toString();
+}
+
+function setPolicyVersion($string_version) {
+    jsonData.policy_version = parseFloat($string_version);
 }

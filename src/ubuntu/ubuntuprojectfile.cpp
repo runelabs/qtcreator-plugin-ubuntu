@@ -26,6 +26,7 @@ UbuntuProjectFile::UbuntuProjectFile(UbuntuProject *parent, QString fileName)
       m_fileName(fileName) {
     QTC_CHECK(m_project);
     QTC_CHECK(!fileName.isEmpty());
+    setFilePath(fileName);
 }
 
 bool UbuntuProjectFile::save(QString *, const QString &, bool) {

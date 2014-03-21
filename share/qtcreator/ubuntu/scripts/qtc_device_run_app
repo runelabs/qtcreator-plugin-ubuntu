@@ -28,10 +28,12 @@ TARGET_DEVICE_PORT=$9
 # potential prefix that should be prepended to the target app path
 shift
 APP_LAUNCH_PREFIX=$9
+shift
+EXTRA_COMMAND_LINE_ARGS=$9
 
 APP_ID=$(echo ${DESKTOP_FILENAME}|sed "s/\.desktop//")
 
-USAGE="$0 [serialnumber] [app_launcher] [foldername] [desktop_filename] [main_qml] [target_device_home] [target_device_desktop_path] [target_device] [target_device_port] [app_launch_prefix]"
+USAGE="$0 [serialnumber] [app_launcher] [foldername] [desktop_filename] [main_qml] [target_device_home] [target_device_desktop_path] [target_device] [target_device_port] [optional_app_launch_prefix] [optional_extra_command_line_args]"
 
 
 if [[ -z ${FOLDERNAME} ]]; then
@@ -103,7 +105,7 @@ do
 done
 echo "IMPORT: ${ARGS_FROM_DESKTOP}"
 
-COMMAND="export ${DBUS_SESSION_BUS_ADDRESS=}; APP_ID=${APP_ID} ${APP_LAUNCHER} ${ARGS_FROM_DESKTOP} ${APP_LAUNCH_PREFIX}${TARGET_DEVICE_HOME}/${APP_ID}/${FOLDERNAME}/${MAIN_QML} --desktop_file_hint=${TARGET_DEVICE_DESKTOP_PATH}/${DESKTOP_FILENAME}"
+COMMAND="export ${DBUS_SESSION_BUS_ADDRESS=}; APP_ID=${APP_ID} ${APP_LAUNCHER} ${ARGS_FROM_DESKTOP} ${APP_LAUNCH_PREFIX}${TARGET_DEVICE_HOME}/${APP_ID}/${FOLDERNAME}/${MAIN_QML} --desktop_file_hint=${TARGET_DEVICE_DESKTOP_PATH}/${DESKTOP_FILENAME} ${EXTRA_COMMAND_LINE_ARGS}"
 echo "Going to execute: ${COMMAND}"
 
 # make a tar package

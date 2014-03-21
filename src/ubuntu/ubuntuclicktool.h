@@ -67,16 +67,18 @@ public:
     static void parametersForCreateChroot   (const Target &target, ProjectExplorer::ProcessParameters* params);
     static void parametersForMaintainChroot (const MaintainMode &mode,const Target& target,ProjectExplorer::ProcessParameters* params);
     static void parametersForCmake        (const Target& target, const QString &buildDir
-                                    , const QString &relPathToSource,ProjectExplorer::ProcessParameters* params);
+                                    , const QString &relPathToSource, const QStringList& userArgs, ProjectExplorer::ProcessParameters* params);
     static void parametersForMake         (const Target& target, const QString &buildDir, const QString &makeArgs, ProjectExplorer::ProcessParameters* params);
 
     static void openChrootTerminal (const Target& target);
 
-    static bool getTargetFromUser (Target* target);
     static QString targetBasePath (const Target& target);
+    static bool getTargetFromUser (Target* target, const QString &framework=QString());
+    static QStringList getSupportedFrameworks ();
+    static QString getMostRecentFramework ( const QString &subFramework );
 
     static bool          targetExists (const Target& target);
-    static QList<Target> listAvailableTargets ();
+    static QList<Target> listAvailableTargets (const QString &framework=QString());
     static QPair<int,int> targetVersion (const Target& target);
     static bool        targetFromPath(const QString& targetPath, Target* tg);
 };

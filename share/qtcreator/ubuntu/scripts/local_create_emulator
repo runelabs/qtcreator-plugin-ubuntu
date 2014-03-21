@@ -18,4 +18,10 @@ set -e
 EMULATOR_NAME=$2
 EMULATOR_PATH=$1
 WHOAMI=`whoami`
-pkexec sh -c "HOME=$HOME ubuntu-emulator create ${EMULATOR_NAME};chown ${WHOAMI}:${WHOAMI} ${EMULATOR_PATH}/${EMULATOR_NAME} -R"
+
+if [ ! -d ${EMULATOR_PATH} ]
+then
+	mkdir -p ${EMULATOR_PATH}
+fi
+
+pkexec sh -c "HOME=$HOME ubuntu-emulator create ${EMULATOR_NAME};chown ${WHOAMI}:${WHOAMI} ${EMULATOR_PATH} -R"

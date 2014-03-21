@@ -1,7 +1,7 @@
 {
     "name": "com.ubuntu.developer.username.myapp",
     "description": "description of myapp",
-    "framework": "ubuntu-sdk-13.10",
+    "framework": "myFramework",
     "architecture": "all",
     "title": "myapp",
     "hooks": {

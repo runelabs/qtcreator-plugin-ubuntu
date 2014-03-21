@@ -3,27 +3,29 @@ Section: devel
 Priority: optional
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Build-Depends: debhelper (>= 9),
-               libqt5script5 (>= 5.0.2~),
-               libqt5scripttools5 (>= 5.0.2~),
+               libqt5script5 (>= 5.2),
+               libqt5scripttools5 (>= 5.2),
                libqt5webkit5-dev,
-               libqt5widgets5 (>= 5.0.2~),
+               libqt5widgets5 (>= 5.2),
                libsqlite3-dev,
-               qt5-qmake (>= 5.0.2~),
-               qtcreator-dev (>= 2.8.1),
-               qtdeclarative5-dev-tools (>= 5.0.2~),
-               qtdeclarative5-private-dev (>= 5.0.2~),
-               qtquick1-5-dev (>= 5.0.2~),
-               qtquick1-5-dev-tools (>= 5.0.2~),
-               qtscript5-private-dev (>= 5.0.2~),
-               qttools5-dev-tools (>= 5.0.2~),
+               qt5-qmake (>= 5.2),
+               qtcreator-dev (>= 3.0),
+               qtdeclarative5-dev-tools (>= 5.2),
+               qtdeclarative5-private-dev (>= 5.2),
+               qtquick1-5-dev (>= 5.2),
+               qtquick1-5-dev-tools (>= 5.2),
+               qtscript5-private-dev (>= 5.2),
+               qttools5-dev-tools (>= 5.2),
                qtxmlpatterns5-dev-tools,
                libudev-dev,
-	       libicu-dev
+               libicu-dev,
+               qtcreator-plugin-cmake-dev,
 Standards-Version: 3.9.4
 Homepage: https://launchpad.net/qtcreator-plugin-ubuntu
 # If you aren't a member of ~ubuntu-sdk-team but need to upload packaging changes,
 # just go ahead. ~ubuntu-sdk-team will notice and sync up the code again.
 Vcs-Bzr: https://code.launchpad.net/~ubuntu-sdk-team/qtcreator-plugin-ubuntu/trunk
+XS-Testsuite: autopkgtest
 
 Package: qtcreator-plugin-ubuntu
 Architecture: any
@@ -33,12 +35,13 @@ Depends: android-tools-adb,
          click-doc,
          devscripts,
          dh-make,
-         libqt5scripttools5,
-         qtcreator (>= 2.8.1),
          qtcreator-plugin-ubuntu-common,
          ubuntu-ui-toolkit-doc,
          ubuntu-ui-toolkit-examples,
          rsync,
+         qtcreator-plugin-cmake,
+         qtdeclarative5-controls-plugin,
+         ${shlibs:Depends},
          ${misc:Depends},
 Recommends: ubuntu-sdk
 Suggests: click-reviewers-tools

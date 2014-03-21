@@ -1,0 +1,7 @@
+[ScopeConfig]
+DisplayName = %DISPLAYNAME_CAPITAL% Scope
+Description = This is a %DISPLAYNAME_CAPITAL% scope
+Art = %DISPLAYNAME%scope.Art
+Icon = %DISPLAYNAME%scope.Icon
+SearchHint = %DISPLAYNAME%scope.SearchHint
+HotKey = %DISPLAYNAME%scope.HotKey

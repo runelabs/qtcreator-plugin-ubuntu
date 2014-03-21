@@ -431,18 +431,21 @@ const char UBUNTU_CLICK_BUILD_CONTEXTMENU_ID[] = "UbuntuProjectManager.RunClickB
 const char UBUNTU_CLICK_BUILD_CONTEXTMENU_TEXT[] = "Build in chroot";
 const char UBUNTU_CLICK_OPEN_TERMINAL_ERROR[] = "Error when starting terminal";
 const char UBUNTU_CLICK_TARGETS_REGEX[] = "^click-(.*)-([A-Za-z0-9]+)$";
+const char UBUNTU_CLICK_TARGETS_FRAMEWORK_REGEX[] = "^click-(%1)-([A-Za-z0-9]+)$";
+const char UBUNTU_CLICK_BASE_FRAMEWORK_REGEX[] = "(ubuntu-sdk-[0-9]{1,2}.[0-9]{1,2})";
 const char UBUNTU_CLICK_VERSION_REGEX[] = "^DISTRIB_RELEASE=([0-9]+)\\.([0-9]+)$";
 const char UBUNTU_CLICK_SERIES_REGEX[]  = "^DISTRIB_CODENAME=([A-Za-z]+)$";
 
 const char UBUNTU_CLICK_BINARY[]  = "/usr/bin/click";
 const char UBUNTU_SUDO_BINARY[]   = "/usr/bin/pkexec";
 const char UBUNTU_CLICK_CHROOT_BASEPATH[] = "/var/lib/schroot/chroots";
+const char UBUNTU_CLICK_FRAMEWORKS_BASEPATH[] = "/usr/share/click/frameworks";
 const char UBUNTU_CLICK_CLICK_PACKAGE_DIR[] = "%CLICK_FRAMEWORK%-%CLICK_ARCH%/click_package";
 const char UBUNTU_CLICK_CHROOT_CREATE_ARGS[]  = "sh -c \"%0/click_create_target %1 %2 %3\"";
 const char UBUNTU_CLICK_CHROOT_DESTROY_ARGS[] = "sh -c \"%0/click_destroy_target %1 %2 %3\"";
 const char UBUNTU_CLICK_CHROOT_UPGRADE_ARGS[] = "chroot -a %0 -f %1 -s %2 upgrade";
 const char UBUNTU_CLICK_CHROOT_CMAKE_SCRIPT[] = "%0/qtc_chroot_cmake";
-const char UBUNTU_CLICK_CHROOT_CMAKE_ARGS[]   = "%0 %1 %2 %3";
+const char UBUNTU_CLICK_CHROOT_CMAKE_ARGS[]   = "%0 %1 %2 %3 %4";
 const char UBUNTU_CLICK_CHROOT_MAKE_SCRIPT[]  = "%0/qtc_chroot_make";
 const char UBUNTU_CLICK_CHROOT_MAKE_ARGS[]    = "%0 %1 %2 %4";
 const char UBUNTU_CLICK_CHROOT_MAKE_CLEAN_ARGS[]   = "clean";
@@ -474,6 +477,7 @@ const char UBUNTU_CLICK_BUILD_FAILED_MESSAGE[] = "Build failed";
 const char UBUNTU_CLICK_RUN_COMMAND_MESSAGE[] = "Running command: %0 %1";
 const char UBUNTU_CLICK_NOTARGETS_TITLE[] = "No click build targets available";
 const char UBUNTU_CLICK_NOTARGETS_MESSAGE[] = "There are no click build targets available.\nPlease create a target in the Ubuntu option page.";
+const char UBUNTU_CLICK_NOTARGETS_FRAMEWORK_MESSAGE[] = "There are no click build targets for framework %1 available.\nPlease create a target in the Ubuntu option page.";
 const char UBUNTU_CLICK_SELECT_TARGET_TITLE[] = "Select build target";
 const char UBUNTU_CLICK_SELECT_TARGET_LABEL[] = "Build target";
 extern const char* UBUNTU_CLICK_SUPPORTED_ARCHS[];
@@ -495,6 +499,14 @@ const char UBUNTU_DEVICE_SSHIDENTITY[] = "%0/.ssh/ubuntudevice_%1_id_rsa";
 //Deploysupport
 const char UBUNTU_DEPLOYCONFIGURATION_ID[] = "UbuntuProjectManager.DeployConfiguration";
 const char UBUNTU_DEPLOY_UPLOADSTEP_ID[] = "UbuntuProjectManager.UploadStep";
+
+//Frameworks
+const char UBUNTU_FRAMEWORK_14_04_BASENAME[] = "ubuntu-sdk-14.04";
+const char UBUNTU_FRAMEWORK_13_10_BASENAME[] = "ubuntu-sdk-13.10";
+const char UBUNTU_DEFAULT_QML_FRAMEWORK[]    = "ubuntu-sdk-14.04-qml";
+const char UBUNTU_DEFAULT_HTML_FRAMEWORK[]   = "ubuntu-sdk-14.04-html";
+const char UBUNTU_UNKNOWN_FRAMEWORK_NAME[]   = "Unknown framework";
+const int  UBUNTU_UNKNOWN_FRAMEWORK_DATA     = 0xdeadbeef;
 
 } // namespace Ubuntu
 } // namespace Constants
