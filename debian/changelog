@@ -1,13 +1,24 @@
 qtcreator-plugin-ubuntu (3.0.1-0ubuntu5) UNRELEASED; urgency=medium
 
-  [ Benjamin Zeller ]
-  * Pass user arguments to cmake running in the chroot (LP: #1292892)
-
   [ Zoltán Balogh ]
   * New Unity scope template
   * Forced clean up before running cmake
   * Remove redundant file listing from HTML5 template (LP: #1289870)
 
+  [ Benjamin Zeller ]
+  * Switch to framework ubuntu-sdk-14.04
+  * Adds combobox for selecting the framework in publish tab
+  * Remove Series from the scripts
+  * only save a manifest if it was opened before (or otherwise the codepath that sets defaults is never entered)
+  * filter the available targets by the framework specified in the manifest,
+    and automatically start to compile if only one target was found
+  * Save framework version only if the combobox does not show the empty/unknown framework item
+  * automatically change the policy version when the framework is changed
+  * Show frameworks with higher versions first when selecting a build target.
+  * List only frameworks that are available on the development host
+  * Pass user arguments to cmake running in the chroot (LP: #1292892)
+
+  
  -- Zoltán Balogh <zoltan@bakter.hu>  Tue, 18 Mar 2014 10:38:16 +0200
 
 qtcreator-plugin-ubuntu (3.0.1-0ubuntu4) trusty; urgency=medium

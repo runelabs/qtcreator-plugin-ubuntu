@@ -17,6 +17,8 @@
  */
 
 #include "ubuntuclicktool.h"
+#include "ubuntupackagingmode.h"
+#include "ubuntuclickmanifest.h"
 
 #include <QRegularExpression>
 #include <QDir>
@@ -176,14 +178,26 @@ void UbuntuClickTool::openChrootTerminal(const UbuntuClickTool::Target &target)
     }
 }
 
-bool UbuntuClickTool::getTargetFromUser(Target *target)
+bool UbuntuClickTool::getTargetFromUser(Target *target, const QString &framework)
 {
-    QList<UbuntuClickTool::Target> targets = UbuntuClickTool::listAvailableTargets();
+    QList<UbuntuClickTool::Target> targets = UbuntuClickTool::listAvailableTargets(framework);
     if (!targets.size()) {
-        QMessageBox::warning(Core::ICore::mainWindow()
-                             ,QCoreApplication::translate("UbuntuClickTool",Constants::UBUNTU_CLICK_NOTARGETS_TITLE)
-                             ,QCoreApplication::translate("UbuntuClickTool",Constants::UBUNTU_CLICK_NOTARGETS_MESSAGE));
+        QString message = QCoreApplication::translate("UbuntuClickTool",Constants::UBUNTU_CLICK_NOTARGETS_MESSAGE);
+        if(!framework.isEmpty()) {
+            message = QCoreApplication::translate("UbuntuClickTool",Constants::UBUNTU_CLICK_NOTARGETS_FRAMEWORK_MESSAGE)
+                    .arg(framework);
+        }
+
+        QMessageBox::warning(Core::ICore::mainWindow(),
+                             QCoreApplication::translate("UbuntuClickTool",Constants::UBUNTU_CLICK_NOTARGETS_TITLE),
+                             message);
         return false;
+    }
+
+    //if we have only 1 target there is nothing to choose
+    if(targets.size() == 1){
+        *target = targets[0];
+        return true;
     }
 
     QStringList items;
@@ -204,22 +218,107 @@ bool UbuntuClickTool::getTargetFromUser(Target *target)
     return true;
 }
 
+/*!
+ * \brief UbuntuClickTool::getSupportedFrameworks
+ * returns all available frameworks on the host system
+ */
+QStringList UbuntuClickTool::getSupportedFrameworks()
+{
+    QStringList items;
+    QDir frameworksDir(QLatin1String(Constants::UBUNTU_CLICK_FRAMEWORKS_BASEPATH));
+
+    if(!frameworksDir.exists())
+        return items;
+
+    QStringList availableFrameworkFiles = frameworksDir.entryList(QStringList()<<QLatin1String("*.framework"),
+                                                           QDir::Files | QDir::NoDotAndDotDot,
+                                                           QDir::Name | QDir::Reversed);
+
+    QStringList availableFrameworks;
+    foreach(QString fw, availableFrameworkFiles) {
+        fw.replace(QLatin1String(".framework"),QString());
+        availableFrameworks.append(fw);
+    }
+
+    qDebug()<<"Available Frameworks on the host"<<availableFrameworks;
+    return availableFrameworks;
+
+}
+
+/*!
+ * \brief UbuntuClickTool::getMostRecentFramework
+ * returns the framework with the highest number supporting the subFramework
+ * or a empty string of no framework with the given \a subFramework was found
+ */
+QString UbuntuClickTool::getMostRecentFramework(const QString &subFramework)
+{
+    //returned list is ordered from newest -> oldest framework
+    QStringList allFws = getSupportedFrameworks();
+
+    QString currFw;
+    foreach(const QString &framework, allFws) {
+
+        QString basename;
+        QStringList extensions;
+
+        QRegularExpression expr(QLatin1String(Constants::UBUNTU_CLICK_BASE_FRAMEWORK_REGEX));
+        QRegularExpressionMatch match = expr.match(framework);
+        if(match.hasMatch()) {
+            basename = match.captured(1);
+            extensions = QString(framework).replace(basename,
+                                                    QString()).split(QChar::fromLatin1('-'),
+                                                                     QString::SkipEmptyParts);
+        } else {
+            continue;
+        }
+
+        //this is a multi purpose framework
+        if (extensions.size() == 0
+                || (extensions.size() == 1 && extensions[0].startsWith(QLatin1String("dev")) )) {
+            if (currFw.isEmpty()) {
+                currFw = framework;
+            }
+            //if the subframework is empty we return
+            //the first baseframework we can find
+            if(subFramework.isEmpty())
+                return currFw;
+            continue;
+        }
+
+        if(extensions.contains(subFramework))
+            return framework;
+    }
+    return currFw;
+}
+
 /**
  * @brief UbuntuClickTool::listAvailableTargets
  * @return all currently existing chroot targets in the system
  */
-QList<UbuntuClickTool::Target> UbuntuClickTool::listAvailableTargets()
+QList<UbuntuClickTool::Target> UbuntuClickTool::listAvailableTargets(const QString &framework)
 {
     QList<Target> items;
     QDir chrootDir(QLatin1String(Constants::UBUNTU_CLICK_CHROOT_BASEPATH));
+
+    QString filterRegex = QLatin1String(Constants::UBUNTU_CLICK_TARGETS_REGEX);
+    if(!framework.isEmpty()) {
+        QRegularExpression expr(QLatin1String(Constants::UBUNTU_CLICK_BASE_FRAMEWORK_REGEX));
+        QRegularExpressionMatch match = expr.match(framework);
+        if(match.hasMatch()) {
+            qDebug()<<"Filtering for base framework: "<<match.captured(1);
+            filterRegex = QString::fromLatin1(Constants::UBUNTU_CLICK_TARGETS_FRAMEWORK_REGEX)
+                    .arg(match.captured(1));
+        }
+    }
 
     //if the dir does not exist there are no available chroots
     if(!chrootDir.exists())
         return items;
 
-    QStringList availableChroots = chrootDir.entryList(QDir::Dirs);
+    QStringList availableChroots = chrootDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot,
+                                                       QDir::Name | QDir::Reversed);
 
-    QRegularExpression clickFilter(QLatin1String(Constants::UBUNTU_CLICK_TARGETS_REGEX));
+    QRegularExpression clickFilter(filterRegex);
 
     //iterate over all chroots and check if they are click chroots
     foreach (const QString &chroot, availableChroots) {
@@ -637,8 +736,10 @@ void UbuntuClickManager::on_buildInChrootAction()
     if(!buildTarget)
         return;
 
+    QString fw = UbuntuPackagingMode::manifest()->frameworkName();
+
     UbuntuClickTool::Target clickTarget;
-    if(!UbuntuClickTool::getTargetFromUser(&clickTarget))
+    if(!UbuntuClickTool::getTargetFromUser(&clickTarget,fw))
         return;
 
     Build* b = new Build();

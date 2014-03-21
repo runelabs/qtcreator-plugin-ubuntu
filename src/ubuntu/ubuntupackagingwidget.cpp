@@ -21,6 +21,7 @@
 #include "ui_ubuntupackagingwidget.h"
 #include "ubuntuconstants.h"
 #include "ubuntumenu.h"
+#include "ubuntuclicktool.h"
 
 using namespace Ubuntu;
 
@@ -79,6 +80,10 @@ UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
     connect(m_validationModel,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(onNewValidationData()));
 
     m_bzr.initialize();
+
+    ui->comboBoxFramework->blockSignals(true);
+    ui->comboBoxFramework->addItems(UbuntuClickTool::getSupportedFrameworks());
+    ui->comboBoxFramework->blockSignals(false);
 
     m_reviewToolsInstalled = false;
     checkClickReviewerTool();
@@ -232,6 +237,16 @@ bool UbuntuPackagingWidget::reviewToolsInstalled()
     return m_reviewToolsInstalled;
 }
 
+UbuntuClickManifest *UbuntuPackagingWidget::manifest()
+{
+    return &m_manifest;
+}
+
+UbuntuClickManifest *UbuntuPackagingWidget::appArmor()
+{
+    return &m_apparmor;
+}
+
 void UbuntuPackagingWidget::on_pushButtonReviewersTools_clicked() {
     ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
     m_ubuntuProcess.stop();
@@ -249,8 +264,8 @@ void UbuntuPackagingWidget::autoSave() {
     save((ui->tabWidget->currentWidget() == ui->tabSimple));
 }
 
-void UbuntuPackagingWidget::openManifestForProject() {
-    //ProjectExplorer::SessionManager* sessionManager = projectExplorerInstance->session();
+bool UbuntuPackagingWidget::openManifestForProject() {
+
     ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
 
     if (startupProject) {
@@ -280,9 +295,11 @@ void UbuntuPackagingWidget::openManifestForProject() {
         }
 
         load_excludes(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_EXCLUDES)).arg(startupProject->projectDirectory()));
+        return true;
     } else {
         m_projectName.clear();
     }
+    return false;
 }
 
 void UbuntuPackagingWidget::bzrChanged() {
@@ -319,6 +336,10 @@ void UbuntuPackagingWidget::save(bool bSaveSimple) {
         m_manifest.setVersion(ui->lineEdit_version->text());
         m_manifest.setTitle(ui->lineEdit_title->text());
         m_manifest.setDescription(ui->lineEdit_description->text());
+
+        if(ui->comboBoxFramework->currentText() != tr(Constants::UBUNTU_UNKNOWN_FRAMEWORK_NAME))
+            m_manifest.setFrameworkName(ui->comboBoxFramework->currentText());
+
         QStringList items;
         for (int i=0; i<ui->listWidget->count(); i++) {
             // Fix bug #1221407 - make sure that there are no empty policy groups.
@@ -395,6 +416,27 @@ void UbuntuPackagingWidget::reload() {
     ui->lineEdit_version->setText(m_manifest.version());
     ui->lineEdit_description->setText(m_manifest.description());
 
+    int idx = ui->comboBoxFramework->findText(m_manifest.frameworkName());
+
+    //disable the currentIndexChanged signal, reloading the files
+    //should never change the contents of the files (e.g. policy_version)
+    ui->comboBoxFramework->blockSignals(true);
+    //if the framework name is not valid set to empty item
+
+    //just some data to easily find the unknown framework item without
+    //using string compare
+    if(idx < 0) {
+        if(ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA) < 0)
+            ui->comboBoxFramework->addItem(tr(Constants::UBUNTU_UNKNOWN_FRAMEWORK_NAME),Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA);
+
+        ui->comboBoxFramework->setCurrentIndex(ui->comboBoxFramework->count()-1);
+    } else {
+        ui->comboBoxFramework->setCurrentIndex(idx);
+        ui->comboBoxFramework->removeItem(ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA));
+    }
+
+    ui->comboBoxFramework->blockSignals(false);
+
     QStringList policyGroups = m_apparmor.policyGroups(m_projectName);
 
     ui->listWidget->clear();
@@ -465,4 +507,19 @@ void UbuntuPackagingWidget::checkClickReviewerTool() {
     QString sReviewerPackageName = QLatin1String(Ubuntu::Constants::REVIEWER_PACKAGE_NAME);
     m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUWIDGETS_LOCAL_PACKAGE_INSTALLED_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(sReviewerPackageName) << QApplication::applicationDirPath());
     m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_LOCAL_REVIEWER_INSTALLED));
+}
+
+void UbuntuPackagingWidget::on_comboBoxFramework_currentIndexChanged(int index)
+{
+    if(ui->comboBoxFramework->itemText(index).startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_14_04_BASENAME))) {
+        ui->comboBoxFramework->removeItem(ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA));
+        m_apparmor.setPolicyVersion(QLatin1String("1.1"));
+    } else if(ui->comboBoxFramework->itemText(index).startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_13_10_BASENAME))) {
+        ui->comboBoxFramework->removeItem(ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA));
+        m_apparmor.setPolicyVersion(QLatin1String("1.0"));
+    } else {
+        return;
+    }
+
+    m_apparmor.save();
 }

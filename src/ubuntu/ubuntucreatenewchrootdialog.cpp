@@ -10,8 +10,8 @@ namespace Constants {
     //lists all currently supported targets by the plugin
     const char* UBUNTU_CLICK_SUPPORTED_TARGETS[][3]   = {
         //Series      Framework         Displayname
-        {"trusty","ubuntu-sdk-13.10","Trusty (14.04)"},
-        {"saucy" ,"ubuntu-sdk-13.10","Saucy (13.10)"},
+        {"trusty","ubuntu-sdk-14.04","Framework-14.04"},
+        {"saucy" ,"ubuntu-sdk-13.10","Framework-13.10"},
         {"\0","\0","\0"}
     };
 }
