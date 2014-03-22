@@ -6,6 +6,8 @@ qtcreator-plugin-ubuntu (3.0.1-0ubuntu5) UNRELEASED; urgency=medium
   * Remove redundant file listing from HTML5 template (LP: #1289870)
 
   [ Benjamin Zeller ]
+  * Use Rsync to upload source to the device
+  * Automatically create click package after build on device
   * Switch to framework ubuntu-sdk-14.04
   * Adds combobox for selecting the framework in publish tab
   * Remove Series from the scripts
