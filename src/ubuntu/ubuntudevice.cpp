@@ -640,7 +640,7 @@ void UbuntuDevice::loadDefaultConfig()
     params.timeout = 20;
 
     Utils::PortList ports;
-    ports.addRange(10000,10100);
+    ports.addRange(10000,10020);
     setFreePorts(ports);
 
     setSshParameters(params);

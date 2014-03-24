@@ -168,6 +168,9 @@ ProjectExplorer::Kit *UbuntuKitManager::createKit(ClickToolChain *tc)
     CMakeProjectManager::CMakeToolManager::registerCMakeTool(cmake);
     CMakeProjectManager::CMakeKitInformation::setCMakeTool(newKit,cmake->id());
 
+
+    ProjectExplorer::SysRootKitInformation::setSysRoot(newKit,Utils::FileName::fromString(UbuntuClickTool::targetBasePath(tc->clickTarget())));
+
     //@TODO add gdbserver support
     //@TODO add real qt version
     QtSupport::QtKitInformation::setQtVersion(newKit, 0);
@@ -213,7 +216,7 @@ QVariant UbuntuKitManager::createOrFindDebugger(const Utils::FileName &path)
  */
 void UbuntuKitManager::fixKit(ProjectExplorer::Kit *k)
 {
-    ProjectExplorer::ToolChain* tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
+    ClickToolChain* tc = static_cast<ClickToolChain *> (ProjectExplorer::ToolChainKitInformation::toolChain(k));
     if(!tc) {
         //make kit editable for user (i think)
         k->setAutoDetected(false);
@@ -225,6 +228,10 @@ void UbuntuKitManager::fixKit(ProjectExplorer::Kit *k)
         QVariant dId = createOrFindDebugger(tc->suggestedDebugger());
         if(dId.isValid())
             Debugger::DebuggerKitInformation::setDebugger(k,dId);
+    }
+
+    if(ProjectExplorer::SysRootKitInformation::sysRoot(k).isEmpty()) {
+        ProjectExplorer::SysRootKitInformation::setSysRoot(k,Utils::FileName::fromString(UbuntuClickTool::targetBasePath(tc->clickTarget())));
     }
 
     //make sure we point to a ubuntu device
@@ -240,6 +247,7 @@ void UbuntuKitManager::fixKit(ProjectExplorer::Kit *k)
 
     //values the user cannot change
     k->setSticky(ProjectExplorer::SysRootKitInformation::id(),true);
+    k->setMutable(ProjectExplorer::SysRootKitInformation::id(),false);
 
 }
 

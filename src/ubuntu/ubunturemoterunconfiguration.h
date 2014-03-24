@@ -24,6 +24,7 @@ public:
     virtual QString alternateRemoteExecutable() const;
     virtual bool useAlternateExecutable() const;
     virtual Utils::Environment environment() const;
+    virtual QStringList soLibSearchPaths () const;
 
     // RunConfiguration interface
     virtual QWidget *createConfigurationWidget();
@@ -46,7 +47,6 @@ private:
     QString m_desktopFile;
     QString m_localExecutable;
     QString m_remoteExecutable;
-    Utils::Environment m_env;
     QStringList m_arguments;
 
 };

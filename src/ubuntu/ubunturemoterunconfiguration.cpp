@@ -8,13 +8,16 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
+#include <remotelinux/remotelinuxenvironmentaspect.h>
 #include <utils/qtcprocess.h>
+#include <cmakeprojectmanager/cmakeproject.h>
 
 #include <QFile>
 #include <QTextStream>
 #include <QDebug>
 #include <QVariantMap>
 #include <QVariant>
+#include <QFileInfo>
 
 namespace Ubuntu {
 namespace Internal {
@@ -23,6 +26,7 @@ UbuntuRemoteRunConfiguration::UbuntuRemoteRunConfiguration(ProjectExplorer::Targ
     : AbstractRemoteLinuxRunConfiguration(parent,typeId())
 {
     setDisplayName(parent->project()->displayName());
+    addExtraAspect(new RemoteLinux::RemoteLinuxEnvironmentAspect(this));
 }
 
 UbuntuRemoteRunConfiguration::UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent, UbuntuRemoteRunConfiguration *source)
@@ -62,11 +66,33 @@ bool UbuntuRemoteRunConfiguration::useAlternateExecutable() const
 
 Utils::Environment UbuntuRemoteRunConfiguration::environment() const
 {
-    Utils::Environment env = m_env;
-    env.set(QLatin1String("gnutriplet"),QLatin1String("arm-linux-gnueabihf"));
-    env.set(QLatin1String("pkgdir"),workingDirectory());
-    env.set(QLatin1String("APP_ID"),m_appId);
+    RemoteLinux::RemoteLinuxEnvironmentAspect *aspect = extraAspect<RemoteLinux::RemoteLinuxEnvironmentAspect>();
+    QTC_ASSERT(aspect, return Utils::Environment());
+    Utils::Environment env(Utils::OsTypeLinux);
+    env.modify(aspect->userEnvironmentChanges());
+    env.appendOrSet(QLatin1String("gnutriplet"),QLatin1String("arm-linux-gnueabihf"));
+    env.appendOrSet(QLatin1String("pkgdir"),workingDirectory());
+    env.appendOrSet(QLatin1String("APP_ID"),m_appId);
     return env;
+}
+
+QStringList UbuntuRemoteRunConfiguration::soLibSearchPaths() const
+{
+    QStringList paths;
+    CMakeProjectManager::CMakeProject *cmakeProj
+            = qobject_cast<CMakeProjectManager::CMakeProject *>(target()->project());
+
+    if(cmakeProj) {
+        QList<CMakeProjectManager::CMakeBuildTarget> targets = cmakeProj->buildTargets();
+        foreach(const CMakeProjectManager::CMakeBuildTarget& target, targets) {
+            QFileInfo binary(target.executable);
+            if(binary.exists()) {
+                qDebug()<<"Adding path "<<binary.absolutePath()<<" to solib-search-paths";
+                paths << binary.absolutePath();
+            }
+        }
+    }
+    return paths;
 }
 
 QWidget *UbuntuRemoteRunConfiguration::createConfigurationWidget()
@@ -157,6 +183,7 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
     m_arguments.append(QString::fromLatin1("--desktop_file_hint=/home/phablet/dev_tmp/%1/%2")
                        .arg(target()->project()->displayName())
                        .arg(hook[QLatin1String("desktop")].toString()));
+    m_arguments.append(QLatin1String("--stage_hint=main_stage"));
     return true;
 }
 
