@@ -70,7 +70,12 @@ Utils::Environment UbuntuRemoteRunConfiguration::environment() const
     QTC_ASSERT(aspect, return Utils::Environment());
     Utils::Environment env(Utils::OsTypeLinux);
     env.modify(aspect->userEnvironmentChanges());
-    env.appendOrSet(QLatin1String("gnutriplet"),QLatin1String("arm-linux-gnueabihf"));
+
+    ProjectExplorer::ToolChain* tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
+    if(tc->type() == QString::fromLatin1(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
+        ClickToolChain* clickTc = static_cast<ClickToolChain *>(tc);
+        env.appendOrSet(QLatin1String("gnutriplet"),clickTc->gnutriplet());
+    }
     env.appendOrSet(QLatin1String("pkgdir"),workingDirectory());
     env.appendOrSet(QLatin1String("APP_ID"),m_appId);
     return env;
@@ -125,6 +130,10 @@ bool UbuntuRemoteRunConfiguration::isConfigured() const
 bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
 {
     qDebug()<<"--------------------- Reconfiguring RunConfiguration ----------------------------";
+    m_arguments.clear();
+    m_desktopFile.clear();
+    m_appId.clear();
+
     Utils::FileName buildDir = target()->activeBuildConfiguration()->buildDirectory();
     QDir package_dir(buildDir.toString()+QDir::separator()+QLatin1String("package"));
     if(!package_dir.exists()) {
@@ -205,6 +214,11 @@ Core::Id UbuntuRemoteRunConfiguration::typeId()
     return Core::Id("UbuntuProjectManager.RemoteRunConfiguration");
 }
 
+void UbuntuRemoteRunConfiguration::setArguments(const QStringList &args)
+{
+    m_arguments = args;
+}
+
 /*!
  * \brief UbuntuRemoteRunConfiguration::readDesktopFile
  * Tries to read the Exec line from the desktop file, to
@@ -246,7 +260,11 @@ bool UbuntuRemoteRunConfiguration::readDesktopFile(QString *errorMessage)
         }
     }
 
-    if(execLine.startsWith(QLatin1String("qmlscene"))) {
+    QStringList args = Utils::QtcProcess::splitArgs(execLine);
+    QString command  = args.takeFirst();
+
+    QFileInfo commInfo(command);
+    if(commInfo.completeBaseName().startsWith(QLatin1String("qmlscene"))) {
         ProjectExplorer::ToolChain* tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
         if(tc->type() != QString::fromLatin1(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
             if(errorMessage)
@@ -255,12 +273,28 @@ bool UbuntuRemoteRunConfiguration::readDesktopFile(QString *errorMessage)
         }
 
         ClickToolChain* clickTc = static_cast<ClickToolChain*>(tc);
-        m_localExecutable  = QString::fromLatin1("%1/usr/lib/arm-linux-gnueabihf/qt5/bin/qmlscene")
-                .arg(UbuntuClickTool::targetBasePath(clickTc->clickTarget()));
-        m_remoteExecutable = QLatin1String("/usr/bin/qmlscene");
+        m_localExecutable  = QString::fromLatin1("%1/usr/lib/%2/qt5/bin/qmlscene")
+                .arg(UbuntuClickTool::targetBasePath(clickTc->clickTarget()))
+                .arg(clickTc->gnutriplet());
 
-        execLine.replace(QLatin1String("qmlscene"),QString());
-        m_arguments = Utils::QtcProcess::splitArgs(execLine);
+        m_remoteExecutable = QLatin1String("/usr/bin/qmlscene");
+        m_arguments = args;
+    } else if(commInfo.completeBaseName().startsWith(QLatin1String("ubuntu-html5-app-launcher"))) {
+        if(errorMessage)
+            *errorMessage = tr("Run support for remote html projects not available");
+        return false;
+    } else {
+        //looks like a application without a launcher
+        m_localExecutable = target()->activeBuildConfiguration()->buildDirectory().toString()
+                + QDir::separator()
+                + QLatin1String("package")
+                + QDir::separator()
+                + command;
+
+        m_remoteExecutable = workingDirectory()
+                + QDir::separator()
+                + command;
+
     }
     return true;
 }

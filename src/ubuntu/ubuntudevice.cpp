@@ -8,8 +8,11 @@
 #include <coreplugin/messagemanager.h>
 #include <ssh/sshconnection.h>
 #include <utils/portlist.h>
+#include <utils/environment.h>
+#include <utils/qtcprocess.h>
 #include <QCoreApplication>
 #include <QDir>
+#include <QDebug>
 
 namespace Ubuntu {
 namespace Internal {
@@ -862,14 +865,44 @@ QVariantMap UbuntuDevice::toMap() const
     return map;
 }
 
+ProjectExplorer::DeviceProcess *UbuntuDevice::createProcess(QObject *parent) const
+{
+    return new UbuntuDeviceProcess(sharedFromThis(), parent);
+}
+
 UbuntuDevice::Ptr UbuntuDevice::sharedFromThis()
 {
     return qSharedPointerCast<UbuntuDevice>(LinuxDevice::sharedFromThis());
 }
 
+UbuntuDevice::ConstPtr UbuntuDevice::sharedFromThis() const
+{
+    return qSharedPointerCast<const UbuntuDevice>(LinuxDevice::sharedFromThis());
+}
+
 UbuntuDevice::Ptr UbuntuDevice::create(const QString &name, const QString& serial, ProjectExplorer::IDevice::MachineType machineType, ProjectExplorer::IDevice::Origin origin)
 {
     return Ptr(new UbuntuDevice(name,machineType,origin,Core::Id::fromSetting(serial)));
+}
+
+//////////////
+/// UbuntuDeviceProcess
+/////////////
+
+static QString quote(const QString &s) { return Utils::QtcProcess::quoteArgUnix(s); }
+
+UbuntuDeviceProcess::UbuntuDeviceProcess(const QSharedPointer<const ProjectExplorer::IDevice> &device, QObject *parent)
+    : RemoteLinux::LinuxDeviceProcess(device,parent)
+{
+    setRcFilesToSource(QStringList()
+                       << QLatin1String("/etc/profile")
+                       << QLatin1String("$HOME/.profile")
+                       << QLatin1String("$HOME/.bashrc"));
+}
+
+void UbuntuDeviceProcess::terminate()
+{
+    LinuxDeviceProcess::terminate();
 }
 
 } // namespace Internal

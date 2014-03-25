@@ -38,6 +38,7 @@ public:
     virtual QVariantMap toMap() const;
 
     static Core::Id typeId ();
+    void setArguments (const QStringList &args);
 
 protected:
     bool readDesktopFile (QString *errorMessage);

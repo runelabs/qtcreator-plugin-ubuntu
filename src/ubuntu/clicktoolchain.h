@@ -44,6 +44,7 @@ public:
     virtual ProjectExplorer::ToolChainConfigWidget *configurationWidget();
     virtual QVariantMap toMap() const;
 
+    QString gnutriplet () const;
     const UbuntuClickTool::Target &clickTarget () const;
 
 protected:
@@ -52,9 +53,6 @@ protected:
     ClickToolChain(const UbuntuClickTool::Target &target,Detection d);
     ClickToolChain(const ClickToolChain& other);
     ClickToolChain();
-
-private:
-    void fixAbi ();
 
 private:
     UbuntuClickTool::Target m_clickTarget;

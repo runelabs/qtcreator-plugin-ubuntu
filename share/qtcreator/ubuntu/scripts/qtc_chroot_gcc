@@ -17,9 +17,29 @@
 
 : ${CLICK_SDK_ARCH:?"Need to set CLICK_SDK_ARCH non-empty"}
 : ${CLICK_SDK_FRAMEWORK:?"Need to set CLICK_SDK_FRAMEWORK non-empty"}
-: ${CLICK_SDK_SERIES:?"Need to set CLICK_SDK_SERIES non-empty"}
+# : ${CLICK_SDK_SERIES:?"Need to set CLICK_SDK_SERIES non-empty"}
 
-export QT_SELECT=qt5:$ARCH
-/usr/bin/click chroot -a ${CLICK_SDK_ARCH} -f ${CLICK_SDK_FRAMEWORK} -s ${CLICK_SDK_SERIES} run gcc $@
+export QT_SELECT=qt5:${CLICK_SDK_ARCH}
+
+GCC_BIN=gcc
+if [[ ${CLICK_SDK_ARCH} == "armhf" ]]
+then
+    GCC_BIN='/usr/bin/arm-linux-gnueabihf-g++'
+
+elif [[ ${CLICK_SDK_ARCH} == "amd64" ]]
+then
+    GCC_BIN='/usr/bin/x86_64-linux-gnu-g++'
+
+elif [[ ${CLICK_SDK_ARCH} == "i386" ]]
+then
+    GCC_BIN='/usr/bin/g++'
+
+else
+    echo "Unknown architecture"
+    exit 1
+fi
+
+
+/usr/bin/click chroot -a ${CLICK_SDK_ARCH} -f ${CLICK_SDK_FRAMEWORK} run ${GCC_BIN} $@
 
 

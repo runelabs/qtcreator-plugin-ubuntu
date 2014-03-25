@@ -90,13 +90,6 @@ ProjectExplorer::RunControl *UbuntuRunControlFactory::create(ProjectExplorer::Ru
             params.solibSearchPath.append(rc->soLibSearchPaths());
             qDebug()<<"Solib search path : "<<params.solibSearchPath;
 
-            Debugger::DebuggerRunConfigurationAspect *aspect
-                    = rc->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-            if (aspect->useQmlDebugger()) {
-                params.qmlServerPort = 10002;
-                params.processArgs.append(QString::fromLatin1(" -qmljsdebugger=port:%1,block").arg(params.qmlServerPort));
-            }
-
             Debugger::DebuggerRunControl * const runControl
                     = Debugger::DebuggerPlugin::createDebugger(params, rc, errorMessage);
             if (!runControl)

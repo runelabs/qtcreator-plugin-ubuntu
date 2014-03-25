@@ -18,7 +18,7 @@
 
 : ${CLICK_SDK_ARCH:?"Need to set CLICK_SDK_ARCH non-empty"}
 : ${CLICK_SDK_FRAMEWORK:?"Need to set CLICK_SDK_FRAMEWORK non-empty"}
-: ${CLICK_SDK_SERIES:?"Need to set CLICK_SDK_SERIES non-empty"}
+# : ${CLICK_SDK_SERIES:?"Need to set CLICK_SDK_SERIES non-empty"}
 
 #architecture specific arguments
 ARCH_ARGS=
@@ -30,7 +30,7 @@ fi
 
 rm  -rf CMakeFiles  CMakeCache.txt  cmake_install.cmake  Makefile
 
-export QT_SELECT=qt5:$ARCH
+export QT_SELECT=qt5:$CLICK_SDK_ARCH
 /usr/bin/click chroot -a $CLICK_SDK_ARCH -f $CLICK_SDK_FRAMEWORK run cmake -DINSTALL_TESTS=off -DCLICK_MODE=on ${ARCH_ARGS} "$@"
 
 

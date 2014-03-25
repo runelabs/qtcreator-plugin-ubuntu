@@ -2,6 +2,7 @@
 #define UBUNTU_INTERNAL_UBUNTUDEVICE_H
 
 #include <remotelinux/linuxdevice.h>
+#include <remotelinux/linuxdeviceprocess.h>
 #include <coreplugin/id.h>
 #include <QProcess>
 
@@ -153,8 +154,10 @@ public:
     virtual ProjectExplorer::IDevice::Ptr clone() const;
     virtual void fromMap(const QVariantMap &map);
     virtual QVariantMap toMap() const;
+    virtual ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const;
 
     Ptr sharedFromThis ();
+    ConstPtr sharedFromThis() const;
 protected:
     UbuntuDevice();
     UbuntuDevice(const QString &name,MachineType machineType, Origin origin, Core::Id id);
@@ -173,6 +176,19 @@ private:
 
 private:
     UbuntuDevice &operator=(const UbuntuDevice &);
+};
+
+class UbuntuDeviceProcess : public RemoteLinux::LinuxDeviceProcess
+{
+    Q_OBJECT
+
+public:
+    explicit UbuntuDeviceProcess(const QSharedPointer<const ProjectExplorer::IDevice> &device,
+                                QObject *parent = 0);
+
+    // DeviceProcess interface
+public:
+    virtual void terminate();
 };
 
 } // namespace Internal

@@ -1,5 +1,6 @@
 #include "ubuntudeployconfiguration.h"
 #include "ubuntucmakebuildconfiguration.h"
+#include "ubuntucmakemakestep.h"
 #include "ubuntuconstants.h"
 
 #include <utils/qtcassert.h>
@@ -182,9 +183,8 @@ ProjectExplorer::DeployConfiguration *UbuntuDeployConfigurationFactory::create(P
 
     int step = 0;
     if(parent->project()->id() == Core::Id(CMakeProjectManager::Constants::CMAKEPROJECT_ID)){
-        UbuntuCMakeMakeStep* mkStep = new UbuntuCMakeMakeStep(dc->stepList());
+        UbuntuCMakeDeployStep* mkStep = new UbuntuCMakeDeployStep(dc->stepList());
         mkStep->setUseNinja(false);
-        mkStep->setAdditionalArguments(QLatin1String("DESTDIR=package install"));
         dc->stepList()->insertStep(0, mkStep);
         step++;
     }

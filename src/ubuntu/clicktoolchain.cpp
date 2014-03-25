@@ -34,16 +34,32 @@ QLatin1String UBUNTU_TARGET_SERIES_KEY = QLatin1String("Ubuntu.ClickToolChain.Ta
 QLatin1String UBUNTU_TARGET_MINOR_KEY = QLatin1String("Ubuntu.ClickToolChain.Target.MinorV");
 QLatin1String UBUNTU_TARGET_MAJOR_KEY = QLatin1String("Ubuntu.ClickToolChain.Target.MajorV");
 
-static QMap <QString,ProjectExplorer::Abi::Architecture> init_architectures()
+#if 1
+static QMap <QString,ProjectExplorer::Abi> init_architectures()
 {
-    QMap<QString,ProjectExplorer::Abi::Architecture> map;
-    map.insert(QLatin1String("armhf")  ,ProjectExplorer::Abi::ArmArchitecture);
-    map.insert(QLatin1String("i386") ,ProjectExplorer::Abi::X86Architecture);
-    map.insert(QLatin1String("amd64"),ProjectExplorer::Abi::X86Architecture);
+    QMap<QString,ProjectExplorer::Abi> map;
+    map.insert(QLatin1String("armhf") , ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture,
+                                                             ProjectExplorer::Abi::LinuxOS,
+                                                             ProjectExplorer::Abi::GenericLinuxFlavor,
+                                                             ProjectExplorer::Abi::ElfFormat,
+                                                             32));
+
+    map.insert(QLatin1String("i386") ,ProjectExplorer::Abi(ProjectExplorer::Abi::X86Architecture,
+                                                           ProjectExplorer::Abi::LinuxOS,
+                                                           ProjectExplorer::Abi::GenericLinuxFlavor,
+                                                           ProjectExplorer::Abi::ElfFormat,
+                                                           32));
+
+    map.insert(QLatin1String("amd64"),ProjectExplorer::Abi(ProjectExplorer::Abi::X86Architecture,
+                                                           ProjectExplorer::Abi::LinuxOS,
+                                                           ProjectExplorer::Abi::GenericLinuxFlavor,
+                                                           ProjectExplorer::Abi::ElfFormat,
+                                                           64));
     return map;
 }
 
-QMap <QString,ProjectExplorer::Abi::Architecture> clickArchitectures = init_architectures();
+QMap <QString,ProjectExplorer::Abi> clickArchitectures = init_architectures();
+#endif
 
 
 QList<Utils::FileName> ClickToolChain::suggestedMkspecList() const
@@ -117,6 +133,26 @@ QVariantMap ClickToolChain::toMap() const
     return map;
 }
 
+QString ClickToolChain::gnutriplet() const
+{
+    switch(targetAbi().architecture()) {
+        case ProjectExplorer::Abi::ArmArchitecture:
+            return QLatin1String("arm-linux-gnueabihf");
+            break;
+        case ProjectExplorer::Abi::X86Architecture:
+            switch(targetAbi().wordWidth())
+            {
+                case 32:
+                    return QLatin1String("i386-linux-gnu");
+                case 64:
+                    return QLatin1String("x86_64-linux-gnu");
+            }
+            break;
+        default:
+            Q_ASSERT_X(false,Q_FUNC_INFO,"Unknown Target architecture");
+    }
+}
+
 bool ClickToolChain::fromMap(const QVariantMap &data)
 {
     if(!GccToolChain::fromMap(data))
@@ -137,9 +173,6 @@ bool ClickToolChain::fromMap(const QVariantMap &data)
 
     //only valid click targets are used for Kit creation
     m_clickTarget.maybeBroken  = false;
-
-    fixAbi();
-
     return isValid();
 }
 
@@ -155,7 +188,7 @@ ClickToolChain::ClickToolChain(const UbuntuClickTool::Target &target, Detection 
     setCompilerCommand(Utils::FileName::fromString(
                            QString::fromLatin1(Constants::UBUNTU_CLICK_GCC_WRAPPER)
                            .arg(Constants::UBUNTU_SCRIPTPATH)));
-    fixAbi();
+
     setDisplayName(QString::fromLatin1("Ubuntu GCC (%1-%2-%3)")
                    .arg(ProjectExplorer::Abi::toString(targetAbi().architecture()))
                    .arg(target.framework)
@@ -166,26 +199,11 @@ ClickToolChain::ClickToolChain(const ClickToolChain &other)
     : GccToolChain(other)
     , m_clickTarget(other.m_clickTarget)
 {
-    fixAbi();
 }
 
 ClickToolChain::ClickToolChain()
     : GccToolChain(QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID),ManualDetection)
 {
-}
-
-/*!
- * \brief ClickToolChain::fixAbi
- * fixes the internal abi, we just point to a script
- * executing gcc
- */
-void ClickToolChain::fixAbi()
-{
-    ProjectExplorer::Abi abi = ProjectExplorer::Abi(clickArchitectures[m_clickTarget.architecture], ProjectExplorer::Abi::LinuxOS,
-            ProjectExplorer::Abi::GenericLinuxFlavor, ProjectExplorer::Abi::ElfFormat,
-            32);
-
-    setTargetAbi(abi);
 }
 
 ClickToolChainFactory::ClickToolChainFactory()

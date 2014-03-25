@@ -84,7 +84,8 @@ SOURCES += \
     ubuntudevice.cpp \
     ubuntudeviceconfigurationwidget.cpp \
     ubuntudeployconfiguration.cpp \
-    ubunturemoterunconfiguration.cpp
+    ubunturemoterunconfiguration.cpp \
+    ubuntucmakemakestep.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -141,5 +142,6 @@ HEADERS += \
     ubuntudevice.h \
     ubuntudeviceconfigurationwidget.h \
     ubuntudeployconfiguration.h \
-    ubunturemoterunconfiguration.h
+    ubunturemoterunconfiguration.h \
+    ubuntucmakemakestep.h
 
