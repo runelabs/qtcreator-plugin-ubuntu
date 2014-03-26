@@ -1,6 +1,7 @@
 [ScopeConfig]
 DisplayName = %DISPLAYNAME_CAPITAL% Scope
 Description = This is a %DISPLAYNAME_CAPITAL% scope
+Author = %BZR_USERNAME%
 Art = %DISPLAYNAME%scope.Art
 Icon = %DISPLAYNAME%scope.Icon
 SearchHint = %DISPLAYNAME%scope.SearchHint
