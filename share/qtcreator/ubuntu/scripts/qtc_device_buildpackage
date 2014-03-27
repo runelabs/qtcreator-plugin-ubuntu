@@ -15,6 +15,7 @@
 #
 # Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
 
+SCRIPTPATH=$(dirname $0)
 DEBEMAIL=`grep -G "^DEBEMAIL" ~/.bashrc`
 DEBFULLNAME=`grep -G "^DEBFULLNAME" ~/.bashrc`
 
@@ -61,8 +62,15 @@ if [[ -z ${TARGET_DEVICE_HOME} ]]; then
   TARGET_DEVICE_HOME=/home/phablet/dev_tmp
 fi
 
+SSH_CRED="ssh -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p${TARGET_DEVICE_PORT}"
 SCP="scp -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P${TARGET_DEVICE_PORT}"
-SSH="ssh -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p${TARGET_DEVICE_PORT} ${TARGET_DEVICE}"
+SSH="${SSH_CRED} ${TARGET_DEVICE}"
+RSYNC="rsync --delete -avzP -e"
+
+DEV_PROJECT_DIR="${TARGET_DEVICE_HOME}/${FOLDERNAME}"
+CMAKE_BUILDDIR="build-${FOLDERNAME}-device"
+
+echo "Rsync command: ${RSYNC} ${FOLDERNAME} ${TARGET_DEVICE}:${DEV_PROJECT_DIR}/src"
 
 pushd "${FOLDERNAME}"
  set +e
@@ -71,45 +79,78 @@ pushd "${FOLDERNAME}"
  fi
  set -e
 popd
-tar -cjf "${FOLDERNAME}.tar.bz2" "${FOLDERNAME}"
 
-# remove old files
-if [[ ! -z ${TARGET_DEVICE_HOME} ]]; then
-$SSH rm -rf ${TARGET_DEVICE_HOME}/*
+if [[ ! -e "${FOLDERNAME}/CMakeLists.txt" ]]; then
+  tar -cjf "${FOLDERNAME}.tar.bz2" "${FOLDERNAME}"
+
+  # remove old files
+  if [[ ! -z ${TARGET_DEVICE_HOME} ]]; then
+    $SSH rm -rf ${TARGET_DEVICE_HOME}/*
+  fi
+
+  # make sure that the device has the target directory
+  $SSH mkdir -p ${TARGET_DEVICE_HOME}
+
+  $SCP "${FOLDERNAME}.tar.bz2" ${TARGET_DEVICE}:${TARGET_DEVICE_HOME}
+  $SSH "cd ${TARGET_DEVICE_HOME}; tar -xvf ${FOLDERNAME}.tar.bz2"
+else
+
+  # make sure that the device has the target directory
+  $SSH mkdir -p ${DEV_PROJECT_DIR}
+
+  $RSYNC "${SSH_CRED}" ${FOLDERNAME}/ ${TARGET_DEVICE}:${DEV_PROJECT_DIR}/src
 fi
-
-# make sure that the device has the target directory
-$SSH mkdir -p ${TARGET_DEVICE_HOME}
-
-$SCP "${FOLDERNAME}.tar.bz2" ${TARGET_DEVICE}:${TARGET_DEVICE_HOME}
-$SSH "cd ${TARGET_DEVICE_HOME}; tar -xvf ${FOLDERNAME}.tar.bz2"
 
 if [[ -d "${FOLDERNAME}/debian" ]]; then
   echo "Packaging already exists for project."
   $SSH "cd ${TARGET_DEVICE_HOME}/${FOLDERNAME}; debuild --no-tgz-check -i -I -S -sa -us -uc"
 else
-  $SSH "cd ${TARGET_DEVICE_HOME}/${FOLDERNAME}; dh_make -p ${FOLDERNAME}_0.1 -s -y --createorig"
-  if [[ $? -gt 0 ]]; then
-    echo "Have you enabled Platform Development Mode? (Devices > Advanced)"
-    exit
+  if [[ -e "${FOLDERNAME}/CMakeLists.txt" ]]; then
+    $SSH "cd ${DEV_PROJECT_DIR}; mkdir ${CMAKE_BUILDDIR}; cd ${CMAKE_BUILDDIR}; cmake -DCLICK_MODE=1 ../src"  
+    if [[ $? -gt 0 ]]; then
+      echo "Have you enabled Platform Development Mode? (Devices > Advanced)"
+      exit
+    fi
+    $SSH "cd ${DEV_PROJECT_DIR}/${CMAKE_BUILDDIR}; make && make DESTDIR=package install"  
+    if [[ $? -gt 0 ]]; then
+      exit
+    fi
+
+    echo "Transferring files from device to host.."
+    $RSYNC "${SSH_CRED}" ${TARGET_DEVICE}:${DEV_PROJECT_DIR}/${CMAKE_BUILDDIR}/ ${FOLDERNAME}/../build-${FOLDERNAME}-device 
+
+    echo "Building package"
+    pushd "${CMAKE_BUILDDIR}/package"
+    ${SCRIPTPATH}/qtc_fix_desktop_comment $(${SCRIPTPATH}/qtc_find_desktopfile ${FOLDERNAME})
+    popd
+
+    pushd "${CMAKE_BUILDDIR}"
+    click build "package"
+    popd
+  else
+    $SSH "cd ${TARGET_DEVICE_HOME}/${FOLDERNAME}; dh_make -p ${FOLDERNAME}_0.1 -s -y --createorig"
+    if [[ $? -gt 0 ]]; then
+      echo "Have you enabled Platform Development Mode? (Devices > Advanced)"
+      exit
+    fi
+    $SSH "cd ${TARGET_DEVICE_HOME}/${FOLDERNAME}; debuild -i -I -S -sa -us -uc"
+	
+    MISSING_DEPENDENCIES=`$SSH "cd ${TARGET_DEVICE_HOME}/${FOLDERNAME}; dpkg-checkbuilddeps 2>&1|sed 's/dpkg-checkbuilddeps: Unmet build dependencies://'"`
+
+    adb_shell apt-get --assume-yes install ${MISSING_DEPENDENCIES}
+
+    $SSH "cd ${TARGET_DEVICE_HOME}/${FOLDERNAME}; dpkg-buildpackage -us -uc -nc"
+
+    echo "Transferring files from device to host.."
+    FILES=`$SSH "cd ${TARGET_DEVICE_HOME}; ls -1|grep -v ${FOLDERNAME}.tar.bz2|grep -v ${FOLDERNAME}$"`
+    echo $FILES | tr ' ' '\n' | xargs -I FILE $SCP ${TARGET_DEVICE}:${TARGET_DEVICE_HOME}/FILE .
+    echo "..transfer complete!"
+    echo
+    echo "Transferred following files: "
+    echo $FILES | tr ' ' '\n'
+    echo
+    echo "@ $PWD"
+    echo
+    adb_shell apt-get --assume-yes remove ${MISSING_DEPENDENCIES}
   fi
-  $SSH "cd ${TARGET_DEVICE_HOME}/${FOLDERNAME}; debuild -i -I -S -sa -us -uc"
 fi
-
-MISSING_DEPENDENCIES=`$SSH "cd ${TARGET_DEVICE_HOME}/${FOLDERNAME}; dpkg-checkbuilddeps 2>&1|sed 's/dpkg-checkbuilddeps: Unmet build dependencies://'"`
-
-adb_shell apt-get --assume-yes install ${MISSING_DEPENDENCIES}
-
-$SSH "cd ${TARGET_DEVICE_HOME}/${FOLDERNAME}; dpkg-buildpackage -us -uc -nc"
-
-echo "Transferring files from device to host.."
-FILES=`$SSH "cd ${TARGET_DEVICE_HOME}; ls -1|grep -v ${FOLDERNAME}.tar.bz2|grep -v ${FOLDERNAME}$"`
-echo $FILES | tr ' ' '\n' | xargs -I FILE $SCP ${TARGET_DEVICE}:${TARGET_DEVICE_HOME}/FILE .
-echo "..transfer complete!"
-echo
-echo "Transferred following files: "
-echo $FILES | tr ' ' '\n'
-echo
-echo "@ $PWD"
-echo
-adb_shell apt-get --assume-yes remove ${MISSING_DEPENDENCIES}

@@ -1,11 +1,15 @@
-qtcreator-plugin-ubuntu (3.0.1-0ubuntu5) UNRELEASED; urgency=medium
+qtcreator-plugin-ubuntu (3.0.1+14.04.20140324.1-0ubuntu1) trusty; urgency=medium
 
   [ Zoltán Balogh ]
   * New Unity scope template
   * Forced clean up before running cmake
   * Remove redundant file listing from HTML5 template (LP: #1289870)
+  * Remove redindant file listing from HTML5 template (LP: #1289870)
+    (LP: #1289870)
 
   [ Benjamin Zeller ]
+  * Use Rsync to upload source to the device
+  * Automatically create click package after build on device
   * Switch to framework ubuntu-sdk-14.04
   * Adds combobox for selecting the framework in publish tab
   * Remove Series from the scripts
@@ -19,7 +23,20 @@ qtcreator-plugin-ubuntu (3.0.1-0ubuntu5) UNRELEASED; urgency=medium
   * Pass user arguments to cmake running in the chroot (LP: #1292892)
 
   
- -- Zoltán Balogh <zoltan@bakter.hu>  Tue, 18 Mar 2014 10:38:16 +0200
+  * Pass user arguments to cmake running in the chroot (LP: #1292892)
+    (LP: #1292892)
+  * enable menu item to build on device
+  * Removed libqt5v8-5-dev from device developertools
+  * Use Rsync to upload source to the device. Automatically create click
+    package after build.
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+  [ CI bot ]
+  * Join to the CI Train
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 24 Mar 2014 08:57:44 +0000
 
 qtcreator-plugin-ubuntu (3.0.1-0ubuntu4) trusty; urgency=medium
 
