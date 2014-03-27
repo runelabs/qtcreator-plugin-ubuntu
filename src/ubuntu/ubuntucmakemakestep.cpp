@@ -55,7 +55,7 @@ QString UbuntuCMakeMakeStepFactory::displayNameForId(const Core::Id id) const
     if (id == Constants::UBUNTU_CLICK_CMAKE_MAKESTEP_ID)
         return tr("UbuntuSDK-Make", "Display name for UbuntuCMakeMakeStep id.");
     if (id == Constants::UBUNTU_DEPLOY_MAKESTEP_ID)
-        return tr("UbuntuSDK prepare deployment", "Display name for UbuntuCMakeMakeStep id.");
+        return tr("UbuntuSDK prepare deployment", "Display name for UbuntuCMakeDeployStep id.");
     return QString();
 }
 

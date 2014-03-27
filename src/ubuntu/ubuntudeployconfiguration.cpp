@@ -53,7 +53,7 @@ ProjectExplorer::BuildStepConfigWidget *UbuntuDirectUploadStep::createConfigWidg
 bool UbuntuDirectUploadStep::initInternal(QString *error)
 {
     projectNameChanged();
-    m_deployService->setIncrementalDeployment(false);
+    m_deployService->setIncrementalDeployment(true);
     m_deployService->setIgnoreMissingFiles(false);
     return deployService()->isDeploymentPossible(error);
 }
@@ -231,9 +231,7 @@ QList<Core::Id> UbuntuDeployStepFactory::availableCreationIds(ProjectExplorer::B
     if(!canHandle(parent->target()))
         return QList<Core::Id>();
     return QList<Core::Id>()
-            <<Constants::UBUNTU_DEPLOY_UPLOADSTEP_ID
-           <<Constants::UBUNTU_CLICK_CMAKE_MAKESTEP_ID;
-    //<<RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep::stepId();
+            <<Constants::UBUNTU_DEPLOY_UPLOADSTEP_ID;
 }
 
 QString UbuntuDeployStepFactory::displayNameForId(const Core::Id id) const
@@ -242,8 +240,6 @@ QString UbuntuDeployStepFactory::displayNameForId(const Core::Id id) const
         return UbuntuDirectUploadStep::displayName();
     else if(id == RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep::stepId())
         return RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep::stepDisplayName();
-    else if(id == Constants::UBUNTU_CLICK_CMAKE_MAKESTEP_ID)
-        return tr("Make Package Step");
 
     return QString();
 }
@@ -265,12 +261,6 @@ ProjectExplorer::BuildStep *UbuntuDeployStepFactory::create(ProjectExplorer::Bui
         return new UbuntuDirectUploadStep(parent);
     else if(id == RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep::stepId())
         return new RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep(parent,id);
-    else if(id == Constants::UBUNTU_CLICK_CMAKE_MAKESTEP_ID) {
-        UbuntuCMakeMakeStep* mkStep = new UbuntuCMakeMakeStep(parent);
-        mkStep->setUseNinja(false);
-        mkStep->setAdditionalArguments(QLatin1String("DESTDIR=package install"));
-        return mkStep;
-    }
     return 0;
 }
 
@@ -310,9 +300,6 @@ ProjectExplorer::BuildStep *UbuntuDeployStepFactory::clone(ProjectExplorer::Buil
     else if(id == RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep::stepId())
         return new RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep(parent
                                                                      ,static_cast<RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep *>(product));
-    else if(id == Constants::UBUNTU_CLICK_CMAKE_MAKESTEP_ID) {
-        return new UbuntuCMakeMakeStep(parent, static_cast<UbuntuCMakeMakeStep *>(product));
-    }
     return 0;
 }
 
