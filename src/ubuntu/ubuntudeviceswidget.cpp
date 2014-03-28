@@ -250,6 +250,12 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
                 if (lineData.count() == 2) {
                     QString sSerialNumber = lineData.takeFirst();
                     QString sDeviceInfo = lineData.takeFirst();
+
+                    //sometimes the adb server is not started when adb devices is
+                    //executed, we just skip those lines
+                    if(sSerialNumber == QLatin1String("*"))
+                        continue;
+
                     ui->comboBoxSerialNumber->addItem(sSerialNumber.trimmed(),sDeviceInfo);
                 }
             }
