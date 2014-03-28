@@ -30,13 +30,15 @@ public:
     ~UbuntuPackagingWidget();
 
     bool reviewToolsInstalled ();
+    UbuntuClickManifest *manifest ();
+    UbuntuClickManifest *appArmor ();
 public slots:
     void autoSave();
     void reload();
     void load_manifest(QString fileName);
     void load_apparmor(QString fileAppArmorName);
     void save(bool bSaveSimple = true);
-    void openManifestForProject();
+    bool openManifestForProject();
     void setAvailable(bool);
     void load_excludes(QString excludesFile = QLatin1String(""));
     void save_excludes();
@@ -66,6 +68,9 @@ protected slots:
 
 signals:
     void reviewToolsInstalledChanged(const bool& installed);
+
+private slots:
+    void on_comboBoxFramework_currentIndexChanged(int index);
 
 private:
     bool m_reviewToolsInstalled;

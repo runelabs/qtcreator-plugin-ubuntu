@@ -41,12 +41,12 @@ do
     fi
 done
 
-click chroot -a $ARCHITECTURE -f $FRAMEWORK -s $SERIES create
+click chroot -a $ARCHITECTURE -f $FRAMEWORK create
 if [ $? -eq 0 ]
 then
     echo "The click target was created successfully, installing required packages"
 
-    click chroot -a $ARCHITECTURE -f $FRAMEWORK -s $SERIES maint apt-get install -y cmake
+    click chroot -a $ARCHITECTURE -f $FRAMEWORK maint apt-get install -y cmake
 
     exit 0
 fi
