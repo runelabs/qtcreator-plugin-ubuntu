@@ -28,6 +28,8 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QDesktopServices>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 
 using namespace Ubuntu;
 
@@ -235,12 +237,27 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
                 continue;
             }
 
-            QStringList lineData = line.split(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_ADB_SEPARATOR));
+            QRegularExpression exp(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_ADB_REGEX));
+            QRegularExpressionMatch match = exp.match(line);
 
-            if (lineData.count() == 2) {
-                QString sSerialNumber = lineData.takeFirst();
-                QString sDeviceInfo = lineData.takeFirst();
-                ui->comboBoxSerialNumber->addItem(sSerialNumber.trimmed(),sDeviceInfo);
+            if(match.hasMatch()) {
+                QStringList lineData = match.capturedTexts();
+
+                //The first entry is always the full match
+                //which means in our case its the complete string
+                lineData.takeFirst();
+
+                if (lineData.count() == 2) {
+                    QString sSerialNumber = lineData.takeFirst();
+                    QString sDeviceInfo = lineData.takeFirst();
+
+                    //sometimes the adb server is not started when adb devices is
+                    //executed, we just skip those lines
+                    if(sSerialNumber == QLatin1String("*"))
+                        continue;
+
+                    ui->comboBoxSerialNumber->addItem(sSerialNumber.trimmed(),sDeviceInfo);
+                }
             }
         }
         ui->comboBoxSerialNumber->setEnabled(true);

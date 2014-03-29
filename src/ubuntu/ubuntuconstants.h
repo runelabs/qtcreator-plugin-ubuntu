@@ -44,7 +44,7 @@ const char UBUNTUDEVICESWIDGET_ACTION_BEGIN[] = "<p style=\"color: #888\">%0</p>
 const char UBUNTUDEVICESWIDGET_ACTION_END[] = "<p style=\"color: #888\">%0</p>";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_SCRIPT_DEVICESEARCH[] = "%0/device_search";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_LOCAL_NO_EMULATOR_INSTALLED[] = "The package is not installed.";
-const char UBUNTUDEVICESWIDGET_ONFINISHED_ADB_SEPARATOR[] = "       ";
+const char UBUNTUDEVICESWIDGET_ONFINISHED_ADB_REGEX[] = "(\\S+)\\s+(.*)";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_ADB_NOACCESS[] = "???";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_NO_DEVICE[] = " * there is no device connected.";
 const char UBUNTUDEVICESWIDGET_ONFINISHED_FOUND_DEVICES[] = " * found %0 devices.";
