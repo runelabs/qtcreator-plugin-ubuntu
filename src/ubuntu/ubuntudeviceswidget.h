@@ -80,6 +80,7 @@ private:
     void endAction(QString);
     int  addDevice(Ubuntu::Internal::UbuntuDevice* dev);
     void removeDevice(Ubuntu::Internal::UbuntuDevice* dev);
+    void registerNewDevice (const QString &serial, const QString &deviceInfo);
 
     QMap<int,Ubuntu::Internal::UbuntuDevice::Ptr> m_knownDevices;
 

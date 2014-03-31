@@ -194,7 +194,7 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
             ui->listWidget_EmulatorImages->addItem(item);
             ui->listWidget_EmulatorImages->setCurrentItem(item);
         }
-        detectDevices();
+        //detectDevices();
     }
     if (cmd == QString::fromLatin1(Constants::UBUNTUWIDGETS_ONFINISHED_SCRIPT_LOCAL_PACKAGE_INSTALLED).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
         QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
@@ -207,7 +207,7 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
             if (line.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_LOCAL_NO_EMULATOR_INSTALLED))) {
                 ui->label_InstallEmulatorStatus->hide();
                 ui->pushButton_InstallEmulator_OK->setEnabled(true);
-                detectDevices();
+                //detectDevices();
             } else {
                 QStringList lineData = line.split(QLatin1String(Constants::SPACE));
                 QString sEmulatorPackageStatus = lineData.takeFirst();
@@ -283,20 +283,7 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
                         continue;
                     }
 
-                    if(!m_knownDevices.contains(Core::Id::fromSetting(sSerialNumber).uniqueIdentifier())) {
-
-                        bool isEmu = sSerialNumber.startsWith(QLatin1String("emulator"));
-
-                        Ubuntu::Internal::UbuntuDevice::Ptr dev = Ubuntu::Internal::UbuntuDevice::create(
-                                    tr("Ubuntu Device")
-                                    , sSerialNumber
-                                    , isEmu ? ProjectExplorer::IDevice::Emulator : ProjectExplorer::IDevice::Hardware
-                                    , ProjectExplorer::IDevice::AutoDetected);
-
-
-                        dev->setDeviceInfoString(sDeviceInfo);
-                        ProjectExplorer::DeviceManager::instance()->addDevice(dev);
-                    }
+                    registerNewDevice(sSerialNumber,sDeviceInfo);
                 }
             }
         }
@@ -414,8 +401,6 @@ void UbuntuDevicesWidget::deviceUpdated(const Core::Id &id)
     Ubuntu::Internal::UbuntuDevice::Ptr dev = m_knownDevices[id.uniqueIdentifier()];
     if(dev->deviceState() == ProjectExplorer::IDevice::DeviceConnected
             || dev->deviceState() == ProjectExplorer::IDevice::DeviceReadyToUse) {
-
-        qDebug()<<"Trying to add device "<<id.toString()<<" Because its in connected state";
         addDevice(dev.data());
     } else {
         removeDevice(dev.data());
@@ -568,6 +553,11 @@ void UbuntuDevicesWidget::onDeviceConnected(const QString &id) {
     if(m_knownDevices.contains(qtcid.uniqueIdentifier()))
         return;
 
+    registerNewDevice(id,QString());
+    //this would normally trigger device detection, which kills adb
+    //but we already know a new device is connected so there is no
+    //need to mess with adb
+#if 0
     m_reply.clear();
 
     ui->plainTextEdit->clear();
@@ -578,6 +568,7 @@ void UbuntuDevicesWidget::onDeviceConnected(const QString &id) {
     ui->frameProgress->show();
     ui->lblLoading->show();
     detectDevices();
+#endif
 }
 
 
@@ -615,6 +606,8 @@ int UbuntuDevicesWidget::addDevice(Internal::UbuntuDevice *dev)
     if(idx >= 0)
         return idx;
 
+    qDebug()<<"Show device "<<dev->id().toString()<<" Because its in connected state";
+
     if(dev->deviceState() == ProjectExplorer::IDevice::DeviceConnected
             || dev->deviceState() == ProjectExplorer::IDevice::DeviceReadyToUse) {
         ui->comboBoxSerialNumber->addItem(dev->id().toSetting().toString(),dev->id().uniqueIdentifier());
@@ -644,4 +637,30 @@ void UbuntuDevicesWidget::removeDevice(Internal::UbuntuDevice *dev)
     ui->comboBoxSerialNumber->removeItem(idx);
 
     setupDevicePage();
+}
+
+/*!
+ * \brief UbuntuDevicesWidget::registerNewDevice
+ * Registers a new device in the device manager if its not
+ * already in the known devices map.
+ * \note will not add it into the devices dropdown box, this
+ *       will happen automatically when the device switches to
+ *       connected state
+ */
+void UbuntuDevicesWidget::registerNewDevice(const QString &serial, const QString &deviceInfo)
+{
+    if(!m_knownDevices.contains(Core::Id::fromSetting(serial).uniqueIdentifier())) {
+
+        bool isEmu = serial.startsWith(QLatin1String("emulator"));
+
+        Ubuntu::Internal::UbuntuDevice::Ptr dev = Ubuntu::Internal::UbuntuDevice::create(
+                    tr("Ubuntu Device")
+                    , serial
+                    , isEmu ? ProjectExplorer::IDevice::Emulator : ProjectExplorer::IDevice::Hardware
+                    , ProjectExplorer::IDevice::AutoDetected);
+
+
+        dev->setDeviceInfoString(deviceInfo);
+        ProjectExplorer::DeviceManager::instance()->addDevice(dev);
+    }
 }
