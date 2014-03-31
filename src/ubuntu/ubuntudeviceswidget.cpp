@@ -31,6 +31,8 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QDesktopServices>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 
 using namespace Ubuntu;
 
@@ -258,26 +260,40 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
                 continue;
             }
 
-            QStringList lineData = line.split(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_ADB_SEPARATOR));
+            QRegularExpression exp(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_ADB_REGEX));
+            QRegularExpressionMatch match = exp.match(line);
 
-            if (lineData.count() == 2) {
-                QString sSerialNumber = lineData.takeFirst().trimmed();
-                QString sDeviceInfo = lineData.takeFirst();
+            if(match.hasMatch()) {
+                QStringList lineData = match.capturedTexts();
 
-                if(sSerialNumber.isEmpty() || sSerialNumber.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_ADB_NOACCESS))) {
-                    continue;
-                }
+                //The first entry is always the full match
+                //which means in our case its the complete string
+                lineData.takeFirst();
 
-                if(!m_knownDevices.contains(Core::Id::fromSetting(sSerialNumber).uniqueIdentifier())) {
-                    Ubuntu::Internal::UbuntuDevice::Ptr dev = Ubuntu::Internal::UbuntuDevice::create(
-                                tr("Ubuntu Device")
-                                , sSerialNumber
-                                , ProjectExplorer::IDevice::Hardware
-                                , ProjectExplorer::IDevice::AutoDetected);
+                if (lineData.count() == 2) {
+                    QString sSerialNumber = lineData.takeFirst();
+                    QString sDeviceInfo = lineData.takeFirst();
+
+                    //sometimes the adb server is not started when adb devices is
+                    //executed, we just skip those lines
+                    if(sSerialNumber == QLatin1String("*"))
+                        continue;
+
+                    if(sSerialNumber.isEmpty() || sSerialNumber.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_ADB_NOACCESS))) {
+                        continue;
+                    }
+
+                    if(!m_knownDevices.contains(Core::Id::fromSetting(sSerialNumber).uniqueIdentifier())) {
+                        Ubuntu::Internal::UbuntuDevice::Ptr dev = Ubuntu::Internal::UbuntuDevice::create(
+                                    tr("Ubuntu Device")
+                                    , sSerialNumber
+                                    , ProjectExplorer::IDevice::Hardware
+                                    , ProjectExplorer::IDevice::AutoDetected);
 
 
-                    dev->setDeviceInfoString(sDeviceInfo);
-                    ProjectExplorer::DeviceManager::instance()->addDevice(dev);
+                        dev->setDeviceInfoString(sDeviceInfo);
+                        ProjectExplorer::DeviceManager::instance()->addDevice(dev);
+                    }
                 }
             }
         }
