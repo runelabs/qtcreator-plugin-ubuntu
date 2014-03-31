@@ -86,7 +86,8 @@ SOURCES += \
     ubuntudeployconfiguration.cpp \
     ubunturemoterunconfiguration.cpp \
     ubuntucmakemakestep.cpp \
-    ubuntuemulatornotifier.cpp
+    ubuntuemulatornotifier.cpp \
+    localportsmanager.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -145,5 +146,6 @@ HEADERS += \
     ubuntudeployconfiguration.h \
     ubunturemoterunconfiguration.h \
     ubuntucmakemakestep.h \
-    ubuntuemulatornotifier.h
+    ubuntuemulatornotifier.h \
+    localportsmanager.h
 

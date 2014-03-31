@@ -29,6 +29,7 @@
 #include "clicktoolchain.h"
 #include "ubuntucmakebuildconfiguration.h"
 #include "ubuntudeployconfiguration.h"
+#include "localportsmanager.h"
 
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -145,6 +146,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
     //ubuntu device support
     addAutoReleasedObject(new UbuntuDeviceFactory);
+    addAutoReleasedObject(new UbuntuLocalPortsManager);
 
     //deploy support
     addAutoReleasedObject(new UbuntuDeployConfigurationFactory);

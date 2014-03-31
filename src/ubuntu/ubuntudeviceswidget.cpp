@@ -284,10 +284,13 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
                     }
 
                     if(!m_knownDevices.contains(Core::Id::fromSetting(sSerialNumber).uniqueIdentifier())) {
+
+                        bool isEmu = sSerialNumber.startsWith(QLatin1String("emulator"));
+
                         Ubuntu::Internal::UbuntuDevice::Ptr dev = Ubuntu::Internal::UbuntuDevice::create(
                                     tr("Ubuntu Device")
                                     , sSerialNumber
-                                    , ProjectExplorer::IDevice::Hardware
+                                    , isEmu ? ProjectExplorer::IDevice::Emulator : ProjectExplorer::IDevice::Hardware
                                     , ProjectExplorer::IDevice::AutoDetected);
 
 

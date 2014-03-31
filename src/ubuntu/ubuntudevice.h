@@ -4,6 +4,7 @@
 #include <remotelinux/linuxdevice.h>
 #include <remotelinux/linuxdeviceprocess.h>
 #include <coreplugin/id.h>
+#include <utils/portlist.h>
 #include <QProcess>
 
 class IUbuntuDeviceNotifier;
@@ -68,7 +69,6 @@ protected slots:
     void processFinished (const QString&, const int code);
     void deviceConnected ();
     void deviceDisconnected ();
-    void toGeneralMessages (const QString &msg) const;
 
 protected:
     void stopProcess ();
@@ -176,6 +176,7 @@ private:
     FeatureState    m_hasDeveloperTools;
     ProcessState    m_processState;
     QString         m_deviceInfoString;
+    Utils::PortList m_localForwardedPorts;
 
 private:
     UbuntuDevice &operator=(const UbuntuDevice &);

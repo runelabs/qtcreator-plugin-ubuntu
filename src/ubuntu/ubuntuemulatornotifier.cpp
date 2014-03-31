@@ -69,6 +69,8 @@ void UbuntuEmulatorNotifier::pollProcessFinished(int exitCode, QProcess::ExitSta
                 m_lastState = newState;
                 if(isConnected() && !wasConnected)
                     emit deviceConnected();
+                else if(!isConnected() && wasConnected)
+                    emit deviceDisconnected();
             }
         }
 

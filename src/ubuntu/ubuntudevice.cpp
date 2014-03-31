@@ -4,6 +4,7 @@
 #include "ubuntuprocess.h"
 #include "ubuntuconstants.h"
 #include "ubuntudeviceconfigurationwidget.h"
+#include "localportsmanager.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <coreplugin/messagemanager.h>
@@ -37,8 +38,6 @@ UbuntuDeviceHelper::UbuntuDeviceHelper(UbuntuDevice *dev)
     connect(m_process,SIGNAL(message(QString)),this,SLOT(onMessage(QString)));
     connect(m_process,SIGNAL(error(QString)),this,SLOT(onError(QString)));
 #endif
-    connect(this,SIGNAL(message(QString)),this,SLOT(toGeneralMessages(QString)));
-
     resetToDefaults();
 }
 
@@ -94,8 +93,6 @@ void UbuntuDeviceHelper::init()
 void UbuntuDeviceHelper::processFinished(const QString &, const int code)
 {
     Q_UNUSED(code)
-
-    //qDebug()<<"Reply for Command "<<command<<"is: "<<m_reply;
 
     switch(m_dev->m_processState) {
         case UbuntuDevice::DetectDeviceVersion:{
@@ -248,7 +245,6 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
 }
 
 void UbuntuDeviceHelper::onMessage(const QString &msg) {
-    //qDebug()<<"Received msg "<<msg;
     m_reply.append(msg);
     addToLog(msg);
 }
@@ -268,7 +264,6 @@ void UbuntuDeviceHelper::detect()
 void UbuntuDeviceHelper::detectOpenSsh()
 {
     setProcessState(UbuntuDevice::DetectOpenSSH);
-    //qDebug()<<"We are in state "<<m_dev->m_processState;
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTOPENSSH));
 
     stopProcess();
@@ -281,7 +276,6 @@ void UbuntuDeviceHelper::detectOpenSsh()
 void UbuntuDeviceHelper::startSshService()
 {
     setProcessState(UbuntuDevice::StartOpenSSH);
-    //qDebug()<<"We are in state "<<m_dev->m_processState;
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_STARTSSHSERVICE));
 
     stopProcess();
@@ -294,7 +288,6 @@ void UbuntuDeviceHelper::startSshService()
 void UbuntuDeviceHelper::enableDeveloperMode()
 {
     setProcessState(UbuntuDevice::InstallOpenSSH);
-    //qDebug()<<"We are in state "<<m_dev->m_processState;
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SSH_INSTALL));
 
     stopProcess();
@@ -307,7 +300,6 @@ void UbuntuDeviceHelper::enableDeveloperMode()
 void UbuntuDeviceHelper::disableDeveloperMode()
 {
     setProcessState(UbuntuDevice::RemoveOpenSSH);
-    //qDebug()<<"We are in state "<<m_dev->m_processState;
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SSH_REMOVE));
 
     stopProcess();
@@ -323,7 +315,6 @@ void UbuntuDeviceHelper::detectHasNetworkConnection()
     //          adb shell nmcli dev list iface <intfc> | grep IP4.ADDRESS
     //      to find out the devices ip address
     setProcessState(UbuntuDevice::DetectNetworkConnection);
-    //qDebug()<<"We are in state "<<m_dev->m_processState;
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_HASNETWORK));
 
     stopProcess();
@@ -336,7 +327,6 @@ void UbuntuDeviceHelper::detectHasNetworkConnection()
 void UbuntuDeviceHelper::detectDeviceVersion()
 {
     setProcessState(UbuntuDevice::DetectDeviceVersion);
-    //qDebug()<<"We are in state "<<m_dev->m_processState;
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICEVERSION));
 
     stopProcess();
@@ -349,7 +339,6 @@ void UbuntuDeviceHelper::detectDeviceVersion()
 void UbuntuDeviceHelper::detectDeviceWritableImage()
 {
     setProcessState(UbuntuDevice::DetectDeviceWriteableImage);
-    //qDebug()<<"We are in state "<<m_dev->m_processState;
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTWRITABLEIMAGE));
 
     stopProcess();
@@ -362,7 +351,6 @@ void UbuntuDeviceHelper::detectDeviceWritableImage()
 void UbuntuDeviceHelper::detectDeveloperTools()
 {
     setProcessState(UbuntuDevice::DetectDeveloperTools);
-    //qDebug()<<"We are in state "<<m_dev->m_processState;
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVELOPERTOOLS));
 
     stopProcess();
@@ -383,11 +371,6 @@ void UbuntuDeviceHelper::deviceDisconnected()
     ProjectExplorer::DeviceManager::instance()->setDeviceState(m_dev->id(),ProjectExplorer::IDevice::DeviceDisconnected);
     resetToDefaults();
     emit disconnected();
-}
-
-void UbuntuDeviceHelper::toGeneralMessages(const QString &msg) const
-{
-    Core::MessageManager::write(QString(QLatin1String("%0")).arg(msg),Core::MessageManager::NoModeSwitch);
 }
 
 void UbuntuDeviceHelper::stopProcess()
@@ -442,7 +425,6 @@ void UbuntuDeviceHelper::cloneTimeConfig()
         return;
 
     setProcessState(UbuntuDevice::CloneTimeConfig);
-    //qDebug()<<"We are in state "<<m_dev->m_processState;
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONETIME));
     stopProcess();
 
@@ -457,7 +439,6 @@ void UbuntuDeviceHelper::enableRWImage()
         return;
 
     setProcessState(UbuntuDevice::EnableRWImage);
-    //qDebug()<<"We are in state "<<m_dev->m_processState;
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_MAKEFSWRITABLE));
     stopProcess();
 
@@ -472,7 +453,6 @@ void UbuntuDeviceHelper::disableRWImage()
         return;
 
     setProcessState(UbuntuDevice::DisableRWImage);
-    //qDebug()<<"We are in state "<<m_dev->m_processState;
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_MAKEFSREADONLY));
     stopProcess();
 
@@ -484,8 +464,27 @@ void UbuntuDeviceHelper::disableRWImage()
 void UbuntuDeviceHelper::enablePortForward()
 {
     setProcessState(UbuntuDevice::EnablePortForwarding);
-    //qDebug()<<"We are in state "<<m_dev->m_processState;
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_PORTFORWARD));
+
+    stopProcess();
+
+    if(!m_dev->m_localForwardedPorts.hasMore()) {
+        m_dev->m_localForwardedPorts = UbuntuLocalPortsManager::getFreeRange(m_dev->id().toSetting().toString(),20);
+        if(!m_dev->m_localForwardedPorts.hasMore()) {
+            //Oh noes , no ports available
+
+            endAction(tr("No ports available on the host, please detach some devices"));
+            setProcessState(UbuntuDevice::Done);
+            return;
+        }
+    }
+
+    Utils::PortList copy = m_dev->m_localForwardedPorts;
+    QStringList ports;
+    while(copy.hasMore())
+        ports.append(QString::number(copy.getNext()));
+
+    m_dev->setFreePorts(copy);
 
     //@TODO per device settings
     QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
@@ -493,13 +492,12 @@ void UbuntuDeviceHelper::enablePortForward()
     QString deviceQmlPort = settings.value(QLatin1String(Constants::SETTINGS_KEY_QML),Constants::SETTINGS_DEFAULT_DEVICE_QML_PORT).toString();
     QString deviceSshPort = QString::number(m_dev->sshParameters().port);
 
-    stopProcess();
-
     startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_PORTFORWARD_SCRIPT)
                       .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
                       .arg(m_dev->id().toSetting().toString())
                       .arg(deviceSshPort)
-                      .arg(deviceQmlPort));
+                      .arg(deviceQmlPort)
+                      .arg(ports.join(QChar::fromLatin1(' '))));
 }
 
 void UbuntuDeviceHelper::installDevTools()
@@ -508,7 +506,6 @@ void UbuntuDeviceHelper::installDevTools()
         return;
 
     setProcessState(UbuntuDevice::InstallDevTools);
-    //qDebug()<<"We are in state "<<m_dev->m_processState;
 
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ENABLEPLATFORMDEVELOPMENT));
     stopProcess();
@@ -524,7 +521,6 @@ void UbuntuDeviceHelper::removeDevTools()
         return;
 
     setProcessState(UbuntuDevice::RemoveDevTools);
-    //qDebug()<<"We are in state "<<m_dev->m_processState;
 
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DISABLEPLATFORMDEVELOPMENT));
     stopProcess();
@@ -537,7 +533,6 @@ void UbuntuDeviceHelper::removeDevTools()
 void UbuntuDeviceHelper::deployPublicKey()
 {
     setProcessState(UbuntuDevice::DeployPublicKey);
-    //qDebug()<<"We are in state "<<m_dev->m_processState;
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SETUP_PUBKEY_AUTH));
 
     QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
@@ -561,14 +556,12 @@ void UbuntuDeviceHelper::startProcess(const QString &command)
         connect(m_process,SIGNAL(finished(int)),this,SLOT(onProcessFinished(int)));
         connect(m_process,SIGNAL(error(QProcess::ProcessError)),this,SLOT(onProcessError(QProcess::ProcessError)));
     }
-    qDebug()<<"Starting Command "<<command;
     m_process->setWorkingDirectory(QCoreApplication::applicationDirPath());
     m_process->start(command);
 }
 
 void UbuntuDeviceHelper::onProcessReadyRead()
 {
-    qDebug()<<"Ready Read";
     QString stderr = QString::fromLocal8Bit(m_process->readAllStandardError());
     QString stdout = QString::fromLocal8Bit(m_process->readAllStandardOutput());
 
@@ -594,8 +587,6 @@ void UbuntuDeviceHelper::onProcessFinished(const int code)
     if (errorMsg.trimmed().length()>0) onError(errorMsg);
     QString msg = QString::fromLocal8Bit(m_process->readAllStandardOutput());
     if (msg.trimmed().length()>0) onMessage(msg);
-
-    qDebug()<<"Finished "<<m_reply;
 
     processFinished(QString(),code);
 }
