@@ -18,8 +18,15 @@
 
 #include "ubuntudevicenotifier.h"
 
+
+IUbuntuDeviceNotifier::IUbuntuDeviceNotifier(QObject *parent)
+    : QObject(parent)
+{
+
+}
+
 UbuntuDeviceNotifier::UbuntuDeviceNotifier(QObject *parent) :
-    QObject(parent)
+    IUbuntuDeviceNotifier(parent)
 {
     m_dev = udev_new();
     m_udevMonitor = NULL;
@@ -45,7 +52,7 @@ UbuntuDeviceNotifier::~UbuntuDeviceNotifier() {
     udev_unref(m_dev);
 }
 
-void UbuntuDeviceNotifier::startMonitoring(QString serialNumber) {
+void UbuntuDeviceNotifier::startMonitoring(const QString &serialNumber) {
     m_serialNumber = serialNumber;
 
     // check if the device is connected or disconnected at the moment

@@ -6,7 +6,7 @@
 #include <coreplugin/id.h>
 #include <QProcess>
 
-class UbuntuDeviceNotifier;
+class IUbuntuDeviceNotifier;
 
 namespace Ubuntu {
 namespace Internal {
@@ -28,6 +28,8 @@ public:
     void refresh ();
 
 signals:
+    void beginQueryDevice ();
+    void endQueryDevice   ();
     void connected        ();
     void disconnected     ();
     void deviceNeedsSetup ();
@@ -71,13 +73,14 @@ protected slots:
 protected:
     void stopProcess ();
     void addToLog (const QString &msg);
+    void setProcessState (const int newState);
 
 private:
     QString m_log;
     QString m_reply;
     UbuntuDevice  *m_dev;
     QProcess *m_process;
-    UbuntuDeviceNotifier *m_deviceWatcher;
+    IUbuntuDeviceNotifier *m_deviceWatcher;
 };
 
 class UbuntuDevice : public RemoteLinux::LinuxDevice

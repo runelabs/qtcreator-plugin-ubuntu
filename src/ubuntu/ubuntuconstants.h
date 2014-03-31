@@ -200,20 +200,20 @@ const char MSG_EMULATOR_IS_CREATED[] = "Check the logs for details.";
 
 
 const char UBUNTUDEVICESWIDGET_REBOOT[] = "Reboot device..";
-const char UBUNTUDEVICESWIDGET_REBOOT_SCRIPT[] = "%0/device_reboot %1";
+const char UBUNTUDEVICESWIDGET_REBOOT_SCRIPT[] = "%0/device_reboot";
 const char UBUNTUDEVICESWIDGET_SHUTDOWN[] = "Shutdown device..";
-const char UBUNTUDEVICESWIDGET_SHUTDOWN_SCRIPT[] = "%0/device_shutdown %1";
+const char UBUNTUDEVICESWIDGET_SHUTDOWN_SCRIPT[] = "%0/device_shutdown";
 const char UBUNTUDEVICESWIDGET_REBOOT_TO_BOOTLOADER[] = "Reboot to bootloader..";
-const char UBUNTUDEVICESWIDGET_REBOOT_TO_BOOTLOADER_SCRIPT[] = "%0/device_reboot2bootloader %1";
+const char UBUNTUDEVICESWIDGET_REBOOT_TO_BOOTLOADER_SCRIPT[] = "%0/device_reboot2bootloader";
 const char UBUNTUDEVICESWIDGET_REBOOT_TO_RECOVERY[] = "Reboot to recovery..";
-const char UBUNTUDEVICESWIDGET_REBOOT_TO_RECOVERY_SCRIPT[] = "%0/device_reboot2recovery %1";
+const char UBUNTUDEVICESWIDGET_REBOOT_TO_RECOVERY_SCRIPT[] = "%0/device_reboot2recovery";
 const char UBUNTUWIDGETS_LOCAL_PACKAGE_INSTALLED_SCRIPT[] = "%0/local_package_installed %1";
 const char UBUNTUDEVICESWIDGET_LOCAL_INSTALL_EMULATOR[] = "%0/local_install_emulator %1";
 const char UBUNTUDEVICESWIDGET_DETECTOPENSSH[] = "Detecting if openssh-server is installed..";
 const char UBUNTUDEVICESWIDGET_DETECTOPENSSH_SCRIPT[] = "%0/openssh_version %1";
 const char UBUNTUDEVICESWIDGET_DETECTDEVICES[] = "Detecting device..";
 const char UBUNTUDEVICESWIDGET_DETECTDEVICES_SCRIPT[] = "%0/device_search";
-const char UBUNTUDEVICESWIDGET_SSHCONNECT_SCRIPT[] = "%0/openssh_connect %1 %2 %3 %4";
+const char UBUNTUDEVICESWIDGET_SSHCONNECT_SCRIPT[] = "%0/openssh_connect";
 const char UBUNTUDEVICESWIDGET_SSHCONNECT[] = "Opening ssh connection to device";
 
 const char UBUNTUDEVICESWIDGET_CLONENETWORK[] = "Clone network configuration from host to device..";

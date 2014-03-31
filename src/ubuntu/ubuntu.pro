@@ -85,7 +85,8 @@ SOURCES += \
     ubuntudeviceconfigurationwidget.cpp \
     ubuntudeployconfiguration.cpp \
     ubunturemoterunconfiguration.cpp \
-    ubuntucmakemakestep.cpp
+    ubuntucmakemakestep.cpp \
+    ubuntuemulatornotifier.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -143,5 +144,6 @@ HEADERS += \
     ubuntudeviceconfigurationwidget.h \
     ubuntudeployconfiguration.h \
     ubunturemoterunconfiguration.h \
-    ubuntucmakemakestep.h
+    ubuntucmakemakestep.h \
+    ubuntuemulatornotifier.h
 

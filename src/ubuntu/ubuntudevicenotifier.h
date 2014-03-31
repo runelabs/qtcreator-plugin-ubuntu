@@ -24,7 +24,22 @@
 #include <QDebug>
 #include <QSocketNotifier>
 
-class UbuntuDeviceNotifier : public QObject
+class IUbuntuDeviceNotifier : public QObject
+{
+    Q_OBJECT
+public:
+    IUbuntuDeviceNotifier (QObject *parent = 0);
+    virtual void startMonitoring(const QString &serialNumber) = 0;
+    virtual void stopMonitoring() = 0;
+    virtual bool isConnected () const = 0;
+
+signals:
+    void deviceConnected();
+    void deviceConnected(const QString &serialNumber);
+    void deviceDisconnected();
+};
+
+class UbuntuDeviceNotifier : public IUbuntuDeviceNotifier
 {
     Q_OBJECT
 
@@ -33,14 +48,9 @@ public:
     ~UbuntuDeviceNotifier();
 
 public slots:
-    void startMonitoring(QString serialNumber);
+    void startMonitoring(const QString &serialNumber);
     void stopMonitoring();
     bool isConnected () const;
-
-signals:
-    void deviceConnected();
-    void deviceConnected(QString serialNumber);
-    void deviceDisconnected();
 
 protected slots:
     void on_udev_event();
