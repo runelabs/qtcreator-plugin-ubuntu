@@ -526,6 +526,17 @@ QString UbuntuDevicesWidget::serialNumber() {
     return ui->comboBoxSerialNumber->currentText();
 }
 
+Internal::UbuntuDevice::ConstPtr UbuntuDevicesWidget::device()
+{
+    if(ui->comboBoxSerialNumber->count()) {
+        int devId = ui->comboBoxSerialNumber->currentData().toInt();
+        if(m_knownDevices.contains(devId)) {
+            return m_knownDevices[devId];
+        }
+    }
+    return Internal::UbuntuDevice::ConstPtr();
+}
+
 void UbuntuDevicesWidget::on_comboBoxSerialNumber_currentIndexChanged( const QString & text )
 {
     if(text.isEmpty())

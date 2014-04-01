@@ -29,6 +29,12 @@ namespace Ui {
 class UbuntuDevicesWidget;
 }
 
+namespace Ubuntu {
+namespace Internal {
+class UbuntuDevice;
+}
+}
+
 class UbuntuDevicesWidget : public QWidget
 {
     Q_OBJECT
@@ -41,6 +47,7 @@ public:
 
     bool deviceDetected();
     QString serialNumber();
+    Ubuntu::Internal::UbuntuDevice::ConstPtr device();
 
 signals:
     void updateDeviceActions();

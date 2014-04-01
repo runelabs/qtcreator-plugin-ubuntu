@@ -22,6 +22,7 @@
 #include "ubuntudeviceswidget.h"
 #include "ubuntuproject.h"
 #include "ubuntuclicktool.h"
+#include "ubuntudevice.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -38,6 +39,7 @@
 #include <projectexplorer/iprojectmanager.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <utils/qtcprocess.h>
+#include <ssh/sshconnection.h>
 
 #include <QProcessEnvironment>
 #include <QAction>
@@ -472,20 +474,17 @@ void UbuntuMenu::menuItemTriggered() {
                             workingDirectory = qtcBuildConfig->buildDirectory().toString();
                         }
                     }
-                    
-                    QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
-                    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICE_CONNECTIVITY));
-                    QString deviceUsername = settings.value(QLatin1String(Constants::SETTINGS_KEY_USERNAME),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_USERNAME)).toString();
-                    QString deviceIp = settings.value(QLatin1String(Constants::SETTINGS_KEY_IP),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_IP)).toString();
-                    QString devicePort = settings.value(QLatin1String(Constants::SETTINGS_KEY_SSH),Constants::SETTINGS_DEFAULT_DEVICE_SSH_PORT).toString();
 
-                    command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DEVICE_IP),deviceIp);
-                    command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DEVICE_USERNAME),deviceUsername);
-                    command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DEVICE_PORT),devicePort);
+                    UbuntuDevice::ConstPtr device = UbuntuDevicesWidget::instance()->device();
+                    if (device) {
+                        command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DEVICE_IP),device->sshParameters().host);
+                        command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DEVICE_USERNAME),device->sshParameters().userName);
+                        command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DEVICE_PORT),QString::number(device->sshParameters().port));
 
-                    command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_SHAREDIRECTORY),Constants::UBUNTU_SHAREPATH);
-                    command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_SCRIPTDIRECTORY),Constants::UBUNTU_SCRIPTPATH);
-                    command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_SERIALNUMBER),UbuntuDevicesWidget::instance()->serialNumber());
+                        command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_SHAREDIRECTORY),Constants::UBUNTU_SHAREPATH);
+                        command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_SCRIPTDIRECTORY),Constants::UBUNTU_SCRIPTPATH);
+                        command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_SERIALNUMBER),device->id().toSetting().toString());
+                    }
 
                     if (bQuery && bQueryOk) {
                         command = QString(command).arg(queryData);
