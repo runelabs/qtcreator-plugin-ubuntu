@@ -21,23 +21,16 @@ shift
 SSHPORT=$1
 shift
 
-QMLPORT=$1
-shift
-
 if [[ -z $SSHPORT ]]; then
   SSHPORT=2222
 fi
 
-if [[ -z $QMLPORT ]]; then
-  QMLPORT=3768
-fi
-
+echo "Forward Local ${1} to Remote 22"
 adb_forward_tcp ${SSHPORT} 22
-adb_forward_tcp ${QMLPORT} 3768
 
 while (( "$#" )); do
 
-echo "Port ${1}"
+echo "Forward Local ${1} to Remote ${1}"
 adb_forward_tcp ${1} ${1}
 shift
 

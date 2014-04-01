@@ -480,6 +480,12 @@ void UbuntuDeviceHelper::enablePortForward()
     }
 
     Utils::PortList copy = m_dev->m_localForwardedPorts;
+
+    //first port is SSH port
+    QSsh::SshConnectionParameters connParms = m_dev->sshParameters();
+    connParms.port = copy.getNext();
+    m_dev->setSshParameters(connParms);
+
     QStringList ports;
     while(copy.hasMore())
         ports.append(QString::number(copy.getNext()));
@@ -489,14 +495,12 @@ void UbuntuDeviceHelper::enablePortForward()
     //@TODO per device settings
     QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
     settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICE_CONNECTIVITY));
-    QString deviceQmlPort = settings.value(QLatin1String(Constants::SETTINGS_KEY_QML),Constants::SETTINGS_DEFAULT_DEVICE_QML_PORT).toString();
-    QString deviceSshPort = QString::number(m_dev->sshParameters().port);
+    QString deviceSshPort = QString::number(connParms.port);
 
     startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_PORTFORWARD_SCRIPT)
                       .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
                       .arg(m_dev->id().toSetting().toString())
                       .arg(deviceSshPort)
-                      .arg(deviceQmlPort)
                       .arg(ports.join(QChar::fromLatin1(' '))));
 }
 
@@ -658,10 +662,6 @@ void UbuntuDevice::loadDefaultConfig()
     params.port = deviceSshPort.toUInt();
     params.userName = username;
     params.timeout = 20;
-
-    Utils::PortList ports;
-    ports.addRange(10000,10020);
-    setFreePorts(ports);
 
     setSshParameters(params);
 }
