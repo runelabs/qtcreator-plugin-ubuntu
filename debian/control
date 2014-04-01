@@ -41,6 +41,7 @@ Depends: android-tools-adb,
          rsync,
          qtcreator-plugin-cmake,
          qtdeclarative5-controls-plugin,
+         unity-scope-tool,
          ${shlibs:Depends},
          ${misc:Depends},
 Recommends: ubuntu-sdk
