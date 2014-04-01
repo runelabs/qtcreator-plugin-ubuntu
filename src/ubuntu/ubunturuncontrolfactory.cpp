@@ -79,6 +79,9 @@ ProjectExplorer::RunControl *UbuntuRunControlFactory::create(ProjectExplorer::Ru
                 *errorMessage = tr("Cannot debug: Kit has no device.");
                 return 0;
             }
+
+            qDebug()<<"Free ports on the device: "<<dev->freePorts().count();
+
             if (2 > dev->freePorts().count()) {
                 *errorMessage = tr("Cannot debug: Not enough free ports available.");
                 return 0;

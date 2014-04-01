@@ -486,11 +486,11 @@ void UbuntuDeviceHelper::enablePortForward()
     connParms.port = copy.getNext();
     m_dev->setSshParameters(connParms);
 
+    m_dev->setFreePorts(copy);
+
     QStringList ports;
     while(copy.hasMore())
         ports.append(QString::number(copy.getNext()));
-
-    m_dev->setFreePorts(copy);
 
     //@TODO per device settings
     QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
