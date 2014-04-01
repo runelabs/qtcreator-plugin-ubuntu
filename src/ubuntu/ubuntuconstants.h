@@ -212,7 +212,7 @@ const char UBUNTUDEVICESWIDGET_LOCAL_INSTALL_EMULATOR[] = "%0/local_install_emul
 const char UBUNTUDEVICESWIDGET_DETECTOPENSSH[] = "Detecting if openssh-server is installed..";
 const char UBUNTUDEVICESWIDGET_DETECTOPENSSH_SCRIPT[] = "%0/openssh_version %1";
 const char UBUNTUDEVICESWIDGET_DETECTDEVICES[] = "Detecting device..";
-const char UBUNTUDEVICESWIDGET_DETECTDEVICES_SCRIPT[] = "%0/device_search";
+const char UBUNTUDEVICESWIDGET_DETECTDEVICES_SCRIPT[] = "%0/device_search %1";
 const char UBUNTUDEVICESWIDGET_SSHCONNECT_SCRIPT[] = "%0/openssh_connect";
 const char UBUNTUDEVICESWIDGET_SSHCONNECT[] = "Opening ssh connection to device";
 

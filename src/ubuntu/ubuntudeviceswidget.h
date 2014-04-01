@@ -70,7 +70,7 @@ protected slots:
 
     void checkEmulator();
     void checkEmulatorInstances();
-    void detectDevices();
+    void detectDevices( const bool restartAdb = false );
 
 private slots:
     void readDevicesFromSettings();

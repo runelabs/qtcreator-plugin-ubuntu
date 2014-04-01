@@ -194,7 +194,7 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
             ui->listWidget_EmulatorImages->addItem(item);
             ui->listWidget_EmulatorImages->setCurrentItem(item);
         }
-        //detectDevices();
+        detectDevices();
     }
     if (cmd == QString::fromLatin1(Constants::UBUNTUWIDGETS_ONFINISHED_SCRIPT_LOCAL_PACKAGE_INSTALLED).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
         QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
@@ -207,7 +207,7 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
             if (line.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_LOCAL_NO_EMULATOR_INSTALLED))) {
                 ui->label_InstallEmulatorStatus->hide();
                 ui->pushButton_InstallEmulator_OK->setEnabled(true);
-                //detectDevices();
+                detectDevices();
             } else {
                 QStringList lineData = line.split(QLatin1String(Constants::SPACE));
                 QString sEmulatorPackageStatus = lineData.takeFirst();
@@ -504,10 +504,12 @@ void UbuntuDevicesWidget::setupDevicePage()
     }
 }
 
-void UbuntuDevicesWidget::detectDevices() {
+void UbuntuDevicesWidget::detectDevices(const bool restartAdb) {
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES));
     m_ubuntuProcess->stop();
-    m_ubuntuProcess->append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH) << QApplication::applicationDirPath());
+    m_ubuntuProcess->append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES_SCRIPT)
+                            .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
+                            .arg(restartAdb ? QString::number(1) : QString::number(0))<< QApplication::applicationDirPath());
     m_ubuntuProcess->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES));
 }
 
@@ -564,11 +566,6 @@ void UbuntuDevicesWidget::onDeviceConnected(const QString &id) {
     if(m_knownDevices.contains(qtcid.uniqueIdentifier()))
         return;
 
-    registerNewDevice(id,QString());
-    //this would normally trigger device detection, which kills adb
-    //but we already know a new device is connected so there is no
-    //need to mess with adb
-#if 0
     m_reply.clear();
 
     ui->plainTextEdit->clear();
@@ -579,7 +576,7 @@ void UbuntuDevicesWidget::onDeviceConnected(const QString &id) {
     ui->frameProgress->show();
     ui->lblLoading->show();
     detectDevices();
-#endif
+
 }
 
 
@@ -588,7 +585,7 @@ void UbuntuDevicesWidget::on_pushButtonRefresh_clicked() {
     m_ubuntuProcess->stop();
     ui->plainTextEdit->clear();
     m_reply.clear();
-    detectDevices();
+    detectDevices(true);
 }
 
 
