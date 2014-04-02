@@ -108,7 +108,6 @@ void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd) 
                 .arg(startupProject->activeTarget()->activeBuildConfiguration()->buildDirectory().toString())
                 .arg(framework)
                 .arg(arch);
-        qDebug()<<"Going to verify: "<<sClickPackageName<<sClickPackagePath;
     }else {
         sClickPackageName = QString::fromLatin1("%0_%1_all.click").arg(ui->lineEdit_name->text()).arg(ui->lineEdit_version->text());
         sClickPackagePath = startupProject->projectDirectory();
@@ -127,6 +126,9 @@ void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd) 
         disconnect(m_UbuntuMenu_connection);
         return;
     }
+
+
+    qDebug()<<"Going to verify: "<<sClickPackagePath;
 
     m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION).arg(sClickPackagePath));
     m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(sClickPackagePath));

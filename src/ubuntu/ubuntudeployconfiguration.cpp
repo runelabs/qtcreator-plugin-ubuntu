@@ -45,6 +45,23 @@ UbuntuDirectUploadStep::~UbuntuDirectUploadStep()
 {
 }
 
+void UbuntuDirectUploadStep::run(QFutureInterface<bool> &fi)
+{
+    projectNameChanged();
+    m_deployService->setIncrementalDeployment(false);
+    m_deployService->setIgnoreMissingFiles(false);
+
+    QString whyNot;
+    if(!deployService()->isDeploymentPossible(&whyNot)) {
+        emit addOutput(tr("Deploy step failed. %1").arg(whyNot), ErrorMessageOutput);
+        fi.reportResult(false);
+        emit finished();
+        return;
+    }
+
+    AbstractRemoteLinuxDeployStep::run(fi);
+}
+
 ProjectExplorer::BuildStepConfigWidget *UbuntuDirectUploadStep::createConfigWidget()
 {
     return new ProjectExplorer::SimpleBuildStepConfigWidget(this);
@@ -52,10 +69,8 @@ ProjectExplorer::BuildStepConfigWidget *UbuntuDirectUploadStep::createConfigWidg
 
 bool UbuntuDirectUploadStep::initInternal(QString *error)
 {
-    projectNameChanged();
-    m_deployService->setIncrementalDeployment(true);
-    m_deployService->setIgnoreMissingFiles(false);
-    return deployService()->isDeploymentPossible(error);
+    Q_UNUSED(error)
+    return true;
 }
 
 RemoteLinux::AbstractRemoteLinuxDeployService *UbuntuDirectUploadStep::deployService() const

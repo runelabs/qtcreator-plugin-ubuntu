@@ -20,6 +20,9 @@ public:
     UbuntuDirectUploadStep(ProjectExplorer::BuildStepList *bsl, UbuntuDirectUploadStep *other);
     ~UbuntuDirectUploadStep();
 
+    // BuildStep interface
+    virtual void run(QFutureInterface<bool> &fi);
+
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     bool initInternal(QString *error = 0);
 
