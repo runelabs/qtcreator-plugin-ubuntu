@@ -20,53 +20,34 @@
 #define UBUNTURUNCONFIGURATION_H
 
 #include <QObject>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/mimedatabase.h>
-#include <coreplugin/messagemanager.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
-#include <coreplugin/documentmanager.h>
-#include <debugger/debuggerrunner.h>
-#include <debugger/debuggerplugin.h>
-#include <debugger/debuggerconstants.h>
-#include <debugger/debuggerstartparameters.h>
-#include <debugger/debuggerruncontrolfactory.h>
-#include <extensionsystem/iplugin.h>
-#include <projectexplorer/iprojectmanager.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectnodes.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/kitmanager.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/session.h>
-#include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/applicationlauncher.h>
+#include <projectexplorer/localapplicationrunconfiguration.h>
+
+
+namespace ProjectExplorer {
+class Target;
+}
 
 
 namespace Ubuntu {
 namespace Internal {
 
-class UbuntuRunConfiguration : public ProjectExplorer::RunConfiguration
+class UbuntuRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
 {
     Q_OBJECT
 public:
-    UbuntuRunConfiguration(ProjectExplorer::Target *parent, Core::Id id) : ProjectExplorer::RunConfiguration(parent, id) {}
-    UbuntuRunConfiguration(ProjectExplorer::Target *parent, UbuntuRunConfiguration* source) : ProjectExplorer::RunConfiguration(parent,source) {}
+    UbuntuRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    UbuntuRunConfiguration(ProjectExplorer::Target *parent, UbuntuRunConfiguration* source);
 
-    QWidget *createConfigurationWidget() {
-        return NULL;
-    }
+    QWidget *createConfigurationWidget();
+    bool isEnabled() const;
 
-    bool isEnabled() const {
-        return true;
-    }
-
-    ProjectExplorer::Abi Qabi() const;
+    // LocalApplicationRunConfiguration interface
+    virtual QString executable() const;
+    virtual QString workingDirectory() const;
+    virtual QString commandLineArguments() const;
+    virtual QString dumperLibrary() const;
+    virtual QStringList dumperLibraryLocations() const;
+    virtual RunMode runMode() const;
 };
 
 }

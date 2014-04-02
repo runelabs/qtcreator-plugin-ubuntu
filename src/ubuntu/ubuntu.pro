@@ -43,7 +43,6 @@ SOURCES += \
     ubuntuprojectnode.cpp \
     ubunturunconfiguration.cpp \
     ubunturunconfigurationfactory.cpp \
-    ubunturuncontrol.cpp \
     ubunturuncontrolfactory.cpp \
     ubuntuprojectapp.cpp \
     ubuntuversion.cpp \
@@ -87,7 +86,8 @@ SOURCES += \
     ubunturemoterunconfiguration.cpp \
     ubuntucmakemakestep.cpp \
     ubuntuemulatornotifier.cpp \
-    localportsmanager.cpp
+    localportsmanager.cpp \
+    ubuntuprojectguesser.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -103,7 +103,6 @@ HEADERS += \
     ubuntuprojectnode.h \
     ubunturunconfiguration.h \
     ubunturunconfigurationfactory.h \
-    ubunturuncontrol.h \
     ubunturuncontrolfactory.h \
     ubuntuprojectapp.h \
     ubuntuversion.h \
@@ -147,5 +146,6 @@ HEADERS += \
     ubunturemoterunconfiguration.h \
     ubuntucmakemakestep.h \
     ubuntuemulatornotifier.h \
-    localportsmanager.h
+    localportsmanager.h \
+    ubuntuprojectguesser.h
 

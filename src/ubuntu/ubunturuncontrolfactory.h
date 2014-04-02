@@ -20,7 +20,6 @@
 #define UBUNTURUNCONTROLFACTORY_H
 
 #include <QObject>
-#include "ubunturuncontrol.h"
 #include "ubuntuproject.h"
 
 #include <coreplugin/actionmanager/command.h>

@@ -19,6 +19,7 @@
 #include "ubunturuncontrolfactory.h"
 #include "ubunturemoterunconfiguration.h"
 
+#include <projectexplorer/kitinformation.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerplugin.h>
@@ -46,11 +47,6 @@ bool UbuntuRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfi
             return false;
         }
         return runConfiguration->isEnabled();
-    } else {
-        if (!qobject_cast<UbuntuProject*>(runConfiguration->target()->project()))
-            return false;
-        if (mode == ProjectExplorer::NormalRunMode || mode == ProjectExplorer::DebugRunMode)
-            return runConfiguration->isEnabled();
     }
     return false;
 }
@@ -118,23 +114,8 @@ ProjectExplorer::RunControl *UbuntuRunControlFactory::create(ProjectExplorer::Ru
 
         QTC_ASSERT(false, return 0);
         return 0;
-    } else {
-        QList<ProjectExplorer::RunControl *> runcontrols =
-                ProjectExplorer::ProjectExplorerPlugin::instance()->runControls();
-        foreach (ProjectExplorer::RunControl *rc, runcontrols) {
-            if (UbuntuRunControl *qrc = qobject_cast<UbuntuRunControl *>(rc)) {
-                qrc->stop();
-            }
-        }
-
-        ProjectExplorer::RunControl *runControl = 0;
-        if (mode == ProjectExplorer::NormalRunMode)
-            runControl = new UbuntuRunControl(runConfiguration, mode, false);
-        else if (mode == ProjectExplorer::DebugRunMode)
-            runControl = new UbuntuRunControl(runConfiguration, mode, true);
-
-        return runControl;
     }
+    return 0;
 }
 
 QString UbuntuRunControlFactory::displayName() const {

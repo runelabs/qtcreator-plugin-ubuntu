@@ -18,6 +18,8 @@
 
 #include "ubunturunconfigurationfactory.h"
 #include "ubunturemoterunconfiguration.h"
+#include "ubuntuprojectguesser.h"
+#include "ubuntudevice.h"
 #include "clicktoolchain.h"
 #include <cmakeprojectmanager/cmakeproject.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
@@ -35,11 +37,18 @@ QList<Core::Id> UbuntuRunConfigurationFactory::availableCreationIds(ProjectExplo
     QList<Core::Id> list;
 
     if(parent->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID) {
-        list << UbuntuRemoteRunConfiguration::typeId();
+        if(UbuntuProjectGuesser::isScopesProject(parent->project()))
+            list << Core::Id(Constants::UBUNTUPROJECT_RUNCONTROL_ID);
+        else {
+            //the scopes project has no run on device yet, thats why finding a
+            //scopes project will block creating any runconfigurations for the device
+            if( ProjectExplorer::DeviceKitInformation::device(parent->kit())->type()
+                    == Constants::UBUNTU_DEVICE_TYPE_ID)
+                list << UbuntuRemoteRunConfiguration::typeId();
+        }
     } else {
         list << Core::Id(Constants::UBUNTUPROJECT_RUNCONTROL_ID);
     }
-
     return list;
 }
 
@@ -51,18 +60,37 @@ QString UbuntuRunConfigurationFactory::displayNameForId(const Core::Id id) const
     return QString();
 }
 
+bool UbuntuRunConfigurationFactory::canHandle(ProjectExplorer::Target *parent) const {
+
+    if(qobject_cast<CMakeProjectManager::CMakeProject*>(parent->project())) {
+        if (!parent->project()->supportsKit(parent->kit()))
+            return false;
+
+        ProjectExplorer::ToolChain *tc
+                = ProjectExplorer::ToolChainKitInformation::toolChain(parent->kit());
+        if (!tc || tc->targetAbi().os() != ProjectExplorer::Abi::LinuxOS)
+            return false;
+
+        if(tc->type() == QString::fromLatin1(Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
+            return true;
+
+        if(UbuntuProjectGuesser::isScopesProject(parent->project()))
+            return true;
+
+        return false;
+    }
+
+    if (!qobject_cast<UbuntuProject *>(parent->project()))
+        return false;
+    return true;
+}
+
 bool UbuntuRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent,
                                          const Core::Id id) const {
     if (!canHandle(parent))
         return false;
 
-    if (id == Constants::UBUNTUPROJECT_RUNCONTROL_ID)
-        return true;
-
-    if (id == UbuntuRemoteRunConfiguration::typeId())
-        return true;
-
-    return false;
+    return availableCreationIds(parent).contains(id);
 }
 
 bool UbuntuRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const {
@@ -75,8 +103,9 @@ ProjectExplorer::RunConfiguration *UbuntuRunConfigurationFactory::doCreate(Proje
 
     if( id == UbuntuRemoteRunConfiguration::typeId() )
         return new UbuntuRemoteRunConfiguration(parent);
-
-    return new UbuntuRunConfiguration(parent, id);
+    else if ( id == Constants::UBUNTUPROJECT_RUNCONTROL_ID)
+        return new UbuntuRunConfiguration(parent, id);
+    return 0;
 }
 
 ProjectExplorer::RunConfiguration *UbuntuRunConfigurationFactory::doRestore(ProjectExplorer::Target *parent, const QVariantMap &map) {
@@ -106,26 +135,4 @@ ProjectExplorer::RunConfiguration *UbuntuRunConfigurationFactory::clone(ProjectE
         return new UbuntuRemoteRunConfiguration(parent,static_cast<UbuntuRemoteRunConfiguration*>(source));
 
     return new UbuntuRunConfiguration(parent,static_cast<UbuntuRunConfiguration*>(source));
-}
-
-bool UbuntuRunConfigurationFactory::canHandle(ProjectExplorer::Target *parent) const {
-
-    if(qobject_cast<CMakeProjectManager::CMakeProject*>(parent->project())) {
-        if (!parent->project()->supportsKit(parent->kit()))
-            return false;
-
-        ProjectExplorer::ToolChain *tc
-                = ProjectExplorer::ToolChainKitInformation::toolChain(parent->kit());
-        if (!tc || tc->targetAbi().os() != ProjectExplorer::Abi::LinuxOS)
-            return false;
-
-        if(tc->type() != QString::fromLatin1(Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
-            return false;
-
-        return true;
-    }
-
-    if (!qobject_cast<UbuntuProject *>(parent->project()))
-        return false;
-    return true;
 }
