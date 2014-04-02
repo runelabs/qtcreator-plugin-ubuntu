@@ -134,7 +134,7 @@ void UbuntuDirectUploadStep::projectNameChanged()
 {
     qDebug()<<"------------------------ Updating DEPLOYLIST ---------------------------";
     //iterate over the .deploy dir and put all files in the list
-    QDir d(target()->activeBuildConfiguration()->buildDirectory().toString()+QDir::separator()+QLatin1String("package"));
+    QDir d(target()->activeBuildConfiguration()->buildDirectory().toString()+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR));
 
     QList<ProjectExplorer::DeployableFile> list;
     createFileList(  d

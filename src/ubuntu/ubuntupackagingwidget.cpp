@@ -91,8 +91,13 @@ UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
 
 void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd) {
 
-    const bool isCMakeCmd = (cmd == QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_ONFINISHED_ACTION_CLICK_CMAKECREATE).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) && (ui->pushButtonReviewersTools->isVisible());
-    const bool isQmlCmd   = (cmd == QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_ONFINISHED_ACTION_CLICK_CREATE).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) && (ui->pushButtonReviewersTools->isVisible());
+    disconnect(m_UbuntuMenu_connection);
+
+    if (!m_reviewToolsInstalled)
+        return;
+
+    const bool isCMakeCmd = (cmd == QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_ONFINISHED_ACTION_CLICK_CMAKECREATE).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH));
+    const bool isQmlCmd   = (cmd == QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_ONFINISHED_ACTION_CLICK_CREATE).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH));
 
     ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
 
@@ -122,10 +127,9 @@ void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd) 
 
     sClickPackagePath.append(sClickPackageName);
     m_ubuntuProcess.stop();
-    if (sClickPackagePath.isEmpty()) {
-        disconnect(m_UbuntuMenu_connection);
+
+    if (sClickPackagePath.isEmpty())
         return;
-    }
 
 
     qDebug()<<"Going to verify: "<<sClickPackagePath;
@@ -133,7 +137,6 @@ void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd) 
     m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION).arg(sClickPackagePath));
     m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(sClickPackagePath));
 
-    disconnect(m_UbuntuMenu_connection);
 }
 
 void UbuntuPackagingWidget::onNewValidationData()
@@ -331,46 +334,46 @@ void UbuntuPackagingWidget::on_pushButtonReset_clicked() {
 void UbuntuPackagingWidget::save(bool bSaveSimple) {
     Q_UNUSED(bSaveSimple);
     switch (m_previous_tab) {
-    case 0: {
-        // set package name to lower, bug #1219877
-        m_manifest.setName(ui->lineEdit_name->text().toLower());
-        m_manifest.setMaintainer(ui->lineEdit_maintainer->text());
-        m_manifest.setVersion(ui->lineEdit_version->text());
-        m_manifest.setTitle(ui->lineEdit_title->text());
-        m_manifest.setDescription(ui->lineEdit_description->text());
+        case 0: {
+            // set package name to lower, bug #1219877
+            m_manifest.setName(ui->lineEdit_name->text().toLower());
+            m_manifest.setMaintainer(ui->lineEdit_maintainer->text());
+            m_manifest.setVersion(ui->lineEdit_version->text());
+            m_manifest.setTitle(ui->lineEdit_title->text());
+            m_manifest.setDescription(ui->lineEdit_description->text());
 
-        if(ui->comboBoxFramework->currentText() != tr(Constants::UBUNTU_UNKNOWN_FRAMEWORK_NAME))
-            m_manifest.setFrameworkName(ui->comboBoxFramework->currentText());
+            if(ui->comboBoxFramework->currentText() != tr(Constants::UBUNTU_UNKNOWN_FRAMEWORK_NAME))
+                m_manifest.setFrameworkName(ui->comboBoxFramework->currentText());
 
-        QStringList items;
-        for (int i=0; i<ui->listWidget->count(); i++) {
-            // Fix bug #1221407 - make sure that there are no empty policy groups.
-            QString policyGroup = ui->listWidget->item(i)->text().trimmed();
-            if (!policyGroup.isEmpty()) {
-                items.append(ui->listWidget->item(i)->text());
+            QStringList items;
+            for (int i=0; i<ui->listWidget->count(); i++) {
+                // Fix bug #1221407 - make sure that there are no empty policy groups.
+                QString policyGroup = ui->listWidget->item(i)->text().trimmed();
+                if (!policyGroup.isEmpty()) {
+                    items.append(ui->listWidget->item(i)->text());
+                }
             }
-        }
-        m_apparmor.setPolicyGroups(m_projectName,items);
-        m_manifest.save();
-        m_apparmor.save();
-        save_excludes();
+            m_apparmor.setPolicyGroups(m_projectName,items);
+            m_manifest.save();
+            m_apparmor.save();
+            save_excludes();
 
-        break;
-    }
-    case 1: {
-        m_manifest.setRaw(ui->plainTextEditJson->toPlainText());
-        m_manifest.save();
-        break;
-    }
-    case 2: {
-        m_apparmor.setRaw(ui->plainTextEditAppArmorJson->toPlainText());
-        m_apparmor.save();
-        break;
-    }
-    case 3: {
-        save_excludes();
-        break;
-    }
+            break;
+        }
+        case 1: {
+            m_manifest.setRaw(ui->plainTextEditJson->toPlainText());
+            m_manifest.save();
+            break;
+        }
+        case 2: {
+            m_apparmor.setRaw(ui->plainTextEditAppArmorJson->toPlainText());
+            m_apparmor.save();
+            break;
+        }
+        case 3: {
+            save_excludes();
+            break;
+        }
     }
 }
 

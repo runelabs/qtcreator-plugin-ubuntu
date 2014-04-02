@@ -154,7 +154,7 @@ UbuntuCMakeDeployStep::UbuntuCMakeDeployStep(ProjectExplorer::BuildStepList *bsl
     : MakeStep(bsl,Core::Id(Constants::UBUNTU_DEPLOY_MAKESTEP_ID))
 {
     setDefaultDisplayName(tr("UbuntuSDK prepare deployment"));
-    setAdditionalArguments(QLatin1String("DESTDIR=package install"));
+    setAdditionalArguments(QString::fromLatin1("DESTDIR=%1 install").arg(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR)));
 }
 
 UbuntuCMakeDeployStep::UbuntuCMakeDeployStep(ProjectExplorer::BuildStepList *bsl, UbuntuCMakeDeployStep *bs)
@@ -176,7 +176,7 @@ UbuntuCMakeDeployStep::~UbuntuCMakeDeployStep()
 bool UbuntuCMakeDeployStep::fromMap(const QVariantMap &map)
 {
     if(MakeStep::fromMap(map)) {
-        setAdditionalArguments(QLatin1String("DESTDIR=package install"));
+        setAdditionalArguments(QString::fromLatin1("DESTDIR=%1 install").arg(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR)));
         return true;
     }
     return false;

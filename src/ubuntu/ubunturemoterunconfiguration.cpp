@@ -135,7 +135,7 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
     m_appId.clear();
 
     Utils::FileName buildDir = target()->activeBuildConfiguration()->buildDirectory();
-    QDir package_dir(buildDir.toString()+QDir::separator()+QLatin1String("package"));
+    QDir package_dir(buildDir.toString()+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR));
     if(!package_dir.exists()) {
         if(errorMessage)
             *errorMessage = tr("No packaging directory available, please check if the deploy configuration is correct.");
@@ -287,7 +287,7 @@ bool UbuntuRemoteRunConfiguration::readDesktopFile(QString *errorMessage)
         //looks like a application without a launcher
         m_localExecutable = target()->activeBuildConfiguration()->buildDirectory().toString()
                 + QDir::separator()
-                + QLatin1String("package")
+                + QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR)
                 + QDir::separator()
                 + command;
 
