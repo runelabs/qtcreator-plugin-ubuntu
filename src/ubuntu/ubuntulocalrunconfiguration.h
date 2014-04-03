@@ -21,6 +21,8 @@
 
 #include <QObject>
 #include <projectexplorer/localapplicationrunconfiguration.h>
+#include <projectexplorer/deployconfiguration.h>
+#include <utils/fileutils.h>
 
 
 namespace ProjectExplorer {
@@ -31,12 +33,12 @@ class Target;
 namespace Ubuntu {
 namespace Internal {
 
-class UbuntuRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
+class UbuntuLocalRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
 {
     Q_OBJECT
 public:
-    UbuntuRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
-    UbuntuRunConfiguration(ProjectExplorer::Target *parent, UbuntuRunConfiguration* source);
+    UbuntuLocalRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    UbuntuLocalRunConfiguration(ProjectExplorer::Target *parent, UbuntuLocalRunConfiguration* source);
 
     QWidget *createConfigurationWidget();
     bool isEnabled() const;
@@ -48,6 +50,24 @@ public:
     virtual QString dumperLibrary() const;
     virtual QStringList dumperLibraryLocations() const;
     virtual RunMode runMode() const;
+    virtual void addToBaseEnvironment(Utils::Environment &env) const;
+
+    // RunConfiguration interface
+    virtual bool ensureConfigured(QString *errorMessage);
+
+    //static helpers
+    static QString getDesktopFile (RunConfiguration *config, QString *appId, QString *errorMessage = 0);
+    static bool readDesktopFile (const QString &desktopFile, QString *executable, QStringList *arguments, QString *errorMessage);
+
+private:
+    bool ensureClickAppConfigured (QString *errorMessage);
+    bool ensureScopesAppConfigured (QString *errorMessage);
+    bool ensureUbuntuProjectConfigured (QString *errorMessage);
+
+private:
+    QString m_executable;
+    QString m_workingDir;
+    QStringList m_args;
 };
 
 }

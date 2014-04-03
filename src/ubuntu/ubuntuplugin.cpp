@@ -20,15 +20,17 @@
 #include "ubuntuconstants.h"
 #include "ubuntuprojectapplicationwizard.h"
 #include "ubuntuprojectmanager.h"
-#include "ubunturunconfiguration.h"
-#include "ubunturunconfigurationfactory.h"
+#include "ubuntulocalrunconfiguration.h"
+#include "ubuntulocalrunconfigurationfactory.h"
+#include "ubunturemoteruncontrolfactory.h"
 #include "ubuntuclicktool.h"
 #include "ubuntukitmanager.h"
 #include "ubuntucmaketool.h"
 #include "ubuntudevicefactory.h"
 #include "clicktoolchain.h"
 #include "ubuntucmakebuildconfiguration.h"
-#include "ubuntudeployconfiguration.h"
+#include "ubunturemotedeployconfiguration.h"
+#include "ubuntulocaldeployconfiguration.h"
 #include "localportsmanager.h"
 
 #include <coreplugin/modemanager.h>
@@ -58,9 +60,6 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
-
-    qDebug()<<"init";
-    qDebug()<<"Going to load ressources from root path: "<<Constants::UBUNTU_RESOURCE_PATH;
 
     const QLatin1String mimetypesXml(Constants::UBUNTU_MIMETYPE_XML);
 
@@ -135,8 +134,8 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
     // Handle new project type files
     addAutoReleasedObject(new UbuntuProjectManager);
-    addAutoReleasedObject(new UbuntuRunConfigurationFactory);
-    addAutoReleasedObject(new UbuntuRunControlFactory);
+    addAutoReleasedObject(new UbuntuLocalRunConfigurationFactory);
+    addAutoReleasedObject(new UbuntuRemoteRunControlFactory);
 
     // Build support
     addAutoReleasedObject(new ClickToolChainFactory);
@@ -149,7 +148,11 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     addAutoReleasedObject(new UbuntuLocalPortsManager);
 
     //deploy support
-    addAutoReleasedObject(new UbuntuDeployConfigurationFactory);
+    addAutoReleasedObject(new UbuntuRemoteDeployConfigurationFactory);
+
+    //disabled for now, keeping the code because we might need a deploy method
+    //for local applications in the future
+    //addAutoReleasedObject(new UbuntuLocalDeployConfigurationFactory);
     addAutoReleasedObject(new UbuntuDeployStepFactory);
 
     //cmake build support, hack until we have a better solution

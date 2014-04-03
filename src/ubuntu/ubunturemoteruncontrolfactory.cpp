@@ -16,7 +16,7 @@
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-#include "ubunturuncontrolfactory.h"
+#include "ubunturemoteruncontrolfactory.h"
 #include "ubunturemoterunconfiguration.h"
 
 #include <projectexplorer/kitinformation.h>
@@ -36,7 +36,7 @@
 
 using namespace Ubuntu::Internal;
 
-bool UbuntuRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfiguration,
+bool UbuntuRemoteRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfiguration,
                                 ProjectExplorer::RunMode mode) const {
 
     if(qobject_cast<UbuntuRemoteRunConfiguration*>(runConfiguration)) {
@@ -51,7 +51,7 @@ bool UbuntuRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfi
     return false;
 }
 
-ProjectExplorer::RunControl *UbuntuRunControlFactory::create(ProjectExplorer::RunConfiguration *runConfiguration,
+ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplorer::RunConfiguration *runConfiguration,
                                                         ProjectExplorer::RunMode mode, QString *errorMessage)
 {
 
@@ -118,6 +118,6 @@ ProjectExplorer::RunControl *UbuntuRunControlFactory::create(ProjectExplorer::Ru
     return 0;
 }
 
-QString UbuntuRunControlFactory::displayName() const {
+QString UbuntuRemoteRunControlFactory::displayName() const {
     return tr("Run on Ubuntu Touch Device");
 }

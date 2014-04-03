@@ -41,9 +41,6 @@ SOURCES += \
     ubuntuproject.cpp \
     ubuntuprojectfile.cpp \
     ubuntuprojectnode.cpp \
-    ubunturunconfiguration.cpp \
-    ubunturunconfigurationfactory.cpp \
-    ubunturuncontrolfactory.cpp \
     ubuntuprojectapp.cpp \
     ubuntuversion.cpp \
     ubuntufeatureprovider.cpp \
@@ -82,12 +79,16 @@ SOURCES += \
     ubuntudevicefactory.cpp \
     ubuntudevice.cpp \
     ubuntudeviceconfigurationwidget.cpp \
-    ubuntudeployconfiguration.cpp \
     ubunturemoterunconfiguration.cpp \
     ubuntucmakemakestep.cpp \
     ubuntuemulatornotifier.cpp \
     localportsmanager.cpp \
-    ubuntuprojectguesser.cpp
+    ubuntuprojectguesser.cpp \
+    ubuntulocaldeployconfiguration.cpp \
+    ubunturemotedeployconfiguration.cpp \
+    ubuntulocalrunconfigurationfactory.cpp \
+    ubunturemoteruncontrolfactory.cpp \
+    ubuntulocalrunconfiguration.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -101,9 +102,6 @@ HEADERS += \
     ubuntuproject.h \
     ubuntuprojectfile.h \
     ubuntuprojectnode.h \
-    ubunturunconfiguration.h \
-    ubunturunconfigurationfactory.h \
-    ubunturuncontrolfactory.h \
     ubuntuprojectapp.h \
     ubuntuversion.h \
     ubuntufeatureprovider.h \
@@ -142,10 +140,14 @@ HEADERS += \
     ubuntudevicefactory.h \
     ubuntudevice.h \
     ubuntudeviceconfigurationwidget.h \
-    ubuntudeployconfiguration.h \
     ubunturemoterunconfiguration.h \
     ubuntucmakemakestep.h \
     ubuntuemulatornotifier.h \
     localportsmanager.h \
-    ubuntuprojectguesser.h
+    ubuntuprojectguesser.h \
+    ubuntulocaldeployconfiguration.h \
+    ubunturemotedeployconfiguration.h \
+    ubuntulocalrunconfigurationfactory.h \
+    ubunturemoteruncontrolfactory.h \
+    ubuntulocalrunconfiguration.h
 

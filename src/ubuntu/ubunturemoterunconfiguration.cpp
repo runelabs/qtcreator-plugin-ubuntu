@@ -2,8 +2,8 @@
 #include "clicktoolchain.h"
 #include "ubuntuclicktool.h"
 #include "ubuntucmakebuildconfiguration.h"
-#include "ubuntuclickmanifest.h"
 #include "ubuntuconstants.h"
+#include "ubuntulocalrunconfiguration.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
@@ -134,8 +134,7 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
     m_desktopFile.clear();
     m_appId.clear();
 
-    Utils::FileName buildDir = target()->activeBuildConfiguration()->buildDirectory();
-    QDir package_dir(buildDir.toString()+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR));
+    QDir package_dir(target()->activeBuildConfiguration()->buildDirectory().toString()+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR));
     if(!package_dir.exists()) {
         if(errorMessage)
             *errorMessage = tr("No packaging directory available, please check if the deploy configuration is correct.");
@@ -143,125 +142,20 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
         return false;
     }
 
-    //read the manifest
-    UbuntuClickManifest manifest;
-    if(!manifest.load(package_dir.absoluteFilePath(QLatin1String("manifest.json")),target()->project()->displayName())) {
-        if(errorMessage)
-            *errorMessage = tr("Could not open the manifest file in the package directory, maybe you have to create one.");
-
-        return false;
-    }
-
-    //get the hooks property that contains the desktop file
-    QScriptValue hooks = manifest.hooks();
-    if(hooks.isNull()) {
-        if(errorMessage)
-            *errorMessage = tr("No hooks property in the manifest");
-        return false;
-    }
-
-    //check if the hooks property is a object
-    QVariantMap hookMap = hooks.toVariant().toMap();
-    if(hookMap.isEmpty()){
-        if(errorMessage)
-            *errorMessage = tr("Hooks needs to be a object");
-        return false;
-    }
-
-    //get the app id and check if the first property is a object
-    m_appId = hookMap.firstKey();
-    QVariant app = hookMap.first();
-    if(!app.type() == QVariant::Map) {
-        if(errorMessage)
-            *errorMessage = tr("The hooks property can only contain objects");
-        return false;
-    }
-
-    //get the desktop file path in the package
-    QVariantMap hook = app.toMap();
-    if(!hook.contains(QLatin1String("desktop"))) {
-        if(errorMessage)
-            *errorMessage = tr("No desktop file found in hook: %1").arg(m_appId);
-        return false;
-    }
-
-    m_desktopFile = QDir::cleanPath(package_dir.absoluteFilePath(hook[QLatin1String("desktop")].toString()));
-    if(!readDesktopFile(errorMessage))
+    m_desktopFile = UbuntuLocalRunConfiguration::getDesktopFile(this,&m_appId,errorMessage);
+    if(m_desktopFile.isEmpty())
         return false;
 
-    m_arguments.append(QString::fromLatin1("--desktop_file_hint=/home/phablet/dev_tmp/%1/%2")
-                       .arg(target()->project()->displayName())
-                       .arg(hook[QLatin1String("desktop")].toString()));
-    m_arguments.append(QLatin1String("--stage_hint=main_stage"));
-    return true;
-}
+    /*
+     * Tries to read the Exec line from the desktop file, to
+     * extract arguments and to know which "executor" is used on
+     * the phone
+     */
+    QStringList args;
+    QString command;
 
-bool UbuntuRemoteRunConfiguration::fromMap(const QVariantMap &map)
-{
-    qDebug()<<Q_FUNC_INFO;
-    return AbstractRemoteLinuxRunConfiguration::fromMap(map);
-}
-
-QVariantMap UbuntuRemoteRunConfiguration::toMap() const
-{
-    QVariantMap m = AbstractRemoteLinuxRunConfiguration::toMap();
-    qDebug()<<Q_FUNC_INFO;
-    return m;
-}
-
-Core::Id UbuntuRemoteRunConfiguration::typeId()
-{
-    return Core::Id("UbuntuProjectManager.RemoteRunConfiguration");
-}
-
-void UbuntuRemoteRunConfiguration::setArguments(const QStringList &args)
-{
-    m_arguments = args;
-}
-
-/*!
- * \brief UbuntuRemoteRunConfiguration::readDesktopFile
- * Tries to read the Exec line from the desktop file, to
- * extract arguments and to know which "executor" is used on
- * the phone
- */
-bool UbuntuRemoteRunConfiguration::readDesktopFile(QString *errorMessage)
-{
-    QFile desktop(m_desktopFile);
-    if(!desktop.exists()) {
-        if(errorMessage)
-            *errorMessage = tr("Desktop file does not exist");
+    if(!UbuntuLocalRunConfiguration::readDesktopFile(m_desktopFile,&command,&args,errorMessage))
         return false;
-    }
-    if(!desktop.open(QIODevice::ReadOnly)) {
-        if(errorMessage)
-            *errorMessage = tr("Could not open desktop file for reading");
-        return false;
-    }
-
-    QString execLine;
-    QString name;
-
-    QTextStream in(&desktop);
-    while(!in.atEnd()) {
-        QString line = in.readLine();
-        if(line.startsWith(QLatin1String("#")))
-            continue;
-
-        line = line.mid(0,line.indexOf(QChar::fromLatin1('#'))).trimmed();
-        if(line.startsWith(QLatin1String("Exec"),Qt::CaseInsensitive)) {
-            execLine = line.mid(line.indexOf(QChar::fromLatin1('='))+1);
-            qDebug()<<"Found exec line: "<<execLine;
-            continue;
-        } else if(line.startsWith(QLatin1String("Name"),Qt::CaseInsensitive)) {
-            name = line.mid(line.indexOf(QChar::fromLatin1('='))+1);
-            qDebug()<<"Found name line: "<<name;
-            continue;
-        }
-    }
-
-    QStringList args = Utils::QtcProcess::splitArgs(execLine);
-    QString command  = args.takeFirst();
 
     QFileInfo commInfo(command);
     if(commInfo.completeBaseName().startsWith(QLatin1String("qmlscene"))) {
@@ -296,7 +190,37 @@ bool UbuntuRemoteRunConfiguration::readDesktopFile(QString *errorMessage)
                 + command;
 
     }
+
+    QFileInfo desk(m_desktopFile);
+    m_arguments.append(QString::fromLatin1("--desktop_file_hint=/home/phablet/dev_tmp/%1/%2")
+                       .arg(target()->project()->displayName())
+                       .arg(desk.fileName()));
+    m_arguments.append(QLatin1String("--stage_hint=main_stage"));
+
     return true;
+}
+
+bool UbuntuRemoteRunConfiguration::fromMap(const QVariantMap &map)
+{
+    qDebug()<<Q_FUNC_INFO;
+    return AbstractRemoteLinuxRunConfiguration::fromMap(map);
+}
+
+QVariantMap UbuntuRemoteRunConfiguration::toMap() const
+{
+    QVariantMap m = AbstractRemoteLinuxRunConfiguration::toMap();
+    qDebug()<<Q_FUNC_INFO;
+    return m;
+}
+
+Core::Id UbuntuRemoteRunConfiguration::typeId()
+{
+    return Core::Id("UbuntuProjectManager.RemoteRunConfiguration");
+}
+
+void UbuntuRemoteRunConfiguration::setArguments(const QStringList &args)
+{
+    m_arguments = args;
 }
 
 } // namespace Internal

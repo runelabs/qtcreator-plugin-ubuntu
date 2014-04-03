@@ -23,7 +23,7 @@
 #include <QObject>
 #include "ubuntuproject.h"
 #include "ubuntuconstants.h"
-#include "ubunturunconfiguration.h"
+#include "ubuntulocalrunconfiguration.h"
 
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -49,11 +49,11 @@
 namespace Ubuntu {
 namespace Internal {
 
-class UbuntuRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
+class UbuntuLocalRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
     Q_OBJECT
 public:
-    explicit UbuntuRunConfigurationFactory() {
+    explicit UbuntuLocalRunConfigurationFactory() {
         setObjectName(QLatin1String("UbuntuRunConfigurationFactory"));
     }
 

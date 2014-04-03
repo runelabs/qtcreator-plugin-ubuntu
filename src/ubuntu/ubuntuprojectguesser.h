@@ -17,8 +17,8 @@ class UbuntuProjectGuesser
 public:
     UbuntuProjectGuesser();
 
-    static bool isScopesProject ( ProjectExplorer::Project* project, QString *iniFileName = 0 );
-    static bool isClickProject  ( ProjectExplorer::Project *project);
+    static bool isScopesProject    ( ProjectExplorer::Project* project, QString *iniFileName = 0 );
+    static bool isClickAppProject  ( ProjectExplorer::Project *project);
 
 
     static Utils::FileName findScopesIniRecursive (const Utils::FileName &searchdir);

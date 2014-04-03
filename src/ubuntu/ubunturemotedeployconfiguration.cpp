@@ -1,10 +1,12 @@
-#include "ubuntudeployconfiguration.h"
+#include "ubunturemotedeployconfiguration.h"
 #include "ubuntucmakebuildconfiguration.h"
 #include "ubuntucmakemakestep.h"
 #include "ubuntuconstants.h"
+#include "ubuntuprojectguesser.h"
 
 #include <utils/qtcassert.h>
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/toolchain.h>
@@ -147,13 +149,13 @@ void UbuntuDirectUploadStep::projectNameChanged()
 }
 
 
-UbuntuDeployConfigurationFactory::UbuntuDeployConfigurationFactory(QObject *parent)
+UbuntuRemoteDeployConfigurationFactory::UbuntuRemoteDeployConfigurationFactory(QObject *parent)
     : DeployConfigurationFactory(parent)
 {
     setObjectName(QLatin1String("UbuntuDeployConfiguration"));
 }
 
-QList<Core::Id> UbuntuDeployConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
+QList<Core::Id> UbuntuRemoteDeployConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
 {
     QList<Core::Id> ids;
     if (!parent->project()->supportsKit(parent->kit()))
@@ -169,25 +171,25 @@ QList<Core::Id> UbuntuDeployConfigurationFactory::availableCreationIds(ProjectEx
         return ids;
 
     const Core::Id devType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(parent->kit());
-    if (devType == Constants::UBUNTU_DEVICE_TYPE_ID)
+    if (devType == Constants::UBUNTU_DEVICE_TYPE_ID && !UbuntuProjectGuesser::isScopesProject(parent->project()))
         ids << Core::Id(Constants::UBUNTU_DEPLOYCONFIGURATION_ID);
 
     return ids;
 }
 
-QString UbuntuDeployConfigurationFactory::displayNameForId(const Core::Id id) const
+QString UbuntuRemoteDeployConfigurationFactory::displayNameForId(const Core::Id id) const
 {
     if (id == Core::Id(Constants::UBUNTU_DEPLOYCONFIGURATION_ID))
         return tr("Deploy to Ubuntu Device");
     return QString();
 }
 
-bool UbuntuDeployConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const Core::Id id) const
+bool UbuntuRemoteDeployConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }
 
-ProjectExplorer::DeployConfiguration *UbuntuDeployConfigurationFactory::create(ProjectExplorer::Target *parent,
+ProjectExplorer::DeployConfiguration *UbuntuRemoteDeployConfigurationFactory::create(ProjectExplorer::Target *parent,
                                                                                const Core::Id id)
 {
     Q_ASSERT(canCreate(parent, id));
@@ -211,12 +213,12 @@ ProjectExplorer::DeployConfiguration *UbuntuDeployConfigurationFactory::create(P
     return dc;
 }
 
-bool UbuntuDeployConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const
+bool UbuntuRemoteDeployConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const
 {
     return canCreate(parent, ProjectExplorer::idFromMap(map));
 }
 
-ProjectExplorer::DeployConfiguration *UbuntuDeployConfigurationFactory::restore(ProjectExplorer::Target *parent,
+ProjectExplorer::DeployConfiguration *UbuntuRemoteDeployConfigurationFactory::restore(ProjectExplorer::Target *parent,
                                                                                 const QVariantMap &map)
 {
     if (!canRestore(parent, map))
@@ -232,7 +234,7 @@ ProjectExplorer::DeployConfiguration *UbuntuDeployConfigurationFactory::restore(
     return dc;
 }
 
-ProjectExplorer::DeployConfiguration *UbuntuDeployConfigurationFactory::clone(ProjectExplorer::Target *parent,
+ProjectExplorer::DeployConfiguration *UbuntuRemoteDeployConfigurationFactory::clone(ProjectExplorer::Target *parent,
                                                                               ProjectExplorer::DeployConfiguration *product)
 {
     if (!canClone(parent, product))
@@ -245,6 +247,7 @@ QList<Core::Id> UbuntuDeployStepFactory::availableCreationIds(ProjectExplorer::B
 {
     if(!canHandle(parent->target()))
         return QList<Core::Id>();
+
     return QList<Core::Id>()
             <<Constants::UBUNTU_DEPLOY_UPLOADSTEP_ID;
 }
@@ -253,9 +256,6 @@ QString UbuntuDeployStepFactory::displayNameForId(const Core::Id id) const
 {
     if(id == Constants::UBUNTU_DEPLOY_UPLOADSTEP_ID)
         return UbuntuDirectUploadStep::displayName();
-    else if(id == RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep::stepId())
-        return RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep::stepDisplayName();
-
     return QString();
 }
 
@@ -274,8 +274,6 @@ ProjectExplorer::BuildStep *UbuntuDeployStepFactory::create(ProjectExplorer::Bui
 
     if(id == Constants::UBUNTU_DEPLOY_UPLOADSTEP_ID)
         return new UbuntuDirectUploadStep(parent);
-    else if(id == RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep::stepId())
-        return new RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep(parent,id);
     return 0;
 }
 
@@ -312,9 +310,7 @@ ProjectExplorer::BuildStep *UbuntuDeployStepFactory::clone(ProjectExplorer::Buil
     const Core::Id id = product->id();
     if(id == Constants::UBUNTU_DEPLOY_UPLOADSTEP_ID)
         return new UbuntuDirectUploadStep(parent, static_cast<UbuntuDirectUploadStep *>(product));
-    else if(id == RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep::stepId())
-        return new RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep(parent
-                                                                     ,static_cast<RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep *>(product));
+
     return 0;
 }
 
@@ -328,7 +324,8 @@ bool UbuntuDeployStepFactory::canHandle(const ProjectExplorer::Target *t) const
     if(!tc || tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
         return false;
 
-    return t->project()->id() == Core::Id(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
+    return (t->project()->id() == Core::Id(CMakeProjectManager::Constants::CMAKEPROJECT_ID)
+            && !UbuntuProjectGuesser::isScopesProject(t->project()));
 }
 
 } // namespace Internal

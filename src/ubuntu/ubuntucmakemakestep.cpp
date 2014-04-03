@@ -1,5 +1,6 @@
 #include "ubuntucmakemakestep.h"
 #include "ubuntuconstants.h"
+#include "ubuntuprojectguesser.h"
 #include "clicktoolchain.h"
 
 #include <projectexplorer/kitinformation.h>
@@ -43,6 +44,10 @@ bool UbuntuCMakeMakeStepFactory::canHandle(const ProjectExplorer::Target *t) con
     if (!t->project()->supportsKit(t->kit()))
         return false;
 
+    if(ProjectExplorer::DeviceKitInformation::deviceId(t->kit()) == ProjectExplorer::Constants::DESKTOP_DEVICE_ID) {
+        return UbuntuProjectGuesser::isClickAppProject(t->project());
+    }
+
     ProjectExplorer::ToolChain* tc = ProjectExplorer::ToolChainKitInformation::toolChain(t->kit());
     if(!tc || tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
         return false;
@@ -55,7 +60,7 @@ QString UbuntuCMakeMakeStepFactory::displayNameForId(const Core::Id id) const
     if (id == Constants::UBUNTU_CLICK_CMAKE_MAKESTEP_ID)
         return tr("UbuntuSDK-Make", "Display name for UbuntuCMakeMakeStep id.");
     if (id == Constants::UBUNTU_DEPLOY_MAKESTEP_ID)
-        return tr("UbuntuSDK prepare deployment", "Display name for UbuntuCMakeDeployStep id.");
+        return tr("UbuntuSDK create deployment package", "Display name for UbuntuCMakeDeployStep id.");
     return QString();
 }
 
@@ -153,7 +158,7 @@ QString UbuntuCMakeMakeStep::makeCommand(ProjectExplorer::ToolChain *tc, const U
 UbuntuCMakeDeployStep::UbuntuCMakeDeployStep(ProjectExplorer::BuildStepList *bsl)
     : MakeStep(bsl,Core::Id(Constants::UBUNTU_DEPLOY_MAKESTEP_ID))
 {
-    setDefaultDisplayName(tr("UbuntuSDK prepare deployment"));
+    setDefaultDisplayName(tr("UbuntuSDK create deploy package"));
     setAdditionalArguments(QString::fromLatin1("DESTDIR=%1 install").arg(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR)));
 }
 

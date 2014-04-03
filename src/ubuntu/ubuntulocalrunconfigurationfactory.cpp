@@ -16,7 +16,7 @@
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-#include "ubunturunconfigurationfactory.h"
+#include "ubuntulocalrunconfigurationfactory.h"
 #include "ubunturemoterunconfiguration.h"
 #include "ubuntuprojectguesser.h"
 #include "ubuntudevice.h"
@@ -30,21 +30,26 @@
 using namespace Ubuntu;
 using namespace Ubuntu::Internal;
 
-QList<Core::Id> UbuntuRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const {
+QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const {
     if (!canHandle(parent))
         return QList<Core::Id>();
 
     QList<Core::Id> list;
 
+    bool isDesktopDevice = ProjectExplorer::DeviceKitInformation::deviceId(parent->kit()) == ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
+    bool isUbuntuDevice  = ProjectExplorer::DeviceKitInformation::device(parent->kit())->type() == Constants::UBUNTU_DEVICE_TYPE_ID;
+
     if(parent->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID) {
-        if(UbuntuProjectGuesser::isScopesProject(parent->project()))
-            list << Core::Id(Constants::UBUNTUPROJECT_RUNCONTROL_ID);
-        else {
+        if (UbuntuProjectGuesser::isScopesProject(parent->project())) {
+            if(isDesktopDevice)
+                list << Core::Id(Constants::UBUNTUPROJECT_RUNCONTROL_ID);
+        } else {
             //the scopes project has no run on device yet, thats why finding a
             //scopes project will block creating any runconfigurations for the device
-            if( ProjectExplorer::DeviceKitInformation::device(parent->kit())->type()
-                    == Constants::UBUNTU_DEVICE_TYPE_ID)
+            if(isUbuntuDevice)
                 list << UbuntuRemoteRunConfiguration::typeId();
+            else if(isDesktopDevice && UbuntuProjectGuesser::isClickAppProject(parent->project()))
+                list << Core::Id(Constants::UBUNTUPROJECT_RUNCONTROL_ID);
         }
     } else {
         list << Core::Id(Constants::UBUNTUPROJECT_RUNCONTROL_ID);
@@ -52,7 +57,7 @@ QList<Core::Id> UbuntuRunConfigurationFactory::availableCreationIds(ProjectExplo
     return list;
 }
 
-QString UbuntuRunConfigurationFactory::displayNameForId(const Core::Id id) const {
+QString UbuntuLocalRunConfigurationFactory::displayNameForId(const Core::Id id) const {
     if (id == Constants::UBUNTUPROJECT_RUNCONTROL_ID)
         return tr(Constants::UBUNTUPROJECT_DISPLAYNAME);
     else if(id == UbuntuRemoteRunConfiguration::typeId())
@@ -60,7 +65,7 @@ QString UbuntuRunConfigurationFactory::displayNameForId(const Core::Id id) const
     return QString();
 }
 
-bool UbuntuRunConfigurationFactory::canHandle(ProjectExplorer::Target *parent) const {
+bool UbuntuLocalRunConfigurationFactory::canHandle(ProjectExplorer::Target *parent) const {
 
     if(qobject_cast<CMakeProjectManager::CMakeProject*>(parent->project())) {
         if (!parent->project()->supportsKit(parent->kit()))
@@ -74,7 +79,11 @@ bool UbuntuRunConfigurationFactory::canHandle(ProjectExplorer::Target *parent) c
         if(tc->type() == QString::fromLatin1(Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
             return true;
 
-        if(UbuntuProjectGuesser::isScopesProject(parent->project()))
+        bool isDesktopDevice = ProjectExplorer::DeviceKitInformation::deviceId(parent->kit()) == ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
+        if(UbuntuProjectGuesser::isScopesProject(parent->project())
+                && isDesktopDevice)
+            return true;
+        else if(isDesktopDevice && UbuntuProjectGuesser::isClickAppProject(parent->project()))
             return true;
 
         return false;
@@ -85,7 +94,7 @@ bool UbuntuRunConfigurationFactory::canHandle(ProjectExplorer::Target *parent) c
     return true;
 }
 
-bool UbuntuRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent,
+bool UbuntuLocalRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent,
                                          const Core::Id id) const {
     if (!canHandle(parent))
         return false;
@@ -93,22 +102,22 @@ bool UbuntuRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent,
     return availableCreationIds(parent).contains(id);
 }
 
-bool UbuntuRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const {
+bool UbuntuLocalRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const {
     return parent && canCreate(parent, ProjectExplorer::idFromMap(map));
 }
 
-ProjectExplorer::RunConfiguration *UbuntuRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, const Core::Id id) {
+ProjectExplorer::RunConfiguration *UbuntuLocalRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, const Core::Id id) {
     if (!canCreate(parent, id))
         return NULL;
 
     if( id == UbuntuRemoteRunConfiguration::typeId() )
         return new UbuntuRemoteRunConfiguration(parent);
     else if ( id == Constants::UBUNTUPROJECT_RUNCONTROL_ID)
-        return new UbuntuRunConfiguration(parent, id);
+        return new UbuntuLocalRunConfiguration(parent, id);
     return 0;
 }
 
-ProjectExplorer::RunConfiguration *UbuntuRunConfigurationFactory::doRestore(ProjectExplorer::Target *parent, const QVariantMap &map) {
+ProjectExplorer::RunConfiguration *UbuntuLocalRunConfigurationFactory::doRestore(ProjectExplorer::Target *parent, const QVariantMap &map) {
     if (!canRestore(parent, map))
         return NULL;
 
@@ -122,11 +131,11 @@ ProjectExplorer::RunConfiguration *UbuntuRunConfigurationFactory::doRestore(Proj
     return conf;
 }
 
-bool UbuntuRunConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *product) const {
+bool UbuntuLocalRunConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *product) const {
     return canCreate(parent,product->id());
 }
 
-ProjectExplorer::RunConfiguration *UbuntuRunConfigurationFactory::clone(ProjectExplorer::Target *parent,
+ProjectExplorer::RunConfiguration *UbuntuLocalRunConfigurationFactory::clone(ProjectExplorer::Target *parent,
                                                                    ProjectExplorer::RunConfiguration *source) {
     if (!canClone(parent, source))
         return NULL;
@@ -134,5 +143,5 @@ ProjectExplorer::RunConfiguration *UbuntuRunConfigurationFactory::clone(ProjectE
     if(source->id() == UbuntuRemoteRunConfiguration::typeId())
         return new UbuntuRemoteRunConfiguration(parent,static_cast<UbuntuRemoteRunConfiguration*>(source));
 
-    return new UbuntuRunConfiguration(parent,static_cast<UbuntuRunConfiguration*>(source));
+    return new UbuntuLocalRunConfiguration(parent,static_cast<UbuntuLocalRunConfiguration*>(source));
 }

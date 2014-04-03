@@ -59,12 +59,12 @@ private:
     bool canHandle(const ProjectExplorer::Target *t) const;
 };
 
-class UbuntuDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
+class UbuntuRemoteDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
 {
     Q_OBJECT
 
 public:
-    explicit UbuntuDeployConfigurationFactory(QObject *parent = 0);
+    explicit UbuntuRemoteDeployConfigurationFactory(QObject *parent = 0);
 
     QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
     QString displayNameForId(const Core::Id id) const;

@@ -46,12 +46,12 @@
 namespace Ubuntu {
 namespace Internal {
 
-class UbuntuRunControlFactory : public ProjectExplorer::IRunControlFactory
+class UbuntuRemoteRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
 public:
-    explicit UbuntuRunControlFactory() = default;
-    virtual ~UbuntuRunControlFactory() {}
+    explicit UbuntuRemoteRunControlFactory() = default;
+    virtual ~UbuntuRemoteRunControlFactory() {}
 
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
