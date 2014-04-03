@@ -130,7 +130,7 @@ function wait_for_network_state_switch_on {
 }
 
 function clone_network_setup_from_host_to_device {
-	pkexec phablet-network-setup -s ${SERIALNUMBER}
+	pkexec phablet-network -s ${SERIALNUMBER}
 }
 
 #############################################################

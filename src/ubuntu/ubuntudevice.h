@@ -58,6 +58,7 @@ protected:
     void installDevTools ();
     void removeDevTools  ();
     void deployPublicKey ();
+    void cloneNetwork ();
     void startProcess    (const QString& command);
 
 protected slots:
@@ -78,6 +79,7 @@ protected:
 private:
     QString m_log;
     QString m_reply;
+    int     m_clonedNwCount;
     UbuntuDevice  *m_dev;
     QProcess *m_process;
     IUbuntuDeviceNotifier *m_deviceWatcher;
@@ -100,6 +102,7 @@ public:
         NotStarted,
         DetectDeviceVersion,
         DetectNetworkConnection,
+        CloneNetwork,
         DetectOpenSSH,
         InstallOpenSSH,
         RemoveOpenSSH,
