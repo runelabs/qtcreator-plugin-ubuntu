@@ -193,9 +193,16 @@ public:
     explicit UbuntuDeviceProcess(const QSharedPointer<const ProjectExplorer::IDevice> &device,
                                 QObject *parent = 0);
 
+    void setWorkingDirectory(const QString &directory);
+
     // DeviceProcess interface
 public:
     virtual void terminate();
+
+private:
+    // SshDeviceProcess interface
+    virtual QString fullCommandLine() const;
+    QString m_workingDir;
 };
 
 } // namespace Internal

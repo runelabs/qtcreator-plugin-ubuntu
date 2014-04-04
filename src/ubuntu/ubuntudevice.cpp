@@ -944,15 +944,47 @@ static QString quote(const QString &s) { return Utils::QtcProcess::quoteArgUnix(
 UbuntuDeviceProcess::UbuntuDeviceProcess(const QSharedPointer<const ProjectExplorer::IDevice> &device, QObject *parent)
     : RemoteLinux::LinuxDeviceProcess(device,parent)
 {
-    setRcFilesToSource(QStringList()
-                       << QLatin1String("/etc/profile")
-                       << QLatin1String("$HOME/.profile")
-                       << QLatin1String("$HOME/.bashrc"));
+}
+
+void UbuntuDeviceProcess::setWorkingDirectory(const QString &directory)
+{
+    m_workingDir = directory;
 }
 
 void UbuntuDeviceProcess::terminate()
 {
     LinuxDeviceProcess::terminate();
+}
+
+QString UbuntuDeviceProcess::fullCommandLine() const
+{
+    QStringList rcFiles = QStringList()
+            << QLatin1String("/etc/profile")
+            << QLatin1String("$HOME/.profile")
+            << QLatin1String("$HOME/.bashrc");
+
+    QStringList confFiles = QStringList()<<QString::fromLatin1("/etc/ubuntu-touch-session.d/$(getprop ro.product.device).conf");
+    QString fullCommandLine = QString::fromLatin1("test -f %1 && for myenv in $(cat  %1); do `echo \"export\" $myenv`; done ;").arg(confFiles[0]);
+
+    foreach (const QString &filePath, rcFiles)
+        fullCommandLine += QString::fromLatin1("test -f %1 && . %1;").arg(filePath);
+    if (!m_workingDir.isEmpty()) {
+        fullCommandLine.append(QLatin1String("cd ")).append(quote(m_workingDir))
+                .append(QLatin1String(" && "));
+    }
+    const QString envString = environment().toStringList().join(QLatin1String(" "));
+    if (!envString.isEmpty())
+        fullCommandLine.append(QLatin1Char(' ')).append(envString);
+    if (!fullCommandLine.isEmpty())
+        fullCommandLine += QLatin1Char(' ');
+    fullCommandLine.append(quote(executable()));
+    if (!arguments().isEmpty()) {
+        fullCommandLine.append(QLatin1Char(' '));
+        fullCommandLine.append(Utils::QtcProcess::joinArgsUnix(arguments()));
+    }
+
+    qDebug()<<fullCommandLine;
+    return fullCommandLine;
 }
 
 } // namespace Internal
