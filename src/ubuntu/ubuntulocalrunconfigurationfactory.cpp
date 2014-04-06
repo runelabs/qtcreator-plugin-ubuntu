@@ -37,7 +37,9 @@ QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(Project
     QList<Core::Id> list;
 
     bool isDesktopDevice = ProjectExplorer::DeviceKitInformation::deviceId(parent->kit()) == ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
-    bool isUbuntuDevice  = ProjectExplorer::DeviceKitInformation::device(parent->kit())->type() == Constants::UBUNTU_DEVICE_TYPE_ID;
+
+    ProjectExplorer::IDevice::ConstPtr devPtr = ProjectExplorer::DeviceKitInformation::device(parent->kit());
+    bool isUbuntuDevice  = (devPtr.isNull() == false) && (devPtr->type() == Constants::UBUNTU_DEVICE_TYPE_ID);
 
     if(parent->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID) {
         if (UbuntuProjectGuesser::isScopesProject(parent->project())) {
