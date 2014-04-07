@@ -492,12 +492,11 @@ void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {
         ProjectExplorer::Kit* k = target->kit();
         if(!k)
             return;
-#if 0
-        if(ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k) || dev->type() != Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID) {
-            QMessageBox::warning(this,tr("Wrong kit type"),tr("Packages can only be created for a Ubuntu Kit"));
+
+        if(ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k) != Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID) {
+            QMessageBox::warning(this,tr("Wrong kit type"),tr("It is not supported to create click packages for a non UbuntuSDK target"));
             return;
         }
-#endif
 
         ProjectExplorer::BuildConfiguration* bc = target->activeBuildConfiguration();
         if(!bc)
@@ -528,7 +527,7 @@ void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {
 
         m_buildManagerConnection = connect(ProjectExplorer::BuildManager::instance(),SIGNAL(buildQueueFinished(bool)),this,SLOT(buildFinished(bool)));
 
-        ProjectExplorer::BuildManager::buildList(steps,tr("Create Click package"));
+        ProjectExplorer::BuildManager::buildList(steps,tr("Build Project"));
         ProjectExplorer::BuildManager::appendStep(deplStep,tr("Preparing Click package"));
         ProjectExplorer::BuildManager::appendStep(package ,tr("Creating Click package"));
 
