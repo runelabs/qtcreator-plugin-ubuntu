@@ -4,9 +4,12 @@
 #include <QWidget>
 #include <QProcess>
 #include <QAbstractListModel>
+#include <QPointer>
 #include "ubuntubzr.h"
 #include "ubuntuclickmanifest.h"
 #include "ubuntuprocess.h"
+
+#include <projectexplorer/buildstep.h>
 
 namespace Ui {
 class UbuntuPackagingWidget;
@@ -65,12 +68,16 @@ protected slots:
     void bzrChanged();
 
     void checkClickReviewerTool();
+    void buildFinished (const bool success);
 
 signals:
     void reviewToolsInstalledChanged(const bool& installed);
 
 private slots:
     void on_comboBoxFramework_currentIndexChanged(int index);
+
+private:
+    void clearAdditionalBuildSteps ();
 
 private:
     bool m_reviewToolsInstalled;
@@ -88,5 +95,9 @@ private:
     Ui::UbuntuPackagingWidget *ui;
     UbuntuValidationResultModel *m_validationModel;
     ClickRunChecksParser* m_inputParser;
+
+    //packaging support with buildsteps
+    QList<QPointer<ProjectExplorer::BuildStep> > m_additionalPackagingBuildSteps;
+    QMetaObject::Connection m_buildManagerConnection;
 };
 #endif // UBUNTUPACKAGINGWIDGET_H

@@ -61,19 +61,6 @@
                 ]
             },
             {
-                "name": "Run Application on Device",
-                "id": "Ubuntu.Build.RunCMake",
-                "projectRequired": true,
-                "keysequence": "Ctrl+F12",
-                "deviceRequired": true,
-                "context" : "CMakeProject.ProjectContext",
-                "needsClickTarget" : true,
-                "saveRequired": true,
-                "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_device_run_app %SERIALNUMBER% qmlscene %CLICK_PACKAGING_FOLDER% %DISPLAYNAME%.desktop share/qml/%DISPLAYNAME%/%DISPLAYNAME%.qml /home/%USERNAME%/dev_tmp /home/%USERNAME%/.local/share/applications %USERNAME%@%IP% %PORT%"
-                ]
-            },
-            {
                 "name": "Run HTML5 Application on Device",
                 "id": "Ubuntu.Build.RunHtml5",
                 "workingDirectory": "%0/..",
@@ -110,18 +97,6 @@
                 ]
             },
             {
-                "name": "Create Application Package",
-                "id": "Ubuntu.Build.PackageCMake",
-                "workingDirectory": "%0/..",
-                "projectRequired": true,
-                "needsClickTarget": true,
-                "context": "CMakeProject.ProjectContext",
-                "saveRequired": true,
-                "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_cmakeproject_click_create %CLICK_ARCH% %CLICK_FRAMEWORK% %CLICK_SERIES% %PROJECTDIRECTORY% %DISPLAYNAME%"
-                ]
-            },
-            {
                 "name": "Install Application on Device",
                 "id": "Ubuntu.Build.PackageInstall",
                 "workingDirectory": "%0/..",
@@ -131,20 +106,6 @@
                 "saveRequired": true,
                 "actions": [
                     "%SCRIPTDIRECTORY%/qtc_project_click_createanddeploy %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp %USERNAME%"
-                ]
-            },
-            {
-                "name": "Install Application on Device",
-                "id": "Ubuntu.Build.PackageInstallCMake",
-                "workingDirectory": "%0/..",
-                "projectRequired": true,
-                "deviceRequired": true,
-                "ubuntuProjectRequired": false,
-                "saveRequired": true,
-                "needsClickTarget": true,
-                "context": "CMakeProject.ProjectContext",
-                "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_cmakeproject_click_createanddeploy %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp %USERNAME% %CLICK_ARCH% %CLICK_FRAMEWORK% %CLICK_SERIES% %PROJECTDIRECTORY% %DISPLAYNAME%"
                 ]
             },
             {

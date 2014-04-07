@@ -57,6 +57,32 @@ protected:
     friend class UbuntuCMakeMakeStepFactory;
 };
 
+class UbuntuClickPackageStep : public ProjectExplorer::AbstractProcessStep
+{
+    Q_OBJECT
+public:
+    UbuntuClickPackageStep(ProjectExplorer::BuildStepList *bsl);
+    UbuntuClickPackageStep(ProjectExplorer::BuildStepList *bsl, UbuntuClickPackageStep *bs);
+
+    virtual ~UbuntuClickPackageStep();
+
+    virtual bool init();
+    virtual void run(QFutureInterface<bool> &fi);
+    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+
+    QString packagePath () const;
+protected:
+    // AbstractProcessStep interface
+    virtual void stdOutput(const QString &line);
+    virtual void stdError(const QString &line);
+    virtual void processFinished(int exitCode, QProcess::ExitStatus status);
+
+private:
+    QList<ProjectExplorer::Task> m_tasks;
+    QString    m_lastLine;
+    QString    m_clickPackageName;
+};
+
 } // namespace Internal
 } // namespace Ubuntu
 

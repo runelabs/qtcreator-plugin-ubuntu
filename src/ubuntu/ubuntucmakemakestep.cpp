@@ -10,6 +10,8 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/projectconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/ioutputparser.h>
+#include <projectexplorer/customparser.h>
 #include <cmakeprojectmanager/cmakeproject.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
@@ -185,6 +187,127 @@ bool UbuntuCMakeDeployStep::fromMap(const QVariantMap &map)
         return true;
     }
     return false;
+}
+
+UbuntuClickPackageStep::UbuntuClickPackageStep(ProjectExplorer::BuildStepList *bsl)
+    : ProjectExplorer::AbstractProcessStep(bsl,Constants::UBUNTU_CLICK_PACKAGESTEP_ID)
+{
+
+}
+
+UbuntuClickPackageStep::UbuntuClickPackageStep(ProjectExplorer::BuildStepList *bsl, UbuntuClickPackageStep *bs)
+    : ProjectExplorer::AbstractProcessStep(bsl,bs)
+{
+}
+
+UbuntuClickPackageStep::~UbuntuClickPackageStep()
+{
+
+}
+
+
+void UbuntuClickPackageStep::stdOutput(const QString &line)
+{
+    m_lastLine = line;
+    AbstractProcessStep::stdOutput(line);
+}
+
+void UbuntuClickPackageStep::stdError(const QString &line)
+{
+    AbstractProcessStep::stdError(line);
+}
+
+void UbuntuClickPackageStep::processFinished(int exitCode, QProcess::ExitStatus status)
+{
+    if( exitCode == 0 && status == QProcess::NormalExit ) {
+        QRegularExpression exp(QLatin1String(Constants::UBUNTU_CLICK_SUCCESS_PACKAGE_REGEX));
+        QRegularExpressionMatch m = exp.match(m_lastLine);
+        if(m.hasMatch())
+            m_clickPackageName = m.captured(1);
+    }
+
+    ProjectExplorer::AbstractProcessStep::processFinished(exitCode,status);
+}
+
+bool UbuntuClickPackageStep::init()
+{
+    m_tasks.clear();
+
+    ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
+    if (!bc){
+        ProjectExplorer::Task t(ProjectExplorer::Task::Error
+                                ,tr("No valid BuildConfiguration set for step: %1").arg(displayName())
+                                ,Utils::FileName(),-1
+                                ,ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+        m_tasks.append(t);
+
+        //UbuntuClickPackageStep::run will stop if tasks exist
+        return true;
+
+    }
+
+
+    //builds the process arguments
+    QStringList arguments;
+    arguments << QLatin1String("build")
+              << bc->buildDirectory().toString()
+                 + QDir::separator()
+                 + QString::fromLatin1(Constants::UBUNTU_DEPLOY_DESTDIR);
+
+    setIgnoreReturnValue(false);
+
+    ProjectExplorer::ProcessParameters* params = processParameters();
+    params->setMacroExpander(bc->macroExpander());
+
+    //setup process parameters
+    params->setWorkingDirectory(bc->buildDirectory().toString());
+    params->setCommand(QLatin1String("click"));
+    params->setArguments(Utils::QtcProcess::joinArgs(arguments));
+
+    Utils::Environment env = bc->environment();
+    // Force output to english for the parsers. Do this here and not in the toolchain's
+    // addToEnvironment() to not screw up the users run environment.
+    env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
+    params->setEnvironment(env);
+
+    params->resolveAll();
+
+    ProjectExplorer::IOutputParser *parser = target()->kit()->createOutputParser();
+    if (parser) {
+        setOutputParser(parser);
+        outputParser()->setWorkingDirectory(params->effectiveWorkingDirectory());
+    }
+    return AbstractProcessStep::init();
+}
+
+void UbuntuClickPackageStep::run(QFutureInterface<bool> &fi)
+{
+    if (m_tasks.size()) {
+       foreach (const ProjectExplorer::Task& task, m_tasks) {
+           addTask(task);
+       }
+       emit addOutput(tr("Configuration is invalid. Aborting build")
+                      ,ProjectExplorer::BuildStep::MessageOutput);
+       fi.reportResult(false);
+       emit finished();
+       return;
+    }
+
+    AbstractProcessStep::run(fi);
+}
+
+ProjectExplorer::BuildStepConfigWidget *UbuntuClickPackageStep::createConfigWidget()
+{
+    return new ProjectExplorer::SimpleBuildStepConfigWidget(this);
+}
+
+QString UbuntuClickPackageStep::packagePath() const
+{
+    if(m_clickPackageName.isEmpty())
+        return QString();
+    return buildConfiguration()->buildDirectory().toString()
+            + QDir::separator()
+            + m_clickPackageName;
 }
 
 } // namespace Internal
