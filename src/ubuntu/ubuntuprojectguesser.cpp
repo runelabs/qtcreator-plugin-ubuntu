@@ -1,6 +1,8 @@
 #include "ubuntuprojectguesser.h"
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <cmakeprojectmanager/cmakeproject.h>
 #include <QDebug>
 
@@ -22,6 +24,13 @@ UbuntuProjectGuesser::UbuntuProjectGuesser()
 
 bool UbuntuProjectGuesser::isScopesProject(ProjectExplorer::Project *project, QString *iniFileName)
 {
+    //query the project type from CMakeCache always, only fall back on searching the directory
+    QString type = projectTypeFromCacheOrProject(project);
+    qDebug()<<"Project type from CMake "<<type;
+    if (!type.isEmpty()) {
+        return QString::compare(type, QLatin1String("Scope") , Qt::CaseInsensitive) == 0;
+    }
+
     QVariant cachedResult = project->property(SCOPES_TYPE_CACHE_PROPERTY);
     if(cachedResult.isValid()) {
         if(!cachedResult.toBool())
@@ -53,6 +62,13 @@ bool UbuntuProjectGuesser::isScopesProject(ProjectExplorer::Project *project, QS
 
 bool UbuntuProjectGuesser::isClickAppProject(ProjectExplorer::Project *project)
 {
+    //query the project type from CMakeCache always, only fall back on searching the directory
+    QString type = projectTypeFromCacheOrProject(project);
+    qDebug()<<"Project type from CMake "<<type;
+    if (!type.isEmpty()) {
+        return QString::compare(type, QLatin1String("ClickApp") , Qt::CaseInsensitive) == 0;
+    }
+
     QVariant cachedResult = project->property(CLICK_TYPE_CACHE_PROPERTY);
     if(cachedResult.isValid()) {
         return cachedResult.toBool();
@@ -139,6 +155,44 @@ Utils::FileName UbuntuProjectGuesser::findFileRecursive(const Utils::FileName &s
     }
 
     return Utils::FileName();
+}
+
+QString UbuntuProjectGuesser::projectTypeFromCacheOrProject(ProjectExplorer::Project *project)
+{
+    //First try to get the variable from the Cache file
+    if(project->activeTarget()
+            && project->activeTarget()->activeBuildConfiguration())
+    {
+        QFile cache(project->activeTarget()->activeBuildConfiguration()->buildDirectory().toString()
+                    + QDir::separator()
+                    + QLatin1String("CMakeCache.txt"));
+
+        if(cache.exists() && cache.open(QIODevice::ReadOnly)) {
+            QRegularExpression regExp(QLatin1String("^UBUNTU_PROJECT_TYPE:(.*)=\\s*(\\S*)\\s*$"));
+            QTextStream in(&cache);
+            while (!in.atEnd()) {
+                QString contents = in.readLine();
+                QRegularExpressionMatch m = regExp.match(contents);
+                if(m.hasMatch()) {
+                    return m.captured(2);
+                }
+            }
+        }
+    }
+
+    QFile projectFile(project->projectFilePath());
+    if (!projectFile.exists() || !projectFile.open(QIODevice::ReadOnly)) {
+        QRegularExpression regExp(QLatin1String("^\\s*SET\\s*\\(\\s*UBUNTU_PROJECT_TYPE\\s*\"?(\\S*)\"?"));
+        QTextStream in(&projectFile);
+        while (!in.atEnd()) {
+            QString contents = in.readLine();
+            QRegularExpressionMatch m = regExp.match(contents);
+            if(m.hasMatch()) {
+                return m.captured(1);
+            }
+        }
+    }
+    return QString();
 }
 
 } // namespace Internal

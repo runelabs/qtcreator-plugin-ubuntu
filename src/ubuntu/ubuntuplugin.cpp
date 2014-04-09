@@ -155,9 +155,11 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     //addAutoReleasedObject(new UbuntuLocalDeployConfigurationFactory);
     addAutoReleasedObject(new UbuntuDeployStepFactory);
 
+#if 0
     //cmake build support, hack until we have a better solution
     m_ubuntuClickManager = new UbuntuClickManager();
     addAutoReleasedObject(m_ubuntuClickManager);
+#endif
 
 
 
@@ -180,7 +182,9 @@ void UbuntuPlugin::extensionsInitialized()
     if (m_ubuntuCoreAppsMode) m_ubuntuCoreAppsMode->initialize();
     if (m_ubuntuWikiMode) m_ubuntuWikiMode->initialize();
     m_ubuntuPackagingMode->initialize();
+#if 0
     m_ubuntuClickManager->initialize();
+#endif
     Core::ModeManager::activateMode(m_ubuntuWelcomeMode->id());
 }
 

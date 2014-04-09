@@ -75,6 +75,9 @@ Utils::Environment UbuntuRemoteRunConfiguration::environment() const
     if(tc->type() == QString::fromLatin1(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
         ClickToolChain* clickTc = static_cast<ClickToolChain *>(tc);
         env.appendOrSet(QLatin1String("gnutriplet"),clickTc->gnutriplet());
+        env.appendOrSet(QLatin1String("QML2_IMPORT_PATH"),
+                        QString::fromLatin1("lib/%1").arg(clickTc->gnutriplet()),
+                        QString::fromLatin1(":"));
     }
     env.appendOrSet(QLatin1String("pkgdir"),workingDirectory());
     env.appendOrSet(QLatin1String("APP_ID"),m_appId);
