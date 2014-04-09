@@ -43,6 +43,8 @@ Depends: android-tools-adb,
          qtcreator-plugin-cmake,
          qtcreator-plugin-remotelinux,
          qtdeclarative5-controls-plugin,
+# Only for unity8-supported archs
+         unity-scope-tool [i386 amd64 armhf],
          ${shlibs:Depends},
          ${misc:Depends},
 Recommends: ubuntu-sdk
