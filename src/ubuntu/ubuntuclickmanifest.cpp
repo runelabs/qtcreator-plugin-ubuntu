@@ -19,6 +19,7 @@
 #include "ubuntuclickmanifest.h"
 #include "ubuntuconstants.h"
 #include "ubuntuclicktool.h"
+#include "ubuntushared.h"
 
 #include <QFile>
 #include <QtScriptTools/QScriptEngineDebugger>
@@ -27,6 +28,7 @@
 #include <QDebug>
 #include <QMainWindow>
 #include <QAction>
+#include <QScriptValueIterator>
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <projectexplorer/session.h>
@@ -139,10 +141,34 @@ QStringList UbuntuClickManifest::policyGroups(QString appName) {
     return retval;
 }
 
-QScriptValue UbuntuClickManifest::hooks()
+QList<UbuntuClickManifest::Hook> UbuntuClickManifest::hooks()
 {
-    if (!isInitialized()) { return QScriptValue(); }
-    return callGetFunction(QLatin1String("getHooks"),QScriptValueList());
+    QList<UbuntuClickManifest::Hook> hooks;
+    if (!isInitialized()) { return hooks; }
+
+    QScriptValue scriptHooks = callGetFunction(QLatin1String("getHooks"),QScriptValueList());
+    if(!scriptHooks.isObject())
+        return hooks;
+
+    QScriptValueIterator it(scriptHooks);
+    while (it.hasNext()) {
+        it.next();
+        QScriptValue appDescriptor = it.value();
+        if(!appDescriptor.isObject()
+                || !appDescriptor.property(QLatin1String("desktop")).isValid()
+                || !appDescriptor.property(QLatin1String("apparmor")).isValid()) {
+            printToOutputPane(tr("Invalid hook in manifest.json file."));
+            continue;
+        }
+
+        Hook app;
+        app.appId = it.name();
+        app.desktopFile  = it.value().property(QLatin1String("desktop")).toString();
+        app.appArmorFile = it.value().property(QLatin1String("apparmor")).toString();
+        hooks.append(app);
+    }
+
+    return hooks;
 }
 
 void UbuntuClickManifest::setFrameworkName(const QString &name)
@@ -156,6 +182,25 @@ QString UbuntuClickManifest::frameworkName()
 {
     if (!isInitialized()) { return QString(); }
     return callGetStringFunction(QLatin1String("getFrameworkName"));
+}
+
+QString UbuntuClickManifest::appArmorFileName(const QString &appId)
+{
+    if (!isInitialized()) { return QString(); }
+
+    QScriptValue v = callGetFunction(QLatin1String("getAppArmorFileName"),QScriptValueList()<<QScriptValue(appId));
+    return v.toString();
+}
+
+bool UbuntuClickManifest::setAppArmorFileName(const QString &appId, const QString &name)
+{
+    if (!isInitialized()) { return false; }
+    bool result = callFunction(QLatin1String("setAppArmorFileName"),QScriptValueList()<<QScriptValue(appId)<<QScriptValue(name)).toBool();
+    callSetFunction(QLatin1String("setAppArmorFileName"), QScriptValueList()<<appId<<name);
+    if(result)
+        emit appArmorFileNameChanged(appId, name);
+
+    return result;
 }
 
 void UbuntuClickManifest::save(QString fileName) {

@@ -44,8 +44,6 @@ void UbuntuKitManager::autoDetectKits()
 
     QList<ProjectExplorer::Kit *> existingKits;
     foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::kits()) {
-        if (!k->isAutoDetected())
-            continue;
         if (k->isSdkProvided())
             continue;
 
@@ -155,7 +153,7 @@ ProjectExplorer::Kit *UbuntuKitManager::createKit(ClickToolChain *tc)
 {
     //@TODO find a qt version
     ProjectExplorer::Kit* newKit = new ProjectExplorer::Kit;
-    newKit->setAutoDetected(true);
+    newKit->setAutoDetected(false); //let the user delete that stuff
     newKit->setIconPath(Utils::FileName::fromString(QLatin1String(Constants::UBUNTU_MODE_WEB_ICON)));
     ProjectExplorer::ToolChainKitInformation::setToolChain(newKit, tc);
 
@@ -216,10 +214,10 @@ QVariant UbuntuKitManager::createOrFindDebugger(const Utils::FileName &path)
  */
 void UbuntuKitManager::fixKit(ProjectExplorer::Kit *k)
 {
+    k->setAutoDetected(false);
+
     ClickToolChain* tc = static_cast<ClickToolChain *> (ProjectExplorer::ToolChainKitInformation::toolChain(k));
     if(!tc) {
-        //make kit editable for user (i think)
-        k->setAutoDetected(false);
         return;
     }
 

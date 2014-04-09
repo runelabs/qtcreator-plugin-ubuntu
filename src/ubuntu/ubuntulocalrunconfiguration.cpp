@@ -140,40 +140,13 @@ QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfigur
         return QString();
     }
 
-    //get the hooks property that contains the desktop file
-    QScriptValue hooks = manifest.hooks();
-    if(hooks.isNull()) {
-        if(errorMessage)
-            *errorMessage = tr("No hooks property in the manifest");
-        return QString();
+    QList<UbuntuClickManifest::Hook> hooks = manifest.hooks();
+    if (hooks.isEmpty()) {
+       if(errorMessage)
+           *errorMessage = tr("No valid hooks property in the manifest");
     }
-
-    //check if the hooks property is a object
-    QVariantMap hookMap = hooks.toVariant().toMap();
-    if(hookMap.isEmpty()){
-        if(errorMessage)
-            *errorMessage = tr("Hooks needs to be a object");
-        return QString();
-    }
-
-    //get the app id and check if the first property is a object
-    *appId = hookMap.firstKey();
-    QVariant app = hookMap.first();
-    if(!app.type() == QVariant::Map) {
-        if(errorMessage)
-            *errorMessage = tr("The hooks property can only contain objects");
-        return QString();
-    }
-
-    //get the desktop file path in the package
-    QVariantMap hook = app.toMap();
-    if(!hook.contains(QLatin1String("desktop"))) {
-        if(errorMessage)
-            *errorMessage = tr("No desktop file found in hook: %1").arg(*appId);
-        return QString();
-    }
-
-    return QDir::cleanPath(package_dir.absoluteFilePath(hook[QLatin1String("desktop")].toString()));
+    *appId = hooks[0].appId;
+    return QDir::cleanPath(package_dir.absoluteFilePath(hooks[0].desktopFile));
 }
 
 bool UbuntuLocalRunConfiguration::readDesktopFile(const QString &desktopFile, QString *executable, QStringList *arguments, QString *errorMessage)

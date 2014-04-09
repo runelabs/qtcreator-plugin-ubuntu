@@ -87,6 +87,7 @@ private:
     QProcess m_click;
     UbuntuBzr m_bzr;
     QString m_projectName;
+    QString m_projectDir;
     QString m_reply;
     QString m_excludesFile;
     int m_previous_tab;
