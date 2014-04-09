@@ -1,3 +1,17 @@
+qtcreator-plugin-ubuntu (3.0.1+14.04.20140408-0ubuntu1) trusty; urgency=low
+
+  [ Zoltán Balogh ]
+  * Add dependency to unity-scope-tool (LP: #1297812) (LP: #1297812)
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+  [ Łukasz 'sil2100' Zemczak ]
+  * Make the new unity-scope-tool dependency arch-specific, only for
+    those architectures supported by unity8
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 08 Apr 2014 10:55:43 +0000
+
 qtcreator-plugin-ubuntu (3.0.1+14.04.20140329-0ubuntu1) trusty; urgency=low
 
   [ Benjamin Zeller ]
