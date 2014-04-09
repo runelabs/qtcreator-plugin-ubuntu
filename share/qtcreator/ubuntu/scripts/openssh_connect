@@ -22,5 +22,8 @@ USERNAME=$3
 IP=$4
 
 #$SCRIPTPATH/device_portforward ${PORT} 3768
-adb_shell service ssh start &> /dev/null
+if [ ! "$(adb_shell getprop persist.service.ssh)" = "true" ];then
+    adb_shell setprop persist.service.ssh true  >/dev/null 2>&1
+    adb_shell start ssh  >/dev/null 2>&1
+fi
 x-terminal-emulator -e "ssh -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p $PORT $USERNAME@$IP" &
