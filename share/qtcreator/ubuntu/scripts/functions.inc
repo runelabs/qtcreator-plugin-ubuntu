@@ -80,7 +80,7 @@ function device_hardware {
 }
 
 function device_image_hardware {
-	ubuntu_stamp | grep HARDWARE|sed "s/HARDWARE=//g"
+	adb_shell getprop "ro.build.product"
 }
 
 function does_device_hw_match_image_hw {
