@@ -233,10 +233,7 @@
                 "keysequence": "Ctrl+Shift+P",
                 "deviceRequired": true,
                 "actions": [
-                    "adb -s %SERIALNUMBER% root",
-                    "adb -s %SERIALNUMBER% shell /system/bin/screencap -p /tmp/screenshot.png",
-                    "adb -s %SERIALNUMBER% pull /tmp/screenshot.png /tmp/screenshot.png",
-                    "eog -s %SERIALNUMBER% /tmp/screenshot.png"
+                    "%SCRIPTDIRECTORY%/device_screenshot %SERIALNUMBER%"
                 ]
             },
             {
