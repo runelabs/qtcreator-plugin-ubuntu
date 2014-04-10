@@ -695,9 +695,8 @@ void UbuntuDevice::loadDefaultConfig()
 
     QString ip            = settings.value(QLatin1String(Constants::SETTINGS_KEY_IP),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_IP)).toString();
     QString username      = settings.value(QLatin1String(Constants::SETTINGS_KEY_USERNAME),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_USERNAME)).toString();
-    QString deviceSshPort = settings.value(QLatin1String(Constants::SETTINGS_KEY_SSH),Constants::SETTINGS_DEFAULT_DEVICE_SSH_PORT).toString();
-    QString qmlPort       = settings.value(QLatin1String(Constants::SETTINGS_KEY_QML),Constants::SETTINGS_DEFAULT_DEVICE_QML_PORT).toString();
-
+    //even though this is set here, it will be changed dynamically when the device is connected
+    QString deviceSshPort = QString::number(Constants::SETTINGS_DEFAULT_DEVICE_SSH_PORT);
     QSsh::SshConnectionParameters params;
     params.authenticationType = QSsh::SshConnectionParameters::AuthenticationTypePublicKey;
     params.host = ip;
