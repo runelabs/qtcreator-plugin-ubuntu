@@ -16,10 +16,12 @@
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-#ifndef UBUNTURUNCONFIGURATION_H
-#define UBUNTURUNCONFIGURATION_H
+#ifndef UBUNTURUNCONTROLFACTORY_H
+#define UBUNTURUNCONTROLFACTORY_H
 
 #include <QObject>
+#include "ubuntuproject.h"
+
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -30,12 +32,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/documentmanager.h>
-#include <debugger/debuggerrunner.h>
-#include <debugger/debuggerplugin.h>
-#include <debugger/debuggerconstants.h>
-#include <debugger/debuggerstartparameters.h>
-#include <debugger/debuggerruncontrolfactory.h>
-#include <extensionsystem/iplugin.h>
 #include <projectexplorer/iprojectmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
@@ -47,28 +43,23 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/applicationlauncher.h>
 
-
 namespace Ubuntu {
 namespace Internal {
 
-class UbuntuRunConfiguration : public ProjectExplorer::RunConfiguration
+class UbuntuRemoteRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
 public:
-    UbuntuRunConfiguration(ProjectExplorer::Target *parent, Core::Id id) : ProjectExplorer::RunConfiguration(parent, id) {}
+    explicit UbuntuRemoteRunControlFactory() = default;
+    virtual ~UbuntuRemoteRunControlFactory() {}
 
-    QWidget *createConfigurationWidget() {
-        return NULL;
-    }
-
-    bool isEnabled() const {
-        return true;
-    }
-
-    ProjectExplorer::Abi Qabi() const;
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;
+    ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
+                                        ProjectExplorer::RunMode mode, QString *errorMessage);
+    QString displayName() const;
+    
 };
 
 }
 }
-
-#endif // UBUNTURUNCONFIGURATION_H
+#endif // UBUNTURUNCONTROLFACTORY_H

@@ -15,8 +15,10 @@
 #
 # Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
 
-adb kill-server > /dev/null
-adb start-server > /dev/null
+if [ $1 -eq 1 ]; then
+    adb kill-server > /dev/null
+    adb start-server > /dev/null
+fi
 #adb root &> /dev/null
 #if [ $?==1 ]; then
 #  exit

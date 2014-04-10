@@ -24,9 +24,6 @@
 #include "ubuntudevicemode.h"
 #include "ubuntumenu.h"
 #include "ubuntuprojectmanager.h"
-#include "ubunturunconfiguration.h"
-#include "ubunturunconfigurationfactory.h"
-#include "ubunturuncontrolfactory.h"
 #include "ubuntufeatureprovider.h"
 #include "ubuntuversionmanager.h"
 #include "ubuntuircmode.h"
@@ -59,6 +56,9 @@ public:
 
     virtual bool initialize(const QStringList &arguments, QString *errorString);
     virtual void extensionsInitialized();
+
+private slots:
+    void onKitsLoaded ();
 
 protected:
     UbuntuWelcomeMode*      m_ubuntuWelcomeMode;

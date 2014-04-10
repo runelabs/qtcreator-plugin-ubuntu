@@ -23,6 +23,7 @@
 #include <QScriptProgram>
 #include <QScriptEngine>
 #include <QStringList>
+#include <QScriptValue>
 
 namespace Ubuntu {
 namespace Internal {
@@ -32,6 +33,12 @@ class UbuntuClickManifest : public QObject
     Q_OBJECT
 public:
     explicit UbuntuClickManifest(QObject *parent = 0);
+
+    struct Hook {
+        QString appId;
+        QString desktopFile;
+        QString appArmorFile;
+    };
 
 signals:
     void nameChanged();
@@ -45,7 +52,8 @@ signals:
     void loaded();
     void error();
     void fileNameChanged(QString);
-    void frameworkNameChanged(const QString& name);
+    void frameworkNameChanged(const QString &name);
+    void appArmorFileNameChanged (const QString &appId, const QString &name);
 
 public slots:
     void setName(QString name);
@@ -66,15 +74,20 @@ public slots:
     void setPolicyGroups(QString appName, QStringList groups);
     QStringList policyGroups(QString appName);
 
+    QList<Hook> hooks ();
+    
     void setPolicyVersion(const QString &version);
     QString policyVersion();
 
     void setFrameworkName (const QString& name);
     QString frameworkName ();
 
+    QString appArmorFileName ( const QString &appId );
+    bool setAppArmorFileName( const QString &appId, const QString &name );
+
     void save() { save(m_fileName); }
     void save(QString fileName);
-    void load(const QString &fileName, const QString &projectName);
+    bool load(const QString &fileName, const QString &projectName);
     void reload();
 
     QString raw();
@@ -90,7 +103,6 @@ protected:
     void callSetFunction(QString functionName, QScriptValueList args);
     void callSetStringListFunction(QString functionName, QStringList args);
     void callSetStringFunction(QString functionName, QString args);
-    void callSetFunction(QString functionName, QString arg, QStringList args);
 
     QScriptValue callGetFunction(QString functionName, QScriptValueList args);
     QStringList callGetStringListFunction(QString functionName);

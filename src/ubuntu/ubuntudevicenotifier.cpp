@@ -18,8 +18,15 @@
 
 #include "ubuntudevicenotifier.h"
 
+
+IUbuntuDeviceNotifier::IUbuntuDeviceNotifier(QObject *parent)
+    : QObject(parent)
+{
+
+}
+
 UbuntuDeviceNotifier::UbuntuDeviceNotifier(QObject *parent) :
-    QObject(parent)
+    IUbuntuDeviceNotifier(parent)
 {
     m_dev = udev_new();
     m_udevMonitor = NULL;
@@ -45,7 +52,7 @@ UbuntuDeviceNotifier::~UbuntuDeviceNotifier() {
     udev_unref(m_dev);
 }
 
-void UbuntuDeviceNotifier::startMonitoring(QString serialNumber) {
+void UbuntuDeviceNotifier::startMonitoring(const QString &serialNumber) {
     m_serialNumber = serialNumber;
 
     // check if the device is connected or disconnected at the moment
@@ -72,6 +79,17 @@ void UbuntuDeviceNotifier::stopMonitoring() {
     m_serialNumber = QLatin1String("");
 }
 
+/*!
+ * \brief UbuntuDeviceNotifier::isConnected
+ * Returns true if the device that is currently monitored
+ * is connected.
+ * \note you need to call startMonitoring() first
+ */
+bool UbuntuDeviceNotifier::isConnected() const
+{
+    return !m_devNode.isEmpty();
+}
+
 void UbuntuDeviceNotifier::on_udev_event() {
     if (!m_udevMonitor) {
         qDebug() << QLatin1String("no monitor");
@@ -95,6 +113,7 @@ void UbuntuDeviceNotifier::on_udev_event() {
         m_devNode = QLatin1String("");
         emit deviceDisconnected();
     } else if (action == QLatin1String("add") && m_serialNumber == serial && m_serialNumber.isEmpty()==false) {
+        emit deviceConnected();
         emit deviceConnected(m_serialNumber);
         m_devNode = devNode;
     } else if (action == QLatin1String("add")) {

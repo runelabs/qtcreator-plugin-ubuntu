@@ -20,6 +20,7 @@ Build-Depends: debhelper (>= 9),
                libudev-dev,
                libicu-dev,
                qtcreator-plugin-cmake-dev,
+               qtcreator-plugin-remotelinux-dev,
 Standards-Version: 3.9.4
 Homepage: https://launchpad.net/qtcreator-plugin-ubuntu
 # If you aren't a member of ~ubuntu-sdk-team but need to upload packaging changes,
@@ -40,6 +41,7 @@ Depends: android-tools-adb,
          ubuntu-ui-toolkit-examples,
          rsync,
          qtcreator-plugin-cmake,
+         qtcreator-plugin-remotelinux,
          qtdeclarative5-controls-plugin,
 # Only for unity8-supported archs
          unity-scope-tool [i386 amd64 armhf],

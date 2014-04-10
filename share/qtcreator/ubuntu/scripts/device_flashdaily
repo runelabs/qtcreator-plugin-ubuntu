@@ -30,10 +30,8 @@ if [[ !does_device_hw_match_image_hw ]]; then
 	echo ${DEVICE_HARDWARE}
  	echo
  	echo "          In order to flash your device, you must do it manually:"
-	echo "             phablet-flash cdimage-touch -s ${SERIALNUMBER} -d ${IMAGE_HARDWARE}"
+	echo "             ubuntu-device-flash --channel=devel-proposed --serial=${SERIALNUMBER} --bootstrap"
   	echo
-elif [[ phablet_tools_new_syntax ]]; then
-	x-terminal-emulator -e "bash -ic 'phablet-flash ubuntu-system -s ${SERIALNUMBER}'"
 else
-	x-terminal-emulator -e "bash -ic 'phablet-flash -s ${SERIALNUMBER}'"
+	x-terminal-emulator -e "bash -ic 'ubuntu-device-flash --channel=devel-proposed --wipe --serial=${SERIALNUMBER}'"
 fi

@@ -23,7 +23,7 @@
 #include <QObject>
 #include "ubuntuproject.h"
 #include "ubuntuconstants.h"
-#include "ubunturunconfiguration.h"
+#include "ubuntulocalrunconfiguration.h"
 
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -49,11 +49,11 @@
 namespace Ubuntu {
 namespace Internal {
 
-class UbuntuRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
+class UbuntuLocalRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
     Q_OBJECT
 public:
-    explicit UbuntuRunConfigurationFactory() {
+    explicit UbuntuLocalRunConfigurationFactory() {
         setObjectName(QLatin1String("UbuntuRunConfigurationFactory"));
     }
 
@@ -62,7 +62,7 @@ public:
 
     bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
-    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const;
+    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *product) const;
     ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source);
 
 private:

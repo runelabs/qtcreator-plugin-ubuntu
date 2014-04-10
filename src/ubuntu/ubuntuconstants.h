@@ -61,6 +61,8 @@ const int UBUNTUDEVICESWIDGET_DEVELOPERMODE_PAGE_DEVICEFOUND = 0;
 const int UBUNTUDEVICESWIDGET_DEVELOPERMODE_PAGE_NONETWORK = 2;
 const int UBUNTUDEVICESWIDGET_PAGE_EMULATOR_PACKAGE_CHECK = 0;
 const int UBUNTUDEVICESWIDGET_PAGE_EMULATOR_INSTANCES = 1;
+const int UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONNECTIVITY_NODEVICE_CONNECTED = 0;
+const int UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONNECTIVITY_DEVICE_CONNECTED = 1;
 const int UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONNECTIVITY_INFO = 0;
 const int UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONNECTIVITY_INPUT = 1;
 const int UBUNTUDEVICESWIDGET_PAGE_DEVICE_CONTROL_SIMPLE_TAB = 0;
@@ -147,6 +149,7 @@ const char UBUNTUPROJECT_DISPLAYNAME[] = "Ubuntu Project";
 const char UBUNTUPROJECT_RUNCONTROL_ID[] = "UbuntuProjectManager.UbuntuRunConfiguration";
 
 const char UBUNTUHTML_PROJECT_LAUNCHER_EXE[] = "ubuntu-html5-app-launcher";
+const char UBUNTUSCOPES_PROJECT_LAUNCHER_EXE[] = "unity-scope-tool";
 
 const char UBUNTU_PROJECT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Ubuntu");
 
@@ -198,26 +201,26 @@ const char MSG_EMULATOR_IS_CREATED[] = "Check the logs for details.";
 
 
 const char UBUNTUDEVICESWIDGET_REBOOT[] = "Reboot device..";
-const char UBUNTUDEVICESWIDGET_REBOOT_SCRIPT[] = "%0/device_reboot %1";
+const char UBUNTUDEVICESWIDGET_REBOOT_SCRIPT[] = "%0/device_reboot";
 const char UBUNTUDEVICESWIDGET_SHUTDOWN[] = "Shutdown device..";
-const char UBUNTUDEVICESWIDGET_SHUTDOWN_SCRIPT[] = "%0/device_shutdown %1";
+const char UBUNTUDEVICESWIDGET_SHUTDOWN_SCRIPT[] = "%0/device_shutdown";
 const char UBUNTUDEVICESWIDGET_REBOOT_TO_BOOTLOADER[] = "Reboot to bootloader..";
-const char UBUNTUDEVICESWIDGET_REBOOT_TO_BOOTLOADER_SCRIPT[] = "%0/device_reboot2bootloader %1";
+const char UBUNTUDEVICESWIDGET_REBOOT_TO_BOOTLOADER_SCRIPT[] = "%0/device_reboot2bootloader";
 const char UBUNTUDEVICESWIDGET_REBOOT_TO_RECOVERY[] = "Reboot to recovery..";
-const char UBUNTUDEVICESWIDGET_REBOOT_TO_RECOVERY_SCRIPT[] = "%0/device_reboot2recovery %1";
+const char UBUNTUDEVICESWIDGET_REBOOT_TO_RECOVERY_SCRIPT[] = "%0/device_reboot2recovery";
 const char UBUNTUWIDGETS_LOCAL_PACKAGE_INSTALLED_SCRIPT[] = "%0/local_package_installed %1";
 const char UBUNTUDEVICESWIDGET_LOCAL_INSTALL_EMULATOR[] = "%0/local_install_emulator %1";
 const char UBUNTUDEVICESWIDGET_DETECTOPENSSH[] = "Detecting if openssh-server is installed..";
 const char UBUNTUDEVICESWIDGET_DETECTOPENSSH_SCRIPT[] = "%0/openssh_version %1";
 const char UBUNTUDEVICESWIDGET_DETECTDEVICES[] = "Detecting device..";
-const char UBUNTUDEVICESWIDGET_DETECTDEVICES_SCRIPT[] = "%0/device_search";
-const char UBUNTUDEVICESWIDGET_SSHCONNECT_SCRIPT[] = "%0/openssh_connect %1 %2 %3 %4";
+const char UBUNTUDEVICESWIDGET_DETECTDEVICES_SCRIPT[] = "%0/device_search %1";
+const char UBUNTUDEVICESWIDGET_SSHCONNECT_SCRIPT[] = "%0/openssh_connect";
 const char UBUNTUDEVICESWIDGET_SSHCONNECT[] = "Opening ssh connection to device";
 
 const char UBUNTUDEVICESWIDGET_CLONENETWORK[] = "Clone network configuration from host to device..";
 const char UBUNTUDEVICESWIDGET_CLONENETWORK_SCRIPT[] = "%0/device_network_clone %1";
 const char UBUNTUDEVICESWIDGET_PORTFORWARD[] = "Enabling port forward..";
-const char UBUNTUDEVICESWIDGET_PORTFORWARD_SCRIPT[] = "%0/device_portforward %1 %2 %3";
+const char UBUNTUDEVICESWIDGET_PORTFORWARD_SCRIPT[] = "%0/device_portforward";
 const char UBUNTUDEVICESWIDGET_SETUP_PUBKEY_AUTH[] = "Setting up public key authentication..";
 const char UBUNTUDEVICESWIDGET_SETUP_PUBKEY_AUTH_SCRIPT[] = "%0/openssh_publickey %1 %2";
 const char UBUNTUDEVICESWIDGET_HASNETWORK[] = "Check if the device is connected to a network..";
@@ -481,6 +484,29 @@ const char UBUNTU_CLICK_SELECT_TARGET_LABEL[] = "Build target";
 extern const char* UBUNTU_CLICK_SUPPORTED_ARCHS[];
 extern const char* UBUNTU_CLICK_SUPPORTED_TARGETS[][3];
 
+//Buildsupport
+const char UBUNTU_CLICK_TOOLCHAIN_ID[]   = "UbuntuProjectManager.UbuntuGccToolChain";
+const char UBUNTU_CLICK_CMAKE_TOOL_ID[]  = "UbuntuProjectManager.UbuntuCMake";
+const char UBUNTU_CLICK_CMAKE_BC_ID[]       = "UbuntuProjectManager.UbuntuCMake.BuildConfiguration";
+const char UBUNTU_CLICK_CMAKE_MAKESTEP_ID[] = "UbuntuProjectManager.UbuntuCMake.MakeStep";
+const char UBUNTU_CLICK_CMAKE_WRAPPER[]  = "%0/qtc_chroot_cmake2";
+const char UBUNTU_CLICK_MAKE_WRAPPER[]   = "%0/qtc_chroot_make2";
+const char UBUNTU_CLICK_GCC_WRAPPER[]    = "%0/qtc_chroot_gcc";
+
+//Devicesupport
+const char UBUNTU_DEVICE_TYPE_ID[] = "UbuntuProjectManager.DeviceTypeId";
+const char UBUNTU_DEVICE_SSHIDENTITY[] = "%0/.ssh/ubuntudevice_%1_id_rsa";
+
+//Deploysupport
+const char UBUNTU_DEPLOYCONFIGURATION_ID[]       = "UbuntuProjectManager.DeployConfiguration";
+const char UBUNTU_LOCAL_DEPLOYCONFIGURATION_ID[] = "UbuntuProjectManager.LocalDeployConfiguration";
+const char UBUNTU_DEPLOY_UPLOADSTEP_ID[] = "UbuntuProjectManager.UploadStep";
+const char UBUNTU_DEPLOY_MAKESTEP_ID[]   = "UbuntuProjectManager.UbuntuCMake.DeployMakeStep";
+const char UBUNTU_CLICK_PACKAGESTEP_ID[] = "UbuntuProjectManager.ClickPackageStep";
+const char UBUNTU_DEPLOY_DESTDIR[] = ".ubuntu-sdk-deploy";
+const char UBUNTU_CLICK_SUCCESS_PACKAGE_REGEX[] = "^.*'(.*)'.$";
+
+//Frameworks
 const char UBUNTU_FRAMEWORK_14_04_BASENAME[] = "ubuntu-sdk-14.04";
 const char UBUNTU_FRAMEWORK_13_10_BASENAME[] = "ubuntu-sdk-13.10";
 const char UBUNTU_DEFAULT_QML_FRAMEWORK[]    = "ubuntu-sdk-14.04-qml";

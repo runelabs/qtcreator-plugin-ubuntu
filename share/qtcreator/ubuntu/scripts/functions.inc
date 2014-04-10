@@ -23,7 +23,7 @@ SSHIDENTITY=~/.ssh/ubuntudevice_${SERIALNUMBER}_id_rsa
 USERNAME=phablet
 
 function adb_root {
-	adb -s ${SERIALNUMBER} root &> /dev/null
+	adb -s ${SERIALNUMBER} root &> /dev/null 
 	adb -s ${SERIALNUMBER} wait-for-device &> /dev/null
 }
 
@@ -80,7 +80,7 @@ function device_hardware {
 }
 
 function device_image_hardware {
-	ubuntu_stamp | grep HARDWARE|sed "s/HARDWARE=//g"
+	adb_shell getprop "ro.build.product"
 }
 
 function does_device_hw_match_image_hw {
@@ -130,7 +130,7 @@ function wait_for_network_state_switch_on {
 }
 
 function clone_network_setup_from_host_to_device {
-	pkexec phablet-network-setup -s ${SERIALNUMBER}
+	pkexec phablet-network -s ${SERIALNUMBER}
 }
 
 #############################################################

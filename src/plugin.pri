@@ -21,5 +21,10 @@ UBUNTU_LOCAL_BUILD = $$(UBUNTU_QTC_PLUGIN_LOCALBUILD)
 include($$QTCREATOR_SOURCES/src/qtcreatorplugin.pri)
 
 INCLUDEPATH += $$QTCREATOR_SOURCES/src/
+
+## make sure the QtProject libs are available when building locally
+!isEmpty(UBUNTU_LOCAL_BUILD) {
+    LIBS += -L$$DESTDIRBASE/QtProject/$$DESTDIRAPPNAME/plugins/$$QTCREATOR_VERSION/QtProject
+}
 LIBS += -L$$[QT_INSTALL_LIBS]/qtcreator
 LIBS += -L$$[QT_INSTALL_LIBS]/qtcreator/plugins/QtProject

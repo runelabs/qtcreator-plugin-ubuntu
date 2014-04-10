@@ -33,8 +33,6 @@ UbuntuSettingsDeviceConnectivityWidget::UbuntuSettingsDeviceConnectivityWidget(Q
     m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICE_CONNECTIVITY));
     ui->lineEditDeviceUserName->setText(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_USERNAME),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_USERNAME)).toString());
     ui->lineEditDeviceIP->setText(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_IP),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_IP)).toString());
-    ui->spinBoxDeviceQmlPort->setValue(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_QML),Constants::SETTINGS_DEFAULT_DEVICE_QML_PORT).toInt());
-    ui->spinBoxDeviceSshPort->setValue(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_SSH),Constants::SETTINGS_DEFAULT_DEVICE_SSH_PORT).toInt());
     m_settings->endGroup();
 
     m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICES));
@@ -51,8 +49,6 @@ void UbuntuSettingsDeviceConnectivityWidget::apply() {
     m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICE_CONNECTIVITY));
     m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_USERNAME),ui->lineEditDeviceUserName->text());
     m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_IP),ui->lineEditDeviceIP->text());
-    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_QML),ui->spinBoxDeviceQmlPort->value());
-    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_SSH),ui->spinBoxDeviceSshPort->value());
     m_settings->endGroup();
 
     m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICES));
@@ -60,32 +56,4 @@ void UbuntuSettingsDeviceConnectivityWidget::apply() {
     m_settings->endGroup();
 
     m_settings->sync();
-}
-
-void UbuntuSettingsDeviceConnectivityWidget::on_pushButtonSshSetupPublicKey_clicked() {
-    UbuntuDevicesWidget* devices = UbuntuDevicesWidget::instance();
-    if (devices) {
-        devices->on_pushButtonSshSetupPublicKey_clicked();
-    }
-}
-
-void UbuntuSettingsDeviceConnectivityWidget::on_pushButtonPortForward_clicked() {
-    UbuntuDevicesWidget* devices = UbuntuDevicesWidget::instance();
-    if (devices) {
-        devices->on_pushButtonPortForward_clicked();
-    }
-}
-
-void UbuntuSettingsDeviceConnectivityWidget::on_pushButtonSshConnect_clicked() {
-    UbuntuDevicesWidget* devices = UbuntuDevicesWidget::instance();
-    if (devices) {
-        devices->on_pushButtonSshConnect_clicked();
-    }
-}
-
-void UbuntuSettingsDeviceConnectivityWidget::on_pushButtonCloneTimeConfig_clicked() {
-    UbuntuDevicesWidget* devices = UbuntuDevicesWidget::instance();
-    if (devices) {
-        devices->on_pushButtonCloneTimeConfig_clicked();
-    }
 }

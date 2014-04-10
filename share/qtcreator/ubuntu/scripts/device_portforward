@@ -16,18 +16,22 @@
 # Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
 
 . `dirname $0`/functions.inc
+shift
 
-SSHPORT=$2
-QMLPORT=$3
+SSHPORT=$1
+shift
 
 if [[ -z $SSHPORT ]]; then
   SSHPORT=2222
 fi
 
-if [[ -z $QMLPORT ]]; then
-  QMLPORT=3768
-fi
-
+echo "Forward Local ${1} to Remote 22"
 adb_forward_tcp ${SSHPORT} 22
-adb_forward_tcp ${QMLPORT} 3768
 
+while (( "$#" )); do
+
+echo "Forward Local ${1} to Remote ${1}"
+adb_forward_tcp ${1} ${1}
+shift
+
+done

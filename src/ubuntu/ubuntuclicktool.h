@@ -72,16 +72,15 @@ public:
 
     static void openChrootTerminal (const Target& target);
 
+    static QString targetBasePath (const Target& target);
     static bool getTargetFromUser (Target* target, const QString &framework=QString());
     static QStringList getSupportedFrameworks ();
     static QString getMostRecentFramework ( const QString &subFramework );
 
+    static bool          targetExists (const Target& target);
     static QList<Target> listAvailableTargets (const QString &framework=QString());
     static QPair<int,int> targetVersion (const Target& target);
-
-
-private:
-    Utils::QtcProcess *m_clickProcess;
+    static bool        targetFromPath(const QString& targetPath, Target* tg);
 };
 
 class UbuntuClickManager : public QObject

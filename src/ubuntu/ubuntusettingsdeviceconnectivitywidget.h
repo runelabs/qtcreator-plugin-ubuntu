@@ -35,12 +35,6 @@ public:
 
     void apply();
 
-protected slots:
-    void on_pushButtonSshSetupPublicKey_clicked();
-    void on_pushButtonPortForward_clicked();
-    void on_pushButtonSshConnect_clicked();
-    void on_pushButtonCloneTimeConfig_clicked();
-
 private:
     Ui::UbuntuSettingsDeviceConnectivityWidget *ui;
     QSettings* m_settings;

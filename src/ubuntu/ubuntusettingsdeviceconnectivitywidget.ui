@@ -23,60 +23,17 @@
    </item>
    <item>
     <layout class="QFormLayout" name="formLayout">
+     <property name="fieldGrowthPolicy">
+      <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+     </property>
      <item row="0" column="0">
-      <widget class="QLabel" name="label_5">
-       <property name="text">
-        <string>QML</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QSpinBox" name="spinBoxDeviceQmlPort">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="minimum">
-        <number>0</number>
-       </property>
-       <property name="maximum">
-        <number>32000</number>
-       </property>
-       <property name="value">
-        <number>3768</number>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_6">
-       <property name="text">
-        <string>SSH</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QSpinBox" name="spinBoxDeviceSshPort">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="minimum">
-        <number>0</number>
-       </property>
-       <property name="maximum">
-        <number>32000</number>
-       </property>
-       <property name="value">
-        <number>2222</number>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
         <string>Username</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
+     <item row="0" column="1">
       <widget class="QLineEdit" name="lineEditDeviceUserName">
        <property name="enabled">
         <bool>true</bool>
@@ -86,14 +43,14 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
+     <item row="1" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
         <string>IP</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="1" column="1">
       <widget class="QLineEdit" name="lineEditDeviceIP">
        <property name="text">
         <string>127.0.0.1</string>
@@ -101,46 +58,6 @@
       </widget>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pushButtonCloneTimeConfig">
-     <property name="text">
-      <string>Clone time config from host to device</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pushButtonPortForward">
-     <property name="styleSheet">
-      <string notr="true">color: #333</string>
-     </property>
-     <property name="text">
-      <string>Enable port forward from device to localhost</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pushButtonSshSetupPublicKey">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">color: #333</string>
-     </property>
-     <property name="text">
-      <string>Setup public key authentication</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pushButtonSshConnect">
-     <property name="styleSheet">
-      <string notr="true">color: #333</string>
-     </property>
-     <property name="text">
-      <string>Open ssh connection to device</string>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>

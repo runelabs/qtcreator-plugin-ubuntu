@@ -43,5 +43,3 @@ export QT_SELECT=qt5:$ARCH
 rm  -rf CMakeFiles  CMakeCache.txt  cmake_install.cmake  Makefile
 
 /usr/bin/click chroot -a $ARCH -f $FRAMEWORK run cmake -DINSTALL_TESTS=off -DCLICK_MODE=on ${ARCH_ARGS}  $@
-
-

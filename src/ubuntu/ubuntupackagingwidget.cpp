@@ -22,18 +22,23 @@
 #include "ubuntuconstants.h"
 #include "ubuntumenu.h"
 #include "ubuntuclicktool.h"
-
-using namespace Ubuntu;
+#include "ubuntucmakemakestep.h"
+#include "ubuntuvalidationresultmodel.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/iprojectmanager.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/buildmanager.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/buildsteplist.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
-#include <projectexplorer/target.h>
+
 
 #include <QFileDialog>
 #include <QJsonDocument>
@@ -43,8 +48,8 @@ using namespace Ubuntu;
 #include <QMessageBox>
 #include <QScriptEngine>
 #include <QRegularExpression>
-#include "ubuntuvalidationresultmodel.h"
 
+using namespace Ubuntu;
 using namespace Ubuntu::Internal;
 
 UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
@@ -89,49 +94,47 @@ UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
     checkClickReviewerTool();
 }
 
+UbuntuPackagingWidget::~UbuntuPackagingWidget()
+{
+    autoSave();
+    delete ui;
+
+    clearAdditionalBuildSteps();
+}
+
 void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd) {
 
-    const bool isCMakeCmd = (cmd == QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_ONFINISHED_ACTION_CLICK_CMAKECREATE).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) && (ui->pushButtonReviewersTools->isVisible());
-    const bool isQmlCmd   = (cmd == QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_ONFINISHED_ACTION_CLICK_CREATE).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) && (ui->pushButtonReviewersTools->isVisible());
+    disconnect(m_UbuntuMenu_connection);
+
+    if (!m_reviewToolsInstalled)
+        return;
 
     ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
 
     QString sClickPackageName;
     QString sClickPackagePath;
+    sClickPackageName = QString::fromLatin1("%0_%1_all.click").arg(ui->lineEdit_name->text()).arg(ui->lineEdit_version->text());
+    sClickPackagePath = startupProject->projectDirectory();
 
-    if(isCMakeCmd) {
-        QStringList args = proc->arguments();
-        QString arch      = args[0];
-        QString framework = args[1];
-        sClickPackageName = QString::fromLatin1("%0_%1_%2.click").arg(ui->lineEdit_name->text()).arg(ui->lineEdit_version->text()).arg(arch);
-        sClickPackagePath = QString::fromLatin1("%0/%1-%2/")
-                .arg(startupProject->activeTarget()->activeBuildConfiguration()->buildDirectory().toString())
-                .arg(framework)
-                .arg(arch);
-        qDebug()<<"Going to verify: "<<sClickPackageName<<sClickPackagePath;
-    }else {
-        sClickPackageName = QString::fromLatin1("%0_%1_all.click").arg(ui->lineEdit_name->text()).arg(ui->lineEdit_version->text());
-        sClickPackagePath = startupProject->projectDirectory();
-
-        QRegularExpression re(QLatin1String("\\/\\w+$")); // search for the project name in the path
-        QRegularExpressionMatch match = re.match(sClickPackagePath);
-        if (match.hasMatch()) {
-            QString matched = match.captured(0);
-            sClickPackagePath.chop(matched.length()-1); //leave the slash
-        }
+    QRegularExpression re(QLatin1String("\\/\\w+$")); // search for the project name in the path
+    QRegularExpressionMatch match = re.match(sClickPackagePath);
+    if (match.hasMatch()) {
+        QString matched = match.captured(0);
+        sClickPackagePath.chop(matched.length()-1); //leave the slash
     }
 
     sClickPackagePath.append(sClickPackageName);
     m_ubuntuProcess.stop();
-    if (sClickPackagePath.isEmpty()) {
-        disconnect(m_UbuntuMenu_connection);
+
+    if (sClickPackagePath.isEmpty())
         return;
-    }
+
+
+    qDebug()<<"Going to verify: "<<sClickPackagePath;
 
     m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION).arg(sClickPackagePath));
     m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(sClickPackagePath));
 
-    disconnect(m_UbuntuMenu_connection);
 }
 
 void UbuntuPackagingWidget::onNewValidationData()
@@ -226,12 +229,6 @@ void UbuntuPackagingWidget::setAvailable(bool available) {
     }
 }
 
-UbuntuPackagingWidget::~UbuntuPackagingWidget()
-{
-    autoSave();
-    delete ui;
-}
-
 bool UbuntuPackagingWidget::reviewToolsInstalled()
 {
     return m_reviewToolsInstalled;
@@ -270,6 +267,7 @@ bool UbuntuPackagingWidget::openManifestForProject() {
 
     if (startupProject) {
         m_projectName = startupProject->displayName();
+        m_projectDir  = startupProject->projectDirectory();
 
         QString fileName = QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_OPENMANIFEST)).arg(startupProject->projectDirectory());
         QString no_underscore_displayName = startupProject->displayName();
@@ -280,13 +278,29 @@ bool UbuntuPackagingWidget::openManifestForProject() {
             m_manifest.nameDashReplaced();
 
         }
-        QString fileAppArmorName = QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_APPARMOR)).arg(startupProject->projectDirectory()).arg(no_underscore_displayName);
+
+        QString defaultAppArmorName = QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_APPARMOR))
+                .arg(startupProject->projectDirectory())
+                .arg(no_underscore_displayName);
+
         if (QFile(fileName).exists()==false) {
             m_manifest.setFileName(fileName);
+            m_apparmor.setFileName(defaultAppArmorName);
             on_pushButtonReset_clicked();
         } else {
             load_manifest(fileName);
         }
+
+        //we just support the first hook for now
+        //@TODO proper support for multiple hooks
+        QList<UbuntuClickManifest::Hook> hooks = m_manifest.hooks();
+
+        QString fileAppArmorName;
+        if(hooks.isEmpty())
+            fileAppArmorName = defaultAppArmorName;
+        else
+            fileAppArmorName = QString(QLatin1String("%1/%2")).arg(startupProject->projectDirectory()).arg(hooks[0].appArmorFile);
+
         if (QFile(fileAppArmorName).exists()==false) {
             m_apparmor.setFileName(fileAppArmorName);
             on_pushButtonReset_clicked();
@@ -298,6 +312,7 @@ bool UbuntuPackagingWidget::openManifestForProject() {
         return true;
     } else {
         m_projectName.clear();
+        m_projectDir.clear();
     }
     return false;
 }
@@ -317,58 +332,87 @@ void UbuntuPackagingWidget::on_pushButtonReset_clicked() {
     QString fileAppArmorName = m_apparmor.fileName();
     load_manifest(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_MANIFEST));
     load_apparmor(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_MYAPP));
-    m_apparmor.setFileName(fileAppArmorName);
     m_manifest.setFileName(fileName);
+
+    QDir projectDir(m_projectDir);
+    if(fileAppArmorName.isEmpty() || !QFile::exists(fileAppArmorName)) {
+        fileAppArmorName = m_manifest.appArmorFileName(m_manifest.hooks()[0].appId);
+        fileAppArmorName = projectDir.absoluteFilePath(fileAppArmorName);
+    } else {
+        m_manifest.setAppArmorFileName(m_manifest.hooks()[0].appId,projectDir.relativeFilePath(fileAppArmorName));
+    }
+
+    m_apparmor.setFileName(fileAppArmorName);
+    m_apparmor.save();
+
     m_manifest.setMaintainer(m_bzr.whoami());
     QString userName = m_bzr.launchpadId();
     if (userName.isEmpty()) userName = QLatin1String(Constants::USERNAME);
     m_manifest.setName(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_NAME)).arg(userName).arg(m_projectName));
+    m_manifest.save();
     reload();
 }
 
 void UbuntuPackagingWidget::save(bool bSaveSimple) {
     Q_UNUSED(bSaveSimple);
     switch (m_previous_tab) {
-    case 0: {
-        // set package name to lower, bug #1219877
-        m_manifest.setName(ui->lineEdit_name->text().toLower());
-        m_manifest.setMaintainer(ui->lineEdit_maintainer->text());
-        m_manifest.setVersion(ui->lineEdit_version->text());
-        m_manifest.setTitle(ui->lineEdit_title->text());
-        m_manifest.setDescription(ui->lineEdit_description->text());
+        case 0: {
+            // set package name to lower, bug #1219877
+            m_manifest.setName(ui->lineEdit_name->text().toLower());
+            m_manifest.setMaintainer(ui->lineEdit_maintainer->text());
+            m_manifest.setVersion(ui->lineEdit_version->text());
+            m_manifest.setTitle(ui->lineEdit_title->text());
+            m_manifest.setDescription(ui->lineEdit_description->text());
 
-        if(ui->comboBoxFramework->currentText() != tr(Constants::UBUNTU_UNKNOWN_FRAMEWORK_NAME))
-            m_manifest.setFrameworkName(ui->comboBoxFramework->currentText());
+            if(ui->comboBoxFramework->currentText() != tr(Constants::UBUNTU_UNKNOWN_FRAMEWORK_NAME))
+                m_manifest.setFrameworkName(ui->comboBoxFramework->currentText());
 
-        QStringList items;
-        for (int i=0; i<ui->listWidget->count(); i++) {
-            // Fix bug #1221407 - make sure that there are no empty policy groups.
-            QString policyGroup = ui->listWidget->item(i)->text().trimmed();
-            if (!policyGroup.isEmpty()) {
-                items.append(ui->listWidget->item(i)->text());
+            QStringList items;
+            for (int i=0; i<ui->listWidget->count(); i++) {
+                // Fix bug #1221407 - make sure that there are no empty policy groups.
+                QString policyGroup = ui->listWidget->item(i)->text().trimmed();
+                if (!policyGroup.isEmpty()) {
+                    items.append(ui->listWidget->item(i)->text());
+                }
             }
-        }
-        m_apparmor.setPolicyGroups(m_projectName,items);
-        m_manifest.save();
-        m_apparmor.save();
-        save_excludes();
+            m_apparmor.setPolicyGroups(m_projectName,items);
+            m_manifest.save();
+            m_apparmor.save();
+            save_excludes();
 
-        break;
-    }
-    case 1: {
-        m_manifest.setRaw(ui->plainTextEditJson->toPlainText());
-        m_manifest.save();
-        break;
-    }
-    case 2: {
-        m_apparmor.setRaw(ui->plainTextEditAppArmorJson->toPlainText());
-        m_apparmor.save();
-        break;
-    }
-    case 3: {
-        save_excludes();
-        break;
-    }
+            break;
+        }
+        case 1: {
+            m_manifest.setRaw(ui->plainTextEditJson->toPlainText());
+
+            QList<UbuntuClickManifest::Hook> hooks = m_manifest.hooks();
+            if(hooks.size()) {
+                QString appArmorFileName = hooks[0].appArmorFile;
+                appArmorFileName = QString(QLatin1String("%1/%2"))
+                        .arg(m_projectDir)
+                        .arg(appArmorFileName);
+                if (appArmorFileName != m_apparmor.fileName()) {
+                    if(!QFile::exists(appArmorFileName)) {
+                        load_apparmor(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_MYAPP));
+                        m_apparmor.setFileName(appArmorFileName);
+                    } else {
+                        load_apparmor(appArmorFileName);
+                    }
+                }
+            }
+
+            m_manifest.save();
+            break;
+        }
+        case 2: {
+            m_apparmor.setRaw(ui->plainTextEditAppArmorJson->toPlainText());
+            m_apparmor.save();
+            break;
+        }
+        case 3: {
+            save_excludes();
+            break;
+        }
     }
 }
 
@@ -483,22 +527,68 @@ void UbuntuPackagingWidget::on_pushButton_addpolicy_clicked() {
 }
 
 void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {
-    m_UbuntuMenu_connection =  QObject::connect(UbuntuMenu::instance(),SIGNAL(finished_action(const QProcess*,QString)),this,SLOT(onFinishedAction(const QProcess*,QString)));
-    save((ui->tabWidget->currentWidget() == ui->tabSimple));
+    ProjectExplorer::Project* project = ProjectExplorer::SessionManager::startupProject();
+    if(!project)
+        return;
 
-    if(!m_UbuntuMenu_connection)
-        qDebug()<<"Could not connect signals";
+    if(project->projectManager()->mimeType() == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE)) {
+        ProjectExplorer::Target* target = project->activeTarget();
+        if(!target)
+            return;
 
-    QAction* action = 0;
-    if(ProjectExplorer::SessionManager::startupProject()->projectManager()->mimeType()
-            == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE)) {
-        action = UbuntuMenu::menuAction(Core::Id(Constants::UBUNTUPACKAGINGWIDGET_BUILDCMAKEPACKAGE_ID));
+        ProjectExplorer::Kit* k = target->kit();
+        if(!k)
+            return;
+
+        if(ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k) != Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID) {
+            QMessageBox::warning(this,tr("Wrong kit type"),tr("It is not supported to create click packages for a non UbuntuSDK target"));
+            return;
+        }
+
+        ProjectExplorer::BuildConfiguration* bc = target->activeBuildConfiguration();
+        if(!bc)
+            return;
+
+        if(!bc->isEnabled()) {
+            QString disabledReason = bc->disabledReason();
+            QMessageBox::information(this,tr("Disabled"),tr("The currently selected Buildconfiguration is disabled. %1").arg(disabledReason));
+            return;
+        }
+
+        if(ProjectExplorer::BuildManager::isBuilding()) {
+            QMessageBox::information(this,tr("Build running"),tr("There is currently a build running, please wait for it to be finished"));
+            return;
+        }
+
+        clearAdditionalBuildSteps();
+
+        ProjectExplorer::BuildStepList* steps = bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
+        if(!steps || steps->isEmpty())
+            return;
+
+        UbuntuCMakeDeployStep* deplStep = new UbuntuCMakeDeployStep(steps);
+        m_additionalPackagingBuildSteps.append(deplStep);
+
+        UbuntuClickPackageStep* package = new UbuntuClickPackageStep(steps);
+        m_additionalPackagingBuildSteps.append(package);
+
+        m_buildManagerConnection = connect(ProjectExplorer::BuildManager::instance(),SIGNAL(buildQueueFinished(bool)),this,SLOT(buildFinished(bool)));
+
+        ProjectExplorer::BuildManager::buildList(steps,tr("Build Project"));
+        ProjectExplorer::BuildManager::appendStep(deplStep,tr("Preparing Click package"));
+        ProjectExplorer::BuildManager::appendStep(package ,tr("Creating Click package"));
+
     } else {
-        action = UbuntuMenu::menuAction(Core::Id(Constants::UBUNTUPACKAGINGWIDGET_BUILDPACKAGE_ID));
-    }
+        m_UbuntuMenu_connection =  QObject::connect(UbuntuMenu::instance(),SIGNAL(finished_action(const QProcess*,QString)),this,SLOT(onFinishedAction(const QProcess*,QString)));
+        save((ui->tabWidget->currentWidget() == ui->tabSimple));
 
-    if(action) {
-        action->trigger();
+        if(!m_UbuntuMenu_connection)
+            qDebug()<<"Could not connect signals";
+
+        QAction* action = UbuntuMenu::menuAction(Core::Id(Constants::UBUNTUPACKAGINGWIDGET_BUILDPACKAGE_ID));
+        if(action) {
+            action->trigger();
+        }
     }
 }
 
@@ -507,6 +597,27 @@ void UbuntuPackagingWidget::checkClickReviewerTool() {
     QString sReviewerPackageName = QLatin1String(Ubuntu::Constants::REVIEWER_PACKAGE_NAME);
     m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUWIDGETS_LOCAL_PACKAGE_INSTALLED_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(sReviewerPackageName) << QApplication::applicationDirPath());
     m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_LOCAL_REVIEWER_INSTALLED));
+}
+
+void UbuntuPackagingWidget::buildFinished(const bool success)
+{
+    disconnect(m_buildManagerConnection);
+    if (success) {
+        UbuntuClickPackageStep *pckStep = qobject_cast<UbuntuClickPackageStep*>(m_additionalPackagingBuildSteps.last());
+        if (pckStep && !pckStep->packagePath().isEmpty()) {
+            m_ubuntuProcess.stop();
+
+            QString sClickPackagePath = pckStep->packagePath();
+            if (sClickPackagePath.isEmpty())
+                return;
+
+            qDebug()<<"Going to verify: "<<sClickPackagePath;
+
+            m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION).arg(sClickPackagePath));
+            m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(sClickPackagePath));
+        }
+    }
+    clearAdditionalBuildSteps();
 }
 
 void UbuntuPackagingWidget::on_comboBoxFramework_currentIndexChanged(int index)
@@ -522,4 +633,22 @@ void UbuntuPackagingWidget::on_comboBoxFramework_currentIndexChanged(int index)
     }
 
     m_apparmor.save();
+}
+
+/*!
+ * \brief UbuntuPackagingWidget::clearAdditionalBuildSteps
+ * Clears the last used additional buildsteps
+ * \note This will cancel a current build if its building the ProjectConfiguration
+ *       the BuildSteps belong to!
+ */
+void UbuntuPackagingWidget::clearAdditionalBuildSteps()
+{
+    foreach(QPointer<ProjectExplorer::BuildStep> step,m_additionalPackagingBuildSteps) {
+        if(step) {
+            if(ProjectExplorer::BuildManager::isBuilding(step->projectConfiguration()))
+                ProjectExplorer::BuildManager::cancel();
+            delete step.data();
+        }
+    }
+    m_additionalPackagingBuildSteps.clear();
 }

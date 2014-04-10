@@ -20,7 +20,8 @@ FORMS += \
     ubuntusettingsdeviceconnectivitywidget.ui \
     ubuntusettingsclickwidget.ui \
     ubuntuclickdialog.ui \
-    ubuntucreatenewchrootdialog.ui
+    ubuntucreatenewchrootdialog.ui \
+    ubuntudeviceconfigurationwidget.ui
 
 RESOURCES += \
     resources.qrc
@@ -40,10 +41,6 @@ SOURCES += \
     ubuntuproject.cpp \
     ubuntuprojectfile.cpp \
     ubuntuprojectnode.cpp \
-    ubunturunconfiguration.cpp \
-    ubunturunconfigurationfactory.cpp \
-    ubunturuncontrol.cpp \
-    ubunturuncontrolfactory.cpp \
     ubuntuprojectapp.cpp \
     ubuntuversion.cpp \
     ubuntufeatureprovider.cpp \
@@ -74,7 +71,24 @@ SOURCES += \
     ubuntuclicktool.cpp \
     ubuntucreatenewchrootdialog.cpp \
     ubuntuclickdialog.cpp \
-    ubuntuvalidationresultmodel.cpp
+    ubuntuvalidationresultmodel.cpp \
+    clicktoolchain.cpp \
+    ubuntukitmanager.cpp \
+    ubuntucmaketool.cpp \
+    ubuntucmakebuildconfiguration.cpp \
+    ubuntudevicefactory.cpp \
+    ubuntudevice.cpp \
+    ubuntudeviceconfigurationwidget.cpp \
+    ubunturemoterunconfiguration.cpp \
+    ubuntucmakemakestep.cpp \
+    ubuntuemulatornotifier.cpp \
+    localportsmanager.cpp \
+    ubuntuprojectguesser.cpp \
+    ubuntulocaldeployconfiguration.cpp \
+    ubunturemotedeployconfiguration.cpp \
+    ubuntulocalrunconfigurationfactory.cpp \
+    ubunturemoteruncontrolfactory.cpp \
+    ubuntulocalrunconfiguration.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -88,10 +102,6 @@ HEADERS += \
     ubuntuproject.h \
     ubuntuprojectfile.h \
     ubuntuprojectnode.h \
-    ubunturunconfiguration.h \
-    ubunturunconfigurationfactory.h \
-    ubunturuncontrol.h \
-    ubunturuncontrolfactory.h \
     ubuntuprojectapp.h \
     ubuntuversion.h \
     ubuntufeatureprovider.h \
@@ -122,5 +132,22 @@ HEADERS += \
     ubuntuclicktool.h \
     ubuntucreatenewchrootdialog.h \
     ubuntuclickdialog.h \
-    ubuntuvalidationresultmodel.h
+    ubuntuvalidationresultmodel.h \
+    clicktoolchain.h \
+    ubuntukitmanager.h \
+    ubuntucmaketool.h \
+    ubuntucmakebuildconfiguration.h \
+    ubuntudevicefactory.h \
+    ubuntudevice.h \
+    ubuntudeviceconfigurationwidget.h \
+    ubunturemoterunconfiguration.h \
+    ubuntucmakemakestep.h \
+    ubuntuemulatornotifier.h \
+    localportsmanager.h \
+    ubuntuprojectguesser.h \
+    ubuntulocaldeployconfiguration.h \
+    ubunturemotedeployconfiguration.h \
+    ubuntulocalrunconfigurationfactory.h \
+    ubunturemoteruncontrolfactory.h \
+    ubuntulocalrunconfiguration.h
 
