@@ -197,7 +197,7 @@ void UbuntuDevicesWidget::onFinished(QString cmd, int code) {
             ui->listWidget_EmulatorImages->addItem(item);
             ui->listWidget_EmulatorImages->setCurrentItem(item);
         }
-        detectDevices();
+        on_pushButtonRefresh_clicked();
     }
     if (cmd == QString::fromLatin1(Constants::UBUNTUWIDGETS_ONFINISHED_SCRIPT_LOCAL_PACKAGE_INSTALLED).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
         QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
