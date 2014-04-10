@@ -48,6 +48,7 @@ public:
 signals:
     void beginQueryDevice ();
     void endQueryDevice   ();
+    void detectionStateChanged ();
     void connected        ();
     void disconnected     ();
     void deviceNeedsSetup ();
@@ -169,6 +170,7 @@ public:
     FeatureState hasDeveloperTools    () const;
 
     ProcessState detectionState () const;
+    QString detectionStateString () const;
 
     // IDevice interface
     virtual ProjectExplorer::IDeviceWidget *createWidget();

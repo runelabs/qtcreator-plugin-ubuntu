@@ -433,6 +433,7 @@ void UbuntuDeviceHelper::setProcessState(const int newState)
         emit endQueryDevice();
 
     m_dev->m_processState = static_cast<UbuntuDevice::ProcessState>(newState);
+    emit detectionStateChanged();
 }
 
 void UbuntuDeviceHelper::resetToDefaults()
@@ -892,6 +893,50 @@ UbuntuDevice::FeatureState UbuntuDevice::hasDeveloperTools() const
 UbuntuDevice::ProcessState UbuntuDevice::detectionState() const
 {
     return m_processState;
+}
+
+QString UbuntuDevice::detectionStateString( ) const
+{
+    switch (m_processState) {
+        case NotStarted:
+            return tr("");
+        case DetectDeviceVersion:
+            return tr("Detecting device version");
+        case DetectNetworkConnection:
+            return tr("Detecting network connection");
+        case CloneNetwork:
+            return tr("Cloning network configuration");
+        case DetectOpenSSH:
+            return tr("Detecting OpenSSH");
+        case InstallOpenSSH:
+            return tr("Installing OpenSSH");
+        case RemoveOpenSSH:
+            return tr("Removing OpenSSH");
+        case StartOpenSSH:
+            return tr("Starting OpenSSH");
+        case EnablePortForwarding:
+            return tr("Enable portforwarding");
+        case DeployPublicKey:
+            return tr("Deploying public key to device");
+        case DetectDeviceWriteableImage:
+            return tr("Detecting if image is writeable");
+        case DetectDeveloperTools:
+            return tr("Detecting if developer tools are installed");
+        case FirstNonCriticalTask:
+            return tr("");
+        case CloneTimeConfig:
+            return tr("Cloning time configuration");
+        case EnableRWImage:
+            return tr("Enabling writeable image");
+        case DisableRWImage:
+            return tr("Disabling writeable image");
+        case InstallDevTools:
+            return tr("Installing development tools");
+        case RemoveDevTools:
+            return tr("Removing development tools");
+        case Done:
+            return tr("Finished");
+    }
 }
 
 ProjectExplorer::IDeviceWidget *UbuntuDevice::createWidget()
