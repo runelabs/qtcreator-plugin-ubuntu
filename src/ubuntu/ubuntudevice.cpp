@@ -275,7 +275,11 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
 
 void UbuntuDeviceHelper::onMessage(const QString &msg) {
     m_reply.append(msg);
-    addToLog(msg);
+
+    QString message = msg;
+    message.replace(QChar::fromLatin1('\n'),QLatin1String("<br/>"));
+
+    addToLog(message);
 }
 
 void UbuntuDeviceHelper::onError(const QString &error)
@@ -402,6 +406,23 @@ void UbuntuDeviceHelper::deviceDisconnected()
     emit disconnected();
 }
 
+void UbuntuDeviceHelper::readProcessOutput(QProcess *proc)
+{
+    QString stderr = QString::fromLocal8Bit(proc->readAllStandardError());
+    QString stdout = QString::fromLocal8Bit(proc->readAllStandardOutput());
+
+    QString msg;
+    if (!stderr.isEmpty()) {
+        msg.append(stderr);
+    }
+    if (!stdout.isEmpty()) {
+        msg.append(stdout);
+    }
+
+    if(!msg.isEmpty())
+        onMessage(msg);
+}
+
 void UbuntuDeviceHelper::stopProcess()
 {
     if(m_process) {
@@ -492,6 +513,12 @@ void UbuntuDeviceHelper::disableRWImage()
                  .arg(m_dev->id().toSetting().toString()));
 }
 
+/*!
+ * \brief UbuntuDeviceHelper::enablePortForward
+ * Sets up the port forwarding for the device, this is executed
+ * synchronously and will block the eventloop to make sure we only
+ * use the same port once
+ */
 void UbuntuDeviceHelper::enablePortForward()
 {
     setProcessState(UbuntuDevice::EnablePortForwarding);
@@ -528,11 +555,19 @@ void UbuntuDeviceHelper::enablePortForward()
     settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICE_CONNECTIVITY));
     QString deviceSshPort = QString::number(connParms.port);
 
-    startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_PORTFORWARD_SCRIPT)
-                 .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                 .arg(m_dev->id().toSetting().toString())
-                 .arg(deviceSshPort)
-                 .arg(ports.join(QChar::fromLatin1(' '))));
+    QStringList args = QStringList()
+            << m_dev->id().toSetting().toString()
+            <<deviceSshPort
+            <<ports;
+
+    QProcess adb;
+    adb.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_PORTFORWARD_SCRIPT)
+              .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH),args);
+
+    adb.waitForFinished();
+    readProcessOutput(&adb);
+
+    processFinished(QString(),adb.exitCode());
 }
 
 void UbuntuDeviceHelper::installDevTools()
@@ -609,18 +644,7 @@ void UbuntuDeviceHelper::startProcess(const QString &command)
 
 void UbuntuDeviceHelper::onProcessReadyRead()
 {
-    QString stderr = QString::fromLocal8Bit(m_process->readAllStandardError());
-    QString stdout = QString::fromLocal8Bit(m_process->readAllStandardOutput());
-
-    QString msg;
-    if (!stderr.isEmpty()) {
-        msg.append(stderr);
-    }
-    if (!stdout.isEmpty()) {
-        msg.append(stdout);
-    }
-
-    onMessage(msg);
+    readProcessOutput(m_process);
 }
 
 void UbuntuDeviceHelper::onProcessFinished(const int code)

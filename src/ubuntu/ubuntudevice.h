@@ -90,6 +90,7 @@ protected slots:
     void deviceDisconnected ();
 
 protected:
+    void readProcessOutput (QProcess* proc);
     void stopProcess ();
     void addToLog (const QString &msg);
     void setProcessState (const int newState);
