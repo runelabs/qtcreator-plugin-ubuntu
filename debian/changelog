@@ -1,3 +1,22 @@
+qtcreator-plugin-ubuntu (3.0.1+14.04.20140410.1-0ubuntu1) trusty; urgency=low
+
+  [ Benjamin Zeller ]
+  * Added Toolchains and Kit support to automatically.   detect a
+    available click chroot Added Devicesupport, connected Ubuntu devices
+    are.   automatically registered in QtCreator and can be set   for
+    different kits Added Deploysupport(CMake), the projects contents are
+    uploaded.   automatically using SSH after running make install on a
+    local   directory Added Run and Debugsupport: the command that
+    should be run.   on the device is read from the desktop file in the
+    deployed   directory. This means C++ and QML debugging work as well
+      as QML Profiling Dynamically forward ports, depending on adb
+    forward --list.   output. Adb Server is not restarted by default
+    anymore, only a press.   on the refresh button will trigger the
+    restart. That will fix   problems with failing adb scripts Added
+    local run support for Ubuntu projects .
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 10 Apr 2014 16:54:54 +0000
+
 qtcreator-plugin-ubuntu (3.0.1+14.04.20140408-0ubuntu1) trusty; urgency=low
 
   [ Zoltán Balogh ]
