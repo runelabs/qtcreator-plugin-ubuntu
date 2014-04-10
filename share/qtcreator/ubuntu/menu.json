@@ -317,34 +317,6 @@
                         "actions": [
                             "%SCRIPTDIRECTORY%/device_flashdaily_bootstrap %SERIALNUMBER%"
                         ]
-                    },                    
-                    {
-                        "name": "State",
-                        "id": "Ubuntu.Menu.Device.State",
-                        "submenu": [
-                            {
-                                "name": "Reboot",
-                                "id": "Ubuntu.Menu.Device.Reboot",
-                                "keysequence": "Ctrl+F8",
-                                "deviceRequired": true,
-                                "actions": [
-                                    "adb -s %SERIALNUMBER% root",
-                                    "adb -s %SERIALNUMBER% wait-for-device",
-                                    "adb -s %SERIALNUMBER% shell chroot /data/ubuntu /usr/bin/env -i PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin reboot"
-                                ]
-                            },
-                            {
-                                "name": "Shutdown",
-                                "id": "Ubuntu.Menu.Device.Shutdown",
-                                "keysequence": "Ctrl+F9",
-                                "deviceRequired": true,
-                                "actions": [
-                                    "adb -s %SERIALNUMBER% root",
-                                    "adb -s %SERIALNUMBER% wait-for-device",
-                                    "adb -s %SERIALNUMBER% shell chroot /data/ubuntu /usr/bin/env -i PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin shutdown -h now"
-                                ]
-                            }
-                        ]
                     }
                 ]
             },
@@ -352,26 +324,6 @@
                 "name": "Device Package Management",
                 "id": "Ubuntu.Menu.Device.AptGet",
                 "submenu": [
-                    {
-                        "name": "Run Package Update",
-                        "id": "Ubuntu.Menu.Device.AptGet.Update",
-                        "deviceRequired": true,
-                        "actions": [
-                            "adb -s %SERIALNUMBER% root",
-                            "adb -s %SERIALNUMBER% wait-for-device",
-                            "adb -s %SERIALNUMBER% shell chroot /data/ubuntu /usr/bin/env -i PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin apt-get update"
-                        ]
-                    },
-                    {
-                        "name": "Upgrade Packages",
-                        "id": "Ubuntu.Menu.Device.AptGet.Upgrade",
-                        "deviceRequired": true,
-                        "actions": [
-                            "adb -s %SERIALNUMBER% root",
-                            "adb -s %SERIALNUMBER% wait-for-device",
-                            "x-terminal-emulator -e \"adb -s %SERIALNUMBER% shell chroot /data/ubuntu /usr/bin/env -i PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin apt-get upgrade\""
-                        ]
-                    },
                     {
                         "name": "Install Package",
                         "id": "Ubuntu.Menu.Device.AptGet.Install",
@@ -386,7 +338,7 @@
                             },
                             "adb -s %SERIALNUMBER% root",
                             "adb -s %SERIALNUMBER% wait-for-device",
-                            "adb -s %SERIALNUMBER% shell chroot /data/ubuntu /usr/bin/env -i PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin apt-get -y install %0"
+                            "adb -s %SERIALNUMBER% shell apt-get -y install %0"
                         ]
                     },
                     {
@@ -403,7 +355,7 @@
                                     "value": "<packagename>"
                                 }
                             },
-                            "adb -s %SERIALNUMBER% shell chroot /data/ubuntu /usr/bin/env -i PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin apt-get -y build-dep %0"
+                            "adb -s %SERIALNUMBER% shell apt-get -y build-dep %0"
                         ]
                     }
                 ]

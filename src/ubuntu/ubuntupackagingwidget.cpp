@@ -279,8 +279,13 @@ bool UbuntuPackagingWidget::openManifestForProject() {
 
         }
 
+        QString defaultAppArmorName = QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_APPARMOR))
+                .arg(startupProject->projectDirectory())
+                .arg(no_underscore_displayName);
+
         if (QFile(fileName).exists()==false) {
             m_manifest.setFileName(fileName);
+            m_apparmor.setFileName(defaultAppArmorName);
             on_pushButtonReset_clicked();
         } else {
             load_manifest(fileName);
@@ -292,7 +297,7 @@ bool UbuntuPackagingWidget::openManifestForProject() {
 
         QString fileAppArmorName;
         if(hooks.isEmpty())
-            fileAppArmorName = QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_APPARMOR)).arg(startupProject->projectDirectory()).arg(no_underscore_displayName);
+            fileAppArmorName = defaultAppArmorName;
         else
             fileAppArmorName = QString(QLatin1String("%1/%2")).arg(startupProject->projectDirectory()).arg(hooks[0].appArmorFile);
 
@@ -327,11 +332,19 @@ void UbuntuPackagingWidget::on_pushButtonReset_clicked() {
     QString fileAppArmorName = m_apparmor.fileName();
     load_manifest(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_MANIFEST));
     load_apparmor(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_MYAPP));
-    m_apparmor.setFileName(fileAppArmorName);
     m_manifest.setFileName(fileName);
 
     QDir projectDir(m_projectDir);
-    m_manifest.setAppArmorFileName(m_manifest.hooks()[0].appId,projectDir.relativeFilePath(fileAppArmorName));
+    if(fileAppArmorName.isEmpty() || !QFile::exists(fileAppArmorName)) {
+        fileAppArmorName = m_manifest.appArmorFileName(m_manifest.hooks()[0].appId);
+        fileAppArmorName = projectDir.absoluteFilePath(fileAppArmorName);
+    } else {
+        m_manifest.setAppArmorFileName(m_manifest.hooks()[0].appId,projectDir.relativeFilePath(fileAppArmorName));
+    }
+
+    m_apparmor.setFileName(fileAppArmorName);
+    m_apparmor.save();
+
     m_manifest.setMaintainer(m_bzr.whoami());
     QString userName = m_bzr.launchpadId();
     if (userName.isEmpty()) userName = QLatin1String(Constants::USERNAME);
