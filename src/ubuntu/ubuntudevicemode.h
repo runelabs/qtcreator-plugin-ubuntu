@@ -22,8 +22,12 @@
 #include <coreplugin/imode.h>
 #include "ubuntudeviceswidget.h"
 
+class QQuickView;
+
 namespace Ubuntu {
 namespace Internal {
+
+class UbuntuDevicesModel;
 
 class UbuntuDeviceMode : public Core::IMode
 {
@@ -37,8 +41,11 @@ protected slots:
     void modeChanged(Core::IMode*);
 
 protected:
+    UbuntuDevicesModel* m_devicesModel;
+    QQuickView *m_modeView;
     QWidget* m_modeWidget;
     UbuntuDevicesWidget m_ubuntuDevicesWidget;
+
 };
 
 

@@ -26,11 +26,25 @@ FORMS += \
 RESOURCES += \
     resources.qrc
 
+CONFIG+=qml_debug
+
+#QML files
+QML_ROOT="$${PWD}/../../share/qtcreator/ubuntu"
+QML_FILES += \
+    $$QML_ROOT/welcome/welcome.qml \
+    $$QML_ROOT/welcome/Link.qml \
+    $$QML_ROOT/welcome/NewsBox.qml\
+    $$QML_ROOT/devicespage/devicespage.qml
+
+
 OTHER_FILES += \
     UbuntuProject.mimetypes.xml \
     manifest.json.template \
     myapp.json.template \
-    manifestlib.js
+    manifestlib.js \
+    $$QML_FILES
+
+message($$OTHER_FILES)
 
 SOURCES += \
     ubuntuplugin.cpp \
@@ -88,7 +102,8 @@ SOURCES += \
     ubunturemotedeployconfiguration.cpp \
     ubuntulocalrunconfigurationfactory.cpp \
     ubunturemoteruncontrolfactory.cpp \
-    ubuntulocalrunconfiguration.cpp
+    ubuntulocalrunconfiguration.cpp \
+    ubuntudevicesmodel.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -149,5 +164,6 @@ HEADERS += \
     ubunturemotedeployconfiguration.h \
     ubuntulocalrunconfigurationfactory.h \
     ubunturemoteruncontrolfactory.h \
-    ubuntulocalrunconfiguration.h
+    ubuntulocalrunconfiguration.h \
+    ubuntudevicesmodel.h
 

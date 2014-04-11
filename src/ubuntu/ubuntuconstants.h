@@ -241,6 +241,7 @@ const QString UBUNTU_RESOURCE_PATH = Core::ICore::resourcePath();
 #endif
 
 const QString UBUNTU_WELCOMESCREEN_QML = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/welcome/welcome.qml");
+const QString UBUNTU_DEVICESCREEN_QML  = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/devicespage/devicespage.qml");
 const QString UBUNTU_TEMPLATESPATH = UBUNTU_RESOURCE_PATH + QLatin1String("/templates/wizards/ubuntu/");
 const QString UBUNTU_MENUPATH = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/");
 const QString UBUNTU_SHAREPATH = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/");
