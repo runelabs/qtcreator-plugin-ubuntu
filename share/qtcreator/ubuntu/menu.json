@@ -57,7 +57,7 @@
                 "saveRequired": true,
                 "context" : "QmlProject.ProjectContext",
                 "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_device_run_app %SERIALNUMBER% qmlscene %FOLDERNAME% %DISPLAYNAME%.desktop %DISPLAYNAME%.qml /home/%USERNAME%/dev_tmp /home/%USERNAME%/.local/share/applications %USERNAME%@%IP% %PORT%"
+                    "%SCRIPTDIRECTORY%/qtc_device_run_app %SERIALNUMBER% qmlscene %FOLDERNAME% %DISPLAYNAME%.desktop %DISPLAYNAME%.qml /home/%USERNAME%/dev_tmp %USERNAME%@%IP% %PORT%"
                 ]
             },
             {
