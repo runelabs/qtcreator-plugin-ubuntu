@@ -395,14 +395,20 @@ void UbuntuDeviceHelper::detectDeveloperTools()
 
 void UbuntuDeviceHelper::deviceConnected()
 {
+    qDebug()<<"Device "<<m_dev->id().toString()<<" connected";
     ProjectExplorer::DeviceManager::instance()->setDeviceState(m_dev->id(),ProjectExplorer::IDevice::DeviceConnected);
     detect();
 }
 
 void UbuntuDeviceHelper::deviceDisconnected()
 {
+    qDebug()<<"Device "<<m_dev->id().toString()<<" disconnected";
     ProjectExplorer::DeviceManager::instance()->setDeviceState(m_dev->id(),ProjectExplorer::IDevice::DeviceDisconnected);
+
+    setProcessState(UbuntuDevice::NotStarted);
+    stopProcess();
     resetToDefaults();
+
     emit disconnected();
 }
 
@@ -426,8 +432,11 @@ void UbuntuDeviceHelper::readProcessOutput(QProcess *proc)
 void UbuntuDeviceHelper::stopProcess()
 {
     if(m_process) {
-        m_process->kill();
-        m_process->waitForFinished();
+        m_process->disconnect(this);
+        if(m_process->state() != QProcess::NotRunning) {
+            m_process->kill();
+            m_process->waitForFinished();
+        }
         m_process->deleteLater();
         m_process = 0;
     }
@@ -961,6 +970,7 @@ QString UbuntuDevice::detectionStateString( ) const
         case Done:
             return tr("Finished");
     }
+    return QString();
 }
 
 ProjectExplorer::IDeviceWidget *UbuntuDevice::createWidget()
