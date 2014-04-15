@@ -107,7 +107,7 @@ do
 done
 echo "IMPORT: ${ARGS_FROM_DESKTOP}"
 
-COMMAND="export ${DBUS_SESSION_BUS_ADDRESS=}; APP_ID=${APP_ID} ${APP_LAUNCHER} ${ARGS_FROM_DESKTOP} ${APP_LAUNCH_PREFIX}${TARGET_DEVICE_HOME}/${APP_ID}/${MAIN_QML} --desktop_file_hint=${TARGET_DEVICE_DESKTOP_PATH}/${DESKTOP_FILENAME} ${EXTRA_COMMAND_LINE_ARGS}"
+COMMAND="test -f /etc/ubuntu-touch-session.d/\$(getprop ro.product.device).conf && for myenv in \$(cat /etc/ubuntu-touch-session.d/\$(getprop ro.product.device).conf); do `echo \"export\" \\\$myenv`; done ; export ${DBUS_SESSION_BUS_ADDRESS=}; APP_ID=${APP_ID} ${APP_LAUNCHER} ${ARGS_FROM_DESKTOP} ${APP_LAUNCH_PREFIX}${TARGET_DEVICE_HOME}/${APP_ID}/${MAIN_QML} --desktop_file_hint=${TARGET_DEVICE_DESKTOP_PATH}/${DESKTOP_FILENAME} ${EXTRA_COMMAND_LINE_ARGS}"
 echo "Going to execute: ${COMMAND}"
 
 # remove old files

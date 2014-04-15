@@ -1,3 +1,20 @@
+/*
+ * Copyright 2014 Canonical Ltd.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; version 2.1.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Author: Benjamin Zeller <benjamin.zeller@canonical.com>
+ */
 #include "ubuntudevice.h"
 #include "ubuntudevicenotifier.h"
 #include "ubuntuemulatornotifier.h"
@@ -258,7 +275,11 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
 
 void UbuntuDeviceHelper::onMessage(const QString &msg) {
     m_reply.append(msg);
-    addToLog(msg);
+
+    QString message = msg;
+    message.replace(QChar::fromLatin1('\n'),QLatin1String("<br/>"));
+
+    addToLog(message);
 }
 
 void UbuntuDeviceHelper::onError(const QString &error)
@@ -385,6 +406,23 @@ void UbuntuDeviceHelper::deviceDisconnected()
     emit disconnected();
 }
 
+void UbuntuDeviceHelper::readProcessOutput(QProcess *proc)
+{
+    QString stderr = QString::fromLocal8Bit(proc->readAllStandardError());
+    QString stdout = QString::fromLocal8Bit(proc->readAllStandardOutput());
+
+    QString msg;
+    if (!stderr.isEmpty()) {
+        msg.append(stderr);
+    }
+    if (!stdout.isEmpty()) {
+        msg.append(stdout);
+    }
+
+    if(!msg.isEmpty())
+        onMessage(msg);
+}
+
 void UbuntuDeviceHelper::stopProcess()
 {
     if(m_process) {
@@ -416,6 +454,7 @@ void UbuntuDeviceHelper::setProcessState(const int newState)
         emit endQueryDevice();
 
     m_dev->m_processState = static_cast<UbuntuDevice::ProcessState>(newState);
+    emit detectionStateChanged();
 }
 
 void UbuntuDeviceHelper::resetToDefaults()
@@ -474,6 +513,12 @@ void UbuntuDeviceHelper::disableRWImage()
                  .arg(m_dev->id().toSetting().toString()));
 }
 
+/*!
+ * \brief UbuntuDeviceHelper::enablePortForward
+ * Sets up the port forwarding for the device, this is executed
+ * synchronously and will block the eventloop to make sure we only
+ * use the same port once
+ */
 void UbuntuDeviceHelper::enablePortForward()
 {
     setProcessState(UbuntuDevice::EnablePortForwarding);
@@ -510,11 +555,19 @@ void UbuntuDeviceHelper::enablePortForward()
     settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICE_CONNECTIVITY));
     QString deviceSshPort = QString::number(connParms.port);
 
-    startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_PORTFORWARD_SCRIPT)
-                 .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                 .arg(m_dev->id().toSetting().toString())
-                 .arg(deviceSshPort)
-                 .arg(ports.join(QChar::fromLatin1(' '))));
+    QStringList args = QStringList()
+            << m_dev->id().toSetting().toString()
+            <<deviceSshPort
+            <<ports;
+
+    QProcess adb;
+    adb.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_PORTFORWARD_SCRIPT)
+              .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH),args);
+
+    adb.waitForFinished();
+    readProcessOutput(&adb);
+
+    processFinished(QString(),adb.exitCode());
 }
 
 void UbuntuDeviceHelper::installDevTools()
@@ -591,18 +644,7 @@ void UbuntuDeviceHelper::startProcess(const QString &command)
 
 void UbuntuDeviceHelper::onProcessReadyRead()
 {
-    QString stderr = QString::fromLocal8Bit(m_process->readAllStandardError());
-    QString stdout = QString::fromLocal8Bit(m_process->readAllStandardOutput());
-
-    QString msg;
-    if (!stderr.isEmpty()) {
-        msg.append(stderr);
-    }
-    if (!stdout.isEmpty()) {
-        msg.append(stdout);
-    }
-
-    onMessage(msg);
+    readProcessOutput(m_process);
 }
 
 void UbuntuDeviceHelper::onProcessFinished(const int code)
@@ -678,9 +720,8 @@ void UbuntuDevice::loadDefaultConfig()
 
     QString ip            = settings.value(QLatin1String(Constants::SETTINGS_KEY_IP),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_IP)).toString();
     QString username      = settings.value(QLatin1String(Constants::SETTINGS_KEY_USERNAME),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_USERNAME)).toString();
-    QString deviceSshPort = settings.value(QLatin1String(Constants::SETTINGS_KEY_SSH),Constants::SETTINGS_DEFAULT_DEVICE_SSH_PORT).toString();
-    QString qmlPort       = settings.value(QLatin1String(Constants::SETTINGS_KEY_QML),Constants::SETTINGS_DEFAULT_DEVICE_QML_PORT).toString();
-
+    //even though this is set here, it will be changed dynamically when the device is connected
+    QString deviceSshPort = QString::number(Constants::SETTINGS_DEFAULT_DEVICE_SSH_PORT);
     QSsh::SshConnectionParameters params;
     params.authenticationType = QSsh::SshConnectionParameters::AuthenticationTypePublicKey;
     params.host = ip;
@@ -876,6 +917,50 @@ UbuntuDevice::FeatureState UbuntuDevice::hasDeveloperTools() const
 UbuntuDevice::ProcessState UbuntuDevice::detectionState() const
 {
     return m_processState;
+}
+
+QString UbuntuDevice::detectionStateString( ) const
+{
+    switch (m_processState) {
+        case NotStarted:
+            return tr("");
+        case DetectDeviceVersion:
+            return tr("Detecting device version");
+        case DetectNetworkConnection:
+            return tr("Detecting network connection");
+        case CloneNetwork:
+            return tr("Cloning network configuration");
+        case DetectOpenSSH:
+            return tr("Detecting OpenSSH");
+        case InstallOpenSSH:
+            return tr("Installing OpenSSH");
+        case RemoveOpenSSH:
+            return tr("Removing OpenSSH");
+        case StartOpenSSH:
+            return tr("Starting OpenSSH");
+        case EnablePortForwarding:
+            return tr("Enable portforwarding");
+        case DeployPublicKey:
+            return tr("Deploying public key to device");
+        case DetectDeviceWriteableImage:
+            return tr("Detecting if image is writeable");
+        case DetectDeveloperTools:
+            return tr("Detecting if developer tools are installed");
+        case FirstNonCriticalTask:
+            return tr("");
+        case CloneTimeConfig:
+            return tr("Cloning time configuration");
+        case EnableRWImage:
+            return tr("Enabling writeable image");
+        case DisableRWImage:
+            return tr("Disabling writeable image");
+        case InstallDevTools:
+            return tr("Installing development tools");
+        case RemoveDevTools:
+            return tr("Removing development tools");
+        case Done:
+            return tr("Finished");
+    }
 }
 
 ProjectExplorer::IDeviceWidget *UbuntuDevice::createWidget()

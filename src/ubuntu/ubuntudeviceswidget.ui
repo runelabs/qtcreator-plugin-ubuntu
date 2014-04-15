@@ -285,7 +285,7 @@ border: 0;
               <item>
                <widget class="QStackedWidget" name="stackedWidgetDeviceConnected">
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>1</number>
                 </property>
                 <widget class="QWidget" name="page_3">
                  <layout class="QHBoxLayout" name="horizontalLayout_7">
@@ -409,115 +409,162 @@ border: 0;
                      <number>0</number>
                     </property>
                     <widget class="QWidget" name="page_ConnectivityInput">
-                     <layout class="QHBoxLayout" name="horizontalLayout_6">
+                     <layout class="QHBoxLayout" name="horizontalLayout_8">
                       <item>
-                       <widget class="QStackedWidget" name="stackedWidgetDeveloperMode">
-                        <property name="currentIndex">
-                         <number>2</number>
-                        </property>
-                        <widget class="QWidget" name="pageDeviceDetected">
-                         <layout class="QVBoxLayout" name="verticalLayout_16">
+                       <layout class="QVBoxLayout" name="verticalLayout_6">
+                        <item>
+                         <layout class="QHBoxLayout" name="horizontalLayout_6">
                           <item>
-                           <widget class="QLabel" name="label_7">
-                            <property name="text">
-                             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Your device has been detected.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Next&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt; you &lt;/span&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;will need to Enable Developer Mode &lt;/span&gt;from the right side.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                           <widget class="QProgressBar" name="progressBarDeviceDetection">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
                             </property>
-                            <property name="textFormat">
-                             <enum>Qt::RichText</enum>
+                            <property name="value">
+                             <number>24</number>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="labelDeviceDetection">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="text">
+                             <string>TextLabel</string>
                             </property>
                            </widget>
                           </item>
                          </layout>
-                        </widget>
-                        <widget class="QWidget" name="pageDeviceHasBeenEnabledForDeveloperUse">
-                         <layout class="QVBoxLayout" name="verticalLayout_17">
-                          <item>
-                           <widget class="QLabel" name="label_4">
-                            <property name="text">
-                             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Your device has been enabled for developer use!&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You will find Ubuntu UI templates from &lt;span style=&quot; font-weight:600;&quot;&gt;File &amp;gt; New File or Project&lt;/span&gt;. &lt;/p&gt;&lt;p&gt;After which you can deploy your app to the device using &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;CTRL+F12&lt;/span&gt; or&lt;br/&gt;by browsing &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;Build &amp;gt; Ubuntu Touch &amp;gt; Run Application on Device.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You can also find screenshot feature from &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;Tools &amp;gt; Ubuntu Touch&lt;/span&gt; and&lt;br/&gt;links from &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;Help &amp;gt; Ubuntu Touch&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                            </property>
-                           </widget>
-                          </item>
-                         </layout>
-                        </widget>
-                        <widget class="QWidget" name="pageNoNetwork">
-                         <layout class="QVBoxLayout" name="verticalLayout_5">
-                          <item>
-                           <spacer name="verticalSpacer">
-                            <property name="orientation">
-                             <enum>Qt::Vertical</enum>
-                            </property>
-                            <property name="sizeHint" stdset="0">
-                             <size>
-                              <width>20</width>
-                              <height>192</height>
-                             </size>
-                            </property>
-                           </spacer>
-                          </item>
-                          <item>
-                           <widget class="QLabel" name="label_10">
-                            <property name="text">
-                             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;No network connection on your device!&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You will need to connect your device to a network with connection to the Internet. &lt;/p&gt;&lt;p&gt;Then replug the device to your workstation.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                            </property>
-                           </widget>
-                          </item>
-                          <item>
-                           <layout class="QHBoxLayout" name="horizontalLayout_4">
+                        </item>
+                        <item>
+                         <widget class="QStackedWidget" name="stackedWidgetDeveloperMode">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="currentIndex">
+                           <number>0</number>
+                          </property>
+                          <widget class="QWidget" name="pageDeviceDetected">
+                           <layout class="QVBoxLayout" name="verticalLayout_16">
                             <item>
-                             <spacer name="horizontalSpacer_7">
+                             <widget class="QLabel" name="label_7">
+                              <property name="text">
+                               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Your device has been detected.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Next&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt; you &lt;/span&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;will need to Enable Developer Mode &lt;/span&gt;from the right side.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                              </property>
+                              <property name="textFormat">
+                               <enum>Qt::RichText</enum>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                          <widget class="QWidget" name="pageDeviceHasBeenEnabledForDeveloperUse">
+                           <layout class="QVBoxLayout" name="verticalLayout_17">
+                            <item>
+                             <widget class="QLabel" name="label_4">
+                              <property name="text">
+                               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Your device has been enabled for developer use!&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You will find Ubuntu UI templates from &lt;span style=&quot; font-weight:600;&quot;&gt;File &amp;gt; New File or Project&lt;/span&gt;. &lt;/p&gt;&lt;p&gt;After which you can deploy your app to the device using &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;CTRL+F12&lt;/span&gt; or&lt;br/&gt;by browsing &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;Build &amp;gt; Ubuntu Touch &amp;gt; Run Application on Device.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You can also find screenshot feature from &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;Tools &amp;gt; Ubuntu Touch&lt;/span&gt; and&lt;br/&gt;links from &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;Help &amp;gt; Ubuntu Touch&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                          <widget class="QWidget" name="pageNoNetwork">
+                           <layout class="QVBoxLayout" name="verticalLayout_5">
+                            <item>
+                             <spacer name="verticalSpacer">
                               <property name="orientation">
-                               <enum>Qt::Horizontal</enum>
+                               <enum>Qt::Vertical</enum>
                               </property>
                               <property name="sizeHint" stdset="0">
                                <size>
-                                <width>40</width>
-                                <height>20</height>
+                                <width>20</width>
+                                <height>192</height>
                                </size>
                               </property>
                              </spacer>
                             </item>
                             <item>
-                             <widget class="QPushButton" name="pushButtonCloneNetworkConfig">
+                             <widget class="QLabel" name="label_10">
                               <property name="text">
-                               <string>Clone network config from host to device</string>
+                               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;No network connection on your device!&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You will need to connect your device to a network with connection to the Internet. &lt;/p&gt;&lt;p&gt;Then replug the device to your workstation.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                               </property>
                              </widget>
                             </item>
                             <item>
-                             <spacer name="horizontalSpacer_8">
+                             <layout class="QHBoxLayout" name="horizontalLayout_4">
+                              <item>
+                               <spacer name="horizontalSpacer_7">
+                                <property name="orientation">
+                                 <enum>Qt::Horizontal</enum>
+                                </property>
+                                <property name="sizeHint" stdset="0">
+                                 <size>
+                                  <width>40</width>
+                                  <height>20</height>
+                                 </size>
+                                </property>
+                               </spacer>
+                              </item>
+                              <item>
+                               <widget class="QPushButton" name="pushButtonCloneNetworkConfig">
+                                <property name="text">
+                                 <string>Clone network config from host to device</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <spacer name="horizontalSpacer_8">
+                                <property name="orientation">
+                                 <enum>Qt::Horizontal</enum>
+                                </property>
+                                <property name="sizeHint" stdset="0">
+                                 <size>
+                                  <width>40</width>
+                                  <height>20</height>
+                                 </size>
+                                </property>
+                               </spacer>
+                              </item>
+                             </layout>
+                            </item>
+                            <item>
+                             <spacer name="verticalSpacer_2">
                               <property name="orientation">
-                               <enum>Qt::Horizontal</enum>
+                               <enum>Qt::Vertical</enum>
                               </property>
                               <property name="sizeHint" stdset="0">
                                <size>
-                                <width>40</width>
-                                <height>20</height>
+                                <width>20</width>
+                                <height>192</height>
                                </size>
                               </property>
                              </spacer>
                             </item>
                            </layout>
-                          </item>
-                          <item>
-                           <spacer name="verticalSpacer_2">
-                            <property name="orientation">
-                             <enum>Qt::Vertical</enum>
-                            </property>
-                            <property name="sizeHint" stdset="0">
-                             <size>
-                              <width>20</width>
-                              <height>192</height>
-                             </size>
-                            </property>
-                           </spacer>
-                          </item>
-                         </layout>
-                        </widget>
-                       </widget>
+                          </widget>
+                         </widget>
+                        </item>
+                       </layout>
                       </item>
                       <item>
-                       <widget class="QStackedWidget" name="stackedWidgetDeviceConfig"/>
+                       <widget class="QStackedWidget" name="stackedWidgetDeviceConfig">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                       </widget>
                       </item>
                      </layout>
                     </widget>

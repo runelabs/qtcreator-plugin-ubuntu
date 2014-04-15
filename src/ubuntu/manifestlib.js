@@ -97,3 +97,23 @@ function getPolicyVersion() {
 function setPolicyVersion($string_version) {
     jsonData.policy_version = parseFloat($string_version);
 }
+
+function getAppArmorFileName($appId) {
+    if(!jsonData.hooks.hasOwnProperty($appId))
+        return null;
+    if(!jsonData.hooks[$appId].hasOwnProperty("apparmor"))
+        return null;
+
+    return jsonData.hooks[$appId].apparmor;
+}
+
+function setAppArmorFileName($appId, $appArmorFile) {
+    if(!jsonData.hooks.hasOwnProperty($appId))
+        return false;
+
+    if(!jsonData.hooks[$appId].hasOwnProperty("apparmor"))
+        return false;
+
+    jsonData.hooks[$appId].apparmor = $appArmorFile;
+    return true;
+}

@@ -267,6 +267,7 @@ bool UbuntuPackagingWidget::openManifestForProject() {
 
     if (startupProject) {
         m_projectName = startupProject->displayName();
+        m_projectDir  = startupProject->projectDirectory();
 
         QString fileName = QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_OPENMANIFEST)).arg(startupProject->projectDirectory());
         QString no_underscore_displayName = startupProject->displayName();
@@ -277,13 +278,29 @@ bool UbuntuPackagingWidget::openManifestForProject() {
             m_manifest.nameDashReplaced();
 
         }
-        QString fileAppArmorName = QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_APPARMOR)).arg(startupProject->projectDirectory()).arg(no_underscore_displayName);
+
+        QString defaultAppArmorName = QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_APPARMOR))
+                .arg(startupProject->projectDirectory())
+                .arg(no_underscore_displayName);
+
         if (QFile(fileName).exists()==false) {
             m_manifest.setFileName(fileName);
+            m_apparmor.setFileName(defaultAppArmorName);
             on_pushButtonReset_clicked();
         } else {
             load_manifest(fileName);
         }
+
+        //we just support the first hook for now
+        //@TODO proper support for multiple hooks
+        QList<UbuntuClickManifest::Hook> hooks = m_manifest.hooks();
+
+        QString fileAppArmorName;
+        if(hooks.isEmpty())
+            fileAppArmorName = defaultAppArmorName;
+        else
+            fileAppArmorName = QString(QLatin1String("%1/%2")).arg(startupProject->projectDirectory()).arg(hooks[0].appArmorFile);
+
         if (QFile(fileAppArmorName).exists()==false) {
             m_apparmor.setFileName(fileAppArmorName);
             on_pushButtonReset_clicked();
@@ -295,6 +312,7 @@ bool UbuntuPackagingWidget::openManifestForProject() {
         return true;
     } else {
         m_projectName.clear();
+        m_projectDir.clear();
     }
     return false;
 }
@@ -314,12 +332,24 @@ void UbuntuPackagingWidget::on_pushButtonReset_clicked() {
     QString fileAppArmorName = m_apparmor.fileName();
     load_manifest(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_MANIFEST));
     load_apparmor(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_MYAPP));
-    m_apparmor.setFileName(fileAppArmorName);
     m_manifest.setFileName(fileName);
+
+    QDir projectDir(m_projectDir);
+    if(fileAppArmorName.isEmpty() || !QFile::exists(fileAppArmorName)) {
+        fileAppArmorName = m_manifest.appArmorFileName(m_manifest.hooks()[0].appId);
+        fileAppArmorName = projectDir.absoluteFilePath(fileAppArmorName);
+    } else {
+        m_manifest.setAppArmorFileName(m_manifest.hooks()[0].appId,projectDir.relativeFilePath(fileAppArmorName));
+    }
+
+    m_apparmor.setFileName(fileAppArmorName);
+    m_apparmor.save();
+
     m_manifest.setMaintainer(m_bzr.whoami());
     QString userName = m_bzr.launchpadId();
     if (userName.isEmpty()) userName = QLatin1String(Constants::USERNAME);
     m_manifest.setName(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_NAME)).arg(userName).arg(m_projectName));
+    m_manifest.save();
     reload();
 }
 
@@ -354,6 +384,23 @@ void UbuntuPackagingWidget::save(bool bSaveSimple) {
         }
         case 1: {
             m_manifest.setRaw(ui->plainTextEditJson->toPlainText());
+
+            QList<UbuntuClickManifest::Hook> hooks = m_manifest.hooks();
+            if(hooks.size()) {
+                QString appArmorFileName = hooks[0].appArmorFile;
+                appArmorFileName = QString(QLatin1String("%1/%2"))
+                        .arg(m_projectDir)
+                        .arg(appArmorFileName);
+                if (appArmorFileName != m_apparmor.fileName()) {
+                    if(!QFile::exists(appArmorFileName)) {
+                        load_apparmor(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_MYAPP));
+                        m_apparmor.setFileName(appArmorFileName);
+                    } else {
+                        load_apparmor(appArmorFileName);
+                    }
+                }
+            }
+
             m_manifest.save();
             break;
         }

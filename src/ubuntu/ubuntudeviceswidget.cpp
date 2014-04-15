@@ -81,6 +81,9 @@ UbuntuDevicesWidget::UbuntuDevicesWidget(QWidget *parent)
     ui->progressBar->setMinimum(0);
     ui->progressBar->setMaximum(0);
 
+    ui->progressBarDeviceDetection->setMinimum(0);
+    ui->progressBarDeviceDetection->setMaximum(0);
+
     connect(m_ubuntuProcess,SIGNAL(started(QString)),this,SLOT(onStarted(QString)));
     connect(m_ubuntuProcess,SIGNAL(message(QString)),this,SLOT(onMessage(QString)));
     connect(m_ubuntuProcess,SIGNAL(finished(QString,int)),this,SLOT(onFinished(QString, int)));
@@ -370,6 +373,7 @@ void UbuntuDevicesWidget::deviceAdded(const Core::Id &id)
     }
 
     connect(dev->helper(),SIGNAL(featureDetected()),this,SLOT(knownDeviceFeatureChange()));
+    connect(dev->helper(),SIGNAL(detectionStateChanged()),this,SLOT(knownDeviceFeatureChange()));
 }
 
 /*!
@@ -491,7 +495,15 @@ void UbuntuDevicesWidget::setupDevicePage()
         int devId = ui->comboBoxSerialNumber->currentData().toInt();
         if(m_knownDevices.contains(devId)) {
             Ubuntu::Internal::UbuntuDevice::Ptr dev = m_knownDevices[devId];
-            if(dev->hasNetworkConnection() != Ubuntu::Internal::UbuntuDevice::Available) {
+            if (dev->detectionState() != Ubuntu::Internal::UbuntuDevice::Done) {
+                ui->labelDeviceDetection->setText(dev->detectionStateString());
+                ui->labelDeviceDetection->show();
+                ui->progressBarDeviceDetection->show();
+            } else {
+                ui->labelDeviceDetection->hide();
+                ui->progressBarDeviceDetection->hide();
+            }
+            if (dev->hasNetworkConnection() != Ubuntu::Internal::UbuntuDevice::Available) {
                 ui->stackedWidgetDeveloperMode->setCurrentIndex(Constants::UBUNTUDEVICESWIDGET_DEVELOPERMODE_PAGE_NONETWORK);
             } else {
                 if(dev->developerModeEnabled() == Ubuntu::Internal::UbuntuDevice::Available) {

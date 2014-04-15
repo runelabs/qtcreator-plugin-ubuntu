@@ -13,17 +13,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
+# Author: Zoltán Balogh <zoltan.balogh@canonical.com>
 
 . `dirname $0`/functions.inc
 
-PORT=$2
-USERNAME=$3
-IP=$4
+LOCAL_TIME_STAMP=`date +20%y%m%d-%H%M%S`
 
-#$SCRIPTPATH/device_portforward ${PORT} 3768
-if [ ! "$(adb_shell getprop persist.service.ssh)" = "true" ];then
-    adb_shell setprop persist.service.ssh true  >/dev/null 2>&1
-    adb_shell start ssh  >/dev/null 2>&1
-fi
-x-terminal-emulator -e "ssh -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p $PORT $USERNAME@$IP" &
+phablet-screenshot -s ${SERIALNUMBER} /tmp/screenshot-${LOCAL_TIME_STAMP}.png
+eog /tmp/screenshot-${LOCAL_TIME_STAMP}.png 
