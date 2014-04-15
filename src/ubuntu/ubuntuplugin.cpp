@@ -161,12 +161,9 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     addAutoReleasedObject(m_ubuntuClickManager);
 #endif
 
-
-
-
     //trigger kit autodetection and update after projectexplorer loaded the kits
     connect(ProjectExplorer::KitManager::instance(),SIGNAL(kitsLoaded())
-               ,this,SLOT(onKitsLoaded()));
+            ,this,SLOT(onKitsLoaded()));
 
     return true;
 }
@@ -190,7 +187,6 @@ void UbuntuPlugin::extensionsInitialized()
 
 void UbuntuPlugin::onKitsLoaded()
 {
-    qDebug()<<"Kits loaded";
     UbuntuKitManager::autoDetectKits();
     disconnect(ProjectExplorer::KitManager::instance(),SIGNAL(kitsLoaded())
                ,this,SLOT(onKitsLoaded()));

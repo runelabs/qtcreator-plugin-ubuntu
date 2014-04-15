@@ -250,7 +250,7 @@ UbuntuCMakeBuildSettingsWidget::UbuntuCMakeBuildSettingsWidget(UbuntuCMakeBuildC
     m_userArguments = new CMakeProjectManager::ArgumentsLineEdit(this);
     fl->addRow(tr("CMake arguments:"),m_userArguments);
     m_userArguments->setText(Utils::QtcProcess::joinArgs(m_buildConfiguration->arguments()));
-    m_userArguments->setHistoryCompleter(QLatin1String("CMakeArgumentsLineEdit"));
+    //m_userArguments->setHistoryCompleter(QLatin1String("CMakeArgumentsLineEdit"));
     connect(m_userArguments,SIGNAL(editingFinished()),this,SLOT(onArgumentsChanged()));
 
     setDisplayName(tr("Ubuntu SDK CMake"));
