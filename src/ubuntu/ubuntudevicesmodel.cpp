@@ -2,6 +2,11 @@
 #include "ubuntuconstants.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitinformation.h>
+
+#include <QVariant>
 
 namespace Ubuntu {
 namespace Internal {
@@ -9,8 +14,8 @@ namespace Internal {
 UbuntuDevicesModel::UbuntuDevicesModel(QObject *parent) :
     QAbstractListModel(parent)
 {
-    ProjectExplorer::DeviceManager* devMgr = ProjectExplorer::DeviceManager::instance();
-    connect(devMgr,SIGNAL(devicesLoaded()),this,SLOT(readDevicesFromSettings()));
+    ProjectExplorer::KitManager* devMgr = static_cast<ProjectExplorer::KitManager*>(ProjectExplorer::KitManager::instance());
+    connect(devMgr,SIGNAL(kitsLoaded()),this,SLOT(readDevicesFromSettings()));
 }
 
 int UbuntuDevicesModel::rowCount(const QModelIndex &parent) const
@@ -18,6 +23,12 @@ int UbuntuDevicesModel::rowCount(const QModelIndex &parent) const
     if(parent.isValid())
         return 0;
     return m_knownDevices.size();
+}
+
+bool UbuntuDevicesModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    qDebug()<<"Setting index "<<index<<" with data "<<value<<" to role "<<role;
+    return QAbstractListModel::setData(index,value,role);
 }
 
 QVariant UbuntuDevicesModel::data(const QModelIndex &index, int role) const
@@ -28,11 +39,31 @@ QVariant UbuntuDevicesModel::data(const QModelIndex &index, int role) const
             || index.row() > rowCount())
         return QVariant();
 
-    if( Qt::DisplayRole == role || Qt::EditRole == role ) {
-        QString id = m_knownDevices[index.row()]->id().toString();
-        QString conn = m_knownDevices[index.row()]->deviceStateToString();
-
-        return QString(id + QLatin1String(" ") + conn);
+    switch (role) {
+        case Qt::DisplayRole:
+        case Qt::EditRole:
+            return m_knownDevices[index.row()]->device()->displayName();
+            break;
+        case ConnectionStateRole:
+            return m_knownDevices[index.row()]->device()->deviceStateToString();
+            break;
+        case KitListRole:
+            return QVariant::fromValue(m_knownDevices[index.row()]->kits());
+            break;
+        case DeveloperModeRole:
+            return m_knownDevices[index.row()]->device()->developerModeEnabled();
+            break;
+        case NetworkConnectionRole:
+            return m_knownDevices[index.row()]->device()->hasNetworkConnection();
+            break;
+        case WriteableImageRole:
+            return m_knownDevices[index.row()]->device()->hasWriteableImage();
+            break;
+        case DeveloperToolsRole:
+            return m_knownDevices[index.row()]->device()->hasDeveloperTools();
+            break;
+        default:
+            break;
     }
 
     return QVariant();
@@ -41,6 +72,12 @@ QVariant UbuntuDevicesModel::data(const QModelIndex &index, int role) const
 QHash<int, QByteArray> UbuntuDevicesModel::roleNames() const
 {
     QHash<int,QByteArray> roles = QAbstractListModel::roleNames();
+    roles.insert(ConnectionStateRole,"connectionState");
+    roles.insert(KitListRole,"kits");
+    roles.insert(DeveloperModeRole,"developerModeEnabled");
+    roles.insert(NetworkConnectionRole,"hasNetworkConnection");
+    roles.insert(WriteableImageRole,"hasWriteableImage");
+    roles.insert(DeveloperToolsRole,"hasDeveloperTools");
     return roles;
 }
 
@@ -58,6 +95,15 @@ bool UbuntuDevicesModel::hasDevice(int uniqueIdentifier) const
     return findDevice(uniqueIdentifier) >= 0;
 }
 
+UbuntuDevicesItem *UbuntuDevicesModel::createItem(UbuntuDevice::Ptr dev)
+{
+    UbuntuDevicesItem *devItem = new UbuntuDevicesItem(dev,this);
+    connect(devItem,SIGNAL(kitsChanged()),this,SLOT(deviceDataChanged()));
+    connect(devItem,SIGNAL(detectionStateChanged()),this,SLOT(deviceDataChanged()));
+
+    return devItem;
+}
+
 /*!
  * \brief UbuntuDevicesWidget::readDevicesFromSettings
  * read all known devices from the DeviceManager, this is triggered
@@ -67,11 +113,12 @@ void UbuntuDevicesModel::readDevicesFromSettings()
 {
     if(rowCount()) {
         beginRemoveRows(QModelIndex(),0,rowCount()-1);
+        qDeleteAll(m_knownDevices.begin(),m_knownDevices.end());
         m_knownDevices.clear();
         endRemoveRows();
     }
 
-    QList<Ubuntu::Internal::UbuntuDevice::Ptr> devs;
+    QList<UbuntuDevicesItem*> devs;
     ProjectExplorer::DeviceManager* devMgr = ProjectExplorer::DeviceManager::instance();
     for(int i = 0; i < devMgr->deviceCount(); i++) {
         ProjectExplorer::IDevice::ConstPtr dev = devMgr->deviceAt(i);
@@ -80,12 +127,9 @@ void UbuntuDevicesModel::readDevicesFromSettings()
             //ugly hack to get a mutable version of the device
             //no idea why its necessary to lock it up
             Ubuntu::Internal::UbuntuDevice* cPtr = qSharedPointerCast<const Ubuntu::Internal::UbuntuDevice>(dev)->helper()->device();
-            if(cPtr) {
-                devs.append(cPtr->sharedFromThis());
-                connect(cPtr->helper(),SIGNAL(connected()),this,SLOT(deviceDataChanged()));
-                connect(cPtr->helper(),SIGNAL(disconnected()),this,SLOT(deviceDataChanged()));
-                connect(cPtr->helper(),SIGNAL(detectionStateChanged()),this,SLOT(deviceDataChanged()));
-            }
+            if(cPtr)
+                devs.append(createItem(cPtr->sharedFromThis()));
+
         }
     }
 
@@ -100,9 +144,9 @@ void UbuntuDevicesModel::readDevicesFromSettings()
 
 void UbuntuDevicesModel::deviceDataChanged()
 {
-    Ubuntu::Internal::UbuntuDeviceHelper* hlpr = qobject_cast<Ubuntu::Internal::UbuntuDeviceHelper*>(sender());
+    UbuntuDevicesItem* hlpr = qobject_cast<UbuntuDevicesItem*>(sender());
     if(!hlpr) return;
-    int index = findDevice(hlpr->device()->id().uniqueIdentifier());
+    int index = findDevice(hlpr->id().uniqueIdentifier());
     if(index >= 0)
         emit dataChanged(createIndex(index,0),createIndex(index,0));
 }
@@ -133,7 +177,7 @@ void UbuntuDevicesModel::deviceAdded(const Core::Id &id)
     Ubuntu::Internal::UbuntuDevice* dev = hlp->device();
 
     beginInsertRows(QModelIndex(),rowCount(),rowCount());
-    m_knownDevices.append(dev->sharedFromThis());
+    m_knownDevices.append(createItem(dev->sharedFromThis()));
     endInsertRows();
 }
 
@@ -150,7 +194,7 @@ void UbuntuDevicesModel::deviceRemoved(const Core::Id &id)
 
     qDebug()<<"Device Manager reports device removed: "<<id.toString();
     beginRemoveRows(QModelIndex(),index,index);
-    m_knownDevices.removeAt(index);
+    delete m_knownDevices.takeAt(index);
     endRemoveRows();
 }
 
@@ -164,6 +208,112 @@ void UbuntuDevicesModel::deviceUpdated(const Core::Id &id)
 {
     if (hasDevice(id.uniqueIdentifier()))
         return;
+}
+
+/*!
+ * \class UbuntuDevicesItem
+ * Represents a Device inside the UbuntuDevicesModel,
+ * the item tracks changes in the device and notifies the model
+ * accordingly
+ */
+UbuntuDevicesItem::UbuntuDevicesItem(UbuntuDevice::Ptr device, QObject* parent) :
+    QObject(parent),
+    m_device(device)
+{
+    QList<ProjectExplorer::Kit*> allkits = ProjectExplorer::KitManager::kits();
+    foreach (ProjectExplorer::Kit* k, allkits) {
+        if( ProjectExplorer::DeviceKitInformation::deviceId(k) == device->id() )
+            m_myKits.insert(k->id());
+    }
+
+    connect(ProjectExplorer::KitManager::instance(),SIGNAL(kitAdded(ProjectExplorer::Kit*)),
+            this,SLOT(onKitAdded(ProjectExplorer::Kit*)));
+    connect(ProjectExplorer::KitManager::instance(),SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
+            this,SLOT(onKitRemoved(ProjectExplorer::Kit*)));
+    connect(ProjectExplorer::KitManager::instance(),SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+            this,SLOT(onKitUpdated(ProjectExplorer::Kit*)));
+
+    connect(device->helper(),SIGNAL(detectionStateChanged()),this,SLOT(deviceStateChanged()));
+}
+
+/*!
+ * \brief UbuntuDevicesItem::id
+ * Returns the internal device ID
+ */
+Core::Id UbuntuDevicesItem::id() const
+{
+    return m_device->id();
+}
+
+UbuntuDevice::Ptr UbuntuDevicesItem::device() const
+{
+    return m_device;
+}
+
+QVariantList UbuntuDevicesItem::kits() const
+{
+    QVariantList kits;
+    foreach (const Core::Id &id, m_myKits) {
+        ProjectExplorer::Kit* k = ProjectExplorer::KitManager::find(id);
+        if(!k)
+            continue;
+
+        qDebug()<<"Adding "<<k->displayName();
+
+        QVariantMap m;
+        m.insert(QLatin1String("displayName"),k->displayName());
+        m.insert(QLatin1String("id"),k->id().toSetting());
+        kits.append(QVariant::fromValue(m));
+    }
+
+    return kits;
+}
+
+/*!
+ * \brief UbuntuDevicesItem::onKitAdded
+ * Checks if the new Kit that just got added to the KitManager contains
+ * the device, if it does the Kit is added to the internal Kit list
+ */
+void UbuntuDevicesItem::onKitAdded(ProjectExplorer::Kit *k)
+{
+    if( ProjectExplorer::DeviceKitInformation::deviceId(k) == m_device->id() ) {
+        if(!m_myKits.contains(k->id())){
+            m_myKits.insert(k->id());
+            emit kitsChanged();
+        }
+    }
+}
+
+/*!
+ * \brief UbuntuDevicesItem::onKitRemoved
+ * Checks if the removed Kit \a k is in the internal Kit list
+ * and removes it
+ */
+void UbuntuDevicesItem::onKitRemoved(ProjectExplorer::Kit *k)
+{
+    if(m_myKits.contains(k->id())) {
+        m_myKits.remove(k->id());
+        emit kitsChanged();
+    }
+}
+
+/*!
+ * \brief UbuntuDevicesItem::onKitUpdated
+ * Checks if the updated Kit now contains the internal device
+ * or if it does NOT contain the device anymore
+ */
+void UbuntuDevicesItem::onKitUpdated(ProjectExplorer::Kit *k)
+{
+    if( ProjectExplorer::DeviceKitInformation::deviceId(k) == m_device->id() ) {
+        onKitAdded(k);
+    } else {
+        onKitRemoved(k);
+    }
+}
+
+void UbuntuDevicesItem::deviceStateChanged()
+{
+    emit detectionStateChanged();
 }
 
 }

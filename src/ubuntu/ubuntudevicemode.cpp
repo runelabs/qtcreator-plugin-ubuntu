@@ -32,6 +32,8 @@
 #include <QScrollArea>
 #include <QQuickView>
 #include <QQmlContext>
+#include <QQmlEngine>
+#include <QProcessEnvironment>
 
 using namespace Ubuntu::Internal;
 
@@ -86,5 +88,8 @@ void UbuntuDeviceMode::modeChanged(Core::IMode *mode) {
 
 void UbuntuDeviceMode::initialize() {
     m_modeView->rootContext()->setContextProperty(QLatin1String("devicesModel"),m_devicesModel);
-    m_modeView->setSource(QUrl::fromLocalFile(Constants::UBUNTU_DEVICESCREEN_QML));
+    m_modeView->setSource(QUrl::fromLocalFile(Constants::UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/devicespage/test.qml")));
+    qDebug()<<"Import path: "<<m_modeView->engine()->importPathList();
+    qDebug()<<"Plugin path: "<<m_modeView->engine()->pluginPathList();
+    qDebug()<<QProcessEnvironment::systemEnvironment().toStringList();
 }

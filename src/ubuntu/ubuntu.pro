@@ -26,8 +26,6 @@ FORMS += \
 RESOURCES += \
     resources.qrc
 
-CONFIG+=qml_debug
-
 #QML files
 QML_ROOT="$${PWD}/../../share/qtcreator/ubuntu"
 QML_FILES += \
@@ -42,7 +40,8 @@ OTHER_FILES += \
     manifest.json.template \
     myapp.json.template \
     manifestlib.js \
-    $$QML_FILES
+    $$QML_FILES \
+    ../../share/qtcreator/ubuntu/devicespage/FeatureStateItem.qml
 
 message($$OTHER_FILES)
 

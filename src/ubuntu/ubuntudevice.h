@@ -36,7 +36,6 @@ class UbuntuDeviceHelper : public QObject
 {
     Q_OBJECT
     friend class UbuntuDevice;
-
 public:
     explicit UbuntuDeviceHelper(UbuntuDevice* dev);
     ~UbuntuDeviceHelper();
