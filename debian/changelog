@@ -1,3 +1,17 @@
+qtcreator-plugin-ubuntu (3.0.1+14.04.20140415-0ubuntu1) trusty; urgency=low
+
+  [ Zoltán Balogh ]
+  * Change Ubuntu API link and add link to HTML5 docs (LP: #1303535)
+    (LP: #1303535)
+  * Remove .desktop linking to the ~/.local/share/applications
+  * Replace scripts and share paths even if there is no device (LP:
+    #1307713) (LP: #1307713)
+
+  [ Benjamin Zeller ]
+  * Added missing plugin dependencies. Refresh ADB on startup .
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 15 Apr 2014 08:32:25 +0000
+
 qtcreator-plugin-ubuntu (3.0.1+14.04.20140410.1-0ubuntu1) trusty; urgency=low
 
   [ Benjamin Zeller ]
