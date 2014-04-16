@@ -24,12 +24,14 @@ public:
 
     enum Roles {
         ConnectionStateRole = Qt::UserRole,
+        ConnectionStateStringRole,
         DetectionStateRole,
         KitListRole,
         DeveloperModeRole,
         NetworkConnectionRole,
         WriteableImageRole,
-        DeveloperToolsRole
+        DeveloperToolsRole,
+        EmulatorRole
     };
 
     explicit UbuntuDevicesModel(QObject *parent = 0);

@@ -40,7 +40,7 @@ Column {
         UbuntuListView {
             model: kits
             delegate: ListItem.Standard {
-                text: displayName//modelData.displayName
+                text: modelData.displayName
                 control: Button{
                     text: "Remove"
                 }

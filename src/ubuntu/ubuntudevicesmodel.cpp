@@ -45,6 +45,9 @@ QVariant UbuntuDevicesModel::data(const QModelIndex &index, int role) const
             return m_knownDevices[index.row()]->device()->displayName();
             break;
         case ConnectionStateRole:
+            return m_knownDevices[index.row()]->device()->deviceState();
+            break;
+        case ConnectionStateStringRole:
             return m_knownDevices[index.row()]->device()->deviceStateToString();
             break;
         case KitListRole:
@@ -62,6 +65,9 @@ QVariant UbuntuDevicesModel::data(const QModelIndex &index, int role) const
         case DeveloperToolsRole:
             return m_knownDevices[index.row()]->device()->hasDeveloperTools();
             break;
+        case EmulatorRole:
+            return false;
+            break;
         default:
             break;
     }
@@ -73,11 +79,13 @@ QHash<int, QByteArray> UbuntuDevicesModel::roleNames() const
 {
     QHash<int,QByteArray> roles = QAbstractListModel::roleNames();
     roles.insert(ConnectionStateRole,"connectionState");
+    roles.insert(ConnectionStateStringRole,"connectionStateString");
     roles.insert(KitListRole,"kits");
     roles.insert(DeveloperModeRole,"developerModeEnabled");
     roles.insert(NetworkConnectionRole,"hasNetworkConnection");
     roles.insert(WriteableImageRole,"hasWriteableImage");
     roles.insert(DeveloperToolsRole,"hasDeveloperTools");
+    roles.insert(EmulatorRole,"isEmulator");
     return roles;
 }
 
