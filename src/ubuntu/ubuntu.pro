@@ -41,7 +41,8 @@ OTHER_FILES += \
     myapp.json.template \
     manifestlib.js \
     $$QML_FILES \
-    ../../share/qtcreator/ubuntu/devicespage/FeatureStateItem.qml
+    ../../share/qtcreator/ubuntu/devicespage/FeatureStateItem.qml \
+    ../../share/qtcreator/ubuntu/devicespage/StatusPage.qml
 
 message($$OTHER_FILES)
 

@@ -2,122 +2,85 @@ import QtQuick 2.0
 import QtQuick.Controls 1.0 as Controls
 import QtQuick.Layouts 1.0
 import Ubuntu.Components 0.1
+import Ubuntu.Components.ListItems 0.1 as ListItem
 
 MainView {
+
+    width: 860
+    height: 548
     Page {
         title: "Ubuntu Devices"
         flickable: null
-        Controls.SplitView {
-            orientation: Qt.Horizontal
-            anchors.fill: parent
+            Controls.SplitView {
+                orientation: Qt.Horizontal
+                anchors.fill: parent
 
-            Controls.ScrollView {
-                width: 200
-                Layout.fillHeight: true
-                Layout.minimumWidth: 200
-                Layout.maximumWidth: 400
+                Controls.SplitView {
+                    orientation: Qt.Vertical
+                    width: 200
+                    Layout.minimumWidth: 200
+                    Layout.maximumWidth: 400
 
-                UbuntuListView {
-                    id: devicesList
-                    model: devicesModel
-                    highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
-                    delegate: Item {
-                        id: delegate
-                        width:parent.width
-                        height: theTxt.height+2
-                        RowLayout {
-                            Text{
-                                id: theTxt
+                    Controls.ScrollView {
+                        Layout.fillHeight: true
+                        UbuntuListView {
+                            id: devicesList
+                            model: devicesModel
+                            delegate: ListItem.Standard {
+                                id: delegate
                                 text: display
-                                clip: true
-                                wrapMode: Text.WordWrap
+                                selected: devicesList.currentIndex == index
+                                onClicked: devicesList.currentIndex = index
                             }
-                        }
-                        MouseArea {
-                            hoverEnabled: false
-                            anchors.fill: parent
-                            onClicked: devicesList.currentIndex=index
                         }
                     }
+                    Button {
+                        Layout.maximumHeight: implicitHeight
+                        Layout.minimumHeight: implicitHeight
+                        text: "Create new emulator"
+                    }
                 }
-            }
+                Item {
+                    id: centerItem
+                    Layout.minimumWidth: 400
+                    Layout.fillWidth: true
+                    property int currentIndex: devicesList.currentIndex
+                    Repeater {
+                        model: devicesModel
+                        Rectangle{
+                            anchors.fill: parent
+                            anchors.margins: 12
 
-            Item {
-                id: centerItem
-                Layout.minimumWidth: 50
-                Layout.fillWidth: true
-                property int currentIndex: devicesList.currentIndex
-                Repeater {
-                    model: devicesModel
-                    Item{
-                        anchors.fill: parent
-                        anchors.margins: 12
-                        visible: index == devicesList.currentIndex
+                            color: Qt.rgba(0.0, 0.0, 0.0, 0.01)
+                            visible: index == devicesList.currentIndex
 
-                        GridLayout {
-                            columns: 2
-                            Label {
-                                text: i18n.tr("Current State")
-                                Layout.alignment: Qt.AlignTop
-                            }
-                            Controls.Label {
-                                text: connectionState
-                            }
-                            Label {
-                                text: "Kits"
-                                Layout.alignment: Qt.AlignTop
-                            }
-                            Rectangle {
-                                color: "white"
-                                Layout.maximumHeight: 200
-                                Layout.minimumHeight: 100
-                                width: 300
-                                Controls.ScrollView {
-                                    frameVisible: true
-                                    anchors.fill: parent
-                                    UbuntuListView {
-                                        anchors.fill: parent
-                                        flickableDirection: Flickable.HorizontalAndVerticalFlick
-                                        model: kits
-                                        delegate:
-                                            Text {
-                                            height:20
-                                            text: {
-                                                return modelData.displayName;
-                                            }
-                                        }
+                            Controls.TabView {
+                                anchors.fill: parent
+                                Controls.Tab {
+                                    title: "Device"
+                                    StatusPage{
                                     }
                                 }
-                            }
-                            FeatureStateItem {
-                                Layout.columnSpan: 2
-                                text: "Has devloper mode enabled"
-                                input: developerModeEnabled
-                                height: 24
-                            }
-                            FeatureStateItem {
-                                Layout.columnSpan: 2
-                                text: "Has network connection"
-                                input: hasNetworkConnection
-                                height: 24
-                            }
-                            FeatureStateItem {
-                                Layout.columnSpan: 2
-                                text: "Has writeable image"
-                                input: hasWriteableImage
-                                height: 24
-                            }
-                            FeatureStateItem {
-                                Layout.columnSpan: 2
-                                text: "Has device developer tools"
-                                input: hasDeveloperTools
-                                height: 24
+                                Controls.Tab {
+                                    title: "Advanced"
+                                    AdvancedPage{
+                                    }
+                                }
+                                Controls.Tab {
+                                    title: "Builder"
+                                    BuilderPage{
+                                    }
+                                }
+                                Controls.Tab {
+                                    title: "Log"
+                                    LogPage{}
+                                }
                             }
                         }
                     }
                 }
             }
-        }
+
     }
 }
 

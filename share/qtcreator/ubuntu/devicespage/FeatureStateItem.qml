@@ -1,23 +1,20 @@
 import QtQuick 2.0
-import QtQuick.Controls 1.0 as Controls
 import QtQuick.Layouts 1.0
 import Ubuntu.Components 0.1
+import Ubuntu.Components.ListItems 0.1 as ListItem
 
-Item {
+ListItem.Standard {
     id: item
-    property string text
     property var input: null
-    RowLayout {
-        Label {
-            text: item.text
-            Layout.fillWidth: true
-        }
+    selected: false
+    control: Row {
         ActivityIndicator {
-            height: parent.height
-            width: parent.height
-            visible: true
+            visible: input === 1
             running: true
         }
+        Switch {
+            visible: input !== 1
+            checked: input === 2
+        }
     }
-
 }
