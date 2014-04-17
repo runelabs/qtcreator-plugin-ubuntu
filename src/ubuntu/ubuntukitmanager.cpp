@@ -23,11 +23,24 @@ static bool equalKits(ProjectExplorer::Kit *a, ProjectExplorer::Kit *b)
     return ProjectExplorer::ToolChainKitInformation::toolChain(a) == ProjectExplorer::ToolChainKitInformation::ToolChainKitInformation::toolChain(b);
 }
 
+static bool lessThanToolchain (const ClickToolChain* left, const ClickToolChain* right)
+{
+    const UbuntuClickTool::Target &leftTarget = left->clickTarget();
+    const UbuntuClickTool::Target &rightTarget = right->clickTarget();
+
+    if(leftTarget.majorVersion < rightTarget.majorVersion)
+        return true;
+    if(leftTarget.minorVersion < rightTarget.minorVersion)
+        return true;
+
+    return false;
+}
+
 UbuntuKitManager::UbuntuKitManager()
 {
 }
 
-void UbuntuKitManager::autoDetectKits()
+QList<ClickToolChain *> UbuntuKitManager::clickToolChains()
 {
     QList<ClickToolChain *> toolchains;
     // having a empty toolchains list will remove all autodetected kits for android
@@ -41,6 +54,42 @@ void UbuntuKitManager::autoDetectKits()
             toolchains << static_cast<ClickToolChain *>(tc);
         }
     }
+    return toolchains;
+}
+
+void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
+{
+    QList<ClickToolChain*> toolchains = clickToolChains();
+    if(toolchains.size() == 0) {
+        //create target
+        return;
+    }
+
+    qSort(toolchains.begin(),toolchains.end(),lessThanToolchain);
+
+    //right now we are going to use the last toolchain, because its the one
+    //with the highest framework, this needs to be changed once we have x86 targets
+    ClickToolChain* tc = toolchains.last();
+    ProjectExplorer::Kit* newKit = createKit(tc);
+    if(newKit) {
+        fixKit(newKit);
+
+        newKit->setDisplayName(tr("%1 (GCC %2-%3-%4)")
+                            .arg(device->displayName())
+                            .arg(tc->clickTarget().architecture)
+                            .arg(tc->clickTarget().framework)
+                            .arg(tc->clickTarget().series));
+
+        ProjectExplorer::DeviceKitInformation::setDevice(newKit,device);
+        ProjectExplorer::KitManager::registerKit(newKit);
+    }
+}
+
+void UbuntuKitManager::autoDetectKits()
+{
+    // having a empty toolchains list will remove all autodetected kits for android
+    // exactly what we want in that case
+    QList<ClickToolChain *> toolchains = clickToolChains();
 
     QList<ProjectExplorer::Kit *> existingKits;
     foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::kits()) {

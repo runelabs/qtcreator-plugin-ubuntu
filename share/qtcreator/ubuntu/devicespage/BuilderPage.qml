@@ -19,14 +19,18 @@ Controls.ScrollView {
         FeatureStateItem {
             text: "Has writeable image"
             input: hasWriteableImage
+            inputRole: "hasWriteableImage"
             height: 24
             width: 300
+            checkable: !deviceItemView.deviceBusy
         }
         FeatureStateItem {
             text: "Has device developer tools"
             input: hasDeveloperTools
+            inputRole: "hasDeveloperTools"
             height: 24
             width: 300
+            checkable: !deviceItemView.deviceBusy
         }
     }
 }

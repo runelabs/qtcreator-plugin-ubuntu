@@ -149,6 +149,7 @@ public:
     QString serialNumber () const;
     UbuntuDeviceHelper *helper () const;
 
+    void cloneNetwork    ();
     void openTerminal    ();
     void cloneTimeConfig ();
     void enablePortForward ();

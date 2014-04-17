@@ -29,10 +29,6 @@ ListModel {
         hasWriteableImage: 1
         hasDeveloperTools: 1
         kits: [
-            ListElement{
-                kitId: "1"
-                displayName: "Emulator UbuntuSDK for armhf (GCC ubuntu-sdk-14.04-trusty)"
-            }
         ]
         deviceLog: "<p><strong>Checking for network.....</strong><strong> </strong><br/>available</p><p><strong>Checking for readable Image....</strong><br/>not available</p>"
     }

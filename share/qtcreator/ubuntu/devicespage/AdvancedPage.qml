@@ -5,76 +5,85 @@ import Ubuntu.Components 0.1
 import Ubuntu.Components.ListItems 0.1 as ListItem
 
 Controls.ScrollView {
-    ColumnLayout {
-        Layout.fillWidth: true
-        Label {
-            text: "Device Control"
-            fontSize: "large"
-            anchors.left: parent.left
-            Layout.fillWidth: true
-        }
-        ListItem.Standard {
-            text:"Clone time config from Host to Device"
-            control: Button{
-                text: "Execute"
+
+    UbuntuListView {
+        model: VisualItemModel{
+            Label {
+                text: "Device Control"
+                fontSize: "large"
+                anchors.left: parent.left
             }
-            Layout.fillWidth: true
-        }
-        ListItem.Standard {
-            text:"Enable port forwarding"
-            control: Button{
-                text: "Execute"
+            ListItem.Standard {
+                text:"Clone time config from Host to Device"
+                control: Button{
+                    text: "Execute"
+                    enabled: !deviceItemView.deviceBusy
+                    onClicked: devicesModel.triggerCloneTimeConfig(deviceId)
+                }
             }
-            Layout.fillWidth: true
-        }
-        ListItem.Standard {
-            text:"Setup public key authentication"
-            control: Button{
-                text: "Execute"
+            ListItem.Standard {
+                text:"Enable port forwarding"
+                control: Button{
+                    text: "Execute"
+                    enabled: !deviceItemView.deviceBusy
+                    onClicked: devicesModel.triggerPortForwarding(deviceId)
+                }
             }
-            Layout.fillWidth: true
-        }
-        ListItem.Standard {
-            text:"Open SSH connection to the device"
-            control: Button{
-                text: "Execute"
+            ListItem.Standard {
+                text:"Setup public key authentication"
+                control: Button{
+                    text: "Execute"
+                    enabled: !deviceItemView.deviceBusy
+                    onClicked: devicesModel.triggerSSHSetup(deviceId)
+                }
             }
-            Layout.fillWidth: true
-        }
-        ListItem.Divider{}
-        Label {
-            text: "Device Mode"
-            fontSize: "large"
-            anchors.left: parent.left
-            Layout.fillWidth: true
-        }
-        ListItem.Standard {
-            text:"Reboot"
-            control: Button{
-                text: "Execute"
+            ListItem.Standard {
+                text:"Open SSH connection to the device"
+                control: Button{
+                    text: "Execute"
+                    enabled: !deviceItemView.deviceBusy
+                    onClicked: devicesModel.triggerSSHConnection(deviceId)
+                }
             }
-            Layout.fillWidth: true
-        }
-        ListItem.Standard {
-            text:"Reboot to bootloader"
-            control: Button{
-                text: "Execute"
+            ListItem.Divider{}
+            Label {
+                text: "Device Mode"
+                fontSize: "large"
             }
-            Layout.fillWidth: true
-        }
-        ListItem.Standard {
-            text:"Reboot to recovery"
-            control: Button{
-                text: "Execute"
+            ListItem.Standard {
+                text:"Reboot"
+                control: Button{
+                    text: "Execute"
+                    enabled: !deviceItemView.deviceBusy
+                    onClicked: devicesModel.triggerReboot(deviceId)
+                }
             }
-            Layout.fillWidth: true
-        }
-        ListItem.Standard {
-            text:"Shutdown"
-            control: Button{
-                text: "Execute"
+            ListItem.Standard {
+                text:"Reboot to bootloader"
+                control: Button{
+                    text: "Execute"
+                    enabled: !deviceItemView.deviceBusy
+                    onClicked: devicesModel.triggerRebootBootloader(deviceId)
+                }
             }
-            Layout.fillWidth: true
+            ListItem.Standard {
+                text:"Reboot to recovery"
+                control: Button{
+                    text: "Execute"
+                    enabled: !deviceItemView.deviceBusy
+                    onClicked: devicesModel.triggerRebootRecovery(deviceId)
+                }
+            }
+            ListItem.Standard {
+                text:"Shutdown"
+                control: Button{
+                    text: "Execute"
+                    enabled: !deviceItemView.deviceBusy
+                    onClicked: devicesModel.triggerShutdown(deviceId)
+                }
+            }
         }
     }
+
+
 }

@@ -24,6 +24,7 @@
 #include "localportsmanager.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <remotelinux/genericlinuxdeviceconfigurationwidget.h>
 #include <coreplugin/messagemanager.h>
 #include <ssh/sshconnection.h>
 #include <utils/portlist.h>
@@ -242,7 +243,6 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
                 m_dev->m_hasDeveloperTools = UbuntuDevice::Available;
                 endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_DEVELOPERTOOLS_INSTALLED));
             }
-
             emit featureDetected();
             break;
         }
@@ -297,6 +297,10 @@ void UbuntuDeviceHelper::detect()
 void UbuntuDeviceHelper::detectOpenSsh()
 {
     setProcessState(UbuntuDevice::DetectOpenSSH);
+
+    m_dev->m_hasOpenSSHServer = UbuntuDevice::Unknown;
+    emit featureDetected();
+
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTOPENSSH));
 
     stopProcess();
@@ -348,6 +352,10 @@ void UbuntuDeviceHelper::detectHasNetworkConnection()
     //          adb shell nmcli dev list iface <intfc> | grep IP4.ADDRESS
     //      to find out the devices ip address
     setProcessState(UbuntuDevice::DetectNetworkConnection);
+
+    m_dev->m_hasNetworkConnection = UbuntuDevice::Unknown;
+    emit featureDetected();
+
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_HASNETWORK));
 
     stopProcess();
@@ -372,6 +380,10 @@ void UbuntuDeviceHelper::detectDeviceVersion()
 void UbuntuDeviceHelper::detectDeviceWritableImage()
 {
     setProcessState(UbuntuDevice::DetectDeviceWriteableImage);
+
+    m_dev->m_hasWriteableImage = UbuntuDevice::Unknown;
+    emit featureDetected();
+
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTWRITABLEIMAGE));
 
     stopProcess();
@@ -384,6 +396,10 @@ void UbuntuDeviceHelper::detectDeviceWritableImage()
 void UbuntuDeviceHelper::detectDeveloperTools()
 {
     setProcessState(UbuntuDevice::DetectDeveloperTools);
+
+    m_dev->m_hasDeveloperTools = UbuntuDevice::Unknown;
+    emit featureDetected();
+
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVELOPERTOOLS));
 
     stopProcess();
@@ -630,6 +646,7 @@ void UbuntuDeviceHelper::deployPublicKey()
 void UbuntuDeviceHelper::cloneNetwork()
 {
     m_clonedNwCount++;
+
     setProcessState(UbuntuDevice::CloneNetwork);
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONENETWORK));
 
@@ -770,6 +787,11 @@ QString UbuntuDevice::serialNumber() const
 UbuntuDeviceHelper *UbuntuDevice::helper() const
 {
     return m_helper;
+}
+
+void UbuntuDevice::cloneNetwork()
+{
+    m_helper->cloneNetwork();
 }
 
 /*!
@@ -968,14 +990,15 @@ QString UbuntuDevice::detectionStateString( ) const
         case RemoveDevTools:
             return tr("Removing development tools");
         case Done:
-            return tr("Finished");
+            return tr("Ready");
     }
     return QString();
 }
 
 ProjectExplorer::IDeviceWidget *UbuntuDevice::createWidget()
 {
-    return new UbuntuDeviceConfigurationWidget(sharedFromThis());
+    return new RemoteLinux::GenericLinuxDeviceConfigurationWidget(sharedFromThis());
+    //return new UbuntuDeviceConfigurationWidget(sharedFromThis());
 }
 
 QList<Core::Id> UbuntuDevice::actionIds() const

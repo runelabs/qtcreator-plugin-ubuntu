@@ -1,5 +1,6 @@
 #include "ubuntudevicesmodel.h"
 #include "ubuntuconstants.h"
+#include "ubuntukitmanager.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -16,6 +17,19 @@ UbuntuDevicesModel::UbuntuDevicesModel(QObject *parent) :
 {
     ProjectExplorer::KitManager* devMgr = static_cast<ProjectExplorer::KitManager*>(ProjectExplorer::KitManager::instance());
     connect(devMgr,SIGNAL(kitsLoaded()),this,SLOT(readDevicesFromSettings()));
+    connect(ProjectExplorer::DeviceManager::instance(),SIGNAL(deviceListReplaced()),this,SLOT(readDevicesFromSettings()));
+}
+
+bool UbuntuDevicesModel::set(int index, const QString &role, const QVariant &value)
+{
+    if(index < 0 || index >= rowCount())
+        return false;
+
+    QModelIndex idx = createIndex(index,0);
+    if(!roleNames().values().contains(role.toUtf8()))
+        return false;
+
+    return setData(idx,value,roleNames().key(role.toUtf8()));
 }
 
 int UbuntuDevicesModel::rowCount(const QModelIndex &parent) const
@@ -28,7 +42,89 @@ int UbuntuDevicesModel::rowCount(const QModelIndex &parent) const
 bool UbuntuDevicesModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     qDebug()<<"Setting index "<<index<<" with data "<<value<<" to role "<<role;
-    return QAbstractListModel::setData(index,value,role);
+    if(!index.isValid()
+            || index.parent().isValid()
+            || index.row() < 0
+            || index.row() > rowCount())
+        return false;
+
+    UbuntuDevice::Ptr dev = m_knownDevices[index.row()]->device();
+
+    switch (role) {
+        case Qt::DisplayRole:
+        case Qt::EditRole:
+            return false;
+        case KitListRole:
+            return false;
+        case DeveloperModeRole: {
+            if(!value.type() == QVariant::Bool)
+                return false;
+
+            bool set = value.toBool();
+            UbuntuDevice::FeatureState newState = set ? UbuntuDevice::Available : UbuntuDevice::NotAvailable;
+            UbuntuDevice::FeatureState oldState = dev->developerModeEnabled();
+
+            if(oldState == UbuntuDevice::Unknown)
+                return false;
+
+            if( oldState != newState )
+                dev->setDeveloperModeEnabled(set);
+            return true;
+            break;
+        }
+        case NetworkConnectionRole: {
+            if(!value.type() == QVariant::Bool)
+                return false;
+
+            bool set = value.toBool();
+            UbuntuDevice::FeatureState oldState = dev->hasNetworkConnection();
+
+            if( oldState == UbuntuDevice::Unknown || oldState == UbuntuDevice::Available )
+                return false;
+
+            if(set)
+                dev->cloneNetwork();
+            return true;
+
+            break;
+        }
+        case WriteableImageRole: {
+            if(!value.type() == QVariant::Bool)
+                return false;
+
+            bool set = value.toBool();
+            UbuntuDevice::FeatureState newState = set ? UbuntuDevice::Available : UbuntuDevice::NotAvailable;
+            UbuntuDevice::FeatureState oldState = dev->hasWriteableImage();
+
+            if(oldState == UbuntuDevice::Unknown)
+                return false;
+
+            if( oldState != newState )
+                dev->setWriteableImageEnabled(set);
+            return true;
+            break;
+        }
+        case DeveloperToolsRole: {
+            if(!value.type() == QVariant::Bool)
+                return false;
+
+            bool set = value.toBool();
+            UbuntuDevice::FeatureState newState = set ? UbuntuDevice::Available : UbuntuDevice::NotAvailable;
+            UbuntuDevice::FeatureState oldState = dev->hasDeveloperTools();
+
+            if(oldState == UbuntuDevice::Unknown)
+                return false;
+
+            if( oldState != newState )
+                dev->setDeveloperToolsInstalled(set);
+            return true;
+            break;
+        }
+        default:
+            break;
+    }
+
+    return false;
 }
 
 QVariant UbuntuDevicesModel::data(const QModelIndex &index, int role) const
@@ -43,31 +139,30 @@ QVariant UbuntuDevicesModel::data(const QModelIndex &index, int role) const
         case Qt::DisplayRole:
         case Qt::EditRole:
             return m_knownDevices[index.row()]->device()->displayName();
-            break;
+        case UniqueIdRole:
+            return m_knownDevices[index.row()]->id().uniqueIdentifier();
+        case DetectionStateRole:
+            return m_knownDevices[index.row()]->device()->detectionState();
+        case DetectionStateStringRole:
+            return m_knownDevices[index.row()]->device()->detectionStateString();
         case ConnectionStateRole:
             return m_knownDevices[index.row()]->device()->deviceState();
-            break;
         case ConnectionStateStringRole:
             return m_knownDevices[index.row()]->device()->deviceStateToString();
-            break;
         case KitListRole:
             return QVariant::fromValue(m_knownDevices[index.row()]->kits());
-            break;
         case DeveloperModeRole:
             return m_knownDevices[index.row()]->device()->developerModeEnabled();
-            break;
         case NetworkConnectionRole:
             return m_knownDevices[index.row()]->device()->hasNetworkConnection();
-            break;
         case WriteableImageRole:
             return m_knownDevices[index.row()]->device()->hasWriteableImage();
-            break;
         case DeveloperToolsRole:
             return m_knownDevices[index.row()]->device()->hasDeveloperTools();
-            break;
         case EmulatorRole:
             return false;
-            break;
+        case LogRole:
+            return m_knownDevices[index.row()]->device()->helper()->log();
         default:
             break;
     }
@@ -78,6 +173,9 @@ QVariant UbuntuDevicesModel::data(const QModelIndex &index, int role) const
 QHash<int, QByteArray> UbuntuDevicesModel::roleNames() const
 {
     QHash<int,QByteArray> roles = QAbstractListModel::roleNames();
+    roles.insert(UniqueIdRole,"deviceId");
+    roles.insert(DetectionStateRole,"detectionState");
+    roles.insert(DetectionStateStringRole,"detectionStateString");
     roles.insert(ConnectionStateRole,"connectionState");
     roles.insert(ConnectionStateStringRole,"connectionStateString");
     roles.insert(KitListRole,"kits");
@@ -86,7 +184,85 @@ QHash<int, QByteArray> UbuntuDevicesModel::roleNames() const
     roles.insert(WriteableImageRole,"hasWriteableImage");
     roles.insert(DeveloperToolsRole,"hasDeveloperTools");
     roles.insert(EmulatorRole,"isEmulator");
+    roles.insert(LogRole,"deviceLog");
     return roles;
+}
+
+Qt::ItemFlags UbuntuDevicesModel::flags(const QModelIndex &index) const
+{
+    return QAbstractListModel::flags(index) | Qt::ItemIsEditable;
+}
+
+void UbuntuDevicesModel::triggerCloneTimeConfig(const int devId)
+{
+    int row = findDevice(devId);
+    if(row < 0)
+        return;
+    m_knownDevices[row]->device()->cloneTimeConfig();
+}
+
+void UbuntuDevicesModel::triggerPortForwarding(const int devId)
+{
+    int row = findDevice(devId);
+    if(row < 0)
+        return;
+    m_knownDevices[row]->device()->enablePortForward();
+}
+
+void UbuntuDevicesModel::triggerSSHSetup(const int devId)
+{
+    int row = findDevice(devId);
+    if(row < 0)
+        return;
+    m_knownDevices[row]->device()->deployPublicKey();
+}
+
+void UbuntuDevicesModel::triggerSSHConnection(const int devId)
+{
+    int row = findDevice(devId);
+    if(row < 0)
+        return;
+    m_knownDevices[row]->device()->openTerminal();
+}
+
+void UbuntuDevicesModel::triggerReboot(const int devId)
+{
+    int row = findDevice(devId);
+    if(row < 0)
+        return;
+    m_knownDevices[row]->device()->reboot();
+}
+
+void UbuntuDevicesModel::triggerRebootBootloader(const int devId)
+{
+    int row = findDevice(devId);
+    if(row < 0)
+        return;
+    m_knownDevices[row]->device()->rebootToBootloader();
+}
+
+void UbuntuDevicesModel::triggerRebootRecovery(const int devId)
+{
+    int row = findDevice(devId);
+    if(row < 0)
+        return;
+    m_knownDevices[row]->device()->rebootToRecovery();
+}
+
+void UbuntuDevicesModel::triggerShutdown(const int devId)
+{
+    int row = findDevice(devId);
+    if(row < 0)
+        return;
+    m_knownDevices[row]->device()->shutdown();
+}
+
+void UbuntuDevicesModel::triggerKitAutocreate(const int devId)
+{
+    int row = findDevice(devId);
+    if(row < 0)
+        return;
+    UbuntuKitManager::autoCreateKit(m_knownDevices[row]->device());
 }
 
 int UbuntuDevicesModel::findDevice(int uniqueIdentifier) const
@@ -106,10 +282,32 @@ bool UbuntuDevicesModel::hasDevice(int uniqueIdentifier) const
 UbuntuDevicesItem *UbuntuDevicesModel::createItem(UbuntuDevice::Ptr dev)
 {
     UbuntuDevicesItem *devItem = new UbuntuDevicesItem(dev,this);
-    connect(devItem,SIGNAL(kitsChanged()),this,SLOT(deviceDataChanged()));
-    connect(devItem,SIGNAL(detectionStateChanged()),this,SLOT(deviceDataChanged()));
-
+    connect(devItem,SIGNAL(kitsChanged()),this,SLOT(kitsChanged()));
+    connect(devItem,SIGNAL(detectionStateChanged()),this,SLOT(detectionStateChanged()));
+    connect(devItem,SIGNAL(featureDetected()),this,SLOT(featureDetected()));
+    connect(devItem,SIGNAL(logUpdated()),this,SLOT(logUpdated()));
     return devItem;
+}
+
+/*!
+ * \brief UbuntuDevicesModel::indexFromHelper
+ * Checks if the passed QObject is a DeviceHelper and returns the
+ * row index of the related device
+ */
+int UbuntuDevicesModel::indexFromHelper(QObject *possibleHelper)
+{
+    UbuntuDevicesItem* hlpr = qobject_cast<UbuntuDevicesItem*>(possibleHelper);
+    if(!hlpr) return -1;
+    return findDevice(hlpr->id().uniqueIdentifier());
+}
+
+void UbuntuDevicesModel::deviceChanged(QObject *possibleHelper, const QVector<int> &relatedRoles)
+{
+    int idx = indexFromHelper(possibleHelper);
+    if(idx < 0)
+        return;
+    QModelIndex changed = createIndex(idx,0);
+    emit dataChanged(changed,changed,relatedRoles);
 }
 
 /*!
@@ -150,13 +348,41 @@ void UbuntuDevicesModel::readDevicesFromSettings()
     connect(devMgr,SIGNAL(deviceUpdated(Core::Id)),this,SLOT(deviceUpdated(Core::Id)));
 }
 
-void UbuntuDevicesModel::deviceDataChanged()
+void UbuntuDevicesModel::detectionStateChanged()
 {
-    UbuntuDevicesItem* hlpr = qobject_cast<UbuntuDevicesItem*>(sender());
-    if(!hlpr) return;
-    int index = findDevice(hlpr->id().uniqueIdentifier());
-    if(index >= 0)
-        emit dataChanged(createIndex(index,0),createIndex(index,0));
+    //contains the possible changed roles when this slot is called
+    static QVector<int> relatedRoles = QVector<int>()
+            << DetectionStateRole << DetectionStateStringRole;
+
+    deviceChanged(sender(),relatedRoles);
+}
+
+void UbuntuDevicesModel::featureDetected()
+{
+    //contains the possible changed roles when this slot is called
+    static QVector<int> relatedRoles = QVector<int>()
+            << DeveloperModeRole  << NetworkConnectionRole
+            << WriteableImageRole << DeveloperToolsRole;
+
+    deviceChanged(sender(),relatedRoles);
+}
+
+void UbuntuDevicesModel::logUpdated()
+{
+    //contains the possible changed roles when this slot is called
+    static QVector<int> relatedRoles = QVector<int>()
+            << LogRole;
+
+    deviceChanged(sender(),relatedRoles);
+}
+
+void UbuntuDevicesModel::kitsChanged()
+{
+    //contains the possible changed roles when this slot is called
+    static QVector<int> relatedRoles = QVector<int>()
+            << KitListRole;
+
+    deviceChanged(sender(),relatedRoles);
 }
 
 /*!
@@ -209,13 +435,20 @@ void UbuntuDevicesModel::deviceRemoved(const Core::Id &id)
 /*!
  * \brief UbuntuDevicesWidget::deviceUpdated
  * called when a device state is changed between connected
- * and disconnected, adds or removes the config widget
- * accordingly
+ * and disconnected or device data was changed
  */
 void UbuntuDevicesModel::deviceUpdated(const Core::Id &id)
 {
-    if (hasDevice(id.uniqueIdentifier()))
-        return;
+    //contains the possible changed roles when this slot is called
+    static QVector<int> relatedRoles = QVector<int>()
+            << Qt::DisplayRole << Qt::EditRole
+            << ConnectionStateRole << ConnectionStateStringRole;
+
+    int index = findDevice(id.uniqueIdentifier());
+    if(index >= 0) {
+        QModelIndex changed = createIndex(index,0);
+        emit dataChanged(changed, changed,relatedRoles);
+    }
 }
 
 /*!
@@ -242,6 +475,8 @@ UbuntuDevicesItem::UbuntuDevicesItem(UbuntuDevice::Ptr device, QObject* parent) 
             this,SLOT(onKitUpdated(ProjectExplorer::Kit*)));
 
     connect(device->helper(),SIGNAL(detectionStateChanged()),this,SLOT(deviceStateChanged()));
+    connect(device->helper(),SIGNAL(featureDetected()),this,SIGNAL(featureDetected()));
+    connect(device->helper(),SIGNAL(message(QString)),this,SIGNAL(logUpdated()));
 }
 
 /*!
