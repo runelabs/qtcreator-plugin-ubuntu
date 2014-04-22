@@ -7,6 +7,9 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
 
+#include <QCoreApplication>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 #include <QVariant>
 
 namespace Ubuntu {
@@ -15,9 +18,17 @@ namespace Internal {
 UbuntuDevicesModel::UbuntuDevicesModel(QObject *parent) :
     QAbstractListModel(parent)
 {
+    m_deviceNotifier = new UbuntuDeviceNotifier(this);
+    connect(m_deviceNotifier,SIGNAL(deviceConnected(QString)),this,SLOT(deviceConnected(QString)));
+
+    m_adbProcess = new QProcess(this);
+    connect(m_adbProcess,SIGNAL(finished(int)),this,SLOT(refreshFinished(int)));
+    connect(m_adbProcess,SIGNAL(readyRead()),this,SLOT(adbReadyRead()));
+
+
     ProjectExplorer::KitManager* devMgr = static_cast<ProjectExplorer::KitManager*>(ProjectExplorer::KitManager::instance());
     connect(devMgr,SIGNAL(kitsLoaded()),this,SLOT(readDevicesFromSettings()));
-    connect(ProjectExplorer::DeviceManager::instance(),SIGNAL(deviceListReplaced()),this,SLOT(readDevicesFromSettings()));
+    connect(ProjectExplorer::DeviceManager::instance(),SIGNAL(deviceListReplaced()),this,SLOT(refresh()));
 }
 
 bool UbuntuDevicesModel::set(int index, const QString &role, const QVariant &value)
@@ -265,6 +276,50 @@ void UbuntuDevicesModel::triggerKitAutocreate(const int devId)
     UbuntuKitManager::autoCreateKit(m_knownDevices[row]->device());
 }
 
+void UbuntuDevicesModel::triggerKitRemove(const int devId, const QVariant &kitid)
+{
+    int row = findDevice(devId);
+    if(row < 0)
+        return;
+
+    ProjectExplorer::Kit* k = ProjectExplorer::KitManager::find(Core::Id::fromSetting(kitid));
+    if(ProjectExplorer::DeviceKitInformation::deviceId(k) == Core::Id(devId)) {
+        //completely delete the kit
+        ProjectExplorer::KitManager::deregisterKit(k);
+    }
+}
+
+void UbuntuDevicesModel::refresh()
+{
+    if( m_adbProcess->state() != QProcess::NotRunning ) {
+        //make sure we use a clean QProcess
+        m_adbProcess->disconnect(this);
+        m_adbProcess->kill();
+        m_adbProcess->deleteLater();
+
+        m_adbProcess = new QProcess(this);
+        connect(m_adbProcess,SIGNAL(finished(int)),this,SLOT(refreshFinished(int)));
+        connect(m_adbProcess,SIGNAL(readyRead()),this,SLOT(adbReadyRead()));
+    }
+    bool restartAdb = true;
+    m_adbProcess->setWorkingDirectory(QCoreApplication::applicationDirPath());
+    m_adbProcess->setArguments( QStringList() << (restartAdb ? QString::number(1) : QString::number(0)) );
+    m_adbProcess->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES_SCRIPT)
+                          .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH));
+
+    clear();
+}
+
+void UbuntuDevicesModel::clear()
+{
+    if(rowCount()) {
+        beginRemoveRows(QModelIndex(),0,rowCount()-1);
+        qDeleteAll(m_knownDevices.begin(),m_knownDevices.end());
+        m_knownDevices.clear();
+        endRemoveRows();
+    }
+}
+
 int UbuntuDevicesModel::findDevice(int uniqueIdentifier) const
 {
     for ( int i = 0; i < m_knownDevices.size(); i++ ) {
@@ -277,6 +332,13 @@ int UbuntuDevicesModel::findDevice(int uniqueIdentifier) const
 bool UbuntuDevicesModel::hasDevice(int uniqueIdentifier) const
 {
     return findDevice(uniqueIdentifier) >= 0;
+}
+
+UbuntuDevice::ConstPtr UbuntuDevicesModel::device(const int index)
+{
+    if(index < 0 || index >= rowCount())
+        return UbuntuDevice::ConstPtr();
+    return m_knownDevices[index]->device();
 }
 
 UbuntuDevicesItem *UbuntuDevicesModel::createItem(UbuntuDevice::Ptr dev)
@@ -311,18 +373,13 @@ void UbuntuDevicesModel::deviceChanged(QObject *possibleHelper, const QVector<in
 }
 
 /*!
- * \brief UbuntuDevicesWidget::readDevicesFromSettings
+ * \brief UbuntuDevicesModel::readDevicesFromSettings
  * read all known devices from the DeviceManager, this is triggered
  * automatically on startup
  */
 void UbuntuDevicesModel::readDevicesFromSettings()
 {
-    if(rowCount()) {
-        beginRemoveRows(QModelIndex(),0,rowCount()-1);
-        qDeleteAll(m_knownDevices.begin(),m_knownDevices.end());
-        m_knownDevices.clear();
-        endRemoveRows();
-    }
+    clear();
 
     QList<UbuntuDevicesItem*> devs;
     ProjectExplorer::DeviceManager* devMgr = ProjectExplorer::DeviceManager::instance();
@@ -386,7 +443,7 @@ void UbuntuDevicesModel::kitsChanged()
 }
 
 /*!
- * \brief UbuntuDevicesWidget::deviceAdded
+ * \brief UbuntuDevicesModel::deviceAdded
  * A device was added in the DeviceManager, check if know it and
  * if we should know it. If its a new Ubuntu device its added to
  * the known devices
@@ -433,7 +490,7 @@ void UbuntuDevicesModel::deviceRemoved(const Core::Id &id)
 }
 
 /*!
- * \brief UbuntuDevicesWidget::deviceUpdated
+ * \brief UbuntuDevicesModel::deviceUpdated
  * called when a device state is changed between connected
  * and disconnected or device data was changed
  */
@@ -449,6 +506,98 @@ void UbuntuDevicesModel::deviceUpdated(const Core::Id &id)
         QModelIndex changed = createIndex(index,0);
         emit dataChanged(changed, changed,relatedRoles);
     }
+}
+
+void UbuntuDevicesModel::deviceConnected(const QString &id)
+{
+    int idx = findDevice(Core::Id::fromSetting(id).uniqueIdentifier());
+    if(idx >= 0)
+        return;
+
+    refresh();
+}
+
+void UbuntuDevicesModel::refreshFinished(int exitCode)
+{
+    readDevicesFromSettings();
+    foreach(UbuntuDevicesItem* item, m_knownDevices)
+        item->device()->helper()->refresh();
+
+    if(exitCode != 0) {
+        return;
+    }
+
+    //read all data from the process
+    adbReadyRead();
+
+    QStringList lines = m_adbReply.trimmed().split(QLatin1String(Constants::LINEFEED));
+    foreach(QString line, lines) {
+        line = line.trimmed();
+
+        if (line.isEmpty()) {
+            continue;
+        }
+
+        QRegularExpression exp(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_ADB_REGEX));
+        QRegularExpressionMatch match = exp.match(line);
+
+        if(match.hasMatch()) {
+            QStringList lineData = match.capturedTexts();
+
+            //The first entry is always the full match
+            //which means in our case its the complete string
+            lineData.takeFirst();
+
+            if (lineData.count() == 2) {
+                QString sSerialNumber = lineData.takeFirst();
+                QString sDeviceInfo = lineData.takeFirst();
+
+                //sometimes the adb server is not started when adb devices is
+                //executed, we just skip those lines
+                if(sSerialNumber == QLatin1String("*"))
+                    continue;
+
+                if(sSerialNumber.isEmpty() || sSerialNumber.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_ADB_NOACCESS))) {
+                    continue;
+                }
+
+                registerNewDevice(sSerialNumber,sDeviceInfo);
+            }
+        }
+    }
+}
+
+void UbuntuDevicesModel::adbReadyRead()
+{
+    QString stderr = QString::fromLocal8Bit(m_adbProcess->readAllStandardError());
+    QString stdout = QString::fromLocal8Bit(m_adbProcess->readAllStandardOutput());
+    m_adbReply.append(stderr);
+    m_adbReply.append(stdout);
+}
+
+/*!
+ * \brief UbuntuDevicesModel::registerNewDevice
+ * Registers a new device in the device manager if its not
+ * already in the known devices map.
+ * \note will not add it into model list, this
+ *       will happen automatically when the device is
+ *       registered in the device manager
+ */
+void UbuntuDevicesModel::registerNewDevice(const QString &serial, const QString &deviceInfo)
+{
+    if(findDevice(Core::Id::fromSetting(serial).uniqueIdentifier()) >= 0)
+        return;
+
+    bool isEmu = serial.startsWith(QLatin1String("emulator"));
+
+    Ubuntu::Internal::UbuntuDevice::Ptr dev = Ubuntu::Internal::UbuntuDevice::create(
+                tr("Ubuntu Device")
+                , serial
+                , isEmu ? ProjectExplorer::IDevice::Emulator : ProjectExplorer::IDevice::Hardware
+                          , ProjectExplorer::IDevice::AutoDetected);
+
+    dev->setDeviceInfoString(deviceInfo);
+    ProjectExplorer::DeviceManager::instance()->addDevice(dev);
 }
 
 /*!
@@ -504,8 +653,8 @@ QVariantList UbuntuDevicesItem::kits() const
         qDebug()<<"Adding "<<k->displayName();
 
         QVariantMap m;
-        m.insert(QLatin1String("displayName"),k->displayName());
-        m.insert(QLatin1String("id"),k->id().toSetting());
+        m.insert(QStringLiteral("displayName"),k->displayName());
+        m.insert(QStringLiteral("id"),k->id().toSetting());
         kits.append(QVariant::fromValue(m));
     }
 

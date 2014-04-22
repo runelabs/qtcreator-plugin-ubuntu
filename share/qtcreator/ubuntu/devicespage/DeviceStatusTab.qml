@@ -35,10 +35,12 @@ ColumnLayout {
 
     ListItem.Standard {
         text: "Device Kits"
+        /*
         control: Button {
             text: "Add Kit"
             enabled: !deviceItemView.deviceBusy
         }
+        */
         Layout.fillWidth: true
     }
 
@@ -55,6 +57,7 @@ ColumnLayout {
                     control: Button{
                         text: "Remove"
                         enabled: !deviceItemView.deviceBusy
+                        onClicked: devicesModel.triggerKitRemove(deviceId,modelData.id)
                     }
                 }
             }

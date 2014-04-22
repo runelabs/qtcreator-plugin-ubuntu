@@ -19,8 +19,8 @@
 #ifndef UBUNTUDEVICEMODE_H
 #define UBUNTUDEVICEMODE_H
 
+#include "ubuntudevice.h"
 #include <coreplugin/imode.h>
-#include "ubuntudeviceswidget.h"
 
 class QQuickView;
 
@@ -28,6 +28,7 @@ namespace Ubuntu {
 namespace Internal {
 
 class UbuntuDevicesModel;
+class UbuntuEmulatorModel;
 
 class UbuntuDeviceMode : public Core::IMode
 {
@@ -37,15 +38,25 @@ public:
     UbuntuDeviceMode(QObject *parent = 0);
     void initialize();
 
+    static UbuntuDeviceMode *instance();
+    UbuntuDevice::ConstPtr device();
+
+signals:
+    void updateDeviceActions ();
+
+public slots:
+    void deviceSelected ( const QVariant index );
+
 protected slots:
     void modeChanged(Core::IMode*);
 
 protected:
-    UbuntuDevicesModel* m_devicesModel;
+    static UbuntuDeviceMode *m_instance;
+    UbuntuDevicesModel  *m_devicesModel;
+    UbuntuEmulatorModel *m_emulatorModel;
     QQuickView *m_modeView;
     QWidget* m_modeWidget;
-    UbuntuDevicesWidget m_ubuntuDevicesWidget;
-
+    QVariant m_deviceIndex;
 };
 
 

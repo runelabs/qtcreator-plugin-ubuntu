@@ -103,7 +103,8 @@ SOURCES += \
     ubuntulocalrunconfigurationfactory.cpp \
     ubunturemoteruncontrolfactory.cpp \
     ubuntulocalrunconfiguration.cpp \
-    ubuntudevicesmodel.cpp
+    ubuntudevicesmodel.cpp \
+    ubuntuemulatormodel.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -165,5 +166,6 @@ HEADERS += \
     ubuntulocalrunconfigurationfactory.h \
     ubunturemoteruncontrolfactory.h \
     ubuntulocalrunconfiguration.h \
-    ubuntudevicesmodel.h
+    ubuntudevicesmodel.h \
+    ubuntuemulatormodel.h
 

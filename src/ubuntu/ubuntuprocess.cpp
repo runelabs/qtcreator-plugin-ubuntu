@@ -122,11 +122,8 @@ void UbuntuProcess::processFinished(int code) {
         emit finished(m_currentProcess->program(), code);
         return;
     }
-    QString errorMsg = QString::fromLocal8Bit(m_currentProcess->readAllStandardError());
-    if (errorMsg.trimmed().length()>0) emit error(errorMsg);
-    QString msg = QString::fromLocal8Bit(m_currentProcess->readAllStandardOutput());
-    if (msg.trimmed().length()>0) emit message(msg);
 
+    processReadyRead();
     emit finished(m_currentProcess->program(), code);
     emit finished(m_currentProcess,m_currentProcess->program(),code);
     processCmdQueue();
@@ -135,10 +132,12 @@ void UbuntuProcess::processFinished(int code) {
 void UbuntuProcess::processReadyRead() {
     QString stderr = QString::fromLocal8Bit(m_currentProcess->readAllStandardError());
     QString stdout = QString::fromLocal8Bit(m_currentProcess->readAllStandardOutput());
-    if (!stderr.isEmpty()) {
+    if (!stderr.trimmed().isEmpty()) {
+        emit error(stderr);
         emit message(stderr);
     }
-    if (!stdout.isEmpty()) {
+    if (!stdout.trimmed().isEmpty()) {
+        emit stdOut(stdout);
         emit message(stdout);
     }
 }

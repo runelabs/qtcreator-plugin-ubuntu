@@ -2,6 +2,7 @@
 #define UBUNTUDEVICESMODEL_H
 
 #include "ubuntudevice.h"
+#include "ubuntudevicenotifier.h"
 
 #include <coreplugin/id.h>
 
@@ -42,7 +43,8 @@ public:
     Q_INVOKABLE bool set(int index, const QString &role, const QVariant &value);
 
     int findDevice(int uniqueIdentifier) const;
-
+    bool hasDevice (int uniqueIdentifier) const;
+    UbuntuDevice::ConstPtr device ( const int index );
 
     // QAbstractItemModel interface
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -62,13 +64,15 @@ public slots:
     void triggerRebootRecovery  ( const int devId );
     void triggerShutdown        ( const int devId );
     void triggerKitAutocreate   ( const int devId );
+    void triggerKitRemove       (const int devId, const QVariant &kitid );
+    void refresh                ();
 
 protected:
-    bool hasDevice (int uniqueIdentifier) const;
+    void clear ();
     UbuntuDevicesItem *createItem (UbuntuDevice::Ptr dev);
     int indexFromHelper (QObject* possibleHelper);
-    void deviceChanged(QObject* possibleHelper, const QVector<int> &relatedRoles);
-
+    void deviceChanged(QObject* possibleHelper, const QVector<int> &relatedRoles);    
+    void registerNewDevice(const QString &serial, const QString &deviceInfo);
 
 protected slots:
     void readDevicesFromSettings();
@@ -79,11 +83,21 @@ protected slots:
     void deviceAdded(const Core::Id &id);
     void deviceRemoved(const Core::Id &id);
     void deviceUpdated(const Core::Id &id);
+    void deviceConnected(const QString&id);
+    void refreshFinished(int exitCode);
+    void adbReadyRead();
 
 private:
      QList<UbuntuDevicesItem*> m_knownDevices;
+     UbuntuDeviceNotifier *m_deviceNotifier;
+     QProcess *m_adbProcess;
+     QString   m_adbReply;
 };
 
+/*!
+ * \brief The UbuntuDeviceStates class
+ * Provides enums for QML
+ */
 class UbuntuDeviceStates : public QObject
 {
     Q_OBJECT
