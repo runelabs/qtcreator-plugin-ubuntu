@@ -5,6 +5,8 @@
 #include <QCoreApplication>
 #include <QStandardPaths>
 #include <QDir>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 
 namespace Ubuntu {
 namespace Internal {
@@ -112,7 +114,7 @@ QVariant UbuntuEmulatorModel::data(const QModelIndex &index, int role) const
     switch (role) {
         case Qt::DisplayRole:
         case Qt::EditRole:
-            return m_data[index.row()];
+            return m_data[index.row()].name;
         default:
             break;
     }
@@ -133,9 +135,9 @@ Qt::ItemFlags UbuntuEmulatorModel::flags(const QModelIndex &index) const
 void UbuntuEmulatorModel::clear()
 {
     if(rowCount()) {
-        beginRemoveRows(QModelIndex(),0,rowCount()-1);
+        beginResetModel();
         m_data.clear();
-        endRemoveRows();
+        endResetModel();
     }
 }
 
@@ -267,19 +269,53 @@ void UbuntuEmulatorModel::processFinished(const QString &, int)
             QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
             clear();
 
+            QList<EmulatorItem> items;
+
             QMutableStringListIterator iter(lines);
+            QRegularExpression regexName   (QStringLiteral("^(\\w+)"));
+            QRegularExpression regexUbuntu (QStringLiteral("ubuntu=([0-9]+)"));
+            QRegularExpression regexDevice (QStringLiteral("device=([0-9]+)"));
+            QRegularExpression regexVersion(QStringLiteral("version=([0-9]+)"));
             while (iter.hasNext()) {
                 QString line = iter.next();
                 if(line.isEmpty()) {
                     iter.remove();
                     continue;
                 }
+
+                QRegularExpressionMatch mName = regexName.match(line);
+                QRegularExpressionMatch mUbu  = regexUbuntu.match(line);
+                QRegularExpressionMatch mDev  = regexDevice.match(line);
+                QRegularExpressionMatch mVer  = regexVersion.match(line);
+
+                if(!mName.hasMatch())
+                    continue;
+
+                EmulatorItem item;
+                item.name = mName.captured(1);
+
+                if(mUbu.hasMatch())
+                    item.ubuntuVersion = mUbu.captured(1);
+                else
+                    item.ubuntuVersion = tr("unknown");
+
+                if(mDev.hasMatch())
+                    item.ubuntuVersion = mDev.captured(1);
+                else
+                    item.ubuntuVersion = tr("unknown");
+
+                if(mVer.hasMatch())
+                    item.ubuntuVersion = mVer.captured(1);
+                else
+                    item.ubuntuVersion = tr("unknown");
+
+                items.append(item);
             }
 
             if(lines.count()) {
-                beginInsertRows(QModelIndex(),0,lines.count()-1);
-                m_data = lines;
-                endInsertRows();
+                beginResetModel();
+                m_data = items;
+                endResetModel();
             }
             break;
         }

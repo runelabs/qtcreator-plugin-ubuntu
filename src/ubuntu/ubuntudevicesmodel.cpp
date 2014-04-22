@@ -27,8 +27,8 @@ UbuntuDevicesModel::UbuntuDevicesModel(QObject *parent) :
 
 
     ProjectExplorer::KitManager* devMgr = static_cast<ProjectExplorer::KitManager*>(ProjectExplorer::KitManager::instance());
-    connect(devMgr,SIGNAL(kitsLoaded()),this,SLOT(readDevicesFromSettings()));
-    connect(ProjectExplorer::DeviceManager::instance(),SIGNAL(deviceListReplaced()),this,SLOT(refresh()));
+    connect(devMgr,SIGNAL(kitsLoaded()),this,SLOT(refresh()));
+    connect(ProjectExplorer::DeviceManager::instance(),SIGNAL(deviceListReplaced()),this,SLOT(readDevicesFromSettings()));
 }
 
 bool UbuntuDevicesModel::set(int index, const QString &role, const QVariant &value)
@@ -303,9 +303,9 @@ void UbuntuDevicesModel::refresh()
     }
     bool restartAdb = true;
     m_adbProcess->setWorkingDirectory(QCoreApplication::applicationDirPath());
-    m_adbProcess->setArguments( QStringList() << (restartAdb ? QString::number(1) : QString::number(0)) );
+    QStringList args = QStringList() << (restartAdb ? QString::number(1) : QString::number(0));
     m_adbProcess->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES_SCRIPT)
-                          .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH));
+                          .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH),args);
 
     clear();
 }
@@ -573,6 +573,7 @@ void UbuntuDevicesModel::adbReadyRead()
     QString stdout = QString::fromLocal8Bit(m_adbProcess->readAllStandardOutput());
     m_adbReply.append(stderr);
     m_adbReply.append(stdout);
+    qDebug()<<m_adbReply;
 }
 
 /*!

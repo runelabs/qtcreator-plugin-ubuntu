@@ -21,6 +21,13 @@ public:
         Idle
     };
 
+    struct EmulatorItem {
+        QString name;
+        QString ubuntuVersion;
+        QString deviceVersion;
+        QString imageVersion;
+    };
+
     Q_PROPERTY(bool emulatorInstalled READ emulatorInstalled WRITE setEmulatorInstalled NOTIFY emulatorInstalledChanged)
     Q_PROPERTY(bool busy READ busy NOTIFY busyChanged)
     Q_PROPERTY(QString state READ state NOTIFY stateChanged)
@@ -65,7 +72,7 @@ private:
     State m_state;
     bool m_busy;
 
-    QStringList m_data;
+    QList<EmulatorItem> m_data;
 };
 
 } // namespace Internal
