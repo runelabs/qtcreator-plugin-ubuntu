@@ -14,5 +14,7 @@
         <file>manifest.json.template</file>
         <file>myapp.json.template</file>
         <file>manifestlib.js</file>
+        <file>images/view-refresh.png</file>
+        <file>images/list-add.png</file>
     </qresource>
 </RCC>

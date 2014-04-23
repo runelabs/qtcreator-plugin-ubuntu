@@ -32,7 +32,15 @@ QML_FILES += \
     $$QML_ROOT/welcome/welcome.qml \
     $$QML_ROOT/welcome/Link.qml \
     $$QML_ROOT/welcome/NewsBox.qml\
-    $$QML_ROOT/devicespage/devicespage.qml
+    $$QML_ROOT/devicespage/devicespage.qml \
+    $$QML_ROOT/devicespage/DeviceAdvancedTab.qml  \
+    $$QML_ROOT/devicespage/DeviceBuilderTab.qml  \
+    $$QML_ROOT/devicespage/DeviceLogTab.qml  \
+    $$QML_ROOT/devicespage/DevicePage.qml  \
+    $$QML_ROOT/devicespage/DeviceStatusTab.qml  \
+    $$QML_ROOT/devicespage/EmulatorPage.qml  \
+    $$QML_ROOT/devicespage/FeatureStateItem.qml  \
+    $$QML_ROOT/devicespage/NewEmulatorDialog.qml
 
 
 OTHER_FILES += \
@@ -40,11 +48,7 @@ OTHER_FILES += \
     manifest.json.template \
     myapp.json.template \
     manifestlib.js \
-    $$QML_FILES \
-    ../../share/qtcreator/ubuntu/devicespage/FeatureStateItem.qml \
-    ../../share/qtcreator/ubuntu/devicespage/StatusPage.qml
-
-message($$OTHER_FILES)
+    $$QML_FILES
 
 SOURCES += \
     ubuntuplugin.cpp \
