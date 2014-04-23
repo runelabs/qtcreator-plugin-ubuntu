@@ -76,6 +76,7 @@ UbuntuDeviceMode::UbuntuDeviceMode(QObject *parent) :
     m_modeView->rootContext()->setContextProperty(QLatin1String("devicesModel"),m_devicesModel);
     m_modeView->rootContext()->setContextProperty(QLatin1String("emulatorModel"),m_emulatorModel);
     m_modeView->rootContext()->setContextProperty(QLatin1String("deviceMode")  ,this);
+    m_modeView->rootContext()->setContextProperty(QLatin1String("resourceRoot")  ,Constants::UBUNTU_DEVICESCREEN_ROOT);
     m_modeView->setSource(QUrl::fromLocalFile(Constants::UBUNTU_DEVICESCREEN_QML));
 
     connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)), SLOT(modeChanged(Core::IMode*)));

@@ -24,7 +24,7 @@ Page {
                 Layout.maximumHeight: implicitHeight
                 Layout.minimumHeight: implicitHeight
                 text: "Add new emulator"
-                onClicked: PopupUtils.open("/home/zbenjamin/workspace/ubuntu-plugin-ng/qtc3/share/qtcreator/ubuntu/devicespage/NewEmulatorDialog.qml",modeRoot);
+                onClicked: PopupUtils.open(resourceRoot+"/NewEmulatorDialog.qml",modeRoot);
             }
             Controls.ScrollView {
                 Layout.fillHeight: true

@@ -3,6 +3,7 @@ import Ubuntu.Components 0.1
 import Ubuntu.Components.Popups 0.1
 
 Dialog {
+    id: dialogue
     title: i18n.tr("Create emulator")
     text:  i18n.tr("Please select a name for the emulator")
     modal: true
