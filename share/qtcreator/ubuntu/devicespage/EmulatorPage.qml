@@ -9,39 +9,44 @@ import Ubuntu.Components.Popups 0.1
 Page {
     flickable: null
 
+    tools: ToolbarItems {
+        ToolbarButton {
+            action: Action {
+                text: i18n.tr("Add Emulator")
+                iconSource: "qrc:/ubuntu/images/list-add.png"
+                onTriggered: PopupUtils.open(resourceRoot+"/NewEmulatorDialog.qml",modeRoot);
+            }
+        }
+        ToolbarButton {
+            action: Action {
+                text: i18n.tr("Refresh emulators")
+                iconSource: "qrc:/ubuntu/images/view-refresh.png"
+                onTriggered: emulatorModel.findEmulatorImages()
+            }
+        }
+    }
+
     Controls.SplitView {
         orientation: Qt.Horizontal
         anchors.fill: parent
 
-        Controls.SplitView {
-            orientation: Qt.Vertical
+        Controls.ScrollView {
             width: 200
             Layout.fillHeight: true
             Layout.minimumWidth: 200
             Layout.maximumWidth: 400
-
-            Button {
-                Layout.maximumHeight: implicitHeight
-                Layout.minimumHeight: implicitHeight
-                text: "Add new emulator"
-                onClicked: PopupUtils.open(resourceRoot+"/NewEmulatorDialog.qml",modeRoot);
-            }
-            Controls.ScrollView {
-                Layout.fillHeight: true
-                UbuntuListView {
-                    id: emulatorList
-                    objectName: "emulatorList"
-                    model: emulatorModel
-                    delegate: ListItem.Standard {
-                        id: delegate
-                        text: display
-                        selected: emulatorList.currentIndex == index
-                        onClicked: emulatorList.currentIndex = index
-                    }
-                    onCurrentIndexChanged: deviceMode.deviceSelected(currentIndex)
+            UbuntuListView {
+                id: emulatorList
+                objectName: "emulatorList"
+                model: emulatorModel
+                delegate: ListItem.Standard {
+                    id: delegate
+                    text: display
+                    selected: emulatorList.currentIndex == index
+                    onClicked: emulatorList.currentIndex = index
                 }
+                onCurrentIndexChanged: deviceMode.deviceSelected(currentIndex)
             }
-
         }
         Item {
             id: centerItem

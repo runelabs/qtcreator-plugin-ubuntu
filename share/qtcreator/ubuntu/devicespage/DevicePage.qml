@@ -11,13 +11,10 @@ Page {
     tools: ToolbarItems {
         ToolbarButton {
             action: Action {
-                text: "toolbar"
-                onTriggered: print("success!")
+                text: i18n.tr("Refresh devices")
+                iconSource: "qrc:/ubuntu/images/view-refresh.png"
+                onTriggered: devicesModel.refresh()
             }
-        }
-        Button {
-            anchors.verticalCenter: parent.verticalCenter
-            text: "standard"
         }
     }
     Controls.SplitView {
