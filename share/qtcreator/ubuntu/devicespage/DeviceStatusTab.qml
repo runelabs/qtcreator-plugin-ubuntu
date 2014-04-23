@@ -14,18 +14,38 @@ ColumnLayout {
             running: true
         }
     }
+    ListItem.SingleValue {
+        text:i18n.tr("Serial ID")
+        width: units.gu(50)
+        value: serial
+    }
+    ListItem.SingleValue {
+        text:i18n.tr("Device")
+        width: units.gu(50)
+        value: deviceInfo
+    }
+    ListItem.SingleValue {
+        text:i18n.tr("Model")
+        width: units.gu(50)
+        value: modelInfo
+    }
+    ListItem.SingleValue {
+        text:i18n.tr("Product")
+        width: units.gu(50)
+        value: productInfo
+    }
     FeatureStateItem {
         text: "Has network connection"
         input: hasNetworkConnection
         inputRole: "hasNetworkConnection"
-        width: 300
+        width: units.gu(50)
         checkable: hasNetworkConnection != States.Available
     }
     FeatureStateItem {
         text: "Has devloper mode enabled"
         input: developerModeEnabled
         inputRole: "developerModeEnabled"
-        width: 300
+        width: units.gu(50)
         checkable: !deviceItemView.deviceBusy
     }
     Item {

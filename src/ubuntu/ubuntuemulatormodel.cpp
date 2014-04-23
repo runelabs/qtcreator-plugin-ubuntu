@@ -115,6 +115,12 @@ QVariant UbuntuEmulatorModel::data(const QModelIndex &index, int role) const
         case Qt::DisplayRole:
         case Qt::EditRole:
             return m_data[index.row()].name;
+        case UbuntuVersionRole:
+            return m_data[index.row()].ubuntuVersion;
+        case DeviceVersionRole:
+            return m_data[index.row()].deviceVersion;
+        case ImageVersionRole:
+            return m_data[index.row()].imageVersion;
         default:
             break;
     }
@@ -124,6 +130,9 @@ QVariant UbuntuEmulatorModel::data(const QModelIndex &index, int role) const
 QHash<int, QByteArray> UbuntuEmulatorModel::roleNames() const
 {
     QHash<int, QByteArray> rNames = QAbstractListModel::roleNames();
+    rNames.insert(UbuntuVersionRole,"ubuntuVersion");
+    rNames.insert(DeviceVersionRole,"deviceVersion");
+    rNames.insert(ImageVersionRole,"imageVersion");
     return rNames;
 }
 
@@ -283,6 +292,7 @@ void UbuntuEmulatorModel::processFinished(const QString &, int)
                     continue;
                 }
 
+                qDebug()<<"Handling emulator: "<<line;
                 QRegularExpressionMatch mName = regexName.match(line);
                 QRegularExpressionMatch mUbu  = regexUbuntu.match(line);
                 QRegularExpressionMatch mDev  = regexDevice.match(line);
@@ -300,19 +310,19 @@ void UbuntuEmulatorModel::processFinished(const QString &, int)
                     item.ubuntuVersion = tr("unknown");
 
                 if(mDev.hasMatch())
-                    item.ubuntuVersion = mDev.captured(1);
+                    item.deviceVersion = mDev.captured(1);
                 else
-                    item.ubuntuVersion = tr("unknown");
+                    item.deviceVersion = tr("unknown");
 
                 if(mVer.hasMatch())
-                    item.ubuntuVersion = mVer.captured(1);
+                    item.imageVersion = mVer.captured(1);
                 else
-                    item.ubuntuVersion = tr("unknown");
+                    item.imageVersion = tr("unknown");
 
                 items.append(item);
             }
 
-            if(lines.count()) {
+            if(items.count()) {
                 beginResetModel();
                 m_data = items;
                 endResetModel();

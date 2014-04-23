@@ -33,11 +33,15 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QDebug>
+#include <QRegularExpression>
 
 namespace Ubuntu {
 namespace Internal {
 
 const QLatin1String DEVICE_INFO_KEY("UbuntuDevice.InfoString");
+const QLatin1String DEVICE_PRODUCT_INFO_KEY("UbuntuDevice.Product.InfoString");
+const QLatin1String DEVICE_MODEL_INFO_KEY("UbuntuDevice.Model.InfoString");
+const QLatin1String DEVICE_DEVICE_INFO_KEY("UbuntuDevice.Device.InfoString");
 
 /*!
  * \class UbuntuDeviceHelper
@@ -726,7 +730,9 @@ UbuntuDevice::UbuntuDevice(const UbuntuDevice &other)
     : LinuxDevice(other)
     , m_helper(new UbuntuDeviceHelper(this))
     , m_processState(NotStarted)
-    , m_deviceInfoString(other.deviceInfoString())
+    , m_deviceInfo(other.m_deviceInfo)
+    , m_modelInfo(other.m_modelInfo)
+    , m_productInfo(other.m_productInfo)
 {
     setDeviceState(ProjectExplorer::IDevice::DeviceDisconnected);
     setupPrivateKey();
@@ -920,14 +926,48 @@ void UbuntuDevice::setDeveloperToolsInstalled(const bool installed)
         m_helper->removeDevTools();
 }
 
-void UbuntuDevice::setDeviceInfoString(const QString &info)
+void UbuntuDevice::setDeviceInfoString(const QString &deviceInfo)
 {
-    m_deviceInfoString = info;
+    m_productInfo = tr("unknown");
+    m_modelInfo   = m_productInfo;
+    m_deviceInfo  = m_productInfo;
+
+    QRegularExpression expr(QStringLiteral("product:\\s?(\\w+)"));
+    QRegularExpressionMatch m = expr.match(deviceInfo);
+    if(m.hasMatch())
+        m_productInfo = m.captured(1);
+
+    expr.setPattern(QStringLiteral("model:\\s?(\\w+)"));
+    m = expr.match(deviceInfo);
+    if(m.hasMatch())
+        m_modelInfo = m.captured(1);
+
+    expr.setPattern(QStringLiteral("device:\\s?(\\w+)"));
+    m = expr.match(deviceInfo);
+    if(m.hasMatch())
+        m_deviceInfo = m.captured(1);
 }
 
-QString UbuntuDevice::deviceInfoString() const
+void UbuntuDevice::setDeviceInfo(const QString &productInfo, const QString &modelInfo, const QString &deviceInfo)
 {
-    return m_deviceInfoString;
+    m_productInfo = productInfo;
+    m_modelInfo = modelInfo;
+    m_deviceInfo = deviceInfo;
+}
+
+QString UbuntuDevice::modelInfo() const
+{
+    return m_modelInfo;
+}
+
+QString UbuntuDevice::deviceInfo() const
+{
+    return m_deviceInfo;
+}
+
+QString UbuntuDevice::productInfo() const
+{
+    return m_productInfo;
 }
 
 UbuntuDevice::FeatureState UbuntuDevice::hasNetworkConnection() const
@@ -1019,8 +1059,27 @@ ProjectExplorer::IDevice::Ptr  UbuntuDevice::clone() const
 void UbuntuDevice::fromMap(const QVariantMap &map)
 {
     LinuxDevice::fromMap(map);
+
+    //legacy setting, will be converted to the new settings on the next save
     if(map.contains(DEVICE_INFO_KEY))
-        m_deviceInfoString = map[DEVICE_INFO_KEY].toString();
+        setDeviceInfoString(map[DEVICE_INFO_KEY].toString());
+    else {
+        QString unknown = tr("unknown");
+        if(map.contains(DEVICE_DEVICE_INFO_KEY))
+            m_deviceInfo = map[DEVICE_DEVICE_INFO_KEY].toString();
+        else
+            m_deviceInfo = unknown;
+
+        if(map.contains(DEVICE_MODEL_INFO_KEY))
+            m_modelInfo = map[DEVICE_MODEL_INFO_KEY].toString();
+        else
+            m_modelInfo = unknown;
+
+        if(map.contains(DEVICE_PRODUCT_INFO_KEY))
+            m_productInfo = map[DEVICE_PRODUCT_INFO_KEY].toString();
+        else
+            m_productInfo = unknown;
+    }
 
     setupPrivateKey();
     m_helper->init();
@@ -1029,7 +1088,9 @@ void UbuntuDevice::fromMap(const QVariantMap &map)
 QVariantMap UbuntuDevice::toMap() const
 {
     QVariantMap map = LinuxDevice::toMap();
-    map.insert(DEVICE_INFO_KEY,m_deviceInfoString);
+    map.insert(DEVICE_PRODUCT_INFO_KEY,m_productInfo);
+    map.insert(DEVICE_MODEL_INFO_KEY,m_modelInfo);
+    map.insert(DEVICE_DEVICE_INFO_KEY,m_deviceInfo);
     return map;
 }
 

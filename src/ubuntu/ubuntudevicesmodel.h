@@ -35,7 +35,11 @@ public:
         WriteableImageRole,
         DeveloperToolsRole,
         EmulatorRole,
-        LogRole
+        LogRole,
+        SerialIdRole,
+        ModelInfoRole,
+        DeviceInfoRole,
+        ProductInfoRole
     };
 
     explicit UbuntuDevicesModel(QObject *parent = 0);

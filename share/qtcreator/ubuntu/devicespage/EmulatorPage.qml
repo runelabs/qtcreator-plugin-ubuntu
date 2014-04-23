@@ -90,12 +90,26 @@ Page {
                         visible: index == emulatorList.currentIndex && !emulatorModel.busy
 
                         UbuntuListView {
-                            anchors.fill: parent
+                            anchors.left: parent.left
+                            anchors.top: parent.top
+                            height: units.gu(50)
+                            width: units.gu(50)
                             model: VisualItemModel {
+                                ListItem.SingleValue {
+                                    text: i18n.tr("Ubuntu version")
+                                    value: ubuntuVersion
+                                }
+                                ListItem.SingleValue {
+                                    text: i18n.tr("Device version")
+                                    value: deviceVersion
+                                }
+                                ListItem.SingleValue {
+                                    text: i18n.tr("Image version")
+                                    value: imageVersion
+                                }
                                 ListItem.SingleControl {
                                     control: Button {
                                         text: "Start emulator"
-
                                     }
                                 }
                                 ListItem.SingleControl {

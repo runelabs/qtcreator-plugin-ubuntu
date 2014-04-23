@@ -21,6 +21,12 @@ public:
         Idle
     };
 
+    enum Roles {
+        UbuntuVersionRole = Qt::UserRole,
+        DeviceVersionRole,
+        ImageVersionRole
+    };
+
     struct EmulatorItem {
         QString name;
         QString ubuntuVersion;

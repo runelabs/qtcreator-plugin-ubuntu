@@ -174,6 +174,14 @@ QVariant UbuntuDevicesModel::data(const QModelIndex &index, int role) const
             return false;
         case LogRole:
             return m_knownDevices[index.row()]->device()->helper()->log();
+        case SerialIdRole:
+            return m_knownDevices[index.row()]->device()->id().toSetting();
+        case ModelInfoRole:
+            return m_knownDevices[index.row()]->device()->modelInfo();
+        case DeviceInfoRole:
+            return m_knownDevices[index.row()]->device()->deviceInfo();
+        case ProductInfoRole:
+            return m_knownDevices[index.row()]->device()->productInfo();
         default:
             break;
     }
@@ -196,6 +204,10 @@ QHash<int, QByteArray> UbuntuDevicesModel::roleNames() const
     roles.insert(DeveloperToolsRole,"hasDeveloperTools");
     roles.insert(EmulatorRole,"isEmulator");
     roles.insert(LogRole,"deviceLog");
+    roles.insert(SerialIdRole,"serial");
+    roles.insert(ModelInfoRole,"modelInfo");
+    roles.insert(DeviceInfoRole,"deviceInfo");
+    roles.insert(ProductInfoRole,"productInfo");
     return roles;
 }
 
