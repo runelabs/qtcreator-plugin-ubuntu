@@ -19,5 +19,4 @@ EMULATOR=$1
 ubuntu-emulator run ${EMULATOR} &
 set +e
 adb wait-for-device
-adb forward tcp:9999 tcp:22
 set -e

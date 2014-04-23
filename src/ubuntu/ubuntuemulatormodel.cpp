@@ -1,6 +1,8 @@
 #include "ubuntuemulatormodel.h"
 #include "ubuntuconstants.h"
 
+#include <utils/projectnamevalidatinglineedit.h>
+
 #include <QMutableStringListIterator>
 #include <QCoreApplication>
 #include <QStandardPaths>
@@ -208,6 +210,24 @@ void UbuntuEmulatorModel::createEmulatorImage(const QString &name)
                          .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(strEmulatorPath).arg(strEmulatorName)
                       << QCoreApplication::applicationDirPath());
     m_process->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
+}
+
+void UbuntuEmulatorModel::startEmulator(const QString &name)
+{
+    QStringList args = QStringList() << name;
+    QProcess::startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
+                            ,args
+                            ,QCoreApplication::applicationDirPath());
+}
+
+QVariant UbuntuEmulatorModel::validateEmulatorName(const QString &name)
+{
+    QString error;
+    bool result = Utils::ProjectNameValidatingLineEdit::validateProjectName(name,&error);
+    QVariantMap m;
+    m.insert(QStringLiteral("valid"),result);
+    m.insert(QStringLiteral("error"),error);
+    return QVariant::fromValue(m);
 }
 
 void UbuntuEmulatorModel::onMessage(const QString &msg)

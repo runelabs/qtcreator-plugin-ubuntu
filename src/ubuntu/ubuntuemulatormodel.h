@@ -62,6 +62,8 @@ public slots:
     void findEmulatorImages     ();
     void installEmulator ();
     void createEmulatorImage (const QString &name);
+    void startEmulator (const QString &name);
+    QVariant validateEmulatorName ( const QString &name);
 protected slots:
     void onMessage (const QString &msg);
     void processFinished (const QString &, int);

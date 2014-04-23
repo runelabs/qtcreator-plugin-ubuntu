@@ -3,7 +3,7 @@ import Ubuntu.Components 0.1
 
 
 MainView {
-
+    id: modeRoot
     width: 860
     height: 548
 
