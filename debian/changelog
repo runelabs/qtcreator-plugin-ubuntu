@@ -1,3 +1,9 @@
+qtcreator-plugin-ubuntu (3.0.1+14.04.20140415-0ubuntu2) trusty; urgency=medium
+
+  * local test sbuild
+
+ -- David Barth <david.barth@canonical.com>  Wed, 23 Apr 2014 16:38:42 +0200
+
 qtcreator-plugin-ubuntu (3.0.1+14.04.20140415-0ubuntu1) trusty; urgency=low
 
   [ Zoltán Balogh ]
