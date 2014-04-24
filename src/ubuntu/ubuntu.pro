@@ -32,7 +32,7 @@ QML_FILES += \
     $$QML_ROOT/welcome/welcome.qml \
     $$QML_ROOT/welcome/Link.qml \
     $$QML_ROOT/welcome/NewsBox.qml\
-    $$QML_ROOT/devicespage/devicespage.qml \
+    $$QML_ROOT/devicespage/main.qml \
     $$QML_ROOT/devicespage/DeviceAdvancedTab.qml  \
     $$QML_ROOT/devicespage/DeviceBuilderTab.qml  \
     $$QML_ROOT/devicespage/DeviceLogTab.qml  \
@@ -40,8 +40,8 @@ QML_FILES += \
     $$QML_ROOT/devicespage/DeviceStatusTab.qml  \
     $$QML_ROOT/devicespage/EmulatorPage.qml  \
     $$QML_ROOT/devicespage/FeatureStateItem.qml  \
-    $$QML_ROOT/devicespage/NewEmulatorDialog.qml
-
+    $$QML_ROOT/devicespage/NewEmulatorDialog.qml \
+    $$QML_ROOT/devicespage/LogPage.qml
 
 OTHER_FILES += \
     UbuntuProject.mimetypes.xml \

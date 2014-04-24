@@ -46,6 +46,8 @@ UbuntuDeviceMode::UbuntuDeviceMode(QObject *parent) :
     Q_ASSERT_X(m_instance == 0, Q_FUNC_INFO,"There can be only one instance of UbuntuDeviceMode");
     m_instance = this;
 
+    m_qmlControl = new UbuntuQMLDeviceMode(this);
+
     setDisplayName(tr(Ubuntu::Constants::UBUNTU_MODE_DEVICES_DISPLAYNAME));
     setIcon(QIcon(QLatin1String(Ubuntu::Constants::UBUNTU_MODE_DEVICES_ICON)));
     setPriority(Ubuntu::Constants::UBUNTU_MODE_DEVICES_PRIORITY);
@@ -67,16 +69,22 @@ UbuntuDeviceMode::UbuntuDeviceMode(QObject *parent) :
     m_devicesModel = new UbuntuDevicesModel(m_modeView);
     m_emulatorModel = new UbuntuEmulatorModel(m_modeView);
 
+    connect(m_devicesModel,SIGNAL(stdOutMessage(QString)),m_qmlControl,SLOT(addText(QString)));
+    connect(m_devicesModel,SIGNAL(stdErrMessage(QString)),m_qmlControl,SLOT(addErrorText(QString)));
+    connect(m_emulatorModel,SIGNAL(logMessage(QString)),m_qmlControl,SLOT(addText(QString)));
+    connect(m_emulatorModel,SIGNAL(stdOutMessage(QString)),m_qmlControl,SLOT(addText(QString)));
+    connect(m_emulatorModel,SIGNAL(stdErrMessage(QString)),m_qmlControl,SLOT(addErrorText(QString)));
+
     QWidget* container = QWidget::createWindowContainer(m_modeView);
     container->setMinimumWidth(860);
     container->setMinimumHeight(548);
     container->setFocusPolicy(Qt::TabFocus);
     layout->addWidget(container);
 
-    m_modeView->rootContext()->setContextProperty(QLatin1String("devicesModel"),m_devicesModel);
+    m_modeView->rootContext()->setContextProperty(QLatin1String("devicesModel") ,m_devicesModel);
     m_modeView->rootContext()->setContextProperty(QLatin1String("emulatorModel"),m_emulatorModel);
-    m_modeView->rootContext()->setContextProperty(QLatin1String("deviceMode")  ,this);
-    m_modeView->rootContext()->setContextProperty(QLatin1String("resourceRoot")  ,Constants::UBUNTU_DEVICESCREEN_ROOT);
+    m_modeView->rootContext()->setContextProperty(QLatin1String("deviceMode")   ,m_qmlControl);
+    m_modeView->rootContext()->setContextProperty(QLatin1String("resourceRoot") ,Constants::UBUNTU_DEVICESCREEN_ROOT);
     m_modeView->setSource(QUrl::fromLocalFile(Constants::UBUNTU_DEVICESCREEN_QML));
 
     connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)), SLOT(modeChanged(Core::IMode*)));
@@ -112,4 +120,33 @@ void UbuntuDeviceMode::initialize() {
 UbuntuDeviceMode *UbuntuDeviceMode::instance()
 {
     return m_instance;
+}
+
+
+UbuntuQMLDeviceMode::UbuntuQMLDeviceMode(UbuntuDeviceMode *parent)
+    : QObject(parent),
+      m_mode(parent)
+{
+
+}
+
+void UbuntuQMLDeviceMode::deviceSelected(const QVariant index)
+{
+    m_mode->deviceSelected(index);
+}
+
+void UbuntuQMLDeviceMode::addText(const QString &arg)
+{
+    QString in = arg;
+    in.replace(QStringLiteral("\n"),QStringLiteral("<br>"));
+    emit appendText(in);
+}
+
+void UbuntuQMLDeviceMode::addErrorText(const QString &error)
+{
+    QString in = error;
+    in.replace(QStringLiteral("\n"),QStringLiteral("<br>"));
+    in.prepend(QStringLiteral("<font color=\"#FF0000\">"));
+    in.append(QStringLiteral("</font>"));
+    emit appendText(in);
 }

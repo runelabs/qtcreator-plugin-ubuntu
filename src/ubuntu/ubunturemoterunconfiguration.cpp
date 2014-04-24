@@ -95,6 +95,8 @@ Utils::Environment UbuntuRemoteRunConfiguration::environment() const
         env.appendOrSet(QLatin1String("QML2_IMPORT_PATH"),
                         QString::fromLatin1("lib/%1").arg(clickTc->gnutriplet()),
                         QString::fromLatin1(":"));
+        env.prependOrSetPath(QStringLiteral("lib/")+clickTc->gnutriplet()+QStringLiteral("/bin"));
+        env.appendOrSetPath(QStringLiteral("$PATH"));
     }
     env.appendOrSet(QLatin1String("pkgdir"),workingDirectory());
     env.appendOrSet(QLatin1String("APP_ID"),m_appId);
@@ -199,16 +201,24 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
         return false;
     } else {
         //looks like a application without a launcher
-        m_localExecutable = target()->activeBuildConfiguration()->buildDirectory().toString()
-                + QDir::separator()
-                + QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR)
-                + QDir::separator()
-                + command;
+        CMakeProjectManager::CMakeProject* pro = static_cast<CMakeProjectManager::CMakeProject*> (target()->project());
+        foreach(const CMakeProjectManager::CMakeBuildTarget &t, pro->buildTargets()) {
+            if(t.library || t.executable.isEmpty())
+                continue;
 
-        m_remoteExecutable = workingDirectory()
-                + QDir::separator()
-                + command;
+            QFileInfo execInfo(t.executable);
 
+            if(execInfo.fileName() == commInfo.fileName())
+                m_localExecutable = t.executable;
+        }
+
+        if (m_localExecutable.isEmpty()) {
+            if(errorMessage)
+                *errorMessage = tr("Could not find %1 in the project targets").arg(command);
+            return false;
+        }
+
+        m_remoteExecutable = command;
     }
 
     QFileInfo desk(m_desktopFile);

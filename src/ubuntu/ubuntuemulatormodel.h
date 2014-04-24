@@ -36,6 +36,7 @@ public:
 
     Q_PROPERTY(bool emulatorInstalled READ emulatorInstalled WRITE setEmulatorInstalled NOTIFY emulatorInstalledChanged)
     Q_PROPERTY(bool busy READ busy NOTIFY busyChanged)
+    Q_PROPERTY(bool cancellable READ cancellable NOTIFY cancellableChanged)
     Q_PROPERTY(QString state READ state NOTIFY stateChanged)
 
     explicit UbuntuEmulatorModel(QObject *parent = 0);
@@ -45,6 +46,7 @@ public:
 
     bool busy() const;
     QString state() const;
+    bool cancellable() const;
 
     // QAbstractItemModel interface
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -56,6 +58,9 @@ protected:
     void clear();
     void setBusy(bool arg);
     void setState(State newState);
+    void beginAction (const QString &msg);
+    void endAction (const QString &msg);
+    void setCancellable(bool arg);
 
 public slots:
     void checkEmulatorInstalled ();
@@ -64,6 +69,8 @@ public slots:
     void createEmulatorImage (const QString &name);
     void startEmulator (const QString &name);
     QVariant validateEmulatorName ( const QString &name);
+    void cancel ();
+
 protected slots:
     void onMessage (const QString &msg);
     void processFinished (const QString &, int);
@@ -72,6 +79,11 @@ signals:
     void emulatorInstalledChanged(bool arg);
     void busyChanged(bool arg);
     void stateChanged(const QString &arg);
+    void logMessage (const QString &str);
+    void stdOutMessage (const QString &str);
+    void stdErrMessage (const QString &str);
+
+    void cancellableChanged(bool arg);
 
 private:
     QString m_reply;
@@ -81,6 +93,7 @@ private:
     bool m_busy;
 
     QList<EmulatorItem> m_data;
+    bool m_cancellable;
 };
 
 } // namespace Internal

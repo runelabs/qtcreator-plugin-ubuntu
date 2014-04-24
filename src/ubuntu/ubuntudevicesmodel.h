@@ -57,6 +57,9 @@ public:
     virtual QHash<int, QByteArray> roleNames() const;
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 signals:
+    void logMessage (const QString &str);
+    void stdOutMessage (const QString &str);
+    void stdErrMessage (const QString &str);
 
 public slots:
     void triggerCloneTimeConfig ( const int devId );

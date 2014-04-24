@@ -25,11 +25,14 @@ UbuntuEmulatorModel::UbuntuEmulatorModel(QObject *parent) :
     QAbstractListModel(parent) ,
     m_process(0),
     m_emulatorInstalled(false) ,
-    m_state(UbuntuEmulatorModel::Initial)
+    m_state(UbuntuEmulatorModel::Initial),
+    m_cancellable(false)
 {
     m_process = new UbuntuProcess(this);
     connect(m_process,SIGNAL(message(QString)),this,SLOT(onMessage(QString)));
     connect(m_process,SIGNAL(finished(QString,int)),this,SLOT(processFinished(QString,int)));
+    connect(m_process,SIGNAL(stdOut(QString)),this,SIGNAL(stdOutMessage(QString)));
+    connect(m_process,SIGNAL(error(QString)),this,SIGNAL(stdErrMessage(QString)));
 
     checkEmulatorInstalled();
 }
@@ -98,6 +101,29 @@ void UbuntuEmulatorModel::setState(UbuntuEmulatorModel::State newState)
     }
 }
 
+bool UbuntuEmulatorModel::cancellable() const
+{
+    return m_cancellable;
+}
+
+void UbuntuEmulatorModel::setCancellable(bool arg)
+{
+    if (m_cancellable != arg) {
+        m_cancellable = arg;
+        emit cancellableChanged(arg);
+    }
+}
+
+void UbuntuEmulatorModel::beginAction(const QString &msg)
+{
+    emit logMessage(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ACTION_BEGIN).arg(msg));
+}
+
+void UbuntuEmulatorModel::endAction(const QString &msg)
+{
+    emit logMessage(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ACTION_END).arg(msg));
+}
+
 int UbuntuEmulatorModel::rowCount(const QModelIndex &parent) const
 {
     if(parent.isValid())
@@ -155,8 +181,9 @@ void UbuntuEmulatorModel::clear()
 void UbuntuEmulatorModel::checkEmulatorInstalled()
 {
     setState(CheckEmulator);
+    setCancellable(false);
 
-    //beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_EMULATOR_INSTALLED));
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_EMULATOR_INSTALLED));
     m_process->stop();
     QString sEmulatorPackageName = QLatin1String(Ubuntu::Constants::EMULATOR_PACKAGE_NAME);
     m_process->append(QStringList()
@@ -169,8 +196,9 @@ void UbuntuEmulatorModel::checkEmulatorInstalled()
 void UbuntuEmulatorModel::findEmulatorImages()
 {
     setState(FindImages);
+    setCancellable(false);
 
-    //beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES));
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES));
     m_process->stop();
     m_process->append(QStringList()
                       << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
@@ -184,8 +212,9 @@ void UbuntuEmulatorModel::installEmulator()
         return;
 
     setState(InstallEmulator);
+    setCancellable(false);
 
-    //beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE));
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE));
     QString sEmulatorPackageName = QLatin1String(Ubuntu::Constants::EMULATOR_PACKAGE_NAME);
     m_process->stop();
     m_process->append(QStringList()
@@ -197,8 +226,9 @@ void UbuntuEmulatorModel::installEmulator()
 void UbuntuEmulatorModel::createEmulatorImage(const QString &name)
 {
     setState(CreateEmulatorImage);
+    setCancellable(true);
 
-    //beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
     m_process->stop();
     QString strEmulatorName = name;
     QString strEmulatorPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
@@ -222,12 +252,30 @@ void UbuntuEmulatorModel::startEmulator(const QString &name)
 
 QVariant UbuntuEmulatorModel::validateEmulatorName(const QString &name)
 {
+
     QString error;
     bool result = Utils::ProjectNameValidatingLineEdit::validateProjectName(name,&error);
+
+    if(result) {
+        foreach(const EmulatorItem &item, m_data){
+            if(item.name == name) {
+                result = false;
+                error  = tr("Emulator name already exists");
+            }
+        }
+    }
+
     QVariantMap m;
     m.insert(QStringLiteral("valid"),result);
     m.insert(QStringLiteral("error"),error);
     return QVariant::fromValue(m);
+}
+
+void UbuntuEmulatorModel::cancel()
+{
+    if (m_cancellable && m_state == CreateEmulatorImage) {
+        m_process->stop();
+    }
 }
 
 void UbuntuEmulatorModel::onMessage(const QString &msg)
@@ -241,6 +289,7 @@ void UbuntuEmulatorModel::onMessage(const QString &msg)
 void UbuntuEmulatorModel::processFinished(const QString &, int)
 {
     State lastState = m_state;
+    setCancellable(false);
 
     setState(UbuntuEmulatorModel::Idle);
     switch(lastState) {

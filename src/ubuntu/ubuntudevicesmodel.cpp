@@ -583,8 +583,16 @@ void UbuntuDevicesModel::adbReadyRead()
 {
     QString stderr = QString::fromLocal8Bit(m_adbProcess->readAllStandardError());
     QString stdout = QString::fromLocal8Bit(m_adbProcess->readAllStandardOutput());
-    m_adbReply.append(stderr);
-    m_adbReply.append(stdout);
+
+    if(!stderr.trimmed().isEmpty()) {
+        emit stdErrMessage(stderr);
+        m_adbReply.append(stderr);
+    }
+
+    if(!stdout.trimmed().isEmpty()) {
+        emit stdOutMessage(stdout);
+        m_adbReply.append(stdout);
+    }
     qDebug()<<m_adbReply;
 }
 

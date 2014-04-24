@@ -8,13 +8,14 @@ import Ubuntu.Components.Popups 0.1
 
 Page {
     flickable: null
+    id: myPage
 
     tools: ToolbarItems {
         ToolbarButton {
             action: Action {
                 text: i18n.tr("Add Emulator")
                 iconSource: "qrc:/ubuntu/images/list-add.png"
-                onTriggered: PopupUtils.open(resourceRoot+"/NewEmulatorDialog.qml",modeRoot);
+                onTriggered: PopupUtils.open(resourceRoot+"/NewEmulatorDialog.qml",myPage);
             }
         }
         ToolbarButton {
@@ -26,9 +27,30 @@ Page {
         }
     }
 
+    Item {
+        anchors.fill: parent
+        visible: emulatorModel.busy
+
+        Column {
+            anchors.centerIn: parent
+            Label {
+                text: i18n.tr("There is currently a process running in the background, please check the logs for details")
+                fontSize: "large"
+                anchors.left: parent.left
+            }
+            Button {
+                visible: emulatorModel.cancellable
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "cancel"
+                onClicked: emulatorModel.cancel()
+            }
+        }
+    }
+
     Controls.SplitView {
         orientation: Qt.Horizontal
         anchors.fill: parent
+        visible: !emulatorModel.busy
 
         Controls.ScrollView {
             width: 200
