@@ -33,6 +33,12 @@ Page {
 
         Column {
             anchors.centerIn: parent
+            spacing: units.gu(1)
+
+            ActivityIndicator{
+                anchors.horizontalCenter: parent.horizontalCenter
+                running: emulatorModel.busy
+            }
             Label {
                 text: i18n.tr("There is currently a process running in the background, please check the logs for details")
                 fontSize: "large"

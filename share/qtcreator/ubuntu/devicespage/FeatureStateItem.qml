@@ -9,6 +9,15 @@ ListItem.Standard {
     property var input: null
     property string inputRole
     property alias checkable: switchbox.enabled
+
+    onInputChanged: {
+        console.log("INPUT CHANGED !!!!!"+input);
+        if(input == States.Available)
+            switchbox.checked = true;
+        else
+            switchbox.checked = false;
+    }
+
     selected: false
     control: Row {
         ActivityIndicator {
@@ -21,18 +30,15 @@ ListItem.Standard {
             checked: input === States.Available
             enabled: checkable
             onCheckedChanged: {
-                if(input == States.Detecting)
-                    return;
-
-                console.log(checked+" "+input);
+                console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!Checked changed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
                 if (checked && input == States.NotAvailable) {
-                    if(!devicesModel.set(index,inputRole,true))
-                        checked = false;
+                    devicesModel.set(index,inputRole,true);
+                    checked = true;
                 }
                 else if ((!checked) && input == States.Available) {
-                    if(!devicesModel.set(index,inputRole,false))
-                        checked = true;
+                    devicesModel.set(index,inputRole,false);
+                    checked = false;
                 }
             }
         }

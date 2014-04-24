@@ -39,7 +39,7 @@ ColumnLayout {
         input: hasNetworkConnection
         inputRole: "hasNetworkConnection"
         width: units.gu(50)
-        checkable: hasNetworkConnection != States.Available
+        checkable: hasNetworkConnection == States.NotAvailable && !deviceItemView.deviceBusy
     }
     FeatureStateItem {
         text: "Has devloper mode enabled"
