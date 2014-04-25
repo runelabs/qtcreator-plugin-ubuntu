@@ -8,94 +8,97 @@ import Ubuntu.DevicesModel 0.1
 
 Page {
     flickable: null
-    tools: ToolbarItems {
-        ToolbarButton {
-            action: Action {
-                text: i18n.tr("Refresh devices")
-                iconSource: "qrc:/ubuntu/images/view-refresh.png"
-                onTriggered: devicesModel.refresh()
-            }
-        }
-    }
-    Controls.SplitView {
-        orientation: Qt.Horizontal
+    ColumnLayout {
         anchors.fill: parent
-
-        Controls.SplitView {
-            orientation: Qt.Vertical
-            width: 200
-            Layout.minimumWidth: 200
-            Layout.maximumWidth: 400
-
-            Controls.ScrollView {
-                Layout.fillHeight: true
-                UbuntuListView {
-                    id: devicesList
-                    objectName: "devicesList"
-                    model: devicesModel
-                    delegate: ListItem.Standard {
-                        id: delegate
-                        text: display
-                        selected: devicesList.currentIndex == index
-                        onClicked: devicesList.currentIndex = index
-                    }
-                    onCurrentIndexChanged: deviceMode.deviceSelected(currentIndex)
+        Controls.ToolBar {
+            Layout.fillWidth: true
+            height: units.gu(10)
+            Row{
+                anchors.fill: parent
+                spacing: units.gu(2)
+                Controls.ToolButton {
+                    text: i18n.tr("Refresh devices")
+                    tooltip: text
+                    iconSource: "qrc:/ubuntu/images/view-refresh.png"
+                    onClicked: devicesModel.refresh()
                 }
             }
-            /*
-                            Button {
-                                Layout.maximumHeight: implicitHeight
-                                Layout.minimumHeight: implicitHeight
-                                text: "Create new emulator"
-                            }
-                            */
         }
-        Item {
-            id: centerItem
-            Layout.minimumWidth: 400
+
+        Controls.SplitView {
+            orientation: Qt.Horizontal
+            Layout.fillHeight: true
             Layout.fillWidth: true
-            property int currentIndex: devicesList.currentIndex
-            Repeater {
-                model: devicesModel
-                anchors.fill: parent
-                Rectangle{
-                    id: deviceItemView
-                    property bool deviceBusy: (detectionState != States.Done && detectionState != States.NotStarted)
-                    anchors.fill: parent
-                    anchors.margins: 12
 
-                    color: Qt.rgba(0.0, 0.0, 0.0, 0.01)
-                    visible: index == devicesList.currentIndex
+            Controls.SplitView {
+                orientation: Qt.Vertical
+                width: 200
+                Layout.minimumWidth: 200
+                Layout.maximumWidth: 400
 
-                    Controls.TabView {
-                        id: pagesTabView
-                        anchors.fill: parent
-                        visible: connectionState === States.DeviceReadyToUse || connectionState === States.DeviceConnected
-                        Controls.Tab {
-                            title: "Device"
-                            DeviceStatusTab{
-                            }
+                Controls.ScrollView {
+                    Layout.fillHeight: true
+                    UbuntuListView {
+                        id: devicesList
+                        objectName: "devicesList"
+                        model: devicesModel
+                        delegate: ListItem.Standard {
+                            id: delegate
+                            text: display
+                            selected: devicesList.currentIndex == index
+                            onClicked: devicesList.currentIndex = index
                         }
-                        Controls.Tab {
-                            title: "Advanced"
-                            DeviceAdvancedTab{
-                            }
-                        }
-                        Controls.Tab {
-                            title: "Builder"
-                            DeviceBuilderTab{
-                            }
-                        }
-                        Controls.Tab {
-                            title: "Log"
-                            DeviceLogTab{}
-                        }
+                        onCurrentIndexChanged: deviceMode.deviceSelected(currentIndex)
                     }
-                    Label {
-                        visible: !pagesTabView.visible
-                        anchors.centerIn: parent
-                        text: "The device is currently not connected"
-                        fontSize: "large"
+                }
+            }
+            Item {
+                id: centerItem
+                Layout.minimumWidth: 400
+                Layout.fillWidth: true
+                property int currentIndex: devicesList.currentIndex
+                Repeater {
+                    model: devicesModel
+                    anchors.fill: parent
+                    Rectangle{
+                        id: deviceItemView
+                        property bool deviceBusy: (detectionState != States.Done && detectionState != States.NotStarted)
+                        anchors.fill: parent
+                        anchors.margins: 12
+
+                        color: Qt.rgba(0.0, 0.0, 0.0, 0.01)
+                        visible: index == devicesList.currentIndex
+
+                        Controls.TabView {
+                            id: pagesTabView
+                            anchors.fill: parent
+                            visible: connectionState === States.DeviceReadyToUse || connectionState === States.DeviceConnected
+                            Controls.Tab {
+                                title: "Device"
+                                DeviceStatusTab{
+                                }
+                            }
+                            Controls.Tab {
+                                title: "Advanced"
+                                DeviceAdvancedTab{
+                                }
+                            }
+                            Controls.Tab {
+                                title: "Builder"
+                                DeviceBuilderTab{
+                                }
+                            }
+                            Controls.Tab {
+                                title: "Log"
+                                DeviceLogTab{}
+                            }
+                        }
+                        Label {
+                            visible: !pagesTabView.visible
+                            anchors.centerIn: parent
+                            text: "The device is currently not connected"
+                            fontSize: "large"
+                        }
                     }
                 }
             }
