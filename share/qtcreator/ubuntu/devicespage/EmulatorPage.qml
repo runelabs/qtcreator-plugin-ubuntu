@@ -10,138 +10,138 @@ Page {
     flickable: null
     id: myPage
 
-    ColumnLayout {
+    Item {
         anchors.fill: parent
-        Controls.ToolBar {
-            Layout.fillWidth: true
-            height: units.gu(10)
-            Row{
-                anchors.fill: parent
-                spacing: units.gu(2)
-                Controls.ToolButton {
-                    text: i18n.tr("Add Emulator")
-                    tooltip: text
-                    iconSource: "qrc:/ubuntu/images/list-add.png"
-                    onClicked: PopupUtils.open(resourceRoot+"/NewEmulatorDialog.qml",myPage);
+        visible: emulatorModel.busy
+
+        Column {
+            anchors.centerIn: parent
+            spacing: units.gu(1)
+
+            ActivityIndicator{
+                anchors.horizontalCenter: parent.horizontalCenter
+                running: emulatorModel.busy
+            }
+            Label {
+                text: i18n.tr("There is currently a process running in the background, please check the logs for details")
+                fontSize: "large"
+                anchors.left: parent.left
+            }
+            Button {
+                visible: emulatorModel.cancellable
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "cancel"
+                onClicked: emulatorModel.cancel()
+            }
+        }
+    }
+
+    Controls.SplitView {
+        orientation: Qt.Horizontal
+        anchors.fill: parent
+        visible: !emulatorModel.busy
+
+        Controls.SplitView {
+            orientation: Qt.Vertical
+            width: 200
+            Layout.minimumWidth: 200
+            Layout.maximumWidth: 400
+
+            Controls.ScrollView {
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+
+                UbuntuListView {
+                    id: emulatorList
+                    objectName: "emulatorList"
+                    model: emulatorModel
+                    currentIndex: 0
+                    delegate: ListItem.Standard {
+                        id: delegate
+                        text: display
+                        selected: emulatorList.currentIndex == index
+                        onClicked: emulatorList.currentIndex = index
+                    }
                 }
-                Controls.ToolButton {
-                    text: i18n.tr("Refresh emulators")
-                    tooltip: text
-                    iconSource: "qrc:/ubuntu/images/view-refresh.png"
-                    onClicked: emulatorModel.findEmulatorImages()
+            }
+
+            Controls.ToolBar {
+                Layout.fillWidth: true
+                Layout.minimumHeight: units.gu(5)
+                Layout.maximumHeight: units.gu(5)
+                Row{
+                    anchors.fill: parent
+                    spacing: units.gu(2)
+                    Controls.ToolButton {
+                        text: i18n.tr("Add Emulator")
+                        tooltip: text
+                        iconSource: "qrc:/ubuntu/images/list-add.png"
+                        onClicked: PopupUtils.open(resourceRoot+"/NewEmulatorDialog.qml",myPage);
+                    }
+                    Controls.ToolButton {
+                        text: i18n.tr("Refresh emulators")
+                        tooltip: text
+                        iconSource: "qrc:/ubuntu/images/view-refresh.png"
+                        onClicked: emulatorModel.findEmulatorImages()
+                    }
                 }
             }
         }
         Item {
-            Layout.fillHeight: true
+            id: centerItem
+            Layout.minimumWidth: units.gu(78)
             Layout.fillWidth: true
-
-            Item {
+            property int currentIndex: emulatorList.currentIndex
+            Repeater {
+                model: emulatorModel
                 anchors.fill: parent
-                visible: emulatorModel.busy
+                Rectangle{
+                    id: deviceItemView
+                    anchors.fill: parent
+                    anchors.margins: 12
 
-                Column {
-                    anchors.centerIn: parent
-                    spacing: units.gu(1)
+                    color: Qt.rgba(0.0, 0.0, 0.0, 0.01)
+                    visible: index == emulatorList.currentIndex && !emulatorModel.busy
 
-                    ActivityIndicator{
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        running: emulatorModel.busy
-                    }
-                    Label {
-                        text: i18n.tr("There is currently a process running in the background, please check the logs for details")
-                        fontSize: "large"
-                        anchors.left: parent.left
-                    }
-                    Button {
-                        visible: emulatorModel.cancellable
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: "cancel"
-                        onClicked: emulatorModel.cancel()
-                    }
-                }
-            }
-
-            Controls.SplitView {
-                orientation: Qt.Horizontal
-                anchors.fill: parent
-                visible: !emulatorModel.busy
-
-                Controls.ScrollView {
-                    width: 200
-                    Layout.fillHeight: true
-                    Layout.minimumWidth: 200
-                    Layout.maximumWidth: 400
                     UbuntuListView {
-                        id: emulatorList
-                        objectName: "emulatorList"
-                        model: emulatorModel
-                        delegate: ListItem.Standard {
-                            id: delegate
-                            text: display
-                            selected: emulatorList.currentIndex == index
-                            onClicked: emulatorList.currentIndex = index
-                        }
-                        onCurrentIndexChanged: deviceMode.deviceSelected(currentIndex)
-                    }
-                }
-                Item {
-                    id: centerItem
-                    Layout.minimumWidth: 400
-                    Layout.fillWidth: true
-                    property int currentIndex: emulatorList.currentIndex
-                    Repeater {
-                        model: emulatorModel
-                        anchors.fill: parent
-                        Rectangle{
-                            id: deviceItemView
-                            anchors.fill: parent
-                            anchors.margins: 12
-
-                            color: Qt.rgba(0.0, 0.0, 0.0, 0.01)
-                            visible: index == emulatorList.currentIndex && !emulatorModel.busy
-
-                            UbuntuListView {
-                                anchors.left: parent.left
-                                anchors.top: parent.top
-                                height: units.gu(50)
-                                width: units.gu(50)
-                                model: VisualItemModel {
-                                    ListItem.SingleValue {
-                                        text: i18n.tr("Ubuntu version")
-                                        value: ubuntuVersion
-                                    }
-                                    ListItem.SingleValue {
-                                        text: i18n.tr("Device version")
-                                        value: deviceVersion
-                                    }
-                                    ListItem.SingleValue {
-                                        text: i18n.tr("Image version")
-                                        value: imageVersion
-                                    }
-                                    ListItem.SingleControl {
-                                        control: Button {
-                                            text: "Start emulator"
-                                            onClicked: emulatorModel.startEmulator(display)
-                                        }
-                                    }
-                                    /*
+                        anchors.left: parent.left
+                        anchors.top: parent.top
+                        height: units.gu(50)
+                        width: units.gu(50)
+                        model: VisualItemModel {
+                            ListItem.SingleValue {
+                                text: i18n.tr("Ubuntu version")
+                                value: ubuntuVersion
+                            }
+                            ListItem.SingleValue {
+                                text: i18n.tr("Device version")
+                                value: deviceVersion
+                            }
+                            ListItem.SingleValue {
+                                text: i18n.tr("Image version")
+                                value: imageVersion
+                            }
+                            ListItem.SingleControl {
+                                control: Button {
+                                    text: "Start emulator"
+                                    onClicked: emulatorModel.startEmulator(display)
+                                }
+                            }
+                            /*
                                     ListItem.SingleControl {
                                         control: Button {
                                             text: "Delete emulator"
                                         }
                                     }
                                     */
-                                }
-                            }
-
-                            Label {
-                                visible: emulatorModel.busy
-                                anchors.centerIn: parent
-                                text: emulatorModel.state
-                                fontSize: "large"
-                            }
                         }
+                    }
+
+                    Label {
+                        visible: emulatorModel.busy
+                        anchors.centerIn: parent
+                        text: emulatorModel.state
+                        fontSize: "large"
                     }
                 }
             }
