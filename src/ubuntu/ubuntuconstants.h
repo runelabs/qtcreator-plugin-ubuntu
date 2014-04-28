@@ -509,7 +509,7 @@ const char UBUNTU_CLICK_SUCCESS_PACKAGE_REGEX[] = "^.*'(.*)'.$";
 //Frameworks
 const char UBUNTU_FRAMEWORK_14_04_BASENAME[] = "ubuntu-sdk-14.04";
 const char UBUNTU_FRAMEWORK_13_10_BASENAME[] = "ubuntu-sdk-13.10";
-const char UBUNTU_DEFAULT_QML_FRAMEWORK[]    = "ubuntu-sdk-14.04-qml";
+const char UBUNTU_DEFAULT_QML_FRAMEWORK[]    = "ubuntu-sdk-14.04-qml-dev1";
 const char UBUNTU_DEFAULT_HTML_FRAMEWORK[]   = "ubuntu-sdk-14.04-html";
 const char UBUNTU_UNKNOWN_FRAMEWORK_NAME[]   = "Unknown framework";
 const int  UBUNTU_UNKNOWN_FRAMEWORK_DATA     = 0xdeadbeef;

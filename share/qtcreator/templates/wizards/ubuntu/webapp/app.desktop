@@ -2,6 +2,6 @@
 Name=%DISPLAYNAME%
 Type=Application
 Icon=app.png
-Exec=webbrowser-app --webapp --enable-back-forward --webappUrlPatterns=https?://m.%DISPLAYNAME%.com/* http://m.%DISPLAYNAME%.com
+Exec=webapp-container --enable-back-forward --store-session cookies --webappUrlPatterns=https?://m.%DISPLAYNAME%.com/* http://m.%DISPLAYNAME%.com
 Terminal=false
 X-Ubuntu-Touch=true
