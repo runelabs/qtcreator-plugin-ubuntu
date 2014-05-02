@@ -18,7 +18,6 @@
 
 #include "ubuntusettingsdeviceconnectivitywidget.h"
 #include "ui_ubuntusettingsdeviceconnectivitywidget.h"
-#include "ubuntudeviceswidget.h"
 #include "ubuntuconstants.h"
 
 using namespace Ubuntu;

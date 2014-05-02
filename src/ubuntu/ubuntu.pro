@@ -26,11 +26,29 @@ FORMS += \
 RESOURCES += \
     resources.qrc
 
+#QML files
+QML_ROOT="$${PWD}/../../share/qtcreator/ubuntu"
+QML_FILES += \
+    $$QML_ROOT/welcome/welcome.qml \
+    $$QML_ROOT/welcome/Link.qml \
+    $$QML_ROOT/welcome/NewsBox.qml\
+    $$QML_ROOT/devicespage/main.qml \
+    $$QML_ROOT/devicespage/DeviceAdvancedTab.qml  \
+    $$QML_ROOT/devicespage/DeviceBuilderTab.qml  \
+    $$QML_ROOT/devicespage/DeviceLogTab.qml  \
+    $$QML_ROOT/devicespage/DevicePage.qml  \
+    $$QML_ROOT/devicespage/DeviceStatusTab.qml  \
+    $$QML_ROOT/devicespage/EmulatorPage.qml  \
+    $$QML_ROOT/devicespage/FeatureStateItem.qml  \
+    $$QML_ROOT/devicespage/NewEmulatorDialog.qml \
+    $$QML_ROOT/devicespage/LogPage.qml
+
 OTHER_FILES += \
     UbuntuProject.mimetypes.xml \
     manifest.json.template \
     myapp.json.template \
-    manifestlib.js
+    manifestlib.js \
+    $$QML_FILES
 
 SOURCES += \
     ubuntuplugin.cpp \
@@ -55,7 +73,7 @@ SOURCES += \
     ubuntuclickmanifest.cpp \
     ubuntuwebmode.cpp \
     ubuntupastebinmode.cpp \
-    ubuntudeviceswidget.cpp \
+    #ubuntudeviceswidget.cpp \
     ubuntudevicemode.cpp \
     ubuntuprocess.cpp \
     ubuntudevicenotifier.cpp \
@@ -88,7 +106,9 @@ SOURCES += \
     ubunturemotedeployconfiguration.cpp \
     ubuntulocalrunconfigurationfactory.cpp \
     ubunturemoteruncontrolfactory.cpp \
-    ubuntulocalrunconfiguration.cpp
+    ubuntulocalrunconfiguration.cpp \
+    ubuntudevicesmodel.cpp \
+    ubuntuemulatormodel.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -117,7 +137,7 @@ HEADERS += \
     ubuntuwebmode.h \
     ubuntupastebinmode.h \
     ubuntudevicemode.h \
-    ubuntudeviceswidget.h \
+    #ubuntudeviceswidget.h \
     ubuntuprocess.h \
     ubuntudevicenotifier.h \
     ubuntusettingspage.h \
@@ -149,5 +169,7 @@ HEADERS += \
     ubunturemotedeployconfiguration.h \
     ubuntulocalrunconfigurationfactory.h \
     ubunturemoteruncontrolfactory.h \
-    ubuntulocalrunconfiguration.h
+    ubuntulocalrunconfiguration.h \
+    ubuntudevicesmodel.h \
+    ubuntuemulatormodel.h
 

@@ -120,7 +120,7 @@ const char UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES[] = "Search configured emulat
 const char UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR[] = "Creating new emulator instance.";
 const char UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT[] = "%0/local_create_emulator %1 %2";
 const char UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR[] = "Starting the selected emulator.";
-const char UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT[] = "%0/local_start_emulator %1";
+const char UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT[] = "%0/local_start_emulator";
 
 
 const char UBUNTUDEVICESWIDGET_STARTSSHSERVICE[] = "Start ssh service on device..";
@@ -213,7 +213,7 @@ const char UBUNTUDEVICESWIDGET_LOCAL_INSTALL_EMULATOR[] = "%0/local_install_emul
 const char UBUNTUDEVICESWIDGET_DETECTOPENSSH[] = "Detecting if openssh-server is installed..";
 const char UBUNTUDEVICESWIDGET_DETECTOPENSSH_SCRIPT[] = "%0/openssh_version %1";
 const char UBUNTUDEVICESWIDGET_DETECTDEVICES[] = "Detecting device..";
-const char UBUNTUDEVICESWIDGET_DETECTDEVICES_SCRIPT[] = "%0/device_search %1";
+const char UBUNTUDEVICESWIDGET_DETECTDEVICES_SCRIPT[] = "%0/device_search";
 const char UBUNTUDEVICESWIDGET_SSHCONNECT_SCRIPT[] = "%0/openssh_connect";
 const char UBUNTUDEVICESWIDGET_SSHCONNECT[] = "Opening ssh connection to device";
 
@@ -241,6 +241,8 @@ const QString UBUNTU_RESOURCE_PATH = Core::ICore::resourcePath();
 #endif
 
 const QString UBUNTU_WELCOMESCREEN_QML = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/welcome/welcome.qml");
+const QString UBUNTU_DEVICESCREEN_QML  = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/devicespage/main.qml");
+const QString UBUNTU_DEVICESCREEN_ROOT  = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/devicespage");
 const QString UBUNTU_TEMPLATESPATH = UBUNTU_RESOURCE_PATH + QLatin1String("/templates/wizards/ubuntu/");
 const QString UBUNTU_MENUPATH = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/");
 const QString UBUNTU_SHAREPATH = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/");

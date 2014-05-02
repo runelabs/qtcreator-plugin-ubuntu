@@ -36,7 +36,6 @@ class UbuntuDeviceHelper : public QObject
 {
     Q_OBJECT
     friend class UbuntuDevice;
-
 public:
     explicit UbuntuDeviceHelper(UbuntuDevice* dev);
     ~UbuntuDeviceHelper();
@@ -150,6 +149,7 @@ public:
     QString serialNumber () const;
     UbuntuDeviceHelper *helper () const;
 
+    void cloneNetwork    ();
     void openTerminal    ();
     void cloneTimeConfig ();
     void enablePortForward ();
@@ -162,8 +162,11 @@ public:
     void setWriteableImageEnabled    ( const bool enabled = true );
     void setDeveloperToolsInstalled  ( const bool installed = true );
 
-    void setDeviceInfoString (const QString &info);
-    QString deviceInfoString () const;
+    void setDeviceInfoString (const QString &deviceInfo);
+    void setDeviceInfo (const QString &productInfo, const QString &modelInfo, const QString &deviceInfo);
+    QString modelInfo() const;
+    QString deviceInfo() const;
+    QString productInfo() const;
 
     FeatureState developerModeEnabled () const;
     FeatureState hasNetworkConnection () const;
@@ -198,7 +201,9 @@ private:
     FeatureState    m_hasWriteableImage;
     FeatureState    m_hasDeveloperTools;
     ProcessState    m_processState;
-    QString         m_deviceInfoString;
+    QString         m_modelInfo;
+    QString         m_deviceInfo;
+    QString         m_productInfo;
     Utils::PortList m_localForwardedPorts;
 
 private:

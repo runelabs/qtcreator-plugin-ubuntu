@@ -45,8 +45,9 @@ public slots:
     void start(QString taskTitle);
 
 signals:
-    void message(QString);
-    void error(QString);
+    void message(const QString&);
+    void error (const QString&);
+    void stdOut(const QString&);
     void finished(QString,int);
     void finished(const QProcess*,QString,int);
     void started(QString);

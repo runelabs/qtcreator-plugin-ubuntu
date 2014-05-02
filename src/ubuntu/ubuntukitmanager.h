@@ -19,6 +19,7 @@
 #define UBUNTU_INTERNAL_UBUNTUKITMANAGER_H
 
 #include "clicktoolchain.h"
+#include "ubuntudevice.h"
 #include <projectexplorer/kit.h>
 
 namespace Debugger{
@@ -34,10 +35,12 @@ class UbuntuKitManager : public QObject
 public:
     UbuntuKitManager();
 
+    static void autoCreateKit  ( UbuntuDevice::Ptr device );
     static void autoDetectKits ();
     static ProjectExplorer::Kit *createKit (ClickToolChain* tc);
     static QVariant createOrFindDebugger(const Utils::FileName &path);
     static void fixKit (ProjectExplorer::Kit* k);
+    static QList<ClickToolChain *> clickToolChains();
 };
 
 } // namespace Internal

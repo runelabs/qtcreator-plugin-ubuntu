@@ -1,0 +1,15 @@
+{
+    "architecture": "all",
+    "description": "description of qtcreator-plugin-ubuntu",
+    "framework": "ubuntu-sdk-13.10",
+    "hooks": {
+        "qtcreator-plugin-ubuntu": {
+            "apparmor": "qtcreator-plugin-ubuntu.json",
+            "desktop": "qtcreator-plugin-ubuntu.desktop"
+        }
+    },
+    "maintainer": "Benjamin Zeller <benjamin.zeller@canonical.com>",
+    "name": "com.ubuntu.developer.zeller-benjamin.qtcreator-plugin-ubuntu",
+    "title": "qtcreator-plugin-ubuntu",
+    "version": "0.1"
+}

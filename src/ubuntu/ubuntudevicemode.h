@@ -19,11 +19,37 @@
 #ifndef UBUNTUDEVICEMODE_H
 #define UBUNTUDEVICEMODE_H
 
+#include "ubuntudevice.h"
 #include <coreplugin/imode.h>
-#include "ubuntudeviceswidget.h"
+
+class QQuickView;
 
 namespace Ubuntu {
 namespace Internal {
+
+class UbuntuDevicesModel;
+class UbuntuEmulatorModel;
+class UbuntuDeviceMode;
+
+class UbuntuQMLDeviceMode : public QObject {
+    Q_OBJECT
+
+public:
+    UbuntuQMLDeviceMode( UbuntuDeviceMode *parent );
+
+public slots:
+    void deviceSelected ( const QVariant index );
+    void addText (const QString &arg);
+    void addErrorText (const QString &error);
+
+signals:
+    void logChanged(const QString &arg);
+    void appendText(const QString &newText);
+
+private:
+    UbuntuDeviceMode* m_mode;
+};
+
 
 class UbuntuDeviceMode : public Core::IMode
 {
@@ -33,12 +59,26 @@ public:
     UbuntuDeviceMode(QObject *parent = 0);
     void initialize();
 
+    static UbuntuDeviceMode *instance();
+    UbuntuDevice::ConstPtr device();
+
+    void deviceSelected ( const QVariant index );
+
+signals:
+    void updateDeviceActions ();
+
 protected slots:
     void modeChanged(Core::IMode*);
 
 protected:
+    static UbuntuDeviceMode *m_instance;
+    UbuntuDevicesModel  *m_devicesModel;
+    UbuntuEmulatorModel *m_emulatorModel;
+    UbuntuQMLDeviceMode *m_qmlControl;
+    QQuickView *m_modeView;
     QWidget* m_modeWidget;
-    UbuntuDevicesWidget m_ubuntuDevicesWidget;
+    QVariant m_deviceIndex;
+    QString  m_log;
 };
 
 

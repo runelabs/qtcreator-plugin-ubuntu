@@ -31,6 +31,7 @@
 #include "ubuntucmakebuildconfiguration.h"
 #include "ubunturemotedeployconfiguration.h"
 #include "ubuntulocaldeployconfiguration.h"
+#include "ubuntudevicesmodel.h"
 #include "localportsmanager.h"
 
 #include <coreplugin/modemanager.h>
@@ -42,6 +43,7 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QGuiApplication>
+#include <QtQml>
 
 using namespace Ubuntu;
 using namespace Ubuntu::Internal;
@@ -61,8 +63,9 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    const QLatin1String mimetypesXml(Constants::UBUNTU_MIMETYPE_XML);
+    qmlRegisterUncreatableType<UbuntuDeviceStates>("Ubuntu.DevicesModel",0,1,"States",QStringLiteral("Not instantiable"));
 
+    const QLatin1String mimetypesXml(Constants::UBUNTU_MIMETYPE_XML);
     if (!Core::MimeDatabase::addMimeTypes(mimetypesXml, errorString))
         return false;
 
