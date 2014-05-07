@@ -574,8 +574,10 @@ void UbuntuPackagingWidget::buildFinished(const bool success)
             m_ubuntuProcess.stop();
 
             QString sClickPackagePath = pckStep->packagePath();
-            if (sClickPackagePath.isEmpty())
+            if (sClickPackagePath.isEmpty()) {
+                clearAdditionalBuildSteps();
                 return;
+            }
 
             switch (m_postPackageTask) {
                 case None:
@@ -590,9 +592,9 @@ void UbuntuPackagingWidget::buildFinished(const bool success)
                 case Install: {
                     ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(pckStep->target()->kit());
                     if (!dev)
-                        break;
+                        break; //fall through to clear buildsteps
                     if (dev->type() != Constants::UBUNTU_DEVICE_TYPE_ID)
-                        break;
+                        break; //fall through to clear buildsteps
 
                     UbuntuDevice::ConstPtr ubuntuDev = qSharedPointerCast<const UbuntuDevice>(dev);
                     QSsh::SshConnectionParameters connParams = ubuntuDev->sshParameters();
