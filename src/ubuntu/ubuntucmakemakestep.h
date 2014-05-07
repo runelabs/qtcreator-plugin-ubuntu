@@ -19,6 +19,7 @@
 #define UBUNTU_INTERNAL_UBUNTUCMAKEMAKESTEP_H
 
 #include <projectexplorer/buildstep.h>
+#include <projectexplorer/abstractprocessstep.h>
 #include <cmakeprojectmanager/makestep.h>
 
 namespace Ubuntu {

@@ -24,6 +24,7 @@
 #include "ubuntuclicktool.h"
 #include "ubuntucmakemakestep.h"
 #include "ubuntuvalidationresultmodel.h"
+#include "ubuntudevice.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
@@ -38,6 +39,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
+#include <ssh/sshconnection.h>
 
 
 #include <QFileDialog>
@@ -54,7 +56,8 @@ using namespace Ubuntu::Internal;
 
 UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::UbuntuPackagingWidget)
+    ui(new Ui::UbuntuPackagingWidget),
+    m_postPackageTask(Verify)
 {
     m_previous_tab = 0;
 
@@ -83,6 +86,8 @@ UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
 
     connect(ui->treeViewValidate->selectionModel(),SIGNAL(currentChanged(QModelIndex,QModelIndex)),this,SLOT(onValidationItemSelected(QModelIndex)));
     connect(m_validationModel,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(onNewValidationData()));
+
+    connect(UbuntuMenu::instance(),SIGNAL(requestBuildAndInstallProject()),this,SLOT(buildAndInstallPackageRequested()));
 
     m_bzr.initialize();
 
@@ -130,10 +135,12 @@ void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd) 
         return;
 
 
-    qDebug()<<"Going to verify: "<<sClickPackagePath;
+    if (m_reviewToolsInstalled) {
+        qDebug()<<"Going to verify: "<<sClickPackagePath;
 
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION).arg(sClickPackagePath));
-    m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(sClickPackagePath));
+        m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION).arg(sClickPackagePath));
+        m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(sClickPackagePath));
+    }
 
 }
 
@@ -532,6 +539,115 @@ void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {
         return;
 
     if(project->projectManager()->mimeType() == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE)) {
+        if(m_reviewToolsInstalled)
+            m_postPackageTask = Verify;
+        else
+            m_postPackageTask = None;
+        buildClickPackage();
+    } else {
+        m_UbuntuMenu_connection =  QObject::connect(UbuntuMenu::instance(),SIGNAL(finished_action(const QProcess*,QString)),this,SLOT(onFinishedAction(const QProcess*,QString)));
+        save((ui->tabWidget->currentWidget() == ui->tabSimple));
+
+        if(!m_UbuntuMenu_connection)
+            qDebug()<<"Could not connect signals";
+
+        QAction* action = UbuntuMenu::menuAction(Core::Id(Constants::UBUNTUPACKAGINGWIDGET_BUILDPACKAGE_ID));
+        if(action) {
+            action->trigger();
+        }
+    }
+}
+
+void UbuntuPackagingWidget::checkClickReviewerTool() {
+    m_ubuntuProcess.stop();
+    QString sReviewerPackageName = QLatin1String(Ubuntu::Constants::REVIEWER_PACKAGE_NAME);
+    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUWIDGETS_LOCAL_PACKAGE_INSTALLED_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(sReviewerPackageName) << QApplication::applicationDirPath());
+    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_LOCAL_REVIEWER_INSTALLED));
+}
+
+void UbuntuPackagingWidget::buildFinished(const bool success)
+{
+    disconnect(m_buildManagerConnection);
+    if (success) {
+        UbuntuClickPackageStep *pckStep = qobject_cast<UbuntuClickPackageStep*>(m_additionalPackagingBuildSteps.last());
+        if (pckStep && !pckStep->packagePath().isEmpty()) {
+            m_ubuntuProcess.stop();
+
+            QString sClickPackagePath = pckStep->packagePath();
+            if (sClickPackagePath.isEmpty())
+                return;
+
+            switch (m_postPackageTask) {
+                case None:
+                    break;
+                case Verify: {
+                    qDebug()<<"Going to verify: "<<sClickPackagePath;
+
+                    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION).arg(sClickPackagePath));
+                    m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(sClickPackagePath));
+                    break;
+                }
+                case Install: {
+                    ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(pckStep->target()->kit());
+                    if (!dev)
+                        break;
+                    if (dev->type() != Constants::UBUNTU_DEVICE_TYPE_ID)
+                        break;
+
+                    UbuntuDevice::ConstPtr ubuntuDev = qSharedPointerCast<const UbuntuDevice>(dev);
+                    QSsh::SshConnectionParameters connParams = ubuntuDev->sshParameters();
+
+                    m_ubuntuProcess.append(QStringList()
+                                           << QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_CLICK_DEPLOY_SCRIPT)
+                                           .arg(Constants::UBUNTU_SCRIPTPATH)
+                                           .arg(ubuntuDev->serialNumber())
+                                           .arg(sClickPackagePath)
+                                           .arg(QStringLiteral("%1@%2").arg(connParams.userName).arg(connParams.host))
+                                           .arg(connParams.port)
+                                           .arg(QStringLiteral("/home/%1/dev_tmp").arg(connParams.userName))
+                                           .arg(connParams.userName));
+                    m_ubuntuProcess.start(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_DEPLOY_MESSAGE));
+                    break;
+                }
+            }
+        }
+    }
+    clearAdditionalBuildSteps();
+}
+
+void UbuntuPackagingWidget::buildAndInstallPackageRequested()
+{
+    m_postPackageTask = Install;
+    buildClickPackage();
+}
+
+void UbuntuPackagingWidget::on_comboBoxFramework_currentIndexChanged(int index)
+{
+    if(ui->comboBoxFramework->itemText(index).startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_14_04_BASENAME))) {
+        ui->comboBoxFramework->removeItem(ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA));
+        m_apparmor.setPolicyVersion(QLatin1String("1.1"));
+    } else if(ui->comboBoxFramework->itemText(index).startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_13_10_BASENAME))) {
+        ui->comboBoxFramework->removeItem(ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA));
+        m_apparmor.setPolicyVersion(QLatin1String("1.0"));
+    } else {
+        return;
+    }
+
+    m_apparmor.save();
+}
+
+/*!
+ * \brief UbuntuPackagingWidget::buildClickPackage
+ * Starts the build of a cmake project. Make sure to set
+ * m_postPackageTask correctly before calling this function
+ */
+void UbuntuPackagingWidget::buildClickPackage()
+{
+    ProjectExplorer::Project* project = ProjectExplorer::SessionManager::startupProject();
+    if(!project)
+        return;
+
+    if(project->projectManager()->mimeType() == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE)) {
         ProjectExplorer::Target* target = project->activeTarget();
         if(!target)
             return;
@@ -578,61 +694,7 @@ void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {
         ProjectExplorer::BuildManager::appendStep(deplStep,tr("Preparing Click package"));
         ProjectExplorer::BuildManager::appendStep(package ,tr("Creating Click package"));
 
-    } else {
-        m_UbuntuMenu_connection =  QObject::connect(UbuntuMenu::instance(),SIGNAL(finished_action(const QProcess*,QString)),this,SLOT(onFinishedAction(const QProcess*,QString)));
-        save((ui->tabWidget->currentWidget() == ui->tabSimple));
-
-        if(!m_UbuntuMenu_connection)
-            qDebug()<<"Could not connect signals";
-
-        QAction* action = UbuntuMenu::menuAction(Core::Id(Constants::UBUNTUPACKAGINGWIDGET_BUILDPACKAGE_ID));
-        if(action) {
-            action->trigger();
-        }
     }
-}
-
-void UbuntuPackagingWidget::checkClickReviewerTool() {
-    m_ubuntuProcess.stop();
-    QString sReviewerPackageName = QLatin1String(Ubuntu::Constants::REVIEWER_PACKAGE_NAME);
-    m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUWIDGETS_LOCAL_PACKAGE_INSTALLED_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(sReviewerPackageName) << QApplication::applicationDirPath());
-    m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_LOCAL_REVIEWER_INSTALLED));
-}
-
-void UbuntuPackagingWidget::buildFinished(const bool success)
-{
-    disconnect(m_buildManagerConnection);
-    if (success) {
-        UbuntuClickPackageStep *pckStep = qobject_cast<UbuntuClickPackageStep*>(m_additionalPackagingBuildSteps.last());
-        if (pckStep && !pckStep->packagePath().isEmpty()) {
-            m_ubuntuProcess.stop();
-
-            QString sClickPackagePath = pckStep->packagePath();
-            if (sClickPackagePath.isEmpty())
-                return;
-
-            qDebug()<<"Going to verify: "<<sClickPackagePath;
-
-            m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION).arg(sClickPackagePath));
-            m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(sClickPackagePath));
-        }
-    }
-    clearAdditionalBuildSteps();
-}
-
-void UbuntuPackagingWidget::on_comboBoxFramework_currentIndexChanged(int index)
-{
-    if(ui->comboBoxFramework->itemText(index).startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_14_04_BASENAME))) {
-        ui->comboBoxFramework->removeItem(ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA));
-        m_apparmor.setPolicyVersion(QLatin1String("1.1"));
-    } else if(ui->comboBoxFramework->itemText(index).startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_13_10_BASENAME))) {
-        ui->comboBoxFramework->removeItem(ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA));
-        m_apparmor.setPolicyVersion(QLatin1String("1.0"));
-    } else {
-        return;
-    }
-
-    m_apparmor.save();
 }
 
 /*!

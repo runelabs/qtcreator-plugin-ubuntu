@@ -119,7 +119,7 @@
                 "actions": [
                     {
                         "metacall": {
-                             "method":"buildAndInstallCurrentProject",
+                             "method":"requestBuildAndInstallProject",
                              "args":[]
                         }
                     }

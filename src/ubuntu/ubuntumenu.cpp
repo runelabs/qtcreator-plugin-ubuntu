@@ -146,10 +146,6 @@ void UbuntuMenu::onFinished(const QProcess *programm, QString cmd, int)
     emit finished_action(programm,cmd);
 }
 
-void UbuntuMenu::buildAndInstallCurrentProject()
-{
-}
-
 QString UbuntuMenu::menuPath(QString fileName) {
     return Constants::UBUNTU_MENUPATH + fileName;
 }

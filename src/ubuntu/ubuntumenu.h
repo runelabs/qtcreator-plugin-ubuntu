@@ -60,6 +60,7 @@ public slots:
 signals:
     void finished_action(QString);
     void finished_action(const QProcess* process, QString cmd);
+    void requestBuildAndInstallProject (); //triggered from menu.json
     
 protected slots:
     void menuItemTriggered();
@@ -68,7 +69,6 @@ protected slots:
     void onError(QString);
     void onFinished(QString cmd, int code);
     void onFinished(const QProcess* programm, QString cmd, int code);
-    void buildAndInstallCurrentProject();
 
 protected:
     typedef QList<QJsonValue> QJsonValueList;
