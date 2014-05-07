@@ -117,9 +117,14 @@ Rectangle {
 
                 Link {
                     width: parent.width
-                    title: "Build something solid &gt;"
-                    link: "http://developer.ubuntu.com/api/ubuntu-12.10/qml/mobile/overview-ubuntu-sdk.html"
+                    title: "Build something solid in QML &gt;"
+                    link: "http://developer.ubuntu.com/api/qml/current/"
                 }
+                Link {
+                    width: parent.width
+                    title: "Build something solid in HTML5 &gt;"
+		    link: "http://developer.ubuntu.com/api/html5/current/"
+		}
             }
             Column {
                 id: bottomBox

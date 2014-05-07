@@ -1,3 +1,60 @@
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140502.6-0ubuntu1) utopic; urgency=low
+
+  [ Benjamin Zeller ]
+  * Added new QML based devices mode. Reworked backend that handles
+    devices and emulators and put . it into QAbstractListModel derived
+    classes to control them from QML Fixed a bug with starting
+    applications on the device that don't use . a launcher Switched to
+    the RemoteLinux configuration widget , it provides better .
+    informations about the device state in the options dialog Easy
+    creation of Kits for devices that are not assigned (Autocreate Kit).
+
+  [ Jussi Pakkanen ]
+  * Minor fixes for scope preview template.
+
+  [ Alexandre Abreu ]
+  * Update webapp template to account for the latest & most up to date
+    changes (LP: #1313889)
+
+  [ David Barth ]
+  * This re-enables launching HTML5 apps on the device after the recent
+    interface change. (LP: #1311692)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 02 May 2014 16:22:49 +0000
+
+qtcreator-plugin-ubuntu (3.0.1+14.04.20140415-0ubuntu1) trusty; urgency=low
+
+  [ Zoltán Balogh ]
+  * Change Ubuntu API link and add link to HTML5 docs (LP: #1303535)
+    (LP: #1303535)
+  * Remove .desktop linking to the ~/.local/share/applications
+  * Replace scripts and share paths even if there is no device (LP:
+    #1307713) (LP: #1307713)
+
+  [ Benjamin Zeller ]
+  * Added missing plugin dependencies. Refresh ADB on startup .
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 15 Apr 2014 08:32:25 +0000
+
+qtcreator-plugin-ubuntu (3.0.1+14.04.20140410.1-0ubuntu1) trusty; urgency=low
+
+  [ Benjamin Zeller ]
+  * Added Toolchains and Kit support to automatically.   detect a
+    available click chroot Added Devicesupport, connected Ubuntu devices
+    are.   automatically registered in QtCreator and can be set   for
+    different kits Added Deploysupport(CMake), the projects contents are
+    uploaded.   automatically using SSH after running make install on a
+    local   directory Added Run and Debugsupport: the command that
+    should be run.   on the device is read from the desktop file in the
+    deployed   directory. This means C++ and QML debugging work as well
+      as QML Profiling Dynamically forward ports, depending on adb
+    forward --list.   output. Adb Server is not restarted by default
+    anymore, only a press.   on the refresh button will trigger the
+    restart. That will fix   problems with failing adb scripts Added
+    local run support for Ubuntu projects .
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 10 Apr 2014 16:54:54 +0000
+
 qtcreator-plugin-ubuntu (3.0.1+14.04.20140408-0ubuntu1) trusty; urgency=low
 
   [ Zoltán Balogh ]
