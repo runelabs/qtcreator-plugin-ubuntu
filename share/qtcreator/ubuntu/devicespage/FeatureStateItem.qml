@@ -11,7 +11,6 @@ ListItem.Standard {
     property alias checkable: switchbox.enabled
 
     onInputChanged: {
-        console.log("INPUT CHANGED !!!!!"+input);
         if(input == States.Available)
             switchbox.checked = true;
         else
@@ -30,8 +29,6 @@ ListItem.Standard {
             checked: input === States.Available
             enabled: checkable
             onCheckedChanged: {
-                console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!Checked changed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
                 if (checked && input == States.NotAvailable) {
                     devicesModel.set(index,inputRole,true);
                     checked = true;
