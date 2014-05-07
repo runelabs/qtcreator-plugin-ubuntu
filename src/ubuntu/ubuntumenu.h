@@ -60,6 +60,7 @@ public slots:
 signals:
     void finished_action(QString);
     void finished_action(const QProcess* process, QString cmd);
+    void requestBuildAndInstallProject (); //triggered from menu.json
     
 protected slots:
     void menuItemTriggered();

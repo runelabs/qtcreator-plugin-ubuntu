@@ -179,6 +179,8 @@ const char UBUNTUPACKAGINGWIDGET_LOCAL_REVIEWER_INSTALLED[] = "Checking installe
 const char UBUNTUPACKAGINGWIDGET_ONFINISHED_LOCAL_NO_EMULATOR_INSTALLED[] = "The package is not installed.";
 const char UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE[] = "Click Reviewers tools against %0";
 const char UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_LINK_DISPLAYTEXT[] = "<a href=\"%0\">%0</a>";
+const char UBUNTUPACKAGINGWIDGET_CLICK_DEPLOY_SCRIPT[] = "%1/qtc_project_click_deploy %2 %3 %4 %5 %6 %7";
+const char UBUNTUPACKAGINGWIDGET_CLICK_DEPLOY_MESSAGE[] = "Installing click package on device";
 const char UBUNTU_CLICK_PACKAGE_MASK[] = "*.click";
 const char UBUNTU_CLICK_PACKAGE_SELECTOR_TEXT[] = "Select click package which you want to test";
 
@@ -270,6 +272,9 @@ const char  UBUNTU_MENUJSON_UBUNTUHTMLPROJECTREQUIRED[] = "ubuntuHtmlProjectRequ
 const char  UBUNTU_MENUJSON_CLICKTARGETREQUIRED[] = "needsClickTarget"; //will ask the user to choose a click target
 const char  UBUNTU_MENUJSON_SAVEREQUIRED[] = "saveRequired";
 const char  UBUNTU_MENUJSON_MESSAGEDIALOG[] = "messageDialog";
+const char  UBUNTU_MENUJSON_METACALL[] = "metacall";
+const char  UBUNTU_MENUJSON_METACALL_ARGS[] = "args";
+const char  UBUNTU_MENUJSON_METACALL_METHOD[] = "method";
 const char  UBUNTU_MENUJSON_CONTEXT[] = "context";
 
 

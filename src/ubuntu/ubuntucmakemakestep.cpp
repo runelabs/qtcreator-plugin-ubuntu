@@ -239,8 +239,11 @@ void UbuntuClickPackageStep::processFinished(int exitCode, QProcess::ExitStatus 
     if( exitCode == 0 && status == QProcess::NormalExit ) {
         QRegularExpression exp(QLatin1String(Constants::UBUNTU_CLICK_SUCCESS_PACKAGE_REGEX));
         QRegularExpressionMatch m = exp.match(m_lastLine);
-        if(m.hasMatch())
+        if(m.hasMatch()) {
             m_clickPackageName = m.captured(1);
+            emit addOutput(tr("The click package has been created in %1").arg(buildConfiguration()->buildDirectory().toString()) ,
+                           ProjectExplorer::BuildStep::MessageOutput);
+        }
     }
 
     ProjectExplorer::AbstractProcessStep::processFinished(exitCode,status);

@@ -109,6 +109,23 @@
                 ]
             },
             {
+                "name": "Install Application on Device",
+                "id": "Ubuntu.Build.PackageInstall",
+                "workingDirectory": "%0/..",
+                "projectRequired": true,
+                "deviceRequired": true,
+                "context": ["CMakeProject.ProjectContext"],
+                "saveRequired": true,
+                "actions": [
+                    {
+                        "metacall": {
+                             "method":"requestBuildAndInstallProject",
+                             "args":[]
+                        }
+                    }
+                ]
+            },
+            {
                 "name": "Build Application on Device",
                 "id": "Ubuntu.Build.Cpp",
                 "workingDirectory": "%0/..",

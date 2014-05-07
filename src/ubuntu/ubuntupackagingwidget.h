@@ -47,6 +47,13 @@ class UbuntuPackagingWidget : public QWidget
     Q_OBJECT
     
 public:
+
+    enum ClickPackageTask {
+        None,    //after the project has packaged do nothing
+        Verify,  //after the project has packaged verify it
+        Install  //after the project has packaged install it on the device
+    };
+
     explicit UbuntuPackagingWidget(QWidget *parent = 0);
     ~UbuntuPackagingWidget();
 
@@ -87,6 +94,7 @@ protected slots:
 
     void checkClickReviewerTool();
     void buildFinished (const bool success);
+    void buildAndInstallPackageRequested ();
 
 signals:
     void reviewToolsInstalledChanged(const bool& installed);
@@ -95,6 +103,7 @@ private slots:
     void on_comboBoxFramework_currentIndexChanged(int index);
 
 private:
+    void buildClickPackage ();
     void clearAdditionalBuildSteps ();
 
 private:
@@ -118,5 +127,6 @@ private:
     //packaging support with buildsteps
     QList<QPointer<ProjectExplorer::BuildStep> > m_additionalPackagingBuildSteps;
     QMetaObject::Connection m_buildManagerConnection;
+    ClickPackageTask m_postPackageTask;
 };
 #endif // UBUNTUPACKAGINGWIDGET_H
