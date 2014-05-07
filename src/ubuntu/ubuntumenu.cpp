@@ -46,6 +46,7 @@
 #include <QMenu>
 #include <QInputDialog>
 #include <QDebug>
+#include <QVariantMap>
 #include <QMessageBox>
 
 #include <QJsonObject>
@@ -143,6 +144,10 @@ void UbuntuMenu::onFinished(QString cmd, int code) {
 void UbuntuMenu::onFinished(const QProcess *programm, QString cmd, int)
 {
     emit finished_action(programm,cmd);
+}
+
+void UbuntuMenu::buildAndInstallCurrentProject()
+{
 }
 
 QString UbuntuMenu::menuPath(QString fileName) {
@@ -383,8 +388,8 @@ void UbuntuMenu::menuItemTriggered() {
                             }
 
                             queryData = QInputDialog::getText(Core::ICore::mainWindow(), queryDialogTitle,
-                                                                     queryDialogMessage, QLineEdit::Normal,
-                                                                     queryDialogValue, &bQueryOk);
+                                                              queryDialogMessage, QLineEdit::Normal,
+                                                              queryDialogValue, &bQueryOk);
 
                             // raise a flag that there is query data available for future actions
                             bQuery = true;
@@ -396,7 +401,7 @@ void UbuntuMenu::menuItemTriggered() {
                                 return;
                             }
                         }
-                    // check if messageDialog
+                        // check if messageDialog
                     } else if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_MESSAGEDIALOG))) {
                         QJsonValue messageDialog = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_MESSAGEDIALOG));
                         if (messageDialog.isObject()) {
@@ -413,10 +418,141 @@ void UbuntuMenu::menuItemTriggered() {
                             }
 
                             QMessageBox::information(Core::ICore::mainWindow(), messageDialogTitle,
-                                                                     messageDialogMessage);
+                                                     messageDialogMessage);
+                        }
+                        //check if metacall
+                    } else if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_METACALL))) {
+                        QJsonValue metaCall = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_METACALL));
+                        if (metaCall.isObject()) {
+                            QJsonObject metaCallObj = metaCall.toObject();
+                            QByteArray methodName;
+                            QList<QGenericArgument> args;
+                            if(!metaCallObj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_METACALL_METHOD))) {
+                                qWarning()<<"Metacall menuitem does not contain a method name";
+                                return;
+                            }
+
+                            methodName = metaCallObj[QLatin1String(Constants::UBUNTU_MENUJSON_METACALL_METHOD)].toString().toLocal8Bit();
+                            if(methodName.isEmpty()){
+                                qWarning()<< "Property method of a metacall menuitem has to be a string and can not be empty";
+                                return;
+                            }
+
+                            //we first need to fill a list of variant values, otherwise we get dangling pointers in QGenericArgument
+                            //because of QVariants getting out of scope
+                            QVariantList varArgs;
+                            if(metaCallObj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_METACALL_ARGS))) {
+                                QJsonArray arr = metaCallObj[QLatin1String(Constants::UBUNTU_MENUJSON_METACALL_ARGS)].toArray();
+                                foreach(const QJsonValue &val,arr) {
+                                    switch(val.type()) {
+                                        case QJsonValue::Undefined:
+                                        case QJsonValue::Null: {
+                                            qWarning()<<"Arguments of a metacall can not be null";
+                                            return;
+                                            break;
+                                        }
+                                        case QJsonValue::Bool:
+                                        case QJsonValue::Double:
+                                        case QJsonValue::String:
+                                        case QJsonValue::Array:
+                                        case QJsonValue::Object: {
+                                            varArgs.append(val.toVariant());
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+
+                            foreach(const QVariant &val,varArgs)
+                                args.append(QGenericArgument(val.typeName(),val.data()));
+
+                            bool ok = false;
+                            int argsCount = args.size();
+                            if (argsCount > 9) {
+                                ok = QMetaObject::invokeMethod(this,methodName.data(),
+                                                              (args.at(0)),
+                                                              (args.at(1)),
+                                                              (args.at(2)),
+                                                              (args.at(3)),
+                                                              (args.at(4)),
+                                                              (args.at(5)),
+                                                              (args.at(6)),
+                                                              (args.at(7)),
+                                                              (args.at(8)),
+                                                              (args.at(9)));
+                            } else if (argsCount > 8) {
+                                ok = QMetaObject::invokeMethod(this,methodName.data(),
+                                                              (args.at(0)),
+                                                              (args.at(1)),
+                                                              (args.at(2)),
+                                                              (args.at(3)),
+                                                              (args.at(4)),
+                                                              (args.at(5)),
+                                                              (args.at(6)),
+                                                              (args.at(7)),
+                                                              (args.at(8)));
+                            } else if (argsCount > 7) {
+                                ok = QMetaObject::invokeMethod(this,methodName.data(),
+                                                              (args.at(0)),
+                                                              (args.at(1)),
+                                                              (args.at(2)),
+                                                              (args.at(3)),
+                                                              (args.at(4)),
+                                                              (args.at(5)),
+                                                              (args.at(6)),
+                                                              (args.at(7)));
+                            } else if (argsCount > 6) {
+                                ok = QMetaObject::invokeMethod(this,methodName.data(),
+                                                              (args.at(0)),
+                                                              (args.at(1)),
+                                                              (args.at(2)),
+                                                              (args.at(3)),
+                                                              (args.at(4)),
+                                                              (args.at(5)),
+                                                              (args.at(6)));
+                            } else if (argsCount > 5) {
+                                ok = QMetaObject::invokeMethod(this,methodName.data(),
+                                                              (args.at(0)),
+                                                              (args.at(1)),
+                                                              (args.at(2)),
+                                                              (args.at(3)),
+                                                              (args.at(4)),
+                                                              (args.at(5)));
+                            } else if (argsCount > 4) {
+                                ok = QMetaObject::invokeMethod(this,methodName.data(),
+                                                              (args.at(0)),
+                                                              (args.at(1)),
+                                                              (args.at(2)),
+                                                              (args.at(3)),
+                                                              (args.at(4)));
+                            } else if (argsCount > 3) {
+                                ok = QMetaObject::invokeMethod(this,methodName.data(),
+                                                              (args.at(0)),
+                                                              (args.at(1)),
+                                                              (args.at(2)),
+                                                              (args.at(3)));
+                            } else if (argsCount > 2) {
+                                ok = QMetaObject::invokeMethod(this,methodName.data(),
+                                                              (args.at(0)),
+                                                              (args.at(1)),
+                                                              (args.at(2)));
+                            } else if (argsCount > 1) {
+                                ok = QMetaObject::invokeMethod(this,methodName.data(),
+                                                              (args.at(0)),
+                                                              (args.at(1)));
+                            } else if (argsCount > 0) {
+                                ok = QMetaObject::invokeMethod(this,methodName.data(),
+                                                              (args.at(0)));
+                            } else {
+                                ok = QMetaObject::invokeMethod(this,methodName.data());
+                            }
+
+                            if(!ok)
+                                qWarning()<<"Invoke of "<<methodName<<" with arguments "<<varArgs<<" failed";
+                            return;
                         }
                     }
-                // check if command
+                    // check if command
                 } else if (value.isString()) {
                     QString command = value.toString();
                     QString workingDirectory;

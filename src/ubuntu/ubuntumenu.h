@@ -68,6 +68,7 @@ protected slots:
     void onError(QString);
     void onFinished(QString cmd, int code);
     void onFinished(const QProcess* programm, QString cmd, int code);
+    void buildAndInstallCurrentProject();
 
 protected:
     typedef QList<QJsonValue> QJsonValueList;

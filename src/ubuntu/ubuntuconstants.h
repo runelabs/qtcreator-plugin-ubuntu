@@ -270,6 +270,9 @@ const char  UBUNTU_MENUJSON_UBUNTUHTMLPROJECTREQUIRED[] = "ubuntuHtmlProjectRequ
 const char  UBUNTU_MENUJSON_CLICKTARGETREQUIRED[] = "needsClickTarget"; //will ask the user to choose a click target
 const char  UBUNTU_MENUJSON_SAVEREQUIRED[] = "saveRequired";
 const char  UBUNTU_MENUJSON_MESSAGEDIALOG[] = "messageDialog";
+const char  UBUNTU_MENUJSON_METACALL[] = "metacall";
+const char  UBUNTU_MENUJSON_METACALL_ARGS[] = "args";
+const char  UBUNTU_MENUJSON_METACALL_METHOD[] = "method";
 const char  UBUNTU_MENUJSON_CONTEXT[] = "context";
 
 
