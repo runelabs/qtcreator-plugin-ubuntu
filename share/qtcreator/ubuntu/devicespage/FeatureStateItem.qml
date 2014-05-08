@@ -20,12 +20,12 @@ ListItem.Standard {
     selected: false
     control: Row {
         ActivityIndicator {
-            visible: input === States.Detecting
+            visible: input === States.Unknown
             running: true
         }
         Switch {
             id: switchbox
-            visible: input !== States.Detecting
+            visible: input !== States.Unknown
             checked: input === States.Available
             enabled: checkable
             onCheckedChanged: {

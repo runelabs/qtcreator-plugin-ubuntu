@@ -118,6 +118,7 @@ public:
 
     enum DeviceDetectionState {
         NotStarted = UbuntuDevice::NotStarted,
+        Booting = UbuntuDevice::WaitForBoot,
         Detecting,
         Done = UbuntuDevice::Done
     };

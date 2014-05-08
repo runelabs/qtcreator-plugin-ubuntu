@@ -1,0 +1,35 @@
+#!/bin/bash
+# Copyright 2014 Canonical Ltd.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; version 2.1.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Author: Zoltán Balogh <zoltan.balogh@canonical.com>
+
+SERIALNUMBER=$1
+
+# Waiting for device on ADB
+
+adb wait-for-device
+
+# The device is accesibale on ADB"
+
+# Start waiting for Unity8"
+
+until pids=$(adb -s ${SERIALNUMBER} shell pidof unity8|egrep -v "^$"); 
+do
+	sleep 0.1;
+done;
+
+echo "Unity8 is up with PID: ${pids}"
+
+set +e
