@@ -116,7 +116,7 @@ void UbuntuDeviceHelper::init()
 void UbuntuDeviceHelper::waitForBoot()
 {
     setProcessState(UbuntuDevice::WaitForBoot);
-    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICEVERSION));
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_WAIT_FOR_BOOT_MESSAGE));
 
     stopProcess();
 
