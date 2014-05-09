@@ -1,3 +1,17 @@
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140509-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * Rename AppArmor tab to Security profile
+
+  [ Benjamin Zeller ]
+  * Implement editor for device displayName, shows on doubleclick
+
+  [ CI bot ]
+  * Integrate the device_wait_for_shell script into the device detection
+    process.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 09 May 2014 11:52:56 +0000
+
 qtcreator-plugin-ubuntu (3.0.1+14.10.20140508-0ubuntu1) utopic; urgency=low
 
   [ Zoltán Balogh ]
