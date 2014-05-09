@@ -64,6 +64,8 @@ bool UbuntuDevicesModel::setData(const QModelIndex &index, const QVariant &value
     switch (role) {
         case Qt::DisplayRole:
         case Qt::EditRole:
+            dev->setDisplayName(value.toString());
+            emit dataChanged(index,index,QVector<int>()<<Qt::DisplayRole<<Qt::EditRole);
             return false;
         case KitListRole:
             return false;

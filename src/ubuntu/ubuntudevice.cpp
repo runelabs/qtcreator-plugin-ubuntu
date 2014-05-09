@@ -119,7 +119,6 @@ void UbuntuDeviceHelper::waitForBoot()
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_WAIT_FOR_BOOT_MESSAGE));
 
     stopProcess();
-
     startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_WAIT_FOR_BOOT_SCRIPT)
                  .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
                  .arg(m_dev->serialNumber()));

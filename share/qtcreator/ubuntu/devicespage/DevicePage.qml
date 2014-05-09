@@ -30,6 +30,68 @@ Page {
                         text: display
                         selected: devicesList.currentIndex == index
                         onClicked: devicesList.currentIndex = index
+                        property alias editor: editor
+
+                        TextField{
+                            id: editor
+                            anchors.fill: parent
+                            visible: false
+
+                            property bool changed: false
+                            Keys.onEscapePressed: {
+                                close();
+                            }
+                            Keys.onTabPressed: {
+                                commit();
+                                devicesList.incrementCurrentIndex();
+                            }
+                            Keys.onReturnPressed: {
+                                commit();
+                            }
+
+                            onActiveFocusChanged: {
+                                if(!activeFocus)
+                                    close();
+                            }
+
+                            onTextChanged: {
+                                changed = true;
+                            }
+
+                            function open (){
+                                visible = true;
+                                forceActiveFocus();
+                                text = display;
+                                changed = false;
+                            }
+
+                            function close (){
+                                changed = false;
+                                visible = false;
+                            }
+
+                            function commit (){
+                                if(changed)
+                                    edit = text;
+                                close();
+                            }
+
+                            InverseMouseArea {
+                                enabled: parent.visible
+                                anchors.fill: parent
+                                topmostItem: true
+                                acceptedButtons: Qt.AllButtons
+                                onPressed: parent.close()
+                            }
+                        }
+
+                        Connections{
+                            target: delegate.__mouseArea
+                            onDoubleClicked: {
+                                editor.open();
+                            }
+                        }
+
                     }
                     onCurrentIndexChanged: deviceMode.deviceSelected(currentIndex)
                 }
