@@ -282,7 +282,7 @@
           </widget>
           <widget class="QWidget" name="tabAppArmor">
            <attribute name="title">
-            <string>AppArmor</string>
+            <string>Security profile</string>
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_21">
             <item>
