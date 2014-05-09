@@ -30,6 +30,68 @@ Page {
                         text: display
                         selected: devicesList.currentIndex == index
                         onClicked: devicesList.currentIndex = index
+                        property alias editor: editor
+
+                        TextField{
+                            id: editor
+                            anchors.fill: parent
+                            visible: false
+
+                            property bool changed: false
+                            Keys.onEscapePressed: {
+                                close();
+                            }
+                            Keys.onTabPressed: {
+                                commit();
+                                devicesList.incrementCurrentIndex();
+                            }
+                            Keys.onReturnPressed: {
+                                commit();
+                            }
+
+                            onActiveFocusChanged: {
+                                if(!activeFocus)
+                                    close();
+                            }
+
+                            onTextChanged: {
+                                changed = true;
+                            }
+
+                            function open (){
+                                visible = true;
+                                forceActiveFocus();
+                                text = display;
+                                changed = false;
+                            }
+
+                            function close (){
+                                changed = false;
+                                visible = false;
+                            }
+
+                            function commit (){
+                                if(changed)
+                                    edit = text;
+                                close();
+                            }
+
+                            InverseMouseArea {
+                                enabled: parent.visible
+                                anchors.fill: parent
+                                topmostItem: true
+                                acceptedButtons: Qt.AllButtons
+                                onPressed: parent.close()
+                            }
+                        }
+
+                        Connections{
+                            target: delegate.__mouseArea
+                            onDoubleClicked: {
+                                editor.open();
+                            }
+                        }
+
                     }
                     onCurrentIndexChanged: deviceMode.deviceSelected(currentIndex)
                 }
@@ -61,6 +123,7 @@ Page {
                 Rectangle{
                     id: deviceItemView
                     property bool deviceBusy: (detectionState != States.Done && detectionState != States.NotStarted)
+                    property bool deviceBooting: detectionState === States.Booting
                     anchors.fill: parent
                     anchors.margins: 12
 
@@ -70,7 +133,7 @@ Page {
                     Controls.TabView {
                         id: pagesTabView
                         anchors.fill: parent
-                        visible: connectionState === States.DeviceReadyToUse || connectionState === States.DeviceConnected
+                        visible: (connectionState === States.DeviceReadyToUse || connectionState === States.DeviceConnected) && !deviceBooting
                         Controls.Tab {
                             title: "Device"
                             DeviceStatusTab{
@@ -92,10 +155,28 @@ Page {
                         }
                     }
                     Label {
-                        visible: !pagesTabView.visible
+                        visible: !pagesTabView.visible && !deviceBooting
                         anchors.centerIn: parent
                         text: "The device is currently not connected"
                         fontSize: "large"
+                    }
+                    Column {
+                        visible: !pagesTabView.visible && deviceBooting
+                        anchors.centerIn: parent
+                        spacing: units.gu(1)
+                        Label {
+                            text: i18n.tr("The device is currently booting.")
+                            fontSize: "large"
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
+                        Label {
+                            text: i18n.tr("If this text is still shown after the device has booted, press the refresh button.")
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
+                        ActivityIndicator {
+                            running: connectionState === States.Booting
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
                     }
                 }
             }

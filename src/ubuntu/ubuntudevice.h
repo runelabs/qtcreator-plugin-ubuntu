@@ -56,6 +56,7 @@ signals:
 
 protected:
     void init   ();
+    void waitForBoot ();
     void detect ();
     void detectOpenSsh();
     void startSshService();
@@ -118,6 +119,7 @@ public:
 
     enum ProcessState {
         NotStarted,
+        WaitForBoot,
         DetectDeviceVersion,
         DetectNetworkConnection,
         CloneNetwork,

@@ -101,7 +101,7 @@ void UbuntuDeviceHelper::init()
                 m_deviceWatcher = new UbuntuDeviceNotifier(this);
 
             m_deviceWatcher->stopMonitoring();
-            m_deviceWatcher->startMonitoring(m_dev->id().toSetting().toString());
+            m_deviceWatcher->startMonitoring(m_dev->serialNumber());
 
             connect(m_deviceWatcher,SIGNAL(deviceConnected()),this,SLOT(deviceConnected()));
             connect(m_deviceWatcher,SIGNAL(deviceDisconnected()),this,SLOT(deviceDisconnected()));
@@ -113,11 +113,27 @@ void UbuntuDeviceHelper::init()
     }
 }
 
+void UbuntuDeviceHelper::waitForBoot()
+{
+    setProcessState(UbuntuDevice::WaitForBoot);
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_WAIT_FOR_BOOT_MESSAGE));
+
+    stopProcess();
+    startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_WAIT_FOR_BOOT_SCRIPT)
+                 .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
+                 .arg(m_dev->serialNumber()));
+}
+
 void UbuntuDeviceHelper::processFinished(const QString &, const int code)
 {
     Q_UNUSED(code)
 
     switch(m_dev->m_processState) {
+        case UbuntuDevice::WaitForBoot: {
+            //for now the script will wait forever until the shell is available
+            detect();
+            break;
+        }
         case UbuntuDevice::DetectDeviceVersion:{
             //seems to do just nothing, devicewidget did not check return code
             //emit a message here
@@ -423,7 +439,7 @@ void UbuntuDeviceHelper::deviceConnected()
 {
     qDebug()<<"Device "<<m_dev->id().toString()<<" connected";
     ProjectExplorer::DeviceManager::instance()->setDeviceState(m_dev->id(),ProjectExplorer::IDevice::DeviceConnected);
-    detect();
+    waitForBoot();
 }
 
 void UbuntuDeviceHelper::deviceDisconnected()
@@ -1016,6 +1032,8 @@ QString UbuntuDevice::detectionStateString( ) const
     switch (m_processState) {
         case NotStarted:
             return tr("");
+        case WaitForBoot:
+            return tr("Waiting for the device to finish booting");
         case DetectDeviceVersion:
             return tr("Detecting device version");
         case DetectNetworkConnection:
