@@ -34,7 +34,7 @@ class UbuntuSecurityPolicyPickerDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit UbuntuSecurityPolicyPickerDialog(QWidget *parent = 0);
+    explicit UbuntuSecurityPolicyPickerDialog(const QString &policyVersion, QWidget *parent = 0);
     ~UbuntuSecurityPolicyPickerDialog();
 
     QStringList selectedPolicyGroups();

@@ -19,12 +19,13 @@
 #include "ubuntusecuritypolicypickerdialog.h"
 #include "ui_ubuntusecuritypolicypickerdialog.h"
 
-UbuntuSecurityPolicyPickerDialog::UbuntuSecurityPolicyPickerDialog(QWidget *parent) :
+UbuntuSecurityPolicyPickerDialog::UbuntuSecurityPolicyPickerDialog(const QString &policyVersion, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::UbuntuSecurityPolicyPickerDialog)
 {
     ui->setupUi(this);
     this->setWindowFlags(this->windowFlags() | Qt::WindowStaysOnTopHint | Qt::Popup);
+    m_model.setPolicyVersion(policyVersion);
     m_model.scanPolicyGroups();
     connect(&m_model,SIGNAL(scanComplete(bool)),this,SLOT(onScanComplete(bool)));
 
@@ -70,7 +71,7 @@ void UbuntuSecurityPolicyPickerDialog::on_pushButtonAdd_clicked() {
 }
 
 void UbuntuSecurityPolicyPickerDialog::onPolicyClicked(QModelIndex idx) {
-    m_info.getInfo(m_model.data(idx,Qt::DisplayRole).toString());
+    m_info.getInfo(m_model.data(idx,Qt::DisplayRole).toString(),m_model.policyVersion());
 }
 
 void UbuntuSecurityPolicyPickerDialog::onInfoChanged(bool ok) {
