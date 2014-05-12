@@ -527,7 +527,7 @@ void UbuntuPackagingWidget::on_listWidget_customContextMenuRequested(QPoint p) {
 }
 
 void UbuntuPackagingWidget::on_pushButton_addpolicy_clicked() {
-    UbuntuSecurityPolicyPickerDialog dialog;
+    UbuntuSecurityPolicyPickerDialog dialog(m_apparmor.policyVersion());
     if (dialog.exec()) {
         ui->listWidget->addItems(dialog.selectedPolicyGroups());
     }

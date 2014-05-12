@@ -91,7 +91,7 @@ function setPolicyGroups($appname,$groups) {
 }
 
 function getPolicyVersion() {
-  return jsonData.policy_version.toString();
+  return jsonData.policy_version.toFixed(1).toString();
 }
 
 function setPolicyVersion($string_version) {

@@ -35,10 +35,9 @@ public:
     bool isLocal() { return m_bLocal; }
 
 public slots:
-    void getInfo(QString);
+    void getInfo(const QString &, const QString &policyVersion);
     void onMessage(QString);
     void onFinished(QString, int);
-    void onError(QString);
 
 signals:
     void infoReady(bool);
@@ -47,6 +46,7 @@ protected:
     UbuntuProcess m_process;
     QString m_replies;
     QString m_policyGroup;
+    QString m_policyVersion;
     bool m_bLocal;
 
 };

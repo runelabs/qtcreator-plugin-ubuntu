@@ -25,16 +25,20 @@ UbuntuPolicyGroupInfo::UbuntuPolicyGroupInfo(QObject *parent) :
 {
     connect(&m_process,SIGNAL(message(QString)),this,SLOT(onMessage(QString)));
     connect(&m_process,SIGNAL(finished(QString,int)),this,SLOT(onFinished(QString,int)));
-    connect(&m_process,SIGNAL(error(QString)),this,SLOT(onError(QString)));
 }
 
-void UbuntuPolicyGroupInfo::getInfo(QString policyGroup) {
-    m_policyGroup = policyGroup;
+void UbuntuPolicyGroupInfo::getInfo(const QString &policyGroup, const QString &policyVersion) {
+    m_policyGroup   = policyGroup;
+    m_policyVersion = policyVersion;
     QStringList cmd;
     if (!isLocal()) {
-        cmd << QString(QLatin1String("adb shell aa-easyprof --show-policy-group -p %0 --policy-vendor=ubuntu --policy-version=1.0")).arg(policyGroup);
+        cmd << QString(QLatin1String("adb shell aa-easyprof --show-policy-group -p %1 --policy-vendor=ubuntu --policy-version=%2"))
+               .arg(policyGroup)
+               .arg(policyVersion);
     } else {
-        cmd << QString(QLatin1String("aa-easyprof --show-policy-group -p %0 --policy-vendor=ubuntu --policy-version=1.0")).arg(policyGroup);
+        cmd << QString(QLatin1String("aa-easyprof --show-policy-group -p %1 --policy-vendor=ubuntu --policy-version=%2"))
+               .arg(policyGroup)
+               .arg(policyVersion);
     }
     m_process.append(cmd);
     m_replies.clear();
@@ -46,15 +50,14 @@ void UbuntuPolicyGroupInfo::onMessage(QString line) {
 }
 
 void UbuntuPolicyGroupInfo::onFinished(QString, int result) {
-    emit infoReady(true);
-}
-
-void UbuntuPolicyGroupInfo::onError(QString) {
-    m_replies.clear();
-    if (!isLocal()) {
+    if(result == 0) {
+        emit infoReady(true);
+        return;
+    } else if (result != 0 && !m_bLocal) {
+        m_replies.clear();
         m_bLocal = true;
-        getInfo(m_policyGroup);
-    } else {
-        emit infoReady(false);
+        getInfo(m_policyGroup,m_policyVersion);
+        return;
     }
+    emit infoReady(false);
 }

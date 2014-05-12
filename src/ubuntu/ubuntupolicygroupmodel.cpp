@@ -22,19 +22,33 @@
 using namespace Ubuntu::Internal;
 
 UbuntuPolicyGroupModel::UbuntuPolicyGroupModel(QObject *parent) :
-    QStringListModel(parent), m_bLocal(false)
+    QStringListModel(parent),
+    m_policyVersion(QStringLiteral("1.1")),
+    m_bLocal(false)
 {
     connect(&m_process,SIGNAL(message(QString)),this,SLOT(onMessage(QString)));
     connect(&m_process,SIGNAL(finished(QString,int)),this,SLOT(onFinished(QString,int)));
-    connect(&m_process,SIGNAL(error(QString)),this,SLOT(onError(QString)));
+}
+
+void UbuntuPolicyGroupModel::setPolicyVersion(const QString &policyVersion)
+{
+    if(!policyVersion.isEmpty())
+        m_policyVersion = policyVersion;
+}
+
+QString UbuntuPolicyGroupModel::policyVersion() const
+{
+    return m_policyVersion;
 }
 
 void UbuntuPolicyGroupModel::scanPolicyGroups() {
     QStringList cmd;
     if (!isLocal()) {
-        cmd << QLatin1String("adb shell aa-easyprof --list-policy-groups --policy-vendor=ubuntu --policy-version=1.0");
+        cmd << QString::fromLatin1("adb shell aa-easyprof --list-policy-groups --policy-vendor=ubuntu --policy-version=%1")
+               .arg(m_policyVersion);
     } else {
-        cmd << QLatin1String("aa-easyprof --list-policy-groups --policy-vendor=ubuntu --policy-version=1.0");
+        cmd << QString::fromLatin1("aa-easyprof --list-policy-groups --policy-vendor=ubuntu --policy-version=%1")
+               .arg(m_policyVersion);
     }
     m_process.append(cmd);
     m_process.start(QLatin1String("Scanning policy groups"));
@@ -45,19 +59,22 @@ void UbuntuPolicyGroupModel::onMessage(QString line) {
 }
 
 void UbuntuPolicyGroupModel::onFinished(QString, int result) {
-    setStringList(m_replies);
-    m_replies.clear();
-    emit scanComplete(true);
-}
-
-
-void UbuntuPolicyGroupModel::onError(QString) {
-    setStringList(m_replies);
-    m_replies.clear();
-    if (!isLocal()) {
+    if (result != 0 && !isLocal()) {
+        //first try on the device failed, fall back to local
         m_bLocal = true;
+        m_replies.clear();
         scanPolicyGroups();
-    } else {
-        emit scanComplete(false);
+        return;
+    } else if ( result == 0) {
+        //we got a result lets show it
+        setStringList(m_replies);
+        m_replies.clear();
+        emit scanComplete(true);
+        return;
     }
+
+    //local and device failed, no result :/
+    setStringList(m_replies);
+    m_replies.clear();
+    emit scanComplete(false);
 }

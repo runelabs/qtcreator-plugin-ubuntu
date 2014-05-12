@@ -33,6 +33,8 @@ class UbuntuPolicyGroupModel : public QStringListModel
 
 public:
     explicit UbuntuPolicyGroupModel(QObject *parent = 0);
+    void setPolicyVersion (const QString &policyVersion);
+    QString policyVersion () const;
     void scanPolicyGroups();
 
     bool isLocal() { return m_bLocal; }
@@ -40,7 +42,6 @@ public:
 public slots:
     void onMessage(QString);
     void onFinished(QString, int);
-    void onError(QString);
 
 signals:
     void scanComplete(bool);
@@ -48,6 +49,7 @@ signals:
 protected:
     UbuntuProcess m_process;
     QStringList m_replies;
+    QString m_policyVersion;
 
     bool m_bLocal;
 };
