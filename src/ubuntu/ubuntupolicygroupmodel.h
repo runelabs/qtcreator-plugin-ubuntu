@@ -40,7 +40,6 @@ public:
 public slots:
     void onMessage(QString);
     void onFinished(QString, int);
-    void onError(QString);
 
 signals:
     void scanComplete(bool);

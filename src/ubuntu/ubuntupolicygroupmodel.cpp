@@ -26,7 +26,6 @@ UbuntuPolicyGroupModel::UbuntuPolicyGroupModel(QObject *parent) :
 {
     connect(&m_process,SIGNAL(message(QString)),this,SLOT(onMessage(QString)));
     connect(&m_process,SIGNAL(finished(QString,int)),this,SLOT(onFinished(QString,int)));
-    connect(&m_process,SIGNAL(error(QString)),this,SLOT(onError(QString)));
 }
 
 void UbuntuPolicyGroupModel::scanPolicyGroups() {
@@ -45,19 +44,21 @@ void UbuntuPolicyGroupModel::onMessage(QString line) {
 }
 
 void UbuntuPolicyGroupModel::onFinished(QString, int result) {
-    setStringList(m_replies);
-    m_replies.clear();
-    emit scanComplete(true);
-}
-
-
-void UbuntuPolicyGroupModel::onError(QString) {
-    setStringList(m_replies);
-    m_replies.clear();
-    if (!isLocal()) {
+    if (result != 0 && !isLocal()) {
+        //first try on the device failed, fall back to local
         m_bLocal = true;
         scanPolicyGroups();
-    } else {
-        emit scanComplete(false);
+        return;
+    } else if ( result == 0) {
+        //we got a result lets show it
+        setStringList(m_replies);
+        m_replies.clear();
+        emit scanComplete(true);
+        return;
     }
+
+    //local and device failed, no result :/
+    setStringList(m_replies);
+    m_replies.clear();
+    emit scanComplete(false);
 }
