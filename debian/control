@@ -38,7 +38,6 @@ Depends: android-tools-adb,
          dh-make,
          qtcreator-plugin-ubuntu-common,
          ubuntu-ui-toolkit-doc,
-         ubuntu-ui-toolkit-examples,
          rsync,
          qtcreator-plugin-cmake,
          qtcreator-plugin-remotelinux,
@@ -47,7 +46,8 @@ Depends: android-tools-adb,
          unity-scope-tool [i386 amd64 armhf],
          ${shlibs:Depends},
          ${misc:Depends},
-Recommends: ubuntu-sdk
+Recommends: ubuntu-sdk,
+            ubuntu-ui-toolkit-examples
 Suggests: click-reviewers-tools
 Description: Ubuntu plugin for Qt Creator IDE
  Qt Creator is a new, lightweight, cross-platform integrated development
