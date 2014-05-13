@@ -1,5 +1,5 @@
 [Desktop Entry]
-Exec=qtcreator %F
+Exec=qtcreator -client %F
 Icon=ubuntu-qtcreator
 Type=Application
 Terminal=false
