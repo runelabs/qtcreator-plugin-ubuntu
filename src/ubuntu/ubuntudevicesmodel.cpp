@@ -16,14 +16,18 @@ namespace Ubuntu {
 namespace Internal {
 
 UbuntuDevicesModel::UbuntuDevicesModel(QObject *parent) :
-    QAbstractListModel(parent)
+    QAbstractListModel(parent),
+    m_cancellable(false),
+    m_state(Idle)
 {
     m_deviceNotifier = new UbuntuDeviceNotifier(this);
     connect(m_deviceNotifier,SIGNAL(deviceConnected(QString)),this,SLOT(deviceConnected(QString)));
 
-    m_adbProcess = new QProcess(this);
-    connect(m_adbProcess,SIGNAL(finished(int)),this,SLOT(refreshFinished(int)));
-    connect(m_adbProcess,SIGNAL(readyRead()),this,SLOT(adbReadyRead()));
+    m_process = new UbuntuProcess(this);
+    connect(m_process,SIGNAL(message(QString)),this,SLOT(onMessage(QString)));
+    connect(m_process,SIGNAL(finished(QString,int)),this,SLOT(processFinished(QString,int)));
+    connect(m_process,SIGNAL(stdOut(QString)),this,SIGNAL(stdOutMessage(QString)));
+    connect(m_process,SIGNAL(error(QString)),this,SIGNAL(stdErrMessage(QString)));
 
 
     ProjectExplorer::KitManager* devMgr = static_cast<ProjectExplorer::KitManager*>(ProjectExplorer::KitManager::instance());
@@ -177,13 +181,15 @@ QVariant UbuntuDevicesModel::data(const QModelIndex &index, int role) const
         case LogRole:
             return m_knownDevices[index.row()]->device()->helper()->log();
         case SerialIdRole:
-            return m_knownDevices[index.row()]->device()->id().toSetting();
+            return m_knownDevices[index.row()]->device()->serialNumber();
         case ModelInfoRole:
             return m_knownDevices[index.row()]->device()->modelInfo();
         case DeviceInfoRole:
             return m_knownDevices[index.row()]->device()->deviceInfo();
         case ProductInfoRole:
             return m_knownDevices[index.row()]->device()->productInfo();
+        case MachineTypeRole:
+            return m_knownDevices[index.row()]->device()->machineType();
         default:
             break;
     }
@@ -210,6 +216,7 @@ QHash<int, QByteArray> UbuntuDevicesModel::roleNames() const
     roles.insert(ModelInfoRole,"modelInfo");
     roles.insert(DeviceInfoRole,"deviceInfo");
     roles.insert(ProductInfoRole,"productInfo");
+    roles.insert(MachineTypeRole,"machineType");
     return roles;
 }
 
@@ -305,23 +312,8 @@ void UbuntuDevicesModel::triggerKitRemove(const int devId, const QVariant &kitid
 
 void UbuntuDevicesModel::refresh()
 {
-    if( m_adbProcess->state() != QProcess::NotRunning ) {
-        //make sure we use a clean QProcess
-        m_adbProcess->disconnect(this);
-        m_adbProcess->kill();
-        m_adbProcess->deleteLater();
-
-        m_adbProcess = new QProcess(this);
-        connect(m_adbProcess,SIGNAL(finished(int)),this,SLOT(refreshFinished(int)));
-        connect(m_adbProcess,SIGNAL(readyRead()),this,SLOT(adbReadyRead()));
-    }
-    bool restartAdb = true;
-    m_adbProcess->setWorkingDirectory(QCoreApplication::applicationDirPath());
-    QStringList args = QStringList() << (restartAdb ? QString::number(1) : QString::number(0));
-    m_adbProcess->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES_SCRIPT)
-                          .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH),args);
-
-    clear();
+    readDevicesFromSettings();
+    checkEmulatorInstalled();
 }
 
 void UbuntuDevicesModel::clear()
@@ -531,73 +523,6 @@ void UbuntuDevicesModel::deviceConnected(const QString &id)
     refresh();
 }
 
-void UbuntuDevicesModel::refreshFinished(int exitCode)
-{
-    readDevicesFromSettings();
-    foreach(UbuntuDevicesItem* item, m_knownDevices)
-        item->device()->helper()->refresh();
-
-    if(exitCode != 0) {
-        return;
-    }
-
-    //read all data from the process
-    adbReadyRead();
-
-    QStringList lines = m_adbReply.trimmed().split(QLatin1String(Constants::LINEFEED));
-    foreach(QString line, lines) {
-        line = line.trimmed();
-
-        if (line.isEmpty()) {
-            continue;
-        }
-
-        QRegularExpression exp(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_ADB_REGEX));
-        QRegularExpressionMatch match = exp.match(line);
-
-        if(match.hasMatch()) {
-            QStringList lineData = match.capturedTexts();
-
-            //The first entry is always the full match
-            //which means in our case its the complete string
-            lineData.takeFirst();
-
-            if (lineData.count() == 2) {
-                QString sSerialNumber = lineData.takeFirst();
-                QString sDeviceInfo = lineData.takeFirst();
-
-                //sometimes the adb server is not started when adb devices is
-                //executed, we just skip those lines
-                if(sSerialNumber == QLatin1String("*"))
-                    continue;
-
-                if(sSerialNumber.isEmpty() || sSerialNumber.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_ADB_NOACCESS))) {
-                    continue;
-                }
-
-                registerNewDevice(sSerialNumber,sDeviceInfo);
-            }
-        }
-    }
-}
-
-void UbuntuDevicesModel::adbReadyRead()
-{
-    QString stderr = QString::fromLocal8Bit(m_adbProcess->readAllStandardError());
-    QString stdout = QString::fromLocal8Bit(m_adbProcess->readAllStandardOutput());
-
-    if(!stderr.trimmed().isEmpty()) {
-        emit stdErrMessage(stderr);
-        m_adbReply.append(stderr);
-    }
-
-    if(!stdout.trimmed().isEmpty()) {
-        emit stdOutMessage(stdout);
-        m_adbReply.append(stdout);
-    }
-    qDebug()<<m_adbReply;
-}
-
 /*!
  * \brief UbuntuDevicesModel::registerNewDevice
  * Registers a new device in the device manager if its not
@@ -621,6 +546,410 @@ void UbuntuDevicesModel::registerNewDevice(const QString &serial, const QString 
 
     dev->setDeviceInfoString(deviceInfo);
     ProjectExplorer::DeviceManager::instance()->addDevice(dev);
+}
+
+bool UbuntuDevicesModel::emulatorInstalled() const
+{
+    return m_emulatorInstalled;
+}
+
+void UbuntuDevicesModel::setEmulatorInstalled(bool arg)
+{
+    if (m_emulatorInstalled != arg) {
+        m_emulatorInstalled = arg;
+        emit emulatorInstalledChanged(arg);
+    }
+}
+
+bool UbuntuDevicesModel::busy() const
+{
+    return m_busy;
+}
+
+void UbuntuDevicesModel::setBusy(bool arg)
+{
+    if (m_busy != arg) {
+        m_busy = arg;
+        emit busyChanged(arg);
+    }
+}
+
+QString UbuntuDevicesModel::state() const
+{
+    switch(m_state) {
+        case CheckEmulatorInstalled: {
+            return tr("Checking if emulator tool is installed");
+            break;
+        }
+        case InstallEmulator: {
+            return tr("Installing emulator tool");
+            break;
+        }
+        case CreateEmulatorImage: {
+            return tr("Creating emulator image");
+            break;
+        }
+        case FindImages: {
+            return tr("Searching for emulator images");
+            break;
+        }
+        case ReadFromSettings:{
+            return tr("Reading settings");
+        }
+        case FindImages:{
+            return tr("Searching for emulator images");
+            break;
+        }
+        case AdbList:{
+            return tr("Querying ADB");
+            break;
+        }
+        default:
+            return QString();
+            break;
+    }
+}
+
+void UbuntuDevicesModel::setState(UbuntuDevicesModel::State newState)
+{
+    if(m_state != newState) {
+        m_state = newState;
+        if(m_state == UbuntuEmulatorModel::Initial || m_state == UbuntuEmulatorModel::Idle)
+            setBusy(false);
+        else
+            setBusy(true);
+
+        emit stateChanged(state());
+    }
+}
+
+bool UbuntuDevicesModel::cancellable() const
+{
+    return m_cancellable;
+}
+
+void UbuntuDevicesModel::setCancellable(bool arg)
+{
+    if (m_cancellable != arg) {
+        m_cancellable = arg;
+        emit cancellableChanged(arg);
+    }
+}
+
+void UbuntuDevicesModel::beginAction(const QString &msg)
+{
+    emit logMessage(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ACTION_BEGIN).arg(msg));
+}
+
+void UbuntuDevicesModel::endAction(const QString &msg)
+{
+    emit logMessage(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ACTION_END).arg(msg));
+}
+
+void UbuntuDevicesModel::checkEmulatorInstalled()
+{
+    setState(CheckEmulatorInstalled);
+    setCancellable(false);
+    m_emulatorInstalled = false;
+
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_EMULATOR_INSTALLED));
+    m_process->stop();
+    QString sEmulatorPackageName = QLatin1String(Ubuntu::Constants::EMULATOR_PACKAGE_NAME);
+    m_process->append(QStringList()
+                      << QString::fromLatin1(Constants::UBUNTUWIDGETS_LOCAL_PACKAGE_INSTALLED_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(sEmulatorPackageName)
+                      << QCoreApplication::applicationDirPath());
+    m_process->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_EMULATOR_INSTALLED));
+
+}
+
+void UbuntuDevicesModel::findEmulatorImages()
+{
+    setState(FindImages);
+    setCancellable(false);
+
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES));
+    m_process->stop();
+    m_process->append(QStringList()
+                      << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
+                      << QCoreApplication::applicationDirPath());
+    m_process->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES));
+}
+
+void UbuntuDevicesModel::installEmulator()
+{
+    if(m_emulatorInstalled)
+        return;
+
+    setState(InstallEmulator);
+    setCancellable(false);
+
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE));
+    QString sEmulatorPackageName = QLatin1String(Ubuntu::Constants::EMULATOR_PACKAGE_NAME);
+    m_process->stop();
+    m_process->append(QStringList()
+                      << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(sEmulatorPackageName)
+                      << QCoreApplication::applicationDirPath());
+    m_process->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE));
+}
+
+void UbuntuDevicesModel::createEmulatorImage(const QString &name)
+{
+    setState(CreateEmulatorImage);
+    setCancellable(true);
+
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
+    m_process->stop();
+    QString strEmulatorName = name;
+    QString strEmulatorPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
+    strEmulatorPath += QDir::separator();
+    strEmulatorPath += QLatin1String(Constants::DEFAULT_EMULATOR_PATH);
+    strEmulatorPath += QDir::separator();
+    m_process->append(QStringList()
+                      << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT)
+                      .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(strEmulatorPath).arg(strEmulatorName)
+                      << QCoreApplication::applicationDirPath());
+    m_process->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
+}
+
+void UbuntuDevicesModel::queryAdb()
+{
+    setState(AdbList);
+    setCancellable(false);
+
+    m_process->stop();
+
+    bool restartAdb = true;
+
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES));
+    m_process->append(QStringList()
+                      << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES_SCRIPT)
+                      .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
+                      .arg(restartAdb ? QString::number(1) : QString::number(0))
+                      << QCoreApplication::applicationDirPath());
+
+    m_process->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES));
+}
+
+void UbuntuDevicesModel::startEmulator(const QString &name)
+{
+    QStringList args = QStringList() << name;
+    QProcess::startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
+                            ,args
+                            ,QCoreApplication::applicationDirPath());
+}
+
+QVariant UbuntuDevicesModel::validateEmulatorName(const QString &name)
+{
+
+    QString error;
+    bool result = Utils::ProjectNameValidatingLineEdit::validateProjectName(name,&error);
+
+    if(result) {
+        foreach(const EmulatorItem &item, m_data){
+            if(item.name == name) {
+                result = false;
+                error  = tr("Emulator name already exists");
+            }
+        }
+    }
+
+    QVariantMap m;
+    m.insert(QStringLiteral("valid"),result);
+    m.insert(QStringLiteral("error"),error);
+    return QVariant::fromValue(m);
+}
+
+void UbuntuDevicesModel::cancel()
+{
+    if (m_cancellable && m_state == CreateEmulatorImage) {
+        m_process->stop();
+    }
+}
+
+void UbuntuDevicesModel::onMessage(const QString &msg)
+{
+    if (msg.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_UNABLE_TO_FETCH))) {
+        setEmulatorInstalled(false);
+    }
+    m_reply.append(msg);
+}
+
+void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
+{
+    State lastState = m_state;
+    setCancellable(false);
+
+    setState(Idle);
+    switch(lastState) {
+        case CheckEmulatorInstalled: {
+            QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
+            foreach(QString line, lines) {
+                line = line.trimmed();
+                if (line.isEmpty()) {
+                    continue;
+                }
+                if (line.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_LOCAL_NO_EMULATOR_INSTALLED))) {
+                    setEmulatorInstalled(false);
+                    queryAdb();
+                } else {
+                    QStringList lineData = line.split(QLatin1String(Constants::SPACE));
+                    QString sEmulatorPackageStatus = lineData.takeFirst();
+                    //QString sEmulatorPackageName = lineData.takeFirst();
+                    //QString sEmulatorPackageVersion = lineData.takeFirst();
+                    if (sEmulatorPackageStatus.startsWith(QLatin1String(Constants::INSTALLED))) {
+                        setEmulatorInstalled(true);
+                        findEmulatorImages();
+                    }
+                }
+            }
+            break;
+        }
+        case InstallEmulator: {
+            QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
+            foreach(QString line, lines) {
+                line = line.trimmed();
+                if (line.isEmpty()) {
+                    continue;
+                }
+                if (line.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_LOCAL_NO_EMULATOR_INSTALLED))) {
+                    setEmulatorInstalled(false);
+                    queryAdb();
+                    break;
+                } else {
+                    QStringList lineData = line.split(QLatin1String(Constants::SPACE));
+                    QString sEmulatorPackageStatus = lineData.takeFirst();
+                    //QString sEmulatorPackageName = lineData.takeFirst();
+                    //QString sEmulatorPackageVersion = lineData.takeFirst();
+                    if (sEmulatorPackageStatus.startsWith(QLatin1String(Constants::INSTALLED))) {
+                        setEmulatorInstalled(true);
+                        findEmulatorImages();
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+        case CreateEmulatorImage: {
+            findEmulatorImages();
+            break;
+        }
+        case FindImages: {
+            QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
+            clear();
+
+
+            QMutableStringListIterator iter(lines);
+            QRegularExpression regexName   (QStringLiteral("^(\\w+)"));
+            QRegularExpression regexUbuntu (QStringLiteral("ubuntu=([0-9]+)"));
+            QRegularExpression regexDevice (QStringLiteral("device=([0-9]+)"));
+            QRegularExpression regexVersion(QStringLiteral("version=([0-9]+)"));
+            while (iter.hasNext()) {
+                QString line = iter.next();
+                if(line.isEmpty()) {
+                    iter.remove();
+                    continue;
+                }
+
+                qDebug()<<"Handling emulator: "<<line;
+                QRegularExpressionMatch mName = regexName.match(line);
+
+                /*
+                QRegularExpressionMatch mUbu  = regexUbuntu.match(line);
+                QRegularExpressionMatch mDev  = regexDevice.match(line);
+                QRegularExpressionMatch mVer  = regexVersion.match(line);
+                */
+
+                if(!mName.hasMatch())
+                    continue;
+
+                //emulators are identified by their image name
+                QString deviceSerial = mName.captured(1);
+
+                if(findDevice(Core::Id::fromSetting(deviceSerial).uniqueIdentifier()) >= 0)
+                    continue;
+
+                Ubuntu::Internal::UbuntuDevice::Ptr dev = Ubuntu::Internal::UbuntuDevice::create(
+                            deviceSerial,
+                            deviceSerial,
+                            ProjectExplorer::IDevice::Emulator,
+                            ProjectExplorer::IDevice::AutoDetected);
+
+
+                /*
+                if(mUbu.hasMatch())
+                    item.ubuntuVersion = mUbu.captured(1);
+                else
+                    item.ubuntuVersion = tr("unknown");
+
+                if(mDev.hasMatch())
+                    item.deviceVersion = mDev.captured(1);
+                else
+                    item.deviceVersion = tr("unknown");
+
+                if(mVer.hasMatch())
+                    item.imageVersion = mVer.captured(1);
+                else
+                    item.imageVersion = tr("unknown");
+
+                items.append(item);
+                */
+
+
+                ProjectExplorer::DeviceManager::instance()->addDevice(dev);
+
+            }
+            queryAdb();
+            break;
+        }
+        case AdbList: {
+            foreach(UbuntuDevicesItem* item, m_knownDevices)
+                item->device()->helper()->refresh();
+
+            if(exitCode != 0) {
+                return;
+            }
+
+            QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
+            foreach(QString line, lines) {
+                line = line.trimmed();
+
+                if (line.isEmpty()) {
+                    continue;
+                }
+
+                QRegularExpression exp(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_ADB_REGEX));
+                QRegularExpressionMatch match = exp.match(line);
+
+                if(match.hasMatch()) {
+                    QStringList lineData = match.capturedTexts();
+
+                    //The first entry is always the full match
+                    //which means in our case its the complete string
+                    lineData.takeFirst();
+
+                    if (lineData.count() == 2) {
+                        QString sSerialNumber = lineData.takeFirst();
+                        QString sDeviceInfo = lineData.takeFirst();
+
+                        //sometimes the adb server is not started when adb devices is
+                        //executed, we just skip those lines
+                        if(sSerialNumber == QLatin1String("*"))
+                            continue;
+
+                        if(sSerialNumber.isEmpty() || sSerialNumber.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_ADB_NOACCESS))) {
+                            continue;
+                        }
+
+                        registerNewDevice(sSerialNumber,sDeviceInfo);
+                    }
+                }
+            }
+            break;
+        }
+        default:
+            break;
+    }
+    m_reply.clear();
 }
 
 /*!

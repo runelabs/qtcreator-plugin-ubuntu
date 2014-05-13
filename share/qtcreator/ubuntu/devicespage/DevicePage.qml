@@ -122,8 +122,8 @@ Page {
                 anchors.fill: parent
                 Rectangle{
                     id: deviceItemView
-                    property bool deviceBusy: (detectionState != States.Done && detectionState != States.NotStarted)
-                    property bool deviceBooting: detectionState === States.Booting
+                    property bool deviceBusy: (detectionState != DeviceDetectionState.Done && detectionState != DeviceDetectionState.NotStarted)
+                    property bool deviceBooting: detectionState === DeviceDetectionState.Booting
                     anchors.fill: parent
                     anchors.margins: 12
 
@@ -133,7 +133,7 @@ Page {
                     Controls.TabView {
                         id: pagesTabView
                         anchors.fill: parent
-                        visible: (connectionState === States.DeviceReadyToUse || connectionState === States.DeviceConnected) && !deviceBooting
+                        visible: (connectionState === DeviceConnectionState.ReadyToUse || connectionState === DeviceConnectionState.Connected) && !deviceBooting
                         Controls.Tab {
                             title: "Device"
                             DeviceStatusTab{
@@ -174,7 +174,7 @@ Page {
                             anchors.horizontalCenter: parent.horizontalCenter
                         }
                         ActivityIndicator {
-                            running: connectionState === States.Booting
+                            running: connectionState === DeviceDetectionState.Booting
                             anchors.horizontalCenter: parent.horizontalCenter
                         }
                     }

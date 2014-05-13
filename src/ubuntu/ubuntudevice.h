@@ -169,6 +169,7 @@ public:
     QString modelInfo() const;
     QString deviceInfo() const;
     QString productInfo() const;
+    QString imageName() const;
 
     FeatureState developerModeEnabled () const;
     FeatureState hasNetworkConnection () const;
@@ -203,9 +204,11 @@ private:
     FeatureState    m_hasWriteableImage;
     FeatureState    m_hasDeveloperTools;
     ProcessState    m_processState;
-    QString         m_modelInfo;
     QString         m_deviceInfo;
+    QString         m_modelInfo;
     QString         m_productInfo;
+    QString         m_imageName;
+    QString         m_architecture;
     Utils::PortList m_localForwardedPorts;
 
 private:

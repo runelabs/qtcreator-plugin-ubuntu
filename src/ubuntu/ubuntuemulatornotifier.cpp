@@ -29,7 +29,9 @@ namespace Internal {
  */
 
 UbuntuEmulatorNotifier::UbuntuEmulatorNotifier(QObject *parent) :
-    IUbuntuDeviceNotifier(parent)
+    IUbuntuDeviceNotifier(parent),
+    m_currentOperation(None),
+    m_currentState(Disconnected)
 {
     m_pollTimout  = new QTimer(this);
     m_pollProcess = new QProcess(this);
@@ -39,9 +41,9 @@ UbuntuEmulatorNotifier::UbuntuEmulatorNotifier(QObject *parent) :
     connect(m_pollProcess,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(pollProcessFinished(int,QProcess::ExitStatus)));
 }
 
-void UbuntuEmulatorNotifier::startMonitoring(const QString &serialNumber)
+void UbuntuEmulatorNotifier::startMonitoring(const QString &imageName)
 {
-    m_serial = serialNumber;
+    m_imageName = imageName;
     m_pollTimout->setInterval(5000);
     m_pollTimout->start();
 }
@@ -54,17 +56,22 @@ void UbuntuEmulatorNotifier::stopMonitoring()
 
 bool UbuntuEmulatorNotifier::isConnected() const
 {
-    return (m_lastState == QLatin1String("device"));
+    return m_connected;
 }
 
 void UbuntuEmulatorNotifier::pollTimeout()
 {
     m_buffer.clear();
-    m_pollProcess->start(QLatin1String("adb"),
-                         QStringList()
+
+    if (m_currentState == Disconnected) {
+
+    } else {
+        m_pollProcess->start(QLatin1String("adb"),
+                             QStringList()
                              <<QLatin1String("-s")
-                             <<m_serial
+                             <<m_imageName
                              <<QLatin1String("get-state"));
+    }
 }
 
 void UbuntuEmulatorNotifier::pollProcessReadyRead()
@@ -75,22 +82,26 @@ void UbuntuEmulatorNotifier::pollProcessReadyRead()
 void UbuntuEmulatorNotifier::pollProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     if (exitCode == 0 && exitStatus == QProcess::NormalExit) {
-        QString str = QString::fromLocal8Bit(m_buffer.data());
 
-        QRegularExpression expr(QLatin1String("(device|unknown|offline|bootloader)"));
-        QRegularExpressionMatch match = expr.match(str);
-        if(match.hasMatch()) {
-            bool wasConnected = isConnected();
-            QString newState = match.captured(1);
-            if(newState != m_lastState) {
-                m_lastState = newState;
-                if(isConnected() && !wasConnected)
-                    emit deviceConnected();
-                else if(!isConnected() && wasConnected)
-                    emit deviceDisconnected();
+        if (m_currentState == Connected) {
+            QString str = QString::fromLocal8Bit(m_buffer.data());
+
+            QRegularExpression expr(QLatin1String("(device|unknown|offline|bootloader)"));
+            QRegularExpressionMatch match = expr.match(str);
+            if(match.hasMatch()) {
+                bool wasConnected = isConnected();
+                QString newState = match.captured(1);
+                if(newState != m_currentState) {
+                    m_currentState = newState;
+                    if(isConnected() && !wasConnected)
+                        emit deviceConnected();
+                    else if(!isConnected() && wasConnected)
+                        emit deviceDisconnected();
+                }
             }
-        }
+        } else {
 
+        }
     }
 }
 
