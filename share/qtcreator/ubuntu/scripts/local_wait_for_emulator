@@ -17,11 +17,12 @@
 
 set -e
 
+SCRIPTPATH=`dirname $0`
 EMULATOR_NAME=$1
 
 # wait for the emulator process to come up
 
-until pid=$(ps -ef|grep "${EMULATOR_NAME=}/sdcard.img"|grep -v grep|awk '{print $2}'|egrep -v "^$"); 
+until pid=$(${SCRIPTPATH}/local_emulator_pid ${EMULATOR_NAME}); 
 do
         sleep 0.1;
 done;

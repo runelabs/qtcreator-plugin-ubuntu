@@ -6,11 +6,16 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
+#include <utils/projectnamevalidatinglineedit.h>
 
 #include <QCoreApplication>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 #include <QVariant>
+#include <QMutableStringListIterator>
+#include <QStandardPaths>
+#include <QDir>
+#include <QMessageBox>
 
 namespace Ubuntu {
 namespace Internal {
@@ -18,7 +23,7 @@ namespace Internal {
 UbuntuDevicesModel::UbuntuDevicesModel(QObject *parent) :
     QAbstractListModel(parent),
     m_cancellable(false),
-    m_state(Idle)
+    m_state(Initial)
 {
     m_deviceNotifier = new UbuntuDeviceNotifier(this);
     connect(m_deviceNotifier,SIGNAL(deviceConnected(QString)),this,SLOT(deviceConnected(QString)));
@@ -176,8 +181,6 @@ QVariant UbuntuDevicesModel::data(const QModelIndex &index, int role) const
             return m_knownDevices[index.row()]->device()->hasWriteableImage();
         case DeveloperToolsRole:
             return m_knownDevices[index.row()]->device()->hasDeveloperTools();
-        case EmulatorRole:
-            return false;
         case LogRole:
             return m_knownDevices[index.row()]->device()->helper()->log();
         case SerialIdRole:
@@ -190,6 +193,8 @@ QVariant UbuntuDevicesModel::data(const QModelIndex &index, int role) const
             return m_knownDevices[index.row()]->device()->productInfo();
         case MachineTypeRole:
             return m_knownDevices[index.row()]->device()->machineType();
+        case EmulatorImageRole:
+            return m_knownDevices[index.row()]->device()->imageName();
         default:
             break;
     }
@@ -210,13 +215,13 @@ QHash<int, QByteArray> UbuntuDevicesModel::roleNames() const
     roles.insert(NetworkConnectionRole,"hasNetworkConnection");
     roles.insert(WriteableImageRole,"hasWriteableImage");
     roles.insert(DeveloperToolsRole,"hasDeveloperTools");
-    roles.insert(EmulatorRole,"isEmulator");
     roles.insert(LogRole,"deviceLog");
     roles.insert(SerialIdRole,"serial");
     roles.insert(ModelInfoRole,"modelInfo");
     roles.insert(DeviceInfoRole,"deviceInfo");
     roles.insert(ProductInfoRole,"productInfo");
     roles.insert(MachineTypeRole,"machineType");
+    roles.insert(EmulatorImageRole,"emulatorImageName");
     return roles;
 }
 
@@ -308,6 +313,14 @@ void UbuntuDevicesModel::triggerKitRemove(const int devId, const QVariant &kitid
         //completely delete the kit
         ProjectExplorer::KitManager::deregisterKit(k);
     }
+}
+
+void UbuntuDevicesModel::triggerRedetect(const int devId)
+{
+    int row = findDevice(devId);
+    if(row < 0)
+        return;
+    m_knownDevices[row]->device()->helper()->refresh();
 }
 
 void UbuntuDevicesModel::refresh()
@@ -406,9 +419,9 @@ void UbuntuDevicesModel::readDevicesFromSettings()
     m_knownDevices = devs;
     endInsertRows();
 
-    connect(devMgr,SIGNAL(deviceAdded(Core::Id)),this,SLOT(deviceAdded(Core::Id)));
-    connect(devMgr,SIGNAL(deviceRemoved(Core::Id)),this,SLOT(deviceRemoved(Core::Id)));
-    connect(devMgr,SIGNAL(deviceUpdated(Core::Id)),this,SLOT(deviceUpdated(Core::Id)));
+    connect(devMgr,SIGNAL(deviceAdded(Core::Id)),this,SLOT(deviceAdded(Core::Id)),Qt::UniqueConnection);
+    connect(devMgr,SIGNAL(deviceRemoved(Core::Id)),this,SLOT(deviceRemoved(Core::Id)),Qt::UniqueConnection);
+    connect(devMgr,SIGNAL(deviceUpdated(Core::Id)),this,SLOT(deviceUpdated(Core::Id)),Qt::UniqueConnection);
 }
 
 void UbuntuDevicesModel::detectionStateChanged()
@@ -536,13 +549,11 @@ void UbuntuDevicesModel::registerNewDevice(const QString &serial, const QString 
     if(findDevice(Core::Id::fromSetting(serial).uniqueIdentifier()) >= 0)
         return;
 
-    bool isEmu = serial.startsWith(QLatin1String("emulator"));
-
     Ubuntu::Internal::UbuntuDevice::Ptr dev = Ubuntu::Internal::UbuntuDevice::create(
                 tr("Ubuntu Device")
                 , serial
-                , isEmu ? ProjectExplorer::IDevice::Emulator : ProjectExplorer::IDevice::Hardware
-                          , ProjectExplorer::IDevice::AutoDetected);
+                , ProjectExplorer::IDevice::Hardware
+                , ProjectExplorer::IDevice::AutoDetected);
 
     dev->setDeviceInfoString(deviceInfo);
     ProjectExplorer::DeviceManager::instance()->addDevice(dev);
@@ -589,10 +600,6 @@ QString UbuntuDevicesModel::state() const
             return tr("Creating emulator image");
             break;
         }
-        case FindImages: {
-            return tr("Searching for emulator images");
-            break;
-        }
         case ReadFromSettings:{
             return tr("Reading settings");
         }
@@ -614,7 +621,7 @@ void UbuntuDevicesModel::setState(UbuntuDevicesModel::State newState)
 {
     if(m_state != newState) {
         m_state = newState;
-        if(m_state == UbuntuEmulatorModel::Initial || m_state == UbuntuEmulatorModel::Idle)
+        if(m_state == UbuntuDevicesModel::Initial || m_state == UbuntuDevicesModel::Idle)
             setBusy(false);
         else
             setBusy(true);
@@ -732,23 +739,69 @@ void UbuntuDevicesModel::queryAdb()
 
 void UbuntuDevicesModel::startEmulator(const QString &name)
 {
+    int idx = findDevice(Core::Id::fromSetting(name).uniqueIdentifier());
+    if(idx < 0)
+        return;
+
     QStringList args = QStringList() << name;
-    QProcess::startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
+    if(QProcess::startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
                             ,args
-                            ,QCoreApplication::applicationDirPath());
+                            ,QCoreApplication::applicationDirPath())) {
+
+        //trigger the device detection
+        m_knownDevices[idx]->device()->helper()->refresh();
+    }
+}
+
+void UbuntuDevicesModel::stopEmulator(const QString &name)
+{
+    int idx = findDevice(Core::Id::fromSetting(name).uniqueIdentifier());
+    if(idx < 0)
+        return;
+
+    QStringList args = QStringList() << name;
+    if(QProcess::startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_STOP_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
+                            ,args
+                            ,QCoreApplication::applicationDirPath())) {
+    }
+}
+
+void UbuntuDevicesModel::deleteEmulator(const QString &name)
+{
+    int index = findDevice(Core::Id::fromSetting(name).uniqueIdentifier());
+    if(index < 0)
+        return;
+
+    QStringList args = QStringList() << name;
+    QProcess proc;
+    proc.setWorkingDirectory(QCoreApplication::applicationDirPath());
+    proc.setProcessChannelMode(QProcess::MergedChannels);
+    proc.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_DELETE_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH),
+               args);
+    proc.waitForFinished();
+
+    if(proc.exitCode() == 0)
+        ProjectExplorer::DeviceManager::instance()->removeDevice(m_knownDevices[index]->device()->id());
+    else {
+        emit logMessage(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONERROR).arg(QLatin1String(proc.readAll())));
+        QMessageBox::critical(0,tr("Could not delete emulator"),tr("The emulator %1 could not be deleted because of a error, check the logs for details").arg(name));
+    }
+
 }
 
 QVariant UbuntuDevicesModel::validateEmulatorName(const QString &name)
 {
-
     QString error;
     bool result = Utils::ProjectNameValidatingLineEdit::validateProjectName(name,&error);
 
     if(result) {
-        foreach(const EmulatorItem &item, m_data){
-            if(item.name == name) {
-                result = false;
-                error  = tr("Emulator name already exists");
+        foreach (UbuntuDevicesItem *item, m_knownDevices) {
+            if (item->device()->machineType() == ProjectExplorer::IDevice::Emulator) {
+                if(item->device()->imageName() == name) {
+                    result = false;
+                    error  = tr("Emulator name already exists");
+                    break;
+                }
             }
         }
     }
@@ -835,8 +888,12 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
         }
         case FindImages: {
             QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
-            clear();
 
+            QSet<int> notFoundImages;
+            foreach(UbuntuDevicesItem *item, m_knownDevices) {
+                if(item->device()->machineType() == ProjectExplorer::IDevice::Emulator)
+                    notFoundImages.insert(item->device()->id().uniqueIdentifier());
+            }
 
             QMutableStringListIterator iter(lines);
             QRegularExpression regexName   (QStringLiteral("^(\\w+)"));
@@ -852,12 +909,10 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
 
                 qDebug()<<"Handling emulator: "<<line;
                 QRegularExpressionMatch mName = regexName.match(line);
-
-                /*
                 QRegularExpressionMatch mUbu  = regexUbuntu.match(line);
                 QRegularExpressionMatch mDev  = regexDevice.match(line);
                 QRegularExpressionMatch mVer  = regexVersion.match(line);
-                */
+
 
                 if(!mName.hasMatch())
                     continue;
@@ -865,8 +920,28 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
                 //emulators are identified by their image name
                 QString deviceSerial = mName.captured(1);
 
-                if(findDevice(Core::Id::fromSetting(deviceSerial).uniqueIdentifier()) >= 0)
+                Core::Id devId = Core::Id::fromSetting(deviceSerial);
+                notFoundImages.remove(devId.uniqueIdentifier());
+
+                if(findDevice(devId.uniqueIdentifier()) >= 0)
                     continue;
+
+                QString devInfo = QStringLiteral("%1-%2-%3");
+
+                if(mUbu.hasMatch())
+                    devInfo = devInfo.arg(mUbu.captured(1));
+                else
+                    devInfo = devInfo.arg(tr("unknown"));
+
+                if(mDev.hasMatch())
+                    devInfo = devInfo.arg(mDev.captured(1));
+                else
+                    devInfo = devInfo.arg(tr("unknown"));
+
+                if(mVer.hasMatch())
+                    devInfo = devInfo.arg(mVer.captured(1));
+                else
+                    devInfo = devInfo.arg(tr("unknown"));
 
                 Ubuntu::Internal::UbuntuDevice::Ptr dev = Ubuntu::Internal::UbuntuDevice::create(
                             deviceSerial,
@@ -874,30 +949,14 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
                             ProjectExplorer::IDevice::Emulator,
                             ProjectExplorer::IDevice::AutoDetected);
 
-
-                /*
-                if(mUbu.hasMatch())
-                    item.ubuntuVersion = mUbu.captured(1);
-                else
-                    item.ubuntuVersion = tr("unknown");
-
-                if(mDev.hasMatch())
-                    item.deviceVersion = mDev.captured(1);
-                else
-                    item.deviceVersion = tr("unknown");
-
-                if(mVer.hasMatch())
-                    item.imageVersion = mVer.captured(1);
-                else
-                    item.imageVersion = tr("unknown");
-
-                items.append(item);
-                */
-
-
                 ProjectExplorer::DeviceManager::instance()->addDevice(dev);
-
             }
+
+            //remove all ubuntu emulators that are in the settings but don't exist in the system
+            foreach(int curr,notFoundImages) {
+                ProjectExplorer::DeviceManager::instance()->removeDevice(Core::Id(curr));
+            }
+
             queryAdb();
             break;
         }

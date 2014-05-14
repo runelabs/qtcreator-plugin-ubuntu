@@ -30,17 +30,6 @@ class UbuntuEmulatorNotifier : public IUbuntuDeviceNotifier
 {
     Q_OBJECT
 
-    enum Operation {
-        None,
-        QueryByImage,
-        QueryById
-    };
-
-    enum State {
-        Disconnected,
-        Connected
-    };
-
 public:
     explicit UbuntuEmulatorNotifier(QObject *parent = 0);
 
@@ -56,11 +45,10 @@ private slots:
 
 private:
     QByteArray m_buffer;
-    State      m_lastState;
     QString    m_imageName;
     QTimer    *m_pollTimout;
     QProcess  *m_pollProcess;
-    Operation  m_currentOperation;
+    bool       m_connected;
 
 };
 

@@ -13,18 +13,18 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Author: Zoltán Balogh <zoltan.balogh@canonical.com>
+# Author: Benjamin Zeller <benjamin.zeller@canonical.com>
 
 SCRIPTPATH=`dirname $0`
 EMULATOR=$1
 
 PID=$(${SCRIPTPATH}/local_emulator_pid ${EMULATOR})
-if [ ! -z "${PID}" ]
+if [ -z "${PID}" ]
 then
-  echo "Emulator already running with pid ${PID}"
+  echo "Emulator ${EMULATOR} is not running"
   exit 1
 fi
 
-set -e
-ubuntu-emulator run ${EMULATOR} &
-set +e
+kill -SIGTERM ${PID}
+
+

@@ -56,6 +56,7 @@ signals:
 
 protected:
     void init   ();
+    void waitForEmulatorStart();
     void waitForBoot ();
     void detect ();
     void detectOpenSsh();
@@ -83,8 +84,10 @@ protected slots:
     void onProcessReadyRead ();
     void onProcessFinished  (const int code);
     void onProcessError     (const QProcess::ProcessError error);
+    void onProcessStateChanged (QProcess::ProcessState newState);
     void onMessage(const QString &msg);
     void onError(const QString &error);
+    void onStdOut(const QString &stdout);
     void processFinished (const QString&, const int code);
     void deviceConnected ();
     void deviceDisconnected ();
@@ -99,6 +102,7 @@ private:
     QString m_log;
     QString m_reply;
     int     m_clonedNwCount;
+    int     m_errorCount;
     UbuntuDevice  *m_dev;
     QProcess *m_process;
     IUbuntuDeviceNotifier *m_deviceWatcher;
@@ -119,6 +123,7 @@ public:
 
     enum ProcessState {
         NotStarted,
+        WaitForEmulatorStart,
         WaitForBoot,
         DetectDeviceVersion,
         DetectNetworkConnection,
@@ -137,7 +142,9 @@ public:
         DisableRWImage,
         InstallDevTools,
         RemoveDevTools,
-        Done
+        Done,
+        Failed,
+        MaxState = Failed
     };
 
     typedef QSharedPointer<UbuntuDevice> Ptr;
@@ -207,8 +214,8 @@ private:
     QString         m_deviceInfo;
     QString         m_modelInfo;
     QString         m_productInfo;
-    QString         m_imageName;
     QString         m_architecture;
+    QString         m_emulatorSerial;
     Utils::PortList m_localForwardedPorts;
 
 private:

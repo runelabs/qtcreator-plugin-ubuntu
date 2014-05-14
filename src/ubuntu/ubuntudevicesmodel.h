@@ -34,16 +34,17 @@ public:
         NetworkConnectionRole,
         WriteableImageRole,
         DeveloperToolsRole,
-        EmulatorRole,
         LogRole,
         SerialIdRole,
         ModelInfoRole,
         DeviceInfoRole,
         ProductInfoRole,
-        MachineTypeRole
+        MachineTypeRole,
+        EmulatorImageRole
     };
 
     enum State {
+        Initial,
         CheckEmulatorInstalled,
         InstallEmulator,
         CreateEmulatorImage,
@@ -98,7 +99,10 @@ public slots:
     void triggerShutdown        ( const int devId );
     void triggerKitAutocreate   ( const int devId );
     void triggerKitRemove       (const int devId, const QVariant &kitid );
+    void triggerRedetect        ( const int devId );
     void startEmulator          (const QString &name);
+    void stopEmulator           (const QString &name);
+    void deleteEmulator         (const QString &name);
     QVariant validateEmulatorName(const QString &name);
     void refresh                ();
     void cancel();
@@ -166,9 +170,11 @@ class UbuntuQmlDeviceDetectionState : public QObject
 public:
     enum DeviceDetectionState {
         NotStarted = UbuntuDevice::NotStarted,
+        WaitForEmulator = UbuntuDevice::WaitForEmulatorStart,
         Booting = UbuntuDevice::WaitForBoot,
         Detecting,
-        Done = UbuntuDevice::Done
+        Done = UbuntuDevice::Done,
+        Error = UbuntuDevice::Failed
     };
     Q_ENUMS(DeviceDetectionState)
 };

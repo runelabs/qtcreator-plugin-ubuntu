@@ -15,7 +15,7 @@ Dialog {
         onTextChanged: validate()
         Component.onCompleted: validate()
         function validate() {
-            var result = emulatorModel.validateEmulatorName(text);
+            var result = devicesModel.validateEmulatorName(text);
             hasError   = !result.valid;
             lastError  = result.error;
         }
@@ -38,7 +38,7 @@ Dialog {
         onClicked: {
             if(inputName.hasError)
                 return;
-            emulatorModel.createEmulatorImage(inputName.text);
+            devicesModel.createEmulatorImage(inputName.text);
             PopupUtils.close(dialogue);
         }
     }

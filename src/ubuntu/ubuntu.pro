@@ -48,7 +48,9 @@ OTHER_FILES += \
     manifest.json.template \
     myapp.json.template \
     manifestlib.js \
-    $$QML_FILES
+    $$QML_FILES \
+    ../../share/qtcreator/ubuntu/devicespage/DeviceEmulatorTab.qml \
+    ../../share/qtcreator/ubuntu/devicespage/DeleteEmulatorDialog.qml
 
 SOURCES += \
     ubuntuplugin.cpp \
