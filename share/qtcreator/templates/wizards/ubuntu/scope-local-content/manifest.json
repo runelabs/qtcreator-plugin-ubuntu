@@ -1,0 +1,9 @@
+{
+  "description": "A simple Unity scope that accesses local content",
+  "hooks": {
+    "myapp": {
+      "scope": "myapp",
+      "apparmor": "myapp.json"
+    }
+  }
+}
