@@ -1,3 +1,19 @@
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140515-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * Open file in existing qtcreator instance (LP: #1172844) (LP:
+    #1172844)
+
+  [ Benjamin Zeller ]
+  * Merge the emulator and device page. Add control facilites for
+    emulators. emulator control scripts .
+
+  [ CI bot ]
+  * Add a script to wait for the started emulator and return the serial
+    number
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 15 May 2014 15:36:50 +0000
+
 qtcreator-plugin-ubuntu (3.0.1+14.10.20140512.1-0ubuntu1) utopic; urgency=low
 
   [ Zoltán Balogh ]
