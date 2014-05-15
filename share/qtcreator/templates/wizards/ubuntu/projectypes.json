@@ -163,7 +163,7 @@
     },
     {
        "type": "cmake",
-       "folder": "scope",
+       "folder": "scope-network",
        "displayName": "Unity Scope (With network access)",
        "id": "UbuntuUnityScope",
        "description": "A simple C++ based Unity Scope with network access",
