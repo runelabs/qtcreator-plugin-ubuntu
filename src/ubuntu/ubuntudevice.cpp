@@ -894,6 +894,9 @@ UbuntuDevice::UbuntuDevice(const UbuntuDevice &other)
     , m_deviceInfo(other.m_deviceInfo)
     , m_modelInfo(other.m_modelInfo)
     , m_productInfo(other.m_productInfo)
+    , m_ubuntuVersion(other.m_ubuntuVersion)
+    , m_deviceVersion(other.m_deviceVersion)
+    , m_imageVersion(other.m_imageVersion)
 {
     setDeviceState(ProjectExplorer::IDevice::DeviceDisconnected);
     m_helper->init();

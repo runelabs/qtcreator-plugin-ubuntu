@@ -966,6 +966,7 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
                 if(mVer.hasMatch())
                     imageVer = mVer.captured(1);
 
+                bool addToManager = false;
                 Ubuntu::Internal::UbuntuDevice::Ptr dev;
                 Core::Id devId = Core::Id::fromSetting(deviceSerial);
                 int index = findDevice(devId.uniqueIdentifier());
@@ -980,11 +981,15 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
                                 ProjectExplorer::IDevice::Emulator,
                                 ProjectExplorer::IDevice::AutoDetected);
 
-                    ProjectExplorer::DeviceManager::instance()->addDevice(dev);
+                    addToManager = true;
                 }
 
-                if(dev)
+                if(dev) {
                     dev->setEmulatorInfo(ubuntuVer,deviceVer,imageVer);
+
+                    if(addToManager)
+                        ProjectExplorer::DeviceManager::instance()->addDevice(dev);
+                }
             }
 
             //remove all ubuntu emulators that are in the settings but don't exist in the system
