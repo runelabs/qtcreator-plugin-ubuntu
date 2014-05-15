@@ -7,6 +7,14 @@
 
 using namespace Ubuntu::Internal;
 
+#define VERIFY_ITEM(item,itemType,itemText,itemIcon,cCount) \
+    do { \
+    QCOMPARE(item->type,itemType); \
+    QCOMPARE(item->text,itemText); \
+    QCOMPARE(item->icon,itemIcon); \
+    QCOMPARE(item->children.size(),cCount); \
+    }while(0)
+
 tst_Validation::tst_Validation() :
     m_parser(0) ,
     m_loop(new QEventLoop(this))
@@ -31,16 +39,16 @@ void tst_Validation::testSimpleSectionParse()
     parser.beginRecieveData(in.readAll());
 
     //until now no item can be available because we have only one section
-    //and the parser always waits for end, or begin of the next section
+    //and the parser always waits for end of the document, or begin of the next section
     QVERIFY(items.isEmpty());
 
     parser.endRecieveData();
 
     QVERIFY(items.length() == 1);
-    QCOMPARE(items[0]->type,QStringLiteral("click-check-functional"));
-    QCOMPARE(items[0]->text,QStringLiteral("No description"));
-    QCOMPARE(items[0]->icon,ClickRunChecksParser::Check);
-    QCOMPARE(items[0]->children.size(),3);
+    VERIFY_ITEM(items[0],QString("click-check-functional"),QString("No description"),ClickRunChecksParser::Check,3);
+    VERIFY_ITEM(items[0]->children[0],QString("test1"),QString("OK"),ClickRunChecksParser::Check,0);
+    VERIFY_ITEM(items[0]->children[1],QString("test2"),QString("OK"),ClickRunChecksParser::Check,0);
+    VERIFY_ITEM(items[0]->children[2],QString("test3"),QString("OK"),ClickRunChecksParser::Check,0);
 
     qDeleteAll(items.begin(),items.end());
 }

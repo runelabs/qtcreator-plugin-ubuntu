@@ -2,13 +2,13 @@
 {
   "error": {},
   "info": {
-    "functional_qml_applicationName_matches_manifest": {
+    "test1": {
       "text": "OK"
     },
-    "functional_qml_application_uses_QtWebKit": {
+    "test2": {
       "text": "OK"
     },
-    "functional_qml_application_uses_UbuntuWebView_0.2": {
+    "test3": {
       "text": "OK"
     }
   },
