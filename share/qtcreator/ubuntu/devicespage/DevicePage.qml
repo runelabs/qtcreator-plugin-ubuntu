@@ -181,7 +181,7 @@ Page {
                                 text: i18n.tr("Run Emulator")
                                 tooltip: text
                                 iconSource: "qrc:/projectexplorer/images/run.png"
-                                onClicked: devicesModel.startEmulator(emulatorImageName)
+                                onClicked: devicesModel.startEmulator(emulatorImageName,emuSettings.memory)
                                 visible: connectionState === DeviceConnectionState.Disconnected
                             }
                             Controls.ToolButton {
@@ -218,10 +218,18 @@ Page {
                         }
                     }
                     Label {
-                        visible: !deviceConnected && !deviceBooting && !detectionError
+                        visible: !deviceConnected && !deviceBooting && !detectionError && (machineType !== DeviceMachineType.Emulator)
                         anchors.centerIn: parent
                         text: "The device is currently not connected"
                         fontSize: "large"
+                    }
+                    DeviceEmulatorTab {
+                        id: emuSettings
+                        visible: !deviceConnected && !deviceBooting && !detectionError && (machineType === DeviceMachineType.Emulator)
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.top: emulatorToolBar.bottom
+                        anchors.bottom: parent.bottom
                     }
                     Column {
                         visible: deviceBooting && !detectionError

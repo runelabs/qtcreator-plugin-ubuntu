@@ -44,9 +44,6 @@ enum {
 
 const QLatin1String DEVICE_SETTINGS_VERSION("UbuntuDevice.Version");
 const QLatin1String DEVICE_INFO_KEY("UbuntuDevice.InfoString");
-const QLatin1String DEVICE_PRODUCT_INFO_KEY("UbuntuDevice.Product.InfoString");
-const QLatin1String DEVICE_MODEL_INFO_KEY("UbuntuDevice.Model.InfoString");
-const QLatin1String DEVICE_DEVICE_INFO_KEY("UbuntuDevice.Device.InfoString");
 const QLatin1String DEVICE_SERIAL_ARCHITECTURE("UbuntuDevice.Arch");
 
 /*!
@@ -139,6 +136,9 @@ void UbuntuDeviceHelper::waitForEmulatorStart()
 
 void UbuntuDeviceHelper::waitForBoot()
 {
+    //at this point the serial ID should be known
+    m_dev->setupPrivateKey();
+
     setProcessState(UbuntuDevice::WaitForBoot);
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_WAIT_FOR_BOOT_MESSAGE));
 
@@ -172,6 +172,8 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
             }
 
             m_dev->m_emulatorSerial = m_reply.trimmed();
+            emit deviceInfoUpdated();
+
             waitForBoot();
             break;
         }
@@ -191,8 +193,14 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
                 detect();
                 break;
             }
-            //seems to do just nothing, devicewidget did not check return code
-            //emit a message here
+
+            QStringList options = m_reply.split(QStringLiteral("\n"),QString::SkipEmptyParts);
+            qDebug()<<options;
+            if(options.length() == 4) {
+                m_dev->setDeviceInfo(options[1],options[0],options[2]);
+                emit deviceInfoUpdated();
+            }
+
             detectHasNetworkConnection();
             break;
         }
@@ -877,7 +885,6 @@ UbuntuDevice::UbuntuDevice(const QString &name, ProjectExplorer::IDevice::Machin
 {
     setDeviceState(ProjectExplorer::IDevice::DeviceStateUnknown);
     loadDefaultConfig();
-    setupPrivateKey();
     m_helper->init();
 }
 
@@ -890,7 +897,6 @@ UbuntuDevice::UbuntuDevice(const UbuntuDevice &other)
     , m_productInfo(other.m_productInfo)
 {
     setDeviceState(ProjectExplorer::IDevice::DeviceDisconnected);
-    setupPrivateKey();
     m_helper->init();
 }
 
@@ -1084,33 +1090,12 @@ void UbuntuDevice::setDeveloperToolsInstalled(const bool installed)
         m_helper->removeDevTools();
 }
 
-void UbuntuDevice::setDeviceInfoString(const QString &deviceInfo)
-{
-    m_productInfo = tr("unknown");
-    m_modelInfo   = m_productInfo;
-    m_deviceInfo  = m_productInfo;
-
-    QRegularExpression expr(QStringLiteral("product:\\s?(\\w+)"));
-    QRegularExpressionMatch m = expr.match(deviceInfo);
-    if(m.hasMatch())
-        m_productInfo = m.captured(1);
-
-    expr.setPattern(QStringLiteral("model:\\s?(\\w+)"));
-    m = expr.match(deviceInfo);
-    if(m.hasMatch())
-        m_modelInfo = m.captured(1);
-
-    expr.setPattern(QStringLiteral("device:\\s?(\\w+)"));
-    m = expr.match(deviceInfo);
-    if(m.hasMatch())
-        m_deviceInfo = m.captured(1);
-}
-
 void UbuntuDevice::setDeviceInfo(const QString &productInfo, const QString &modelInfo, const QString &deviceInfo)
 {
     m_productInfo = productInfo;
     m_modelInfo = modelInfo;
     m_deviceInfo = deviceInfo;
+    emit m_helper->deviceInfoUpdated();
 }
 
 QString UbuntuDevice::modelInfo() const
@@ -1127,6 +1112,30 @@ QString UbuntuDevice::productInfo() const
 {
     return m_productInfo;
 }
+
+void UbuntuDevice::setEmulatorInfo(const QString &ubuntuVersion, const QString &deviceVersion, const QString &imageVersion)
+{
+    m_ubuntuVersion = ubuntuVersion;
+    m_deviceVersion = deviceVersion;
+    m_imageVersion  = imageVersion;
+    emit m_helper->deviceInfoUpdated();
+}
+
+QString UbuntuDevice::ubuntuVersion() const
+{
+    return m_ubuntuVersion;
+}
+
+QString UbuntuDevice::deviceVersion() const
+{
+    return m_deviceVersion;
+}
+
+QString UbuntuDevice::imageVersion() const
+{
+    return m_imageVersion;
+}
+
 
 QString UbuntuDevice::imageName() const
 {
@@ -1226,38 +1235,12 @@ ProjectExplorer::IDevice::Ptr  UbuntuDevice::clone() const
 void UbuntuDevice::fromMap(const QVariantMap &map)
 {
     LinuxDevice::fromMap(map);
-
-    //legacy setting, will be converted to the new settings on the next save
-    if(map.contains(DEVICE_INFO_KEY))
-        setDeviceInfoString(map[DEVICE_INFO_KEY].toString());
-    else {
-        QString unknown = tr("unknown");
-        if(map.contains(DEVICE_DEVICE_INFO_KEY))
-            m_deviceInfo = map[DEVICE_DEVICE_INFO_KEY].toString();
-        else
-            m_deviceInfo = unknown;
-
-        if(map.contains(DEVICE_MODEL_INFO_KEY))
-            m_modelInfo = map[DEVICE_MODEL_INFO_KEY].toString();
-        else
-            m_modelInfo = unknown;
-
-        if(map.contains(DEVICE_PRODUCT_INFO_KEY))
-            m_productInfo = map[DEVICE_PRODUCT_INFO_KEY].toString();
-        else
-            m_productInfo = unknown;
-    }
-
-    setupPrivateKey();
     m_helper->init();
 }
 
 QVariantMap UbuntuDevice::toMap() const
 {
     QVariantMap map = LinuxDevice::toMap();
-    map.insert(DEVICE_PRODUCT_INFO_KEY,m_productInfo);
-    map.insert(DEVICE_MODEL_INFO_KEY,m_modelInfo);
-    map.insert(DEVICE_DEVICE_INFO_KEY,m_deviceInfo);
     return map;
 }
 

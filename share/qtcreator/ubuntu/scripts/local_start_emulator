@@ -17,6 +17,7 @@
 
 SCRIPTPATH=`dirname $0`
 EMULATOR=$1
+MEMORY=$2
 
 PID=$(${SCRIPTPATH}/local_emulator_pid ${EMULATOR})
 if [ ! -z "${PID}" ]
@@ -26,5 +27,5 @@ then
 fi
 
 set -e
-ubuntu-emulator run ${EMULATOR} &
+ubuntu-emulator run ${EMULATOR} --memory=${MEMORY} &
 set +e

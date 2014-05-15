@@ -52,6 +52,7 @@ signals:
     void disconnected     ();
     void deviceNeedsSetup ();
     void featureDetected  ();
+    void deviceInfoUpdated ();
     void message (const QString &message);
 
 protected:
@@ -171,12 +172,16 @@ public:
     void setWriteableImageEnabled    ( const bool enabled = true );
     void setDeveloperToolsInstalled  ( const bool installed = true );
 
-    void setDeviceInfoString (const QString &deviceInfo);
-    void setDeviceInfo (const QString &productInfo, const QString &modelInfo, const QString &deviceInfo);
+    void setDeviceInfo   (const QString &productInfo, const QString &modelInfo, const QString &deviceInfo);
     QString modelInfo() const;
     QString deviceInfo() const;
     QString productInfo() const;
     QString imageName() const;
+
+    void setEmulatorInfo (const QString &ubuntuVersion, const QString &deviceVersion, const QString &imageVersion);
+    QString ubuntuVersion() const;
+    QString deviceVersion() const;
+    QString imageVersion() const;
 
     FeatureState developerModeEnabled () const;
     FeatureState hasNetworkConnection () const;
@@ -216,6 +221,9 @@ private:
     QString         m_productInfo;
     QString         m_architecture;
     QString         m_emulatorSerial;
+    QString         m_ubuntuVersion;
+    QString         m_deviceVersion;
+    QString         m_imageVersion;
     Utils::PortList m_localForwardedPorts;
 
 private:

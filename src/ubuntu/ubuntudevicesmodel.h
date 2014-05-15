@@ -40,7 +40,10 @@ public:
         DeviceInfoRole,
         ProductInfoRole,
         MachineTypeRole,
-        EmulatorImageRole
+        EmulatorImageRole,
+        EmulatorDeviceVersionRole,
+        EmulatorUbuntuVersionRole,
+        EmulatorImageVersionRole
     };
 
     enum State {
@@ -100,8 +103,8 @@ public slots:
     void triggerKitAutocreate   ( const int devId );
     void triggerKitRemove       ( const int devId, const QVariant &kitid );
     void triggerRedetect        ( const int devId );
-    void createEmulatorImage    ( const QString &name );
-    void startEmulator          ( const QString &name );
+    void createEmulatorImage    ( const QString &name, const QString &arch );
+    void startEmulator          ( const QString &name, const QString &memory );
     void stopEmulator           ( const QString &name );
     void deleteEmulator         ( const QString &name );
     QVariant validateEmulatorName(const QString &name );
@@ -113,7 +116,7 @@ protected:
     UbuntuDevicesItem *createItem (UbuntuDevice::Ptr dev);
     int indexFromHelper (QObject* possibleHelper);
     void deviceChanged(QObject* possibleHelper, const QVector<int> &relatedRoles);
-    void registerNewDevice(const QString &serial, const QString &deviceInfo);
+    void registerNewDevice(const QString &serial);
 
     void setState(UbuntuDevicesModel::State newState);
     void setBusy(bool arg);
@@ -131,6 +134,7 @@ protected slots:
     void readDevicesFromSettings();
     void detectionStateChanged ();
     void featureDetected ();
+    void deviceInfoUpdated();
     void logUpdated ();
     void kitsChanged ();
     void deviceAdded(const Core::Id &id);
@@ -219,6 +223,7 @@ signals:
     void detectionStateChanged ();
     void featureDetected ();
     void logUpdated();
+    void deviceInfoUpdated();
 
 private slots:
     void onKitAdded(ProjectExplorer::Kit *k);
