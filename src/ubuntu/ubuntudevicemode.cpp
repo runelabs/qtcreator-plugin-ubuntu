@@ -19,7 +19,6 @@
 #include "ubuntudevicemode.h"
 #include "ubuntuconstants.h"
 #include "ubuntudevicesmodel.h"
-#include "ubuntuemulatormodel.h"
 
 #include <coreplugin/modemanager.h>
 #include <coreplugin/editormanager/editormanager.h>

@@ -38,19 +38,18 @@ QML_FILES += \
     $$QML_ROOT/devicespage/DeviceLogTab.qml  \
     $$QML_ROOT/devicespage/DevicePage.qml  \
     $$QML_ROOT/devicespage/DeviceStatusTab.qml  \
-    $$QML_ROOT/devicespage/EmulatorPage.qml  \
     $$QML_ROOT/devicespage/FeatureStateItem.qml  \
     $$QML_ROOT/devicespage/NewEmulatorDialog.qml \
-    $$QML_ROOT/devicespage/LogPage.qml
+    $$QML_ROOT/devicespage/LogPage.qml \
+    $$QML_ROOT/devicespage/DeviceEmulatorTab.qml \
+    $$QML_ROOT/devicespage/DeleteEmulatorDialog.qml
 
 OTHER_FILES += \
     UbuntuProject.mimetypes.xml \
     manifest.json.template \
     myapp.json.template \
     manifestlib.js \
-    $$QML_FILES \
-    ../../share/qtcreator/ubuntu/devicespage/DeviceEmulatorTab.qml \
-    ../../share/qtcreator/ubuntu/devicespage/DeleteEmulatorDialog.qml
+    $$QML_FILES
 
 SOURCES += \
     ubuntuplugin.cpp \
@@ -109,8 +108,7 @@ SOURCES += \
     ubuntulocalrunconfigurationfactory.cpp \
     ubunturemoteruncontrolfactory.cpp \
     ubuntulocalrunconfiguration.cpp \
-    ubuntudevicesmodel.cpp \
-    ubuntuemulatormodel.cpp
+    ubuntudevicesmodel.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -172,6 +170,5 @@ HEADERS += \
     ubuntulocalrunconfigurationfactory.h \
     ubunturemoteruncontrolfactory.h \
     ubuntulocalrunconfiguration.h \
-    ubuntudevicesmodel.h \
-    ubuntuemulatormodel.h
+    ubuntudevicesmodel.h
 
