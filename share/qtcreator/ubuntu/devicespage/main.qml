@@ -13,10 +13,6 @@ MainView {
             page: DevicePage{}
         }
         Tab {
-            title: "Emulators"
-            page: EmulatorPage{}
-        }
-        Tab {
             title: "Log"
             page: LogPage{}
         }

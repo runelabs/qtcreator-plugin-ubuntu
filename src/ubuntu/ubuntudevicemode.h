@@ -73,7 +73,6 @@ protected slots:
 protected:
     static UbuntuDeviceMode *m_instance;
     UbuntuDevicesModel  *m_devicesModel;
-    UbuntuEmulatorModel *m_emulatorModel;
     UbuntuQMLDeviceMode *m_qmlControl;
     QQuickView *m_modeView;
     QWidget* m_modeWidget;

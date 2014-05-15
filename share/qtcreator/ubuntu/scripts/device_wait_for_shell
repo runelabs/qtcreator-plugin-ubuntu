@@ -18,8 +18,9 @@
 SERIALNUMBER=$1
 
 # Waiting for device on ADB
+set -e
 
-adb wait-for-device
+adb -s ${SERIALNUMBER} wait-for-device
 
 # The device is accesibale on ADB"
 

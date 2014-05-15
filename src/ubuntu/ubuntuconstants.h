@@ -118,9 +118,11 @@ const char UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE_SCRIPT[] = "%0/local_ins
 const char UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES_SCRIPT[] = "%0/local_search_images";
 const char UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES[] = "Search configured emulator instances.";
 const char UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR[] = "Creating new emulator instance.";
-const char UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT[] = "%0/local_create_emulator %1 %2";
+const char UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT[] = "%0/local_create_emulator %1 %2 %3";
 const char UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR[] = "Starting the selected emulator.";
 const char UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT[] = "%0/local_start_emulator";
+const char UBUNTUDEVICESWIDGET_LOCAL_STOP_EMULATOR_SCRIPT[] = "%0/local_stop_emulator";
+const char UBUNTUDEVICESWIDGET_LOCAL_DELETE_EMULATOR_SCRIPT[] = "%0/local_delete_emulator";
 
 
 const char UBUNTUDEVICESWIDGET_STARTSSHSERVICE[] = "Start ssh service on device..";
@@ -215,7 +217,7 @@ const char UBUNTUDEVICESWIDGET_LOCAL_INSTALL_EMULATOR[] = "%0/local_install_emul
 const char UBUNTUDEVICESWIDGET_DETECTOPENSSH[] = "Detecting if openssh-server is installed..";
 const char UBUNTUDEVICESWIDGET_DETECTOPENSSH_SCRIPT[] = "%0/openssh_version %1";
 const char UBUNTUDEVICESWIDGET_DETECTDEVICES[] = "Detecting device..";
-const char UBUNTUDEVICESWIDGET_DETECTDEVICES_SCRIPT[] = "%0/device_search";
+const char UBUNTUDEVICESWIDGET_DETECTDEVICES_SCRIPT[] = "%1/device_search %2";
 const char UBUNTUDEVICESWIDGET_SSHCONNECT_SCRIPT[] = "%0/openssh_connect";
 const char UBUNTUDEVICESWIDGET_SSHCONNECT[] = "Opening ssh connection to device";
 
@@ -230,6 +232,8 @@ const char UBUNTUDEVICESWIDGET_HASNETWORK_SCRIPT[] = "%0/device_hasnetwork %1";
 const char UBUNTUDEVICESWIDGET_DETECTDEVICEVERSION[] = "Check device image version..";
 const char UBUNTUDEVICESWIDGET_WAIT_FOR_BOOT_MESSAGE[] = "Waiting for device to come up..";
 const char UBUNTUDEVICESWIDGET_WAIT_FOR_BOOT_SCRIPT[] = "%0/device_wait_for_shell %1";
+const char UBUNTUDEVICESWIDGET_WAIT_FOR_EMULATOR_MESSAGE[] = "Waiting for emulator tool to come up..";
+const char UBUNTUDEVICESWIDGET_WAIT_FOR_EMULATOR_SCRIPT[] = "%1/local_wait_for_emulator %2";
 const char UBUNTUDEVICESWIDGET_DETECTDEVICEVERSION_SCRIPT[] = "%0/device_version %1";
 const char UBUNTUDEVICESWIDGET_SSH_INSTALL[] = "Installing openssh-server..";
 const char UBUNTUDEVICESWIDGET_SSH_INSTALL_SCRIPT[] = "%0/openssh_install %1";

@@ -38,10 +38,13 @@
 namespace Ubuntu {
 namespace Internal {
 
+enum {
+    debug = 0
+};
+
+const QLatin1String DEVICE_SETTINGS_VERSION("UbuntuDevice.Version");
 const QLatin1String DEVICE_INFO_KEY("UbuntuDevice.InfoString");
-const QLatin1String DEVICE_PRODUCT_INFO_KEY("UbuntuDevice.Product.InfoString");
-const QLatin1String DEVICE_MODEL_INFO_KEY("UbuntuDevice.Model.InfoString");
-const QLatin1String DEVICE_DEVICE_INFO_KEY("UbuntuDevice.Device.InfoString");
+const QLatin1String DEVICE_SERIAL_ARCHITECTURE("UbuntuDevice.Arch");
 
 /*!
  * \class UbuntuDeviceHelper
@@ -55,6 +58,7 @@ UbuntuDeviceHelper::UbuntuDeviceHelper(UbuntuDevice *dev)
     , m_dev(dev)
     , m_process(0)
     , m_deviceWatcher(0)
+    , m_errorCount(0)
 {
 #if 0
     connect(m_process,SIGNAL(finished(QString,int)),this,SLOT(processFinished(QString,int)));
@@ -92,17 +96,23 @@ void UbuntuDeviceHelper::refresh()
 
 void UbuntuDeviceHelper::init()
 {
-    if(!m_dev->serialNumber().isEmpty()) {
-
-        if(!m_deviceWatcher) {
-            if(m_dev->serialNumber().startsWith(QLatin1String("emulator")))
+    if(!m_deviceWatcher) {
+        QString watchKey;
+        if(m_dev->machineType() == ProjectExplorer::IDevice::Emulator) {
+            if (!m_dev->imageName().isEmpty()) {
                 m_deviceWatcher = new UbuntuEmulatorNotifier(this);
-            else
+                watchKey = m_dev->imageName();
+            }
+        } else {
+            if (!m_dev->serialNumber().isEmpty()) {
                 m_deviceWatcher = new UbuntuDeviceNotifier(this);
+                watchKey = m_dev->serialNumber();
+            }
+        }
 
+        if (m_deviceWatcher) {
             m_deviceWatcher->stopMonitoring();
-            m_deviceWatcher->startMonitoring(m_dev->serialNumber());
-
+            m_deviceWatcher->startMonitoring(watchKey);
             connect(m_deviceWatcher,SIGNAL(deviceConnected()),this,SLOT(deviceConnected()));
             connect(m_deviceWatcher,SIGNAL(deviceDisconnected()),this,SLOT(deviceDisconnected()));
         }
@@ -113,8 +123,22 @@ void UbuntuDeviceHelper::init()
     }
 }
 
+void UbuntuDeviceHelper::waitForEmulatorStart()
+{
+    setProcessState(UbuntuDevice::WaitForEmulatorStart);
+    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_WAIT_FOR_EMULATOR_MESSAGE));
+
+    stopProcess();
+    startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_WAIT_FOR_EMULATOR_SCRIPT)
+                 .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
+                 .arg(m_dev->imageName()));
+}
+
 void UbuntuDeviceHelper::waitForBoot()
 {
+    //at this point the serial ID should be known
+    m_dev->setupPrivateKey();
+
     setProcessState(UbuntuDevice::WaitForBoot);
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_WAIT_FOR_BOOT_MESSAGE));
 
@@ -128,19 +152,64 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
 {
     Q_UNUSED(code)
 
+    if (code == 0) {
+        m_errorCount = 0;
+    } else {
+        if(m_errorCount > 3) {
+            setProcessState(UbuntuDevice::Failed);
+            m_reply.clear();
+            return;
+        }
+    }
+
     switch(m_dev->m_processState) {
+        case UbuntuDevice::WaitForEmulatorStart: {
+
+            if(code != 0) {
+                m_errorCount++;
+                waitForEmulatorStart();
+                break;
+            }
+
+            m_dev->m_emulatorSerial = m_reply.trimmed();
+            emit deviceInfoUpdated();
+
+            waitForBoot();
+            break;
+        }
         case UbuntuDevice::WaitForBoot: {
+            if(code != 0) {
+                m_errorCount++;
+                waitForBoot();
+                break;
+            }
             //for now the script will wait forever until the shell is available
             detect();
             break;
         }
         case UbuntuDevice::DetectDeviceVersion:{
-            //seems to do just nothing, devicewidget did not check return code
-            //emit a message here
+            if(code != 0) {
+                m_errorCount++;
+                detect();
+                break;
+            }
+
+            QStringList options = m_reply.split(QStringLiteral("\n"),QString::SkipEmptyParts);
+            qDebug()<<options;
+            if(options.length() == 4) {
+                m_dev->setDeviceInfo(options[1],options[0],options[2]);
+            }
+
             detectHasNetworkConnection();
             break;
         }
         case UbuntuDevice::DetectNetworkConnection:{
+            if(code != 0) {
+                m_errorCount++;
+                detectHasNetworkConnection();
+                break;
+            }
+
             if (m_reply.trimmed() == QString::fromLatin1(Constants::ONE_STR)) {
                 // we have network
                 m_clonedNwCount = 0;
@@ -151,19 +220,13 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
                 detectOpenSsh();
 
             } else {
-                // not set
-                if (m_clonedNwCount == 0)
-                    cloneNetwork();
-                else {
-                    //we tried to enable network and failed
-                    if(m_dev->m_hasNetworkConnection != UbuntuDevice::NotAvailable) {
-                        m_dev->m_hasNetworkConnection = UbuntuDevice::NotAvailable;
-                    }
-                    emit featureDetected();
-                    emit deviceNeedsSetup();
-                    //detect other features
-                    detectOpenSsh();
+                if(m_dev->m_hasNetworkConnection != UbuntuDevice::NotAvailable) {
+                    m_dev->m_hasNetworkConnection = UbuntuDevice::NotAvailable;
                 }
+                emit featureDetected();
+                emit deviceNeedsSetup();
+                //detect other features
+                detectOpenSsh();
             }
             break;
         }
@@ -173,6 +236,12 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
             break;
         }
         case UbuntuDevice::DetectOpenSSH:{
+            if(code != 0) {
+                m_errorCount++;
+                detectOpenSsh();
+                break;
+            }
+
             if (m_reply.trimmed() != QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_NONE)
                     && m_reply.trimmed() != QLatin1String(Constants::EMPTY)) {
 
@@ -215,6 +284,11 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
             break;
         }
         case UbuntuDevice::StartOpenSSH:{
+            if(code != 0) {
+                m_errorCount++;
+                startSshService();
+                break;
+            }
 
             if(m_dev->m_openSSHStarted != UbuntuDevice::Available) {
                 m_dev->m_openSSHStarted = UbuntuDevice::Available;
@@ -232,6 +306,11 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
             break;
         }
         case UbuntuDevice::DeployPublicKey:{
+            if(code != 0) {
+                m_errorCount++;
+                deployPublicKey();
+                break;
+            }
             //ready to use
             ProjectExplorer::DeviceManager::instance()->setDeviceState(m_dev->id(),ProjectExplorer::IDevice::DeviceReadyToUse);
             endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_PUBLICKEY_AUTH_SET));
@@ -240,6 +319,12 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
             break;
         }
         case UbuntuDevice::DetectDeviceWriteableImage:{
+            if(code != 0) {
+                m_errorCount++;
+                detectDeviceWritableImage();
+                break;
+            }
+
             if (m_reply.trimmed() == QLatin1String(Constants::ZERO_STR)) {
                 m_dev->m_hasWriteableImage = UbuntuDevice::Available;
                 endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_WRITABLEIMAGE));
@@ -253,6 +338,12 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
             break;
         }
         case UbuntuDevice::DetectDeveloperTools:{
+            if(code != 0) {
+                m_errorCount++;
+                detectDeveloperTools();
+                break;
+            }
+
             setProcessState(UbuntuDevice::Done);
             stopProcess();
 
@@ -295,17 +386,18 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
 
 void UbuntuDeviceHelper::onMessage(const QString &msg) {
     m_reply.append(msg);
-
-    QString message = msg;
-    message.replace(QChar::fromLatin1('\n'),QLatin1String("<br/>"));
-
-    addToLog(message);
 }
 
 void UbuntuDeviceHelper::onError(const QString &error)
 {
-    qDebug()<<"Received error "<<error;
     addToLog(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONERROR).arg(error));
+}
+
+void UbuntuDeviceHelper::onStdOut(const QString &stdout)
+{
+    QString message = stdout;
+    message.replace(QChar::fromLatin1('\n'),QLatin1String("<br/>"));
+    addToLog(message);
 }
 
 void UbuntuDeviceHelper::detect()
@@ -327,7 +419,7 @@ void UbuntuDeviceHelper::detectOpenSsh()
 
     startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTOPENSSH_SCRIPT)
                  .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                 .arg(m_dev->id().toSetting().toString()));
+                 .arg(m_dev->serialNumber()));
 }
 
 void UbuntuDeviceHelper::startSshService()
@@ -339,7 +431,7 @@ void UbuntuDeviceHelper::startSshService()
 
     startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_STARTSSHSERVICE_SCRIPT)
                  .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                 .arg(m_dev->id().toSetting().toString()));
+                 .arg(m_dev->serialNumber()));
 }
 
 void UbuntuDeviceHelper::enableDeveloperMode()
@@ -354,7 +446,7 @@ void UbuntuDeviceHelper::enableDeveloperMode()
 
     startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SSH_INSTALL_SCRIPT)
                  .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                 .arg(m_dev->id().toSetting().toString()));
+                 .arg(m_dev->serialNumber()));
 }
 
 void UbuntuDeviceHelper::disableDeveloperMode()
@@ -369,7 +461,7 @@ void UbuntuDeviceHelper::disableDeveloperMode()
 
     startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SSH_REMOVE_SCRIPT)
                  .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                 .arg(m_dev->id().toSetting().toString()));
+                 .arg(m_dev->serialNumber()));
 }
 
 void UbuntuDeviceHelper::detectHasNetworkConnection()
@@ -388,7 +480,7 @@ void UbuntuDeviceHelper::detectHasNetworkConnection()
 
     startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_HASNETWORK_SCRIPT)
                  .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                 .arg(m_dev->id().toSetting().toString()));
+                 .arg(m_dev->serialNumber()));
 }
 
 void UbuntuDeviceHelper::detectDeviceVersion()
@@ -400,7 +492,7 @@ void UbuntuDeviceHelper::detectDeviceVersion()
 
     startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICEVERSION_SCRIPT)
                  .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                 .arg(m_dev->id().toSetting().toString()));
+                 .arg(m_dev->serialNumber()));
 }
 
 void UbuntuDeviceHelper::detectDeviceWritableImage()
@@ -416,7 +508,7 @@ void UbuntuDeviceHelper::detectDeviceWritableImage()
 
     startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTWRITABLEIMAGE_SCRIPT)
                  .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                 .arg(m_dev->id().toSetting().toString()));
+                 .arg(m_dev->serialNumber()));
 }
 
 void UbuntuDeviceHelper::detectDeveloperTools()
@@ -432,19 +524,26 @@ void UbuntuDeviceHelper::detectDeveloperTools()
 
     startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVELOPERTOOLS_SCRIPT)
                  .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                 .arg(m_dev->id().toSetting().toString()));
+                 .arg(m_dev->serialNumber()));
 }
 
 void UbuntuDeviceHelper::deviceConnected()
 {
-    qDebug()<<"Device "<<m_dev->id().toString()<<" connected";
+    if(debug)
+        qDebug()<<"Device "<<m_dev->id().toString()<<" connected";
+
     ProjectExplorer::DeviceManager::instance()->setDeviceState(m_dev->id(),ProjectExplorer::IDevice::DeviceConnected);
-    waitForBoot();
+
+    if(m_dev->machineType() == ProjectExplorer::IDevice::Emulator)
+        waitForEmulatorStart();
+    else
+        waitForBoot();
 }
 
 void UbuntuDeviceHelper::deviceDisconnected()
 {
-    qDebug()<<"Device "<<m_dev->id().toString()<<" disconnected";
+    if(debug)
+        qDebug()<<"Device "<<m_dev->id().toString()<<" disconnected";
     ProjectExplorer::DeviceManager::instance()->setDeviceState(m_dev->id(),ProjectExplorer::IDevice::DeviceDisconnected);
 
     setProcessState(UbuntuDevice::NotStarted);
@@ -462,9 +561,11 @@ void UbuntuDeviceHelper::readProcessOutput(QProcess *proc)
     QString msg;
     if (!stderr.isEmpty()) {
         msg.append(stderr);
+        onError(stderr);
     }
     if (!stdout.isEmpty()) {
         msg.append(stdout);
+        onStdOut(stdout);
     }
 
     if(!msg.isEmpty())
@@ -492,16 +593,16 @@ void UbuntuDeviceHelper::addToLog(const QString &msg)
 
 void UbuntuDeviceHelper::setProcessState(const int newState)
 {
-    Q_ASSERT_X(newState >= UbuntuDevice::NotStarted && newState <= UbuntuDevice::Done,
+    Q_ASSERT_X(newState >= UbuntuDevice::NotStarted && newState <= UbuntuDevice::MaxState,
                Q_FUNC_INFO,
                "State variable out of bounds");
 
     if( newState == m_dev->m_processState)
         return;
 
-    if(m_dev->m_processState == UbuntuDevice::NotStarted || m_dev->m_processState == UbuntuDevice::Done)
+    if(m_dev->m_processState == UbuntuDevice::NotStarted || m_dev->m_processState == UbuntuDevice::Done || m_dev->m_processState == UbuntuDevice::Failed)
         emit beginQueryDevice();
-    else if((newState == UbuntuDevice::Done || newState == UbuntuDevice::NotStarted))
+    else if((newState == UbuntuDevice::Done || newState == UbuntuDevice::NotStarted || newState == UbuntuDevice::Failed))
         emit endQueryDevice();
 
     m_dev->m_processState = static_cast<UbuntuDevice::ProcessState>(newState);
@@ -533,7 +634,7 @@ void UbuntuDeviceHelper::cloneTimeConfig()
 
     startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONETIME_SCRIPT)
                  .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                 .arg(m_dev->id().toSetting().toString()));
+                 .arg(m_dev->serialNumber()));
 }
 
 void UbuntuDeviceHelper::enableRWImage()
@@ -550,7 +651,7 @@ void UbuntuDeviceHelper::enableRWImage()
 
     startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_MAKEFSWRITABLE_SCRIPT)
                  .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                 .arg(m_dev->id().toSetting().toString()));
+                 .arg(m_dev->serialNumber()));
 }
 
 void UbuntuDeviceHelper::disableRWImage()
@@ -567,7 +668,7 @@ void UbuntuDeviceHelper::disableRWImage()
 
     startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_MAKEFSREADONLY_SCRIPT)
                  .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                 .arg(m_dev->id().toSetting().toString()));
+                 .arg(m_dev->serialNumber()));
 }
 
 /*!
@@ -584,7 +685,7 @@ void UbuntuDeviceHelper::enablePortForward()
     stopProcess();
 
     if(!m_dev->m_localForwardedPorts.hasMore()) {
-        m_dev->m_localForwardedPorts = UbuntuLocalPortsManager::getFreeRange(m_dev->id().toSetting().toString(),20);
+        m_dev->m_localForwardedPorts = UbuntuLocalPortsManager::getFreeRange(m_dev->serialNumber(),20);
         if(!m_dev->m_localForwardedPorts.hasMore()) {
             //Oh noes , no ports available
 
@@ -613,7 +714,7 @@ void UbuntuDeviceHelper::enablePortForward()
     QString deviceSshPort = QString::number(connParms.port);
 
     QStringList args = QStringList()
-            << m_dev->id().toSetting().toString()
+            << m_dev->serialNumber()
             <<deviceSshPort
             <<ports;
 
@@ -642,7 +743,7 @@ void UbuntuDeviceHelper::installDevTools()
 
     startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ENABLEPLATFORMDEVELOPMENT_SCRIPT)
                  .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                 .arg(m_dev->id().toSetting().toString()));
+                 .arg(m_dev->serialNumber()));
 }
 
 void UbuntuDeviceHelper::removeDevTools()
@@ -660,7 +761,7 @@ void UbuntuDeviceHelper::removeDevTools()
 
     startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DISABLEPLATFORMDEVELOPMENT_SCRIPT)
                  .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                 .arg(m_dev->id().toSetting().toString()));
+                 .arg(m_dev->serialNumber()));
 }
 
 void UbuntuDeviceHelper::deployPublicKey()
@@ -677,7 +778,7 @@ void UbuntuDeviceHelper::deployPublicKey()
     stopProcess();
     startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SETUP_PUBKEY_AUTH_SCRIPT)
                  .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                 .arg(m_dev->id().toSetting().toString())
+                 .arg(m_dev->serialNumber())
                  .arg(deviceUsername));
 }
 
@@ -694,16 +795,20 @@ void UbuntuDeviceHelper::cloneNetwork()
     stopProcess();
     startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONENETWORK_SCRIPT)
                  .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                 .arg(m_dev->id().toSetting().toString()));
+                 .arg(m_dev->serialNumber()));
 }
 
 void UbuntuDeviceHelper::startProcess(const QString &command)
 {
+    if(debug)
+        qDebug()<<"Starting process: "<<command;
+
     if(!m_process) {
         m_process = new QProcess(this);
         connect(m_process,SIGNAL(readyRead()),this,SLOT(onProcessReadyRead()));
         connect(m_process,SIGNAL(finished(int)),this,SLOT(onProcessFinished(int)));
         connect(m_process,SIGNAL(error(QProcess::ProcessError)),this,SLOT(onProcessError(QProcess::ProcessError)));
+        connect(m_process,SIGNAL(stateChanged(QProcess::ProcessState)),this,SLOT(onProcessStateChanged(QProcess::ProcessState)));
     }
     m_process->setWorkingDirectory(QCoreApplication::applicationDirPath());
     m_process->start(command);
@@ -716,23 +821,43 @@ void UbuntuDeviceHelper::onProcessReadyRead()
 
 void UbuntuDeviceHelper::onProcessFinished(const int code)
 {
-    if (code != 0) {
-        onError(QString::fromLocal8Bit(m_process->readAll()));
-        processFinished(m_process->program(), code);
-        return;
-    }
     QString errorMsg = QString::fromLocal8Bit(m_process->readAllStandardError());
     if (errorMsg.trimmed().length()>0) onError(errorMsg);
     QString msg = QString::fromLocal8Bit(m_process->readAllStandardOutput());
     if (msg.trimmed().length()>0) onMessage(msg);
 
-    processFinished(QString(),code);
+    processFinished(m_process->program(),code);
 }
 
 void UbuntuDeviceHelper::onProcessError(const QProcess::ProcessError error)
 {
-    //if (m_process->exitCode() == 0) { return; }
-    onError(QString(QLatin1String("ERROR: (%0) %1 %2")).arg(m_process->program()).arg(m_process->errorString()).arg(error));
+    QString errorString = QStringLiteral("ERROR: (%0) %1 %2").arg(m_process->program()).arg(m_process->errorString()).arg(error);
+
+    if(debug)
+        qDebug()<<"Received Process Error: "<<error<<errorString;
+
+    onError(errorString);
+}
+
+void UbuntuDeviceHelper::onProcessStateChanged(QProcess::ProcessState newState)
+{
+    if(!debug)
+        return;
+
+    switch(newState) {
+        case QProcess::NotRunning: {
+            qDebug()<<QStringLiteral("Process not running");
+            break;
+        }
+        case QProcess::Starting: {
+            qDebug()<<QStringLiteral("Process starting");
+            break;
+        }
+        case QProcess::Running: {
+            qDebug()<<QStringLiteral("Process running");
+            break;
+        }
+    }
 }
 
 void UbuntuDeviceHelper::beginAction(QString msg) {
@@ -759,7 +884,6 @@ UbuntuDevice::UbuntuDevice(const QString &name, ProjectExplorer::IDevice::Machin
 {
     setDeviceState(ProjectExplorer::IDevice::DeviceStateUnknown);
     loadDefaultConfig();
-    setupPrivateKey();
     m_helper->init();
 }
 
@@ -770,9 +894,11 @@ UbuntuDevice::UbuntuDevice(const UbuntuDevice &other)
     , m_deviceInfo(other.m_deviceInfo)
     , m_modelInfo(other.m_modelInfo)
     , m_productInfo(other.m_productInfo)
+    , m_ubuntuVersion(other.m_ubuntuVersion)
+    , m_deviceVersion(other.m_deviceVersion)
+    , m_imageVersion(other.m_imageVersion)
 {
     setDeviceState(ProjectExplorer::IDevice::DeviceDisconnected);
-    setupPrivateKey();
     m_helper->init();
 }
 
@@ -807,7 +933,7 @@ void UbuntuDevice::setupPrivateKey()
         return;
 
     QSsh::SshConnectionParameters params = this->sshParameters();
-    params.privateKeyFile = QString::fromLatin1(Constants::UBUNTU_DEVICE_SSHIDENTITY).arg(QDir::homePath()).arg(id().toSetting().toString());
+    params.privateKeyFile = QString::fromLatin1(Constants::UBUNTU_DEVICE_SSHIDENTITY).arg(QDir::homePath()).arg(serialNumber());
 
     setSshParameters(params);
 }
@@ -824,6 +950,9 @@ UbuntuDevice::Ptr UbuntuDevice::create()
 
 QString UbuntuDevice::serialNumber() const
 {
+    if(machineType() == Emulator)
+        return m_emulatorSerial;
+
     return id().toSetting().toString();
 }
 
@@ -846,7 +975,7 @@ void UbuntuDevice::openTerminal()
     QProcess p;
 
     QStringList args = QStringList()
-            << id().toSetting().toString()
+            << serialNumber()
             << QString::number(sshParameters().port)
             << sshParameters().userName
             << sshParameters().host;
@@ -871,7 +1000,7 @@ void UbuntuDevice::shutdown()
 {
     QProcess p;
     QStringList args = QStringList()
-            << id().toSetting().toString();
+            << serialNumber();
 
     //no need to redetect this should happen automagically
     p.startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SHUTDOWN_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
@@ -883,14 +1012,14 @@ void UbuntuDevice::reboot()
 {
     QProcess p;
     QStringList args = QStringList()
-            << id().toSetting().toString();
+            << serialNumber();
 
     //no need to redetect this should happen automagically
     bool started = p.startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
                                    , args
                                    , QCoreApplication::applicationDirPath());
 
-    if(!started) {
+    if(!started && debug) {
         qDebug()<<"Could not start process "
                <<QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
               <<args
@@ -903,7 +1032,7 @@ void UbuntuDevice::rebootToRecovery()
 {
     QProcess p;
     QStringList args = QStringList()
-            << id().toSetting().toString();
+            << serialNumber();
 
     //no need to redetect this should happen automagically
     p.startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_TO_RECOVERY_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
@@ -915,7 +1044,7 @@ void UbuntuDevice::rebootToBootloader()
 {
     QProcess p;
     QStringList args = QStringList()
-            << id().toSetting().toString();
+            << serialNumber();
 
     //no need to redetect this should happen automagically
     p.startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_TO_BOOTLOADER_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
@@ -963,33 +1092,12 @@ void UbuntuDevice::setDeveloperToolsInstalled(const bool installed)
         m_helper->removeDevTools();
 }
 
-void UbuntuDevice::setDeviceInfoString(const QString &deviceInfo)
-{
-    m_productInfo = tr("unknown");
-    m_modelInfo   = m_productInfo;
-    m_deviceInfo  = m_productInfo;
-
-    QRegularExpression expr(QStringLiteral("product:\\s?(\\w+)"));
-    QRegularExpressionMatch m = expr.match(deviceInfo);
-    if(m.hasMatch())
-        m_productInfo = m.captured(1);
-
-    expr.setPattern(QStringLiteral("model:\\s?(\\w+)"));
-    m = expr.match(deviceInfo);
-    if(m.hasMatch())
-        m_modelInfo = m.captured(1);
-
-    expr.setPattern(QStringLiteral("device:\\s?(\\w+)"));
-    m = expr.match(deviceInfo);
-    if(m.hasMatch())
-        m_deviceInfo = m.captured(1);
-}
-
 void UbuntuDevice::setDeviceInfo(const QString &productInfo, const QString &modelInfo, const QString &deviceInfo)
 {
     m_productInfo = productInfo;
     m_modelInfo = modelInfo;
     m_deviceInfo = deviceInfo;
+    emit m_helper->deviceInfoUpdated();
 }
 
 QString UbuntuDevice::modelInfo() const
@@ -1005,6 +1113,35 @@ QString UbuntuDevice::deviceInfo() const
 QString UbuntuDevice::productInfo() const
 {
     return m_productInfo;
+}
+
+void UbuntuDevice::setEmulatorInfo(const QString &ubuntuVersion, const QString &deviceVersion, const QString &imageVersion)
+{
+    m_ubuntuVersion = ubuntuVersion;
+    m_deviceVersion = deviceVersion;
+    m_imageVersion  = imageVersion;
+    emit m_helper->deviceInfoUpdated();
+}
+
+QString UbuntuDevice::ubuntuVersion() const
+{
+    return m_ubuntuVersion;
+}
+
+QString UbuntuDevice::deviceVersion() const
+{
+    return m_deviceVersion;
+}
+
+QString UbuntuDevice::imageVersion() const
+{
+    return m_imageVersion;
+}
+
+
+QString UbuntuDevice::imageName() const
+{
+    return id().toSetting().toString();
 }
 
 UbuntuDevice::FeatureState UbuntuDevice::hasNetworkConnection() const
@@ -1070,6 +1207,8 @@ QString UbuntuDevice::detectionStateString( ) const
             return tr("Removing development tools");
         case Done:
             return tr("Ready");
+        case Failed:
+            return tr("Detection failed");
     }
     return QString();
 }
@@ -1098,38 +1237,12 @@ ProjectExplorer::IDevice::Ptr  UbuntuDevice::clone() const
 void UbuntuDevice::fromMap(const QVariantMap &map)
 {
     LinuxDevice::fromMap(map);
-
-    //legacy setting, will be converted to the new settings on the next save
-    if(map.contains(DEVICE_INFO_KEY))
-        setDeviceInfoString(map[DEVICE_INFO_KEY].toString());
-    else {
-        QString unknown = tr("unknown");
-        if(map.contains(DEVICE_DEVICE_INFO_KEY))
-            m_deviceInfo = map[DEVICE_DEVICE_INFO_KEY].toString();
-        else
-            m_deviceInfo = unknown;
-
-        if(map.contains(DEVICE_MODEL_INFO_KEY))
-            m_modelInfo = map[DEVICE_MODEL_INFO_KEY].toString();
-        else
-            m_modelInfo = unknown;
-
-        if(map.contains(DEVICE_PRODUCT_INFO_KEY))
-            m_productInfo = map[DEVICE_PRODUCT_INFO_KEY].toString();
-        else
-            m_productInfo = unknown;
-    }
-
-    setupPrivateKey();
     m_helper->init();
 }
 
 QVariantMap UbuntuDevice::toMap() const
 {
     QVariantMap map = LinuxDevice::toMap();
-    map.insert(DEVICE_PRODUCT_INFO_KEY,m_productInfo);
-    map.insert(DEVICE_MODEL_INFO_KEY,m_modelInfo);
-    map.insert(DEVICE_DEVICE_INFO_KEY,m_deviceInfo);
     return map;
 }
 
@@ -1201,7 +1314,9 @@ QString UbuntuDeviceProcess::fullCommandLine() const
         fullCommandLine.append(Utils::QtcProcess::joinArgsUnix(arguments()));
     }
 
-    qDebug()<<fullCommandLine;
+    if(debug)
+        qDebug()<<fullCommandLine;
+
     return fullCommandLine;
 }
 

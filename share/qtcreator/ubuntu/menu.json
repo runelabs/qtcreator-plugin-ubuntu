@@ -110,7 +110,7 @@
             },
             {
                 "name": "Install Application on Device",
-                "id": "Ubuntu.Build.PackageInstall",
+                "id": "Ubuntu.Build.PackageInstall.CMake",
                 "workingDirectory": "%0/..",
                 "projectRequired": true,
                 "deviceRequired": true,

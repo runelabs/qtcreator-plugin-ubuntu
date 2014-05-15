@@ -618,7 +618,7 @@ void UbuntuMenu::menuItemTriggered() {
                         command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DEVICE_USERNAME),device->sshParameters().userName);
                         command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DEVICE_PORT),QString::number(device->sshParameters().port));
 
-                        command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_SERIALNUMBER),device->id().toSetting().toString());
+                        command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_SERIALNUMBER),device->serialNumber());
                     }
                     command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_SHAREDIRECTORY),Constants::UBUNTU_SHAREPATH);
                     command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_SCRIPTDIRECTORY),Constants::UBUNTU_SCRIPTPATH);

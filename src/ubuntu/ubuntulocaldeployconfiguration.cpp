@@ -76,7 +76,7 @@ bool UbuntuLocalDeployConfigurationFactory::canCreate(ProjectExplorer::Target *p
 ProjectExplorer::DeployConfiguration *UbuntuLocalDeployConfigurationFactory::create(ProjectExplorer::Target *parent, const Core::Id id)
 {
     if(!canCreate(parent,id))
-        return false;
+        return 0;
 
     UbuntuLocalDeployConfiguration* conf = new UbuntuLocalDeployConfiguration(parent,id);
     ProjectExplorer::BuildStepList* steps = conf->stepList();

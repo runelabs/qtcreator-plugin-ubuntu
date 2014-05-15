@@ -11,7 +11,7 @@ ListItem.Standard {
     property alias checkable: switchbox.enabled
 
     onInputChanged: {
-        if(input == States.Available)
+        if(input == FeatureState.Available)
             switchbox.checked = true;
         else
             switchbox.checked = false;
@@ -20,20 +20,20 @@ ListItem.Standard {
     selected: false
     control: Row {
         ActivityIndicator {
-            visible: input === States.Unknown
+            visible: input === FeatureState.Unknown
             running: true
         }
         Switch {
             id: switchbox
-            visible: input !== States.Unknown
-            checked: input === States.Available
+            visible: input !== FeatureState.Unknown
+            checked: input === FeatureState.Available
             enabled: checkable
             onCheckedChanged: {
-                if (checked && input == States.NotAvailable) {
+                if (checked && input == FeatureState.NotAvailable) {
                     devicesModel.set(index,inputRole,true);
                     checked = true;
                 }
-                else if ((!checked) && input == States.Available) {
+                else if ((!checked) && input == FeatureState.Available) {
                     devicesModel.set(index,inputRole,false);
                     checked = false;
                 }

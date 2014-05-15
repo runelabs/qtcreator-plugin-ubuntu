@@ -63,7 +63,10 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    qmlRegisterUncreatableType<UbuntuDeviceStates>("Ubuntu.DevicesModel",0,1,"States",QStringLiteral("Not instantiable"));
+    qmlRegisterUncreatableType<UbuntuQmlDeviceConnectionState>("Ubuntu.DevicesModel",0,1,"DeviceConnectionState",QStringLiteral("Not instantiable"));
+    qmlRegisterUncreatableType<UbuntuQmlDeviceDetectionState>("Ubuntu.DevicesModel",0,1,"DeviceDetectionState",QStringLiteral("Not instantiable"));
+    qmlRegisterUncreatableType<UbuntuQmlFeatureState>("Ubuntu.DevicesModel",0,1,"FeatureState",QStringLiteral("Not instantiable"));
+    qmlRegisterUncreatableType<UbuntuQmlDeviceMachineType>("Ubuntu.DevicesModel",0,1,"DeviceMachineType",QStringLiteral("Not instantiable"));
 
     const QLatin1String mimetypesXml(Constants::UBUNTU_MIMETYPE_XML);
     if (!Core::MimeDatabase::addMimeTypes(mimetypesXml, errorString))

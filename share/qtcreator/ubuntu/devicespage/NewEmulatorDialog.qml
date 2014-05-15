@@ -1,6 +1,7 @@
 import QtQuick 2.0
-import Ubuntu.Components 0.1
-import Ubuntu.Components.Popups 0.1
+import Ubuntu.Components 1.0
+import Ubuntu.Components.ListItems 1.0 as ListItem
+import Ubuntu.Components.Popups 1.0
 
 Dialog {
     id: dialogue
@@ -15,7 +16,7 @@ Dialog {
         onTextChanged: validate()
         Component.onCompleted: validate()
         function validate() {
-            var result = emulatorModel.validateEmulatorName(text);
+            var result = devicesModel.validateEmulatorName(text);
             hasError   = !result.valid;
             lastError  = result.error;
         }
@@ -25,6 +26,12 @@ Dialog {
         text: inputName.lastError
         color: "red"
         visible: inputName.hasError
+    }
+
+    ListItem.ItemSelector {
+        id: arch
+        model: [i18n.tr("i386"),
+            i18n.tr("armhf")]
     }
 
     Button {
@@ -38,7 +45,7 @@ Dialog {
         onClicked: {
             if(inputName.hasError)
                 return;
-            emulatorModel.createEmulatorImage(inputName.text);
+            devicesModel.createEmulatorImage(inputName.text,arch.model[arch.selectedIndex]);
             PopupUtils.close(dialogue);
         }
     }
