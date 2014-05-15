@@ -16,7 +16,6 @@ tst_Validation::tst_Validation() :
 
 void tst_Validation::testSimpleSectionParse()
 {
-
     QList<ClickRunChecksParser::DataItem*> items;
     ClickRunChecksParser parser;
 
@@ -40,6 +39,10 @@ void tst_Validation::testSimpleSectionParse()
     QVERIFY(items.length() == 1);
     QCOMPARE(items[0]->type,QStringLiteral("click-check-functional"));
     QCOMPARE(items[0]->text,QStringLiteral("No description"));
+    QCOMPARE(items[0]->icon,ClickRunChecksParser::Check);
+    QCOMPARE(items[0]->children.size(),3);
+
+    qDeleteAll(items.begin(),items.end());
 }
 
 QTEST_MAIN(tst_Validation)
