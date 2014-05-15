@@ -317,7 +317,7 @@ bool ClickRunChecksParser::tryParseNextSection(bool dataComplete)
             || type == QLatin1String("click-check-desktop")
             || type == QLatin1String("click-check-security")
             || type == QLatin1String("click-check-functional")) {
-        parseJsonSection(type,startOffset,endOffset-startOffset);
+        parseJsonSection(type,startOffset,(endOffset-startOffset)+1);
     } else {
         //ignore unknown sections
         return true;
