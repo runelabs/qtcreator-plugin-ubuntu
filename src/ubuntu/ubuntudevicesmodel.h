@@ -98,12 +98,13 @@ public slots:
     void triggerRebootRecovery  ( const int devId );
     void triggerShutdown        ( const int devId );
     void triggerKitAutocreate   ( const int devId );
-    void triggerKitRemove       (const int devId, const QVariant &kitid );
+    void triggerKitRemove       ( const int devId, const QVariant &kitid );
     void triggerRedetect        ( const int devId );
-    void startEmulator          (const QString &name);
-    void stopEmulator           (const QString &name);
-    void deleteEmulator         (const QString &name);
-    QVariant validateEmulatorName(const QString &name);
+    void createEmulatorImage    ( const QString &name );
+    void startEmulator          ( const QString &name );
+    void stopEmulator           ( const QString &name );
+    void deleteEmulator         ( const QString &name );
+    QVariant validateEmulatorName(const QString &name );
     void refresh                ();
     void cancel();
 
@@ -124,7 +125,6 @@ protected:
     void checkEmulatorInstalled();
     void findEmulatorImages();
     void installEmulator();
-    void createEmulatorImage(const QString &name);
     void queryAdb();
 
 protected slots:
