@@ -21,17 +21,6 @@ Dialog {
             lastError  = result.error;
         }
     }
-
-    ListItem.ItemSelector {
-        model: [i18n.tr("x86"),
-            i18n.tr("armhf")]
-    }
-
-    ListItem.ItemSelector {
-        model: [i18n.tr("utopic-proposed"),
-            i18n.tr("trusty")]
-    }
-
     Label {
         horizontalAlignment: Text.AlignHCenter
         text: inputName.lastError
