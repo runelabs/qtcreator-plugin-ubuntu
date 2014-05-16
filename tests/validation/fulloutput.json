@@ -1,0 +1,143 @@
+= control =
+Package: com.ubuntu.developer.johndoe.test1
+Version: 0.1
+Click-Version: 0.4
+Architecture: all
+Maintainer: John Doe <john.doe@nowhere.com>
+Installed-Size: 597
+Description: test1
+
+= manifest =
+{
+    "architecture": "all",
+    "description": "description of test1",
+    "framework": "ubuntu-sdk-14.04-qml-dev1",
+    "hooks": {
+        "test1": {
+            "apparmor": "test1.json",
+            "desktop": "test1.desktop"
+        }
+    },
+    "installed-size": "597",
+    "maintainer": "John Doe <john.doe@nowhere.com>",
+    "name": "com.ubuntu.developer.johndoe.test1",
+    "title": "test1",
+    "version": "0.1"
+}
+
+= md5sums =
+6183b7c10f505338a31eef33de5ec257  test1.desktop
+960a76e339316360b6dcc5011702b21e  test1.json
+940ee629a1cce1a2d48335c76d4d25cd  graphics/toolbarIcon@8.png
+3019fd68af22d99d10c161730f30422b  lib/arm-linux-gnueabihf/qt5/qml/test1/libtest1backend.so
+8277ab683992b219f4f886740b8a547a  lib/arm-linux-gnueabihf/qt5/qml/test1/qmldir
+2d093965abbe7cf897cb4595f937c796  share/qml/test1/test1.qml
+e98c1a563ab054328797b24111b6152a  share/qml/test1/components/HelloComponent.qml
+62a85a47736ae719fa9c7385fc3cbaf1  share/qml/test1/ui/HelloTab.qml
+38a06f12ecddec945892ff18c9a02026  share/qml/test1/ui/WorldTab.qml
+142c5df78d0538ac6c56f31521466808  share/qml/test1/ui/WorldTabTools.qml
+
+= preinst =
+#! /bin/sh
+echo "Click packages may not be installed directly using dpkg."
+echo "Use 'click install' instead."
+exit 1
+
+= hooks =
+== security: test1.json ==
+{
+    "policy_groups": [
+        "networking"
+    ],
+    "policy_version": 1.1
+}
+== desktop: test1.desktop ==
+[Desktop Entry]
+Name=test1
+Comment=My project description
+Exec=qmlscene $@ -I ./lib/arm-linux-gnueabihf/qt5/qml share/qml/test1/test1.qml
+Icon=.//grapics/toolbarIcon@8.png
+Terminal=false
+Type=Application
+X-Ubuntu-Touch=true
+
+
+= click-check-lint =
+{
+  "error": {
+    "lint_error": {
+      "text": "errorText"
+    }
+  },
+  "info": {
+    "lint_info1": {
+      "text": "OK"
+    },
+    "lint_info2": {
+      "text": "OK"
+    },
+    "lint_info3": {
+      "text": "OK"
+    }
+  },
+  "warn": {}
+}
+
+= click-check-desktop =
+{
+  "error": {
+    "desktop_error (test1)": {
+      "link": "http://somelink.com",
+      "text": "Error text for desktop file"
+    }
+  },
+  "info": {
+    "desktop_info (test1)": {
+      "text": "OK"
+    }
+  },
+  "warn": {
+    "desktop_warn (test1)": {
+      "link": "http://somelink.com/warning",
+      "text": "Warning text for desktop file"
+    }
+  }
+}
+
+= click-check-security =
+{
+  "error": {},
+  "info": {
+    "security_test1 (test.json)": {
+      "text": "OK"
+    },
+    "security_test2 (test.json)": {
+      "text": "OK"
+    },
+    "security_test3 (test.json)": {
+      "text": "OK"
+    }
+  },
+  "warn": {}
+}
+
+= click-check-functional =
+{
+  "error": {},
+  "info": {
+    "functional_test1": {
+      "text": "OK"
+    },
+    "functional_test2": {
+      "text": "OK"
+    },
+    "functional_test3": {
+      "text": "OK"
+    }
+  },
+  "warn": {}
+}
+
+
+** Errors found **
+com.ubuntu.developer.johndoe.test1_0.1_all.click: FAIL

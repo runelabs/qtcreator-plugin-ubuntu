@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/validation">
+        <file>simplesection.json</file>
+        <file>fulloutput.json</file>
+    </qresource>
+</RCC>
