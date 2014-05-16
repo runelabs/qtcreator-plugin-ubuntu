@@ -219,4 +219,4 @@ void tst_Validation::testIncrementalParse()
     qDeleteAll(items.begin(),items.end());
 }
 
-QTEST_MAIN(tst_Validation)
+QTEST_GUILESS_MAIN(tst_Validation)
