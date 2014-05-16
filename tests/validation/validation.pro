@@ -1,4 +1,4 @@
-QT = core gui
+QT = core
 CONFIG += c++11
 
 #QTC_LIB_DEPENDS += utils
