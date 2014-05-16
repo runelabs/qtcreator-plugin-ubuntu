@@ -18,7 +18,8 @@ SOURCES += \
     tst_validation.cpp
 
 OTHER_FILES += \
-    simplesection.json
+    simplesection.json \
+    fulloutput.json
 
 RESOURCES += \
     resources.qrc

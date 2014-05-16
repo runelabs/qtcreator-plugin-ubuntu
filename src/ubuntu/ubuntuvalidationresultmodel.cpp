@@ -413,6 +413,11 @@ void ClickRunChecksParser::parseJsonSection(const QString &sectionName, int offs
                 subItem->text = text;
                 subItem->type = key;
                 subItem->icon = Warning;
+
+                if(messageObject.keys().contains(QLatin1String("link"))) {
+                    subItem->link = QUrl::fromUserInput(messageObject.value(QLatin1String("link")).toString());
+                }
+
                 item->children.append(subItem);
             }
         }
