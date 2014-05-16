@@ -31,10 +31,11 @@ void tst_Validation::testSimpleSectionParse()
     QList<ClickRunChecksParser::DataItem*> items;
     ClickRunChecksParser parser;
 
-    connect(&parser,&ClickRunChecksParser::parsedNewTopLevelItem,
-            [this,&items](ClickRunChecksParser::DataItem *newItem){
+    auto appendItemCallback = [this,&items](ClickRunChecksParser::DataItem *newItem){
         items.append(newItem);
-    });
+    };
+
+    connect(&parser,&ClickRunChecksParser::parsedNewTopLevelItem,appendItemCallback);
 
     QFile sourceFile(":/validation/simplesection.json");
     QVERIFY(sourceFile.open(QIODevice::ReadOnly));
