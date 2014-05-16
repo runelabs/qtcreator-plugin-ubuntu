@@ -5,7 +5,6 @@ set(SCOPE_NAME %DISPLAYNAME%)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pedantic -Wall -Wextra")
 set(UBUNTU_PROJECT_TYPE "Scope" CACHE INTERNAL "Tells QtCreator this is a Scope project")
 
-set(CMAKE_INSTALL_PREFIX /)
 include(GNUInstallDirs)
 set(INI_INSTALLDIR "${CMAKE_INSTALL_PREFIX}/${SCOPE_NAME}")
 set(SCOPE_INSTALLDIR "${CMAKE_INSTALL_PREFIX}/${SCOPE_NAME}")
