@@ -49,10 +49,14 @@ void tst_Validation::testSimpleSectionParse()
     parser.endRecieveData();
 
     QVERIFY(items.length() == 1);
-    VERIFY_ITEM(items[0],QString("click-check-functional"),QString("No description"),ClickRunChecksParser::Check,3);
-    VERIFY_ITEM(items[0]->children[0],QString("test1"),QString("OK"),ClickRunChecksParser::Check,0);
-    VERIFY_ITEM(items[0]->children[1],QString("test2"),QString("OK"),ClickRunChecksParser::Check,0);
-    VERIFY_ITEM(items[0]->children[2],QString("test3"),QString("OK"),ClickRunChecksParser::Check,0);
+    VERIFY_ITEM(items[0],QString("click-check-functional"),QString("No description"),ClickRunChecksParser::Error,5);
+    VERIFY_ITEM(items[0]->children[0],QString("error1"),QString("Error text"),ClickRunChecksParser::Error,0);
+    QCOMPARE(items[0]->children[0]->link,QUrl("http://somelink.com"));
+    VERIFY_ITEM(items[0]->children[1],QString("warning1"),QString("Warning message"),ClickRunChecksParser::Warning,0);
+    QCOMPARE(items[0]->children[1]->link,QUrl("http://somelink.com/warning"));
+    VERIFY_ITEM(items[0]->children[2],QString("test1"),QString("OK"),ClickRunChecksParser::Check,0);
+    VERIFY_ITEM(items[0]->children[3],QString("test2"),QString("OK"),ClickRunChecksParser::Check,0);
+    VERIFY_ITEM(items[0]->children[4],QString("test3"),QString("OK"),ClickRunChecksParser::Check,0);
 
     qDeleteAll(items.begin(),items.end());
 }

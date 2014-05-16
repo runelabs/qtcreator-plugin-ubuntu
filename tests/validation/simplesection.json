@@ -1,6 +1,11 @@
 = click-check-functional =
 {
-  "error": {},
+  "error": {
+    "error1": {
+      "link": "http://somelink.com",
+      "text": "Error text"
+    }
+  },
   "info": {
     "test1": {
       "text": "OK"
@@ -12,5 +17,10 @@
       "text": "OK"
     }
   },
-  "warn": {}
+  "warn": {
+    "warning1": {
+      "link": "http://somelink.com/warning",
+      "text": "Warning message"
+    }
+  }
 }
