@@ -1,0 +1,9 @@
+{
+  "description": "A simple Unity scope that accesses the network",
+  "hooks": {
+    "myapp": {
+      "scope": "myapp",
+      "apparmor": "myapp.json"
+    }
+  }
+}

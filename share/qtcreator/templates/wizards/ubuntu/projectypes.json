@@ -163,10 +163,10 @@
     },
     {
        "type": "cmake",
-       "folder": "scope",
-       "displayName": "Unity Scope Template",
+       "folder": "scope-network",
+       "displayName": "Unity Scope (With network access)",
        "id": "UbuntuUnityScope",
-       "description": "A Unity Scope template",
+       "description": "A simple C++ based Unity Scope with network access",
        "mainFile" : "src/displayName-scope.cpp",
        "projectFile" : "CMakeLists.txt",
        "requiredFeature": "Ubuntu.Wizards.FeatureUnityScope",
@@ -190,7 +190,7 @@
                "fileName": "src/displayName-scope.h"
            },
            {
-               "fileName": "data/displayName-scope.ini.in"
+               "fileName": "data/displayName.ini.in"
            },
            {
                "fileName": "data/CMakeLists.txt"
@@ -203,6 +203,63 @@
            },
            {
                "fileName": "readme.txt"
+           },
+           {
+               "fileName": "displayName.json"
+           },
+           {
+               "fileName": "manifest.json"
+           }
+       ]
+    },
+    {
+       "type": "cmake",
+       "folder": "scope-local-content",
+       "displayName": "Unity Scope (With local content access)",
+       "id": "UbuntuUnityScopeLocalContent",
+       "description": "A simple C++ based Unity Scope with local content access",
+       "mainFile" : "src/displayName-scope.cpp",
+       "projectFile" : "CMakeLists.txt",
+       "requiredFeature": "Ubuntu.Wizards.FeatureUnityScope",
+       "files": [
+           {
+               "fileName": "src/displayName-preview.cpp"
+           },
+           {
+               "fileName": "src/CMakeLists.txt"
+           },
+           {
+               "fileName": "src/displayName-preview.h"
+           },
+           {
+               "fileName": "src/displayName-query.cpp"
+           },
+           {
+               "fileName": "src/displayName-query.h"
+           },
+           {
+               "fileName": "src/displayName-scope.h"
+           },
+           {
+               "fileName": "data/displayName.ini.in"
+           },
+           {
+               "fileName": "data/CMakeLists.txt"
+           },
+           {
+               "fileName": "test/simpletest.cpp"
+           },
+           {
+               "fileName": "test/CMakeLists.txt"
+           },
+           {
+               "fileName": "readme.txt"
+           },
+           {
+               "fileName": "displayName.json"
+           },
+           {
+               "fileName": "manifest.json"
            }
        ]
     }
