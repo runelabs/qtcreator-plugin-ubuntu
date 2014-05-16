@@ -1,3 +1,72 @@
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140516-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * Remove the -client parameter from the desktop file
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 16 May 2014 04:04:25 +0000
+
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140515-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * Open file in existing qtcreator instance (LP: #1172844) (LP:
+    #1172844)
+
+  [ Benjamin Zeller ]
+  * Merge the emulator and device page. Add control facilites for
+    emulators. emulator control scripts .
+
+  [ CI bot ]
+  * Add a script to wait for the started emulator and return the serial
+    number
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 15 May 2014 15:36:50 +0000
+
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140512.1-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * Move the UITK examples to recommended packages (LP: #1265689) (LP:
+    #1265689)
+
+  [ Benjamin Zeller ]
+  * Fallback to local policy detection if no device is detected Do not
+    hardcode policy version
+
+  [ Alexandre Abreu ]
+  * Add tab.js dependency to the html5 template (LP: #1311997)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 12 May 2014 18:05:52 +0000
+
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140509-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * Rename AppArmor tab to Security profile
+
+  [ Benjamin Zeller ]
+  * Implement editor for device displayName, shows on doubleclick
+
+  [ CI bot ]
+  * Integrate the device_wait_for_shell script into the device detection
+    process.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 09 May 2014 11:52:56 +0000
+
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140508-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * New script to wait for Unity8 shell on the given device
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 08 May 2014 15:27:14 +0000
+
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140507-0ubuntu1) utopic; urgency=low
+
+  [ Benjamin Zeller ]
+  * Implement metacall in menu.json, makes it possible to call
+    slots/signals/invokables. Restore the install package menu item for
+    cmake projects (LP: #1316783). Check if reviewer tools are installed
+    before running them (LP: #1316787) . (LP: #1316787, #1316783)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 07 May 2014 11:02:32 +0000
+
 qtcreator-plugin-ubuntu (3.0.1+14.10.20140502.6-0ubuntu1) utopic; urgency=low
 
   [ Benjamin Zeller ]

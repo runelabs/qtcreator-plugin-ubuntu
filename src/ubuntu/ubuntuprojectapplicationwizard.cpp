@@ -56,7 +56,7 @@ UbuntuProjectApplicationWizardDialog::UbuntuProjectApplicationWizardDialog(QWidg
     connect(this,SIGNAL(projectParametersChanged(QString,QString)),this,SLOT(on_projectParametersChanged(QString,QString)));
 }
 
-int UbuntuProjectApplicationWizardDialog::addTargetSetupPage(int id)
+int UbuntuProjectApplicationWizardDialog::addTargetSetupPage(int id, const QString &projectType)
 {
     m_targetSetupPage = new ProjectExplorer::TargetSetupPage;
     const QString platform = selectedPlatform();
@@ -68,8 +68,12 @@ int UbuntuProjectApplicationWizardDialog::addTargetSetupPage(int id)
     else
         m_targetSetupPage->setPreferredKitMatcher(new QtSupport::QtPlatformKitMatcher(platform));
 
-    //make sure only CMake compatible Kits are shown
-    m_targetSetupPage->setRequiredKitMatcher(new CMakeProjectManager::CMakeKitMatcher());
+    if(projectType == QLatin1String(Constants::UBUNTU_CMAKEPROJECT_TYPE)) {
+        //make sure only CMake compatible Kits are shown
+        m_targetSetupPage->setRequiredKitMatcher(new CMakeProjectManager::CMakeKitMatcher());
+    } else {
+        m_targetSetupPage->setRequiredKitMatcher(new QtSupport::QtVersionKitMatcher(features));
+    }
 
     resize(900, 450);
     if (id >= 0)
@@ -81,20 +85,34 @@ int UbuntuProjectApplicationWizardDialog::addTargetSetupPage(int id)
     return id;
 }
 
-bool UbuntuProjectApplicationWizardDialog::writeUserFile(const QString &cmakeFileName) const
+bool UbuntuProjectApplicationWizardDialog::writeUserFile(const QString &cmakeFileName, const QString &projectType) const
 {
     if (!m_targetSetupPage)
         return false;
 
-    CMakeProjectManager::CMakeManager *manager = ExtensionSystem::PluginManager::getObject<CMakeProjectManager::CMakeManager>();
-    Q_ASSERT(manager);
 
-    CMakeProjectManager::CMakeProject *pro = new CMakeProjectManager::CMakeProject(manager, cmakeFileName);
-    bool success = m_targetSetupPage->setupProject(pro);
-    if (success)
-        pro->saveSettings();
-    delete pro;
-    return success;
+    ProjectExplorer::IProjectManager *manager = 0;
+    if(projectType == QLatin1String(Constants::UBUNTU_GOPROJECT_TYPE)) {
+        manager = qobject_cast<ProjectExplorer::IProjectManager *>(ExtensionSystem::PluginManager::getObjectByClassName(QStringLiteral("GoLang::Internal::Manager")));
+    } else {
+        manager = ExtensionSystem::PluginManager::getObject<CMakeProjectManager::CMakeManager>();
+        Q_ASSERT(manager);
+    }
+
+    if(!manager)
+        return false;
+
+    QString error;
+    ProjectExplorer::Project* pro = manager->openProject(cmakeFileName,&error);
+    if(pro) {
+        bool success = m_targetSetupPage->setupProject(pro);
+        if(success)
+            pro->saveSettings();
+        delete pro;
+        return success;
+    }
+
+    return false;
 }
 
 void UbuntuProjectApplicationWizardDialog::on_projectParametersChanged(const QString &projectName, const QString &path)
@@ -133,8 +151,8 @@ QWizard *UbuntuProjectApplicationWizard::createWizardDialog(QWidget *parent,
 {
     UbuntuProjectApplicationWizardDialog *wizard = new UbuntuProjectApplicationWizardDialog(parent, wizardDialogParameters);
 
-    if(m_projectType == QLatin1String(Constants::UBUNTU_CMAKEPROJECT_TYPE)) {
-        wizard->addTargetSetupPage(1);
+    if(m_projectType == QLatin1String(Constants::UBUNTU_CMAKEPROJECT_TYPE) || m_projectType == QLatin1String(Constants::UBUNTU_GOPROJECT_TYPE)) {
+        wizard->addTargetSetupPage(1,m_projectType);
     }
     wizard->setProjectName(UbuntuProjectApplicationWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
     wizard->addExtensionPages(wizardDialogParameters.extensionPages());
@@ -163,11 +181,12 @@ bool UbuntuProjectApplicationWizard::postGenerateFiles(const QWizard *w, const C
         }
         delete project;
     } else {
-        if(m_app->projectType() == QLatin1String(Constants::UBUNTU_CMAKEPROJECT_TYPE)) {
+        if(m_app->projectType() == QLatin1String(Constants::UBUNTU_CMAKEPROJECT_TYPE)
+                || m_app->projectType() == QLatin1String(Constants::UBUNTU_GOPROJECT_TYPE)) {
             // Generate user settings
             foreach (const Core::GeneratedFile &file, l)
                 if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute) {
-                    dialog->writeUserFile(file.path());
+                    dialog->writeUserFile(file.path(),m_app->projectType());
                     break;
                 }
         }

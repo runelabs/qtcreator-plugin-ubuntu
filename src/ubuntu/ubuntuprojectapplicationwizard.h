@@ -39,8 +39,8 @@ public:
     explicit UbuntuProjectApplicationWizardDialog(QWidget *parent,
                                                const Core::WizardDialogParameters &parameters);
 
-    int addTargetSetupPage(int id = -1);
-    bool writeUserFile(const QString &cmakeFileName) const;
+    int addTargetSetupPage(int id, const QString &projectType);
+    bool writeUserFile(const QString &cmakeFileName, const QString &projectType) const;
 
 private slots:
     void on_projectParametersChanged(const QString &projectName, const QString &path);

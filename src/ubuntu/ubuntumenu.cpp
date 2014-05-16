@@ -55,6 +55,10 @@
 using namespace Ubuntu;
 using namespace Ubuntu::Internal;
 
+enum {
+    debug = 1
+};
+
 UbuntuMenu *UbuntuMenu::m_instance = 0;
 
 UbuntuMenu *UbuntuMenu::instance()
@@ -636,6 +640,10 @@ void UbuntuMenu::menuItemTriggered() {
 
                     QStringList cmdList;
                     cmdList << command << workingDirectory;
+
+                    if(debug)
+                        qDebug()<<command;
+
                     m_ubuntuProcess.append(cmdList);
                 }
             }

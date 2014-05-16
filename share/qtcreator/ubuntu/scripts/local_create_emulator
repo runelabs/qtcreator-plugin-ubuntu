@@ -15,8 +15,10 @@
 #
 # Author: Zoltán Balogh <zoltan.balogh@canonical.com>
 set -e
-EMULATOR_NAME=$2
+
 EMULATOR_PATH=$1
+EMULATOR_NAME=$2
+EMULATOR_ARCH=$3
 WHOAMI=`whoami`
 
 if [ ! -d ${EMULATOR_PATH} ]
@@ -24,4 +26,4 @@ then
 	mkdir -p ${EMULATOR_PATH}
 fi
 
-pkexec sh -c "HOME=$HOME ubuntu-emulator create ${EMULATOR_NAME};chown ${WHOAMI}:${WHOAMI} ${EMULATOR_PATH} -R"
+pkexec sh -c "HOME=$HOME ubuntu-emulator create ${EMULATOR_NAME} --arch=${EMULATOR_ARCH};chown ${WHOAMI}:${WHOAMI} ${EMULATOR_PATH} -R"

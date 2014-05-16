@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2013 Canonical Ltd.
+# Copyright 2014 Canonical Ltd.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -15,17 +15,26 @@
 #
 # Author: Zoltán Balogh <zoltan.balogh@canonical.com>
 
-SCRIPTPATH=`dirname $0`
-EMULATOR=$1
-MEMORY=$2
-
-PID=$(${SCRIPTPATH}/local_emulator_pid ${EMULATOR})
-if [ ! -z "${PID}" ]
-then
-  echo "Emulator already running with pid ${PID}"
-  exit 1
-fi
-
 set -e
-ubuntu-emulator run ${EMULATOR} --memory=${MEMORY} &
-set +e
+
+SCRIPTPATH=`dirname $0`
+EMULATOR_NAME=$1
+
+# wait for the emulator process to come up
+
+until pid=$(${SCRIPTPATH}/local_emulator_pid ${EMULATOR_NAME}); 
+do
+        sleep 0.1;
+done;
+
+# wait for the emulator to assign the port
+
+until port=$(netstat -anp 2>&1|grep tcp|grep ${pid}|head -1|awk '{print $4}'|sed -n  's/.*\:\([0-9]*$\)/\1/p'|egrep -v "^$")
+do
+        sleep 0.1;
+done;
+
+# return the serial number the adb will use for that emulator
+
+echo "emulator-${port}"
+

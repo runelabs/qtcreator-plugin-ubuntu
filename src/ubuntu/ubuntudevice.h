@@ -52,10 +52,12 @@ signals:
     void disconnected     ();
     void deviceNeedsSetup ();
     void featureDetected  ();
+    void deviceInfoUpdated ();
     void message (const QString &message);
 
 protected:
     void init   ();
+    void waitForEmulatorStart();
     void waitForBoot ();
     void detect ();
     void detectOpenSsh();
@@ -83,8 +85,10 @@ protected slots:
     void onProcessReadyRead ();
     void onProcessFinished  (const int code);
     void onProcessError     (const QProcess::ProcessError error);
+    void onProcessStateChanged (QProcess::ProcessState newState);
     void onMessage(const QString &msg);
     void onError(const QString &error);
+    void onStdOut(const QString &stdout);
     void processFinished (const QString&, const int code);
     void deviceConnected ();
     void deviceDisconnected ();
@@ -99,6 +103,7 @@ private:
     QString m_log;
     QString m_reply;
     int     m_clonedNwCount;
+    int     m_errorCount;
     UbuntuDevice  *m_dev;
     QProcess *m_process;
     IUbuntuDeviceNotifier *m_deviceWatcher;
@@ -119,6 +124,7 @@ public:
 
     enum ProcessState {
         NotStarted,
+        WaitForEmulatorStart,
         WaitForBoot,
         DetectDeviceVersion,
         DetectNetworkConnection,
@@ -137,7 +143,9 @@ public:
         DisableRWImage,
         InstallDevTools,
         RemoveDevTools,
-        Done
+        Done,
+        Failed,
+        MaxState = Failed
     };
 
     typedef QSharedPointer<UbuntuDevice> Ptr;
@@ -164,11 +172,16 @@ public:
     void setWriteableImageEnabled    ( const bool enabled = true );
     void setDeveloperToolsInstalled  ( const bool installed = true );
 
-    void setDeviceInfoString (const QString &deviceInfo);
-    void setDeviceInfo (const QString &productInfo, const QString &modelInfo, const QString &deviceInfo);
+    void setDeviceInfo   (const QString &productInfo, const QString &modelInfo, const QString &deviceInfo);
     QString modelInfo() const;
     QString deviceInfo() const;
     QString productInfo() const;
+    QString imageName() const;
+
+    void setEmulatorInfo (const QString &ubuntuVersion, const QString &deviceVersion, const QString &imageVersion);
+    QString ubuntuVersion() const;
+    QString deviceVersion() const;
+    QString imageVersion() const;
 
     FeatureState developerModeEnabled () const;
     FeatureState hasNetworkConnection () const;
@@ -203,9 +216,14 @@ private:
     FeatureState    m_hasWriteableImage;
     FeatureState    m_hasDeveloperTools;
     ProcessState    m_processState;
-    QString         m_modelInfo;
     QString         m_deviceInfo;
+    QString         m_modelInfo;
     QString         m_productInfo;
+    QString         m_architecture;
+    QString         m_emulatorSerial;
+    QString         m_ubuntuVersion;
+    QString         m_deviceVersion;
+    QString         m_imageVersion;
     Utils::PortList m_localForwardedPorts;
 
 private:

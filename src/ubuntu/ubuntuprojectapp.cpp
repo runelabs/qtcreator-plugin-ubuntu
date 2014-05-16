@@ -206,6 +206,7 @@ Core::GeneratedFiles UbuntuProjectApp::generateFiles(const QWizard *w, QString *
     } else {
 
         const bool isCMakeProject = (m_projectType == QLatin1String(Constants::UBUNTU_CMAKEPROJECT_TYPE));
+        const bool isGoProject = (m_projectType == QLatin1String(Constants::UBUNTU_GOPROJECT_TYPE));
 
         QString errorMsg;
         QJsonValue tmp_mainFile = m_obj.value(QLatin1String(Constants::UBUNTU_PROJECTJSON_MAINFILE));
@@ -231,8 +232,14 @@ Core::GeneratedFiles UbuntuProjectApp::generateFiles(const QWizard *w, QString *
         QJsonValue tmp_projectFile = m_obj.value(QLatin1String(Constants::UBUNTU_PROJECTJSON_PROJECTFILE));
         if (tmp_projectFile.isUndefined() == false) {
 
-            QString fileName_target = isCMakeProject ? QString::fromLatin1("%0/CMakeLists.txt").arg(projectPath)
-                                                     : Core::BaseFileWizard::buildFileName(projectPath, QString(QLatin1String("%0.%1")).arg(projectName).arg(QLatin1String(Constants::UBUNTU_QTPROJECT_TYPE)),QString());
+            QString fileName_target;
+
+            if(isCMakeProject)
+                fileName_target = QString::fromLatin1("%0/CMakeLists.txt").arg(projectPath);
+            else if(isGoProject)
+                fileName_target = Core::BaseFileWizard::buildFileName(projectPath, QString(QLatin1String("%0.%1")).arg(projectName).arg(QLatin1String(Constants::UBUNTU_GOPROJECT_TYPE)),QString());
+            else
+                fileName_target = Core::BaseFileWizard::buildFileName(projectPath, QString(QLatin1String("%0.%1")).arg(projectName).arg(QLatin1String(Constants::UBUNTU_QTPROJECT_TYPE)),QString());
 
             QString fileName_source = tmp_projectFile.toString();
             if (readFile(QString(QLatin1String("%0/%1")).arg(UbuntuProjectApplicationWizard::templatesPath(folder)).arg(fileName_source),&contents, &errorMsg) == false) {

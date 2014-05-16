@@ -19,7 +19,6 @@
 #include "ubuntudevicemode.h"
 #include "ubuntuconstants.h"
 #include "ubuntudevicesmodel.h"
-#include "ubuntuemulatormodel.h"
 
 #include <coreplugin/modemanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -67,13 +66,10 @@ UbuntuDeviceMode::UbuntuDeviceMode(QObject *parent) :
     m_modeView = new QQuickView;
     m_modeView->setResizeMode(QQuickView::SizeRootObjectToView);
     m_devicesModel = new UbuntuDevicesModel(m_modeView);
-    m_emulatorModel = new UbuntuEmulatorModel(m_modeView);
 
+    connect(m_devicesModel,SIGNAL(logMessage(QString)),m_qmlControl,SLOT(addText(QString)));
     connect(m_devicesModel,SIGNAL(stdOutMessage(QString)),m_qmlControl,SLOT(addText(QString)));
     connect(m_devicesModel,SIGNAL(stdErrMessage(QString)),m_qmlControl,SLOT(addErrorText(QString)));
-    connect(m_emulatorModel,SIGNAL(logMessage(QString)),m_qmlControl,SLOT(addText(QString)));
-    connect(m_emulatorModel,SIGNAL(stdOutMessage(QString)),m_qmlControl,SLOT(addText(QString)));
-    connect(m_emulatorModel,SIGNAL(stdErrMessage(QString)),m_qmlControl,SLOT(addErrorText(QString)));
 
     QWidget* container = QWidget::createWindowContainer(m_modeView);
     container->setMinimumWidth(860);
@@ -82,7 +78,6 @@ UbuntuDeviceMode::UbuntuDeviceMode(QObject *parent) :
     layout->addWidget(container);
 
     m_modeView->rootContext()->setContextProperty(QLatin1String("devicesModel") ,m_devicesModel);
-    m_modeView->rootContext()->setContextProperty(QLatin1String("emulatorModel"),m_emulatorModel);
     m_modeView->rootContext()->setContextProperty(QLatin1String("deviceMode")   ,m_qmlControl);
     m_modeView->rootContext()->setContextProperty(QLatin1String("resourceRoot") ,Constants::UBUNTU_DEVICESCREEN_ROOT);
     m_modeView->setSource(QUrl::fromLocalFile(Constants::UBUNTU_DEVICESCREEN_QML));

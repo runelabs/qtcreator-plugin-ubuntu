@@ -29,11 +29,12 @@ namespace Internal {
 class UbuntuEmulatorNotifier : public IUbuntuDeviceNotifier
 {
     Q_OBJECT
+
 public:
     explicit UbuntuEmulatorNotifier(QObject *parent = 0);
 
     // IUbuntuDeviceNotifier interface
-    virtual void startMonitoring(const QString &serialNumber);
+    virtual void startMonitoring(const QString &imageName);
     virtual void stopMonitoring();
     virtual bool isConnected() const;
 
@@ -44,10 +45,10 @@ private slots:
 
 private:
     QByteArray m_buffer;
-    QString    m_lastState;
-    QString    m_serial;
+    QString    m_imageName;
     QTimer    *m_pollTimout;
     QProcess  *m_pollProcess;
+    bool       m_connected;
 
 };
 

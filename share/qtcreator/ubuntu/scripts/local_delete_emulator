@@ -13,19 +13,20 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Author: Zoltán Balogh <zoltan.balogh@canonical.com>
+# Author: Benjamin Zeller <benjamin.zeller@canonical.com>
 
 SCRIPTPATH=`dirname $0`
 EMULATOR=$1
-MEMORY=$2
 
-PID=$(${SCRIPTPATH}/local_emulator_pid ${EMULATOR})
-if [ ! -z "${PID}" ]
-then
-  echo "Emulator already running with pid ${PID}"
-  exit 1
-fi
+#wait for the emulator to go away
+while pid=$("${SCRIPTPATH}/local_emulator_pid" "${EMULATOR}"); 
+do
+  "${SCRIPTPATH}/local_stop_emulator" "${EMULATOR}"
+  sleep 0.5;
+done;
 
 set -e
-ubuntu-emulator run ${EMULATOR} --memory=${MEMORY} &
+ubuntu-emulator destroy "${EMULATOR}" --yes
 set +e
+
+

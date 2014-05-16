@@ -51,7 +51,7 @@ RowLayout {
                 input: hasNetworkConnection
                 inputRole: "hasNetworkConnection"
                 Layout.fillWidth: true
-                checkable: hasNetworkConnection == States.NotAvailable && !deviceItemView.deviceBusy
+                checkable: hasNetworkConnection == FeatureState.NotAvailable && !deviceItemView.deviceBusy
             }
             FeatureStateItem {
                 text: "Has devloper mode enabled"
