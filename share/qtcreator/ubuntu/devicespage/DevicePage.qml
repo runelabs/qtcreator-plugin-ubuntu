@@ -32,7 +32,7 @@ Page {
                         onClicked: devicesList.currentIndex = index
                         property alias editor: editor
 
-                        TextField{
+                        TextField {
                             id: editor
                             anchors.fill: parent
                             visible: false

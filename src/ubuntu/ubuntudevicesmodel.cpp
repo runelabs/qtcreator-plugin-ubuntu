@@ -177,7 +177,7 @@ QVariant UbuntuDevicesModel::data(const QModelIndex &index, int role) const
         case LogRole:
             return m_knownDevices[index.row()]->device()->helper()->log();
         case SerialIdRole:
-            return m_knownDevices[index.row()]->device()->id().toSetting();
+            return m_knownDevices[index.row()]->device()->serialNumber();
         case ModelInfoRole:
             return m_knownDevices[index.row()]->device()->modelInfo();
         case DeviceInfoRole:

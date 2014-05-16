@@ -127,6 +127,18 @@
             },
             {
                 "name": "Build Application on Device",
+                "id": "Ubuntu.Build.Go",
+                "workingDirectory": "%0/..",
+                "projectRequired": true,
+                "deviceRequired": true,
+                "context": ["GoProject.ProjectContext"],
+                "saveRequired": true,
+                "actions": [
+                    "%SCRIPTDIRECTORY%/qtc_device_buildpackage_go %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp \"%GOBUILDTARGETS%\""
+                ]
+            },
+            {
+                "name": "Build Application on Device",
                 "id": "Ubuntu.Build.Cpp",
                 "workingDirectory": "%0/..",
                 "projectRequired": true,

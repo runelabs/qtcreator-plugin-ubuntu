@@ -523,6 +523,25 @@ const char UBUNTU_DEFAULT_HTML_FRAMEWORK[]   = "ubuntu-sdk-14.04-html";
 const char UBUNTU_UNKNOWN_FRAMEWORK_NAME[]   = "Unknown framework";
 const int  UBUNTU_UNKNOWN_FRAMEWORK_DATA     = 0xdeadbeef;
 
+/*
+ * GOLANG constants, copied to remove the need to
+ * depend on the golang plugin. Remove as soon
+ * as there is a released version of it
+ */
+const char GO_PROJECT_MIMETYPE[] = "application/x-goproject";
+const char GO_PROJECT_ID[]       = "GoProjectManager.GoProject";
+const char GO_PROJECT_PROJECTCONTEXT[] = "GoProject.ProjectContext";
+const char GO_PROJECT_SUFFIX[] = ".goproject";
+const char LANG_GO[]           = "GOLANG";
+const char GO_TOOLCHAIN_ID[]   = "GoLang.Toolchain";
+const char TOOLCHAIN_SETTINGS_PAGE_ID[] = "GoLang.SettingsPage";
+const char GO_BUILDCONFIGURATION_ID[] = "GoLang.Buildconfiguration";
+const char GO_GOSTEP_ID[] = "GoLang.BuildConfiguration.GoStep";
+const char GO_RUNCONFIG_ID[] = "GoLang.GoRunConfiguration";
+const char GO_SUPPORT_FEATURE[] = "GoLang.GoSupport";
+
+const char UBUNTU_GO_BUILD_TARGETS[] = "%GOBUILDTARGETS%";
+
 } // namespace Ubuntu
 } // namespace Constants
 
