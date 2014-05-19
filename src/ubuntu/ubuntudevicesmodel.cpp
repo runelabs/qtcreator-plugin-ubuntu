@@ -21,7 +21,7 @@ namespace Ubuntu {
 namespace Internal {
 
 enum {
-    debug = 1
+    debug = 0
 };
 
 UbuntuDevicesModel::UbuntuDevicesModel(QObject *parent) :

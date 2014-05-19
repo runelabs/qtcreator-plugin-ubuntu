@@ -56,7 +56,7 @@ using namespace Ubuntu;
 using namespace Ubuntu::Internal;
 
 enum {
-    debug = 1
+    debug = 0
 };
 
 UbuntuMenu *UbuntuMenu::m_instance = 0;

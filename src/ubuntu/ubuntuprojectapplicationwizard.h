@@ -37,10 +37,11 @@ class UbuntuProjectApplicationWizardDialog : public ProjectExplorer::BaseProject
     Q_OBJECT
 public:
     explicit UbuntuProjectApplicationWizardDialog(QWidget *parent,
-                                               const Core::WizardDialogParameters &parameters);
+                                                  const Core::WizardDialogParameters &parameters,
+                                                  const QString &projectType);
 
-    int addTargetSetupPage(int id, const QString &projectType);
-    bool writeUserFile(const QString &cmakeFileName, const QString &projectType) const;
+    int addTargetSetupPage(int id);
+    bool writeUserFile(const QString &cmakeFileName) const;
 
 private slots:
     void on_projectParametersChanged(const QString &projectName, const QString &path);
@@ -48,6 +49,7 @@ private slots:
 
 private:
     ProjectExplorer::TargetSetupPage *m_targetSetupPage;
+    QString m_projectType;
 };
 
 class UbuntuProjectApplicationWizard : public Core::BaseFileWizard
