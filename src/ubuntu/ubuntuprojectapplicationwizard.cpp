@@ -149,7 +149,7 @@ void UbuntuProjectApplicationWizardDialog::on_projectParametersChanged(const QSt
                                               +QDir::separator()
                                               +QString::fromLatin1("%1.goproject").arg(projectName));
         } else {
-            m_targetSetupPage->setProjectPath(path+QDir::separator()+projectName+QDir::separator()+QLatin1String("CMakeList.txt"));
+            m_targetSetupPage->setProjectPath(path+QDir::separator()+projectName+QDir::separator()+QLatin1String("CMakeLists.txt"));
         }
     }
 }

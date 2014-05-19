@@ -1303,7 +1303,27 @@ QString UbuntuDeviceProcess::fullCommandLine() const
         fullCommandLine.append(QLatin1String("cd ")).append(quote(m_workingDir))
                 .append(QLatin1String(" && "));
     }
-    const QString envString = environment().toStringList().join(QLatin1String(" "));
+
+    Utils::Environment env = environment();
+
+    QString srcKey  = QStringLiteral("QTC_DESKTOP_PATH");
+    QString destKey = QStringLiteral("QTC_DESKTOP_DEST");
+
+    if(env.hasKey(srcKey) && env.hasKey(destKey)) {
+        QString sourcePath = env.value(srcKey);
+        QString destPath   = env.value(destKey);
+
+        fullCommandLine.append(QStringLiteral("cp %1 %2")
+                               .arg(sourcePath)
+                               .arg(destPath))
+                .append(QStringLiteral(" && "));
+
+        env.unset(srcKey);
+        env.unset(destKey);
+    }
+
+
+    const QString envString = env.toStringList().join(QLatin1String(" "));
     if (!envString.isEmpty())
         fullCommandLine.append(QLatin1Char(' ')).append(envString);
     if (!fullCommandLine.isEmpty())

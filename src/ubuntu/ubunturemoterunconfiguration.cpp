@@ -100,6 +100,17 @@ Utils::Environment UbuntuRemoteRunConfiguration::environment() const
     }
     env.appendOrSet(QLatin1String("pkgdir"),workingDirectory());
     env.appendOrSet(QLatin1String("APP_ID"),m_appId);
+
+    QFileInfo desk(m_desktopFile);
+    env.set(QStringLiteral("QTC_DESKTOP_PATH"),
+            QStringLiteral("/home/phablet/dev_tmp/%1/%2")
+            .arg(target()->project()->displayName())
+            .arg(desk.fileName()));
+
+    env.set(QStringLiteral("QTC_DESKTOP_DEST"),
+            QStringLiteral("/home/phablet/.local/share/applications/%1")
+            .arg(desk.fileName()));
+
     return env;
 }
 
