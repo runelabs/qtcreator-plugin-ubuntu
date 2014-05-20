@@ -2,7 +2,7 @@
     {
        "type": "qmlproject",
        "folder": "simple",
-       "displayName": "Simple UI",
+       "displayName": "App with Simple UI",
        "id": "UbuntuAppSimple",
        "description": "Creates a Qt Quick 2 application project with a sample UI containing a Label and a Button. This project contains QML code only.\n\nIncludes also unit and functional tests.",
        "mainFile" : "main.qml",
@@ -48,7 +48,7 @@
     {
        "type": "qmlproject",
        "folder": "tabs",
-       "displayName": "Tabbed UI",
+       "displayName": "App with Tabbed UI",
        "id": "UbuntuAppTabs",
        "description": "Creates a Qt Quick 2 application project using Tabs component. This project contains QML code only.\n\nIncludes also unit and functional tests.",
        "mainFile" : "main.qml",
@@ -112,26 +112,9 @@
        ]
     },
     {
-       "type": "pro",
-       "folder": "backend",
-       "displayName": "QtQuick2 Extension Library",
-       "id": "UbuntuAppWBackend",
-       "description": "A simple C++ based QtQuick2 Extension Library.\n\nIncludes also a unit test.",
-       "mainFile" : "modules/displayName/backend.h",
-       "projectFile" : "displayName.pro",
-       "files": [
-	   { "fileName": "modules/displayName/displayName.pro" },
-           { "fileName": "modules/displayName/backend.cpp" },
-           { "fileName": "modules/displayName/mytype.h" },
-           { "fileName": "modules/displayName/mytype.cpp" },
-           { "fileName": "modules/displayName/qmldir" },
-	   { "fileName": "tests/unit/tst_mytype.qml" }
-       ]
-    },
-    {
        "type": "cmake",
        "folder": "backendplustabs",
-       "displayName": "QML Extension Library + Tabbed UI",
+       "displayName": "App with QML Extension Library",
        "id": "UbuntuAppWBackendPlusTabsCMake",
        "description": "A simple C++ based QtQuick2 Extension Library with\nTabbed UI written in QML.\n\nIncludes also\n - a unit test for C++\n - unit and functional tests for QML\n",
        "mainFile" : "backend/modules/displayName/backend.h",
@@ -266,7 +249,7 @@
     {
        "type": "goproject",
        "folder": "goproject",
-       "displayName": "Ubuntu Go Project",
+       "displayName": "Go app with QML UI",
        "id": "UbuntuGoProject",
        "description": "A Click application using go",
        "mainFile" : "src/displayName/main.go",
