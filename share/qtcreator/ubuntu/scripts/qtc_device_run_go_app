@@ -1,0 +1,92 @@
+#!/bin/bash
+# Copyright 2013 Canonical Ltd.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; version 2.1.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
+
+. `dirname $0`/functions.inc
+
+FOLDERNAME=$2
+TARGET_DEVICE=$3
+TARGET_DEVICE_PORT=$4
+TARGET_DEVICE_HOME=$5
+BUILDTARGETS=$6
+
+USAGE="$0 [serialnumber] [foldername] [target_device] [target_device_port] [target_device_home]"
+
+set +e
+echo "Muh"
+
+#first build on the device
+${SCRIPTPATH}/qtc_device_build_go ${1} ${FOLDERNAME} ${TARGET_DEVICE} ${TARGET_DEVICE_PORT} ${TARGET_DEVICE_HOME} ${BUILDTARGETS}
+
+echo "Wut"
+
+if [ ! $? -eq 0 ]; then
+	echo "Build failed"
+	exit 1
+fi
+
+#find the desktop file
+DESKTOP_FILENAME="${FOLDERNAME}.desktop"
+pushd "${FOLDERNAME}/click"
+
+if [[ ! -e "${DESKTOP_FILENAME}" ]]; then
+	echo "Reading desktop file from manifest"
+	DESKTOP_FILENAME=$(grep desktop manifest.json | cut -d: -f2 | sed "s/\"//g" | tr -d ' ')
+	echo "Trying ${PWD}/${DESKTOP_FILENAME}"
+
+	if [[ ! -e "${DESKTOP_FILENAME}" ]]; then
+		echo "No desktop file found";
+		exit 1;
+	fi
+fi
+
+if [ -z ${DESKTOP_FILENAME} ]; then
+	echo "No desktop file found"
+	exit 1
+fi
+
+echo "Using Desktop File: ${DESKTOP_FILENAME}"
+
+APP_ID=$(echo ${DESKTOP_FILENAME}|sed "s/\.desktop//")
+
+SSH_CRED="ssh -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p${TARGET_DEVICE_PORT}"
+SCP="scp -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P${TARGET_DEVICE_PORT}"
+SSH="ssh -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p${TARGET_DEVICE_PORT} ${TARGET_DEVICE}"
+RSYNC="rsync --delete -avzP -e"
+
+# get dbus session addrss from the device
+DBUS_SESSION_BUS_ADDRESS=`$SSH "cat ~/.cache/upstart/dbus-session|grep DBUS_SESSION_BUS_ADDRESS"`
+
+#read additional arguments from the desktop file
+echo "Trying to read exec line from ${DESKTOP_FILENAME}"
+EXEC=$(cat "${DESKTOP_FILENAME}" | grep Exec | cut -d = -f 2)
+
+if [ -z $EXEC ]; then
+	echo "No exec line found in the desktop file"
+	popd
+	exit 1
+fi
+
+TRIPLET=$($SSH "gcc -dumpmachine")
+
+COMMAND="cd ${TARGET_DEVICE_HOME}/${FOLDERNAME}/click && test -f /etc/ubuntu-touch-session.d/\$(getprop ro.product.device).conf && for myenv in \$(cat /etc/ubuntu-touch-session.d/\$(getprop ro.product.device).conf); do `echo \"export\" \\\$myenv`; done ; export ${DBUS_SESSION_BUS_ADDRESS=}; export PATH=${TARGET_DEVICE_HOME}/${FOLDERNAME}/click/lib/${TRIPLET}/bin:\$PATH APP_ID=${APP_ID} DESKTOP_FILE_HINT=${TARGET_DEVICE_HOME}/${FOLDERNAME}/click/${DESKTOP_FILENAME} ${EXEC}"
+
+echo "Going to execute: ${COMMAND}"
+
+# run the application on the device
+$SSH "bash -ic 'source /etc/profile; ${COMMAND}'"
+
+popd

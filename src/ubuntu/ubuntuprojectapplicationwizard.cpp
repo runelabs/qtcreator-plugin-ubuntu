@@ -43,17 +43,25 @@
 #include <QTextStream>
 #include <QDeclarativeEngine>
 #include <QJsonArray>
+#include <QDebug>
 
 using namespace Ubuntu::Internal;
 
+enum {
+    debug = 0
+};
+
 UbuntuProjectApplicationWizardDialog::UbuntuProjectApplicationWizardDialog(QWidget *parent,
-                                                                           const Core::WizardDialogParameters &parameters)
+                                                                           const Core::WizardDialogParameters &parameters, const QString &projectType)
     : ProjectExplorer::BaseProjectWizardDialog(parent, parameters)
     , m_targetSetupPage(0)
+    , m_projectType(projectType)
 {
     setWindowTitle(tr("New Ubuntu QML Project"));
     setIntroDescription(tr("This wizard generates a Ubuntu QML project based on Ubuntu Components."));
     connect(this,SIGNAL(projectParametersChanged(QString,QString)),this,SLOT(on_projectParametersChanged(QString,QString)));
+
+    setRequiredFeatures(parameters.requiredFeatures());
 }
 
 int UbuntuProjectApplicationWizardDialog::addTargetSetupPage(int id)
@@ -68,8 +76,29 @@ int UbuntuProjectApplicationWizardDialog::addTargetSetupPage(int id)
     else
         m_targetSetupPage->setPreferredKitMatcher(new QtSupport::QtPlatformKitMatcher(platform));
 
-    //make sure only CMake compatible Kits are shown
-    m_targetSetupPage->setRequiredKitMatcher(new CMakeProjectManager::CMakeKitMatcher());
+    if(m_projectType == QLatin1String(Constants::UBUNTU_CMAKEPROJECT_TYPE)) {
+        //make sure only CMake compatible Kits are shown
+        m_targetSetupPage->setRequiredKitMatcher(new CMakeProjectManager::CMakeKitMatcher());
+    } else {
+        ProjectExplorer::KitMatcher *matcher = 0;
+        const char* retTypeName = QMetaType::typeName(qMetaTypeId<void*>());
+        void **arg = reinterpret_cast<void**>(&matcher);
+        ProjectExplorer::IProjectManager *manager = qobject_cast<ProjectExplorer::IProjectManager *>(ExtensionSystem::PluginManager::getObjectByClassName(QStringLiteral("GoLang::Internal::Manager")));
+        if (manager) {
+            bool success = QMetaObject::invokeMethod(manager,
+                                                     "createKitMatcher",
+                                                     QGenericReturnArgument(retTypeName,arg));
+            if(!success && debug)
+                 qDebug()<<"Invoke failed";
+        }
+
+        if (matcher)
+            m_targetSetupPage->setRequiredKitMatcher(matcher);
+        else
+            //this is just a fallback for now to remove all ubuntu kits until cross compiling is sorted out
+            //it should not be hit at all but i keep it there just to be safe
+            m_targetSetupPage->setRequiredKitMatcher(new QtSupport::QtVersionKitMatcher(features));
+    }
 
     resize(900, 450);
     if (id >= 0)
@@ -86,21 +115,44 @@ bool UbuntuProjectApplicationWizardDialog::writeUserFile(const QString &cmakeFil
     if (!m_targetSetupPage)
         return false;
 
-    CMakeProjectManager::CMakeManager *manager = ExtensionSystem::PluginManager::getObject<CMakeProjectManager::CMakeManager>();
-    Q_ASSERT(manager);
+    ProjectExplorer::IProjectManager *manager = 0;
+    if(m_projectType == QLatin1String(Constants::UBUNTU_GOPROJECT_TYPE)) {
+        manager = qobject_cast<ProjectExplorer::IProjectManager *>(ExtensionSystem::PluginManager::getObjectByClassName(QStringLiteral("GoLang::Internal::Manager")));
+    } else {
+        manager = ExtensionSystem::PluginManager::getObject<CMakeProjectManager::CMakeManager>();
+        Q_ASSERT(manager);
+    }
 
-    CMakeProjectManager::CMakeProject *pro = new CMakeProjectManager::CMakeProject(manager, cmakeFileName);
-    bool success = m_targetSetupPage->setupProject(pro);
-    if (success)
-        pro->saveSettings();
-    delete pro;
-    return success;
+    if(!manager)
+        return false;
+
+    QString error;
+    ProjectExplorer::Project* pro = manager->openProject(cmakeFileName,&error);
+    if(pro) {
+        if(debug)
+            qDebug()<<"Storing project type: "<<pro->id().toSetting();
+        bool success = m_targetSetupPage->setupProject(pro);
+        if(success) {
+            pro->saveSettings();
+        }
+        delete pro;
+        return success;
+    }
+
+    return false;
 }
 
 void UbuntuProjectApplicationWizardDialog::on_projectParametersChanged(const QString &projectName, const QString &path)
 {
     if(m_targetSetupPage) {
-        m_targetSetupPage->setProjectPath(path+QDir::separator()+projectName+QDir::separator()+QLatin1String("CMakeLists.txt"));
+        if(m_projectType == QLatin1String(Constants::UBUNTU_GOPROJECT_TYPE)) {
+            m_targetSetupPage->setProjectPath(path+QDir::separator()
+                                              +projectName
+                                              +QDir::separator()
+                                              +QString::fromLatin1("%1.goproject").arg(projectName));
+        } else {
+            m_targetSetupPage->setProjectPath(path+QDir::separator()+projectName+QDir::separator()+QLatin1String("CMakeLists.txt"));
+        }
     }
 }
 
@@ -112,6 +164,7 @@ UbuntuProjectApplicationWizard::UbuntuProjectApplicationWizard(QJsonObject obj)
     m_app->setData(obj);
 
     m_projectType = obj.value(QLatin1String(Constants::UBUNTU_PROJECTJSON_TYPE)).toString();
+    setRequiredFeatures(requiredFeatures());
 }
 
 UbuntuProjectApplicationWizard::~UbuntuProjectApplicationWizard()
@@ -131,9 +184,9 @@ Core::FeatureSet UbuntuProjectApplicationWizard::requiredFeatures() const
 QWizard *UbuntuProjectApplicationWizard::createWizardDialog(QWidget *parent,
                                                             const Core::WizardDialogParameters &wizardDialogParameters) const
 {
-    UbuntuProjectApplicationWizardDialog *wizard = new UbuntuProjectApplicationWizardDialog(parent, wizardDialogParameters);
+    UbuntuProjectApplicationWizardDialog *wizard = new UbuntuProjectApplicationWizardDialog(parent, wizardDialogParameters,m_projectType);
 
-    if(m_projectType == QLatin1String(Constants::UBUNTU_CMAKEPROJECT_TYPE)) {
+    if(m_projectType == QLatin1String(Constants::UBUNTU_CMAKEPROJECT_TYPE) || m_projectType == QLatin1String(Constants::UBUNTU_GOPROJECT_TYPE)) {
         wizard->addTargetSetupPage(1);
     }
     wizard->setProjectName(UbuntuProjectApplicationWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
@@ -163,7 +216,8 @@ bool UbuntuProjectApplicationWizard::postGenerateFiles(const QWizard *w, const C
         }
         delete project;
     } else {
-        if(m_app->projectType() == QLatin1String(Constants::UBUNTU_CMAKEPROJECT_TYPE)) {
+        if(m_app->projectType() == QLatin1String(Constants::UBUNTU_CMAKEPROJECT_TYPE)
+                || m_app->projectType() == QLatin1String(Constants::UBUNTU_GOPROJECT_TYPE)) {
             // Generate user settings
             foreach (const Core::GeneratedFile &file, l)
                 if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute) {

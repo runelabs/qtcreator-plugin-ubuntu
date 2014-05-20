@@ -262,6 +262,25 @@
                "fileName": "manifest.json"
            }
        ]
+    },
+    {
+       "type": "goproject",
+       "folder": "goproject",
+       "displayName": "Ubuntu Go Project",
+       "id": "UbuntuGoProject",
+       "description": "A Click application using go",
+       "mainFile" : "src/displayName/main.go",
+       "projectFile" : "displayName.goproject",
+       "requiredFeature": "GoLang.GoSupport",
+       "files": [
+           {
+               "fileName": "share/displayName/main.qml"
+           },
+           {
+               "fileName": "displayName.desktop"
+           }
+       ]
     }
+
 
 ]

@@ -55,6 +55,10 @@
 using namespace Ubuntu;
 using namespace Ubuntu::Internal;
 
+enum {
+    debug = 0
+};
+
 UbuntuMenu *UbuntuMenu::m_instance = 0;
 
 UbuntuMenu *UbuntuMenu::instance()
@@ -605,6 +609,14 @@ void UbuntuMenu::menuItemTriggered() {
 
                             workingDirectory = qtcBuildConfig->buildDirectory().toString();
                         }
+
+                        if(project->id() == Constants::GO_PROJECT_ID) {
+                            QVariant ret(QVariant::String);
+                            QGenericReturnArgument genRet(ret.typeName(),ret.data());
+                            if(QMetaObject::invokeMethod(project,"applicationNames",genRet)) {
+                                command = command.replace(QLatin1String(Constants::UBUNTU_GO_BUILD_TARGETS),ret.toString());
+                            }
+                        }
                     }
 
                     UbuntuDevice::ConstPtr device = UbuntuDeviceMode::instance()->device();
@@ -628,6 +640,10 @@ void UbuntuMenu::menuItemTriggered() {
 
                     QStringList cmdList;
                     cmdList << command << workingDirectory;
+
+                    if(debug)
+                        qDebug()<<command;
+
                     m_ubuntuProcess.append(cmdList);
                 }
             }

@@ -100,15 +100,17 @@ void UbuntuPackagingMode::modeChanged(Core::IMode* currentMode) {
         bool isQmakeProject = false;
         bool isUbuntuProject = false;
         bool isCMakeProject = false;
+        bool isGoProject = false;
 
         if (startupProject) {
             isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMLPROJECT_MIMETYPE));
             isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMAKE_MIMETYPE));
             isUbuntuProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
             isCMakeProject  = (startupProject->projectManager()->mimeType() == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
+            isGoProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::GO_PROJECT_MIMETYPE));
         }
 
-        if (isQmlProject || isUbuntuProject || isCMakeProject) {
+        if (isQmlProject || isUbuntuProject || isCMakeProject || isGoProject) {
             m_ubuntuPackagingWidget.openManifestForProject();
             m_ubuntuPackagingWidget.setAvailable(true);
         } else {
@@ -129,6 +131,7 @@ void UbuntuPackagingMode::updateModeState() {
     bool isQmakeProject = false;
     bool isUbuntuProject = false;
     bool isCMakeProject = false;
+    bool isGoProject = false;
     bool reviewToolsInstalled = m_ubuntuPackagingWidget.reviewToolsInstalled();
 
     if (startupProject) {
@@ -136,9 +139,10 @@ void UbuntuPackagingMode::updateModeState() {
         isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMAKE_MIMETYPE));
         isUbuntuProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
         isCMakeProject  = (startupProject->projectManager()->mimeType() == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
+        isGoProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::GO_PROJECT_MIMETYPE));
     }
 
-    this->setEnabled((isQmlProject || isUbuntuProject || isCMakeProject || reviewToolsInstalled));
+    this->setEnabled((isQmlProject || isUbuntuProject || isCMakeProject || isGoProject || reviewToolsInstalled));
     if (this->isEnabled()) {
         //save only if something was loaded
         if(m_ubuntuPackagingWidget.openManifestForProject()) {

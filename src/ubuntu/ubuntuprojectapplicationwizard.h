@@ -37,9 +37,10 @@ class UbuntuProjectApplicationWizardDialog : public ProjectExplorer::BaseProject
     Q_OBJECT
 public:
     explicit UbuntuProjectApplicationWizardDialog(QWidget *parent,
-                                               const Core::WizardDialogParameters &parameters);
+                                                  const Core::WizardDialogParameters &parameters,
+                                                  const QString &projectType);
 
-    int addTargetSetupPage(int id = -1);
+    int addTargetSetupPage(int id);
     bool writeUserFile(const QString &cmakeFileName) const;
 
 private slots:
@@ -48,6 +49,7 @@ private slots:
 
 private:
     ProjectExplorer::TargetSetupPage *m_targetSetupPage;
+    QString m_projectType;
 };
 
 class UbuntuProjectApplicationWizard : public Core::BaseFileWizard
@@ -57,7 +59,7 @@ class UbuntuProjectApplicationWizard : public Core::BaseFileWizard
 public:
     UbuntuProjectApplicationWizard(QJsonObject);
     virtual ~UbuntuProjectApplicationWizard();
-    virtual Core::FeatureSet requiredFeatures() const;
+    Core::FeatureSet requiredFeatures() const;
 
     static QByteArray getProjectTypesJSON();
 

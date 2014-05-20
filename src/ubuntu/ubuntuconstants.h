@@ -161,6 +161,7 @@ const char UBUNTU_AUTOPILOTPROJECT_TYPE[] = "autopilotproject";
 const char UBUNTU_QMLPROJECT_TYPE[] = "qmlproject";
 const char UBUNTU_CMAKEPROJECT_TYPE[] = "cmake";
 const char UBUNTU_QTPROJECT_TYPE[] = "pro";
+const char UBUNTU_GOPROJECT_TYPE[] = "goproject";
 const char UBUNTU_QML_TYPE[] = "qml";
 const char UBUNTU_HAS_TESTS[] = "hasTests";
 const char UBUNTU_INITIAL_EMULATOR_NAME[] = "<emulator>";
@@ -384,6 +385,7 @@ const char  FEATURE_UBUNTU_QUANTAL[] = "Ubuntu.Wizards.FeatureUbuntuQuantal";
 const char  FEATURE_UBUNTU_RARING[] = "Ubuntu.Wizards.FeatureUbuntuRaring";
 const char  FEATURE_UBUNTU_SAUCY[] = "Ubuntu.Wizards.FeatureUbuntuSaucy";
 const char  FEATURE_UBUNTU_TRUSTY[] = "Ubuntu.Wizards.FeatureUbuntuTrusty";
+const char  FEATURE_UBUNTU_UTOPIC[] = "Ubuntu.Wizards.FeatureUbuntuUtopic";
 
 const char  DISTRIB_ID[] = "DISTRIB_ID=";
 const char  DISTRIB_CODENAME[] = "DISTRIB_CODENAME=";
@@ -396,6 +398,7 @@ const char  QUANTAL[] = "quantal";
 const char  RARING[] = "raring";
 const char  SAUCY[] = "saucy";
 const char  TRUSTY[] = "trusty";
+const char  UTOPIC[] = "utopic";
 
 const char  PLATFORM_DESKTOP[] = "Desktop";
 const char  PLATFORM_DESKTOP_DISPLAYNAME[] = "Ubuntu %0";
@@ -526,6 +529,25 @@ const char UBUNTU_DEFAULT_QML_FRAMEWORK[]    = "ubuntu-sdk-14.04-qml-dev1";
 const char UBUNTU_DEFAULT_HTML_FRAMEWORK[]   = "ubuntu-sdk-14.04-html";
 const char UBUNTU_UNKNOWN_FRAMEWORK_NAME[]   = "Unknown framework";
 const int  UBUNTU_UNKNOWN_FRAMEWORK_DATA     = 0xdeadbeef;
+
+/*
+ * GOLANG constants, copied to remove the need to
+ * depend on the golang plugin. Remove as soon
+ * as there is a released version of it
+ */
+const char GO_PROJECT_MIMETYPE[] = "application/x-goproject";
+const char GO_PROJECT_ID[]       = "GoProjectManager.GoProject";
+const char GO_PROJECT_PROJECTCONTEXT[] = "GoProject.ProjectContext";
+const char GO_PROJECT_SUFFIX[] = ".goproject";
+const char LANG_GO[]           = "GOLANG";
+const char GO_TOOLCHAIN_ID[]   = "GoLang.Toolchain";
+const char TOOLCHAIN_SETTINGS_PAGE_ID[] = "GoLang.SettingsPage";
+const char GO_BUILDCONFIGURATION_ID[] = "GoLang.Buildconfiguration";
+const char GO_GOSTEP_ID[] = "GoLang.BuildConfiguration.GoStep";
+const char GO_RUNCONFIG_ID[] = "GoLang.GoRunConfiguration";
+const char GO_SUPPORT_FEATURE[] = "GoLang.GoSupport";
+
+const char UBUNTU_GO_BUILD_TARGETS[] = "%GOBUILDTARGETS%";
 
 } // namespace Ubuntu
 } // namespace Constants
