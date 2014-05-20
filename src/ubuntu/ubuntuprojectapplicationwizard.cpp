@@ -60,6 +60,8 @@ UbuntuProjectApplicationWizardDialog::UbuntuProjectApplicationWizardDialog(QWidg
     setWindowTitle(tr("New Ubuntu QML Project"));
     setIntroDescription(tr("This wizard generates a Ubuntu QML project based on Ubuntu Components."));
     connect(this,SIGNAL(projectParametersChanged(QString,QString)),this,SLOT(on_projectParametersChanged(QString,QString)));
+
+    setRequiredFeatures(parameters.requiredFeatures());
 }
 
 int UbuntuProjectApplicationWizardDialog::addTargetSetupPage(int id)
@@ -162,6 +164,7 @@ UbuntuProjectApplicationWizard::UbuntuProjectApplicationWizard(QJsonObject obj)
     m_app->setData(obj);
 
     m_projectType = obj.value(QLatin1String(Constants::UBUNTU_PROJECTJSON_TYPE)).toString();
+    setRequiredFeatures(requiredFeatures());
 }
 
 UbuntuProjectApplicationWizard::~UbuntuProjectApplicationWizard()

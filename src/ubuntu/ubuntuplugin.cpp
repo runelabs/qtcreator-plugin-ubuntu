@@ -36,6 +36,7 @@
 
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
+#include <coreplugin/featureprovider.h>
 
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -82,9 +83,8 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
                 QJsonValue tmp_folder = obj.value(QLatin1String(Constants::UBUNTU_PROJECTJSON_FOLDER));
                 if (tmp_folder.isUndefined() == false) {
                     folder = tmp_folder.toString();
-                    if (QFileInfo(UbuntuProjectApplicationWizard::templatesPath(folder)).exists()) {
+                    if (QFileInfo(UbuntuProjectApplicationWizard::templatesPath(folder)).exists())
                         addAutoReleasedObject(new Internal::UbuntuProjectApplicationWizard(obj));
-                    }
                 }
             }
         }

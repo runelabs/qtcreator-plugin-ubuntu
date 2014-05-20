@@ -59,7 +59,7 @@ class UbuntuProjectApplicationWizard : public Core::BaseFileWizard
 public:
     UbuntuProjectApplicationWizard(QJsonObject);
     virtual ~UbuntuProjectApplicationWizard();
-    virtual Core::FeatureSet requiredFeatures() const;
+    Core::FeatureSet requiredFeatures() const;
 
     static QByteArray getProjectTypesJSON();
 

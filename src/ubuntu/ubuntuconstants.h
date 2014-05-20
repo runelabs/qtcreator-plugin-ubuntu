@@ -385,6 +385,7 @@ const char  FEATURE_UBUNTU_QUANTAL[] = "Ubuntu.Wizards.FeatureUbuntuQuantal";
 const char  FEATURE_UBUNTU_RARING[] = "Ubuntu.Wizards.FeatureUbuntuRaring";
 const char  FEATURE_UBUNTU_SAUCY[] = "Ubuntu.Wizards.FeatureUbuntuSaucy";
 const char  FEATURE_UBUNTU_TRUSTY[] = "Ubuntu.Wizards.FeatureUbuntuTrusty";
+const char  FEATURE_UBUNTU_UTOPIC[] = "Ubuntu.Wizards.FeatureUbuntuUtopic";
 
 const char  DISTRIB_ID[] = "DISTRIB_ID=";
 const char  DISTRIB_CODENAME[] = "DISTRIB_CODENAME=";
@@ -397,6 +398,7 @@ const char  QUANTAL[] = "quantal";
 const char  RARING[] = "raring";
 const char  SAUCY[] = "saucy";
 const char  TRUSTY[] = "trusty";
+const char  UTOPIC[] = "utopic";
 
 const char  PLATFORM_DESKTOP[] = "Desktop";
 const char  PLATFORM_DESKTOP_DISPLAYNAME[] = "Ubuntu %0";

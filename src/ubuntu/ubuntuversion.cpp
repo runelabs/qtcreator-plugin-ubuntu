@@ -48,22 +48,23 @@ UbuntuVersion::UbuntuVersion()
 }
 
 Core::FeatureSet UbuntuVersion::features() {
-   Core::FeatureSet retval;
-    if (codename()==QLatin1String(Constants::PRECISE)) {
+    Core::FeatureSet retval;
+
+    QString cName = codename();
+    if (cName==QLatin1String(Constants::PRECISE)) {
         retval |= Core::FeatureSet(Constants::FEATURE_UBUNTU_PRECISE);
-    } else
-    if (codename()==QLatin1String(Constants::QUANTAL)) {
+    } else if (cName==QLatin1String(Constants::QUANTAL)) {
         retval |= Core::FeatureSet(Constants::FEATURE_UBUNTU_QUANTAL);
-    } else
-    if (codename()==QLatin1String(Constants::RARING)) {
+    } else if (cName==QLatin1String(Constants::RARING)) {
         retval |= Core::FeatureSet(Constants::FEATURE_UBUNTU_RARING);
-    } else
-    if (codename()==QLatin1String(Constants::SAUCY)) {
+    } else if (cName==QLatin1String(Constants::SAUCY)) {
         retval |= Core::FeatureSet(Constants::FEATURE_UBUNTU_SAUCY);
         retval |= Core::FeatureSet(Constants::FEATURE_UNITY_SCOPE);
-    } else
-    if  (codename()==QLatin1String(Constants::TRUSTY)) {
+    } else if  (cName==QLatin1String(Constants::TRUSTY)) {
         retval |= Core::FeatureSet(Constants::FEATURE_UBUNTU_TRUSTY);
+        retval |= Core::FeatureSet(Constants::FEATURE_UNITY_SCOPE);
+    } else if (cName==QLatin1String(Constants::UTOPIC)) {
+        retval |= Core::FeatureSet(Constants::FEATURE_UBUNTU_UTOPIC);
         retval |= Core::FeatureSet(Constants::FEATURE_UNITY_SCOPE);
     }
     return retval;
