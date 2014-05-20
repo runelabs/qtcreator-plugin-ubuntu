@@ -81,8 +81,9 @@ if [ -z $EXEC ]; then
 fi
 
 TRIPLET=$($SSH "gcc -dumpmachine")
+DESKTOP_INSTALL_PATH="/home/phablet/.local/share/applications/$(basename ${DESKTOP_FILENAME})"
 
-COMMAND="cd ${TARGET_DEVICE_HOME}/${FOLDERNAME}/click && test -f /etc/ubuntu-touch-session.d/\$(getprop ro.product.device).conf && for myenv in \$(cat /etc/ubuntu-touch-session.d/\$(getprop ro.product.device).conf); do `echo \"export\" \\\$myenv`; done ; export ${DBUS_SESSION_BUS_ADDRESS=}; export PATH=${TARGET_DEVICE_HOME}/${FOLDERNAME}/click/lib/${TRIPLET}/bin:\$PATH APP_ID=${APP_ID} DESKTOP_FILE_HINT=${TARGET_DEVICE_HOME}/${FOLDERNAME}/click/${DESKTOP_FILENAME} ${EXEC}"
+COMMAND="set -x && cd ${TARGET_DEVICE_HOME}/${FOLDERNAME}/click && cp \"${DESKTOP_FILENAME}\" \"${DESKTOP_INSTALL_PATH}\" && test -f /etc/ubuntu-touch-session.d/\$(getprop ro.product.device).conf && for myenv in \$(cat /etc/ubuntu-touch-session.d/\$(getprop ro.product.device).conf); do `echo \"export\" \\\$myenv`; done ; export ${DBUS_SESSION_BUS_ADDRESS=}; export PATH=${TARGET_DEVICE_HOME}/${FOLDERNAME}/click/lib/${TRIPLET}/bin:\$PATH; APP_ID=${APP_ID} DESKTOP_FILE_HINT=${DESKTOP_INSTALL_PATH} ${EXEC}"
 
 echo "Going to execute: ${COMMAND}"
 
@@ -90,3 +91,4 @@ echo "Going to execute: ${COMMAND}"
 $SSH "bash -ic 'source /etc/profile; ${COMMAND}'"
 
 popd
+
