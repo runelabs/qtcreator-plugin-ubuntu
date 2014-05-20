@@ -1,3 +1,15 @@
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140520.2-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * Remove obsolate backend template and rename templates. Introduce the
+    qtcreator-plugin-go dependency as recommended package .
+
+  [ Benjamin Zeller ]
+  * Remove the need of attaching the device if its actually not
+    required. Fix building GO applications on the device .
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 20 May 2014 15:23:09 +0000
+
 qtcreator-plugin-ubuntu (3.0.1+14.10.20140520-0ubuntu1) utopic; urgency=low
 
   [ Benjamin Zeller ]
