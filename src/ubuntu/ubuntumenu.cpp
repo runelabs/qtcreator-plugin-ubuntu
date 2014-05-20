@@ -619,18 +619,21 @@ void UbuntuMenu::menuItemTriggered() {
                         }
                     }
 
-                    UbuntuDevice::ConstPtr device = UbuntuDeviceMode::instance()->device();
-                    if (device) {
-                        if( device->deviceState() != ProjectExplorer::IDevice::DeviceReadyToUse ) {
-                            QMessageBox::warning(0,tr("Device not ready"),tr("The currently selected device is not ready, please select another one on the devices mode"));
-                            return;
+                    bool requiresDevice = act->property(Constants::UBUNTU_MENUJSON_DEVICEREQUIRED).toBool();
+                    if(requiresDevice) {
+                        UbuntuDevice::ConstPtr device = UbuntuDeviceMode::instance()->device();
+                        if (device) {
+                            if( device->deviceState() != ProjectExplorer::IDevice::DeviceReadyToUse ) {
+                                QMessageBox::warning(0,tr("Device not ready"),tr("The currently selected device is not ready, please select another one on the devices mode"));
+                                return;
+                            }
+
+                            command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DEVICE_IP),device->sshParameters().host);
+                            command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DEVICE_USERNAME),device->sshParameters().userName);
+                            command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DEVICE_PORT),QString::number(device->sshParameters().port));
+
+                            command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_SERIALNUMBER),device->serialNumber());
                         }
-
-                        command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DEVICE_IP),device->sshParameters().host);
-                        command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DEVICE_USERNAME),device->sshParameters().userName);
-                        command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DEVICE_PORT),QString::number(device->sshParameters().port));
-
-                        command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_SERIALNUMBER),device->serialNumber());
                     }
                     command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_SHAREDIRECTORY),Constants::UBUNTU_SHAREPATH);
                     command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_SCRIPTDIRECTORY),Constants::UBUNTU_SCRIPTPATH);
