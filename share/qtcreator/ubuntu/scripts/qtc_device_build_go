@@ -63,7 +63,7 @@ DEVICETRIPLET=$($SSH "gcc -dumpmachine")
 BINDIR="${DEV_PROJECT_DIR}/click/lib/${DEVICETRIPLET}/bin"
 
 $SSH mkdir -p "${BINDIR}"
-$SSH "cd ${DEV_PROJECT_DIR};GOPATH=${DEV_PROJECT_DIR} GOBIN=${BINDIR} go install ${BUILDTARGETS}"  
+$SSH "cd ${DEV_PROJECT_DIR};GOPATH=${DEV_PROJECT_DIR} GOBIN=${BINDIR} TMPDIR=/tmp go install ${BUILDTARGETS}"  
 if [[ $? -gt 0 ]]; then
   echo "Have you enabled Platform Development Mode? (Devices > Advanced)"
   exit
