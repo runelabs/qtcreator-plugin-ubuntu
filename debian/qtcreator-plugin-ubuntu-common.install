@@ -7,4 +7,5 @@ usr/share/qtcreator/templates/wizards/ubuntu/projectypes.json
 usr/share/qtcreator/templates/wizards/ubuntu/scope
 usr/share/qtcreator/templates/wizards/ubuntu/simple
 usr/share/qtcreator/templates/wizards/ubuntu/tabs
+usr/share/qtcreator/templates/wizards/ubuntu/goproject
 usr/share/qtcreator/ubuntu
