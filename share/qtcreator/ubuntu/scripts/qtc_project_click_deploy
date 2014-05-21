@@ -16,6 +16,8 @@
 # Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
 # Author: Benjamin Zeller <benjamin.zeller@canonical.com>
 
+set -x
+
 . `dirname $0`/functions.inc
 
 PACKAGENAME=$2
@@ -62,7 +64,8 @@ echo "Lets create the device tmp folder to ${TARGET_DEVICE}:${TARGET_DEVICE_PORT
 $SSH mkdir -vp ${TARGET_DEVICE_HOME} 2> /dev/null
 
 # transfer click package to device
-echo "Transfer the click package to the device"
+PCK="$(pwd)/${PACKAGENAME}"
+echo "Transfer the click package ${PCK} to the device"
 set +e
 $SCP ${PACKAGENAME} ${TARGET_DEVICE}:${TARGET_DEVICE_HOME} 2> /dev/null
 if [[ ${?} -eq 0 ]]; then
