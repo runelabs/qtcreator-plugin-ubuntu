@@ -16,8 +16,6 @@
 # Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
 # Author: Benjamin Zeller <benjamin.zeller@canonical.com>
 
-set -x
-
 . `dirname $0`/functions.inc
 
 PACKAGENAME=$2
