@@ -138,6 +138,18 @@
                     }
                 ]
             },
+						{
+                "name": "Install Application on Device",
+                "id": "Ubuntu.Build.PackageInstall.Go",
+                "workingDirectory": "%0/..",
+                "projectRequired": true,
+                "deviceRequired": true,
+                "context": ["GoProject.ProjectContext"],
+                "saveRequired": true,
+                "actions": [
+                    "%SCRIPTDIRECTORY%/qtc_goproject_click_createanddeploy %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp %USERNAME% \"%GOBUILDTARGETS%\""
+                ]
+            },
             {
                 "name": "Build Application on Device",
                 "id": "Ubuntu.Build.Go",
