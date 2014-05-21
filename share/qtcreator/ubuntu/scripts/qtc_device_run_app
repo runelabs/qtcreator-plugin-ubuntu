@@ -102,7 +102,9 @@ do
 done
 echo "IMPORT: ${ARGS_FROM_DESKTOP}"
 
-COMMAND="test -f /etc/ubuntu-touch-session.d/\$(getprop ro.product.device).conf && for myenv in \$(cat /etc/ubuntu-touch-session.d/\$(getprop ro.product.device).conf); do `echo \"export\" \\\$myenv`; done ; export ${DBUS_SESSION_BUS_ADDRESS=}; APP_ID=${APP_ID} ${APP_LAUNCHER} ${ARGS_FROM_DESKTOP} ${APP_LAUNCH_PREFIX}${TARGET_DEVICE_HOME}/${APP_ID}/${MAIN_QML} --desktop_file_hint=${TARGET_DEVICE_HOME}/${APP_ID}/${DESKTOP_FILENAME} ${EXTRA_COMMAND_LINE_ARGS}"
+DESKTOP_FILE_TARGET="${TARGET_DEVICE_HOME}/../.local/share/applications/$(basename ${DESKTOP_FILENAME})"
+
+COMMAND="cp ${TARGET_DEVICE_HOME}/${FOLDERNAME}/${DESKTOP_FILENAME} ${DESKTOP_FILE_TARGET} && test -f /etc/ubuntu-touch-session.d/\$(getprop ro.product.device).conf && for myenv in \$(cat /etc/ubuntu-touch-session.d/\$(getprop ro.product.device).conf); do `echo \"export\" \\\$myenv`; done ; export ${DBUS_SESSION_BUS_ADDRESS=}; APP_ID=${APP_ID} ${APP_LAUNCHER} ${ARGS_FROM_DESKTOP} ${APP_LAUNCH_PREFIX}${TARGET_DEVICE_HOME}/${APP_ID}/${MAIN_QML} --desktop_file_hint=${DESKTOP_FILE_TARGET} ${EXTRA_COMMAND_LINE_ARGS}"
 echo "Going to execute: ${COMMAND}"
 
 # make sure that the device has the target directory
