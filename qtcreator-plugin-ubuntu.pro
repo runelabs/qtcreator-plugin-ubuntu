@@ -1,2 +1,3 @@
 TEMPLATE = subdirs
-SUBDIRS = src/ubuntu
+SUBDIRS = src/ubuntu \
+          tests

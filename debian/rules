@@ -24,6 +24,8 @@ override_dh_auto_install:
 	ln -s /usr/bin/qtcreator debian/tmp/usr/bin/ubuntu-sdk
 	cp -r $(CURDIR)/share $(CURDIR)/debian/tmp/usr
 	dh_auto_install --destdir=debian/tmp/usr
+	rm -rfv debian/tmp/usr/usr/tests
+
 
 override_dh_shlibdeps:
 	dh_shlibdeps -l/usr/lib/$(DEB_HOST_MULTIARCH)/qtcreator:/usr/lib/$(DEB_HOST_MULTIARCH)/qtcreator/plugins/QtProject

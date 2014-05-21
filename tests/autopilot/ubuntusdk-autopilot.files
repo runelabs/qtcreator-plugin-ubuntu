@@ -1,0 +1,3 @@
+qtcreator/tests/__init__.py
+qtcreator/tests/test_simple_app_template.py
+qtcreator/__init__.py

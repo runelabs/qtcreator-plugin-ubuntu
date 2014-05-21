@@ -1,0 +1,26 @@
+= click-check-functional =
+{
+  "error": {
+    "error1": {
+      "link": "http://somelink.com",
+      "text": "Error text"
+    }
+  },
+  "info": {
+    "test1": {
+      "text": "OK"
+    },
+    "test2": {
+      "text": "OK"
+    },
+    "test3": {
+      "text": "OK"
+    }
+  },
+  "warn": {
+    "warning1": {
+      "link": "http://somelink.com/warning",
+      "text": "Warning message"
+    }
+  }
+}
