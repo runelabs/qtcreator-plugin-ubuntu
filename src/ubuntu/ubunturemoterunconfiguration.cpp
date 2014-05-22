@@ -233,9 +233,10 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
     }
 
     QFileInfo desk(m_desktopFile);
-    m_arguments.append(QString::fromLatin1("--desktop_file_hint=/home/phablet/dev_tmp/%1/%2")
-                       .arg(target()->project()->displayName())
-                       .arg(desk.fileName()));
+    m_arguments.append(QString::fromLatin1("--desktop_file_hint=/home/phablet/.local/share/applications/%2")
+                            .arg(target()->project()->displayName())
+                            .arg(desk.fileName()));
+
     m_arguments.append(QLatin1String("--stage_hint=main_stage"));
 
     return true;
