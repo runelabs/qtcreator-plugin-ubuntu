@@ -12,6 +12,9 @@
                "fileName": "displayName.desktop"
            },
            {
+               "fileName": "displayName.png"
+           },
+           {
                "fileName": "tests/unit/tst_hellocomponent.qml"
            },
            {
@@ -61,6 +64,9 @@
                "fileName": "displayName.desktop"
            },
            {
+               "fileName": "displayName.png"
+           },
+           {
                "fileName": "tests/unit/tst_hellocomponent.qml"
            },
            {
@@ -104,6 +110,9 @@
                "fileName": "displayName.desktop"
            },
            {
+               "fileName": "displayName.png"
+           },
+           {
                "fileName": "www/js/app.js"
            },
            {
@@ -128,6 +137,7 @@
            { "fileName": "backend/tests/unit/tst_mytype.qml" },
            { "fileName": "app/graphics/toolbarIcon@8.png" },
            { "fileName": "app/displayName.desktop.in" },
+           { "fileName": "app/displayName.png"},
            { "fileName": "app/displayName.qml" },
            { "fileName": "app/tests/unit/tst_hellocomponent.qml" },
            { "fileName": "app/components/CMakeLists.txt" },
@@ -258,6 +268,9 @@
        "files": [
            {
                "fileName": "share/displayName/main.qml"
+           },
+           {
+               "fileName": "displayName.png"
            },
            {
                "fileName": "displayName.desktop"
