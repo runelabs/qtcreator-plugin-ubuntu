@@ -55,9 +55,9 @@
                 "deviceRequired": true,
                 "qmlProjectRequired": true,
                 "saveRequired": true,
-                "context" : "QmlProject.ProjectContext",
+                "context" : ["QmlProject.ProjectContext"],
                 "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_device_run_app %SERIALNUMBER% qmlscene %FOLDERNAME% %DISPLAYNAME%.desktop %DISPLAYNAME%.qml /home/%USERNAME%/dev_tmp %USERNAME%@%IP% %PORT%"
+                    "%SCRIPTDIRECTORY%/qtc_device_run_app_click %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp"
                 ]
             },
             {
@@ -74,7 +74,7 @@
                 ]
             },
             {
-                "name": "Run HTML5 Application on Device",
+                "name": "Run Application on Device",
                 "id": "Ubuntu.Build.RunHtml5",
                 "workingDirectory": "%0/..",
                 "projectRequired": true,
@@ -82,8 +82,9 @@
                 "deviceRequired": true,
                 "ubuntuHtmlProjectRequired": true,
                 "saveRequired": true,
+                "context" : ["UbuntuProject.ProjectContext"],
                 "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_device_run_app %SERIALNUMBER% %APPRUNNEREXECNAME% %FOLDERNAME% %DISPLAYNAME%.desktop www /home/%USERNAME%/dev_tmp %USERNAME%@%IP% %PORT% --www= --inspector"
+                    "%SCRIPTDIRECTORY%/qtc_device_run_app_click %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp"
                 ]
             },
             {
