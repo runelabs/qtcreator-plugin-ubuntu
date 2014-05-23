@@ -3,6 +3,7 @@
 #include "ubuntuconstants.h"
 #include "ubuntucmaketool.h"
 #include "ubuntudevice.h"
+#include "ubuntuclickdialog.h"
 
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kit.h>
@@ -14,6 +15,8 @@
 #include <qtsupport/qtkitinformation.h>
 #include <cmakeprojectmanager/cmakekitinformation.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>
+
+#include <QMessageBox>
 
 namespace Ubuntu {
 namespace Internal {
@@ -62,7 +65,23 @@ void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
     QList<ClickToolChain*> toolchains = clickToolChains();
     if(toolchains.size() == 0) {
         //create target
-        return;
+        int choice = QMessageBox::question(0,
+                              tr("No target available"),
+                              tr("There is no chroot available on your system, do you want to create it now?"));
+
+        if(choice == QMessageBox::Yes) {
+            if(!UbuntuClickDialog::createClickChrootModal(false))
+                return;
+
+            toolchains = clickToolChains();
+            if(toolchains.size() == 0) {
+                QMessageBox::critical(0,tr("Error"),tr("No toolchains where found"));
+                return;
+            }
+
+        } else {
+            return;
+        }
     }
 
     qSort(toolchains.begin(),toolchains.end(),lessThanToolchain);

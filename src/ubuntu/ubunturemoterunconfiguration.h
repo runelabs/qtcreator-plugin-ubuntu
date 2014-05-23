@@ -29,7 +29,7 @@ class UbuntuRemoteRunConfiguration : public RemoteLinux::AbstractRemoteLinuxRunC
     Q_OBJECT
 
 public:
-    UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent);
+    UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
     UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent, UbuntuRemoteRunConfiguration *source);
 
     // AbstractRemoteLinuxRunConfiguration interface
@@ -54,10 +54,14 @@ public:
     virtual bool fromMap(const QVariantMap &map);
     virtual QVariantMap toMap() const;
 
+    QString appId () const;
+    QString clickPackage () const;
+
     static Core::Id typeId ();
     void setArguments (const QStringList &args);
 
 private:
+    QString m_clickPackage;
     QString m_appId;
     QString m_desktopFile;
     QString m_localExecutable;

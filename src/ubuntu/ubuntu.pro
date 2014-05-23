@@ -108,7 +108,10 @@ SOURCES += \
     ubuntulocalrunconfigurationfactory.cpp \
     ubunturemoteruncontrolfactory.cpp \
     ubuntulocalrunconfiguration.cpp \
-    ubuntudevicesmodel.cpp
+    ubuntudevicesmodel.cpp \
+    ubunturemoteruncontrol.cpp \
+    ubunturemotedebugsupport.cpp \
+    ubunturemoteanalyzesupport.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -170,5 +173,8 @@ HEADERS += \
     ubuntulocalrunconfigurationfactory.h \
     ubunturemoteruncontrolfactory.h \
     ubuntulocalrunconfiguration.h \
-    ubuntudevicesmodel.h
+    ubuntudevicesmodel.h \
+    ubunturemoteruncontrol.h \
+    ubunturemotedebugsupport.h \
+    ubunturemoteanalyzesupport.h
 

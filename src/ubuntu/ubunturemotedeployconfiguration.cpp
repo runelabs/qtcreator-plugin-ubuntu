@@ -66,7 +66,16 @@ UbuntuDirectUploadStep::~UbuntuDirectUploadStep()
 
 void UbuntuDirectUploadStep::run(QFutureInterface<bool> &fi)
 {
+    m_foundClickPackage = false;
     projectNameChanged();
+    if(!m_foundClickPackage) {
+        emit addOutput(tr("Deploy step failed. No click package was created"), ErrorMessageOutput);
+        fi.reportResult(false);
+        emit finished();
+        return;
+    }
+
+
     m_deployService->setIncrementalDeployment(false);
     m_deployService->setIgnoreMissingFiles(false);
 
@@ -152,17 +161,29 @@ static void createFileList(const QDir &rootDir
 void UbuntuDirectUploadStep::projectNameChanged()
 {
     qDebug()<<"------------------------ Updating DEPLOYLIST ---------------------------";
-    //iterate over the .deploy dir and put all files in the list
-    QDir d(target()->activeBuildConfiguration()->buildDirectory().toString()+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR));
+
+    ProjectExplorer::BuildStepList *bsList = deployConfiguration()->stepList();
 
     QList<ProjectExplorer::DeployableFile> list;
-    createFileList(  d
-                     , QLatin1String("/")
-                     , QString::fromLatin1("/home/phablet/dev_tmp/%1").arg(target()->project()->displayName())
-                     , &list);
+    foreach(ProjectExplorer::BuildStep *currStep ,bsList->steps()) {
+        UbuntuClickPackageStep *pckStep = qobject_cast<UbuntuClickPackageStep*>(currStep);
+        if(!pckStep)
+            continue;
 
-    m_deployService->setDeployableFiles(list);
-    target()->project()->displayName();
+        QFileInfo info(pckStep->packagePath());
+        if(info.exists()) {
+            list.append(ProjectExplorer::DeployableFile(info.filePath(),
+                                                        QStringLiteral("/tmp")));
+
+            list.append(ProjectExplorer::DeployableFile(QStringLiteral("%1/qtc_device_applaunch.py").arg(Constants::UBUNTU_SCRIPTPATH),
+                                                        QStringLiteral("/tmp")));
+            list.append(ProjectExplorer::DeployableFile(QStringLiteral("%1/qtc_device_debughelper.py").arg(Constants::UBUNTU_SCRIPTPATH),
+                                                        QStringLiteral("/tmp")));
+            m_deployService->setDeployableFiles(list);
+            m_foundClickPackage = true;
+            break;
+        }
+    }
 }
 
 
@@ -221,9 +242,14 @@ ProjectExplorer::DeployConfiguration *UbuntuRemoteDeployConfigurationFactory::cr
         mkStep->setUseNinja(false);
         dc->stepList()->insertStep(0, mkStep);
         step++;
+
+        UbuntuClickPackageStep *pckStep = new UbuntuClickPackageStep(dc->stepList());
+        dc->stepList()->insertStep(1,pckStep);
     }
 
-    dc->stepList()->insertStep(step+1, new RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
+    RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep *checkSpace = new RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList());
+    checkSpace->setPathToCheck(QStringLiteral("/tmp"));
+    dc->stepList()->insertStep(step+1, checkSpace);
 
     UbuntuDirectUploadStep* upload = new UbuntuDirectUploadStep(dc->stepList());
     dc->stepList()->insertStep(step+2,upload);

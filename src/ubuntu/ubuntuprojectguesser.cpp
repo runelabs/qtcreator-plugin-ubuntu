@@ -174,6 +174,35 @@ Utils::FileName UbuntuProjectGuesser::findFileRecursive(const Utils::FileName &s
     return Utils::FileName();
 }
 
+QList<Utils::FileName> UbuntuProjectGuesser::findFilesRecursive(const Utils::FileName &searchdir, const QRegularExpression &regexp)
+{
+    QList<Utils::FileName> result;
+    QFileInfo dirInfo = searchdir.toFileInfo();
+    if(!dirInfo.exists())
+        return result;
+
+    if(!dirInfo.isDir())
+        return result;
+
+    QDir dir(dirInfo.absoluteFilePath());
+    QStringList entries = dir.entryList(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);
+
+    foreach (const QString& entry, entries) {
+        QFileInfo info(dir.absoluteFilePath(entry));
+        if(info.isDir()) {
+            result.append(findFileRecursive(Utils::FileName::fromString(dir.absoluteFilePath(entry)),regexp));
+            continue;
+        }
+
+        QRegularExpressionMatch match = regexp.match(entry);
+        if(match.hasMatch()) {
+            result.append(Utils::FileName(info));
+        }
+    }
+
+    return result;
+}
+
 QString UbuntuProjectGuesser::projectTypeFromCacheOrProject(ProjectExplorer::Project *project)
 {
     //First try to get the variable from the Cache file

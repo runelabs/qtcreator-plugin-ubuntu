@@ -56,6 +56,7 @@ private slots:
 
 private:
     RemoteLinux::GenericDirectUploadService *m_deployService;
+    bool m_foundClickPackage;
 };
 
 class UbuntuDeployStepFactory : public ProjectExplorer::IBuildStepFactory

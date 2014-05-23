@@ -716,7 +716,7 @@ void UbuntuDeviceHelper::enablePortForward()
     QStringList args = QStringList()
             << m_dev->serialNumber()
             <<deviceSshPort
-            <<ports;
+           <<ports;
 
     QProcess adb;
     adb.start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_PORTFORWARD_SCRIPT)
@@ -1289,14 +1289,14 @@ void UbuntuDeviceProcess::terminate()
 
 QString UbuntuDeviceProcess::fullCommandLine() const
 {
+    //return QStringLiteral("%1 %2").arg(quote(executable()),Utils::QtcProcess::joinArgsUnix(arguments()));
+
     QStringList rcFiles = QStringList()
             << QLatin1String("/etc/profile")
             << QLatin1String("$HOME/.profile")
             << QLatin1String("$HOME/.bashrc");
 
-    QStringList confFiles = QStringList()<<QString::fromLatin1("/etc/ubuntu-touch-session.d/$(getprop ro.product.device).conf");
-    QString fullCommandLine = QString::fromLatin1("test -f %1 && for myenv in $(cat  %1); do `echo \"export\" $myenv`; done ;").arg(confFiles[0]);
-
+    QString fullCommandLine;
     foreach (const QString &filePath, rcFiles)
         fullCommandLine += QString::fromLatin1("test -f %1 && . %1;").arg(filePath);
     if (!m_workingDir.isEmpty()) {
@@ -1304,30 +1304,6 @@ QString UbuntuDeviceProcess::fullCommandLine() const
                 .append(QLatin1String(" && "));
     }
 
-    Utils::Environment env = environment();
-
-    QString srcKey  = QStringLiteral("QTC_DESKTOP_PATH");
-    QString destKey = QStringLiteral("QTC_DESKTOP_DEST");
-
-    if(env.hasKey(srcKey) && env.hasKey(destKey)) {
-        QString sourcePath = env.value(srcKey);
-        QString destPath   = env.value(destKey);
-
-        fullCommandLine.append(QStringLiteral("cp %1 %2")
-                               .arg(sourcePath)
-                               .arg(destPath))
-                .append(QStringLiteral(" && "));
-
-        env.unset(srcKey);
-        env.unset(destKey);
-    }
-
-
-    const QString envString = env.toStringList().join(QLatin1String(" "));
-    if (!envString.isEmpty())
-        fullCommandLine.append(QLatin1Char(' ')).append(envString);
-    if (!fullCommandLine.isEmpty())
-        fullCommandLine += QLatin1Char(' ');
     fullCommandLine.append(quote(executable()));
     if (!arguments().isEmpty()) {
         fullCommandLine.append(QLatin1Char(' '));

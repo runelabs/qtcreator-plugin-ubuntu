@@ -47,8 +47,11 @@ QList<Core::Id> UbuntuCMakeMakeStepFactory::availableCreationIds(ProjectExplorer
     if(!canHandle(parent->target()))
         return QList<Core::Id>();
 
-    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
-        return QList<Core::Id>() << Core::Id(Constants::UBUNTU_DEPLOY_MAKESTEP_ID);
+    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_DEPLOY) {
+        return QList<Core::Id>()
+                << Core::Id(Constants::UBUNTU_DEPLOY_MAKESTEP_ID)
+                << Core::Id(Constants::UBUNTU_CLICK_PACKAGESTEP_ID);
+    }
 
     return QList<Core::Id>() << Core::Id(Constants::UBUNTU_CLICK_CMAKE_MAKESTEP_ID);
 }
@@ -80,6 +83,8 @@ QString UbuntuCMakeMakeStepFactory::displayNameForId(const Core::Id id) const
         return tr("UbuntuSDK-Make", "Display name for UbuntuCMakeMakeStep id.");
     if (id == Constants::UBUNTU_DEPLOY_MAKESTEP_ID)
         return tr("UbuntuSDK create deployment package", "Display name for UbuntuCMakeDeployStep id.");
+    if (id == Constants::UBUNTU_CLICK_PACKAGESTEP_ID)
+        return tr("UbuntuSDK create click package", "Display name for UbuntuPackageStep id.");
     return QString();
 }
 
@@ -101,6 +106,11 @@ ProjectExplorer::BuildStep *UbuntuCMakeMakeStepFactory::create(ProjectExplorer::
         step->setClean(false);
         return step;
     }
+
+   if (id == Constants::UBUNTU_CLICK_PACKAGESTEP_ID) {
+       UbuntuClickPackageStep *step = new UbuntuClickPackageStep(parent);
+       return step;
+   }
 
     UbuntuCMakeMakeStep *step = new UbuntuCMakeMakeStep(parent);
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
@@ -143,6 +153,8 @@ ProjectExplorer::BuildStep *UbuntuCMakeMakeStepFactory::clone(ProjectExplorer::B
         return new UbuntuCMakeDeployStep(parent,static_cast<UbuntuCMakeDeployStep *>(product));
     else if(product->id() == Core::Id(Constants::UBUNTU_DEPLOY_MAKESTEP_ID))
         return new UbuntuCMakeMakeStep(parent, static_cast<UbuntuCMakeMakeStep *>(product));
+    else if(product->id() == Core::Id(Constants::UBUNTU_CLICK_PACKAGESTEP_ID))
+        return new UbuntuClickPackageStep(parent, static_cast<UbuntuClickPackageStep *>(product));
 
     QTC_ASSERT(false,return 0);
 }
@@ -209,7 +221,7 @@ bool UbuntuCMakeDeployStep::fromMap(const QVariantMap &map)
 UbuntuClickPackageStep::UbuntuClickPackageStep(ProjectExplorer::BuildStepList *bsl)
     : ProjectExplorer::AbstractProcessStep(bsl,Constants::UBUNTU_CLICK_PACKAGESTEP_ID)
 {
-
+    setDefaultDisplayName(tr("UbuntuSDK Click build"));
 }
 
 UbuntuClickPackageStep::UbuntuClickPackageStep(ProjectExplorer::BuildStepList *bsl, UbuntuClickPackageStep *bs)
@@ -241,7 +253,7 @@ void UbuntuClickPackageStep::processFinished(int exitCode, QProcess::ExitStatus 
         QRegularExpressionMatch m = exp.match(m_lastLine);
         if(m.hasMatch()) {
             m_clickPackageName = m.captured(1);
-            emit addOutput(tr("The click package has been created in %1").arg(buildConfiguration()->buildDirectory().toString()) ,
+            emit addOutput(tr("The click package has been created in %1").arg(target()->activeBuildConfiguration()->buildDirectory().toString()) ,
                            ProjectExplorer::BuildStep::MessageOutput);
         }
     }
@@ -253,7 +265,7 @@ bool UbuntuClickPackageStep::init()
 {
     m_tasks.clear();
 
-    ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
+    ProjectExplorer::BuildConfiguration *bc = target()->activeBuildConfiguration();
     if (!bc){
         ProjectExplorer::Task t(ProjectExplorer::Task::Error
                                 ,tr("No valid BuildConfiguration set for step: %1").arg(displayName())
@@ -313,6 +325,51 @@ void UbuntuClickPackageStep::run(QFutureInterface<bool> &fi)
        return;
     }
 
+    ProjectExplorer::BuildConfiguration *bc = target()->activeBuildConfiguration();
+    if( bc->buildType() == ProjectExplorer::BuildConfiguration::Debug ) {
+        QRegularExpression fileRegEx(QStringLiteral("^.*\\.desktop$"));
+        QList<Utils::FileName> desktopFiles = UbuntuProjectGuesser::findFilesRecursive(bc->buildDirectory().
+                                                                                       appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR)),
+                                                                                       fileRegEx);
+
+
+        QRegularExpression regex(QStringLiteral("^(\\s*[Ee][Xx][Ee][cC]=.*)$"),QRegularExpression::MultilineOption);
+        foreach(const Utils::FileName &deskFile, desktopFiles) {
+            QFile deskFileFd(deskFile.toFileInfo().absoluteFilePath());
+            if(!deskFileFd.open(QIODevice::ReadOnly))
+                continue;
+
+            QString contents;
+            {
+                QTextStream deskInStream(&deskFileFd);
+                contents = deskInStream.readAll();
+            }
+            deskFileFd.close();
+
+            QRegularExpressionMatch m = regex.match(contents);
+            if(!m.hasMatch())
+                continue;
+
+            QString exec = m.captured(1);
+            int idxOfEq = exec.indexOf(QStringLiteral("="));
+            exec.remove(0,idxOfEq+1);
+
+            //@TODO maybe put the debughelper scripts into the click packages
+            contents.replace(m.capturedStart(1),
+                             m.capturedLength(1),
+                             QStringLiteral("Exec=/tmp/qtc_device_debughelper.py \"%1\"").arg(exec));
+
+
+            if(!deskFileFd.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+                continue;
+            }
+
+            QTextStream outStream(&deskFileFd);
+            outStream << contents;
+            deskFileFd.close();
+        }
+    }
+
     AbstractProcessStep::run(fi);
 }
 
@@ -325,7 +382,7 @@ QString UbuntuClickPackageStep::packagePath() const
 {
     if(m_clickPackageName.isEmpty())
         return QString();
-    return buildConfiguration()->buildDirectory().toString()
+    return target()->activeBuildConfiguration()->buildDirectory().toString()
             + QDir::separator()
             + m_clickPackageName;
 }

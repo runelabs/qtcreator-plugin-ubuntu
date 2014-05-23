@@ -19,6 +19,7 @@
 #include "ubuntuclicktool.h"
 #include "ubuntupackagingmode.h"
 #include "ubuntuclickmanifest.h"
+#include "ubuntuclickdialog.h"
 
 #include <QRegularExpression>
 #include <QDir>
