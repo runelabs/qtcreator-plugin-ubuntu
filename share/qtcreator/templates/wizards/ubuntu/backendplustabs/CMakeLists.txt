@@ -25,7 +25,7 @@ option(INSTALL_TESTS "Install the tests on make install" on)
 set(APP_NAME          %DISPLAYNAME%)
 set(%DISPLAYNAME_UPPER%_DIR "share/qml/%DISPLAYNAME%")
 set(MAIN_QML          "%DISPLAYNAME%.qml")
-set(ICON              "grapics/toolbarIcon@8.png")
+set(ICON              "share/app/%DISPLAYNAME%.png")
 
 #set install paths
 set(CMAKE_INSTALL_PREFIX /)
