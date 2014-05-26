@@ -44,6 +44,7 @@
 
 #include <QFileDialog>
 #include <QJsonDocument>
+#include <QJsonParseError>
 #include <QListWidgetItem>
 
 #include <QMenu>
@@ -53,6 +54,10 @@
 
 using namespace Ubuntu;
 using namespace Ubuntu::Internal;
+
+enum {
+    debug = 0
+};
 
 UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
     QWidget(parent),
@@ -107,6 +112,11 @@ UbuntuPackagingWidget::~UbuntuPackagingWidget()
     clearAdditionalBuildSteps();
 }
 
+QString UbuntuPackagingWidget::createPackageName(const QString &userName, const QString &projectName)
+{
+    return QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_NAME)).arg(userName).arg(projectName);
+}
+
 void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd) {
 
     disconnect(m_UbuntuMenu_connection);
@@ -134,9 +144,10 @@ void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd) 
     if (sClickPackagePath.isEmpty())
         return;
 
-
     if (m_reviewToolsInstalled) {
-        qDebug()<<"Going to verify: "<<sClickPackagePath;
+
+        if(debug)
+            qDebug()<<"Going to verify: "<<sClickPackagePath;
 
         m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION).arg(sClickPackagePath));
         m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(sClickPackagePath));
@@ -355,7 +366,7 @@ void UbuntuPackagingWidget::on_pushButtonReset_clicked() {
     m_manifest.setMaintainer(m_bzr.whoami());
     QString userName = m_bzr.launchpadId();
     if (userName.isEmpty()) userName = QLatin1String(Constants::USERNAME);
-    m_manifest.setName(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_NAME)).arg(userName).arg(m_projectName));
+    m_manifest.setName(createPackageName(userName,m_projectName));
     m_manifest.save();
     reload();
 }
@@ -423,7 +434,76 @@ void UbuntuPackagingWidget::save(bool bSaveSimple) {
     }
 }
 
+void UbuntuPackagingWidget::addMissingFieldsToManifest (QString fileName)
+{
+    QFile in(fileName);
+    if(!in.open(QIODevice::ReadOnly))
+        return;
+
+    QFile templateFile(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_MANIFEST));
+    if(!templateFile.open(QIODevice::ReadOnly))
+        return;
+
+    QJsonParseError err;
+    QJsonDocument templateDoc = QJsonDocument::fromJson(templateFile.readAll(),&err);
+    if(err.error != QJsonParseError::NoError)
+        return;
+
+    QJsonDocument inDoc = QJsonDocument::fromJson(in.readAll(),&err);
+    if(err.error != QJsonParseError::NoError)
+        return;
+
+    in.close();
+
+    QJsonObject templateObject = templateDoc.object();
+    QJsonObject targetObject = inDoc.object();
+    QJsonObject::const_iterator i = templateObject.constBegin();
+
+    bool changed = false;
+    for(;i != templateObject.constEnd(); i++) {
+        if(!targetObject.contains(i.key())) {
+            changed = true;
+
+            if(debug)
+                qDebug()<<"Manifest file missing key: "<<i.key();
+
+            if (i.key() == QStringLiteral("name")) {
+                QString userName = m_bzr.launchpadId();
+                if (userName.isEmpty()) userName = QLatin1String(Constants::USERNAME);
+                targetObject.insert(i.key(),createPackageName(userName,m_projectName));
+
+                if(debug)
+                    qDebug()<<"Setting to "<<createPackageName(userName,m_projectName);
+            } else if (i.key() == QStringLiteral("maintainer")) {
+                targetObject.insert(i.key(),m_bzr.whoami());
+
+                if(debug)
+                    qDebug()<<"Setting to "<<m_bzr.whoami();
+            } else if (i.key() == QStringLiteral("framework")) {
+                targetObject.insert(i.key(),UbuntuClickTool::getMostRecentFramework( QString() ));
+            } else {
+                targetObject.insert(i.key(),i.value());
+
+                if(debug)
+                    qDebug() <<"Setting to "<<i.value();
+            }
+        }
+    }
+
+    if (changed) {
+        if(!in.open(QIODevice::WriteOnly | QIODevice::Truncate))
+            return;
+        QJsonDocument doc(targetObject);
+        QByteArray data = doc.toJson();
+        in.write(data);
+        in.close();
+    }
+}
+
 void UbuntuPackagingWidget::load_manifest(QString fileName) {
+
+    addMissingFieldsToManifest(fileName);
+
     m_manifest.load(fileName,m_projectName);
     // Commented out for bug #1274265 https://bugs.launchpad.net/qtcreator-plugin-ubuntu/+bug/1274265
     //m_manifest.setMaintainer(m_bzr.whoami());
@@ -549,7 +629,7 @@ void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {
         save((ui->tabWidget->currentWidget() == ui->tabSimple));
 
         if(!m_UbuntuMenu_connection)
-            qDebug()<<"Could not connect signals";
+            qWarning()<<"Could not connect signals";
 
         QAction* action = UbuntuMenu::menuAction(Core::Id(Constants::UBUNTUPACKAGINGWIDGET_BUILDPACKAGE_ID));
         if(action) {
@@ -583,7 +663,8 @@ void UbuntuPackagingWidget::buildFinished(const bool success)
                 case None:
                     break;
                 case Verify: {
-                    qDebug()<<"Going to verify: "<<sClickPackagePath;
+                    if(debug)
+                        qDebug()<<"Going to verify: "<<sClickPackagePath;
 
                     m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION).arg(sClickPackagePath));
                     m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(sClickPackagePath));
