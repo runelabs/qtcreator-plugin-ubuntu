@@ -37,6 +37,7 @@ public:
     struct Hook {
         QString appId;
         QString desktopFile;
+        QString scope;
         QString appArmorFile;
     };
 

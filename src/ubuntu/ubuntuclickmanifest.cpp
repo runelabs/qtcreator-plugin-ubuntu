@@ -154,16 +154,31 @@ QList<UbuntuClickManifest::Hook> UbuntuClickManifest::hooks()
     while (it.hasNext()) {
         it.next();
         QScriptValue appDescriptor = it.value();
-        if(!appDescriptor.isObject()
-                || !appDescriptor.property(QLatin1String("desktop")).isValid()
-                || !appDescriptor.property(QLatin1String("apparmor")).isValid()) {
+        if(!appDescriptor.isObject()) {
             printToOutputPane(tr("Invalid hook in manifest.json file."));
+            continue;
+        }
+
+        if(!appDescriptor.property(QLatin1String("apparmor")).isValid()) {
+            printToOutputPane(tr("The apparmor path is missing in the manifest file"));
+            continue;
+        }
+
+        bool isScope = appDescriptor.property(QLatin1String("scope")).isValid();
+        bool isApp = appDescriptor.property(QLatin1String("desktop")).isValid();
+
+        if( (isScope && isApp) || (!isScope && !isApp)) {
+            printToOutputPane(tr("The manifest file needs to specify if this is a app or a scope"));
             continue;
         }
 
         Hook app;
         app.appId = it.name();
-        app.desktopFile  = it.value().property(QLatin1String("desktop")).toString();
+        if(isApp)
+            app.desktopFile  = it.value().property(QLatin1String("desktop")).toString();
+        if(isScope)
+            app.scope  = it.value().property(QLatin1String("scope")).toString();
+
         app.appArmorFile = it.value().property(QLatin1String("apparmor")).toString();
         hooks.append(app);
     }
