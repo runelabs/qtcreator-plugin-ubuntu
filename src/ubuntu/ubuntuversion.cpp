@@ -25,26 +25,7 @@ using namespace Ubuntu::Internal;
 
 UbuntuVersion::UbuntuVersion()
 {
-    QFile lsbRelease(QLatin1String(Constants::LSB_RELEASE));
-    if (lsbRelease.open(QIODevice::ReadOnly)) {
-        QByteArray data = lsbRelease.readAll();
-        lsbRelease.close();
 
-        foreach(QString line, QString::fromLatin1(data).split(QLatin1String("\n"))) {
-            if (line.startsWith(QLatin1String(Constants::DISTRIB_ID))) {
-                m_id = line.replace(QLatin1String(Constants::DISTRIB_ID),QLatin1String(""));
-
-            } else if (line.startsWith(QLatin1String(Constants::DISTRIB_RELEASE))) {
-                m_release = line.replace(QLatin1String(Constants::DISTRIB_RELEASE),QLatin1String(""));
-
-            } else if (line.startsWith(QLatin1String(Constants::DISTRIB_CODENAME))) {
-                m_codename = line.replace(QLatin1String(Constants::DISTRIB_CODENAME),QLatin1String(""));
-
-            } else if (line.startsWith(QLatin1String(Constants::DISTRIB_DESCRIPTION))) {
-                m_description = line.replace(QLatin1String(Constants::DISTRIB_DESCRIPTION),QLatin1String(""));
-            }
-        }
-    }
 }
 
 Core::FeatureSet UbuntuVersion::features() {
@@ -68,4 +49,33 @@ Core::FeatureSet UbuntuVersion::features() {
         retval |= Core::FeatureSet(Constants::FEATURE_UNITY_SCOPE);
     }
     return retval;
+}
+
+UbuntuVersion *UbuntuVersion::fromLsbFile(const QString &fileName)
+{
+    QFile lsbRelease(fileName);
+    if (lsbRelease.open(QIODevice::ReadOnly)) {
+        QByteArray data = lsbRelease.readAll();
+        lsbRelease.close();
+
+        UbuntuVersion *ver = new UbuntuVersion;
+
+        foreach(QString line, QString::fromLatin1(data).split(QLatin1String("\n"))) {
+            if (line.startsWith(QLatin1String(Constants::DISTRIB_ID))) {
+                ver->m_id = line.replace(QLatin1String(Constants::DISTRIB_ID),QLatin1String(""));
+
+            } else if (line.startsWith(QLatin1String(Constants::DISTRIB_RELEASE))) {
+                ver->m_release = line.replace(QLatin1String(Constants::DISTRIB_RELEASE),QLatin1String(""));
+
+            } else if (line.startsWith(QLatin1String(Constants::DISTRIB_CODENAME))) {
+                ver->m_codename = line.replace(QLatin1String(Constants::DISTRIB_CODENAME),QLatin1String(""));
+
+            } else if (line.startsWith(QLatin1String(Constants::DISTRIB_DESCRIPTION))) {
+                ver->m_description = line.replace(QLatin1String(Constants::DISTRIB_DESCRIPTION),QLatin1String(""));
+            }
+        }
+
+        return ver;
+    }
+    return 0;
 }

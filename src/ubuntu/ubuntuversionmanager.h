@@ -35,6 +35,7 @@ class UbuntuVersionManager : public QObject
 
 public:
     UbuntuVersionManager(QObject *parent = 0);
+    ~UbuntuVersionManager ();
 
     void detectAvailableVersions();
     
