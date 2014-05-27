@@ -219,7 +219,6 @@ UpstartAppLaunch.observer_delete_app_resume(on_resume)
 success = subprocess.call(["pkcon","remove",package_name+";"+package_version+";"+package_arch+";local:click"])
 if success != 0:
     print("Uninstalling the application failed")
-    sys.exit(1)
 
 if needs_debug_conf:
     try:

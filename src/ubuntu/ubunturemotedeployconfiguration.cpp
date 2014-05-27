@@ -177,8 +177,6 @@ void UbuntuDirectUploadStep::projectNameChanged()
 
             list.append(ProjectExplorer::DeployableFile(QStringLiteral("%1/qtc_device_applaunch.py").arg(Constants::UBUNTU_SCRIPTPATH),
                                                         QStringLiteral("/tmp")));
-            list.append(ProjectExplorer::DeployableFile(QStringLiteral("%1/qtc_device_debughelper.py").arg(Constants::UBUNTU_SCRIPTPATH),
-                                                        QStringLiteral("/tmp")));
             m_deployService->setDeployableFiles(list);
             m_foundClickPackage = true;
             break;

@@ -357,7 +357,7 @@ void UbuntuClickPackageStep::run(QFutureInterface<bool> &fi)
             //@TODO maybe put the debughelper scripts into the click packages
             contents.replace(m.capturedStart(1),
                              m.capturedLength(1),
-                             QStringLiteral("Exec=/tmp/qtc_device_debughelper.py \"%1\"").arg(exec));
+                             QStringLiteral("Exec=./qtc_device_debughelper.py \"%1\"").arg(exec));
 
 
             if(!deskFileFd.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
@@ -368,6 +368,18 @@ void UbuntuClickPackageStep::run(QFutureInterface<bool> &fi)
             outStream << contents;
             deskFileFd.close();
         }
+
+        const QString debScript = QStringLiteral("qtc_device_debughelper.py");
+        const QString debSourcePath = QStringLiteral("%1/%2").arg(Constants::UBUNTU_SCRIPTPATH).arg(debScript);
+        const QString debTargetPath = QStringLiteral("%1/%2/%3")
+                .arg(bc->buildDirectory().toString())
+                .arg(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                .arg(debScript);
+
+        if(QFile::exists(debTargetPath))
+            QFile::remove(debTargetPath);
+        if(QFile::exists(debSourcePath))
+            QFile::copy(debSourcePath,debTargetPath);
     }
 
     AbstractProcessStep::run(fi);

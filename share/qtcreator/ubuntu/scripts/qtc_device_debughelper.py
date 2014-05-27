@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 #
 # QTC device applauncher
@@ -25,13 +25,16 @@ import os.path
 import sys
 import subprocess
 import shlex
+import shutil
 
 app_id = os.environ.get('APP_ID')
 args   = shlex.split(sys.argv[1])
 env    = os.environ
 
-command = args.pop(0)
-effective_cmd = command
+effective_cmd = command = shutil.which(args.pop(0))
+if command is None:
+    print("Executable was not found in the PATH")
+    sys.exit(1)
 
 if app_id is None:
     sys.exit(1)
@@ -50,7 +53,10 @@ if os.path.isfile(debug_file_name):
         args.insert(0,"-qmljsdebugger="+debug_settings["qmlDebug"])
 
     if "gdbPort" in debug_settings:
-        effective_cmd = "/usr/bin/gdbserver"
+        effective_cmd = shutil.which("gdbserver")
+        if effective_cmd is None:
+            print("gdbserver was not found in the PATH")
+            sys.exit(1)
         args.insert(0,":"+debug_settings["gdbPort"])
         args.insert(1,command)
 

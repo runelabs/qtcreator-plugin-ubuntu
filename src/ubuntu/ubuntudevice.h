@@ -199,6 +199,7 @@ public:
     virtual void fromMap(const QVariantMap &map);
     virtual QVariantMap toMap() const;
     virtual ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const;
+    virtual ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const;
 
     Ptr sharedFromThis ();
     ConstPtr sharedFromThis() const;

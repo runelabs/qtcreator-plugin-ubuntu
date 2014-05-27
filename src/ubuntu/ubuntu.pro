@@ -111,7 +111,8 @@ SOURCES += \
     ubuntudevicesmodel.cpp \
     ubunturemoteruncontrol.cpp \
     ubunturemotedebugsupport.cpp \
-    ubunturemoteanalyzesupport.cpp
+    ubunturemoteanalyzesupport.cpp \
+    ubuntudevicesignaloperation.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -176,5 +177,6 @@ HEADERS += \
     ubuntudevicesmodel.h \
     ubunturemoteruncontrol.h \
     ubunturemotedebugsupport.h \
-    ubunturemoteanalyzesupport.h
+    ubunturemoteanalyzesupport.h \
+    ubuntudevicesignaloperation.h
 

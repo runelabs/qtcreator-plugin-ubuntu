@@ -21,6 +21,7 @@
 #include "ubuntuprocess.h"
 #include "ubuntuconstants.h"
 #include "ubuntudeviceconfigurationwidget.h"
+#include "ubuntudevicesignaloperation.h"
 #include "localportsmanager.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
@@ -1249,6 +1250,11 @@ QVariantMap UbuntuDevice::toMap() const
 ProjectExplorer::DeviceProcess *UbuntuDevice::createProcess(QObject *parent) const
 {
     return new UbuntuDeviceProcess(sharedFromThis(), parent);
+}
+
+ProjectExplorer::DeviceProcessSignalOperation::Ptr UbuntuDevice::signalOperation() const
+{
+    UbuntuDeviceSignalOperation::Ptr p(new UbuntuDeviceSignalOperation(sharedFromThis()));
 }
 
 UbuntuDevice::Ptr UbuntuDevice::sharedFromThis()
