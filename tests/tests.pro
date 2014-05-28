@@ -1,2 +1,3 @@
 TEMPLATE = subdirs
-SUBDIRS  = validation
+SUBDIRS  = validation \
+    adbportlist
