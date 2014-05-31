@@ -20,4 +20,4 @@
 LOCAL_TIME_STAMP=`date +20%y%m%d-%H%M%S`
 
 phablet-screenshot -s ${SERIALNUMBER} /tmp/screenshot-${LOCAL_TIME_STAMP}.png
-eog /tmp/screenshot-${LOCAL_TIME_STAMP}.png 
+xdg-open /tmp/screenshot-${LOCAL_TIME_STAMP}.png
