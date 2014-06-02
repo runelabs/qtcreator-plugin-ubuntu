@@ -50,6 +50,7 @@ bool Ubuntu::Internal::UbuntuDeviceFactory::canCreate() const
 
 ProjectExplorer::IDevice::Ptr Ubuntu::Internal::UbuntuDeviceFactory::create(Core::Id id) const
 {
+    Q_UNUSED(id);
     return UbuntuDevice::Ptr();
 }
 

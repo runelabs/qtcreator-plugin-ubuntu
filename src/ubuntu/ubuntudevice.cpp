@@ -54,10 +54,10 @@ const QLatin1String DEVICE_SERIAL_ARCHITECTURE("UbuntuDevice.Arch");
 UbuntuDeviceHelper::UbuntuDeviceHelper(UbuntuDevice *dev)
     : QObject(0)
     , m_clonedNwCount(0)
+    , m_errorCount(0)
     , m_dev(dev)
     , m_process(0)
     , m_deviceWatcher(0)
-    , m_errorCount(0)
 {
 #if 0
     connect(m_process,SIGNAL(finished(QString,int)),this,SLOT(processFinished(QString,int)));
@@ -1168,6 +1168,8 @@ QString UbuntuDevice::detectionStateString( ) const
     switch (m_processState) {
         case NotStarted:
             return tr("");
+        case WaitForEmulatorStart:
+            return tr("Waiting for the emulator to start up");
         case WaitForBoot:
             return tr("Waiting for the device to finish booting");
         case DetectDeviceVersion:

@@ -77,6 +77,8 @@ void UbuntuEmulatorNotifier::pollProcessReadyRead()
 
 void UbuntuEmulatorNotifier::pollProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
+    Q_UNUSED(exitStatus);
+
     m_pollTimout->start();
     pollProcessReadyRead();
     if (exitCode == 0) {

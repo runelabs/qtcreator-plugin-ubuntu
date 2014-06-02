@@ -2,6 +2,8 @@ QT += network qml quick webkitwidgets script scripttools declarative
 
 include(../plugin.pri)
 
+QMAKE_CXXFLAGS += -Werror
+
 #####################################
 # required for Ubuntu Device Notifier
 CONFIG += link_pkgconfig
@@ -13,15 +15,13 @@ PKGCONFIG += libudev
 ## Project files
 
 FORMS += \
-    ubuntudeviceswidget.ui \
     ubuntupackagingwidget.ui \
     ubuntusettingswidget.ui \
     ubuntusecuritypolicypickerdialog.ui \
     ubuntusettingsdeviceconnectivitywidget.ui \
     ubuntusettingsclickwidget.ui \
     ubuntuclickdialog.ui \
-    ubuntucreatenewchrootdialog.ui \
-    ubuntudeviceconfigurationwidget.ui
+    ubuntucreatenewchrootdialog.ui
 
 RESOURCES += \
     resources.qrc
@@ -107,7 +107,8 @@ SOURCES += \
     ubuntulocalrunconfigurationfactory.cpp \
     ubunturemoteruncontrolfactory.cpp \
     ubuntulocalrunconfiguration.cpp \
-    ubuntudevicesmodel.cpp
+    ubuntudevicesmodel.cpp \
+    ubuntushared.cpp
 
 HEADERS += \
     ubuntuplugin.h \

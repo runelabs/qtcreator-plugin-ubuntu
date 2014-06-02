@@ -50,7 +50,7 @@ class UbuntuRemoteRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
 public:
-    explicit UbuntuRemoteRunControlFactory() = default;
+    explicit UbuntuRemoteRunControlFactory() {};
     virtual ~UbuntuRemoteRunControlFactory() {}
 
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;

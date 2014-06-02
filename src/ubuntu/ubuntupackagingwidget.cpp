@@ -117,7 +117,10 @@ QString UbuntuPackagingWidget::createPackageName(const QString &userName, const 
     return QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_NAME)).arg(userName).arg(projectName);
 }
 
-void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd) {
+void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd)
+{
+    Q_UNUSED(proc);
+    Q_UNUSED(cmd);
 
     disconnect(m_UbuntuMenu_connection);
 

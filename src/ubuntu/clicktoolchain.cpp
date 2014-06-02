@@ -151,6 +151,7 @@ QString ClickToolChain::gnutriplet() const
         default:
             Q_ASSERT_X(false,Q_FUNC_INFO,"Unknown Target architecture");
     }
+    return QString();
 }
 
 bool ClickToolChain::fromMap(const QVariantMap &data)
