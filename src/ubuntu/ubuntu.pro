@@ -3,6 +3,7 @@ QT += network qml quick webkitwidgets script scripttools declarative
 include(../plugin.pri)
 
 QMAKE_CXXFLAGS += -Werror
+CONFIG += c++11
 
 #####################################
 # required for Ubuntu Device Notifier

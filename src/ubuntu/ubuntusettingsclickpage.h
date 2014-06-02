@@ -34,9 +34,9 @@ namespace Ubuntu {
             explicit UbuntuSettingsClickPage();
             ~UbuntuSettingsClickPage();
 
-            QWidget *createPage(QWidget *parent);
-            void apply();
-            void finish() { }
+            QWidget *createPage(QWidget *parent) override;
+            void apply() override;
+            void finish() override { }
 
         protected:
             QPointer<UbuntuSettingsClickWidget> m_widget;

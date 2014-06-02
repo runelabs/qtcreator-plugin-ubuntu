@@ -32,9 +32,9 @@ public:
     explicit UbuntuCMakeTool(const Core::Id &id, QObject *parent = 0);
 
     // ICMakeTool interface
-    virtual void addToEnvironment(Utils::Environment &env) const;
-    virtual QString displayName ();
-    virtual bool isValid() const;
+    virtual void addToEnvironment(Utils::Environment &env) const  override;
+    virtual QString displayName () override;
+    virtual bool isValid() const override;
 
     void setEnvironment (const Utils::Environment &env);
 
@@ -48,8 +48,8 @@ class UbuntuCMakeToolFactory : public CMakeProjectManager::ICMakeToolFactory
 {
     Q_OBJECT
 public:
-    virtual bool canCreate (const Core::Id& id) const;
-    virtual CMakeProjectManager::ICMakeTool *create (const Core::Id& id);
+    virtual bool canCreate (const Core::Id& id) const override;
+    virtual CMakeProjectManager::ICMakeTool *create (const Core::Id& id) override;
 };
 
 } //namespace Internal

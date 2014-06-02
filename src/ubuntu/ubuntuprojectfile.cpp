@@ -33,16 +33,6 @@ bool UbuntuProjectFile::save(QString *, const QString &, bool) {
     return false;
 }
 
-void UbuntuProjectFile::rename(const QString &newName) {
-    // Can't happen...
-    Q_UNUSED(newName);
-    Q_ASSERT(false);
-}
-
-QString UbuntuProjectFile::fileName() const {
-    return m_fileName;
-}
-
 QString UbuntuProjectFile::defaultPath() const {
     return QString();
 }

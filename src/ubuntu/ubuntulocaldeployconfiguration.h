@@ -31,14 +31,14 @@ class UbuntuLocalDeployConfigurationFactory : public ProjectExplorer::DeployConf
 public:
     explicit UbuntuLocalDeployConfigurationFactory(QObject *parent = 0);
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
-    QString displayNameForId(const Core::Id id) const;
-    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
-    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id);
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
-    ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const override;
+    QString displayNameForId(const Core::Id id) const override;
+    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const override;
+    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id) override;
+    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const override;
+    ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map) override;
     ProjectExplorer::DeployConfiguration *clone(ProjectExplorer::Target *parent,
-                                                ProjectExplorer::DeployConfiguration *product);
+                                                ProjectExplorer::DeployConfiguration *product) override;
 };
 
 class UbuntuLocalDeployConfiguration : public ProjectExplorer::DeployConfiguration

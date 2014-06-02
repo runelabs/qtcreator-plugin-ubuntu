@@ -31,14 +31,14 @@ class UbuntuCMakeMakeStepFactory : public ProjectExplorer::IBuildStepFactory
 
 public:
     // IBuildStepFactory interface
-    virtual QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
-    virtual QString displayNameForId(const Core::Id id) const;
-    virtual bool canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const;
-    virtual ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id);
-    virtual bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
-    virtual ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map);
-    virtual bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) const;
-    virtual ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product);
+    virtual QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const override;
+    virtual QString displayNameForId(const Core::Id id) const override;
+    virtual bool canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const override;
+    virtual ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id) override;
+    virtual bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const override;
+    virtual ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) override;
+    virtual bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) const override;
+    virtual ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) override;
 
 private:
     bool canHandle(const ProjectExplorer::Target *t) const;
@@ -53,7 +53,7 @@ public:
     UbuntuCMakeMakeStep(ProjectExplorer::BuildStepList *bsl, UbuntuCMakeMakeStep *bs);
     virtual ~UbuntuCMakeMakeStep();
 
-    virtual QString makeCommand(ProjectExplorer::ToolChain *tc, const Utils::Environment &env) const;
+    virtual QString makeCommand(ProjectExplorer::ToolChain *tc, const Utils::Environment &env) const override;
 
     friend class UbuntuCMakeMakeStepFactory;
 };
@@ -66,11 +66,11 @@ public:
     UbuntuCMakeDeployStep(ProjectExplorer::BuildStepList *bsl);
     UbuntuCMakeDeployStep(ProjectExplorer::BuildStepList *bsl, UbuntuCMakeDeployStep *bs);
 
-    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    virtual ~UbuntuCMakeDeployStep();
+    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    virtual ~UbuntuCMakeDeployStep() override;
 
 protected:
-    virtual bool fromMap(const QVariantMap &map);
+    virtual bool fromMap(const QVariantMap &map) override;
 
     friend class UbuntuCMakeMakeStepFactory;
 };
@@ -84,16 +84,16 @@ public:
 
     virtual ~UbuntuClickPackageStep();
 
-    virtual bool init();
-    virtual void run(QFutureInterface<bool> &fi);
-    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    virtual bool init() override;
+    virtual void run(QFutureInterface<bool> &fi) override;
+    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
     QString packagePath () const;
 protected:
     // AbstractProcessStep interface
-    virtual void stdOutput(const QString &line);
-    virtual void stdError(const QString &line);
-    virtual void processFinished(int exitCode, QProcess::ExitStatus status);
+    virtual void stdOutput(const QString &line) override;
+    virtual void stdError(const QString &line) override;
+    virtual void processFinished(int exitCode, QProcess::ExitStatus status) override;
 
 private:
     QList<ProjectExplorer::Task> m_tasks;

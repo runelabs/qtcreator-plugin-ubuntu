@@ -75,16 +75,6 @@ QString UbuntuRemoteRunConfiguration::workingDirectory() const
     return QString::fromLatin1("/home/phablet/dev_tmp/%1").arg(target()->project()->displayName());
 }
 
-QString UbuntuRemoteRunConfiguration::alternateRemoteExecutable() const
-{
-    return QString();
-}
-
-bool UbuntuRemoteRunConfiguration::useAlternateExecutable() const
-{
-    return false;
-}
-
 Utils::Environment UbuntuRemoteRunConfiguration::environment() const
 {
     RemoteLinux::RemoteLinuxEnvironmentAspect *aspect = extraAspect<RemoteLinux::RemoteLinuxEnvironmentAspect>();

@@ -52,8 +52,8 @@ public:
     UbuntuPlugin();
     ~UbuntuPlugin();
 
-    virtual bool initialize(const QStringList &arguments, QString *errorString);
-    virtual void extensionsInitialized();
+    virtual bool initialize(const QStringList &arguments, QString *errorString) override;
+    virtual void extensionsInitialized() override;
 
 private slots:
     void onKitsLoaded ();
