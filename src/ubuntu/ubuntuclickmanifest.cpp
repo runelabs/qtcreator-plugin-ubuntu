@@ -254,6 +254,7 @@ void UbuntuClickManifest::setRaw(QString data) {
 }
 
 bool UbuntuClickManifest::load(const QString &fileName, const QString &projectName) {
+
     setFileName(fileName);
     m_projectName = projectName;
 
