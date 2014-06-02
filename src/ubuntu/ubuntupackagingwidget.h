@@ -65,7 +65,7 @@ public:
 public slots:
     void autoSave();
     void reload();
-    void load_manifest(QString fileName);
+    bool load_manifest(QString fileName);
     void load_apparmor(QString fileAppArmorName);
     void save(bool bSaveSimple = true);
     bool openManifestForProject();
