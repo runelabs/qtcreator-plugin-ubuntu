@@ -149,8 +149,7 @@ void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd)
 
     if (m_reviewToolsInstalled) {
 
-        if(debug)
-            qDebug()<<"Going to verify: "<<sClickPackagePath;
+        if(debug) qDebug()<<"Going to verify: "<<sClickPackagePath;
 
         m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION).arg(sClickPackagePath));
         m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(sClickPackagePath));
@@ -467,28 +466,24 @@ void UbuntuPackagingWidget::addMissingFieldsToManifest (QString fileName)
         if(!targetObject.contains(i.key())) {
             changed = true;
 
-            if(debug)
-                qDebug()<<"Manifest file missing key: "<<i.key();
+            if(debug) qDebug()<<"Manifest file missing key: "<<i.key();
 
             if (i.key() == QStringLiteral("name")) {
                 QString userName = m_bzr.launchpadId();
                 if (userName.isEmpty()) userName = QLatin1String(Constants::USERNAME);
                 targetObject.insert(i.key(),createPackageName(userName,m_projectName));
 
-                if(debug)
-                    qDebug()<<"Setting to "<<createPackageName(userName,m_projectName);
+                if(debug) qDebug()<<"Setting to "<<createPackageName(userName,m_projectName);
             } else if (i.key() == QStringLiteral("maintainer")) {
                 targetObject.insert(i.key(),m_bzr.whoami());
 
-                if(debug)
-                    qDebug()<<"Setting to "<<m_bzr.whoami();
+                if(debug) qDebug()<<"Setting to "<<m_bzr.whoami();
             } else if (i.key() == QStringLiteral("framework")) {
                 targetObject.insert(i.key(),UbuntuClickTool::getMostRecentFramework( QString() ));
             } else {
                 targetObject.insert(i.key(),i.value());
 
-                if(debug)
-                    qDebug() <<"Setting to "<<i.value();
+                if(debug) qDebug() <<"Setting to "<<i.value();
             }
         }
     }
@@ -666,8 +661,7 @@ void UbuntuPackagingWidget::buildFinished(const bool success)
                 case None:
                     break;
                 case Verify: {
-                    if(debug)
-                        qDebug()<<"Going to verify: "<<sClickPackagePath;
+                    if(debug) qDebug()<<"Going to verify: "<<sClickPackagePath;
 
                     m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION).arg(sClickPackagePath));
                     m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(sClickPackagePath));

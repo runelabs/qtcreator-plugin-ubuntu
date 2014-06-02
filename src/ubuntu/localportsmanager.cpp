@@ -24,6 +24,10 @@
 namespace Ubuntu {
 namespace Internal {
 
+enum {
+    debug = 0
+};
+
 UbuntuLocalPortsManager* UbuntuLocalPortsManager::m_instance = 0;
 
 UbuntuLocalPortsManager::UbuntuLocalPortsManager( ) :
@@ -59,7 +63,7 @@ Utils::PortList UbuntuLocalPortsManager::getFreeRange(const QString &serial, con
     adb.waitForFinished();
 
     if (adb.exitCode() != 0) {
-        qDebug()<<"Adb failed to run "<<adb.errorString();
+        if(debug) qDebug()<<"Adb failed to run "<<adb.errorString();
         return Utils::PortList();
     }
 
@@ -79,10 +83,10 @@ Utils::PortList UbuntuLocalPortsManager::getFreeRange(const QString &serial, con
 
         //if a port is already forwarded to the device, we can just reuse it
         if (serial == device && localPort >= m_instance->m_first && localPort <= m_instance->m_last) {
-            qDebug()<<"Found port already linked to device: "<<localPort<<":"<<remotePort;
+            if(debug) qDebug()<<"Found port already linked to device: "<<localPort<<":"<<remotePort;
             freePorts.addPort(localPort);
         } else {
-            qDebug()<<"Found port in use: "<<localPort<<":"<<remotePort;
+            if(debug) qDebug()<<"Found port in use: "<<localPort<<":"<<remotePort;
             usedPorts.addPort(localPort);
         }
     }
@@ -97,7 +101,7 @@ Utils::PortList UbuntuLocalPortsManager::getFreeRange(const QString &serial, con
 
         freePorts.addPort(port);
         found++;
-        qDebug()<<"Found free port: "<<port;
+        if(debug) qDebug()<<"Found free port: "<<port;
     }
 
     return freePorts;

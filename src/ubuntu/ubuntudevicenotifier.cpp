@@ -18,6 +18,9 @@
 
 #include "ubuntudevicenotifier.h"
 
+enum {
+    debug = 0
+};
 
 IUbuntuDeviceNotifier::IUbuntuDeviceNotifier(QObject *parent)
     : QObject(parent)
@@ -92,14 +95,14 @@ bool UbuntuDeviceNotifier::isConnected() const
 
 void UbuntuDeviceNotifier::on_udev_event() {
     if (!m_udevMonitor) {
-        qDebug() << QLatin1String("no monitor");
+        if(debug) qDebug() << QLatin1String("no monitor");
         return;
     }
 
     struct udev_device *dev;
     dev = udev_monitor_receive_device(m_udevMonitor);
     if (!dev) {
-        qDebug() << QLatin1String("no device");
+        if(debug) qDebug() << QLatin1String("no device");
         udev_device_unref(dev);
         return;
     }

@@ -42,6 +42,10 @@
 namespace Ubuntu {
 namespace Internal {
 
+enum {
+    debug = 0
+};
+
 /*!
  * \class UbuntuCMakeBuildConfiguration
  * Represents the build configuration for a Ubuntu-SDK
@@ -269,7 +273,7 @@ void UbuntuCMakeBuildSettingsWidget::onArgumentsChanged()
 
 void UbuntuCMakeBuildSettingsWidget::onBuilddirChanged()
 {
-    qDebug()<<"Changing builddir to: "<<m_pathChooser->fileName().toString();
+    if(debug) qDebug()<<"Changing builddir to: "<<m_pathChooser->fileName().toString();
     m_buildConfiguration->setBuildDirectory(m_pathChooser->fileName());
 }
 

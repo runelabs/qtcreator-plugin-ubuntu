@@ -39,6 +39,10 @@
 namespace Ubuntu {
 namespace Internal {
 
+enum {
+    debug = 0
+};
+
 UbuntuRemoteRunConfiguration::UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent)
     : AbstractRemoteLinuxRunConfiguration(parent,typeId())
 {
@@ -125,7 +129,7 @@ QStringList UbuntuRemoteRunConfiguration::soLibSearchPaths() const
         foreach(const CMakeProjectManager::CMakeBuildTarget& target, targets) {
             QFileInfo binary(target.executable);
             if(binary.exists()) {
-                qDebug()<<"Adding path "<<binary.absolutePath()<<" to solib-search-paths";
+                if(debug) qDebug()<<"Adding path "<<binary.absolutePath()<<" to solib-search-paths";
                 paths << binary.absolutePath();
             }
         }
@@ -162,7 +166,7 @@ bool UbuntuRemoteRunConfiguration::isConfigured() const
  */
 bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
 {
-    qDebug()<<"--------------------- Reconfiguring RunConfiguration ----------------------------";
+    if(debug) qDebug()<<"--------------------- Reconfiguring RunConfiguration ----------------------------";
     m_arguments.clear();
     m_desktopFile.clear();
     m_appId.clear();
@@ -244,14 +248,14 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
 
 bool UbuntuRemoteRunConfiguration::fromMap(const QVariantMap &map)
 {
-    qDebug()<<Q_FUNC_INFO;
+    if(debug) qDebug()<<Q_FUNC_INFO;
     return AbstractRemoteLinuxRunConfiguration::fromMap(map);
 }
 
 QVariantMap UbuntuRemoteRunConfiguration::toMap() const
 {
     QVariantMap m = AbstractRemoteLinuxRunConfiguration::toMap();
-    qDebug()<<Q_FUNC_INFO;
+    if(debug) qDebug()<<Q_FUNC_INFO;
     return m;
 }
 

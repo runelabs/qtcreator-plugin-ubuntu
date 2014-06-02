@@ -158,12 +158,12 @@ QJsonDocument UbuntuMenu::getMenuJSON() {
     QByteArray contents;
     QString errorMsg;
     if (readFile(menuPath(QLatin1String(Constants::UBUNTU_MENUJSON)),&contents, &errorMsg) == false) {
-        qDebug() << __PRETTY_FUNCTION__ << errorMsg;
+        qWarning() << __PRETTY_FUNCTION__ << errorMsg;
     }
     QJsonParseError error;
     QJsonDocument retval = QJsonDocument::fromJson(contents,&error);
     if (error.error != QJsonParseError::NoError) {
-        qDebug() << error.errorString();
+        qWarning() << error.errorString();
     }
     return retval;
 }
@@ -644,8 +644,7 @@ void UbuntuMenu::menuItemTriggered() {
                     QStringList cmdList;
                     cmdList << command << workingDirectory;
 
-                    if(debug)
-                        qDebug()<<command;
+                    if(debug) qDebug()<<command;
 
                     m_ubuntuProcess.append(cmdList);
                 }

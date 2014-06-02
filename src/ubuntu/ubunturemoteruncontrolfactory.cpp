@@ -36,6 +36,10 @@
 
 using namespace Ubuntu::Internal;
 
+enum {
+    debug = 0
+};
+
 bool UbuntuRemoteRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfiguration,
                                 ProjectExplorer::RunMode mode) const {
 
@@ -76,7 +80,7 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
                 return 0;
             }
 
-            qDebug()<<"Free ports on the device: "<<dev->freePorts().count();
+            if(debug) qDebug()<<"Free ports on the device: "<<dev->freePorts().count();
 
             if (2 > dev->freePorts().count()) {
                 *errorMessage = tr("Cannot debug: Not enough free ports available.");
@@ -87,7 +91,7 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
                 params.breakOnMain = true;
 
             params.solibSearchPath.append(rc->soLibSearchPaths());
-            qDebug()<<"Solib search path : "<<params.solibSearchPath;
+            if(debug) qDebug()<<"Solib search path : "<<params.solibSearchPath;
 
             Debugger::DebuggerRunControl * const runControl
                     = Debugger::DebuggerPlugin::createDebugger(params, rc, errorMessage);

@@ -58,6 +58,10 @@
 namespace Ubuntu {
 namespace Internal {
 
+enum {
+    debug = 0
+};
+
 /**
  * @brief UbuntuClickTool::UbuntuClickTool
  * Implements functionality needed for executing the click
@@ -206,7 +210,7 @@ QStringList UbuntuClickTool::getSupportedFrameworks()
         availableFrameworks.append(fw);
     }
 
-    qDebug()<<"Available Frameworks on the host"<<availableFrameworks;
+    if(debug) qDebug()<<"Available Frameworks on the host"<<availableFrameworks;
     return availableFrameworks;
 
 }
@@ -284,7 +288,7 @@ QList<UbuntuClickTool::Target> UbuntuClickTool::listAvailableTargets(const QStri
         QRegularExpression expr(QLatin1String(Constants::UBUNTU_CLICK_BASE_FRAMEWORK_REGEX));
         QRegularExpressionMatch match = expr.match(framework);
         if(match.hasMatch()) {
-            qDebug()<<"Filtering for base framework: "<<match.captured(1);
+            if(debug) qDebug()<<"Filtering for base framework: "<<match.captured(1);
             filterRegex = QString::fromLatin1(Constants::UBUNTU_CLICK_TARGETS_FRAMEWORK_REGEX)
                     .arg(match.captured(1));
         }

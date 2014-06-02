@@ -74,7 +74,6 @@ SOURCES += \
     ubuntuclickmanifest.cpp \
     ubuntuwebmode.cpp \
     ubuntupastebinmode.cpp \
-    #ubuntudeviceswidget.cpp \
     ubuntudevicemode.cpp \
     ubuntuprocess.cpp \
     ubuntudevicenotifier.cpp \
@@ -137,7 +136,6 @@ HEADERS += \
     ubuntuwebmode.h \
     ubuntupastebinmode.h \
     ubuntudevicemode.h \
-    #ubuntudeviceswidget.h \
     ubuntuprocess.h \
     ubuntudevicenotifier.h \
     ubuntusettingspage.h \

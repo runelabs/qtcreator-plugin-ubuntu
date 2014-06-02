@@ -43,6 +43,10 @@
 namespace Ubuntu {
 namespace Internal {
 
+enum {
+    debug = 0
+};
+
 UbuntuDirectUploadStep::UbuntuDirectUploadStep(ProjectExplorer::BuildStepList *bsl)
     : AbstractRemoteLinuxDeployStep(bsl, UbuntuDirectUploadStep::stepId())
     , m_deployService(new RemoteLinux::GenericDirectUploadService(this))
@@ -139,8 +143,8 @@ static void createFileList(const QDir &rootDir
                     + subDir
                     + QLatin1String("/"));
 
-            qDebug()<<"Uploading: "<<entry.fileName();
-            qDebug()<<" to "<<targetPath;
+            if(debug) qDebug()<<"Uploading: "<<entry.fileName();
+            if(debug) qDebug()<<" to "<<targetPath;
             list->append(ProjectExplorer::DeployableFile(entry.absoluteFilePath()
                                                          , targetPath
                                                          , entry.isExecutable() ? ProjectExplorer::DeployableFile::TypeExecutable
@@ -151,7 +155,7 @@ static void createFileList(const QDir &rootDir
 
 void UbuntuDirectUploadStep::projectNameChanged()
 {
-    qDebug()<<"------------------------ Updating DEPLOYLIST ---------------------------";
+    if(debug) qDebug()<<"------------------------ Updating DEPLOYLIST ---------------------------";
     //iterate over the .deploy dir and put all files in the list
     QDir d(target()->activeBuildConfiguration()->buildDirectory().toString()+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR));
 
