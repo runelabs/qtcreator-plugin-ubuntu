@@ -1,3 +1,15 @@
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140602-0ubuntu1) utopic; urgency=low
+
+  [ Benjamin Zeller ]
+  * Automatically add missing fields to manifest.json when its loaded
+  * Unittests for adb forward --list parser. Simple unittest for
+    /etc/lsb-release parser .
+
+  [ Alan Pope ]
+  * Switch eog to xdg-open to fix bug 1325272 (LP: #1325272)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 02 Jun 2014 11:32:11 +0000
+
 qtcreator-plugin-ubuntu (3.0.1+14.10.20140527-0ubuntu1) utopic; urgency=low
 
   [ Zoltán Balogh ]
