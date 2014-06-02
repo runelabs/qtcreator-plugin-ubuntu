@@ -1,3 +1,13 @@
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140527-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * Install the app icon to click package in cmake projects
+
+  [ Benjamin Zeller ]
+  * Automatically add missing fields to manifest.json when its loaded
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 27 May 2014 05:17:20 +0000
+
 qtcreator-plugin-ubuntu (3.0.1+14.10.20140522.1-0ubuntu1) utopic; urgency=low
 
   [ Zoltán Balogh ]
