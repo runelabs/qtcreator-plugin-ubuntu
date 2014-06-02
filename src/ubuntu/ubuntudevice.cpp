@@ -20,7 +20,6 @@
 #include "ubuntuemulatornotifier.h"
 #include "ubuntuprocess.h"
 #include "ubuntuconstants.h"
-#include "ubuntudeviceconfigurationwidget.h"
 #include "localportsmanager.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>

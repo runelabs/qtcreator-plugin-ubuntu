@@ -43,8 +43,6 @@
 namespace Ubuntu {
 namespace Internal {
 
-class UbuntuClickManager;
-
 class UBUNTUSHARED_EXPORT UbuntuPlugin: public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -70,7 +68,6 @@ protected:
     UbuntuWikiMode*         m_ubuntuWikiMode;
     UbuntuPackagingMode*    m_ubuntuPackagingMode;
     UbuntuPastebinMode*     m_ubuntuPastebinMode;
-    UbuntuClickManager*     m_ubuntuClickManager;
 };
 
 

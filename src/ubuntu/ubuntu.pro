@@ -97,7 +97,6 @@ SOURCES += \
     ubuntucmakebuildconfiguration.cpp \
     ubuntudevicefactory.cpp \
     ubuntudevice.cpp \
-    ubuntudeviceconfigurationwidget.cpp \
     ubunturemoterunconfiguration.cpp \
     ubuntucmakemakestep.cpp \
     ubuntuemulatornotifier.cpp \
@@ -159,7 +158,6 @@ HEADERS += \
     ubuntucmakebuildconfiguration.h \
     ubuntudevicefactory.h \
     ubuntudevice.h \
-    ubuntudeviceconfigurationwidget.h \
     ubunturemoterunconfiguration.h \
     ubuntucmakemakestep.h \
     ubuntuemulatornotifier.h \
