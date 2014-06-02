@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Canonical Ltd.
+ * Copyright 2014 Canonical Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,13 +19,10 @@
 #ifndef UBUNTUSHARED_H
 #define UBUNTUSHARED_H
 
-#include <utils/fileutils.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
-
 #include <QDateTime>
+#include <QString>
 
-bool readFile(QString fileName, QByteArray *data, QString *errorMessage);
-void printToOutputPane(QString msg);
+bool readFile(const QString &fileName, QByteArray *data, QString *errorMessage);
+void printToOutputPane(const QString &msg);
 
 #endif // UBUNTUSHARED_H
