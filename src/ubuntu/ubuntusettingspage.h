@@ -34,9 +34,9 @@ namespace Ubuntu {
             explicit UbuntuSettingsPage();
             ~UbuntuSettingsPage();
 
-            QWidget *createPage(QWidget *parent) override;
+            QWidget *widget( ) override;
             void apply() override;
-            void finish()  override{ }
+            void finish()  override;
 
         protected:
             QPointer<UbuntuSettingsWidget> m_widget;

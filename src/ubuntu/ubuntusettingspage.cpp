@@ -36,9 +36,11 @@ UbuntuSettingsPage::~UbuntuSettingsPage()
 {
 }
 
-QWidget *UbuntuSettingsPage::createPage(QWidget *parent)
+QWidget *UbuntuSettingsPage::widget()
 {
-    m_widget = new UbuntuSettingsWidget(parent);
+    if(!m_widget)
+        m_widget = new UbuntuSettingsWidget();
+
     return m_widget;
 }
 
@@ -48,4 +50,9 @@ void UbuntuSettingsPage::apply()
         return;
 
     m_widget->apply();
+}
+
+void UbuntuSettingsPage::finish()
+{
+    delete m_widget;
 }

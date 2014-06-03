@@ -20,7 +20,7 @@
 #define UBUNTU_H
 
 #include "ubuntu_global.h"
-#include "ubuntuwelcomemode.h"
+//#include "ubuntuwelcomemode.h"
 #include "ubuntudevicemode.h"
 #include "ubuntumenu.h"
 #include "ubuntuprojectmanager.h"
@@ -59,7 +59,7 @@ private slots:
     void onKitsLoaded ();
 
 protected:
-    UbuntuWelcomeMode*      m_ubuntuWelcomeMode;
+    //UbuntuWelcomeMode*      m_ubuntuWelcomeMode;
     UbuntuDeviceMode*       m_ubuntuDeviceMode;
     UbuntuMenu*             m_ubuntuMenu;
     UbuntuIRCMode*          m_ubuntuIRCMode;

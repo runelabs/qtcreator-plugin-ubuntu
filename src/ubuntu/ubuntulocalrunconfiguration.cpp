@@ -72,16 +72,6 @@ QString UbuntuLocalRunConfiguration::commandLineArguments() const
     return Utils::QtcProcess::joinArgs(m_args);
 }
 
-QString UbuntuLocalRunConfiguration::dumperLibrary() const
-{
-    return QtSupport::QtKitInformation::dumperLibrary(target()->kit());
-}
-
-QStringList UbuntuLocalRunConfiguration::dumperLibraryLocations() const
-{
-    return QtSupport::QtKitInformation::dumperLibraryLocations(target()->kit());
-}
-
 ProjectExplorer::LocalApplicationRunConfiguration::RunMode UbuntuLocalRunConfiguration::runMode() const
 {
     return Gui;

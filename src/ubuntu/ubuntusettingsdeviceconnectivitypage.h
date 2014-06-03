@@ -32,9 +32,9 @@ namespace Ubuntu {
             explicit UbuntuSettingsDeviceConnectivityPage();
             ~UbuntuSettingsDeviceConnectivityPage();
 
-            QWidget *createPage(QWidget *parent) override;
+            QWidget *widget( ) override;
             void apply() override;
-            void finish() override { }
+            void finish() override;
 
         protected:
             QPointer<UbuntuSettingsDeviceConnectivityWidget> m_widget;

@@ -1,4 +1,4 @@
-QT += network qml quick webkitwidgets script scripttools declarative
+QT += network qml quick webkitwidgets script scripttools
 
 include(../plugin.pri)
 
@@ -54,7 +54,7 @@ OTHER_FILES += \
 
 SOURCES += \
     ubuntuplugin.cpp \
-    ubuntuwelcomemode.cpp \
+    #ubuntuwelcomemode.cpp \
     ubuntuprojectapplicationwizard.cpp \
     ubuntumenu.cpp \
     ubuntuprojectmanager.cpp \
@@ -114,7 +114,7 @@ HEADERS += \
     ubuntuplugin.h \
     ubuntu_global.h \
     ubuntuconstants.h \
-    ubuntuwelcomemode.h \
+    #ubuntuwelcomemode.h \
     ubuntuprojectapplicationwizard.h \
     ubuntumenu.h \
     ubuntushared.h \

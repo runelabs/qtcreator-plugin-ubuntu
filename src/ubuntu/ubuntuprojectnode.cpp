@@ -39,8 +39,8 @@ QString UbuntuProjectNode::projectFilePath() const {
 void UbuntuProjectNode::refresh() {
     using namespace ProjectExplorer;
 
-    removeFileNodes(fileNodes(), this);
-    removeFolderNodes(subFolderNodes(), this);
+    removeFileNodes(fileNodes());
+    removeFolderNodes(subFolderNodes());
 
     QStringList files = m_project->files(Project::AllFiles);
     files.removeAll(m_project->filesFileName());
@@ -77,7 +77,8 @@ void UbuntuProjectNode::refresh() {
             fileNodes.append(fileNode);
         }
 
-        addFileNodes(fileNodes, folder);
+        folder->addFileNodes(fileNodes);
+        addFolderNodes(QList<FolderNode*>()<<folder);
     }
 
     m_folderByName.clear();
@@ -112,7 +113,7 @@ ProjectExplorer::FolderNode *UbuntuProjectNode::findOrCreateFolderByName(const Q
     if (! parent)
         parent = this;
 
-    addFolderNodes(QList<FolderNode*>() << folder, parent);
+    parent->addFolderNodes(QList<FolderNode*>() << folder);
 
     return folder;
 }
@@ -122,16 +123,12 @@ ProjectExplorer::FolderNode *UbuntuProjectNode::findOrCreateFolderByName(const Q
     return findOrCreateFolderByName(components, components.length());
 }
 
-bool UbuntuProjectNode::hasBuildTargets() const {
-    return true;
-}
-
-QList<ProjectExplorer::ProjectNode::ProjectAction> UbuntuProjectNode::supportedActions(Node *node) const {
+QList<ProjectExplorer::ProjectAction> UbuntuProjectNode::supportedActions(Node *node) const {
     Q_UNUSED(node);
-    QList<ProjectAction> actions;
-    actions.append(AddNewFile);
-    actions.append(EraseFile);
-    actions.append(Rename);
+    QList<ProjectExplorer::ProjectAction> actions;
+    actions.append(ProjectExplorer::AddNewFile);
+    actions.append(ProjectExplorer::EraseFile);
+    actions.append(ProjectExplorer::Rename);
     return actions;
 }
 

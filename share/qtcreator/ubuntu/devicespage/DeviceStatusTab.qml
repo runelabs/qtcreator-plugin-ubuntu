@@ -26,6 +26,7 @@ RowLayout {
                     running: true
                 }
             }
+
             ListItem.SingleValue {
                 text:i18n.tr("Serial ID")
                 Layout.fillWidth: true
@@ -46,6 +47,7 @@ RowLayout {
                 Layout.fillWidth: true
                 value: productInfo
             }
+
             FeatureStateItem {
                 text: "Has network connection"
                 input: hasNetworkConnection

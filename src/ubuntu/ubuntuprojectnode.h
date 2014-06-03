@@ -59,9 +59,7 @@ public:
     Core::IDocument *projectFile() const;
     QString projectFilePath() const;
 
-    virtual bool hasBuildTargets() const override;
-
-    virtual QList<ProjectExplorer::ProjectNode::ProjectAction> supportedActions(Node *node) const override;
+    virtual QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
 
     virtual bool canAddSubProject(const QString &proFilePath) const override;
 
