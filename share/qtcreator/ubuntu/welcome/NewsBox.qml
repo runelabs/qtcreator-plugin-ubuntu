@@ -71,7 +71,7 @@ ListView {
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                Qt.openUrlExternally(linkText)
+                Qt.openUrlExternally(link)
             }
         }
     }
