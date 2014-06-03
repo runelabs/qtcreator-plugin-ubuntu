@@ -78,7 +78,6 @@ void UbuntuProjectNode::refresh() {
         }
 
         folder->addFileNodes(fileNodes);
-        addFolderNodes(QList<FolderNode*>()<<folder);
     }
 
     m_folderByName.clear();
