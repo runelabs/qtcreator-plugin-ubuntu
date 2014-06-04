@@ -512,7 +512,6 @@ bool UbuntuPackagingWidget::load_manifest(QString fileName) {
     m_projectName.replace(QLatin1String(Constants::UNDERLINE),QLatin1String(Constants::DASH));
     // Commented out for bug #1219948  - https://bugs.launchpad.net/qtcreator-plugin-ubuntu/+bug/1219948
     //m_manifest.setName(QString(QLatin1String("com.ubuntu.developer.%0.%1")).arg(userName).arg(m_projectName));
-
     return true;
 }
 
