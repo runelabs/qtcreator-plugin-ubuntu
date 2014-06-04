@@ -42,6 +42,8 @@ public slots:
 
     Core::FeatureSet features();
 
+    static UbuntuVersion *fromLsbFile( const QString &fileName );
+
 protected:
     QString m_id;
     QString m_release;
