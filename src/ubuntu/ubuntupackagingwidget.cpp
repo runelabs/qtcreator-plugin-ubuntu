@@ -308,7 +308,8 @@ bool UbuntuPackagingWidget::openManifestForProject() {
             m_apparmor.setFileName(defaultAppArmorName);
             on_pushButtonReset_clicked();
         } else {
-            load_manifest(fileName);
+            if(!load_manifest(fileName))
+                return false;
         }
 
         //we just support the first hook for now
@@ -498,11 +499,12 @@ void UbuntuPackagingWidget::addMissingFieldsToManifest (QString fileName)
     }
 }
 
-void UbuntuPackagingWidget::load_manifest(QString fileName) {
+bool UbuntuPackagingWidget::load_manifest(QString fileName) {
 
     addMissingFieldsToManifest(fileName);
 
-    m_manifest.load(fileName,m_projectName);
+   if(! m_manifest.load(fileName,m_projectName) )
+       return false;
     // Commented out for bug #1274265 https://bugs.launchpad.net/qtcreator-plugin-ubuntu/+bug/1274265
     //m_manifest.setMaintainer(m_bzr.whoami());
     QString userName = m_bzr.launchpadId();
