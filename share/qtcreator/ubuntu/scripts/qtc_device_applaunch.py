@@ -18,7 +18,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from gi.repository import GLib, UpstartAppLaunch
+import gi
+from gi.repository import GLib
+
+try:
+    gi.Repository.get_default().require("UbuntuAppLaunch")
+    from gi.repository import UbuntuAppLaunch as UAL
+except:
+    #fall back to the old name
+    from gi.repository import UpstartAppLaunch as UAL
+
 import json
 import os
 import sys
@@ -28,15 +37,15 @@ import argparse
 
 def on_sigterm(state):
     print("Received exit signal, stopping application")
-    UpstartAppLaunch.stop_application(state['expected_app_id'])
+    UAL.stop_application(state['expected_app_id'])
 
 def on_failed(launched_app_id, failure_type, state):
     print("Received a failed message")
     if launched_app_id == state['expected_app_id']:
-        if failure_type == UpstartAppLaunch.AppFailed.CRASH:
+        if failure_type == UAL.AppFailed.CRASH:
             state['message']  = 'Application crashed.'
             state['exitCode'] = 1
-        elif failure_type == UpstartAppLaunch.AppFailed.START_FAILURE:
+        elif failure_type == UAL.AppFailed.START_FAILURE:
             state['message'] = 'Application failed to start.'
             state['exitCode'] = 1
 
@@ -150,23 +159,23 @@ print ("Registering hooks")
 GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGTERM, on_sigterm, state)
 GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGINT, on_sigterm, state)
 
-UpstartAppLaunch.observer_add_app_failed(on_failed, state)
-UpstartAppLaunch.observer_add_app_started(on_started, state)
-#UpstartAppLaunch.observer_add_app_focus(on_started, state)
-UpstartAppLaunch.observer_add_app_stop(on_stopped, state)
+UAL.observer_add_app_failed(on_failed, state)
+UAL.observer_add_app_started(on_started, state)
+#UAL.observer_add_app_focus(on_started, state)
+UAL.observer_add_app_stop(on_stopped, state)
 
 print ("Start Application")
 
 #start up the application
-UpstartAppLaunch.start_application(app_id)
+UAL.start_application(app_id)
 state['loop'].run()
 
 print ("The Application exited, cleaning up")
 
-UpstartAppLaunch.observer_delete_app_failed(on_failed)
-UpstartAppLaunch.observer_delete_app_started(on_started)
-#UpstartAppLaunch.observer_delete_app_focus(on_started)
-UpstartAppLaunch.observer_delete_app_stop(on_stopped)
+UAL.observer_delete_app_failed(on_failed)
+UAL.observer_delete_app_started(on_started)
+#UAL.observer_delete_app_focus(on_started)
+UAL.observer_delete_app_stop(on_stopped)
 
 success = subprocess.call(["pkcon","remove",package_name+";"+package_version+";"+package_arch+";local:click"])
 if success != 0:
