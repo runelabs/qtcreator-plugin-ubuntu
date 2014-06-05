@@ -933,7 +933,7 @@ void UbuntuDevice::setupPrivateKey()
         return;
 
     QSsh::SshConnectionParameters params = this->sshParameters();
-    params.privateKeyFile = QString::fromLatin1(Constants::UBUNTU_DEVICE_SSHIDENTITY).arg(QDir::homePath()).arg(serialNumber());
+    params.privateKeyFile = QString::fromLatin1(Constants::UBUNTU_DEVICE_SSHIDENTITY).arg(QDir::homePath());
 
     setSshParameters(params);
 }
