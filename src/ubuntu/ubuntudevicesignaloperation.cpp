@@ -52,6 +52,9 @@ void UbuntuDeviceSignalOperation::sendSignal(int pid, int signal)
 
     connect(proc,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(processFinished(int,QProcess::ExitStatus)));
     connect(proc,SIGNAL(finished(int,QProcess::ExitStatus)),proc,SLOT(deleteLater()));
+    connect(proc,SIGNAL(error(QProcess::ProcessError)),this,SLOT(processError(QProcess::ProcessError)));
+
+    proc->start();
 
 }
 
@@ -75,6 +78,16 @@ void UbuntuDeviceSignalOperation::processFinished(int exitCode ,QProcess::ExitSt
     }
 
     emit finished(error);
+}
+
+void UbuntuDeviceSignalOperation::processError(QProcess::ProcessError procErr)
+{
+    QProcess *proc = qobject_cast<QProcess*>(sender());
+    if(proc) {
+        proc->deleteLater();
+        QString error = QStringLiteral("Can not kill the process. Error: %1 %2").arg(procErr).arg(proc->errorString());
+        emit finished(error);
+    }
 }
 
 } // namespace Internal

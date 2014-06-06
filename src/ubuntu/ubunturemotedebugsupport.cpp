@@ -61,6 +61,7 @@ public:
           gdbServerPort(-1), qmlPort(-1),
           clickPackage(runConfig->clickPackage())
     {
+
     }
 
     const QPointer<Debugger::DebuggerEngine> engine;
@@ -69,7 +70,11 @@ public:
     QByteArray gdbserverOutput;
     int gdbServerPort;
     int qmlPort;
+
     QString clickPackage;
+    int procPid;
+    QString output;
+    ProjectExplorer::DeviceProcessSignalOperation::Ptr deviceSignalOp;
 };
 
 UbuntuRemoteDebugSupport::UbuntuRemoteDebugSupport(UbuntuRemoteRunConfiguration* runConfig,
@@ -78,6 +83,7 @@ UbuntuRemoteDebugSupport::UbuntuRemoteDebugSupport(UbuntuRemoteRunConfiguration*
       d(new UbuntuRemoteDebugSupportPrivate(static_cast<UbuntuRemoteRunConfiguration*>(runConfig), engine))
 {
     connect(d->engine, SIGNAL(requestRemoteSetup()), this, SLOT(handleRemoteSetupRequested()));
+    d->deviceSignalOp = device()->signalOperation();
 }
 
 UbuntuRemoteDebugSupport::~UbuntuRemoteDebugSupport()
@@ -178,26 +184,35 @@ void UbuntuRemoteDebugSupport::handleDebuggingFinished()
 
 void UbuntuRemoteDebugSupport::handleRemoteOutput(const QByteArray &output)
 {
-    QTC_ASSERT(state() == Inactive || state() == Running, return);
+    //QTC_ASSERT(state() == Inactive || state() == Running, return);
 
-    showMessage(QString::fromUtf8(output), Debugger::AppOutput);
+    if( state()!= GatheringPorts ) {
+
+        if (!d->engine)
+            return;
+
+        if (state() == StartingRunner && d->cppDebugging) {
+            d->gdbserverOutput += output;
+
+            //if (d->gdbserverOutput.contains("Listening on port")) {
+            if (d->gdbserverOutput.contains("Application started")) {
+                handleAdapterSetupDone();
+                d->gdbserverOutput.clear();
+            }
+        }
+    }
+
+    if( state() == Inactive || state() == Running )
+        showMessage(QString::fromUtf8(output), Debugger::AppOutput);
+
 }
 
 void UbuntuRemoteDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
 {
     QTC_ASSERT(state() != GatheringPorts, return);
 
-    if (!d->engine)
-        return;
 
     showMessage(QString::fromUtf8(output), Debugger::AppError);
-    if (state() == StartingRunner && d->cppDebugging) {
-        d->gdbserverOutput += output;
-        if (d->gdbserverOutput.contains("Listening on port")) {
-            handleAdapterSetupDone();
-            d->gdbserverOutput.clear();
-        }
-    }
 }
 
 void UbuntuRemoteDebugSupport::handleProgressReport(const QString &progressOutput)

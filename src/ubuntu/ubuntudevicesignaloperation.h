@@ -27,6 +27,7 @@ private:
 
 private slots:
     void processFinished (int exitCode, QProcess::ExitStatus exitState);
+    void processError(QProcess::ProcessError procErr);
 
 private:
     UbuntuDevice::ConstPtr m_device;

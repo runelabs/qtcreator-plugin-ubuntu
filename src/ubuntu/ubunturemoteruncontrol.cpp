@@ -30,6 +30,8 @@
 
 #include "ubunturemoteruncontrol.h"
 #include "ubunturemoterunconfiguration.h"
+#include "ubunturemoterunner.h"
+#include "ubuntudevice.h"
 
 #include <remotelinux/abstractremotelinuxrunconfiguration.h>
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
@@ -39,6 +41,7 @@
 
 #include <QString>
 #include <QIcon>
+#include <QRegularExpression>
 
 using namespace ProjectExplorer;
 
@@ -49,25 +52,20 @@ class UbuntuRemoteRunControl::UbuntuRemoteRunControlPrivate
 {
 public:
     bool running;
-    ProjectExplorer::DeviceApplicationRunner runner;
-    IDevice::ConstPtr device;
-    QString remoteExecutable;
+    UbuntuRemoteClickApplicationRunner runner;
+    UbuntuDevice::ConstPtr device;
     QString clickPackage;
-    QStringList arguments;
     Utils::Environment environment;
-    QString workingDir;
 };
 
 UbuntuRemoteRunControl::UbuntuRemoteRunControl(RunConfiguration *rc)
         : RunControl(rc, ProjectExplorer::NormalRunMode), d(new UbuntuRemoteRunControlPrivate)
 {
     d->running = false;
-    d->device = DeviceKitInformation::device(rc->target()->kit());
-    const UbuntuRemoteRunConfiguration * const lrc = qobject_cast<UbuntuRemoteRunConfiguration *>(rc);
-    d->remoteExecutable = lrc->remoteExecutableFilePath();
-    d->arguments = lrc->arguments();
+
+    d->device = qSharedPointerCast<const UbuntuDevice>(DeviceKitInformation::device(rc->target()->kit()));
+    const UbuntuRemoteRunConfiguration * const lrc = static_cast<UbuntuRemoteRunConfiguration *>(rc);
     d->environment = lrc->environment();
-    d->workingDir = lrc->workingDirectory();
     d->clickPackage = lrc->clickPackage();
 }
 
@@ -81,25 +79,14 @@ void UbuntuRemoteRunControl::start()
     d->running = true;
     emit started();
     d->runner.disconnect(this);
+
     connect(&d->runner, SIGNAL(reportError(QString)), SLOT(handleErrorMessage(QString)));
-    connect(&d->runner, SIGNAL(remoteStderr(QByteArray)),
+    connect(&d->runner, SIGNAL(launcherStderr(QByteArray)),
         SLOT(handleRemoteErrorOutput(QByteArray)));
-    connect(&d->runner, SIGNAL(remoteStdout(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
+    connect(&d->runner, SIGNAL(launcherStdout(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
     connect(&d->runner, SIGNAL(finished(bool)), SLOT(handleRunnerFinished()));
-    connect(&d->runner, SIGNAL(reportProgress(QString)), SLOT(handleProgressReport(QString)));
 
-    QStringList args;
-
-    args << QStringLiteral("/tmp/%1").arg(d->clickPackage);
-
-    Utils::Environment::const_iterator i = d->environment.constBegin();
-    for(;i!=d->environment.constEnd();i++) {
-        args << QStringLiteral("--env")
-             << QStringLiteral("%1:%2").arg(i.key()).arg(i.value());
-    }
-
-    d->runner.setWorkingDirectory(d->workingDir);
-    d->runner.start(d->device, QStringLiteral("/tmp/qtc_device_applaunch.py").arg(d->clickPackage), args);
+    d->runner.start(d->device, d->clickPackage);
 }
 
 RunControl::StopResult UbuntuRemoteRunControl::stop()

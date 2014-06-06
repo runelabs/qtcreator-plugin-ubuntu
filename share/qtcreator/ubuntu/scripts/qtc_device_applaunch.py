@@ -19,7 +19,7 @@
 #
 # Author: Benjamin Zeller <benjamin.zeller@canonical.com>
 
-from gi.repository import GLib, UpstartAppLaunch
+from gi.repository import GLib, UbuntuAppLaunch
 import json
 import os
 import sys
@@ -30,16 +30,16 @@ import argparse
 def on_sigterm(state):
     print("Received exit signal, stopping application")
     sys.stdout.flush()
-    UpstartAppLaunch.stop_application(state['expected_app_id'])
+    UbuntuAppLaunch.stop_application(state['expected_app_id'])
 
 def on_failed(launched_app_id, failure_type, state):
     print("Received a failed event")
     sys.stdout.flush()
     if launched_app_id == state['expected_app_id']:
-        if failure_type == UpstartAppLaunch.AppFailed.CRASH:
+        if failure_type == UbuntuAppLaunch.AppFailed.CRASH:
             state['message']  = 'Application crashed.'
             state['exitCode'] = 1
-        elif failure_type == UpstartAppLaunch.AppFailed.START_FAILURE:
+        elif failure_type == UbuntuAppLaunch.AppFailed.START_FAILURE:
             state['message'] = 'Application failed to start.'
             state['exitCode'] = 1
 
@@ -47,7 +47,7 @@ def on_failed(launched_app_id, failure_type, state):
 
 def on_started(launched_app_id, state):
     if launched_app_id == state['expected_app_id']:
-        print("Application started")
+        print("Application started: "+str(UbuntuAppLaunch.get_primary_pid(state['expected_app_id'])))
         sys.stdout.flush()
 
 def on_stopped(stopped_app_id, state):
@@ -79,6 +79,8 @@ parser.add_argument('--hook', action='store', dest='targetHook', help="Specify t
 options = parser.parse_args()
 
 print("Executing: "+options.clickPck)
+print("Launcher PID: "+str(os.getpid()), file=sys.stderr)
+sys.stderr.flush()
 
 needs_debug_conf=False
 conf_obj={}
@@ -195,26 +197,30 @@ sys.stdout.flush()
 GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGTERM, on_sigterm, state)
 GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGINT, on_sigterm, state)
 
-UpstartAppLaunch.observer_add_app_failed(on_failed, state)
-UpstartAppLaunch.observer_add_app_started(on_started, state)
-UpstartAppLaunch.observer_add_app_focus(on_focus, state)
-UpstartAppLaunch.observer_add_app_stop(on_stopped, state)
-UpstartAppLaunch.observer_add_app_resume(on_resume, state)
+UbuntuAppLaunch.observer_add_app_failed(on_failed, state)
+UbuntuAppLaunch.observer_add_app_started(on_started, state)
+UbuntuAppLaunch.observer_add_app_focus(on_focus, state)
+UbuntuAppLaunch.observer_add_app_stop(on_stopped, state)
+UbuntuAppLaunch.observer_add_app_resume(on_resume, state)
 
 print ("Start Application")
 sys.stdout.flush()
 
 #start up the application
-UpstartAppLaunch.start_application(app_id)
-state['loop'].run()
+UbuntuAppLaunch.start_application(app_id)
+
+try:
+    state['loop'].run()
+except KeyboardInterrupt:
+    pass
 
 print ("The Application exited, cleaning up")
 
-UpstartAppLaunch.observer_delete_app_failed(on_failed)
-UpstartAppLaunch.observer_delete_app_started(on_started)
-UpstartAppLaunch.observer_delete_app_focus(on_focus)
-UpstartAppLaunch.observer_delete_app_stop(on_stopped)
-UpstartAppLaunch.observer_delete_app_resume(on_resume)
+UbuntuAppLaunch.observer_delete_app_failed(on_failed)
+UbuntuAppLaunch.observer_delete_app_started(on_started)
+UbuntuAppLaunch.observer_delete_app_focus(on_focus)
+UbuntuAppLaunch.observer_delete_app_stop(on_stopped)
+UbuntuAppLaunch.observer_delete_app_resume(on_resume)
 
 success = subprocess.call(["pkcon","remove",package_name+";"+package_version+";"+package_arch+";local:click"])
 if success != 0:
@@ -222,7 +228,8 @@ if success != 0:
 
 if needs_debug_conf:
     try:
-        os.remove(debug_file_name)
+        if os.path.isfile(debug_file_name):
+            os.remove(debug_file_name)
     except:
         print("Could not remove the debug description file: "+debug_file_name+"\n Please delete it manually")
 

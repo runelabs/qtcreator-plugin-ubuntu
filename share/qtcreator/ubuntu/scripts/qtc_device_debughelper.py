@@ -60,9 +60,16 @@ if os.path.isfile(debug_file_name):
         args.insert(0,":"+debug_settings["gdbPort"])
         args.insert(1,command)
 
+        #work around bug LP:#1327216, cgroups authentication for Mir not available
+        #remove this line as soon as its fixed
+        args.append("--desktop_file_hint="+app_id)
+
     if "env" in debug_settings:
         for key in debug_settings["env"]:
             env[key] = debug_settings["env"][key]
+
+    f.close()
+    os.remove(debug_file_name)
 
 #execv wants the command again in the arguments
 args.insert(0,effective_cmd)

@@ -1255,6 +1255,7 @@ ProjectExplorer::DeviceProcess *UbuntuDevice::createProcess(QObject *parent) con
 ProjectExplorer::DeviceProcessSignalOperation::Ptr UbuntuDevice::signalOperation() const
 {
     UbuntuDeviceSignalOperation::Ptr p(new UbuntuDeviceSignalOperation(sharedFromThis()));
+    return p;
 }
 
 UbuntuDevice::Ptr UbuntuDevice::sharedFromThis()
