@@ -31,6 +31,10 @@
 #include <cmakeprojectmanager/cmakeproject.h>
 using namespace Ubuntu::Internal;
 
+enum {
+    debug = 0
+};
+
 UbuntuLocalRunConfiguration::UbuntuLocalRunConfiguration(ProjectExplorer::Target *parent, Core::Id id)
     : ProjectExplorer::LocalApplicationRunConfiguration(parent, id)
 {
@@ -175,11 +179,11 @@ bool UbuntuLocalRunConfiguration::readDesktopFile(const QString &desktopFile, QS
         line = line.mid(0,line.indexOf(QChar::fromLatin1('#'))).trimmed();
         if(line.startsWith(QLatin1String("Exec"),Qt::CaseInsensitive)) {
             execLine = line.mid(line.indexOf(QChar::fromLatin1('='))+1);
-            qDebug()<<"Found exec line: "<<execLine;
+            if(debug) qDebug()<<"Found exec line: "<<execLine;
             continue;
         } else if(line.startsWith(QLatin1String("Name"),Qt::CaseInsensitive)) {
             name = line.mid(line.indexOf(QChar::fromLatin1('='))+1);
-            qDebug()<<"Found name line: "<<name;
+            if(debug) qDebug()<<"Found name line: "<<name;
             continue;
         }
     }
@@ -275,7 +279,7 @@ bool UbuntuLocalRunConfiguration::ensureClickAppConfigured(QString *errorMessage
         m_args = args;
         m_workingDir = target()->project()->projectDirectory();
     }
-    qDebug()<<"Configured with: "<<m_executable<<" "<<m_args.join(QChar::fromLatin1(' '));
+    if(debug) qDebug()<<"Configured with: "<<m_executable<<" "<<m_args.join(QChar::fromLatin1(' '));
     return true;
 }
 
@@ -336,11 +340,11 @@ void UbuntuLocalRunConfiguration::addToBaseEnvironment(Utils::Environment &env) 
         QSet<QString> usedPaths;
         foreach (const CMakeProjectManager::CMakeBuildTarget& t, targets) {
             if(t.library) {
-                qDebug()<<"Looking at executable "<<t.executable;
+                if(debug) qDebug()<<"Looking at executable "<<t.executable;
                 QFileInfo inf(t.executable);
                 if(inf.exists()) {
                     QDir d = inf.absoluteDir();
-                    qDebug()<<"Looking in the dir: "<<d.absolutePath();
+                    if(debug) qDebug()<<"Looking in the dir: "<<d.absolutePath();
                     if(d.exists(QLatin1String("qmldir"))) {
                         QString path = QDir::cleanPath(d.absolutePath()+QDir::separator()+QLatin1String(".."));
                         if(usedPaths.contains(path))

@@ -18,6 +18,10 @@
 namespace Ubuntu {
 namespace Internal {
 
+enum {
+    debug = 0
+};
+
 static bool equalKits(ProjectExplorer::Kit *a, ProjectExplorer::Kit *b)
 {
     return ProjectExplorer::ToolChainKitInformation::toolChain(a) == ProjectExplorer::ToolChainKitInformation::ToolChainKitInformation::toolChain(b);
@@ -110,7 +114,7 @@ void UbuntuKitManager::autoDetectKits()
         }
 
         //@TODO check for ubuntu device information
-        qDebug()<<"Found possible Ubuntu Kit: "<<k->displayName();
+        if(debug) qDebug()<<"Found possible Ubuntu Kit: "<<k->displayName();
         existingKits << k;
     }
 

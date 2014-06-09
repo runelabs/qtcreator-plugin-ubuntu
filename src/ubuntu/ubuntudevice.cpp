@@ -20,7 +20,6 @@
 #include "ubuntuemulatornotifier.h"
 #include "ubuntuprocess.h"
 #include "ubuntuconstants.h"
-#include "ubuntudeviceconfigurationwidget.h"
 #include "localportsmanager.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
@@ -55,10 +54,10 @@ const QLatin1String DEVICE_SERIAL_ARCHITECTURE("UbuntuDevice.Arch");
 UbuntuDeviceHelper::UbuntuDeviceHelper(UbuntuDevice *dev)
     : QObject(0)
     , m_clonedNwCount(0)
+    , m_errorCount(0)
     , m_dev(dev)
     , m_process(0)
     , m_deviceWatcher(0)
-    , m_errorCount(0)
 {
 #if 0
     connect(m_process,SIGNAL(finished(QString,int)),this,SLOT(processFinished(QString,int)));
@@ -195,7 +194,7 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
             }
 
             QStringList options = m_reply.split(QStringLiteral("\n"),QString::SkipEmptyParts);
-            qDebug()<<options;
+            if(debug) qDebug()<<options;
             if(options.length() == 4) {
                 m_dev->setDeviceInfo(options[1],options[0],options[2]);
             }
@@ -529,8 +528,7 @@ void UbuntuDeviceHelper::detectDeveloperTools()
 
 void UbuntuDeviceHelper::deviceConnected()
 {
-    if(debug)
-        qDebug()<<"Device "<<m_dev->id().toString()<<" connected";
+    if(debug) qDebug()<<"Device "<<m_dev->id().toString()<<" connected";
 
     ProjectExplorer::DeviceManager::instance()->setDeviceState(m_dev->id(),ProjectExplorer::IDevice::DeviceConnected);
 
@@ -542,8 +540,7 @@ void UbuntuDeviceHelper::deviceConnected()
 
 void UbuntuDeviceHelper::deviceDisconnected()
 {
-    if(debug)
-        qDebug()<<"Device "<<m_dev->id().toString()<<" disconnected";
+    if(debug) qDebug()<<"Device "<<m_dev->id().toString()<<" disconnected";
     ProjectExplorer::DeviceManager::instance()->setDeviceState(m_dev->id(),ProjectExplorer::IDevice::DeviceDisconnected);
 
     setProcessState(UbuntuDevice::NotStarted);
@@ -800,8 +797,7 @@ void UbuntuDeviceHelper::cloneNetwork()
 
 void UbuntuDeviceHelper::startProcess(const QString &command)
 {
-    if(debug)
-        qDebug()<<"Starting process: "<<command;
+    if(debug) qDebug()<<"Starting process: "<<command;
 
     if(!m_process) {
         m_process = new QProcess(this);
@@ -833,8 +829,7 @@ void UbuntuDeviceHelper::onProcessError(const QProcess::ProcessError error)
 {
     QString errorString = QStringLiteral("ERROR: (%0) %1 %2").arg(m_process->program()).arg(m_process->errorString()).arg(error);
 
-    if(debug)
-        qDebug()<<"Received Process Error: "<<error<<errorString;
+    if(debug) qDebug()<<"Received Process Error: "<<error<<errorString;
 
     onError(errorString);
 }
@@ -846,15 +841,15 @@ void UbuntuDeviceHelper::onProcessStateChanged(QProcess::ProcessState newState)
 
     switch(newState) {
         case QProcess::NotRunning: {
-            qDebug()<<QStringLiteral("Process not running");
+            if(debug) qDebug()<<QStringLiteral("Process not running");
             break;
         }
         case QProcess::Starting: {
-            qDebug()<<QStringLiteral("Process starting");
+            if(debug) qDebug()<<QStringLiteral("Process starting");
             break;
         }
         case QProcess::Running: {
-            qDebug()<<QStringLiteral("Process running");
+            if(debug) qDebug()<<QStringLiteral("Process running");
             break;
         }
     }
@@ -1169,6 +1164,8 @@ QString UbuntuDevice::detectionStateString( ) const
     switch (m_processState) {
         case NotStarted:
             return tr("");
+        case WaitForEmulatorStart:
+            return tr("Waiting for the emulator to start up");
         case WaitForBoot:
             return tr("Waiting for the device to finish booting");
         case DetectDeviceVersion:
@@ -1334,8 +1331,7 @@ QString UbuntuDeviceProcess::fullCommandLine() const
         fullCommandLine.append(Utils::QtcProcess::joinArgsUnix(arguments()));
     }
 
-    if(debug)
-        qDebug()<<fullCommandLine;
+    if(debug) qDebug()<<fullCommandLine;
 
     return fullCommandLine;
 }

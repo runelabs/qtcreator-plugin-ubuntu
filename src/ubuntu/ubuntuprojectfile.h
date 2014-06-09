@@ -47,19 +47,17 @@ public:
     UbuntuProjectFile(UbuntuProject *parent, QString fileName);
     ~UbuntuProjectFile() {}
 
-    bool save(QString *errorString, const QString &fileName, bool autoSave);
-    QString fileName() const;
-    void rename(const QString &newName);
+    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
 
-    QString defaultPath() const;
-    QString suggestedFileName() const;
-    QString mimeType() const;
+    QString defaultPath() const override;
+    QString suggestedFileName() const override;
+    QString mimeType() const override;
 
-    bool isModified() const;
-    bool isSaveAsAllowed() const;
+    bool isModified() const override;
+    bool isSaveAsAllowed() const override;
 
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType);
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType) override;
 
 private:
     UbuntuProject *m_project;

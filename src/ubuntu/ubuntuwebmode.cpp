@@ -51,7 +51,7 @@ UbuntuWebMode::UbuntuWebMode(QObject *parent) :
     connect(&m_addressBar,SIGNAL(returnPressed()),SLOT(goToAddress()));
 
 
-    Utils::StyledBar* styledBar = new Utils::StyledBar(&m_modeWidget);
+    //Utils::StyledBar* styledBar = new Utils::StyledBar(&m_modeWidget);
     //layout->addWidget(styledBar);
 
     QScrollArea *scrollArea = new QScrollArea(&m_modeWidget);

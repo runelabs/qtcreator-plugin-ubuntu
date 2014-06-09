@@ -57,13 +57,13 @@ class UbuntuProject : public ProjectExplorer::Project
 public:
     UbuntuProject(UbuntuProjectManager *manager, const QString &fileName);
 
-    QString displayName() const;
-    Core::Id id() const;
-    Core::IDocument *document() const;
-    ProjectExplorer::IProjectManager *projectManager() const;
+    QString displayName() const override;
+    Core::Id id() const override;
+    Core::IDocument *document() const override;
+    ProjectExplorer::IProjectManager *projectManager() const override;
 
-    ProjectExplorer::ProjectNode *rootProjectNode() const;
-    QStringList files(FilesMode fileMode) const;
+    ProjectExplorer::ProjectNode *rootProjectNode() const override;
+    QStringList files(FilesMode fileMode) const override;
 
     QDir projectDir() const {
         return projectDirectory();

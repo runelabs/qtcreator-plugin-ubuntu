@@ -65,11 +65,14 @@ Core::GeneratedFiles UbuntuProjectApp::generateFiles(const QWizard *w, QString *
 
     setProjectType(projectType);
 
+#if 0
+    //disabled because the variable is not used, keep it for now in case we want to enable it later
     QJsonValue tmp_hasTests = m_obj.value(QLatin1String(Constants::UBUNTU_HAS_TESTS));
     bool hasTests = false;
     if (tmp_hasTests.isUndefined() == false) {
         hasTests = tmp_hasTests.toBool();
     }
+#endif
 
     const UbuntuProjectApplicationWizardDialog *wizard = qobject_cast<const UbuntuProjectApplicationWizardDialog *>(w);
     const QString projectName = wizard->projectName();

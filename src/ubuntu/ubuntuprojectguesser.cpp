@@ -31,6 +31,10 @@
 namespace Ubuntu {
 namespace Internal {
 
+enum {
+    debug = 0
+};
+
 const char SCOPES_TYPE_CACHE_PROPERTY[]    = "__ubuntu_sdk_is_scopes_project_property";
 const char SCOPES_INIFILE_CACHE_PROPERTY[] = "__ubuntu_sdk_scopes_project_inifile_property";
 const char CLICK_TYPE_CACHE_PROPERTY[]     = "__ubuntu_sdk_is_click_project_property";
@@ -43,7 +47,7 @@ bool UbuntuProjectGuesser::isScopesProject(ProjectExplorer::Project *project, QS
 {
     //query the project type from CMakeCache always, only fall back on searching the directory
     QString type = projectTypeFromCacheOrProject(project);
-    qDebug()<<"Project type from CMake "<<type;
+    if(debug) qDebug()<<"Project type from CMake "<<type;
     if (!type.isEmpty()) {
         return QString::compare(type, QLatin1String("Scope") , Qt::CaseInsensitive) == 0;
     }
@@ -81,7 +85,7 @@ bool UbuntuProjectGuesser::isClickAppProject(ProjectExplorer::Project *project)
 {
     //query the project type from CMakeCache always, only fall back on searching the directory
     QString type = projectTypeFromCacheOrProject(project);
-    qDebug()<<"Project type from CMake "<<type;
+    if(debug) qDebug()<<"Project type from CMake "<<type;
     if (!type.isEmpty()) {
         return QString::compare(type, QLatin1String("ClickApp") , Qt::CaseInsensitive) == 0;
     }

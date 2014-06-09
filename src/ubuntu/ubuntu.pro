@@ -2,6 +2,9 @@ QT += network qml quick webkitwidgets script scripttools declarative
 
 include(../plugin.pri)
 
+QMAKE_CXXFLAGS += -Werror
+CONFIG += c++11
+
 #####################################
 # required for Ubuntu Device Notifier
 CONFIG += link_pkgconfig
@@ -13,15 +16,13 @@ PKGCONFIG += libudev
 ## Project files
 
 FORMS += \
-    ubuntudeviceswidget.ui \
     ubuntupackagingwidget.ui \
     ubuntusettingswidget.ui \
     ubuntusecuritypolicypickerdialog.ui \
     ubuntusettingsdeviceconnectivitywidget.ui \
     ubuntusettingsclickwidget.ui \
     ubuntuclickdialog.ui \
-    ubuntucreatenewchrootdialog.ui \
-    ubuntudeviceconfigurationwidget.ui
+    ubuntucreatenewchrootdialog.ui
 
 RESOURCES += \
     resources.qrc
@@ -74,7 +75,6 @@ SOURCES += \
     ubuntuclickmanifest.cpp \
     ubuntuwebmode.cpp \
     ubuntupastebinmode.cpp \
-    #ubuntudeviceswidget.cpp \
     ubuntudevicemode.cpp \
     ubuntuprocess.cpp \
     ubuntudevicenotifier.cpp \
@@ -97,7 +97,6 @@ SOURCES += \
     ubuntucmakebuildconfiguration.cpp \
     ubuntudevicefactory.cpp \
     ubuntudevice.cpp \
-    ubuntudeviceconfigurationwidget.cpp \
     ubunturemoterunconfiguration.cpp \
     ubuntucmakemakestep.cpp \
     ubuntuemulatornotifier.cpp \
@@ -108,7 +107,8 @@ SOURCES += \
     ubuntulocalrunconfigurationfactory.cpp \
     ubunturemoteruncontrolfactory.cpp \
     ubuntulocalrunconfiguration.cpp \
-    ubuntudevicesmodel.cpp
+    ubuntudevicesmodel.cpp \
+    ubuntushared.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -137,7 +137,6 @@ HEADERS += \
     ubuntuwebmode.h \
     ubuntupastebinmode.h \
     ubuntudevicemode.h \
-    #ubuntudeviceswidget.h \
     ubuntuprocess.h \
     ubuntudevicenotifier.h \
     ubuntusettingspage.h \
@@ -159,7 +158,6 @@ HEADERS += \
     ubuntucmakebuildconfiguration.h \
     ubuntudevicefactory.h \
     ubuntudevice.h \
-    ubuntudeviceconfigurationwidget.h \
     ubunturemoterunconfiguration.h \
     ubuntucmakemakestep.h \
     ubuntuemulatornotifier.h \

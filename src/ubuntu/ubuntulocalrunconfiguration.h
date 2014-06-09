@@ -40,20 +40,20 @@ public:
     UbuntuLocalRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
     UbuntuLocalRunConfiguration(ProjectExplorer::Target *parent, UbuntuLocalRunConfiguration* source);
 
-    QWidget *createConfigurationWidget();
-    bool isEnabled() const;
+    QWidget *createConfigurationWidget() override;
+    bool isEnabled() const override;
 
     // LocalApplicationRunConfiguration interface
-    virtual QString executable() const;
-    virtual QString workingDirectory() const;
-    virtual QString commandLineArguments() const;
-    virtual QString dumperLibrary() const;
-    virtual QStringList dumperLibraryLocations() const;
-    virtual RunMode runMode() const;
-    virtual void addToBaseEnvironment(Utils::Environment &env) const;
+    virtual QString executable() const override;
+    virtual QString workingDirectory() const override;
+    virtual QString commandLineArguments() const override;
+    virtual QString dumperLibrary() const override;
+    virtual QStringList dumperLibraryLocations() const override;
+    virtual RunMode runMode() const override;
+    virtual void addToBaseEnvironment(Utils::Environment &env) const override;
 
     // RunConfiguration interface
-    virtual bool ensureConfigured(QString *errorMessage);
+    virtual bool ensureConfigured(QString *errorMessage) override;
 
     //static helpers
     static QString getDesktopFile (RunConfiguration *config, QString *appId, QString *errorMessage = 0);

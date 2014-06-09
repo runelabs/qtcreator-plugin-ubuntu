@@ -29,6 +29,10 @@
 
 using namespace Ubuntu;
 
+enum {
+    debug = 0
+};
+
 UbuntuSettingsClickWidget::UbuntuSettingsClickWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::UbuntuSettingsClickWidget)
@@ -85,7 +89,7 @@ void UbuntuSettingsClickWidget::on_deleteClickChroot(const int index)
     if(index < 0 || index > m_availableTargets.size())
         return;
 
-    qDebug()<<"Destroying chroot "<< m_availableTargets.at(index);
+    if(debug) qDebug()<<"Destroying chroot "<< m_availableTargets.at(index);
 
     Internal::UbuntuClickDialog::maintainClickModal(m_availableTargets.at(index),Internal::UbuntuClickTool::Delete);
     listExistingClickTargets();

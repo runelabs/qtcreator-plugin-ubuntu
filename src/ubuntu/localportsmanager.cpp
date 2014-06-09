@@ -69,9 +69,7 @@ Utils::PortList UbuntuLocalPortsManager::getFreeRange(const QString &serial, con
     adb.waitForFinished();
 
     if (adb.exitCode() != 0) {
-        if(debug)
-            qDebug()<<"Adb failed to run "<<adb.errorString();
-
+        if(debug) qDebug()<<"Adb failed to run "<<adb.errorString();
         return Utils::PortList();
     }
 
@@ -100,17 +98,14 @@ Utils::PortList UbuntuLocalPortsManager::getFreeRange( const QString &serial, co
 
         //if a port is already forwarded to the device, we can just reuse it
         if (serial == device && localPort >= m_instance->m_first && localPort <= m_instance->m_last) {
-            if(debug)
-                qDebug()<<"Found port already linked to device: "<<localPort<<":"<<remotePort;
+            if(debug) qDebug()<<"Found port already linked to device: "<<localPort<<":"<<remotePort;
 
             freePorts.addPort(localPort);
 
             if (freePorts.count() == count)
                 break;
         } else {
-            if(debug)
-                qDebug()<<"Found port in use: "<<localPort<<":"<<remotePort;
-
+            if(debug) qDebug()<<"Found port in use: "<<localPort<<":"<<remotePort;
             usedPorts.addPort(localPort);
         }
     }
@@ -130,9 +125,7 @@ Utils::PortList UbuntuLocalPortsManager::getFreeRange( const QString &serial, co
 
         freePorts.addPort(port);
         found++;
-
-        if(debug)
-            qDebug()<<"Found free port: "<<port;
+        if(debug) qDebug()<<"Found free port: "<<port;
     }
 
     return freePorts;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Canonical Ltd.
+ * Copyright 2014 Canonical Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -16,27 +16,20 @@
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-#ifndef UBUNTUFEATUREPROVIDER_H
-#define UBUNTUFEATUREPROVIDER_H
+#include "ubuntushared.h"
 
-#include <coreplugin/featureprovider.h>
-#include "ubuntuversionmanager.h"
+#include <utils/fileutils.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 
-namespace Ubuntu {
-namespace Internal {
-class UbuntuFeatureProvider : public Core::IFeatureProvider
-{
-    Q_OBJECT
-
-public:
-    UbuntuFeatureProvider() {}
-
-    Core::FeatureSet availableFeatures(const QString &platformName) const override;
-    QStringList availablePlatforms() const override;
-    QString displayNameForPlatform(const QString &string) const override;
-    
-};
-}
+bool readFile(const QString &fileName, QByteArray *data, QString *errorMessage)  {
+    Utils::FileReader reader;
+    if (!reader.fetch(fileName, errorMessage)) return false;
+    *data = reader.data();
+    return true;
 }
 
-#endif // UBUNTUFEATUREPROVIDER_H
+void printToOutputPane(const QString &msg) {
+    QString timestamp = QDateTime::currentDateTime().toString(QString::fromLatin1("HH:mm:ss"));
+    Core::MessageManager::write(QString(QLatin1String("[%0] %1")).arg(timestamp).arg(msg),Core::MessageManager::NoModeSwitch);
+}

@@ -34,9 +34,9 @@ public:
     explicit UbuntuEmulatorNotifier(QObject *parent = 0);
 
     // IUbuntuDeviceNotifier interface
-    virtual void startMonitoring(const QString &imageName);
-    virtual void stopMonitoring();
-    virtual bool isConnected() const;
+    virtual void startMonitoring(const QString &imageName) override;
+    virtual void stopMonitoring() override;
+    virtual bool isConnected() const override;
 
 private slots:
     void pollTimeout ();

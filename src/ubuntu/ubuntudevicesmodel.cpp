@@ -65,8 +65,7 @@ int UbuntuDevicesModel::rowCount(const QModelIndex &parent) const
 
 bool UbuntuDevicesModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if(debug)
-        qDebug()<<"Setting index "<<index<<" with data "<<value<<" to role "<<role;
+    if(debug) qDebug()<<"Setting index "<<index<<" with data "<<value<<" to role "<<role;
 
     if(!index.isValid()
             || index.parent().isValid()
@@ -503,8 +502,7 @@ void UbuntuDevicesModel::deviceAdded(const Core::Id &id)
     if(ptr->type() != Core::Id(Constants::UBUNTU_DEVICE_TYPE_ID))
         return;
 
-    if(debug)
-        qDebug()<<"Device Manager reports device added: "<<id.toString();
+    if(debug) qDebug()<<"Device Manager reports device added: "<<id.toString();
 
     if (hasDevice(id.uniqueIdentifier()))
         return;
@@ -531,8 +529,7 @@ void UbuntuDevicesModel::deviceRemoved(const Core::Id &id)
     if(index < 0)
         return;
 
-    if(debug)
-        qDebug()<<"Device Manager reports device removed: "<<id.toString();
+    if(debug) qDebug()<<"Device Manager reports device removed: "<<id.toString();
 
     beginRemoveRows(QModelIndex(),index,index);
     delete m_knownDevices.takeAt(index);
@@ -937,8 +934,7 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
                     continue;
                 }
 
-                if(debug)
-                    qDebug()<<"Handling emulator: "<<line;
+                if(debug) qDebug()<<"Handling emulator: "<<line;
 
                 QRegularExpressionMatch mName = regexName.match(line);
                 QRegularExpressionMatch mUbu  = regexUbuntu.match(line);
@@ -1039,8 +1035,7 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
                             continue;
                         }
                         if(sSerialNumber == QStringLiteral("ADB")) {
-                            if(debug)
-                                qDebug()<<"Serialnumber ADB catched "<<m_reply;
+                            if(debug) qDebug()<<"Serialnumber ADB catched "<<m_reply;
 
                             continue;
                         }
@@ -1108,8 +1103,7 @@ QVariantList UbuntuDevicesItem::kits() const
         if(!k)
             continue;
 
-        if(debug)
-            qDebug()<<"Adding "<<k->displayName();
+        if(debug) qDebug()<<"Adding "<<k->displayName();
 
         QVariantMap m;
         m.insert(QStringLiteral("displayName"),k->displayName());

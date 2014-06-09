@@ -30,12 +30,12 @@ public:
     UbuntuDeviceFactory(QObject* parent = 0);
 
     // IDeviceFactory interface
-    virtual QString displayNameForId(Core::Id type) const;
-    virtual QList<Core::Id> availableCreationIds() const;
-    virtual bool canCreate() const;
-    virtual ProjectExplorer::IDevice::Ptr create(Core::Id id) const;
-    virtual bool canRestore(const QVariantMap &map) const;
-    virtual ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const;
+    virtual QString displayNameForId(Core::Id type) const override;
+    virtual QList<Core::Id> availableCreationIds() const override;
+    virtual bool canCreate() const override;
+    virtual ProjectExplorer::IDevice::Ptr create(Core::Id id) const override;
+    virtual bool canRestore(const QVariantMap &map) const override;
+    virtual ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const override;
 };
 
 } // namespace Internal

@@ -48,9 +48,9 @@ public:
     ~UbuntuDeviceNotifier();
 
 public slots:
-    void startMonitoring(const QString &serialNumber);
-    void stopMonitoring();
-    bool isConnected () const;
+    void startMonitoring(const QString &serialNumber) override;
+    void stopMonitoring() override;
+    bool isConnected () const override;
 
 protected slots:
     void on_udev_event();

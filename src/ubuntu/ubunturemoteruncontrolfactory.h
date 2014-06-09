@@ -50,12 +50,12 @@ class UbuntuRemoteRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
 public:
-    explicit UbuntuRemoteRunControlFactory() = default;
+    explicit UbuntuRemoteRunControlFactory() {}
     virtual ~UbuntuRemoteRunControlFactory() {}
 
-    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const override;
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-                                        ProjectExplorer::RunMode mode, QString *errorMessage);
+                                        ProjectExplorer::RunMode mode, QString *errorMessage) override;
     QString displayName() const;
     
 };

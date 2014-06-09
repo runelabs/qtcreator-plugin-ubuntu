@@ -117,7 +117,10 @@ QString UbuntuPackagingWidget::createPackageName(const QString &userName, const 
     return QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_NAME)).arg(userName).arg(projectName);
 }
 
-void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd) {
+void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd)
+{
+    Q_UNUSED(proc);
+    Q_UNUSED(cmd);
 
     disconnect(m_UbuntuMenu_connection);
 
@@ -146,8 +149,7 @@ void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd) 
 
     if (m_reviewToolsInstalled) {
 
-        if(debug)
-            qDebug()<<"Going to verify: "<<sClickPackagePath;
+        if(debug) qDebug()<<"Going to verify: "<<sClickPackagePath;
 
         m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION).arg(sClickPackagePath));
         m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(sClickPackagePath));
@@ -465,28 +467,24 @@ void UbuntuPackagingWidget::addMissingFieldsToManifest (QString fileName)
         if(!targetObject.contains(i.key())) {
             changed = true;
 
-            if(debug)
-                qDebug()<<"Manifest file missing key: "<<i.key();
+            if(debug) qDebug()<<"Manifest file missing key: "<<i.key();
 
             if (i.key() == QStringLiteral("name")) {
                 QString userName = m_bzr.launchpadId();
                 if (userName.isEmpty()) userName = QLatin1String(Constants::USERNAME);
                 targetObject.insert(i.key(),createPackageName(userName,m_projectName));
 
-                if(debug)
-                    qDebug()<<"Setting to "<<createPackageName(userName,m_projectName);
+                if(debug) qDebug()<<"Setting to "<<createPackageName(userName,m_projectName);
             } else if (i.key() == QStringLiteral("maintainer")) {
                 targetObject.insert(i.key(),m_bzr.whoami());
 
-                if(debug)
-                    qDebug()<<"Setting to "<<m_bzr.whoami();
+                if(debug) qDebug()<<"Setting to "<<m_bzr.whoami();
             } else if (i.key() == QStringLiteral("framework")) {
                 targetObject.insert(i.key(),UbuntuClickTool::getMostRecentFramework( QString() ));
             } else {
                 targetObject.insert(i.key(),i.value());
 
-                if(debug)
-                    qDebug() <<"Setting to "<<i.value();
+                if(debug) qDebug() <<"Setting to "<<i.value();
             }
         }
     }
@@ -514,6 +512,7 @@ bool UbuntuPackagingWidget::load_manifest(QString fileName) {
     m_projectName.replace(QLatin1String(Constants::UNDERLINE),QLatin1String(Constants::DASH));
     // Commented out for bug #1219948  - https://bugs.launchpad.net/qtcreator-plugin-ubuntu/+bug/1219948
     //m_manifest.setName(QString(QLatin1String("com.ubuntu.developer.%0.%1")).arg(userName).arg(m_projectName));
+    return true;
 }
 
 void UbuntuPackagingWidget::load_apparmor(QString fileAppArmorName) {
@@ -665,8 +664,7 @@ void UbuntuPackagingWidget::buildFinished(const bool success)
                 case None:
                     break;
                 case Verify: {
-                    if(debug)
-                        qDebug()<<"Going to verify: "<<sClickPackagePath;
+                    if(debug) qDebug()<<"Going to verify: "<<sClickPackagePath;
 
                     m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION).arg(sClickPackagePath));
                     m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(sClickPackagePath));

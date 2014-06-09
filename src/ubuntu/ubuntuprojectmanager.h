@@ -54,9 +54,9 @@ class UbuntuProjectManager : public ProjectExplorer::IProjectManager
 
 public:
     UbuntuProjectManager();
-    virtual QString mimeType() const;
+    virtual QString mimeType() const override;
 
-    ProjectExplorer::Project* openProject(const QString &filePath, QString *errorString);
+    ProjectExplorer::Project* openProject(const QString &filePath, QString *errorString) override;
     void registerProject(UbuntuProject *project);
     void unregisterProject(UbuntuProject *project);
 

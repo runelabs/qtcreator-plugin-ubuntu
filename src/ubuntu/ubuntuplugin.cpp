@@ -176,7 +176,6 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
 void UbuntuPlugin::extensionsInitialized()
 {
-    qDebug()<<"extensions loaded";
     if (m_ubuntuMenu) m_ubuntuMenu->initialize();
     m_ubuntuWelcomeMode->initialize();
     m_ubuntuDeviceMode->initialize();
