@@ -50,6 +50,7 @@ OTHER_FILES += \
     manifest.json.template \
     myapp.json.template \
     manifestlib.js \
+    $${PWD}/../../share/qtcreator/ubuntu/scripts/*.py \
     $$QML_FILES
 
 SOURCES += \
