@@ -1,3 +1,18 @@
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140609-0ubuntu1) utopic; urgency=low
+
+  [ Pete Woods ]
+  * Update scope templates to match released version of apparmor
+    templates
+
+  [ Benjamin Zeller ]
+  * Removed dead code. Code compiles without warnings now. Treat all
+    warnings as errors. Enable C++11 and use the override keyword . to
+    protect us from missing upstream API changes
+  * Add a fallback to UpstartAppLaunch in case the UbuntuAppLaunch is
+    not available (LP:#1327066) (LP: #1327066)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 09 Jun 2014 07:54:45 +0000
+
 qtcreator-plugin-ubuntu (3.0.1+14.10.20140602-0ubuntu1) utopic; urgency=low
 
   [ Benjamin Zeller ]
