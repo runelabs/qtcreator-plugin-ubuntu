@@ -15,7 +15,16 @@
 #
 # Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
 
-export LANG=C
-export LC_ALL=C
-bzr whoami
-bzr launchpad-login| sed 's/No Launchpad user ID configured\./unknown/g'
+BZR_ID=`bzr whoami 2>/dev/null`
+if [ $? -ne 0 ]; then
+    echo "Your Name <name@example.com>"
+else
+        echo PINAAAAA ${BZR_ID}
+fi
+LP_ID=`bzr launchpad-login`
+if [ $? -ne 0 ]; then
+    echo "unknown"
+else
+        echo ${LP_ID}
+fi
+
