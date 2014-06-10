@@ -15,5 +15,7 @@
 #
 # Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
 
+export LANG=C
+export LC_ALL=C
 bzr whoami
 bzr launchpad-login| sed 's/No Launchpad user ID configured\./unknown/g'
