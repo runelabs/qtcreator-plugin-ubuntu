@@ -16,4 +16,4 @@
 # Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
 
 bzr whoami
-bzr launchpad-login
+bzr launchpad-login| sed 's/No Launchpad user ID configured\./unknown/g'
