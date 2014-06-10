@@ -706,7 +706,10 @@ void UbuntuPackagingWidget::buildAndInstallPackageRequested()
 
 void UbuntuPackagingWidget::on_comboBoxFramework_currentIndexChanged(int index)
 {
-    if(ui->comboBoxFramework->itemText(index).startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_14_04_BASENAME))) {
+    if(ui->comboBoxFramework->itemText(index).startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_14_10_BASENAME))) {
+        ui->comboBoxFramework->removeItem(ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA));
+        m_apparmor.setPolicyVersion(QLatin1String("1.1"));
+    } else if(ui->comboBoxFramework->itemText(index).startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_14_04_BASENAME))) {
         ui->comboBoxFramework->removeItem(ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA));
         m_apparmor.setPolicyVersion(QLatin1String("1.1"));
     } else if(ui->comboBoxFramework->itemText(index).startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_13_10_BASENAME))) {
