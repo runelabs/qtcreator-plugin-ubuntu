@@ -523,6 +523,7 @@ const char UBUNTU_DEPLOY_DESTDIR[] = ".ubuntu-sdk-deploy";
 const char UBUNTU_CLICK_SUCCESS_PACKAGE_REGEX[] = "^.*'(.*)'.$";
 
 //Frameworks
+const char UBUNTU_FRAMEWORK_14_10_BASENAME[] = "ubuntu-sdk-14.10";
 const char UBUNTU_FRAMEWORK_14_04_BASENAME[] = "ubuntu-sdk-14.04";
 const char UBUNTU_FRAMEWORK_13_10_BASENAME[] = "ubuntu-sdk-13.10";
 const char UBUNTU_DEFAULT_QML_FRAMEWORK[]    = "ubuntu-sdk-14.04-qml-dev1";
