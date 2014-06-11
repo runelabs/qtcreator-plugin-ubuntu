@@ -181,7 +181,7 @@ Page {
                                 text: i18n.tr("Run Emulator")
                                 tooltip: text
                                 iconSource: "qrc:/projectexplorer/images/run.png"
-                                onClicked: devicesModel.startEmulator(emulatorImageName,emuSettings.memory, emuSettings.scale:)
+                                onClicked: devicesModel.startEmulator(emulatorImageName,emuSettings.memory, emuSettings.scale)
                                 visible: connectionState === DeviceConnectionState.Disconnected
                             }
                             Controls.ToolButton {
