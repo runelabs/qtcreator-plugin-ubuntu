@@ -1,3 +1,9 @@
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140609-0ubuntu2) utopic; urgency=medium
+
+  * test 
+
+ -- Zoltán Balogh <zoltan@bakter.hu>  Wed, 11 Jun 2014 06:52:33 +0200
+
 qtcreator-plugin-ubuntu (3.0.1+14.10.20140609-0ubuntu1) utopic; urgency=low
 
   [ Pete Woods ]
