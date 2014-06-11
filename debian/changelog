@@ -1,3 +1,17 @@
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140611.2-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * Add 14.10 target support (LP: #1328436) (LP: #1328436)
+  * Use unknown as developed ID when there is no LP ID available (LP:
+    #1324555) (LP: #1324555)
+
+  [ Benjamin Zeller ]
+  * Use only one SSH key for all ubuntu devices Move the storage
+    location of the SSH key to ~/.config/ubuntu-sdk Fixes LP:#1237923
+    (LP: #1237923)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 11 Jun 2014 13:50:36 +0000
+
 qtcreator-plugin-ubuntu (3.0.1+14.10.20140609-0ubuntu2) utopic; urgency=medium
 
   * test 
