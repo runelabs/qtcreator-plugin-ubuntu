@@ -104,7 +104,7 @@ public slots:
     void triggerKitRemove       ( const int devId, const QVariant &kitid );
     void triggerRedetect        ( const int devId );
     void createEmulatorImage    ( const QString &name, const QString &arch );
-    void startEmulator          ( const QString &name, const QString &memory );
+    void startEmulator          ( const QString &name, const QString &memory, const QString &scale );
     void stopEmulator           ( const QString &name );
     void deleteEmulator         ( const QString &name );
     QVariant validateEmulatorName(const QString &name );
