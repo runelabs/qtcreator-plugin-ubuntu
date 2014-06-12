@@ -38,5 +38,5 @@ done
 ############################################################
 
 mkdir -p po
-xgettext -o po/${DISPLAYNAME}.pot --qt --c++ --add-comments=TRANSLATORS --keyword=tr ${SOURCEFILES} --from-code=UTF-8
+xgettext -o po/${DISPLAYNAME}.pot --qt --c++ --add-comments=TRANSLATORS --keyword=tr --keyword=tr:1,2 ${SOURCEFILES} --from-code=UTF-8
 echo "..created!"
