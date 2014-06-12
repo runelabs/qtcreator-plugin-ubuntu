@@ -21,6 +21,7 @@
 #include <remotelinux/linuxdevice.h>
 #include <remotelinux/linuxdeviceprocess.h>
 #include <coreplugin/id.h>
+#include <projectexplorer/abi.h>
 #include <utils/portlist.h>
 #include <QProcess>
 
@@ -177,6 +178,7 @@ public:
     QString deviceInfo() const;
     QString productInfo() const;
     QString imageName() const;
+    QString architecture() const;
 
     void setEmulatorInfo (const QString &ubuntuVersion, const QString &deviceVersion, const QString &imageVersion);
     QString ubuntuVersion() const;
