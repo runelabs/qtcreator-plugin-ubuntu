@@ -195,8 +195,12 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
 
             QStringList options = m_reply.split(QStringLiteral("\n"),QString::SkipEmptyParts);
             if(debug) qDebug()<<options;
-            if(options.length() == 4) {
-                m_dev->setDeviceInfo(options[1],options[0],options[2]);
+            if(options.length() == 5) {
+                m_dev->setDeviceInfo(options[1].trimmed(),
+                        options[0].trimmed(),
+                        options[2].trimmed());
+
+                m_dev->m_architecture = options[4].trimmed();
             }
 
             detectHasNetworkConnection();
@@ -1137,6 +1141,11 @@ QString UbuntuDevice::imageVersion() const
 QString UbuntuDevice::imageName() const
 {
     return id().toSetting().toString();
+}
+
+QString UbuntuDevice::architecture() const
+{
+    return m_architecture;
 }
 
 UbuntuDevice::FeatureState UbuntuDevice::hasNetworkConnection() const

@@ -29,7 +29,7 @@ namespace Ubuntu {
 namespace Internal {
 
 enum {
-    debug = 0
+    debug = 1
 };
 
 QLatin1String UBUNTU_TARGET_ARCH_KEY = QLatin1String("Ubuntu.ClickToolChain.Target.Arch");
@@ -123,6 +123,14 @@ ProjectExplorer::ToolChainConfigWidget *ClickToolChain::configurationWidget()
 const UbuntuClickTool::Target &ClickToolChain::clickTarget() const
 {
     return m_clickTarget;
+}
+
+ProjectExplorer::Abi ClickToolChain::architectureNameToAbi(const QString &arch)
+{
+    if( !clickArchitectures.contains(arch) )
+        return ProjectExplorer::Abi();
+
+    return clickArchitectures[arch];
 }
 
 QVariantMap ClickToolChain::toMap() const

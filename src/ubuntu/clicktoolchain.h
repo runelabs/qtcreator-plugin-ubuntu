@@ -47,6 +47,8 @@ public:
     QString gnutriplet () const;
     const UbuntuClickTool::Target &clickTarget () const;
 
+    static ProjectExplorer::Abi architectureNameToAbi ( const QString &arch );
+
 protected:
     virtual bool fromMap(const QVariantMap &data) override;
 
