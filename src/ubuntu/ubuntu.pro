@@ -113,7 +113,8 @@ SOURCES += \
     ubunturemotedebugsupport.cpp \
     ubunturemoteanalyzesupport.cpp \
     ubuntudevicesignaloperation.cpp \
-    ubunturemoterunner.cpp
+    ubunturemoterunner.cpp \
+    abstractremoterunsupport.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -180,5 +181,6 @@ HEADERS += \
     ubunturemotedebugsupport.h \
     ubunturemoteanalyzesupport.h \
     ubuntudevicesignaloperation.h \
-    ubunturemoterunner.h
+    ubunturemoterunner.h \
+    abstractremoterunsupport.h
 

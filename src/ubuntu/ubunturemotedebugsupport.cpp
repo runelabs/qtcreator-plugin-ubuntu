@@ -29,26 +29,28 @@
 
 #include "ubunturemotedebugsupport.h"
 #include "ubunturemoterunconfiguration.h"
+#include "ubunturemoterunner.h"
+#include "ubuntuconstants.h"
 
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerrunconfigurationaspect.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 
 #include <utils/qtcassert.h>
 
 #include <QPointer>
-#include <debugger/debuggerrunconfigurationaspect.h>
+#include <QTimer>
 
 namespace Ubuntu {
 namespace Internal {
-
 
 class UbuntuRemoteDebugSupportPrivate
 {
@@ -58,8 +60,7 @@ public:
         : engine(engine),
           qmlDebugging(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useQmlDebugger()),
           cppDebugging(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useCppDebugger()),
-          gdbServerPort(-1), qmlPort(-1),
-          clickPackage(runConfig->clickPackage())
+          gdbServerPort(-1), qmlPort(-1)
     {
 
     }
@@ -70,20 +71,14 @@ public:
     QByteArray gdbserverOutput;
     int gdbServerPort;
     int qmlPort;
-
-    QString clickPackage;
-    int procPid;
-    QString output;
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr deviceSignalOp;
 };
 
 UbuntuRemoteDebugSupport::UbuntuRemoteDebugSupport(UbuntuRemoteRunConfiguration* runConfig,
         Debugger::DebuggerEngine *engine)
-    : AbstractRemoteLinuxRunSupport(runConfig, engine),
+    : AbstractRemoteRunSupport(runConfig,engine),
       d(new UbuntuRemoteDebugSupportPrivate(static_cast<UbuntuRemoteRunConfiguration*>(runConfig), engine))
 {
     connect(d->engine, SIGNAL(requestRemoteSetup()), this, SLOT(handleRemoteSetupRequested()));
-    d->deviceSignalOp = device()->signalOperation();
 }
 
 UbuntuRemoteDebugSupport::~UbuntuRemoteDebugSupport()
@@ -93,58 +88,48 @@ UbuntuRemoteDebugSupport::~UbuntuRemoteDebugSupport()
 
 void UbuntuRemoteDebugSupport::showMessage(const QString &msg, int channel)
 {
-    if (state() != Inactive && d->engine)
+    if (state() != Idle && d->engine)
         d->engine->showMessage(msg, channel);
 }
 
 void UbuntuRemoteDebugSupport::handleRemoteSetupRequested()
 {
-    QTC_ASSERT(state() == Inactive, return);
-
     showMessage(tr("Checking available ports...") + QLatin1Char('\n'), Debugger::LogStatus);
-    AbstractRemoteLinuxRunSupport::handleRemoteSetupRequested();
+    AbstractRemoteRunSupport::handleRemoteSetupRequested();
 }
 
 void UbuntuRemoteDebugSupport::startExecution()
 {
-    QTC_ASSERT(state() == GatheringPorts, return);
+    QTC_ASSERT(state() == ScanningPorts, return);
 
-    if (d->cppDebugging && !setPort(d->gdbServerPort))
+    setState(Starting);
+
+    if (d->cppDebugging && !assignNextFreePort(&d->gdbServerPort))
         return;
-    if (d->qmlDebugging && !setPort(d->qmlPort))
+    if (d->qmlDebugging && !assignNextFreePort(&d->qmlPort))
             return;
 
-    setState(StartingRunner);
     d->gdbserverOutput.clear();
 
-    ProjectExplorer::DeviceApplicationRunner *runner = appRunner();
-    connect(runner, SIGNAL(remoteStderr(QByteArray)), SLOT(handleRemoteErrorOutput(QByteArray)));
-    connect(runner, SIGNAL(remoteStdout(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
+    UbuntuRemoteClickApplicationRunner *launcher = appRunner();
+    connect(launcher, SIGNAL(launcherStderr(QByteArray)), SLOT(handleRemoteErrorOutput(QByteArray)));
+    connect(launcher, SIGNAL(launcherStdout(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
+
     if (d->qmlDebugging && !d->cppDebugging)
-        connect(runner, SIGNAL(remoteProcessStarted()), SLOT(handleRemoteProcessStarted()));
+        connect(launcher, SIGNAL(clickApplicationStarted(quint16)), SLOT(handleRemoteProcessStarted()));
 
-    QStringList args;
-    QString command = QStringLiteral("/tmp/qtc_device_applaunch.py");
-    args << QStringLiteral("/tmp/%1").arg(d->clickPackage);
+    if(d->cppDebugging)
+        launcher->setCppDebugPort(d->gdbServerPort);
+    if(d->qmlDebugging)
+        launcher->setQmlDebugPort(d->qmlPort);
 
-    Utils::Environment env = environment();
-    Utils::Environment::const_iterator i = env.constBegin();
-    for(;i!=env.constEnd();i++) {
-        args << QStringLiteral("--env")
-             << QStringLiteral("%1:%2").arg(i.key()).arg(i.value());
-    }
+    launcher->setEnv(environment());
 
-    if (d->qmlDebugging)
-        args.append(QStringLiteral("--qmldebug=port:%1,block").arg(d->qmlPort));
-    if (d->cppDebugging)
-        args.append(QStringLiteral("--cppdebug=%1").arg(d->gdbServerPort));
+    connect(launcher, SIGNAL(finished(bool)), SLOT(handleAppRunnerFinished(bool)));
+    connect(launcher, SIGNAL(reportError(QString)), SLOT(handleAppRunnerError(QString)));
 
-    connect(runner, SIGNAL(finished(bool)), SLOT(handleAppRunnerFinished(bool)));
-    connect(runner, SIGNAL(reportProgress(QString)), SLOT(handleProgressReport(QString)));
-    connect(runner, SIGNAL(reportError(QString)), SLOT(handleAppRunnerError(QString)));
-    runner->setEnvironment(environment());
-    runner->setWorkingDirectory(workingDirectory());
-    runner->start(device(), command, args);
+    QTC_ASSERT(device()->type() == Constants::UBUNTU_DEVICE_TYPE_ID,return);
+    launcher->start(qSharedPointerCast<const UbuntuDevice>(device()),clickPackage());
 }
 
 void UbuntuRemoteDebugSupport::handleAppRunnerError(const QString &error)
@@ -153,14 +138,14 @@ void UbuntuRemoteDebugSupport::handleAppRunnerError(const QString &error)
         showMessage(error, Debugger::AppError);
         if (d->engine)
             d->engine->notifyInferiorIll();
-    } else if (state() != Inactive) {
+    } else if (state() != Idle) {
         handleAdapterSetupFailed(error);
     }
 }
 
 void UbuntuRemoteDebugSupport::handleAppRunnerFinished(bool success)
 {
-    if (!d->engine || state() == Inactive)
+    if (!d->engine || state() == Idle)
         return;
 
     if (state() == Running) {
@@ -170,9 +155,10 @@ void UbuntuRemoteDebugSupport::handleAppRunnerFinished(bool success)
         else if (!success)
             d->engine->notifyInferiorIll();
 
-    } else if (state() == StartingRunner){
+    } else if (state() == Starting){
         d->engine->notifyEngineRemoteSetupFailed(tr("Debugging failed."));
     }
+
     reset();
 }
 
@@ -184,34 +170,28 @@ void UbuntuRemoteDebugSupport::handleDebuggingFinished()
 
 void UbuntuRemoteDebugSupport::handleRemoteOutput(const QByteArray &output)
 {
-    //QTC_ASSERT(state() == Inactive || state() == Running, return);
-
-    if( state()!= GatheringPorts ) {
+    if( state() != ScanningPorts ) {
 
         if (!d->engine)
             return;
 
-        if (state() == StartingRunner && d->cppDebugging) {
+        if (state() == Starting && d->cppDebugging) {
             d->gdbserverOutput += output;
 
-            //if (d->gdbserverOutput.contains("Listening on port")) {
-            if (d->gdbserverOutput.contains("Application started")) {
+            if (d->gdbserverOutput.contains("Listening on port")) {
+                //wait a second for gdb to come up
                 handleAdapterSetupDone();
                 d->gdbserverOutput.clear();
             }
         }
     }
 
-    if( state() == Inactive || state() == Running )
-        showMessage(QString::fromUtf8(output), Debugger::AppOutput);
+    showMessage(QString::fromUtf8(output), Debugger::AppOutput);
 
 }
 
 void UbuntuRemoteDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
 {
-    QTC_ASSERT(state() != GatheringPorts, return);
-
-
     showMessage(QString::fromUtf8(output), Debugger::AppError);
 }
 
@@ -222,21 +202,20 @@ void UbuntuRemoteDebugSupport::handleProgressReport(const QString &progressOutpu
 
 void UbuntuRemoteDebugSupport::handleAdapterSetupFailed(const QString &error)
 {
-    AbstractRemoteLinuxRunSupport::handleAdapterSetupFailed(error);
     d->engine->notifyEngineRemoteSetupFailed(tr("Initial setup failed: %1").arg(error));
+    AbstractRemoteRunSupport::handleAdapterSetupFailed(error);
 }
 
 void UbuntuRemoteDebugSupport::handleAdapterSetupDone()
 {
-    AbstractRemoteLinuxRunSupport::handleAdapterSetupDone();
+    AbstractRemoteRunSupport::handleAdapterSetupDone();
     d->engine->notifyEngineRemoteSetupDone(d->gdbServerPort, d->qmlPort);
 }
 
 void UbuntuRemoteDebugSupport::handleRemoteProcessStarted()
 {
+    QTC_ASSERT(state() == Starting, return);
     QTC_ASSERT(d->qmlDebugging && !d->cppDebugging, return);
-    QTC_ASSERT(state() == StartingRunner, return);
-
     handleAdapterSetupDone();
 }
 

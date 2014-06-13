@@ -1,9 +1,8 @@
 #ifndef UBUNTU_INTERNAL_UBUNTUREMOTEDEBUGSUPPORT_H
 #define UBUNTU_INTERNAL_UBUNTUREMOTEDEBUGSUPPORT_H
 
-#include <QObject>
+#include "abstractremoterunsupport.h"
 
-#include <remotelinux/abstractremotelinuxrunsupport.h>
 #include <debugger/debuggerengine.h>
 
 namespace Ubuntu {
@@ -12,7 +11,7 @@ namespace Internal {
 class UbuntuRemoteDebugSupportPrivate;
 class UbuntuRemoteRunConfiguration;
 
-class UbuntuRemoteDebugSupport : public RemoteLinux::AbstractRemoteLinuxRunSupport
+class UbuntuRemoteDebugSupport : public AbstractRemoteRunSupport
 {
     Q_OBJECT
 public:
@@ -23,10 +22,12 @@ public:
 protected:
     void startExecution();
     void handleAdapterSetupFailed(const QString &error);
-    void handleAdapterSetupDone();
+
 
 private slots:
     void handleRemoteSetupRequested();
+
+    void handleAdapterSetupDone();
     void handleAppRunnerError(const QString &error);
     void handleRemoteOutput(const QByteArray &output);
     void handleRemoteErrorOutput(const QByteArray &output);

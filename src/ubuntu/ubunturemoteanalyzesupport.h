@@ -2,7 +2,7 @@
 #define UBUNTU_INTERNAL_UBUNTUREMOTEANALYZESUPPORT_H
 
 #include <QObject>
-#include <remotelinux/abstractremotelinuxrunsupport.h>
+#include "abstractremoterunsupport.h"
 #include <analyzerbase/analyzerruncontrol.h>
 
 namespace Ubuntu {
@@ -11,7 +11,7 @@ namespace Internal {
 class UbuntuRemoteRunConfiguration;
 class UbuntuRemoteAnalyzeSupportPrivate;
 
-class UbuntuRemoteAnalyzeSupport : public RemoteLinux::AbstractRemoteLinuxRunSupport
+class UbuntuRemoteAnalyzeSupport : public AbstractRemoteRunSupport
 {
     Q_OBJECT
 public:

@@ -20,12 +20,14 @@
 # Author: Benjamin Zeller <benjamin.zeller@canonical.com>
 
 from gi.repository import GLib, UbuntuAppLaunch
+from gi.repository import GObject
 import json
 import os
 import sys
 import signal
 import subprocess
 import argparse
+import fcntl
 
 def on_sigterm(state):
     print("Received exit signal, stopping application")
@@ -66,6 +68,11 @@ def on_focus(focused_app_id, state):
     if focused_app_id == state['expected_app_id']:
         print("Application was focused")
         sys.stdout.flush()
+
+def on_log_io(file, condition):
+    print (file.read().decode())
+    sys.stdout.flush()
+    return True
 
 
 # register options to the argument parser
@@ -186,6 +193,20 @@ if success != 0:
 print("Application installed, executing")
 sys.stdout.flush()
 
+
+#start a subprocess waiting for the log file to be created
+#to forward the log to the launcher output
+
+logTailProc = subprocess.Popen(['sh','-c','while ! tail -n 0 -f '+UbuntuAppLaunch.application_log_path(app_id) +' ; do sleep 1 ; done'],stdout=subprocess.PIPE)
+logFile=logTailProc.stdout
+logFileFd=logFile.fileno()
+
+file_flags = fcntl.fcntl(logFileFd, fcntl.F_GETFL)
+fcntl.fcntl(logFileFd, fcntl.F_SETFL, file_flags | os.O_NDELAY)
+
+GObject.io_add_watch(logTailProc.stdout,GObject.IO_IN | GObject.IO_HUP,on_log_io)
+
+
 state = {}
 state['loop'] = GLib.MainLoop()
 state['message'] = ''
@@ -196,6 +217,7 @@ print ("Registering hooks")
 sys.stdout.flush()
 GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGTERM, on_sigterm, state)
 GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGINT, on_sigterm, state)
+GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGHUP, on_sigterm, state)
 
 UbuntuAppLaunch.observer_add_app_failed(on_failed, state)
 UbuntuAppLaunch.observer_add_app_started(on_started, state)
@@ -215,6 +237,8 @@ except KeyboardInterrupt:
     pass
 
 print ("The Application exited, cleaning up")
+
+logTailProc.kill()
 
 UbuntuAppLaunch.observer_delete_app_failed(on_failed)
 UbuntuAppLaunch.observer_delete_app_started(on_started)
