@@ -161,7 +161,7 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
     ProjectExplorer::DeployConfiguration *deplConf = qobject_cast<ProjectExplorer::DeployConfiguration*>(target()->activeDeployConfiguration());
     ProjectExplorer::BuildStepList *bsList = deplConf->stepList();
     foreach(ProjectExplorer::BuildStep *currStep ,bsList->steps()) {
-        UbuntuClickPackageStep *pckStep = qobject_cast<UbuntuClickPackageStep*>(currStep);
+        UbuntuPackageStep *pckStep = qobject_cast<UbuntuPackageStep*>(currStep);
         if(!pckStep)
             continue;
 

@@ -166,7 +166,7 @@ void UbuntuDirectUploadStep::projectNameChanged()
 
     QList<ProjectExplorer::DeployableFile> list;
     foreach(ProjectExplorer::BuildStep *currStep ,bsList->steps()) {
-        UbuntuClickPackageStep *pckStep = qobject_cast<UbuntuClickPackageStep*>(currStep);
+        UbuntuPackageStep *pckStep = qobject_cast<UbuntuPackageStep*>(currStep);
         if(!pckStep)
             continue;
 
@@ -236,13 +236,8 @@ ProjectExplorer::DeployConfiguration *UbuntuRemoteDeployConfigurationFactory::cr
 
     int step = 0;
     if(parent->project()->id() == Core::Id(CMakeProjectManager::Constants::CMAKEPROJECT_ID)){
-        UbuntuCMakeDeployStep* mkStep = new UbuntuCMakeDeployStep(dc->stepList());
-        mkStep->setUseNinja(false);
-        dc->stepList()->insertStep(0, mkStep);
-        step++;
-
-        UbuntuClickPackageStep *pckStep = new UbuntuClickPackageStep(dc->stepList());
-        dc->stepList()->insertStep(1,pckStep);
+        UbuntuPackageStep *pckStep = new UbuntuPackageStep(dc->stepList());
+        dc->stepList()->insertStep(0,pckStep);
     }
 
     RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep *checkSpace = new RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList());

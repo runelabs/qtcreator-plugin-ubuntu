@@ -58,47 +58,67 @@ public:
     friend class UbuntuCMakeMakeStepFactory;
 };
 
-class UbuntuCMakeDeployStep : public CMakeProjectManager::MakeStep
+class UbuntuPackageStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
 
 public:
-    UbuntuCMakeDeployStep(ProjectExplorer::BuildStepList *bsl);
-    UbuntuCMakeDeployStep(ProjectExplorer::BuildStepList *bsl, UbuntuCMakeDeployStep *bs);
 
-    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    virtual ~UbuntuCMakeDeployStep();
+    enum State {
+        Idle,
+        MakeInstall,
+        PreparePackage,
+        ClickBuild
+    };
 
-protected:
-    virtual bool fromMap(const QVariantMap &map);
+    UbuntuPackageStep(ProjectExplorer::BuildStepList *bsl);
+    UbuntuPackageStep(ProjectExplorer::BuildStepList *bsl, UbuntuPackageStep *other);
+    virtual ~UbuntuPackageStep();
 
-    friend class UbuntuCMakeMakeStepFactory;
-};
-
-class UbuntuClickPackageStep : public ProjectExplorer::AbstractProcessStep
-{
-    Q_OBJECT
 public:
-    UbuntuClickPackageStep(ProjectExplorer::BuildStepList *bsl);
-    UbuntuClickPackageStep(ProjectExplorer::BuildStepList *bsl, UbuntuClickPackageStep *bs);
-
-    virtual ~UbuntuClickPackageStep();
-
+    // BuildStep interface
     virtual bool init();
     virtual void run(QFutureInterface<bool> &fi);
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    virtual bool immutable() const;
+    virtual bool runInGuiThread() const;
+
+    // ProjectConfiguration interface
+    virtual bool fromMap(const QVariantMap &map);
+    virtual QVariantMap toMap() const;
 
     QString packagePath () const;
-protected:
-    // AbstractProcessStep interface
-    virtual void stdOutput(const QString &line);
-    virtual void stdError(const QString &line);
-    virtual void processFinished(int exitCode, QProcess::ExitStatus status);
 
+protected:
+    void setupAndStartProcess ( const ProjectExplorer::ProcessParameters &params );
+    bool processFinished ();
+    void cleanup ();
+    void stdOutput ( const QString &line );
+    void stdError  ( const QString &line );
+    QString makeCommand(ProjectExplorer::ToolChain *tc, const Utils::Environment &env) const;
+
+protected slots:
+    void doNextStep ();
+    void injectDebugHelperStep ();
+
+    void onProcessStdOut ();
+    void onProcessStdErr ();
+    void onProcessFailedToStart ();
+
+    void outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
+    void taskAdded (const ProjectExplorer::Task & task);
 private:
+    State m_state;
+    QString m_lastLine;
+    QString m_clickPackageName;
     QList<ProjectExplorer::Task> m_tasks;
-    QString    m_lastLine;
-    QString    m_clickPackageName;
+    QFutureInterface<bool> *m_futureInterface;
+
+    ProjectExplorer::ProcessParameters m_MakeParam;
+    ProjectExplorer::ProcessParameters m_ClickParam;
+
+    Utils::QtcProcess *m_process;
+    ProjectExplorer::IOutputParser *m_outputParserChain;
 };
 
 } // namespace Internal

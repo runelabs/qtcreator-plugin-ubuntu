@@ -34,6 +34,8 @@
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <utils/qtcassert.h>
 
+#include <QTimer>
+
 namespace Ubuntu {
 namespace Internal {
 
@@ -49,7 +51,6 @@ QList<Core::Id> UbuntuCMakeMakeStepFactory::availableCreationIds(ProjectExplorer
 
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_DEPLOY) {
         return QList<Core::Id>()
-                << Core::Id(Constants::UBUNTU_DEPLOY_MAKESTEP_ID)
                 << Core::Id(Constants::UBUNTU_CLICK_PACKAGESTEP_ID);
     }
 
@@ -81,8 +82,6 @@ QString UbuntuCMakeMakeStepFactory::displayNameForId(const Core::Id id) const
 {
     if (id == Constants::UBUNTU_CLICK_CMAKE_MAKESTEP_ID)
         return tr("UbuntuSDK-Make", "Display name for UbuntuCMakeMakeStep id.");
-    if (id == Constants::UBUNTU_DEPLOY_MAKESTEP_ID)
-        return tr("UbuntuSDK create deployment package", "Display name for UbuntuCMakeDeployStep id.");
     if (id == Constants::UBUNTU_CLICK_PACKAGESTEP_ID)
         return tr("UbuntuSDK create click package", "Display name for UbuntuPackageStep id.");
     return QString();
@@ -100,17 +99,10 @@ ProjectExplorer::BuildStep *UbuntuCMakeMakeStepFactory::create(ProjectExplorer::
     if (!canCreate(parent, id))
         return 0;
 
-   if ( id == Core::Id(Constants::UBUNTU_DEPLOY_MAKESTEP_ID) ) {
-        UbuntuCMakeDeployStep *step = new UbuntuCMakeDeployStep(parent);
-        step->setUseNinja(false);
-        step->setClean(false);
+    if (id == Constants::UBUNTU_CLICK_PACKAGESTEP_ID) {
+        UbuntuPackageStep *step = new UbuntuPackageStep(parent);
         return step;
     }
-
-   if (id == Constants::UBUNTU_CLICK_PACKAGESTEP_ID) {
-       UbuntuClickPackageStep *step = new UbuntuClickPackageStep(parent);
-       return step;
-   }
 
     UbuntuCMakeMakeStep *step = new UbuntuCMakeMakeStep(parent);
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
@@ -123,7 +115,13 @@ ProjectExplorer::BuildStep *UbuntuCMakeMakeStepFactory::create(ProjectExplorer::
 
 bool UbuntuCMakeMakeStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
 {
-    return canCreate(parent, ProjectExplorer::idFromMap(map));
+    Core::Id toRestore = ProjectExplorer::idFromMap(map);
+
+    //backwards compatibility to older projects
+    if( toRestore == Constants::UBUNTU_DEPLOY_MAKESTEP_ID )
+        return canHandle(parent->target());
+
+    return canCreate(parent, toRestore);
 }
 
 ProjectExplorer::BuildStep *UbuntuCMakeMakeStepFactory::restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map)
@@ -131,11 +129,19 @@ ProjectExplorer::BuildStep *UbuntuCMakeMakeStepFactory::restore(ProjectExplorer:
     if (!canRestore(parent, map))
         return 0;
 
-    ProjectExplorer::BuildStep* step = create(parent,ProjectExplorer::idFromMap(map));
-    if(step->fromMap(map))
-        return step;
+    Core::Id toRestore = ProjectExplorer::idFromMap(map);
 
-    delete step;
+    //backwards compatibility to older projects
+    if( toRestore == Constants::UBUNTU_DEPLOY_MAKESTEP_ID ) {
+        UbuntuPackageStep *step = new UbuntuPackageStep(parent);
+        return step;
+    } else {
+        ProjectExplorer::BuildStep* step = create(parent,toRestore);
+        if(step->fromMap(map))
+            return step;
+
+        delete step;
+    }
     return 0;
 }
 
@@ -149,12 +155,10 @@ ProjectExplorer::BuildStep *UbuntuCMakeMakeStepFactory::clone(ProjectExplorer::B
     if (!canClone(parent, product))
         return 0;
 
-    if(product->id() == Core::Id(Constants::UBUNTU_DEPLOY_MAKESTEP_ID))
-        return new UbuntuCMakeDeployStep(parent,static_cast<UbuntuCMakeDeployStep *>(product));
-    else if(product->id() == Core::Id(Constants::UBUNTU_DEPLOY_MAKESTEP_ID))
+    if(product->id() == Core::Id(Constants::UBUNTU_CLICK_CMAKE_MAKESTEP_ID))
         return new UbuntuCMakeMakeStep(parent, static_cast<UbuntuCMakeMakeStep *>(product));
     else if(product->id() == Core::Id(Constants::UBUNTU_CLICK_PACKAGESTEP_ID))
-        return new UbuntuClickPackageStep(parent, static_cast<UbuntuClickPackageStep *>(product));
+        return new UbuntuPackageStep(parent, static_cast<UbuntuPackageStep *>(product));
 
     QTC_ASSERT(false,return 0);
 }
@@ -186,82 +190,32 @@ QString UbuntuCMakeMakeStep::makeCommand(ProjectExplorer::ToolChain *tc, const U
     return QString::fromLatin1(Constants::UBUNTU_CLICK_MAKE_WRAPPER).arg(Constants::UBUNTU_SCRIPTPATH);
 }
 
-UbuntuCMakeDeployStep::UbuntuCMakeDeployStep(ProjectExplorer::BuildStepList *bsl)
-    : MakeStep(bsl,Core::Id(Constants::UBUNTU_DEPLOY_MAKESTEP_ID))
-{
-    setDefaultDisplayName(tr("UbuntuSDK create deploy package"));
-    setAdditionalArguments(QString::fromLatin1("DESTDIR=%1 install").arg(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR)));
-}
-
-UbuntuCMakeDeployStep::UbuntuCMakeDeployStep(ProjectExplorer::BuildStepList *bsl, UbuntuCMakeDeployStep *bs)
-    : MakeStep(bsl,bs)
-{
-
-}
-
-ProjectExplorer::BuildStepConfigWidget *UbuntuCMakeDeployStep::createConfigWidget()
-{
-    return new ProjectExplorer::SimpleBuildStepConfigWidget(this);
-}
-
-UbuntuCMakeDeployStep::~UbuntuCMakeDeployStep()
-{
-
-}
-
-bool UbuntuCMakeDeployStep::fromMap(const QVariantMap &map)
-{
-    if(MakeStep::fromMap(map)) {
-        setAdditionalArguments(QString::fromLatin1("DESTDIR=%1 install").arg(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR)));
-        return true;
-    }
-    return false;
-}
-
-UbuntuClickPackageStep::UbuntuClickPackageStep(ProjectExplorer::BuildStepList *bsl)
-    : ProjectExplorer::AbstractProcessStep(bsl,Constants::UBUNTU_CLICK_PACKAGESTEP_ID)
+UbuntuPackageStep::UbuntuPackageStep(ProjectExplorer::BuildStepList *bsl) :
+    ProjectExplorer::BuildStep(bsl,Constants::UBUNTU_CLICK_PACKAGESTEP_ID),
+    m_state(Idle),
+    m_futureInterface(0),
+    m_process(0),
+    m_outputParserChain(0)
 {
     setDefaultDisplayName(tr("UbuntuSDK Click build"));
 }
 
-UbuntuClickPackageStep::UbuntuClickPackageStep(ProjectExplorer::BuildStepList *bsl, UbuntuClickPackageStep *bs)
-    : ProjectExplorer::AbstractProcessStep(bsl,bs)
+UbuntuPackageStep::UbuntuPackageStep(ProjectExplorer::BuildStepList *bsl, UbuntuPackageStep *other) :
+    ProjectExplorer::BuildStep(bsl,other),
+    m_state(Idle),
+    m_futureInterface(0),
+    m_process(0),
+    m_outputParserChain(0)
 {
+
 }
 
-UbuntuClickPackageStep::~UbuntuClickPackageStep()
+UbuntuPackageStep::~UbuntuPackageStep()
 {
-
+    cleanup();
 }
 
-
-void UbuntuClickPackageStep::stdOutput(const QString &line)
-{
-    m_lastLine = line;
-    AbstractProcessStep::stdOutput(line);
-}
-
-void UbuntuClickPackageStep::stdError(const QString &line)
-{
-    AbstractProcessStep::stdError(line);
-}
-
-void UbuntuClickPackageStep::processFinished(int exitCode, QProcess::ExitStatus status)
-{
-    if( exitCode == 0 && status == QProcess::NormalExit ) {
-        QRegularExpression exp(QLatin1String(Constants::UBUNTU_CLICK_SUCCESS_PACKAGE_REGEX));
-        QRegularExpressionMatch m = exp.match(m_lastLine);
-        if(m.hasMatch()) {
-            m_clickPackageName = m.captured(1);
-            emit addOutput(tr("The click package has been created in %1").arg(target()->activeBuildConfiguration()->buildDirectory().toString()) ,
-                           ProjectExplorer::BuildStep::MessageOutput);
-        }
-    }
-
-    ProjectExplorer::AbstractProcessStep::processFinished(exitCode,status);
-}
-
-bool UbuntuClickPackageStep::init()
+bool UbuntuPackageStep::init()
 {
     m_tasks.clear();
 
@@ -278,55 +232,275 @@ bool UbuntuClickPackageStep::init()
 
     }
 
+    //build the make process arguments
+    {
+        QStringList arguments;
+        arguments << QStringLiteral("DESTDIR=%1").arg(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                  << QStringLiteral("install");
 
-    //builds the process arguments
-    QStringList arguments;
-    arguments << QLatin1String("build")
-              << bc->buildDirectory().toString()
-                 + QDir::separator()
-                 + QString::fromLatin1(Constants::UBUNTU_DEPLOY_DESTDIR);
+        ProjectExplorer::ProcessParameters* params = &m_MakeParam;
+        params->setMacroExpander(bc->macroExpander());
 
-    setIgnoreReturnValue(false);
+        //setup process parameters
+        params->setWorkingDirectory(bc->buildDirectory().toString());
+        params->setCommand(
+                    makeCommand(ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit()),
+                                bc->environment()));
+        params->setArguments(Utils::QtcProcess::joinArgs(arguments));
 
-    ProjectExplorer::ProcessParameters* params = processParameters();
-    params->setMacroExpander(bc->macroExpander());
+        Utils::Environment env = bc->environment();
+        // Force output to english for the parsers. Do this here and not in the toolchain's
+        // addToEnvironment() to not screw up the users run environment.
+        env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
+        params->setEnvironment(env);
 
-    //setup process parameters
-    params->setWorkingDirectory(bc->buildDirectory().toString());
-    params->setCommand(QLatin1String("click"));
-    params->setArguments(Utils::QtcProcess::joinArgs(arguments));
+        params->resolveAll();
+    }
 
-    Utils::Environment env = bc->environment();
-    // Force output to english for the parsers. Do this here and not in the toolchain's
-    // addToEnvironment() to not screw up the users run environment.
-    env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
-    params->setEnvironment(env);
 
-    params->resolveAll();
+    //builds the click process arguments
+    {
+        QStringList arguments;
+        arguments << QLatin1String("build")
+                  << bc->buildDirectory().toString()
+                     + QDir::separator()
+                     + QString::fromLatin1(Constants::UBUNTU_DEPLOY_DESTDIR);
+
+        ProjectExplorer::ProcessParameters* params = &m_ClickParam;
+        params->setMacroExpander(bc->macroExpander());
+
+        //setup process parameters
+        params->setWorkingDirectory(bc->buildDirectory().toString());
+        params->setCommand(QLatin1String("click"));
+        params->setArguments(Utils::QtcProcess::joinArgs(arguments));
+
+        Utils::Environment env = bc->environment();
+        // Force output to english for the parsers. Do this here and not in the toolchain's
+        // addToEnvironment() to not screw up the users run environment.
+        env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
+        params->setEnvironment(env);
+
+        params->resolveAll();
+    }
+    return true;
+}
+
+void UbuntuPackageStep::run(QFutureInterface<bool> &fi)
+{
+    if (m_tasks.size()) {
+        foreach (const ProjectExplorer::Task& task, m_tasks) {
+            addTask(task);
+        }
+        emit addOutput(tr("Configuration is invalid. Aborting build")
+                       ,ProjectExplorer::BuildStep::MessageOutput);
+        fi.reportResult(false);
+        emit finished();
+        return;
+    }
+
+    m_state = Idle;
+    m_futureInterface = &fi;
+    m_futureInterface->setProgressRange(0,3);
+    QTimer::singleShot(0,this,SLOT(doNextStep()));
+}
+
+ProjectExplorer::BuildStepConfigWidget *UbuntuPackageStep::createConfigWidget()
+{
+    return new ProjectExplorer::SimpleBuildStepConfigWidget(this);
+}
+
+bool UbuntuPackageStep::immutable() const
+{
+    //do not allow the user to reorder or to delete the packaging step
+    return true;
+}
+
+bool UbuntuPackageStep::runInGuiThread() const
+{
+    return true;
+}
+
+bool UbuntuPackageStep::fromMap(const QVariantMap &map)
+{
+    return BuildStep::fromMap(map);
+}
+
+QVariantMap UbuntuPackageStep::toMap() const
+{
+    return BuildStep::toMap();
+}
+
+QString UbuntuPackageStep::packagePath() const
+{
+    if(m_clickPackageName.isEmpty())
+        return QString();
+    return target()->activeBuildConfiguration()->buildDirectory().toString()
+            + QDir::separator()
+            + m_clickPackageName;
+}
+
+/*!
+ * \brief UbuntuPackageStep::setupAndStartProcess
+ * Setups the interal QProcess and connects the required SIGNALS
+ * also makes sure the process has a clean output parser
+ */
+void UbuntuPackageStep::setupAndStartProcess(const ProjectExplorer::ProcessParameters &params)
+{
+    if (m_process) {
+        m_process->disconnect(this);
+        m_process->kill();
+        m_process->deleteLater();
+    }
+
+    QDir wd(params.effectiveWorkingDirectory());
+    if (!wd.exists())
+        wd.mkpath(wd.absolutePath());
+
+    QString effectiveCommand = params.effectiveCommand();
+    if (!QFileInfo(effectiveCommand).exists()) {
+        onProcessFailedToStart();
+        return;
+    }
+
+    m_process = new Utils::QtcProcess();
+    connect(m_process,SIGNAL(finished(int)),this,SLOT(doNextStep()));
+    connect(m_process,SIGNAL(readyReadStandardOutput()),this,SLOT(onProcessStdOut()));
+    connect(m_process,SIGNAL(readyReadStandardError()),this,SLOT(onProcessStdErr()));
+
+    m_process->setCommand(params.effectiveCommand(),params.effectiveArguments());
+    m_process->setEnvironment(params.environment());
+    m_process->setWorkingDirectory(wd.absolutePath());
+
+    qDebug()<<"Starting process "<<params.effectiveCommand()<<params.effectiveArguments();
 
     ProjectExplorer::IOutputParser *parser = target()->kit()->createOutputParser();
     if (parser) {
-        setOutputParser(parser);
-        outputParser()->setWorkingDirectory(params->effectiveWorkingDirectory());
+        if(m_outputParserChain)
+            delete m_outputParserChain;
+
+        m_outputParserChain = parser;
+        m_outputParserChain->setWorkingDirectory(params.effectiveWorkingDirectory());
+
+        connect(m_outputParserChain,SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)),
+                this,SLOT(outputAdded(QString,ProjectExplorer::BuildStep::OutputFormat)));
+        connect(m_outputParserChain,SIGNAL(addTask(ProjectExplorer::Task)),
+                this,SLOT(taskAdded(ProjectExplorer::Task)));
     }
-    return AbstractProcessStep::init();
+
+    m_process->start();
+    if(!m_process->waitForStarted()) {
+        onProcessFailedToStart();
+        return;
+    }
 }
 
-void UbuntuClickPackageStep::run(QFutureInterface<bool> &fi)
+/*!
+ * \brief UbuntuPackageStep::checkLastProcessSuccess
+ * Checks if the last process has run without any errors
+ */
+bool UbuntuPackageStep::processFinished()
 {
-    if (m_tasks.size()) {
-       foreach (const ProjectExplorer::Task& task, m_tasks) {
-           addTask(task);
-       }
-       emit addOutput(tr("Configuration is invalid. Aborting build")
-                      ,ProjectExplorer::BuildStep::MessageOutput);
-       fi.reportResult(false);
-       emit finished();
-       return;
+    //make sure all data has been read
+    QString line = QString::fromLocal8Bit(m_process->readAllStandardError());
+    if (!line.isEmpty())
+        stdError(line);
+
+    line = QString::fromLocal8Bit(m_process->readAllStandardOutput());
+    if (!line.isEmpty())
+        stdOutput(line);
+
+    if (m_outputParserChain) {
+        m_outputParserChain->flush();
+
+        if(m_outputParserChain->hasFatalErrors())
+            return false;
     }
 
+    QString command;
+    if(m_state == MakeInstall)
+        command = QDir::toNativeSeparators(m_MakeParam.effectiveCommand());
+    else
+        command = QDir::toNativeSeparators(m_ClickParam.effectiveCommand());
+
+    bool success = true;
+    if (m_process->exitStatus() == QProcess::NormalExit && m_process->exitCode() == 0) {
+        emit addOutput(tr("The process \"%1\" exited normally.").arg(command),
+                       BuildStep::MessageOutput);
+    } else if (m_process->exitStatus() == QProcess::NormalExit) {
+        emit addOutput(tr("The process \"%1\" exited with code %2.")
+                       .arg(command, QString::number(m_process->exitCode())),
+                       BuildStep::ErrorMessageOutput);
+        //error
+        success = false;
+    } else {
+        emit addOutput(tr("The process \"%1\" crashed.").arg(command), BuildStep::ErrorMessageOutput);
+
+        //error
+        success = false;
+    }
+
+    //the process failed, lets clean up
+    if (!success) {
+        m_futureInterface->reportResult(false);
+        cleanup();
+        emit finished();
+    }
+
+    return success;
+}
+
+void UbuntuPackageStep::cleanup()
+{
+    if (m_process) {
+        m_process->disconnect(this);
+        m_process->kill();
+        m_process->deleteLater();
+        m_process = 0;
+    }
+
+    //not owned by us
+    m_futureInterface = 0;
+
+    if (m_outputParserChain) {
+        delete m_outputParserChain;
+        m_outputParserChain = 0;
+    }
+}
+
+void UbuntuPackageStep::stdOutput(const QString &line)
+{
+    m_lastLine = line;
+
+    if (m_outputParserChain)
+        m_outputParserChain->stdOutput(line);
+    emit addOutput(line, BuildStep::NormalOutput, BuildStep::DontAppendNewline);
+}
+
+void UbuntuPackageStep::stdError(const QString &line)
+{
+    if (m_outputParserChain)
+        m_outputParserChain->stdError(line);
+    emit addOutput(line, BuildStep::ErrorOutput, BuildStep::DontAppendNewline);
+}
+
+QString UbuntuPackageStep::makeCommand(ProjectExplorer::ToolChain *tc, const Utils::Environment &env) const
+{
+    if (tc)
+        return tc->makeCommand(env);
+    return QString::fromLatin1(Constants::UBUNTU_CLICK_MAKE_WRAPPER).arg(Constants::UBUNTU_SCRIPTPATH);
+}
+
+/*!
+ * \brief UbuntuPackageStep::injectDebugHelperStep
+ * Checks if its required to inject the debug helpers and does that
+ * accordingly
+ */
+void UbuntuPackageStep::injectDebugHelperStep()
+{
     ProjectExplorer::BuildConfiguration *bc = target()->activeBuildConfiguration();
-    if( bc->buildType() == ProjectExplorer::BuildConfiguration::Debug ) {
+
+    bool ubuntuDevice = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(bc->target()->kit()) == Constants::UBUNTU_DEVICE_TYPE_ID;
+    if( bc->buildType() == ProjectExplorer::BuildConfiguration::Debug && ubuntuDevice ) {
         QRegularExpression fileRegEx(QStringLiteral("^.*\\.desktop$"));
         QList<Utils::FileName> desktopFiles = UbuntuProjectGuesser::findFilesRecursive(bc->buildDirectory().
                                                                                        appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR)),
@@ -354,7 +528,6 @@ void UbuntuClickPackageStep::run(QFutureInterface<bool> &fi)
             int idxOfEq = exec.indexOf(QStringLiteral("="));
             exec.remove(0,idxOfEq+1);
 
-            //@TODO maybe put the debughelper scripts into the click packages
             contents.replace(m.capturedStart(1),
                              m.capturedLength(1),
                              QStringLiteral("Exec=./qtc_device_debughelper.py \"%1\"").arg(exec));
@@ -382,21 +555,109 @@ void UbuntuClickPackageStep::run(QFutureInterface<bool> &fi)
             QFile::copy(debSourcePath,debTargetPath);
     }
 
-    AbstractProcessStep::run(fi);
+    QTimer::singleShot(0,this,SLOT(doNextStep()));
 }
 
-ProjectExplorer::BuildStepConfigWidget *UbuntuClickPackageStep::createConfigWidget()
+void UbuntuPackageStep::doNextStep()
 {
-    return new ProjectExplorer::SimpleBuildStepConfigWidget(this);
+    switch (m_state) {
+        case Idle: {
+            m_futureInterface->setProgressValueAndText(0,tr("Make install"));
+
+            m_state = MakeInstall;
+            setupAndStartProcess(m_MakeParam);
+            break;
+        }
+        case MakeInstall: {
+            if (!processFinished())
+                return;
+
+            m_futureInterface->setProgressValueAndText(1,tr("Preparing click package tree"));
+            m_state = PreparePackage;
+
+            //return to MainLoop to update the progressBar
+            QTimer::singleShot(0,this,SLOT(injectDebugHelperStep()));
+                    break;
+        }
+        case PreparePackage: {
+            m_futureInterface->setProgressValueAndText(2,tr("Building click package"));
+            m_state = ClickBuild;
+            m_lastLine.clear();
+            m_clickPackageName.clear();
+
+            setupAndStartProcess(m_ClickParam);
+            break;
+        }
+        case ClickBuild: {
+            if (!processFinished())
+                return;
+
+            QRegularExpression exp(QLatin1String(Constants::UBUNTU_CLICK_SUCCESS_PACKAGE_REGEX));
+            QRegularExpressionMatch m = exp.match(m_lastLine);
+            if(m.hasMatch()) {
+                m_clickPackageName = m.captured(1);
+                emit addOutput(tr("The click package has been created in %1").arg(target()->activeBuildConfiguration()->buildDirectory().toString()) ,
+                               ProjectExplorer::BuildStep::MessageOutput);
+            }
+
+            m_futureInterface->reportResult(true);
+            cleanup();
+            emit finished();
+
+            break;
+        }
+
+        default:
+            break;
+    }
 }
 
-QString UbuntuClickPackageStep::packagePath() const
+void UbuntuPackageStep::onProcessStdOut()
 {
-    if(m_clickPackageName.isEmpty())
-        return QString();
-    return target()->activeBuildConfiguration()->buildDirectory().toString()
-            + QDir::separator()
-            + m_clickPackageName;
+    m_process->setReadChannel(QProcess::StandardOutput);
+    while (m_process->canReadLine()) {
+        QString line = QString::fromLocal8Bit(m_process->readLine());
+        stdOutput(line);
+    }
+}
+
+void UbuntuPackageStep::onProcessStdErr()
+{
+    m_process->setReadChannel(QProcess::StandardError);
+    while (m_process->canReadLine()) {
+        QString line = QString::fromLocal8Bit(m_process->readLine());
+        stdError(line);
+    }
+}
+
+void UbuntuPackageStep::onProcessFailedToStart()
+{
+    m_futureInterface->reportResult(false);
+
+    ProjectExplorer::ProcessParameters *params;
+    if (m_state == MakeInstall)
+        params = &m_MakeParam;
+    else
+        params = &m_ClickParam;
+
+    emit addOutput(tr("Could not start process \"%1\" %2")
+                   .arg(QDir::toNativeSeparators(params->effectiveCommand()),
+                        params->prettyArguments()),
+                   BuildStep::ErrorMessageOutput);
+
+    emit finished();
+    cleanup();
+
+}
+
+void UbuntuPackageStep::outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format)
+{
+    emit addOutput(string, format, BuildStep::DontAppendNewline);
+}
+
+void UbuntuPackageStep::taskAdded(const ProjectExplorer::Task &task)
+{
+    emit addTask(task);
 }
 
 } // namespace Internal

@@ -569,7 +569,7 @@ void UbuntuPackagingWidget::buildFinished(const bool success)
 {
     disconnect(m_buildManagerConnection);
     if (success) {
-        UbuntuClickPackageStep *pckStep = qobject_cast<UbuntuClickPackageStep*>(m_additionalPackagingBuildSteps.last());
+        UbuntuPackageStep *pckStep = qobject_cast<UbuntuPackageStep*>(m_additionalPackagingBuildSteps.last());
         if (pckStep && !pckStep->packagePath().isEmpty()) {
             m_ubuntuProcess.stop();
 
@@ -684,16 +684,12 @@ void UbuntuPackagingWidget::buildClickPackage()
         if(!steps || steps->isEmpty())
             return;
 
-        UbuntuCMakeDeployStep* deplStep = new UbuntuCMakeDeployStep(steps);
-        m_additionalPackagingBuildSteps.append(deplStep);
-
-        UbuntuClickPackageStep* package = new UbuntuClickPackageStep(steps);
+        UbuntuPackageStep* package = new UbuntuPackageStep(steps);
         m_additionalPackagingBuildSteps.append(package);
 
         m_buildManagerConnection = connect(ProjectExplorer::BuildManager::instance(),SIGNAL(buildQueueFinished(bool)),this,SLOT(buildFinished(bool)));
 
         ProjectExplorer::BuildManager::buildList(steps,tr("Build Project"));
-        ProjectExplorer::BuildManager::appendStep(deplStep,tr("Preparing Click package"));
         ProjectExplorer::BuildManager::appendStep(package ,tr("Creating Click package"));
 
     }
