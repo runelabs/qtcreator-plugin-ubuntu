@@ -43,6 +43,23 @@
 namespace Ubuntu {
 namespace Internal {
 
+UbuntuRemoteDeployConfiguration::UbuntuRemoteDeployConfiguration(ProjectExplorer::Target *target)
+    : RemoteLinux::RemoteLinuxDeployConfiguration(target,Constants::UBUNTU_DEPLOYCONFIGURATION_ID,QString())
+{
+    setDefaultDisplayName(tr("Deploy to Ubuntu Device"));
+}
+
+UbuntuRemoteDeployConfiguration::UbuntuRemoteDeployConfiguration(ProjectExplorer::Target *target, UbuntuRemoteDeployConfiguration *source) :
+    RemoteLinux::RemoteLinuxDeployConfiguration(target,source)
+{
+
+}
+
+ProjectExplorer::NamedWidget *UbuntuRemoteDeployConfiguration::createConfigWidget()
+{
+    return new ProjectExplorer::NamedWidget();
+}
+
 UbuntuDirectUploadStep::UbuntuDirectUploadStep(ProjectExplorer::BuildStepList *bsl)
     : AbstractRemoteLinuxDeployStep(bsl, UbuntuDirectUploadStep::stepId())
     , m_deployService(new RemoteLinux::GenericDirectUploadService(this))
@@ -231,8 +248,7 @@ ProjectExplorer::DeployConfiguration *UbuntuRemoteDeployConfigurationFactory::cr
     Q_ASSERT(canCreate(parent, id));
 
     ProjectExplorer::DeployConfiguration * const dc
-            = new RemoteLinux::RemoteLinuxDeployConfiguration(parent, id,
-                                                              tr("Deploy to Ubuntu Device"));
+            = new UbuntuRemoteDeployConfiguration(parent);
 
     int step = 0;
     if(parent->project()->id() == Core::Id(CMakeProjectManager::Constants::CMAKEPROJECT_ID)){
@@ -259,10 +275,10 @@ ProjectExplorer::DeployConfiguration *UbuntuRemoteDeployConfigurationFactory::re
 {
     if (!canRestore(parent, map))
         return 0;
-    Core::Id id = ProjectExplorer::idFromMap(map);
+
     RemoteLinux::RemoteLinuxDeployConfiguration * const dc
-            = new RemoteLinux::RemoteLinuxDeployConfiguration(parent, id,
-                                                              tr("Deploy to Ubuntu Device"));
+            = new UbuntuRemoteDeployConfiguration(parent);
+
     if (!dc->fromMap(map)) {
         delete dc;
         return 0;
