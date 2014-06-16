@@ -28,6 +28,10 @@
 namespace Ubuntu {
 namespace Internal {
 
+enum {
+    debug = 1
+};
+
 QLatin1String UBUNTU_TARGET_ARCH_KEY = QLatin1String("Ubuntu.ClickToolChain.Target.Arch");
 QLatin1String UBUNTU_TARGET_FRAMEWORK_KEY = QLatin1String("Ubuntu.ClickToolChain.Target.Framework");
 QLatin1String UBUNTU_TARGET_SERIES_KEY = QLatin1String("Ubuntu.ClickToolChain.Target.Series");
@@ -121,6 +125,14 @@ const UbuntuClickTool::Target &ClickToolChain::clickTarget() const
     return m_clickTarget;
 }
 
+ProjectExplorer::Abi ClickToolChain::architectureNameToAbi(const QString &arch)
+{
+    if( !clickArchitectures.contains(arch) )
+        return ProjectExplorer::Abi();
+
+    return clickArchitectures[arch];
+}
+
 QVariantMap ClickToolChain::toMap() const
 {
     QVariantMap map = GccToolChain::toMap();
@@ -151,6 +163,7 @@ QString ClickToolChain::gnutriplet() const
         default:
             Q_ASSERT_X(false,Q_FUNC_INFO,"Unknown Target architecture");
     }
+    return QString();
 }
 
 bool ClickToolChain::fromMap(const QVariantMap &data)
@@ -238,7 +251,8 @@ QList<ProjectExplorer::ToolChain *> ClickToolChainFactory::createToolChainsForCl
 
     QList<UbuntuClickTool::Target> targets = UbuntuClickTool::listAvailableTargets();
     foreach(const UbuntuClickTool::Target &target, targets) {
-        qDebug()<<"Found Target"<<target;
+        if(debug) qDebug()<<"Found Target"<<target;
+
         if(!clickArchitectures.contains(target.architecture)
                 || target.maybeBroken)
             continue;

@@ -20,6 +20,7 @@
 #define UBUNTU_INTERNAL_LOCALPORTSMANAGER_H
 
 #include <QObject>
+#include <QIODevice>
 #include <utils/portlist.h>
 
 namespace Ubuntu {
@@ -30,8 +31,10 @@ class UbuntuLocalPortsManager : public QObject
     Q_OBJECT
 public:
     explicit UbuntuLocalPortsManager();
+    ~UbuntuLocalPortsManager();
     static void setPortsRange (const int first, const int last);
     static Utils::PortList getFreeRange ( const QString &serial, const int count);
+    static Utils::PortList getFreeRange ( const QString &serial, const int count, QIODevice *in );
 
 signals:
 

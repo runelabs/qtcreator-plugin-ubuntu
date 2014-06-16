@@ -37,6 +37,10 @@
 
 using namespace Ubuntu::Internal;
 
+enum {
+    debug = 0
+};
+
 UbuntuClickManifest::UbuntuClickManifest(QObject *parent) :
     QObject(parent), m_bInitialized(false), m_bNameDashReplaced(false)
 
@@ -46,7 +50,7 @@ UbuntuClickManifest::UbuntuClickManifest(QObject *parent) :
      debugger.setAutoShowStandardWindow(true);
 
     QFile manifestAppFile(QLatin1String(":/ubuntu/manifestlib.js"));
-    if (!manifestAppFile.open(QIODevice::ReadOnly)) { qDebug() << QLatin1String("unable to open js app"); return; }
+    if (!manifestAppFile.open(QIODevice::ReadOnly)) { if(debug) qDebug() << QLatin1String("unable to open js app"); return; }
     QString manifestApp = QString::fromLatin1(manifestAppFile.readAll());
     manifestAppFile.close();
 
@@ -154,16 +158,31 @@ QList<UbuntuClickManifest::Hook> UbuntuClickManifest::hooks()
     while (it.hasNext()) {
         it.next();
         QScriptValue appDescriptor = it.value();
-        if(!appDescriptor.isObject()
-                || !appDescriptor.property(QLatin1String("desktop")).isValid()
-                || !appDescriptor.property(QLatin1String("apparmor")).isValid()) {
+        if(!appDescriptor.isObject()) {
             printToOutputPane(tr("Invalid hook in manifest.json file."));
+            continue;
+        }
+
+        if(!appDescriptor.property(QLatin1String("apparmor")).isValid()) {
+            printToOutputPane(tr("The apparmor path is missing in the manifest file"));
+            continue;
+        }
+
+        bool isScope = appDescriptor.property(QLatin1String("scope")).isValid();
+        bool isApp = appDescriptor.property(QLatin1String("desktop")).isValid();
+
+        if( (isScope && isApp) || (!isScope && !isApp)) {
+            printToOutputPane(tr("The manifest file needs to specify if this is a app or a scope"));
             continue;
         }
 
         Hook app;
         app.appId = it.name();
-        app.desktopFile  = it.value().property(QLatin1String("desktop")).toString();
+        if(isApp)
+            app.desktopFile  = it.value().property(QLatin1String("desktop")).toString();
+        if(isScope)
+            app.scope  = it.value().property(QLatin1String("scope")).toString();
+
         app.appArmorFile = it.value().property(QLatin1String("apparmor")).toString();
         hooks.append(app);
     }
@@ -212,7 +231,7 @@ void UbuntuClickManifest::save(QString fileName) {
 
     if (!file.open(QIODevice::WriteOnly)) {
         emit error();
-        qDebug() << QLatin1String("unable to open file for writing") <<  fileName;
+        if(debug) qDebug() << QLatin1String("unable to open file for writing") <<  fileName;
         return;
     }
 
@@ -239,6 +258,7 @@ void UbuntuClickManifest::setRaw(QString data) {
 }
 
 bool UbuntuClickManifest::load(const QString &fileName, const QString &projectName) {
+
     setFileName(fileName);
     m_projectName = projectName;
 
@@ -246,13 +266,13 @@ bool UbuntuClickManifest::load(const QString &fileName, const QString &projectNa
 
     if (!file.exists()) {
         emit error();
-        qDebug() << QLatin1String("file does not exist");
+        if(debug) qDebug() << QLatin1String("file does not exist");
         return false;
     }
 
     if (!file.open(QIODevice::ReadOnly)) {
         emit error();
-        qDebug() << QLatin1String("unable to open file for reading");
+        if(debug) qDebug() << QLatin1String("unable to open file for reading");
 
         return false;
     }

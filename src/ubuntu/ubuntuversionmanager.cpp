@@ -27,8 +27,14 @@ UbuntuVersionManager *UbuntuVersionManager::m_self = 0;
 UbuntuVersionManager::UbuntuVersionManager(QObject *parent) :
     QObject(parent)
 {
-    m_hostVersion = new UbuntuVersion();
+    m_hostVersion = UbuntuVersion::fromLsbFile(QLatin1String(Constants::LSB_RELEASE));
     m_self = this;
+}
+
+UbuntuVersionManager::~UbuntuVersionManager()
+{
+    if(m_hostVersion)
+        delete m_hostVersion;
 }
 
 void UbuntuVersionManager::detectAvailableVersions() {
@@ -38,7 +44,10 @@ void UbuntuVersionManager::detectAvailableVersions() {
 
 Core::FeatureSet UbuntuVersionManager::availableFeatures(const QString &platformName) const {
     Q_UNUSED(platformName);
-    return m_hostVersion->features();
+    if(m_hostVersion)
+        return m_hostVersion->features();
+
+    return Core::FeatureSet();
 }
 
 QStringList UbuntuVersionManager::availablePlatforms() const {
@@ -49,7 +58,8 @@ QStringList UbuntuVersionManager::availablePlatforms() const {
 
 QString UbuntuVersionManager::displayNameForPlatform(const QString &string) const {
     Q_UNUSED(string);
-    return QString(QLatin1String(Constants::PLATFORM_DESKTOP_DISPLAYNAME)).arg(m_hostVersion->release());
+    return QString(QLatin1String(Constants::PLATFORM_DESKTOP_DISPLAYNAME))
+            .arg( (m_hostVersion != 0) ? m_hostVersion->release() : tr("Unknown"));
 }
 
 UbuntuVersionManager *UbuntuVersionManager::instance()

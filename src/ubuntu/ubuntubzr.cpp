@@ -34,6 +34,8 @@ void UbuntuBzr::initialize() {
 }
 
 void UbuntuBzr::scriptExecuted(int sta) {
+    Q_UNUSED(sta);
+
     QStringList data = QString(QString::fromLocal8Bit(m_cmd.readAllStandardOutput())).trimmed().split(QLatin1String(Constants::LINEFEED));
 
     if (data.length()!=2) {

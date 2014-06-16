@@ -109,6 +109,7 @@ int UbuntuValidationResultModel::rowCount(const QModelIndex &parent) const
 
 int UbuntuValidationResultModel::columnCount(const QModelIndex &parent) const
 {
+    Q_UNUSED(parent);
     return 1;
 }
 

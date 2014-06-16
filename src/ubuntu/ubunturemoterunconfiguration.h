@@ -29,30 +29,29 @@ class UbuntuRemoteRunConfiguration : public RemoteLinux::AbstractRemoteLinuxRunC
     Q_OBJECT
 
 public:
-    UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent);
     UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent, UbuntuRemoteRunConfiguration *source);
 
     // AbstractRemoteLinuxRunConfiguration interface
 public:
-    virtual QString localExecutableFilePath() const;
-    virtual QString remoteExecutableFilePath() const;
-    virtual QStringList arguments() const;
-    virtual QString workingDirectory() const;
-    virtual QString alternateRemoteExecutable() const;
-    virtual bool useAlternateExecutable() const;
-    virtual Utils::Environment environment() const;
+    virtual QString localExecutableFilePath() const override;
+    virtual QString remoteExecutableFilePath() const override;
+    virtual QStringList arguments() const override;
+    virtual QString workingDirectory() const override;
+    virtual Utils::Environment environment() const override;
+
     virtual QStringList soLibSearchPaths () const;
 
     // RunConfiguration interface
-    virtual QWidget *createConfigurationWidget();
-    virtual bool isEnabled() const;
-    virtual QString disabledReason() const;
-    virtual bool isConfigured() const;
-    virtual bool ensureConfigured(QString *errorMessage);
+    virtual QWidget *createConfigurationWidget() override;
+    virtual bool isEnabled() const override;
+    virtual QString disabledReason() const override;
+    virtual bool isConfigured() const override;
+    virtual bool ensureConfigured(QString *errorMessage) override;
 
     // ProjectConfiguration interface
-    virtual bool fromMap(const QVariantMap &map);
-    virtual QVariantMap toMap() const;
+    virtual bool fromMap(const QVariantMap &map) override;
+    virtual QVariantMap toMap() const override;
 
     QString appId () const;
     QString clickPackage () const;

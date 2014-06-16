@@ -97,14 +97,14 @@ void UbuntuPackagingMode::modeChanged(Core::IMode* currentMode) {
         ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
 
         bool isQmlProject = false;
-        bool isQmakeProject = false;
+        //bool isQmakeProject = false;
         bool isUbuntuProject = false;
         bool isCMakeProject = false;
         bool isGoProject = false;
 
         if (startupProject) {
             isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMLPROJECT_MIMETYPE));
-            isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMAKE_MIMETYPE));
+            //isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMAKE_MIMETYPE));
             isUbuntuProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
             isCMakeProject  = (startupProject->projectManager()->mimeType() == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
             isGoProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::GO_PROJECT_MIMETYPE));
@@ -128,7 +128,7 @@ void UbuntuPackagingMode::updateModeState() {
     ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
 
     bool isQmlProject = false;
-    bool isQmakeProject = false;
+    //bool isQmakeProject = false;
     bool isUbuntuProject = false;
     bool isCMakeProject = false;
     bool isGoProject = false;
@@ -136,7 +136,7 @@ void UbuntuPackagingMode::updateModeState() {
 
     if (startupProject) {
         isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMLPROJECT_MIMETYPE));
-        isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMAKE_MIMETYPE));
+        //isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMAKE_MIMETYPE));
         isUbuntuProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
         isCMakeProject  = (startupProject->projectManager()->mimeType() == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
         isGoProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::GO_PROJECT_MIMETYPE));

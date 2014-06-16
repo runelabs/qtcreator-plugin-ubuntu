@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=%DISPLAYNAME%
 Exec=%DISPLAYNAME%
-Icon=qmlscene
+Icon=%DISPLAYNAME%.png
 Terminal=false
 Type=Application
 X-Ubuntu-Touch=true

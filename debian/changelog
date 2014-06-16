@@ -1,3 +1,89 @@
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140613-0ubuntu1) utopic; urgency=low
+
+  [ Benjamin Zeller ]
+  * Detect device arch and create kits accordingly
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 13 Jun 2014 17:29:41 +0000
+
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140611.2-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * Add 14.10 target support (LP: #1328436) (LP: #1328436)
+  * Use unknown as developed ID when there is no LP ID available (LP:
+    #1324555) (LP: #1324555)
+
+  [ Benjamin Zeller ]
+  * Use only one SSH key for all ubuntu devices Move the storage
+    location of the SSH key to ~/.config/ubuntu-sdk Fixes LP:#1237923
+    (LP: #1237923)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 11 Jun 2014 13:50:36 +0000
+
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140609-0ubuntu2) utopic; urgency=medium
+
+  * test 
+
+ -- Zoltán Balogh <zoltan@bakter.hu>  Wed, 11 Jun 2014 06:52:33 +0200
+
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140609-0ubuntu1) utopic; urgency=low
+
+  [ Pete Woods ]
+  * Update scope templates to match released version of apparmor
+    templates
+
+  [ Benjamin Zeller ]
+  * Removed dead code. Code compiles without warnings now. Treat all
+    warnings as errors. Enable C++11 and use the override keyword . to
+    protect us from missing upstream API changes
+  * Add a fallback to UpstartAppLaunch in case the UbuntuAppLaunch is
+    not available (LP:#1327066) (LP: #1327066)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 09 Jun 2014 07:54:45 +0000
+
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140602-0ubuntu1) utopic; urgency=low
+
+  [ Benjamin Zeller ]
+  * Automatically add missing fields to manifest.json when its loaded
+  * Unittests for adb forward --list parser. Simple unittest for
+    /etc/lsb-release parser .
+
+  [ Alan Pope ]
+  * Switch eog to xdg-open to fix bug 1325272 (LP: #1325272)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 02 Jun 2014 11:32:11 +0000
+
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140527-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * Install the app icon to click package in cmake projects
+
+  [ Benjamin Zeller ]
+  * Automatically add missing fields to manifest.json when its loaded
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 27 May 2014 05:17:20 +0000
+
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140522.1-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * Add default icon to template projects
+
+  [ Benjamin Zeller ]
+  * Introduce the sdk-launcher tool that can run a click package.
+    Migrate QML, Go and HTML5 projects to the sdk-launcher .
+  * Use the correct desktop_file_hint when running a application
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 22 May 2014 14:47:05 +0000
+
+qtcreator-plugin-ubuntu (3.0.1+14.10.20140521.1-0ubuntu1) utopic; urgency=low
+
+  [ Benjamin Zeller ]
+  * Install go click application on the device from QTC
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 21 May 2014 11:49:52 +0000
+
 qtcreator-plugin-ubuntu (3.0.1+14.10.20140520.2-0ubuntu1) utopic; urgency=low
 
   [ Zoltán Balogh ]

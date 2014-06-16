@@ -134,7 +134,7 @@ ProjectExplorer::RunConfiguration *UbuntuLocalRunConfigurationFactory::doCreate(
         return NULL;
 
     if ( id.toString().startsWith(UbuntuRemoteRunConfiguration::typeId().toString()) )
-        return new UbuntuRemoteRunConfiguration(parent, id);
+        return new UbuntuRemoteRunConfiguration(parent);
     else if (id.toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_ID)))
         return new UbuntuLocalRunConfiguration(parent, id);
 

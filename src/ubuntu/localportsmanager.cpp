@@ -24,6 +24,10 @@
 namespace Ubuntu {
 namespace Internal {
 
+enum {
+    debug = 0
+};
+
 UbuntuLocalPortsManager* UbuntuLocalPortsManager::m_instance = 0;
 
 UbuntuLocalPortsManager::UbuntuLocalPortsManager( ) :
@@ -33,6 +37,12 @@ UbuntuLocalPortsManager::UbuntuLocalPortsManager( ) :
 {
     Q_ASSERT_X(m_instance == 0, Q_FUNC_INFO,"There can be only one instance of UbuntuLocalPortsManager");
     m_instance = this;
+}
+
+UbuntuLocalPortsManager::~UbuntuLocalPortsManager()
+{
+    if(m_instance == this)
+        m_instance = 0;
 }
 
 void UbuntuLocalPortsManager::setPortsRange(const int first, const int last)
@@ -46,8 +56,8 @@ void UbuntuLocalPortsManager::setPortsRange(const int first, const int last)
  * Queries adb which ports are already in use and returns a list
  * of ports available.
  * \bug As long as there is only once instance of QtC running this should
- * be no problem, but when a second one is started it will break the ports for
- * the first instance, because the ports will be newly assigned
+ * be no problem, but when a second one is started it may result in a race condition
+ * and ports could get reassigned and leave one QtC with a wrong portlist
  */
 Utils::PortList UbuntuLocalPortsManager::getFreeRange(const QString &serial, const int count)
 {
@@ -59,11 +69,20 @@ Utils::PortList UbuntuLocalPortsManager::getFreeRange(const QString &serial, con
     adb.waitForFinished();
 
     if (adb.exitCode() != 0) {
-        qDebug()<<"Adb failed to run "<<adb.errorString();
+        if(debug) qDebug()<<"Adb failed to run "<<adb.errorString();
         return Utils::PortList();
     }
 
-    QString str = QString::fromLocal8Bit(adb.readAllStandardOutput());
+    adb.setReadChannel(QProcess::StandardOutput);
+    return getFreeRange(serial,count,&adb);
+}
+
+Utils::PortList UbuntuLocalPortsManager::getFreeRange( const QString &serial, const int count, QIODevice *in )
+{
+    if(!in)
+        return Utils::PortList();
+
+    QString str = QString::fromLocal8Bit(in->readAll());
 
     QRegularExpression regExpPorts(QLatin1String("^\\s*(\\S+)\\s*tcp:([0-9]+)\\s*tcp:([0-9]+)"),QRegularExpression::MultilineOption);
     QRegularExpressionMatchIterator matchIter = regExpPorts.globalMatch(str);
@@ -79,25 +98,34 @@ Utils::PortList UbuntuLocalPortsManager::getFreeRange(const QString &serial, con
 
         //if a port is already forwarded to the device, we can just reuse it
         if (serial == device && localPort >= m_instance->m_first && localPort <= m_instance->m_last) {
-            qDebug()<<"Found port already linked to device: "<<localPort<<":"<<remotePort;
+            if(debug) qDebug()<<"Found port already linked to device: "<<localPort<<":"<<remotePort;
+
             freePorts.addPort(localPort);
+
+            if (freePorts.count() == count)
+                break;
         } else {
-            qDebug()<<"Found port in use: "<<localPort<<":"<<remotePort;
+            if(debug) qDebug()<<"Found port in use: "<<localPort<<":"<<remotePort;
             usedPorts.addPort(localPort);
         }
     }
 
     int required = count - freePorts.count();
     int firstPort = m_instance->m_first;
-    for(int i = 0, found = 0; found <= required && firstPort+i < m_instance->m_last; i++) {
+    for(int i = 0, found = 0; found < required && firstPort+i < m_instance->m_last; i++) {
         int port = firstPort + i;
 
+        //is the port in use?
         if(usedPorts.contains(port))
+            continue;
+
+        //is that port already assigned to us?
+        if(freePorts.contains(port))
             continue;
 
         freePorts.addPort(port);
         found++;
-        qDebug()<<"Found free port: "<<port;
+        if(debug) qDebug()<<"Found free port: "<<port;
     }
 
     return freePorts;

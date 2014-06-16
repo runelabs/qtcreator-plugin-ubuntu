@@ -21,6 +21,7 @@
 #include <remotelinux/linuxdevice.h>
 #include <remotelinux/linuxdeviceprocess.h>
 #include <coreplugin/id.h>
+#include <projectexplorer/abi.h>
 #include <utils/portlist.h>
 #include <QProcess>
 
@@ -177,6 +178,7 @@ public:
     QString deviceInfo() const;
     QString productInfo() const;
     QString imageName() const;
+    QString architecture() const;
 
     void setEmulatorInfo (const QString &ubuntuVersion, const QString &deviceVersion, const QString &imageVersion);
     QString ubuntuVersion() const;
@@ -192,14 +194,14 @@ public:
     QString detectionStateString () const;
 
     // IDevice interface
-    virtual ProjectExplorer::IDeviceWidget *createWidget();
-    virtual QList<Core::Id> actionIds() const;
-    virtual QString displayType() const;
-    virtual ProjectExplorer::IDevice::Ptr clone() const;
-    virtual void fromMap(const QVariantMap &map);
-    virtual QVariantMap toMap() const;
-    virtual ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const;
-    virtual ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const;
+    virtual ProjectExplorer::IDeviceWidget *createWidget() override;
+    virtual QList<Core::Id> actionIds() const override;
+    virtual QString displayType() const override;
+    virtual ProjectExplorer::IDevice::Ptr clone() const override;
+    virtual void fromMap(const QVariantMap &map) override;
+    virtual QVariantMap toMap() const override;
+    virtual ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const override;
+    virtual ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
 
     Ptr sharedFromThis ();
     ConstPtr sharedFromThis() const;
@@ -239,15 +241,15 @@ public:
     explicit UbuntuDeviceProcess(const QSharedPointer<const ProjectExplorer::IDevice> &device,
                                 QObject *parent = 0);
 
-    void setWorkingDirectory(const QString &directory);
+    void setWorkingDirectory(const QString &directory) override;
 
     // DeviceProcess interface
 public:
-    virtual void terminate();
+    virtual void terminate() override;
 
 private:
     // SshDeviceProcess interface
-    virtual QString fullCommandLine() const;
+    virtual QString fullCommandLine() const override;
     QString m_workingDir;
 };
 

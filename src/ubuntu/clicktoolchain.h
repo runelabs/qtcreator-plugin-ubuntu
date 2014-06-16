@@ -35,22 +35,24 @@ class ClickToolChain : public ProjectExplorer::GccToolChain
 public:
     ClickToolChain(const UbuntuClickTool::Target &target,Detection d);
 
-    virtual QList<Utils::FileName> suggestedMkspecList() const;
-    virtual Utils::FileName suggestedDebugger() const;
-    virtual QString type() const;
-    virtual QString typeDisplayName() const;
-    virtual bool isValid() const;
-    virtual void addToEnvironment(Utils::Environment &env) const;
-    virtual QString makeCommand(const Utils::Environment &) const;
-    virtual bool operator ==(const ProjectExplorer::ToolChain &tc) const;
-    virtual ProjectExplorer::ToolChainConfigWidget *configurationWidget();
-    virtual QVariantMap toMap() const;
+    virtual QList<Utils::FileName> suggestedMkspecList() const override;
+    virtual Utils::FileName suggestedDebugger() const override;
+    virtual QString type() const override;
+    virtual QString typeDisplayName() const override;
+    virtual bool isValid() const override;
+    virtual void addToEnvironment(Utils::Environment &env) const override;
+    virtual QString makeCommand(const Utils::Environment &) const override;
+    virtual bool operator ==(const ProjectExplorer::ToolChain &tc) const override;
+    virtual ProjectExplorer::ToolChainConfigWidget *configurationWidget() override;
+    virtual QVariantMap toMap() const override;
 
     QString gnutriplet () const;
     const UbuntuClickTool::Target &clickTarget () const;
 
+    static ProjectExplorer::Abi architectureNameToAbi ( const QString &arch );
+
 protected:
-    virtual bool fromMap(const QVariantMap &data);
+    virtual bool fromMap(const QVariantMap &data) override;
 
     ClickToolChain(const ClickToolChain& other);
     ClickToolChain();
@@ -60,7 +62,7 @@ private:
 
     // ToolChain interface
 public:
-    virtual Utils::FileName compilerCommand() const;
+    virtual Utils::FileName compilerCommand() const override;
 };
 
 class ClickToolChainFactory : public ProjectExplorer::ToolChainFactory
@@ -71,9 +73,9 @@ public:
 
     // ToolChainFactory interface
 public:
-    virtual QList<ProjectExplorer::ToolChain *> autoDetect();
-    virtual bool canRestore(const QVariantMap &data);
-    virtual ProjectExplorer::ToolChain *restore(const QVariantMap &data);
+    virtual QList<ProjectExplorer::ToolChain *> autoDetect() override;
+    virtual bool canRestore(const QVariantMap &data) override;
+    virtual ProjectExplorer::ToolChain *restore(const QVariantMap &data) override;
 
     static QList<ProjectExplorer::ToolChain *> createToolChainsForClickTargets();
 };

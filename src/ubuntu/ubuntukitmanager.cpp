@@ -21,6 +21,10 @@
 namespace Ubuntu {
 namespace Internal {
 
+enum {
+    debug = 0
+};
+
 static bool equalKits(ProjectExplorer::Kit *a, ProjectExplorer::Kit *b)
 {
     return ProjectExplorer::ToolChainKitInformation::toolChain(a) == ProjectExplorer::ToolChainKitInformation::ToolChainKitInformation::toolChain(b);
@@ -62,42 +66,65 @@ QList<ClickToolChain *> UbuntuKitManager::clickToolChains()
 
 void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
 {
+    ProjectExplorer::Abi requiredAbi = ClickToolChain::architectureNameToAbi(device->architecture());
+    if(requiredAbi.isNull()) {
+        QMessageBox::warning(0,
+                             tr("Unknown device architecture"),
+                             tr("Kit autocreation for %1 is not supported!")
+                             .arg(device->architecture()));
+        return;
+    }
+
     QList<ClickToolChain*> toolchains = clickToolChains();
-    if(toolchains.size() == 0) {
+
+    auto findCompatibleTc = [&](){
+        ClickToolChain* match = 0;
+        if(toolchains.size() > 0) {
+            qSort(toolchains.begin(),toolchains.end(),lessThanToolchain);
+
+            for( int i = toolchains.size() -1; i >= 0; i-- ) {
+                ClickToolChain* tc = toolchains[i];
+                if( tc->targetAbi() == requiredAbi ) {
+                    match = tc;
+                    break;
+                }
+
+                //the abi is compatible but not exactly the same
+                //lets continue and see if we find a better candidate
+                if(tc->targetAbi().isCompatibleWith(requiredAbi))
+                    match = tc;
+            }
+        }
+        return match;
+    };
+
+    //search a tk with a compatible arch
+    ClickToolChain* match = findCompatibleTc();
+    while(!match) {
         //create target
         int choice = QMessageBox::question(0,
                               tr("No target available"),
-                              tr("There is no chroot available on your system, do you want to create it now?"));
+                              tr("There is no compatible chroot available on your system, do you want to create it now?"));
 
         if(choice == QMessageBox::Yes) {
             if(!UbuntuClickDialog::createClickChrootModal(false))
                 return;
 
             toolchains = clickToolChains();
-            if(toolchains.size() == 0) {
-                QMessageBox::critical(0,tr("Error"),tr("No toolchains where found"));
-                return;
-            }
-
-        } else {
+            match = findCompatibleTc();
+        } else
             return;
-        }
     }
 
-    qSort(toolchains.begin(),toolchains.end(),lessThanToolchain);
-
-    //right now we are going to use the last toolchain, because its the one
-    //with the highest framework, this needs to be changed once we have x86 targets
-    ClickToolChain* tc = toolchains.last();
-    ProjectExplorer::Kit* newKit = createKit(tc);
+    ProjectExplorer::Kit* newKit = createKit(match);
     if(newKit) {
         fixKit(newKit);
 
         newKit->setDisplayName(tr("%1 (GCC %2-%3-%4)")
                             .arg(device->displayName())
-                            .arg(tc->clickTarget().architecture)
-                            .arg(tc->clickTarget().framework)
-                            .arg(tc->clickTarget().series));
+                            .arg(match->clickTarget().architecture)
+                            .arg(match->clickTarget().framework)
+                            .arg(match->clickTarget().series));
 
         ProjectExplorer::DeviceKitInformation::setDevice(newKit,device);
         ProjectExplorer::KitManager::registerKit(newKit);
@@ -129,7 +156,7 @@ void UbuntuKitManager::autoDetectKits()
         }
 
         //@TODO check for ubuntu device information
-        qDebug()<<"Found possible Ubuntu Kit: "<<k->displayName();
+        if(debug) qDebug()<<"Found possible Ubuntu Kit: "<<k->displayName();
         existingKits << k;
     }
 

@@ -43,8 +43,6 @@
 namespace Ubuntu {
 namespace Internal {
 
-class UbuntuClickManager;
-
 class UBUNTUSHARED_EXPORT UbuntuPlugin: public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -54,8 +52,8 @@ public:
     UbuntuPlugin();
     ~UbuntuPlugin();
 
-    virtual bool initialize(const QStringList &arguments, QString *errorString);
-    virtual void extensionsInitialized();
+    virtual bool initialize(const QStringList &arguments, QString *errorString) override;
+    virtual void extensionsInitialized() override;
 
 private slots:
     void onKitsLoaded ();
@@ -70,7 +68,6 @@ protected:
     UbuntuWikiMode*         m_ubuntuWikiMode;
     UbuntuPackagingMode*    m_ubuntuPackagingMode;
     UbuntuPastebinMode*     m_ubuntuPastebinMode;
-    UbuntuClickManager*     m_ubuntuClickManager;
 };
 
 

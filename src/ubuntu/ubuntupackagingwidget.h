@@ -57,13 +57,15 @@ public:
     explicit UbuntuPackagingWidget(QWidget *parent = 0);
     ~UbuntuPackagingWidget();
 
+    static QString createPackageName (const QString &userName, const QString &projectName);
+
     bool reviewToolsInstalled ();
     UbuntuClickManifest *manifest ();
     UbuntuClickManifest *appArmor ();
 public slots:
     void autoSave();
     void reload();
-    void load_manifest(QString fileName);
+    bool load_manifest(QString fileName);
     void load_apparmor(QString fileAppArmorName);
     void save(bool bSaveSimple = true);
     bool openManifestForProject();
@@ -99,6 +101,8 @@ protected slots:
 signals:
     void reviewToolsInstalledChanged(const bool& installed);
 
+protected:
+    void addMissingFieldsToManifest(QString fileName);
 private slots:
     void on_comboBoxFramework_currentIndexChanged(int index);
 

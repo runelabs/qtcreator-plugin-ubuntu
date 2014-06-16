@@ -31,9 +31,9 @@ class UbuntuFeatureProvider : public Core::IFeatureProvider
 public:
     UbuntuFeatureProvider() {}
 
-    Core::FeatureSet availableFeatures(const QString &platformName) const;
-    QStringList availablePlatforms() const;
-    QString displayNameForPlatform(const QString &string) const;
+    Core::FeatureSet availableFeatures(const QString &platformName) const override;
+    QStringList availablePlatforms() const override;
+    QString displayNameForPlatform(const QString &string) const override;
     
 };
 }

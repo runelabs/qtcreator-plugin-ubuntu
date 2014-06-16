@@ -67,12 +67,12 @@ public:
 
 protected:
     virtual QWizard *createWizardDialog(QWidget *parent,
-                                        const Core::WizardDialogParameters &wizardDialogParameters) const;
+                                        const Core::WizardDialogParameters &wizardDialogParameters) const override;
 
     virtual Core::GeneratedFiles generateFiles(const QWizard *w,
-                                               QString *errorMessage) const;
+                                               QString *errorMessage) const override;
 
-    virtual bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
+    virtual bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage) override;
 
 private:
     UbuntuProjectApp* m_app;

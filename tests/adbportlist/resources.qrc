@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/portmanager">
+        <file>simple_list</file>
+        <file>complex_list</file>
+    </qresource>
+</RCC>

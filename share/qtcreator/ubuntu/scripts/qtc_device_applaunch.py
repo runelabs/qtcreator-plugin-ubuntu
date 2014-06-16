@@ -19,8 +19,17 @@
 #
 # Author: Benjamin Zeller <benjamin.zeller@canonical.com>
 
-from gi.repository import GLib, UbuntuAppLaunch
+import gi
+from gi.repository import GLib
 from gi.repository import GObject
+
+try:
+    gi.Repository.get_default().require("UbuntuAppLaunch")
+    from gi.repository import UbuntuAppLaunch as UAL
+except:
+    #fall back to the old name
+    from gi.repository import UpstartAppLaunch as UAL
+
 import json
 import os
 import sys
@@ -32,16 +41,16 @@ import fcntl
 def on_sigterm(state):
     print("Received exit signal, stopping application")
     sys.stdout.flush()
-    UbuntuAppLaunch.stop_application(state['expected_app_id'])
+    UAL.stop_application(state['expected_app_id'])
 
 def on_failed(launched_app_id, failure_type, state):
     print("Received a failed event")
     sys.stdout.flush()
     if launched_app_id == state['expected_app_id']:
-        if failure_type == UbuntuAppLaunch.AppFailed.CRASH:
+        if failure_type == UAL.AppFailed.CRASH:
             state['message']  = 'Application crashed.'
             state['exitCode'] = 1
-        elif failure_type == UbuntuAppLaunch.AppFailed.START_FAILURE:
+        elif failure_type == UAL.AppFailed.START_FAILURE:
             state['message'] = 'Application failed to start.'
             state['exitCode'] = 1
 
@@ -49,7 +58,7 @@ def on_failed(launched_app_id, failure_type, state):
 
 def on_started(launched_app_id, state):
     if launched_app_id == state['expected_app_id']:
-        print("Application started: "+str(UbuntuAppLaunch.get_primary_pid(state['expected_app_id'])))
+        print("Application started: "+str(UAL.get_primary_pid(state['expected_app_id'])))
         sys.stdout.flush()
 
 def on_stopped(stopped_app_id, state):
@@ -196,8 +205,7 @@ sys.stdout.flush()
 
 #start a subprocess waiting for the log file to be created
 #to forward the log to the launcher output
-
-logTailProc = subprocess.Popen(['sh','-c','while ! tail -n 0 -f '+UbuntuAppLaunch.application_log_path(app_id) +' ; do sleep 1 ; done'],stdout=subprocess.PIPE)
+logTailProc = subprocess.Popen(['sh','-c','while ! tail -n 0 -f '+UAL.application_log_path(app_id) +' 2>/dev/null ; do sleep 1 ; done'],stdout=subprocess.PIPE)
 logFile=logTailProc.stdout
 logFileFd=logFile.fileno()
 
@@ -205,7 +213,6 @@ file_flags = fcntl.fcntl(logFileFd, fcntl.F_GETFL)
 fcntl.fcntl(logFileFd, fcntl.F_SETFL, file_flags | os.O_NDELAY)
 
 GObject.io_add_watch(logTailProc.stdout,GObject.IO_IN | GObject.IO_HUP,on_log_io)
-
 
 state = {}
 state['loop'] = GLib.MainLoop()
@@ -219,17 +226,17 @@ GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGTERM, on_sigterm, state)
 GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGINT, on_sigterm, state)
 GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGHUP, on_sigterm, state)
 
-UbuntuAppLaunch.observer_add_app_failed(on_failed, state)
-UbuntuAppLaunch.observer_add_app_started(on_started, state)
-UbuntuAppLaunch.observer_add_app_focus(on_focus, state)
-UbuntuAppLaunch.observer_add_app_stop(on_stopped, state)
-UbuntuAppLaunch.observer_add_app_resume(on_resume, state)
+UAL.observer_add_app_failed(on_failed, state)
+UAL.observer_add_app_started(on_started, state)
+UAL.observer_add_app_focus(on_focus, state)
+UAL.observer_add_app_stop(on_stopped, state)
+UAL.observer_add_app_resume(on_resume, state)
 
 print ("Start Application")
 sys.stdout.flush()
 
 #start up the application
-UbuntuAppLaunch.start_application(app_id)
+UAL.start_application(app_id)
 
 try:
     state['loop'].run()
@@ -238,13 +245,14 @@ except KeyboardInterrupt:
 
 print ("The Application exited, cleaning up")
 
+
 logTailProc.kill()
 
-UbuntuAppLaunch.observer_delete_app_failed(on_failed)
-UbuntuAppLaunch.observer_delete_app_started(on_started)
-UbuntuAppLaunch.observer_delete_app_focus(on_focus)
-UbuntuAppLaunch.observer_delete_app_stop(on_stopped)
-UbuntuAppLaunch.observer_delete_app_resume(on_resume)
+UAL.observer_delete_app_failed(on_failed)
+UAL.observer_delete_app_started(on_started)
+UAL.observer_delete_app_focus(on_focus)
+UAL.observer_delete_app_stop(on_stopped)
+UAL.observer_delete_app_resume(on_resume)
 
 success = subprocess.call(["pkcon","remove",package_name+";"+package_version+";"+package_arch+";local:click"])
 if success != 0:

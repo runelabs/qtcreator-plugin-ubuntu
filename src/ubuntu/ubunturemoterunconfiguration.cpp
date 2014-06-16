@@ -41,8 +41,12 @@
 namespace Ubuntu {
 namespace Internal {
 
-UbuntuRemoteRunConfiguration::UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent, Core::Id id)
-    : AbstractRemoteLinuxRunConfiguration(parent,id)
+enum {
+    debug = 0
+};
+
+UbuntuRemoteRunConfiguration::UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent)
+    : AbstractRemoteLinuxRunConfiguration(parent,typeId())
 {
     setDisplayName(appId());
     addExtraAspect(new RemoteLinux::RemoteLinuxEnvironmentAspect(this));
@@ -73,16 +77,6 @@ QString UbuntuRemoteRunConfiguration::workingDirectory() const
     return QString::fromLatin1("/home/phablet");
 }
 
-QString UbuntuRemoteRunConfiguration::alternateRemoteExecutable() const
-{
-    return QString();
-}
-
-bool UbuntuRemoteRunConfiguration::useAlternateExecutable() const
-{
-    return false;
-}
-
 Utils::Environment UbuntuRemoteRunConfiguration::environment() const
 {
     RemoteLinux::RemoteLinuxEnvironmentAspect *aspect = extraAspect<RemoteLinux::RemoteLinuxEnvironmentAspect>();
@@ -103,7 +97,7 @@ QStringList UbuntuRemoteRunConfiguration::soLibSearchPaths() const
         foreach(const CMakeProjectManager::CMakeBuildTarget& target, targets) {
             QFileInfo binary(target.executable);
             if(binary.exists()) {
-                qDebug()<<"Adding path "<<binary.absolutePath()<<" to solib-search-paths";
+                if(debug) qDebug()<<"Adding path "<<binary.absolutePath()<<" to solib-search-paths";
                 paths << binary.absolutePath();
             }
         }
@@ -140,7 +134,7 @@ bool UbuntuRemoteRunConfiguration::isConfigured() const
  */
 bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
 {
-    qDebug()<<"--------------------- Reconfiguring RunConfiguration ----------------------------";
+    if(debug) qDebug()<<"--------------------- Reconfiguring RunConfiguration ----------------------------";
     m_arguments.clear();
     m_desktopFile.clear();
     m_appId.clear();
@@ -235,14 +229,14 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
 
 bool UbuntuRemoteRunConfiguration::fromMap(const QVariantMap &map)
 {
-    qDebug()<<Q_FUNC_INFO;
+    if(debug) qDebug()<<Q_FUNC_INFO;
     return AbstractRemoteLinuxRunConfiguration::fromMap(map);
 }
 
 QVariantMap UbuntuRemoteRunConfiguration::toMap() const
 {
     QVariantMap m = AbstractRemoteLinuxRunConfiguration::toMap();
-    qDebug()<<Q_FUNC_INFO;
+    if(debug) qDebug()<<Q_FUNC_INFO;
     return m;
 }
 

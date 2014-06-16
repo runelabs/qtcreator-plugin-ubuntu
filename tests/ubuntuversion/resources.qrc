@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/ubuntuversion">
+        <file>lsb-release</file>
+    </qresource>
+</RCC>
