@@ -20,19 +20,19 @@ public:
     ~UbuntuRemoteDebugSupport();
 
 protected:
-    void startExecution();
-    void handleAdapterSetupFailed(const QString &error);
+    void startExecution() override;
+    void handleAdapterSetupFailed(const QString &error) override;
 
 
 private slots:
-    void handleRemoteSetupRequested();
+    void handleRemoteSetupRequested() override;
 
-    void handleAdapterSetupDone();
-    void handleAppRunnerError(const QString &error);
-    void handleRemoteOutput(const QByteArray &output);
-    void handleRemoteErrorOutput(const QByteArray &output);
-    void handleAppRunnerFinished(bool success);
-    void handleProgressReport(const QString &progressOutput);
+    void handleAdapterSetupDone() override;
+    void handleAppRunnerError(const QString &error) override;
+    void handleRemoteOutput(const QByteArray &output) override;
+    void handleRemoteErrorOutput(const QByteArray &output) override;
+    void handleAppRunnerFinished(bool success) override;
+    void handleProgressReport(const QString &progressOutput) override;
 
     void handleRemoteProcessStarted();
     void handleDebuggingFinished();

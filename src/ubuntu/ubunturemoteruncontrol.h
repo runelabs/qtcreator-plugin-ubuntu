@@ -43,10 +43,10 @@ public:
     explicit UbuntuRemoteRunControl(ProjectExplorer::RunConfiguration *runConfig);
     virtual ~UbuntuRemoteRunControl();
 
-    virtual void start();
-    virtual StopResult stop();
-    virtual bool isRunning() const;
-    virtual QIcon icon() const;
+    virtual void start() override;
+    virtual StopResult stop() override;
+    virtual bool isRunning() const override;
+    virtual QIcon icon() const override;
 
 private slots:
     void handleErrorMessage(const QString &error);

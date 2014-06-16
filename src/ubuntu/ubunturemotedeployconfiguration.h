@@ -39,7 +39,7 @@ public:
     UbuntuRemoteDeployConfiguration(ProjectExplorer::Target *target,
         UbuntuRemoteDeployConfiguration *source);
 
-    ProjectExplorer::NamedWidget *createConfigWidget();
+    ProjectExplorer::NamedWidget *createConfigWidget() override;
 
 
 };
