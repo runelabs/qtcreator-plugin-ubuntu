@@ -19,7 +19,8 @@ set -e
 
 SCRIPTPATH=`dirname $0`
 SERIALNUMBER=$1
-SSHIDENTITY=~/.ssh/ubuntudevice_${SERIALNUMBER}_id_rsa
+CONFIGDIR=~/.config/ubuntu-sdk
+SSHIDENTITY=${CONFIGDIR}/ubuntudevice_id_rsa
 USERNAME=phablet
 
 function adb_root {
@@ -140,6 +141,10 @@ if [[ -z ${SERIALNUMBER} ]]; then
   echo
   adb_devices
   exit -1
+fi
+
+if [ ! -d ${CONFIGDIR} ]; then
+  mkdir -p ${CONFIGDIR}
 fi
 
 adb_root

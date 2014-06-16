@@ -511,7 +511,7 @@ const char UBUNTU_CLICK_GCC_WRAPPER[]    = "%0/qtc_chroot_gcc";
 
 //Devicesupport
 const char UBUNTU_DEVICE_TYPE_ID[] = "UbuntuProjectManager.DeviceTypeId";
-const char UBUNTU_DEVICE_SSHIDENTITY[] = "%0/.ssh/ubuntudevice_%1_id_rsa";
+const char UBUNTU_DEVICE_SSHIDENTITY[] = "%0/.config/ubuntu-sdk/ubuntudevice_id_rsa";
 
 //Deploysupport
 const char UBUNTU_DEPLOYCONFIGURATION_ID[]       = "UbuntuProjectManager.DeployConfiguration";
@@ -523,6 +523,7 @@ const char UBUNTU_DEPLOY_DESTDIR[] = ".ubuntu-sdk-deploy";
 const char UBUNTU_CLICK_SUCCESS_PACKAGE_REGEX[] = "^.*'(.*)'.$";
 
 //Frameworks
+const char UBUNTU_FRAMEWORK_14_10_BASENAME[] = "ubuntu-sdk-14.10";
 const char UBUNTU_FRAMEWORK_14_04_BASENAME[] = "ubuntu-sdk-14.04";
 const char UBUNTU_FRAMEWORK_13_10_BASENAME[] = "ubuntu-sdk-13.10";
 const char UBUNTU_DEFAULT_QML_FRAMEWORK[]    = "ubuntu-sdk-14.04-qml-dev1";

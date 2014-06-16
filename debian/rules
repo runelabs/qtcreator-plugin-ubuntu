@@ -19,6 +19,9 @@ override_dh_auto_configure:
 	mkdir -p builddir
 	dh_auto_configure -- IDE_LIBRARY_BASENAME=lib/$(DEB_HOST_MULTIARCH) 
 
+override_dh_auto_test:
+	LD_LIBRARY_PATH=/usr/lib/$(DEB_HOST_MULTIARCH)/qtcreator:/usr/lib/$(DEB_HOST_MULTIARCH)/qtcreator/plugins/QtProject make check
+
 override_dh_auto_install:
 	mkdir -p $(CURDIR)/debian/tmp/usr/bin
 	ln -s /usr/bin/qtcreator debian/tmp/usr/bin/ubuntu-sdk

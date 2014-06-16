@@ -1,3 +1,6 @@
+#ifndef DEMOQUERY_H
+#define DEMOQUERY_H
+
 #include <unity/scopes/SearchQueryBase.h>
 #include <unity/scopes/ReplyProxyFwd.h>
 
@@ -13,3 +16,5 @@ public:
 private:
     std::string query_;
 };
+
+#endif

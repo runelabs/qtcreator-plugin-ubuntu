@@ -25,13 +25,12 @@ option(INSTALL_TESTS "Install the tests on make install" on)
 set(APP_NAME          %DISPLAYNAME%)
 set(%DISPLAYNAME_UPPER%_DIR "share/qml/%DISPLAYNAME%")
 set(MAIN_QML          "%DISPLAYNAME%.qml")
-set(ICON              "share/app/%DISPLAYNAME%.png")
+set(ICON              "graphics/%DISPLAYNAME%.png")
 
 #set install paths
 set(CMAKE_INSTALL_PREFIX /)
 set(DATA_DIR /)
 set(DESKTOP_DIR ${DATA_DIR})
-set(ICON ".${DATA_DIR}/${ICON}")
 
 set(EXEC "qmlscene $@ ${%DISPLAYNAME_UPPER%_DIR}/${MAIN_QML}")
 

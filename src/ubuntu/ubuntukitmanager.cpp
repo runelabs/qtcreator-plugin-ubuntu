@@ -15,6 +15,8 @@
 #include <cmakeprojectmanager/cmakekitinformation.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>
 
+#include <QMessageBox>
+
 namespace Ubuntu {
 namespace Internal {
 
@@ -63,26 +65,54 @@ QList<ClickToolChain *> UbuntuKitManager::clickToolChains()
 
 void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
 {
-    QList<ClickToolChain*> toolchains = clickToolChains();
-    if(toolchains.size() == 0) {
-        //create target
+    ProjectExplorer::Abi requiredAbi = ClickToolChain::architectureNameToAbi(device->architecture());
+    if(requiredAbi.isNull()) {
+        QMessageBox::warning(0,
+                             tr("Unknown device architecture"),
+                             tr("Kit autocreation for %1 is not supported!")
+                             .arg(device->architecture()));
         return;
     }
 
-    qSort(toolchains.begin(),toolchains.end(),lessThanToolchain);
+    QList<ClickToolChain*> toolchains = clickToolChains();
 
-    //right now we are going to use the last toolchain, because its the one
-    //with the highest framework, this needs to be changed once we have x86 targets
-    ClickToolChain* tc = toolchains.last();
-    ProjectExplorer::Kit* newKit = createKit(tc);
+    //search a tk with a compatible arch
+    ClickToolChain* match = 0;
+
+    if(toolchains.size() > 0) {
+        qSort(toolchains.begin(),toolchains.end(),lessThanToolchain);
+
+        for( int i = toolchains.size() -1; i >= 0; i-- ) {
+            ClickToolChain* tc = toolchains[i];
+            if( tc->targetAbi() == requiredAbi ) {
+                match = tc;
+                break;
+            }
+
+            //the abi is compatible but not exactly the same
+            //lets continue and see if we find a better candidate
+            if(tc->targetAbi().isCompatibleWith(requiredAbi))
+                match = tc;
+        }
+    }
+
+    if(!match)  {
+        QMessageBox::warning(0,
+                             tr("No click target found"),
+                             tr("Could not find a compatible build chroot, \n"
+                                "please create one in Tools -> Options -> Ubuntu"));
+        return;
+    }
+
+    ProjectExplorer::Kit* newKit = createKit(match);
     if(newKit) {
         fixKit(newKit);
 
         newKit->setDisplayName(tr("%1 (GCC %2-%3-%4)")
                             .arg(device->displayName())
-                            .arg(tc->clickTarget().architecture)
-                            .arg(tc->clickTarget().framework)
-                            .arg(tc->clickTarget().series));
+                            .arg(match->clickTarget().architecture)
+                            .arg(match->clickTarget().framework)
+                            .arg(match->clickTarget().series));
 
         ProjectExplorer::DeviceKitInformation::setDevice(newKit,device);
         ProjectExplorer::KitManager::registerKit(newKit);

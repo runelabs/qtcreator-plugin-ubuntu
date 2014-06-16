@@ -308,7 +308,8 @@ bool UbuntuPackagingWidget::openManifestForProject() {
             m_apparmor.setFileName(defaultAppArmorName);
             on_pushButtonReset_clicked();
         } else {
-            load_manifest(fileName);
+            if(!load_manifest(fileName))
+                return false;
         }
 
         //we just support the first hook for now
@@ -498,11 +499,12 @@ void UbuntuPackagingWidget::addMissingFieldsToManifest (QString fileName)
     }
 }
 
-void UbuntuPackagingWidget::load_manifest(QString fileName) {
+bool UbuntuPackagingWidget::load_manifest(QString fileName) {
 
     addMissingFieldsToManifest(fileName);
 
-    m_manifest.load(fileName,m_projectName);
+   if(! m_manifest.load(fileName,m_projectName) )
+       return false;
     // Commented out for bug #1274265 https://bugs.launchpad.net/qtcreator-plugin-ubuntu/+bug/1274265
     //m_manifest.setMaintainer(m_bzr.whoami());
     QString userName = m_bzr.launchpadId();
@@ -510,6 +512,7 @@ void UbuntuPackagingWidget::load_manifest(QString fileName) {
     m_projectName.replace(QLatin1String(Constants::UNDERLINE),QLatin1String(Constants::DASH));
     // Commented out for bug #1219948  - https://bugs.launchpad.net/qtcreator-plugin-ubuntu/+bug/1219948
     //m_manifest.setName(QString(QLatin1String("com.ubuntu.developer.%0.%1")).arg(userName).arg(m_projectName));
+    return true;
 }
 
 void UbuntuPackagingWidget::load_apparmor(QString fileAppArmorName) {
@@ -703,7 +706,10 @@ void UbuntuPackagingWidget::buildAndInstallPackageRequested()
 
 void UbuntuPackagingWidget::on_comboBoxFramework_currentIndexChanged(int index)
 {
-    if(ui->comboBoxFramework->itemText(index).startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_14_04_BASENAME))) {
+    if(ui->comboBoxFramework->itemText(index).startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_14_10_BASENAME))) {
+        ui->comboBoxFramework->removeItem(ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA));
+        m_apparmor.setPolicyVersion(QLatin1String("1.2"));
+    } else if(ui->comboBoxFramework->itemText(index).startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_14_04_BASENAME))) {
         ui->comboBoxFramework->removeItem(ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA));
         m_apparmor.setPolicyVersion(QLatin1String("1.1"));
     } else if(ui->comboBoxFramework->itemText(index).startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_13_10_BASENAME))) {

@@ -11,6 +11,7 @@ import Ubuntu.DevicesModel 0.1
 ColumnLayout {
 
     property alias memory: emulatorMemoryComboBox.currentText
+    property alias scale: emulatorScaleComboBox.currentText
 
     UbuntuListView {
         anchors.left: parent.left
@@ -29,6 +30,16 @@ ColumnLayout {
                 text: i18n.tr("Image version")
                 value: emuImageVersion
             }
+            ListItem.Standard {
+                //show this listitem only when device is not connected
+                visible: connectionState !== DeviceConnectionState.ReadyToUse && connectionState !== DeviceConnectionState.Connected
+                text: "Scale"
+                control: Controls.ComboBox {
+                    id: emulatorScaleComboBox
+                    model: ["1.0", "0.9", "0.8", "0.7", "0.6","0.5", "0.4", "0.3", "0.2","0.1"]
+                }
+            }
+
             ListItem.Standard {
                 //show this listitem only when device is not connected
                 visible: connectionState !== DeviceConnectionState.ReadyToUse && connectionState !== DeviceConnectionState.Connected

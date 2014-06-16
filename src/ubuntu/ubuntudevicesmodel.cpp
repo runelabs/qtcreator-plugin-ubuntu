@@ -764,13 +764,13 @@ void UbuntuDevicesModel::queryAdb()
     m_process->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES));
 }
 
-void UbuntuDevicesModel::startEmulator(const QString &name, const QString &memory)
+void UbuntuDevicesModel::startEmulator(const QString &name, const QString &memory, const QString &scale)
 {
     int idx = findDevice(Core::Id::fromSetting(name).uniqueIdentifier());
     if(idx < 0)
         return;
 
-    QStringList args = QStringList() << name << memory;
+    QStringList args = QStringList() << name << memory << scale;
     if(QProcess::startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
                             ,args
                             ,QCoreApplication::applicationDirPath())) {

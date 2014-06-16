@@ -21,3 +21,4 @@ adb_shell getprop "ro.product.model"
 adb_shell getprop "ro.product.name"
 device_image_hardware
 device_image_version
+adb_shell dpkg --print-architecture
