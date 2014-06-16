@@ -1,4 +1,4 @@
-QT += network qml quick webkitwidgets script scripttools declarative
+QT += network qml quick webkitwidgets script scripttools
 
 include(../plugin.pri)
 

@@ -29,6 +29,8 @@ UbuntuProject::UbuntuProject(UbuntuProjectManager *manager, const QString &fileN
     : m_manager(manager),
       m_fileName(fileName) {
 
+    setId(Constants::UBUNTUPROJECT_ID);
+
     setProjectContext(Core::Context(Constants::UBUNTUPROJECT_PROJECTCONTEXT));
 
     QFileInfo fileInfo(m_fileName);
@@ -80,10 +82,6 @@ void UbuntuProject::extractProjectFileData(const QString& filename) {
 
 QString UbuntuProject::displayName() const {
     return m_projectName;
-}
-
-Core::Id UbuntuProject::id() const {
-    return Core::Id(Constants::UBUNTUPROJECT_ID);
 }
 
 Core::IDocument *UbuntuProject::document() const {

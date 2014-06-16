@@ -35,9 +35,10 @@ UbuntuSettingsClickPage::~UbuntuSettingsClickPage()
 {
 }
 
-QWidget *UbuntuSettingsClickPage::createPage(QWidget *parent)
+QWidget *UbuntuSettingsClickPage::widget( )
 {
-    m_widget = new UbuntuSettingsClickWidget(parent);
+    if(!m_widget)
+        m_widget = new UbuntuSettingsClickWidget();
     return m_widget;
 }
 
@@ -47,4 +48,10 @@ void UbuntuSettingsClickPage::apply()
         return;
 
     m_widget->apply();
+}
+
+void UbuntuSettingsClickPage::finish()
+{
+    if (m_widget)
+        delete m_widget;
 }

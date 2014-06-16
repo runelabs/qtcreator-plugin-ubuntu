@@ -16,7 +16,7 @@
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-import QtQuick 1.1
+import QtQuick 2.0
 
 
 Rectangle {
@@ -26,15 +26,15 @@ Rectangle {
     property int maximumHeight: 579
 
     Image {
-         anchors.fill: parent
-         fillMode: Image.Tile
-         source: "images/bg_dotted.png"
+        anchors.fill: parent
+        fillMode: Image.Tile
+        source: "images/bg_dotted.png"
     }
 
     Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
-	anchors.top: parent.top
-	anchors.bottom: parent.bottom
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
         height: maximumHeight
         width: parent.width>maximumWidth ? maximumWidth : parent.width
         color: "#fff"
@@ -123,8 +123,8 @@ Rectangle {
                 Link {
                     width: parent.width
                     title: "Build something solid in HTML5 &gt;"
-		    link: "http://developer.ubuntu.com/api/html5/current/"
-		}
+                    link: "http://developer.ubuntu.com/api/html5/current/"
+                }
             }
             Column {
                 id: bottomBox
@@ -132,75 +132,36 @@ Rectangle {
                 anchors.left: parent.left
                 anchors.topMargin: 20
 
+                width: parent.width
+                spacing: 5
+                Text {
+                    wrapMode: Text.WordWrap
                     width: parent.width
-                    spacing: 5
-                    Text {
-                        wrapMode: Text.WordWrap
-                        width: parent.width
-                        font.family: "Ubuntu"
-                        font.pixelSize: 26
-                        font.weight: Font.Light
-                        text: "Get in touch"
-                    }
+                    font.family: "Ubuntu"
+                    font.pixelSize: 26
+                    font.weight: Font.Light
+                    text: "Get in touch"
+                }
 
-                    Text {
-                        wrapMode: Text.WordWrap
-                        width: parent.width
-                        font.family: "Ubuntu"
-                        font.pixelSize: 18
-                         textFormat: Text.RichText
-                        font.weight: Font.Light
-                        text: "<style> a { text-decoration: none; color: #DD4814; cursor: pointer } </style>By joining our <a href=\"http://wiki.ubuntu.com/Touch/Contribute#Discuss\">mailing list</a> and for real-time communication join <a href=\"http://webchat.freenode.net/?channels=ubuntu-touch\">#ubuntu-touch</a> on freenode."
-                        onLinkActivated: {
-                            Qt.openUrlExternally(link);
-                        }
-                    }
-        }
-/*
-        Column {
-            id: welcomeScreenPlugins
-            anchors.top: bottomBox.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: parent.bottom
-            anchors.right: parent.right
-            anchors.margins: 10
-            anchors.topMargin: 20
-            spacing: 20
-		
-	    property int currentIndex : 0
-
-            Row {
-                Repeater {
-                    id: welcomeTabPluginHeaders
-                    model: pagesModel
-
-                    Text {
-                        text: title
-                        
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                welcomeScreenPlugins.currentIndex = index
-                                welcomeTabLoader.source = pageLocation
-                            }
-                        }
+                Text {
+                    wrapMode: Text.WordWrap
+                    width: parent.width
+                    font.family: "Ubuntu"
+                    font.pixelSize: 18
+                    textFormat: Text.RichText
+                    font.weight: Font.Light
+                    text: "<style> a { text-decoration: none; color: #DD4814; cursor: pointer } </style>By joining our <a href=\"http://wiki.ubuntu.com/Touch/Contribute#Discuss\">mailing list</a> and for real-time communication join <a href=\"http://webchat.freenode.net/?channels=ubuntu-touch\">#ubuntu-touch</a> on freenode."
+                    onLinkActivated: {
+                        Qt.openUrlExternally(link);
                     }
                 }
             }
             Row {
-                Loader {
-                    id: welcomeTabLoader
-                    anchors.fill: parent
-                    //source: visible ? pageLocation : ""
-                    //visible: index === welcomeScreenPlugins.currentIndex
-                }
-            }
-        }*/
-           /*
-        Commented out until we get Qt 5.1
-
-            Row {
-              
+                anchors.topMargin: 20
+                anchors.top: bottomBox.bottom
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                width: parent.width
 
                 NewsBox {
                     height: parent.height
@@ -215,11 +176,50 @@ Rectangle {
 
                     link: "http://developer.ubuntu.com/category/event/feed/"
                 }
-            }*/
 
+            }
 
+            /*
+            Column {
+                id: welcomeScreenPlugins
+                anchors.top: bottomBox.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
+                anchors.right: parent.right
+                anchors.margins: 10
+                anchors.topMargin: 20
+                spacing: 20
 
+                property int currentIndex : 0
 
+                Row {
+                    Repeater {
+                        id: welcomeTabPluginHeaders
+                        model: pagesModel
+
+                        Text {
+                            text: title
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    welcomeScreenPlugins.currentIndex = index
+                                    welcomeTabLoader.source = pageLocation
+                                }
+                            }
+                        }
+                    }
+                }
+                Row {
+                    Loader {
+                        id: welcomeTabLoader
+                        anchors.fill: parent
+                        //source: visible ? pageLocation : ""
+                        //visible: index === welcomeScreenPlugins.currentIndex
+                    }
+                }
+            }
+            */
         }
     }
 }

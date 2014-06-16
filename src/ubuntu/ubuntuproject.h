@@ -58,7 +58,6 @@ public:
     UbuntuProject(UbuntuProjectManager *manager, const QString &fileName);
 
     QString displayName() const override;
-    Core::Id id() const override;
     Core::IDocument *document() const override;
     ProjectExplorer::IProjectManager *projectManager() const override;
 
