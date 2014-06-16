@@ -50,7 +50,7 @@ public slots:
     void runClick ();
 
     static int runClickModal (ProjectExplorer::ProcessParameters* params);
-    static bool createClickChrootModal ( bool redetectKits = true );
+    static bool createClickChrootModal (bool redetectKits = true , const QString &arch = QString());
     static int maintainClickModal (const UbuntuClickTool::Target &target, const UbuntuClickTool::MaintainMode &mode);
 
     // QDialog interface

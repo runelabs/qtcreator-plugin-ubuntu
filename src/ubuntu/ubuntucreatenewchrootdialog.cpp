@@ -36,7 +36,7 @@ namespace Constants {
 
 namespace Internal {
 
-UbuntuCreateNewChrootDialog::UbuntuCreateNewChrootDialog(QWidget *parent) :
+UbuntuCreateNewChrootDialog::UbuntuCreateNewChrootDialog(const QString &arch, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::UbuntuCreateNewChrootDialog)
 {
@@ -49,7 +49,10 @@ UbuntuCreateNewChrootDialog::UbuntuCreateNewChrootDialog(QWidget *parent) :
 
     //add supported architectures
     for(int i = 0; Constants::UBUNTU_CLICK_SUPPORTED_ARCHS[i][0] != '\0' ;i++) {
-        ui->comboBoxArch->addItem(QLatin1String(Constants::UBUNTU_CLICK_SUPPORTED_ARCHS[i]));
+        QString currArch = QLatin1String(Constants::UBUNTU_CLICK_SUPPORTED_ARCHS[i]);
+
+        if( arch.isNull() || currArch == arch )
+            ui->comboBoxArch->addItem(currArch);
     }
 }
 
@@ -63,9 +66,9 @@ UbuntuCreateNewChrootDialog::~UbuntuCreateNewChrootDialog()
  * Opens a dialog that lets the user select a new chroot, returns false
  * if the user pressed cancel
  */
-bool UbuntuCreateNewChrootDialog::getNewChrootTarget(UbuntuClickTool::Target *target)
+bool UbuntuCreateNewChrootDialog::getNewChrootTarget(UbuntuClickTool::Target *target, const QString &arch)
 {
-    UbuntuCreateNewChrootDialog dlg;
+    UbuntuCreateNewChrootDialog dlg(arch);
     if( dlg.exec() == QDialog::Accepted) {
         bool ok = false;
 

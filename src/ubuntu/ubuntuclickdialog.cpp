@@ -91,11 +91,11 @@ int UbuntuClickDialog::runClickModal(ProjectExplorer::ProcessParameters *params)
     return dlg.m_exitCode;
 }
 
-bool UbuntuClickDialog::createClickChrootModal(bool redetectKits)
+bool UbuntuClickDialog::createClickChrootModal(bool redetectKits, const QString &arch)
 {
 
     UbuntuClickTool::Target t;
-    if(!UbuntuCreateNewChrootDialog::getNewChrootTarget(&t))
+    if(!UbuntuCreateNewChrootDialog::getNewChrootTarget(&t,arch))
         return false;
 
     ProjectExplorer::ProcessParameters params;

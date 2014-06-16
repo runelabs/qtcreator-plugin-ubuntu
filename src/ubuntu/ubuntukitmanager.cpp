@@ -107,7 +107,7 @@ void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
                               tr("There is no compatible chroot available on your system, do you want to create it now?"));
 
         if(choice == QMessageBox::Yes) {
-            if(!UbuntuClickDialog::createClickChrootModal(false))
+            if(!UbuntuClickDialog::createClickChrootModal(false, device->architecture()))
                 return;
 
             toolchains = clickToolChains();
