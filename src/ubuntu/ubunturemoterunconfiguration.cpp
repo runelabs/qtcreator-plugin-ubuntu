@@ -22,6 +22,7 @@
 #include "ubuntuconstants.h"
 #include "ubuntulocalrunconfiguration.h"
 #include "ubunturemotedeployconfiguration.h"
+#include "ubuntupackagestep.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>

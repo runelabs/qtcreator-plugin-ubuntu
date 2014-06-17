@@ -20,6 +20,7 @@
 #include "ubuntucmakemakestep.h"
 #include "ubuntuconstants.h"
 #include "ubuntuprojectguesser.h"
+#include "ubuntupackagestep.h"
 
 #include <utils/qtcassert.h>
 

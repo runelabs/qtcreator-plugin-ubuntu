@@ -15,7 +15,7 @@ namespace Internal {
 const QString SSH_BASE_COMMAND = QStringLiteral("ssh -i %1 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p%2 -tt %3@%4");
 
 enum {
-    debug = 1
+    debug = 0
 };
 
 class UbuntuRemoteClickApplicationRunnerPrivate

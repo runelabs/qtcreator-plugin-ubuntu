@@ -25,6 +25,7 @@
 #include "ubuntucmakemakestep.h"
 #include "ubuntuvalidationresultmodel.h"
 #include "ubuntudevice.h"
+#include "ubuntupackagestep.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>

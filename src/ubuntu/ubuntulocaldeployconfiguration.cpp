@@ -19,6 +19,7 @@
 #include "ubuntuprojectguesser.h"
 #include "ubuntuconstants.h"
 #include "ubuntucmakemakestep.h"
+#include "ubuntupackagestep.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
