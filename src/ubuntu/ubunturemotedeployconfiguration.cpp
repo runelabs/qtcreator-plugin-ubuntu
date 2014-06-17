@@ -251,7 +251,7 @@ bool UbuntuRemoteDeployConfigurationFactory::canCreate(ProjectExplorer::Target *
 ProjectExplorer::DeployConfiguration *UbuntuRemoteDeployConfigurationFactory::create(ProjectExplorer::Target *parent,
                                                                                const Core::Id id)
 {
-    Q_ASSERT(canCreate(parent, id));
+    QTC_ASSERT(canCreate(parent, id),return 0);
 
     ProjectExplorer::DeployConfiguration * const dc
             = new UbuntuRemoteDeployConfiguration(parent);
