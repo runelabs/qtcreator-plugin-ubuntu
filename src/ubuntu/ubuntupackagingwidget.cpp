@@ -770,6 +770,8 @@ void UbuntuPackagingWidget::buildClickPackage()
             return;
 
         UbuntuPackageStep* package = new UbuntuPackageStep(steps);
+        package->setPackageMode(UbuntuPackageStep::DisableDebugScript);
+
         m_additionalPackagingBuildSteps.append(package);
 
         m_buildManagerConnection = connect(ProjectExplorer::BuildManager::instance(),SIGNAL(buildQueueFinished(bool)),this,SLOT(buildFinished(bool)));

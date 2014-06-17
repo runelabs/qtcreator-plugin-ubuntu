@@ -399,11 +399,23 @@ void UbuntuPackageStep::injectDebugHelperStep()
         QRegularExpression deskExecRegex(QStringLiteral("^(\\s*[Ee][Xx][Ee][cC]=.*)$"),QRegularExpression::MultilineOption);
 
         UbuntuClickManifest manifest;
-        manifest.load(bc->buildDirectory()
+        if(!manifest.load(bc->buildDirectory()
                       .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
                       .appendPath(QStringLiteral("manifest.json"))
                       .toString(),
-                      projectName);
+                      projectName)) {
+
+            emit addOutput(tr("Could not find the manifest.json file in %1.\nPlease check if it is added to the install targets in your project file")
+                           .arg(bc->buildDirectory()
+                                .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                                .toString()),
+                           BuildStep::ErrorMessageOutput);
+
+            m_futureInterface->reportResult(false);
+            cleanup();
+            emit finished();
+            return;
+        }
 
         QList<UbuntuClickManifest::Hook> hooks = manifest.hooks();
         foreach ( const UbuntuClickManifest::Hook &hook, hooks) {
@@ -596,6 +608,8 @@ UbuntuPackageStepConfigWidget::UbuntuPackageStepConfigWidget(UbuntuPackageStep *
     ui->comboBoxMode->addItem(tr("No")  ,static_cast<int>(UbuntuPackageStep::DisableDebugScript));
     connect(step,SIGNAL(packageModeChanged(PackageMode)),this,SLOT(updateMode()));
     connect(ui->comboBoxMode,SIGNAL(activated(int)),this,SLOT(onModeSelected(int)));
+
+    updateMode();
 }
 
 UbuntuPackageStepConfigWidget::~UbuntuPackageStepConfigWidget()
