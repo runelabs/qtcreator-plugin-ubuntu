@@ -3,10 +3,11 @@
 #include "ubuntuconstants.h"
 #include "clicktoolchain.h"
 #include "ubuntuprojectguesser.h"
-
+#include "ubuntuclickmanifest.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
@@ -392,48 +393,86 @@ void UbuntuPackageStep::injectDebugHelperStep()
         QFile::remove(debTargetPath);
 
     if( injectDebugScript && ubuntuDevice ) {
-        QRegularExpression fileRegEx(QStringLiteral("^.*\\.desktop$"));
-        QList<Utils::FileName> desktopFiles = UbuntuProjectGuesser::findFilesRecursive(bc->buildDirectory().
-                                                                                       appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR)),
-                                                                                       fileRegEx);
 
+        QString projectName = target()->project()->displayName();
 
-        //inject the debug helper into the Exec line in all desktop files
-        //@BUG if there are env vars set in the Exec line (Var=something command) this will fail
-        QRegularExpression regex(QStringLiteral("^(\\s*[Ee][Xx][Ee][cC]=.*)$"),QRegularExpression::MultilineOption);
-        foreach(const Utils::FileName &deskFile, desktopFiles) {
-            QFile deskFileFd(deskFile.toFileInfo().absoluteFilePath());
-            if(!deskFileFd.open(QIODevice::ReadOnly))
-                continue;
+        QRegularExpression deskExecRegex(QStringLiteral("^(\\s*[Ee][Xx][Ee][cC]=.*)$"),QRegularExpression::MultilineOption);
 
-            QString contents;
-            {
-                QTextStream deskInStream(&deskFileFd);
-                contents = deskInStream.readAll();
-            }
-            deskFileFd.close();
+        UbuntuClickManifest manifest;
+        manifest.load(bc->buildDirectory()
+                      .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                      .appendPath(QStringLiteral("manifest.json"))
+                      .toString(),
+                      projectName);
 
-            QRegularExpressionMatch m = regex.match(contents);
-            if(!m.hasMatch())
-                continue;
+        QList<UbuntuClickManifest::Hook> hooks = manifest.hooks();
+        foreach ( const UbuntuClickManifest::Hook &hook, hooks) {
 
-            QString exec = m.captured(1);
-            int idxOfEq = exec.indexOf(QStringLiteral("="));
-            exec.remove(0,idxOfEq+1);
-
-            //replaces the exec line with out patched version
-            contents.replace(m.capturedStart(1),
-                             m.capturedLength(1),
-                             QStringLiteral("Exec=./%1 \"%2\"").arg(debScript).arg(exec));
-
-
-            if(!deskFileFd.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            UbuntuClickManifest appArmor;
+            if (!appArmor.load(bc->buildDirectory()
+                               .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                               .appendPath(hook.appArmorFile)
+                               .toString(),
+                               projectName)) {
+                qWarning()<<"Could not open the apparmor file for: "<<hook.appId;
                 continue;
             }
 
-            QTextStream outStream(&deskFileFd);
-            outStream << contents;
-            deskFileFd.close();
+            if (hook.desktopFile.isEmpty() && !hook.scope.isEmpty()) {
+                //this is a scope hook
+                qWarning()<<"Packaging Scope for debug is not support yet: "<<hook.appId;
+                continue;
+            } else if(!hook.desktopFile.isEmpty() && hook.scope.isEmpty()){
+
+                //inject the debug helper into the Exec line in the desktop file
+                //@BUG if there are env vars set in the Exec line (Var=something command) this will fail
+
+                QFile deskFileFd(bc->buildDirectory()
+                                 .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                                 .appendPath(hook.desktopFile)
+                                 .toString());
+
+                if(!deskFileFd.open(QIODevice::ReadOnly))
+                    continue;
+
+                QString contents;
+                {
+                    QTextStream deskInStream(&deskFileFd);
+                    contents = deskInStream.readAll();
+                }
+                deskFileFd.close();
+
+                QRegularExpressionMatch m = deskExecRegex.match(contents);
+                if(!m.hasMatch())
+                    continue;
+
+                QString exec = m.captured(1);
+                int idxOfEq = exec.indexOf(QStringLiteral("="));
+                exec.remove(0,idxOfEq+1);
+
+                //replaces the exec line with out patched version
+                contents.replace(m.capturedStart(1),
+                                 m.capturedLength(1),
+                                 QStringLiteral("Exec=./%1 \"%2\"").arg(debScript).arg(exec));
+
+
+                if(!deskFileFd.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+                    continue;
+                }
+
+                QTextStream outStream(&deskFileFd);
+                outStream << contents;
+                deskFileFd.close();
+            } else {
+                qWarning()<<"Ambiguous configuration for hook "<<hook.appId<<" either scope or desktop property has to be set.";
+                continue;
+            }
+
+            //enable debugging in the apparmor file, this will inject the debug policy
+            if (!appArmor.enableDebugging())
+                qWarning() <<"Could not inject debug policy, debugging with gdb will not work";
+
+            appArmor.save();
         }
 
         //copy the helper script to the click package tree
