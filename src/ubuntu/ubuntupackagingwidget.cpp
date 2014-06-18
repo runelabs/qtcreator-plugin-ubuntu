@@ -364,6 +364,7 @@ void UbuntuPackagingWidget::on_pushButtonReset_clicked() {
     }
 
     m_apparmor.setFileName(fileAppArmorName);
+    updatePolicyForFramework(m_manifest.frameworkName());
     m_apparmor.save();
 
     m_manifest.setMaintainer(m_bzr.whoami());
@@ -496,6 +497,24 @@ void UbuntuPackagingWidget::addMissingFieldsToManifest (QString fileName)
         QByteArray data = doc.toJson();
         in.write(data);
         in.close();
+    }
+}
+
+void UbuntuPackagingWidget::updatePolicyForFramework(const QString &fw)
+{
+    if(fw.isEmpty())
+        return;
+
+    QProcess proc;
+    proc.setProgram(QStringLiteral("aa-clickquery"));
+    proc.setArguments(QStringList{
+                      QStringLiteral("--click-framework=%1").arg(fw),
+                      QStringLiteral("--query=policy_version")});
+    proc.start();
+    proc.waitForFinished();
+    if(proc.exitCode() == 0 && proc.exitStatus() == QProcess::NormalExit) {
+        m_apparmor.setPolicyVersion(QString::fromUtf8(proc.readAllStandardOutput()));
+        m_apparmor.save();
     }
 }
 
@@ -706,20 +725,7 @@ void UbuntuPackagingWidget::buildAndInstallPackageRequested()
 
 void UbuntuPackagingWidget::on_comboBoxFramework_currentIndexChanged(int index)
 {
-    if(ui->comboBoxFramework->itemText(index).startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_14_10_BASENAME))) {
-        ui->comboBoxFramework->removeItem(ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA));
-        m_apparmor.setPolicyVersion(QLatin1String("1.2"));
-    } else if(ui->comboBoxFramework->itemText(index).startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_14_04_BASENAME))) {
-        ui->comboBoxFramework->removeItem(ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA));
-        m_apparmor.setPolicyVersion(QLatin1String("1.1"));
-    } else if(ui->comboBoxFramework->itemText(index).startsWith(QLatin1String(Constants::UBUNTU_FRAMEWORK_13_10_BASENAME))) {
-        ui->comboBoxFramework->removeItem(ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA));
-        m_apparmor.setPolicyVersion(QLatin1String("1.0"));
-    } else {
-        return;
-    }
-
-    m_apparmor.save();
+    updatePolicyForFramework(ui->comboBoxFramework->itemText(index));
 }
 
 /*!
