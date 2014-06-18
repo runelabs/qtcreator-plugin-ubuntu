@@ -46,8 +46,8 @@ enum {
     debug = 0
 };
 
-UbuntuRemoteRunConfiguration::UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent)
-    : AbstractRemoteLinuxRunConfiguration(parent,typeId())
+UbuntuRemoteRunConfiguration::UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent, Core::Id id)
+    : AbstractRemoteLinuxRunConfiguration(parent,id)
 {
     setDisplayName(appId());
     addExtraAspect(new RemoteLinux::RemoteLinuxEnvironmentAspect(this));

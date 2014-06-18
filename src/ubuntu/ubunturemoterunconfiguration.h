@@ -29,7 +29,7 @@ class UbuntuRemoteRunConfiguration : public RemoteLinux::AbstractRemoteLinuxRunC
     Q_OBJECT
 
 public:
-    UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent);
+    UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
     UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent, UbuntuRemoteRunConfiguration *source);
 
     // AbstractRemoteLinuxRunConfiguration interface
