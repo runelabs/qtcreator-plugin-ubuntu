@@ -20,7 +20,7 @@
 #define UBUNTUWELCOMEMODE_H
 
 #include <coreplugin/imode.h>
-#include <QDeclarativeView>
+#include <QQuickView>
 #include <QObject>
 
 namespace Ubuntu {
@@ -43,7 +43,7 @@ protected slots:
     void objectAdded(QObject* obj);
 
 protected:
-    QDeclarativeView* m_declarativeView;
+    QQuickView* m_quickView;
     QWidget* m_modeWidget;
     QList<QObject*> m_welcomeTabPluginList;
 };

@@ -199,6 +199,7 @@ Page {
                             }
                         }
                     }
+
                     Controls.TabView {
                         id: pagesTabView
                         anchors.left: parent.left
@@ -217,12 +218,14 @@ Page {
                             addTab("Log", Qt.createComponent("DeviceLogTab.qml"))
                         }
                     }
+
                     Label {
                         visible: !deviceConnected && !deviceBooting && !detectionError && (machineType !== DeviceMachineType.Emulator)
                         anchors.centerIn: parent
                         text: "The device is currently not connected"
                         fontSize: "large"
                     }
+
                     DeviceEmulatorTab {
                         id: emuSettings
                         visible: !deviceConnected && !deviceBooting && !detectionError && (machineType === DeviceMachineType.Emulator)
@@ -231,6 +234,7 @@ Page {
                         anchors.top: emulatorToolBar.bottom
                         anchors.bottom: parent.bottom
                     }
+
                     Column {
                         visible: deviceBooting && !detectionError
                         anchors.centerIn: parent

@@ -1,3 +1,13 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140616-0ubuntu1) utopic; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Migrating to Qt5.3 and QtC 3.1
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 16 Jun 2014 10:23:50 +0000
+
 qtcreator-plugin-ubuntu (3.0.1+14.10.20140613-0ubuntu1) utopic; urgency=low
 
   [ Benjamin Zeller ]

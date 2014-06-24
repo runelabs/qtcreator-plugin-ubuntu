@@ -41,7 +41,6 @@
 #include <QDir>
 #include <QDebug>
 #include <QTextStream>
-#include <QDeclarativeEngine>
 #include <QJsonArray>
 #include <QDebug>
 

@@ -51,8 +51,6 @@ public:
     virtual QString executable() const override;
     virtual QString workingDirectory() const override;
     virtual QString commandLineArguments() const override;
-    virtual QString dumperLibrary() const override;
-    virtual QStringList dumperLibraryLocations() const override;
     virtual RunMode runMode() const override;
     virtual void addToBaseEnvironment(Utils::Environment &env) const override;
 

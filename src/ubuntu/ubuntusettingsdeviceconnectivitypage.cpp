@@ -34,9 +34,10 @@ UbuntuSettingsDeviceConnectivityPage::~UbuntuSettingsDeviceConnectivityPage()
 {
 }
 
-QWidget *UbuntuSettingsDeviceConnectivityPage::createPage(QWidget *parent)
+QWidget *UbuntuSettingsDeviceConnectivityPage::widget()
 {
-    m_widget = new UbuntuSettingsDeviceConnectivityWidget(parent);
+    if (!m_widget)
+        m_widget = new UbuntuSettingsDeviceConnectivityWidget();
     return m_widget;
 }
 
@@ -46,4 +47,10 @@ void UbuntuSettingsDeviceConnectivityPage::apply()
         return;
 
     m_widget->apply();
+}
+
+void UbuntuSettingsDeviceConnectivityPage::finish()
+{
+    if(m_widget)
+        delete m_widget;
 }

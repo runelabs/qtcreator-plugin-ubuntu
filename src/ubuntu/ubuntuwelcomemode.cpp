@@ -20,8 +20,8 @@
 #include "ubuntuconstants.h"
 
 #include <coreplugin/modemanager.h>
-#include <QDeclarativeEngine>
-#include <QDeclarativeContext>
+#include <QQmlEngine>
+#include <QQmlContext>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/dialogs/iwizard.h>
 #include <coreplugin/coreconstants.h>
@@ -46,19 +46,19 @@ using namespace Ubuntu::Internal;
 
 
 UbuntuWelcomeMode::UbuntuWelcomeMode(QObject *parent) : Core::IMode(parent),
-                                                        m_declarativeView(new QDeclarativeView) {
+                                                        m_quickView(new QQuickView) {
     setDisplayName(tr(Ubuntu::Constants::UBUNTU_MODE_WELCOME_DISPLAYNAME));
     setIcon(QIcon(QLatin1String(Ubuntu::Constants::UBUNTU_MODE_WELCOME_ICON)));
     setPriority(Core::Constants::P_MODE_WELCOME);
     setId(Ubuntu::Constants::UBUNTU_MODE_WELCOME);
     setObjectName(QLatin1String(Ubuntu::Constants::UBUNTU_MODE_WELCOME));
 
-    QDeclarativeContext *context = m_declarativeView->rootContext();
+    QQmlContext *context = m_quickView->rootContext();
     context->setContextProperty(QLatin1String("welcomeMode"), this);
 
-    m_declarativeView->setResizeMode(QDeclarativeView::SizeRootObjectToView);
-    m_declarativeView->setMinimumWidth(860);
-    m_declarativeView->setMinimumHeight(548);
+    m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
+    m_quickView->setMinimumWidth(860);
+    m_quickView->setMinimumHeight(548);
 
     m_modeWidget = new QWidget;
     QVBoxLayout *layout = new QVBoxLayout;
@@ -71,10 +71,13 @@ UbuntuWelcomeMode::UbuntuWelcomeMode(QObject *parent) : Core::IMode(parent),
     QScrollArea *scrollArea = new QScrollArea(m_modeWidget);
     scrollArea->setFrameShape(QFrame::NoFrame);
     layout->addWidget(scrollArea);
-    scrollArea->setWidget(m_declarativeView);
+
+    QWidget* container = QWidget::createWindowContainer(m_quickView);
+
+    scrollArea->setWidget(container);
     scrollArea->setWidgetResizable(true);
-    m_declarativeView->setMinimumWidth(860);
-    m_declarativeView->setMinimumHeight(548);
+    container->setMinimumWidth(860);
+    container->setMinimumHeight(548);
     connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)), SLOT(modeChanged(Core::IMode*)));
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
     connect(pluginManager, SIGNAL(objectAdded(QObject*)), SLOT(objectAdded(QObject*)));
@@ -90,11 +93,10 @@ void UbuntuWelcomeMode::modeChanged(Core::IMode *mode) {
 void UbuntuWelcomeMode::initialize() {
 
     //qDebug() << __PRETTY_FUNCTION__;
-    QDeclarativeContext *context = m_declarativeView->rootContext();
+    QQmlContext *context = m_quickView->rootContext();
     context->setContextProperty(QLatin1String("pagesModel"), QVariant::fromValue(m_welcomeTabPluginList));
 
-    m_declarativeView->setSource(QUrl::fromLocalFile(Constants::UBUNTU_WELCOMESCREEN_QML));
-    m_declarativeView->show();
+    m_quickView->setSource(QUrl::fromLocalFile(Constants::UBUNTU_WELCOMESCREEN_QML));
     // Load existing welcome screen plugins - start
  /*   QList<Utils::IWelcomePage*> loadedWelcomeScreenPlugins = ExtensionSystem::PluginManager::getObjects<Utils::IWelcomePage>();
 

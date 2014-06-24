@@ -16,7 +16,7 @@
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-import QtQuick 1.0
+import QtQuick 2.0
 
 Rectangle {
     id: linkRoot

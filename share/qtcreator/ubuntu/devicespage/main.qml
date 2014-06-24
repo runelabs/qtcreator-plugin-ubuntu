@@ -8,7 +8,6 @@ MainView {
     height: 548
 
     useDeprecatedToolbar: false
-
     Tabs {
         Tab {
             title: "Ubuntu Devices"
