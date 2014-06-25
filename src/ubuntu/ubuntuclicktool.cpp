@@ -17,8 +17,9 @@
  */
 
 #include "ubuntuclicktool.h"
-#include "ubuntupackagingmode.h"
 #include "ubuntuclickmanifest.h"
+#include "ubuntuconstants.h"
+#include "ubuntushared.h"
 
 #include <QRegularExpression>
 #include <QDir>
@@ -49,9 +50,6 @@
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <cmakeprojectmanager/cmakebuildconfiguration.h>
-
-#include "ubuntuconstants.h"
-#include "ubuntushared.h"
 
 #include <QDebug>
 
