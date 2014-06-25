@@ -70,7 +70,7 @@ void UbuntuManifestTest::testWriteName()
     testWriteStringValue(
                 QString("com.ubuntu.developer.name"),
                 &UbuntuClickManifest::setName,
-                &UbuntuClickManifest::name);    UbuntuClickManifest mani;
+                &UbuntuClickManifest::name);
 }
 
 void UbuntuManifestTest::testWriteMaintainer()
