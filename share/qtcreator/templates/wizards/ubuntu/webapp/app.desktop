@@ -1,3 +1,8 @@
+# Three simple steps to your final webapp:
+# - update the url
+# - add a 128x128 app.png icon 
+# - build the package with "click build ."
+# - publish via https://myapps.developer.ubuntu.com/dev/click-apps/
 [Desktop Entry]
 Name=%DISPLAYNAME%
 Type=Application
