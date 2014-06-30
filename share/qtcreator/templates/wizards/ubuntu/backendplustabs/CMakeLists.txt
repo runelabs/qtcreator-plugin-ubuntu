@@ -1,4 +1,4 @@
-project(%DISPLAYNAME% C CXX)
+project(%ProjectName% C CXX)
 cmake_minimum_required(VERSION 2.8.9)
 
 set (UBUNTU_PROJECT_TYPE "ClickApp" CACHE INTERNAL "Tells QtCreator this is a Click application project")
@@ -22,17 +22,17 @@ set(QT_IMPORTS_DIR "lib/${ARCH_TRIPLET}")
 
 option(INSTALL_TESTS "Install the tests on make install" on)
 
-set(APP_NAME          %DISPLAYNAME%)
-set(%DISPLAYNAME_UPPER%_DIR "share/qml/%DISPLAYNAME%")
-set(MAIN_QML          "%DISPLAYNAME%.qml")
-set(ICON              "graphics/%DISPLAYNAME%.png")
+set(APP_NAME          %ProjectName%)
+set(%ProjectName:u%_DIR "share/qml/%ProjectName%")
+set(MAIN_QML          "%ProjectName%.qml")
+set(ICON              "graphics/%ProjectName%.png")
 
 #set install paths
 set(CMAKE_INSTALL_PREFIX /)
 set(DATA_DIR /)
 set(DESKTOP_DIR ${DATA_DIR})
 
-set(EXEC "qmlscene $@ ${%DISPLAYNAME_UPPER%_DIR}/${MAIN_QML}")
+set(EXEC "qmlscene $@ ${%ProjectName:u%_DIR}/${MAIN_QML}")
 
 install(FILES manifest.json DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(DIRECTORY "app/graphics" DESTINATION ${DATA_DIR})
@@ -43,13 +43,13 @@ add_subdirectory(backend)
 
 add_custom_target("autopilot" chmod +x ${CMAKE_SOURCE_DIR}/app/tests/autopilot/run
                     COMMAND ${CMAKE_SOURCE_DIR}/app/tests/autopilot/run
-                    DEPENDS %DISPLAYNAME%backend %DISPLAYNAME%backend-qmldir
+                    DEPENDS %ProjectName%backend %ProjectName%backend-qmldir
                     WORKING_DIRECTORY ./app)
 
 add_custom_target("check" /usr/bin/qmltestrunner -input ${CMAKE_SOURCE_DIR}/app/tests/unit -import ${CMAKE_BINARY_DIR}/backend
-                    DEPENDS %DISPLAYNAME%backend %DISPLAYNAME%backend-qmldir
+                    DEPENDS %ProjectName%backend %ProjectName%backend-qmldir
                     WORKING_DIRECTORY ./app)
 
-add_custom_target("run" /usr/bin/qmlscene -I ${CMAKE_BINARY_DIR}/backend  ${CMAKE_SOURCE_DIR}/app/%DISPLAYNAME%.qml
-                    DEPENDS %DISPLAYNAME%backend %DISPLAYNAME%backend-qmldir
+add_custom_target("run" /usr/bin/qmlscene -I ${CMAKE_BINARY_DIR}/backend  ${CMAKE_SOURCE_DIR}/app/%ProjectName%.qml
+                    DEPENDS %ProjectName%backend %ProjectName%backend-qmldir
                     WORKING_DIRECTORY ./app)

@@ -10,7 +10,7 @@ MainView {
     objectName: "mainView"
     
     // Note! applicationName needs to match the "name" field of the click manifest
-    applicationName: "com.ubuntu.developer.%BZR_USERNAME%.%DISPLAYNAME%"
+    applicationName: "com.ubuntu.developer.%ClickMaintainer%.%ProjectName%"
 
     /* 
      This property enables the application to change orientation 

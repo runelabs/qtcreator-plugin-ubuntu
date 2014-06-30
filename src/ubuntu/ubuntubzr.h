@@ -30,7 +30,10 @@ class UbuntuBzr : public QObject
     Q_OBJECT
 
 public:
-    explicit UbuntuBzr(QObject *parent = 0);
+    explicit UbuntuBzr();
+    ~UbuntuBzr();
+
+    static UbuntuBzr *instance ();
 
 signals:
     void initializedChanged();
@@ -40,11 +43,14 @@ public slots:
     QString whoami() { return m_whoami; }
     QString launchpadId() { return m_launchpadId; }
     void initialize();
+    bool waitForFinished(int msecs = 30000);
 
 protected slots:
     void scriptExecuted(int);
 
 protected:
+    static UbuntuBzr *m_instance;
+
     bool m_bInitialized;
     QString m_whoami;
     QString m_launchpadId;

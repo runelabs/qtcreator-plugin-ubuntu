@@ -7,10 +7,10 @@ import os
 from autopilot.matchers import Eventually
 from testtools.matchers import Equals
 
-import %DISPLAYNAME%
+import %ProjectName%
 
 
-class MainViewTestCase(%DISPLAYNAME%.ClickAppTestCase):
+class MainViewTestCase(%ProjectName%.ClickAppTestCase):
     """Generic tests for the Hello World"""
 
     def test_initial_label(self):

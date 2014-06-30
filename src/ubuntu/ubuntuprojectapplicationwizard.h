@@ -19,68 +19,75 @@
 #ifndef UBUNTUPROJECTAPPLICATIONWIZARD_H
 #define UBUNTUPROJECTAPPLICATIONWIZARD_H
 
-#include <coreplugin/basefilewizard.h>
 #include <projectexplorer/baseprojectwizarddialog.h>
-#include <qmakeprojectmanager/qmakeproject.h>
-#include <qmlprojectmanager/qmlproject.h>
-#include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/customwizard/customwizard.h>
 #include <projectexplorer/targetsetuppage.h>
 
-#include <QJsonObject>
-#include "ubuntuprojectapp.h"
+QT_BEGIN_NAMESPACE
+class QLabel;
+QT_END_NAMESPACE
+
+namespace Utils {
+class PathChooser;
+}
 
 namespace Ubuntu {
 namespace Internal {
+
+class UbuntuProjectApplicationWizard : public ProjectExplorer::CustomProjectWizard
+{
+    Q_OBJECT
+
+public:
+
+    enum ProjectType{
+        UbuntuProject, //handles Qml, Html basic projects
+        CMakeProject,
+        GoProject
+    };
+
+    UbuntuProjectApplicationWizard(ProjectType type);
+
+private:
+    QWizard *createWizardDialog(QWidget *parent,
+                                const Core::WizardDialogParameters &wizardDialogParameters) const override;
+    bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage) override;
+
+private:
+    Core::FeatureSet requiredFeatures() const;
+    ProjectType m_type;
+};
 
 class UbuntuProjectApplicationWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
 {
     Q_OBJECT
 public:
     explicit UbuntuProjectApplicationWizardDialog(QWidget *parent,
-                                                  const Core::WizardDialogParameters &parameters,
-                                                  const QString &projectType);
+                                                  UbuntuProjectApplicationWizard::ProjectType type,
+                                                  const Core::WizardDialogParameters &parameters);
+    virtual ~UbuntuProjectApplicationWizardDialog();
 
-    int addTargetSetupPage(int id);
-    bool writeUserFile(const QString &cmakeFileName) const;
+    void addTargetSetupPage(int id = -1);
 
+    QList<Core::Id> selectedKits() const;
+    bool writeUserFile(const QString &projectFileName) const;
 private slots:
-    void on_projectParametersChanged(const QString &projectName, const QString &path);
-
-
+    void generateProfileName(const QString &projectName, const QString &path);
 private:
     ProjectExplorer::TargetSetupPage *m_targetSetupPage;
-    QString m_projectType;
+    void init();
+    UbuntuProjectApplicationWizard::ProjectType m_type;
 };
 
-class UbuntuProjectApplicationWizard : public Core::BaseFileWizard
+template <class Wizard,UbuntuProjectApplicationWizard::ProjectType type> class UbuntuWizardFactory : public ProjectExplorer::ICustomWizardFactory
 {
-    Q_OBJECT
-
 public:
-    UbuntuProjectApplicationWizard(QJsonObject);
-    virtual ~UbuntuProjectApplicationWizard();
-    Core::FeatureSet requiredFeatures() const;
-
-    static QByteArray getProjectTypesJSON();
-
-    static QString templatesPath(QString fileName);
-
-protected:
-    virtual QWizard *createWizardDialog(QWidget *parent,
-                                        const Core::WizardDialogParameters &wizardDialogParameters) const override;
-
-    virtual Core::GeneratedFiles generateFiles(const QWizard *w,
-                                               QString *errorMessage) const override;
-
-    virtual bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage) override;
-
-private:
-    UbuntuProjectApp* m_app;
-    QString           m_projectType;
+    UbuntuWizardFactory(const QString &klass, Core::IWizard::WizardKind kind) : ICustomWizardFactory(klass, kind) { }
+    UbuntuWizardFactory(Core::IWizard::WizardKind kind) : ICustomWizardFactory(QString(), kind) { }
+    ProjectExplorer::CustomWizard *create() const { return new Wizard(type); }
 };
 
-} // Internal
-} // Ubuntu
-
+} // namespace Internal
+} // namespace Ubuntu
 
 #endif // UBUNTUPROJECTAPPLICATIONWIZARD_H

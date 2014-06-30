@@ -1,7 +1,7 @@
 [Desktop Entry]
-Name=%DISPLAYNAME%
+Name=%ProjectName%
 Exec=ubuntu-html5-app-launcher $@ --www=www
-Icon=%DISPLAYNAME%.png
+Icon=%ProjectName%.png
 Terminal=false
 Type=Application
 X-Ubuntu-Touch=true

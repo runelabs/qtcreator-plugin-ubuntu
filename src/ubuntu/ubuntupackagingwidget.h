@@ -116,7 +116,6 @@ private:
     UbuntuClickManifest m_apparmor;
     QMetaObject::Connection m_UbuntuMenu_connection;
     QProcess m_click;
-    UbuntuBzr m_bzr;
     QString m_projectName;
     QString m_projectDir;
     QString m_reply;

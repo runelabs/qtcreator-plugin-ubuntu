@@ -1,6 +1,6 @@
 import QtQuick 2.0
 import Ubuntu.Components 0.1
-import %DISPLAYNAME% 1.0
+import %ProjectName% 1.0
 import "../components"
 
 Tab {

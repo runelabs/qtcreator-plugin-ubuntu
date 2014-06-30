@@ -7,7 +7,7 @@
 /*
  ----8<-----
 
- import %DISPLAYNAME% 1.0
+ import %ProjectName% 1.0
 
  Rectangle {
    width: 200

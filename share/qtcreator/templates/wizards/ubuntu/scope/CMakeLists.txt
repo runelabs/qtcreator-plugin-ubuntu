@@ -1,6 +1,6 @@
-project(%DISPLAYNAME% CXX)
+project(%ProjectName% CXX)
 cmake_minimum_required(VERSION 2.8.10)
-set(SCOPE_NAME %DISPLAYNAME%)
+set(SCOPE_NAME %ProjectName%)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pedantic -Wall -Wextra")
 set(UBUNTU_PROJECT_TYPE "Scope" CACHE INTERNAL "Tells QtCreator this is a Scope project")

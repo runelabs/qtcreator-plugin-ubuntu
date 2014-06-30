@@ -18,4 +18,4 @@ check:
 	qmltestrunner -input tests/unit
 
 run:
-	/usr/bin/qmlscene $@ %DISPLAYNAME%.qml
+	/usr/bin/qmlscene $@ %ProjectName%.qml

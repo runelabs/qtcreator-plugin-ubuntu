@@ -33,6 +33,7 @@
 #include "ubuntulocaldeployconfiguration.h"
 #include "ubuntudevicesmodel.h"
 #include "localportsmanager.h"
+#include "ubuntubzr.h"
 
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -45,6 +46,7 @@
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QtQml>
+#include <coreplugin/icore.h>
 
 using namespace Ubuntu;
 using namespace Ubuntu::Internal;
@@ -73,29 +75,12 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     if (!Core::MimeDatabase::addMimeTypes(mimetypesXml, errorString))
         return false;
 
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(Internal::UbuntuProjectApplicationWizard::getProjectTypesJSON());
-    if (jsonDoc.isArray()) {
-        QJsonArray array = jsonDoc.array();
-        for (int idx = 0; idx < array.size(); idx++) {
-            if (array.at(idx).isObject()) {
-                QJsonObject obj = array.at(idx).toObject();
-                QString folder;
-                QJsonValue tmp_folder = obj.value(QLatin1String(Constants::UBUNTU_PROJECTJSON_FOLDER));
-                if (tmp_folder.isUndefined() == false) {
-                    folder = tmp_folder.toString();
-                    if (QFileInfo(UbuntuProjectApplicationWizard::templatesPath(folder)).exists())
-                        addAutoReleasedObject(new Internal::UbuntuProjectApplicationWizard(obj));
-                }
-            }
-        }
-    } else {
-        qWarning() << __PRETTY_FUNCTION__ << Constants::ERROR_MSG_FAILED_TO_READ_JSON;
-    }
-
     m_ubuntuDeviceMode = new UbuntuDeviceMode();
     addAutoReleasedObject(m_ubuntuDeviceMode);
     m_ubuntuWelcomeMode = new UbuntuWelcomeMode;
     addAutoReleasedObject(m_ubuntuWelcomeMode);
+
+    addAutoReleasedObject(new UbuntuBzr);
 
     QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
     settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_MODE));
@@ -156,16 +141,24 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     //deploy support
     addAutoReleasedObject(new UbuntuRemoteDeployConfigurationFactory);
 
+    //register wizards
+    addAutoReleasedObject(
+                new UbuntuWizardFactory<UbuntuProjectApplicationWizard,UbuntuProjectApplicationWizard::CMakeProject>(
+                    QStringLiteral("ubuntu-project-cmake"),
+                    Core::IWizard::ProjectWizard));
+    addAutoReleasedObject(
+                new UbuntuWizardFactory<UbuntuProjectApplicationWizard,UbuntuProjectApplicationWizard::UbuntuProject>(
+                    QStringLiteral("ubuntu-project-plain"),
+                    Core::IWizard::ProjectWizard));
+    addAutoReleasedObject(
+                new UbuntuWizardFactory<UbuntuProjectApplicationWizard,UbuntuProjectApplicationWizard::GoProject>(
+                    QStringLiteral("ubuntu-project-go"),
+                    Core::IWizard::ProjectWizard));
+
     //disabled for now, keeping the code because we might need a deploy method
     //for local applications in the future
     //addAutoReleasedObject(new UbuntuLocalDeployConfigurationFactory);
     addAutoReleasedObject(new UbuntuDeployStepFactory);
-
-#if 0
-    //cmake build support, hack until we have a better solution
-    m_ubuntuClickManager = new UbuntuClickManager();
-    addAutoReleasedObject(m_ubuntuClickManager);
-#endif
 
     //trigger kit autodetection and update after projectexplorer loaded the kits
     connect(ProjectExplorer::KitManager::instance(),SIGNAL(kitsLoaded())
@@ -184,9 +177,7 @@ void UbuntuPlugin::extensionsInitialized()
     if (m_ubuntuCoreAppsMode) m_ubuntuCoreAppsMode->initialize();
     if (m_ubuntuWikiMode) m_ubuntuWikiMode->initialize();
     m_ubuntuPackagingMode->initialize();
-#if 0
-    m_ubuntuClickManager->initialize();
-#endif
+
     Core::ModeManager::activateMode(m_ubuntuWelcomeMode->id());
 }
 

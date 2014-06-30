@@ -7,7 +7,7 @@
 #include <unity/scopes/QueryBase.h>
 #include <unity/scopes/PreviewQueryBase.h>
 
-class %DISPLAYNAME_CAPITAL%Scope : public unity::scopes::ScopeBase
+class %ProjectName:c%Scope : public unity::scopes::ScopeBase
 {
 public:
     virtual int start(std::string const&, unity::scopes::RegistryProxy const&) override;

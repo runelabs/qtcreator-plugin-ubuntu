@@ -1,4 +1,4 @@
-#include "%DISPLAYNAME%-query.h"
+#include "%ProjectName%-query.h"
 #include <unity/scopes/Annotation.h>
 #include <unity/scopes/CategorisedResult.h>
 #include <unity/scopes/CategoryRenderer.h>
@@ -7,20 +7,20 @@
 
 using namespace unity::scopes;
 
-%DISPLAYNAME_CAPITAL%Query::%DISPLAYNAME_CAPITAL%Query(std::string const& query) :
+%ProjectName:c%Query::%ProjectName:c%Query(std::string const& query) :
 query_(query)
 {
 }
 
-%DISPLAYNAME_CAPITAL%Query::~%DISPLAYNAME_CAPITAL%Query()
+%ProjectName:c%Query::~%ProjectName:c%Query()
 {
 }
 
-void %DISPLAYNAME_CAPITAL%Query::cancelled()
+void %ProjectName:c%Query::cancelled()
 {
 }
 
-void %DISPLAYNAME_CAPITAL%Query::run(unity::scopes::SearchReplyProxy const& reply)
+void %ProjectName:c%Query::run(unity::scopes::SearchReplyProxy const& reply)
 {
     CategoryRenderer rdr;
     auto cat = reply->register_category("cat1", "Category 1", "", rdr);

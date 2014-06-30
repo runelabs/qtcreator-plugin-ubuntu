@@ -1,8 +1,8 @@
 add_library(
   ${SCOPE_NAME} SHARED
-  %DISPLAYNAME%-preview.cpp
-  %DISPLAYNAME%-query.cpp
-  %DISPLAYNAME%-scope.cpp
+  %ProjectName%-preview.cpp
+  %ProjectName%-query.cpp
+  %ProjectName%-scope.cpp
 )
 target_link_libraries(${SCOPE_NAME} ${UNITY_SCOPES_LDFLAGS})
 set_property(TARGET ${SCOPE_NAME} PROPERTY COMPILE_FLAGS ${UNITY_SCOPES_CFLAGS})
