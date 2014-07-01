@@ -5,9 +5,9 @@
   "description": "A simple Unity scope that accesses local content",
 @endif
   "hooks": {
-    "%ProjectName%": {
-      "scope": "%ProjectName%",
-      "apparmor": "%ProjectName%.json"
+    "%ClickHookName%": {
+      "scope": "%ClickHookName%",
+      "apparmor": "apparmor_%ClickHookName%.json"
     }
   }
 }

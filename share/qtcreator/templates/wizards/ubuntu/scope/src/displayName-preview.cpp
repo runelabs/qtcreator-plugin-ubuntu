@@ -1,4 +1,4 @@
-#include"%ProjectName%-preview.h"
+#include"%ClickHookName:l%-preview.h"
 
 #include<unity/scopes/PreviewWidget.h>
 #include<unity/scopes/ColumnLayout.h>
@@ -6,19 +6,19 @@
 
 using namespace unity::scopes;
 
-%ProjectName:c%Preview::%ProjectName:c%Preview(std::string const& uri) : uri_(uri)
+%ClickHookName:s%Preview::%ClickHookName:s%Preview(std::string const& uri) : uri_(uri)
 {
 }
 
-%ProjectName:c%Preview::~%ProjectName:c%Preview()
+%ClickHookName:s%Preview::~%ClickHookName:s%Preview()
 {
 }
 
-void %ProjectName:c%Preview::cancelled()
+void %ClickHookName:s%Preview::cancelled()
 {
 }
 
-void %ProjectName:c%Preview::run(unity::scopes::PreviewReplyProxy const& reply)
+void %ClickHookName:s%Preview::run(unity::scopes::PreviewReplyProxy const& reply)
 {
     PreviewWidgetList widgets;
     widgets.emplace_back(PreviewWidget(R"({"id": "header", "type": "header", "components" : { "title": "title", "subtitle": "author" } })"));

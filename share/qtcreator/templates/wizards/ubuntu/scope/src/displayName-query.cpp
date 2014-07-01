@@ -1,4 +1,4 @@
-#include "%ProjectName%-query.h"
+#include "%ClickHookName:l%-query.h"
 #include <unity/scopes/Annotation.h>
 #include <unity/scopes/CategorisedResult.h>
 #include <unity/scopes/CategoryRenderer.h>
@@ -7,20 +7,20 @@
 
 using namespace unity::scopes;
 
-%ProjectName:c%Query::%ProjectName:c%Query(std::string const& query) :
+%ClickHookName:s%Query::%ClickHookName:s%Query(std::string const& query) :
 query_(query)
 {
 }
 
-%ProjectName:c%Query::~%ProjectName:c%Query()
+%ClickHookName:s%Query::~%ClickHookName:s%Query()
 {
 }
 
-void %ProjectName:c%Query::cancelled()
+void %ClickHookName:s%Query::cancelled()
 {
 }
 
-void %ProjectName:c%Query::run(unity::scopes::SearchReplyProxy const& reply)
+void %ClickHookName:s%Query::run(unity::scopes::SearchReplyProxy const& reply)
 {
     CategoryRenderer rdr;
     auto cat = reply->register_category("cat1", "Category 1", "", rdr);

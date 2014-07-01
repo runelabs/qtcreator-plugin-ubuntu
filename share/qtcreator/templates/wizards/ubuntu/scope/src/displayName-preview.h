@@ -3,11 +3,11 @@
 
 #include<unity/scopes/PreviewQueryBase.h>
 
-class %ProjectName:c%Preview : public unity::scopes::PreviewQueryBase
+class %ClickHookName:s%Preview : public unity::scopes::PreviewQueryBase
 {
 public:
-    %ProjectName:c%Preview(std::string const& uri);
-    ~%ProjectName:c%Preview();
+    %ClickHookName:s%Preview(std::string const& uri);
+    ~%ClickHookName:s%Preview();
 
     virtual void cancelled() override;
     virtual void run(unity::scopes::PreviewReplyProxy const& reply) override;

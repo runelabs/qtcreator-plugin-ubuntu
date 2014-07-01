@@ -1,28 +1,28 @@
-#include "%ProjectName%-scope.h"
-#include "%ProjectName%-query.h"
-#include "%ProjectName%-preview.h"
+#include "%ClickHookName:l%-scope.h"
+#include "%ClickHookName:l%-query.h"
+#include "%ClickHookName:l%-preview.h"
 #include <unity-scopes.h>
 
 using namespace unity::scopes;
 
-int %ProjectName:c%Scope::start(std::string const&, unity::scopes::RegistryProxy const&)
+int %ClickHookName:s%Scope::start(std::string const&, unity::scopes::RegistryProxy const&)
 {
     return VERSION;
 }
 
-void %ProjectName:c%Scope::stop()
+void %ClickHookName:s%Scope::stop()
 {
 }
 
-SearchQueryBase::UPtr %ProjectName:c%Scope::search(unity::scopes::CannedQuery const &q,
+SearchQueryBase::UPtr %ClickHookName:s%Scope::search(unity::scopes::CannedQuery const &q,
         unity::scopes::SearchMetadata const&)
 {
-    unity::scopes::SearchQueryBase::UPtr query(new %ProjectName:c%Query(q.query_string()));
+    unity::scopes::SearchQueryBase::UPtr query(new %ClickHookName:s%Query(q.query_string()));
     return query;
 }
 
-PreviewQueryBase::UPtr %ProjectName:c%Scope::preview(Result const& result, ActionMetadata const& /*metadata*/) {
-    unity::scopes::PreviewQueryBase::UPtr preview(new %ProjectName:c%Preview(result.uri()));
+PreviewQueryBase::UPtr %ClickHookName:s%Scope::preview(Result const& result, ActionMetadata const& /*metadata*/) {
+    unity::scopes::PreviewQueryBase::UPtr preview(new %ClickHookName:s%Preview(result.uri()));
     return preview;
 }
 
@@ -36,7 +36,7 @@ extern "C"
     // cppcheck-suppress unusedFunction
     UNITY_SCOPE_CREATE_FUNCTION()
     {
-        return new %ProjectName:c%Scope();
+        return new %ClickHookName:s%Scope();
     }
 
     EXPORT
