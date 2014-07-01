@@ -5,24 +5,23 @@
 
 using namespace unity::scopes;
 
-int %ClickHookName:s%Scope::start(std::string const&, unity::scopes::RegistryProxy const&)
+void %ClickHookName:s%Scope::start(std::string const&, RegistryProxy const&)
 {
-    return VERSION;
 }
 
 void %ClickHookName:s%Scope::stop()
 {
 }
 
-SearchQueryBase::UPtr %ClickHookName:s%Scope::search(unity::scopes::CannedQuery const &q,
-        unity::scopes::SearchMetadata const&)
+SearchQueryBase::UPtr %ClickHookName:s%Scope::search(CannedQuery const &q, SearchMetadata const& metadata)
 {
-    unity::scopes::SearchQueryBase::UPtr query(new %ClickHookName:s%Query(q.query_string()));
+    SearchQueryBase::UPtr query(new %ClickHookName:s%Query(q, metadata));
     return query;
 }
 
-PreviewQueryBase::UPtr %ClickHookName:s%Scope::preview(Result const& result, ActionMetadata const& /*metadata*/) {
-    unity::scopes::PreviewQueryBase::UPtr preview(new %ClickHookName:s%Preview(result.uri()));
+
+PreviewQueryBase::UPtr %ClickHookName:s%Scope::preview(Result const& result, ActionMetadata const& metadata) {
+    PreviewQueryBase::UPtr preview(new %ClickHookName:s%Preview(result, metadata));
     return preview;
 }
 

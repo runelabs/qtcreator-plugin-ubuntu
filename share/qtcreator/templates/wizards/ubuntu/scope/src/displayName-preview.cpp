@@ -6,7 +6,8 @@
 
 using namespace unity::scopes;
 
-%ClickHookName:s%Preview::%ClickHookName:s%Preview(std::string const& uri) : uri_(uri)
+%ClickHookName:s%Preview::%ClickHookName:s%Preview(Result const& result, ActionMetadata const& metadata) :
+        PreviewQueryBase(result, metadata)
 {
 }
 

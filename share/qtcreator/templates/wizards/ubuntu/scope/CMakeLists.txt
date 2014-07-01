@@ -10,7 +10,7 @@ set(INI_INSTALLDIR "/${SCOPE_NAME}")
 set(SCOPE_INSTALLDIR "/${SCOPE_NAME}")
 
 include(FindPkgConfig)
-pkg_check_modules(UNITY_SCOPES libunity-scopes>=0.4.0 REQUIRED)
+pkg_check_modules(UNITY_SCOPES libunity-scopes>=0.5.0 REQUIRED)
 
 add_subdirectory(src)
 add_subdirectory(data)
