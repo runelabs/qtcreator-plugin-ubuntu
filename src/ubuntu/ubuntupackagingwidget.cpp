@@ -304,10 +304,17 @@ bool UbuntuPackagingWidget::openManifestForProject() {
                 .arg(startupProject->projectDirectory())
                 .arg(no_underscore_displayName);
 
-        if (QFile(fileName).exists()==false) {
+        bool existsManifest = QFile(fileName).exists();
+        if (!existsManifest) {
             m_manifest.setFileName(fileName);
             m_apparmor.setFileName(defaultAppArmorName);
             on_pushButtonReset_clicked();
+
+            //make sure runconfigs are created
+            foreach(ProjectExplorer::Target *t, startupProject->targets()) {
+                t->updateDefaultDeployConfigurations();
+                t->updateDefaultRunConfigurations();
+            }
         } else {
             if(!load_manifest(fileName))
                 return false;

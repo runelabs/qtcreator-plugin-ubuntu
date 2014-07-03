@@ -194,7 +194,7 @@ if needs_debug_conf:
 #we have all informations, now install the click package
 #@TODO check if its already installed
 
-success = subprocess.call(["pkcon","install-local",options.clickPck])
+success = subprocess.call(["pkcon","install-local",options.clickPck,"-p"])
 if success != 0:
     print("Installing the application failed")
     sys.exit(1)
@@ -254,7 +254,7 @@ UAL.observer_delete_app_focus(on_focus)
 UAL.observer_delete_app_stop(on_stopped)
 UAL.observer_delete_app_resume(on_resume)
 
-success = subprocess.call(["pkcon","remove",package_name+";"+package_version+";"+package_arch+";local:click"])
+success = subprocess.call(["pkcon","remove",package_name+";"+package_version+";"+package_arch+";local:click","-p"])
 if success != 0:
     print("Uninstalling the application failed")
 
