@@ -94,8 +94,6 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
     m_ubuntuDeviceMode = new UbuntuDeviceMode();
     addAutoReleasedObject(m_ubuntuDeviceMode);
-    m_ubuntuWelcomeMode = new UbuntuWelcomeMode;
-    addAutoReleasedObject(m_ubuntuWelcomeMode);
 
     QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
     settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_MODE));
@@ -138,6 +136,9 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     addAutoReleasedObject(new UbuntuVersionManager);
     addAutoReleasedObject(new UbuntuFeatureProvider);
 
+    // welcome page plugin
+    addAutoReleasedObject(new UbuntuWelcomePage);
+
     // Handle new project type files
     addAutoReleasedObject(new UbuntuProjectManager);
     addAutoReleasedObject(new UbuntuLocalRunConfigurationFactory);
@@ -161,12 +162,6 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     //addAutoReleasedObject(new UbuntuLocalDeployConfigurationFactory);
     addAutoReleasedObject(new UbuntuDeployStepFactory);
 
-#if 0
-    //cmake build support, hack until we have a better solution
-    m_ubuntuClickManager = new UbuntuClickManager();
-    addAutoReleasedObject(m_ubuntuClickManager);
-#endif
-
     //trigger kit autodetection and update after projectexplorer loaded the kits
     connect(ProjectExplorer::KitManager::instance(),SIGNAL(kitsLoaded())
             ,this,SLOT(onKitsLoaded()));
@@ -177,7 +172,6 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 void UbuntuPlugin::extensionsInitialized()
 {
     if (m_ubuntuMenu) m_ubuntuMenu->initialize();
-    m_ubuntuWelcomeMode->initialize();
     m_ubuntuDeviceMode->initialize();
     if (m_ubuntuIRCMode) m_ubuntuIRCMode->initialize();
     if (m_ubuntuAPIMode) m_ubuntuAPIMode->initialize();
@@ -187,7 +181,6 @@ void UbuntuPlugin::extensionsInitialized()
 #if 0
     m_ubuntuClickManager->initialize();
 #endif
-    Core::ModeManager::activateMode(m_ubuntuWelcomeMode->id());
 }
 
 void UbuntuPlugin::onKitsLoaded()

@@ -19,35 +19,33 @@
 #ifndef UBUNTUWELCOMEMODE_H
 #define UBUNTUWELCOMEMODE_H
 
-#include <coreplugin/imode.h>
+#include <utils/iwelcomepage.h>
 #include <QQuickView>
 #include <QObject>
 
 namespace Ubuntu {
 namespace Internal {
 
-class UbuntuWelcomeMode : public Core::IMode
+class UbuntuWelcomePage : public Utils::IWelcomePage
 {
     Q_OBJECT
 
 public:
-    UbuntuWelcomeMode(QObject *parent = 0);
-    void initialize();
+    enum {
+        UbuntuSdkPage = Utils::IWelcomePage::UserDefined+1
+    };
+
+    // IWelcomePage interface
+    virtual QUrl pageLocation() const;
+    virtual QString title() const;
+    virtual int priority() const;
+    virtual void facilitateQml(QQmlEngine *engine);
+    virtual Id id() const;
 
 public slots:
     void newProject();
     void openProject();
-
-protected slots:
-    void modeChanged(Core::IMode*);
-    void objectAdded(QObject* obj);
-
-protected:
-    QQuickView* m_quickView;
-    QWidget* m_modeWidget;
-    QList<QObject*> m_welcomeTabPluginList;
 };
-
 
 } // Internal
 } // Ubuntu

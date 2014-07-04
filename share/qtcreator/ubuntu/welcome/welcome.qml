@@ -25,6 +25,10 @@ Rectangle {
     property int maximumWidth : 900
     property int maximumHeight: 579
 
+    width: parent.width
+    height: scrollView.height
+
+
     Image {
         anchors.fill: parent
         fillMode: Image.Tile
@@ -100,7 +104,7 @@ Rectangle {
                 Link {
                     width: parent.width
                     title: "Create a New Project &gt;"
-                    onClicked: welcomeMode.newProject()
+                    onClicked: ubuntuWelcomeMode.newProject()
                 }
                 
                 Link {
@@ -178,48 +182,6 @@ Rectangle {
                 }
 
             }
-
-            /*
-            Column {
-                id: welcomeScreenPlugins
-                anchors.top: bottomBox.bottom
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottom: parent.bottom
-                anchors.right: parent.right
-                anchors.margins: 10
-                anchors.topMargin: 20
-                spacing: 20
-
-                property int currentIndex : 0
-
-                Row {
-                    Repeater {
-                        id: welcomeTabPluginHeaders
-                        model: pagesModel
-
-                        Text {
-                            text: title
-
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    welcomeScreenPlugins.currentIndex = index
-                                    welcomeTabLoader.source = pageLocation
-                                }
-                            }
-                        }
-                    }
-                }
-                Row {
-                    Loader {
-                        id: welcomeTabLoader
-                        anchors.fill: parent
-                        //source: visible ? pageLocation : ""
-                        //visible: index === welcomeScreenPlugins.currentIndex
-                    }
-                }
-            }
-            */
         }
     }
 }
