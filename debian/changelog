@@ -1,3 +1,23 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140704-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * Migrate the device check script from the obsolate project
+
+  [ Benjamin Zeller ]
+  * Merge the Ubuntu and QtC welcome page into one.
+  * Use aa-clickquery to get correct policy version (LP: #1293586) (LP:
+    #1293586)
+  * Support SDK launcher for cmake based projects. Autocreate now can
+    create a ToolChain directly if none is available .
+
+  [ Michael Vogt ]
+  * Fix for the webapps app.desktop template.
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 04 Jul 2014 14:23:20 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20140616-0ubuntu1) utopic; urgency=medium
 
   [ Benjamin Zeller ]
