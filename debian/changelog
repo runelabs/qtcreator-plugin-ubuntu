@@ -1,3 +1,18 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140704.1-0ubuntu1) utopic; urgency=low
+
+  [ daker ]
+  * Make sure the webapp apparmor json file is valid
+  * Fixed param that causes the webapp-container to open http://cookies
+    (LP: #1327761)
+
+  [ Adnane Belmadiaf ]
+  * Fixed data-role name in the HTML5 app template (LP: #1335692)
+
+  [ Michael Vogt ]
+  * Some guidance to the webapp app.desktop template.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 04 Jul 2014 17:41:00 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20140704-0ubuntu1) utopic; urgency=low
 
   [ Zoltán Balogh ]
