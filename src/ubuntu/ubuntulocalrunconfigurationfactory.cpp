@@ -21,11 +21,14 @@
 #include "ubuntuprojectguesser.h"
 #include "ubuntudevice.h"
 #include "clicktoolchain.h"
+#include "ubuntuclickmanifest.h"
 #include <cmakeprojectmanager/cmakeproject.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/project.h>
 
 using namespace Ubuntu;
 using namespace Ubuntu::Internal;
@@ -36,34 +39,52 @@ QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(Project
 
     QList<Core::Id> list;
 
+    QString manifestPath = QStringLiteral("%1/manifest.json").arg(parent->project()->projectDirectory());
+    UbuntuClickManifest manifest;
+
+    //if we have no manifest, we can not query the app id's
+    if(!manifest.load(manifestPath,parent->project()->displayName()))
+        return list;
+
+    QList<UbuntuClickManifest::Hook> hooks = manifest.hooks();
+
+
     bool isDesktopDevice = ProjectExplorer::DeviceKitInformation::deviceId(parent->kit()) == ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
 
     ProjectExplorer::IDevice::ConstPtr devPtr = ProjectExplorer::DeviceKitInformation::device(parent->kit());
     bool isUbuntuDevice  = (devPtr.isNull() == false) && (devPtr->type() == Constants::UBUNTU_DEVICE_TYPE_ID);
 
     if(parent->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID) {
-        if (UbuntuProjectGuesser::isScopesProject(parent->project())) {
-            if(isDesktopDevice)
-                list << Core::Id(Constants::UBUNTUPROJECT_RUNCONTROL_ID);
-        } else {
-            //the scopes project has no run on device yet, thats why finding a
-            //scopes project will block creating any runconfigurations for the device
-            if(isUbuntuDevice)
-                list << UbuntuRemoteRunConfiguration::typeId();
-            else if(isDesktopDevice && UbuntuProjectGuesser::isClickAppProject(parent->project()))
-                list << Core::Id(Constants::UBUNTUPROJECT_RUNCONTROL_ID);
+
+        bool isScopes = UbuntuProjectGuesser::isScopesProject(parent->project());
+        bool isApp    = UbuntuProjectGuesser::isClickAppProject(parent->project());
+
+        //the scopes project has no run on device yet, thats why finding a
+        //scopes project will block creating any runconfigurations for the device
+        if ( isScopes && !isDesktopDevice)
+                return list;
+
+        foreach (const UbuntuClickManifest::Hook &hook, hooks) {
+            if (isUbuntuDevice && isApp) {
+                list << UbuntuRemoteRunConfiguration::typeId().withSuffix(hook.appId);
+            } else {
+                list << Core::Id(Constants::UBUNTUPROJECT_RUNCONTROL_ID).withSuffix(hook.appId);
+            }
         }
     } else {
-        list << Core::Id(Constants::UBUNTUPROJECT_RUNCONTROL_ID);
+        foreach (const UbuntuClickManifest::Hook &hook, hooks) {
+            list << Core::Id(Constants::UBUNTUPROJECT_RUNCONTROL_ID).withSuffix(hook.appId);
+        }
     }
     return list;
 }
 
-QString UbuntuLocalRunConfigurationFactory::displayNameForId(const Core::Id id) const {
-    if (id == Constants::UBUNTUPROJECT_RUNCONTROL_ID)
-        return tr(Constants::UBUNTUPROJECT_DISPLAYNAME);
-    else if(id == UbuntuRemoteRunConfiguration::typeId())
-        return tr(Constants::UBUNTUPROJECT_DISPLAYNAME);
+QString UbuntuLocalRunConfigurationFactory::displayNameForId(const Core::Id id) const
+{
+    if (id.toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_ID )))
+        return id.suffixAfter(Constants::UBUNTUPROJECT_RUNCONTROL_ID);
+    else if(id.toString().startsWith(UbuntuRemoteRunConfiguration::typeId().toString()))
+        return id.suffixAfter(UbuntuRemoteRunConfiguration::typeId());
     return QString();
 }
 
@@ -112,10 +133,11 @@ ProjectExplorer::RunConfiguration *UbuntuLocalRunConfigurationFactory::doCreate(
     if (!canCreate(parent, id))
         return NULL;
 
-    if( id == UbuntuRemoteRunConfiguration::typeId() )
-        return new UbuntuRemoteRunConfiguration(parent);
-    else if ( id == Constants::UBUNTUPROJECT_RUNCONTROL_ID)
+    if ( id.toString().startsWith(UbuntuRemoteRunConfiguration::typeId().toString()) )
+        return new UbuntuRemoteRunConfiguration(parent, id);
+    else if (id.toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_ID)))
         return new UbuntuLocalRunConfiguration(parent, id);
+
     return 0;
 }
 
@@ -142,7 +164,7 @@ ProjectExplorer::RunConfiguration *UbuntuLocalRunConfigurationFactory::clone(Pro
     if (!canClone(parent, source))
         return NULL;
 
-    if(source->id() == UbuntuRemoteRunConfiguration::typeId())
+    if(source->id().toString().startsWith(UbuntuRemoteRunConfiguration::typeId().toString()))
         return new UbuntuRemoteRunConfiguration(parent,static_cast<UbuntuRemoteRunConfiguration*>(source));
 
     return new UbuntuLocalRunConfiguration(parent,static_cast<UbuntuLocalRunConfiguration*>(source));

@@ -33,6 +33,8 @@ class ClickToolChain : public ProjectExplorer::GccToolChain
 
     // ToolChain interface
 public:
+    ClickToolChain(const UbuntuClickTool::Target &target,Detection d);
+
     virtual QList<Utils::FileName> suggestedMkspecList() const override;
     virtual Utils::FileName suggestedDebugger() const override;
     virtual QString type() const override;
@@ -52,7 +54,6 @@ public:
 protected:
     virtual bool fromMap(const QVariantMap &data) override;
 
-    ClickToolChain(const UbuntuClickTool::Target &target,Detection d);
     ClickToolChain(const ClickToolChain& other);
     ClickToolChain();
 

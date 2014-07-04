@@ -33,6 +33,8 @@ class Target;
 namespace Ubuntu {
 namespace Internal {
 
+class UbuntuClickManifest;
+
 class UbuntuLocalRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
 {
     Q_OBJECT
@@ -42,6 +44,8 @@ public:
 
     QWidget *createConfigurationWidget() override;
     bool isEnabled() const override;
+
+    QString appId() const;
 
     // LocalApplicationRunConfiguration interface
     virtual QString executable() const override;
@@ -54,7 +58,7 @@ public:
     virtual bool ensureConfigured(QString *errorMessage) override;
 
     //static helpers
-    static QString getDesktopFile (RunConfiguration *config, QString *appId, QString *errorMessage = 0);
+    static QString getDesktopFile (RunConfiguration *config, QString appId, QString *errorMessage = 0);
     static bool readDesktopFile (const QString &desktopFile, QString *executable, QStringList *arguments, QString *errorMessage);
 
 private:

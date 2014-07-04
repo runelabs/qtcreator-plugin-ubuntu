@@ -25,6 +25,7 @@
 #include "ubuntucmakemakestep.h"
 #include "ubuntuvalidationresultmodel.h"
 #include "ubuntudevice.h"
+#include "ubuntupackagestep.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
@@ -303,10 +304,17 @@ bool UbuntuPackagingWidget::openManifestForProject() {
                 .arg(startupProject->projectDirectory())
                 .arg(no_underscore_displayName);
 
-        if (QFile(fileName).exists()==false) {
+        bool existsManifest = QFile(fileName).exists();
+        if (!existsManifest) {
             m_manifest.setFileName(fileName);
             m_apparmor.setFileName(defaultAppArmorName);
             on_pushButtonReset_clicked();
+
+            //make sure runconfigs are created
+            foreach(ProjectExplorer::Target *t, startupProject->targets()) {
+                t->updateDefaultDeployConfigurations();
+                t->updateDefaultRunConfigurations();
+            }
         } else {
             if(!load_manifest(fileName))
                 return false;
@@ -669,7 +677,7 @@ void UbuntuPackagingWidget::buildFinished(const bool success)
 {
     disconnect(m_buildManagerConnection);
     if (success) {
-        UbuntuClickPackageStep *pckStep = qobject_cast<UbuntuClickPackageStep*>(m_additionalPackagingBuildSteps.last());
+        UbuntuPackageStep *pckStep = qobject_cast<UbuntuPackageStep*>(m_additionalPackagingBuildSteps.last());
         if (pckStep && !pckStep->packagePath().isEmpty()) {
             m_ubuntuProcess.stop();
 
@@ -774,16 +782,14 @@ void UbuntuPackagingWidget::buildClickPackage()
         if(!steps || steps->isEmpty())
             return;
 
-        UbuntuCMakeDeployStep* deplStep = new UbuntuCMakeDeployStep(steps);
-        m_additionalPackagingBuildSteps.append(deplStep);
+        UbuntuPackageStep* package = new UbuntuPackageStep(steps);
+        package->setPackageMode(UbuntuPackageStep::DisableDebugScript);
 
-        UbuntuClickPackageStep* package = new UbuntuClickPackageStep(steps);
         m_additionalPackagingBuildSteps.append(package);
 
         m_buildManagerConnection = connect(ProjectExplorer::BuildManager::instance(),SIGNAL(buildQueueFinished(bool)),this,SLOT(buildFinished(bool)));
 
         ProjectExplorer::BuildManager::buildList(steps,tr("Build Project"));
-        ProjectExplorer::BuildManager::appendStep(deplStep,tr("Preparing Click package"));
         ProjectExplorer::BuildManager::appendStep(package ,tr("Creating Click package"));
 
     }

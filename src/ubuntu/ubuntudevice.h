@@ -201,6 +201,7 @@ public:
     virtual void fromMap(const QVariantMap &map) override;
     virtual QVariantMap toMap() const override;
     virtual ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const override;
+    virtual ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
 
     Ptr sharedFromThis ();
     ConstPtr sharedFromThis() const;

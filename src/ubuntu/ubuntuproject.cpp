@@ -19,6 +19,7 @@
 #include "ubuntuproject.h"
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/kitinformation.h>
 #include <qmljs/qmljssimplereader.h>
 
 
@@ -45,6 +46,10 @@ UbuntuProject::UbuntuProject(UbuntuProjectManager *manager, const QString &fileN
 
     QList<ProjectExplorer::Kit *> kits = ProjectExplorer::KitManager::kits();
     foreach (ProjectExplorer::Kit *kit, kits) {
+        //do not spawn invalid configurations
+        if(ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(kit) != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+            continue;
+
         addTarget(createTarget(kit));
     }
 

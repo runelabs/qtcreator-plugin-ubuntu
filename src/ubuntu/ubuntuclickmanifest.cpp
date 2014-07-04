@@ -222,6 +222,11 @@ bool UbuntuClickManifest::setAppArmorFileName(const QString &appId, const QStrin
     return result;
 }
 
+bool UbuntuClickManifest::enableDebugging()
+{
+    return callFunction(QLatin1String("injectDebugPolicy"),QScriptValueList()).toBool();
+}
+
 void UbuntuClickManifest::save(QString fileName) {
     if (!isInitialized()) { return; }
 
