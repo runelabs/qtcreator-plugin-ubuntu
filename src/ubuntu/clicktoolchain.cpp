@@ -29,7 +29,7 @@ namespace Ubuntu {
 namespace Internal {
 
 enum {
-    debug = 1
+    debug = 0
 };
 
 QLatin1String UBUNTU_TARGET_ARCH_KEY = QLatin1String("Ubuntu.ClickToolChain.Target.Arch");

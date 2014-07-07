@@ -86,6 +86,8 @@ public slots:
     QString appArmorFileName ( const QString &appId );
     bool setAppArmorFileName( const QString &appId, const QString &name );
 
+    bool enableDebugging();
+
     void save() { save(m_fileName); }
     void save(QString fileName);
     bool load(const QString &fileName, const QString &projectName);

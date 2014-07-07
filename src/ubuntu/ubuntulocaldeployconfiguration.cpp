@@ -19,6 +19,7 @@
 #include "ubuntuprojectguesser.h"
 #include "ubuntuconstants.h"
 #include "ubuntucmakemakestep.h"
+#include "ubuntupackagestep.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -81,8 +82,7 @@ ProjectExplorer::DeployConfiguration *UbuntuLocalDeployConfigurationFactory::cre
     UbuntuLocalDeployConfiguration* conf = new UbuntuLocalDeployConfiguration(parent,id);
     ProjectExplorer::BuildStepList* steps = conf->stepList();
 
-    UbuntuCMakeDeployStep* depl = new UbuntuCMakeDeployStep(steps);
-    depl->setUseNinja(false);
+    UbuntuPackageStep* depl = new UbuntuPackageStep(steps);
     steps->insertStep(0,depl);
 
     return conf;

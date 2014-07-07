@@ -103,6 +103,7 @@ signals:
 
 protected:
     void addMissingFieldsToManifest(QString fileName);
+    void updatePolicyForFramework (const QString &fw);
 private slots:
     void on_comboBoxFramework_currentIndexChanged(int index);
 

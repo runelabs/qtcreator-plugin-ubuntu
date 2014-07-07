@@ -42,6 +42,7 @@ public:
     static Utils::FileName findScopesIniRecursive (const Utils::FileName &searchdir);
     static Utils::FileName findFileRecursive (const Utils::FileName &searchdir, const QString &regexp);
     static Utils::FileName findFileRecursive (const Utils::FileName &searchdir, const QRegularExpression &regexp);
+    static QList<Utils::FileName> findFilesRecursive(const Utils::FileName &searchdir, const QRegularExpression &regexp);
     static QString projectTypeFromCacheOrProject (ProjectExplorer::Project* project);
 
 };

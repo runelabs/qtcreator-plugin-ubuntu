@@ -35,10 +35,10 @@ class UbuntuCreateNewChrootDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit UbuntuCreateNewChrootDialog(QWidget *parent = 0);
+    explicit UbuntuCreateNewChrootDialog(const QString &arch = QString(), QWidget *parent = 0);
     ~UbuntuCreateNewChrootDialog();
 
-    static bool getNewChrootTarget(UbuntuClickTool::Target *target);
+    static bool getNewChrootTarget(UbuntuClickTool::Target *target, const QString &arch);
 
 private:
     Ui::UbuntuCreateNewChrootDialog *ui;
