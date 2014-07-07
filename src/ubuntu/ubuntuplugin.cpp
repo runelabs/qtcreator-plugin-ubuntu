@@ -77,8 +77,6 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
     m_ubuntuDeviceMode = new UbuntuDeviceMode();
     addAutoReleasedObject(m_ubuntuDeviceMode);
-    m_ubuntuWelcomeMode = new UbuntuWelcomeMode;
-    addAutoReleasedObject(m_ubuntuWelcomeMode);
 
     addAutoReleasedObject(new UbuntuBzr);
 
@@ -122,6 +120,9 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
     addAutoReleasedObject(new UbuntuVersionManager);
     addAutoReleasedObject(new UbuntuFeatureProvider);
+
+    // welcome page plugin
+    addAutoReleasedObject(new UbuntuWelcomePage);
 
     // Handle new project type files
     addAutoReleasedObject(new UbuntuProjectManager);
@@ -170,15 +171,12 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 void UbuntuPlugin::extensionsInitialized()
 {
     if (m_ubuntuMenu) m_ubuntuMenu->initialize();
-    m_ubuntuWelcomeMode->initialize();
     m_ubuntuDeviceMode->initialize();
     if (m_ubuntuIRCMode) m_ubuntuIRCMode->initialize();
     if (m_ubuntuAPIMode) m_ubuntuAPIMode->initialize();
     if (m_ubuntuCoreAppsMode) m_ubuntuCoreAppsMode->initialize();
     if (m_ubuntuWikiMode) m_ubuntuWikiMode->initialize();
     m_ubuntuPackagingMode->initialize();
-
-    Core::ModeManager::activateMode(m_ubuntuWelcomeMode->id());
 }
 
 void UbuntuPlugin::onKitsLoaded()

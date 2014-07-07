@@ -57,6 +57,11 @@ bool UbuntuLocalRunConfiguration::isEnabled() const
     return true;
 }
 
+QString UbuntuLocalRunConfiguration::appId() const
+{
+    return id().suffixAfter(Constants::UBUNTUPROJECT_RUNCONTROL_ID);
+}
+
 QString UbuntuLocalRunConfiguration::executable() const
 {
     return m_executable;
@@ -90,15 +95,14 @@ bool UbuntuLocalRunConfiguration::ensureConfigured(QString *errorMessage)
     return ensureUbuntuProjectConfigured(errorMessage);
 }
 
-QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfiguration* config, QString *appId, QString *errorMessage)
+QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfiguration* config, QString appId, QString *errorMessage)
 {
     QString manifestPath;
     if(qobject_cast<UbuntuLocalRunConfiguration*>(config)) {
         //For a locally compiled project, we have no CLICK_MODE enabled, that means we have to search
         //the project and build trees for our desktop file so we can query the main qml file from the desktop file
-        *appId = config->target()->project()->displayName();
-        QRegularExpression desktopFinder = QRegularExpression(QString::fromLatin1("^%1.desktop$")
-                                                              .arg(*appId));
+        QRegularExpression desktopFinder = QRegularExpression(QString::fromLatin1("^%1\\.desktop$")
+                                                              .arg(appId));
         QFileInfo desktopInfo = UbuntuProjectGuesser::findFileRecursive(config->target()->activeBuildConfiguration()->buildDirectory(),
                                                                         desktopFinder).toFileInfo();
         if (!desktopInfo.exists()) {
@@ -109,7 +113,7 @@ QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfigur
 
             if(!desktopInfo.exists()) {
                if(errorMessage)
-                   *errorMessage = tr("Could not find a desktop file for project");
+                   *errorMessage = tr("Could not find a desktop file for the hook: %1, \nmaybe it is missing in the install targets.").arg(appId);
             }
         }
 
@@ -129,7 +133,7 @@ QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfigur
     UbuntuClickManifest manifest;
     if(!manifest.load(manifestPath,config->target()->project()->displayName())) {
         if(errorMessage)
-            *errorMessage = tr("Could not open the manifest file in the package directory, maybe you have to create one.");
+            *errorMessage = tr("Could not open the manifest file in the package directory, make sure its installed into the root of the click package.");
 
         return QString();
     }
@@ -139,8 +143,16 @@ QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfigur
        if(errorMessage)
            *errorMessage = tr("No valid hooks property in the manifest");
     }
-    *appId = hooks[0].appId;
-    return QDir::cleanPath(package_dir.absoluteFilePath(hooks[0].desktopFile));
+
+    foreach(const UbuntuClickManifest::Hook& hook, hooks) {
+        if( hook.appId == appId )
+            return QDir::cleanPath(package_dir.absoluteFilePath(hook.desktopFile));
+    }
+
+    if (errorMessage)
+        *errorMessage = tr("Could not find a %1 hook in the manifest file").arg(appId);
+
+    return QString();
 }
 
 bool UbuntuLocalRunConfiguration::readDesktopFile(const QString &desktopFile, QString *executable, QStringList *arguments, QString *errorMessage)
@@ -180,15 +192,26 @@ bool UbuntuLocalRunConfiguration::readDesktopFile(const QString &desktopFile, QS
 
     QStringList args = Utils::QtcProcess::splitArgs(execLine);
     *executable = args.takeFirst();
+
+    //if debugging is enabled we inject the debughelper, so we need
+    //to remove it here
+    if(executable->contains(QStringLiteral("qtc_device_debughelper.py"))) {
+        args = Utils::QtcProcess::splitArgs(args[0]);
+        *executable = args.takeFirst();
+    }
+
     *arguments  = args;
+
+
+
+    qDebug()<<args;
 
     return true;
 }
 
 bool UbuntuLocalRunConfiguration::ensureClickAppConfigured(QString *errorMessage)
 {
-    QString appId;
-    QString desktopFile = getDesktopFile(this,&appId,errorMessage);
+    QString desktopFile = getDesktopFile(this,appId(),errorMessage);
     if(desktopFile.isEmpty())
         return false;
 

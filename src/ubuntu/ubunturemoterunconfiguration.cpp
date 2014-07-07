@@ -21,10 +21,13 @@
 #include "ubuntucmakebuildconfiguration.h"
 #include "ubuntuconstants.h"
 #include "ubuntulocalrunconfiguration.h"
+#include "ubunturemotedeployconfiguration.h"
+#include "ubuntupackagestep.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/buildsteplist.h>
 #include <remotelinux/remotelinuxenvironmentaspect.h>
 #include <utils/qtcprocess.h>
 #include <cmakeprojectmanager/cmakeproject.h>
@@ -43,10 +46,10 @@ enum {
     debug = 0
 };
 
-UbuntuRemoteRunConfiguration::UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent)
-    : AbstractRemoteLinuxRunConfiguration(parent,typeId())
+UbuntuRemoteRunConfiguration::UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent, Core::Id id)
+    : AbstractRemoteLinuxRunConfiguration(parent,id)
 {
-    setDisplayName(parent->project()->displayName());
+    setDisplayName(appId());
     addExtraAspect(new RemoteLinux::RemoteLinuxEnvironmentAspect(this));
 }
 
@@ -72,7 +75,7 @@ QStringList UbuntuRemoteRunConfiguration::arguments() const
 
 QString UbuntuRemoteRunConfiguration::workingDirectory() const
 {
-    return QString::fromLatin1("/home/phablet/dev_tmp/%1").arg(target()->project()->displayName());
+    return QString::fromLatin1("/home/phablet");
 }
 
 Utils::Environment UbuntuRemoteRunConfiguration::environment() const
@@ -81,30 +84,6 @@ Utils::Environment UbuntuRemoteRunConfiguration::environment() const
     QTC_ASSERT(aspect, return Utils::Environment());
     Utils::Environment env(Utils::OsTypeLinux);
     env.modify(aspect->userEnvironmentChanges());
-
-    ProjectExplorer::ToolChain* tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
-    if(tc->type() == QString::fromLatin1(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
-        ClickToolChain* clickTc = static_cast<ClickToolChain *>(tc);
-        env.appendOrSet(QLatin1String("gnutriplet"),clickTc->gnutriplet());
-        env.appendOrSet(QLatin1String("QML2_IMPORT_PATH"),
-                        QString::fromLatin1("lib/%1").arg(clickTc->gnutriplet()),
-                        QString::fromLatin1(":"));
-        env.prependOrSetPath(QStringLiteral("lib/")+clickTc->gnutriplet()+QStringLiteral("/bin"));
-        env.appendOrSetPath(QStringLiteral("$PATH"));
-    }
-    env.appendOrSet(QLatin1String("pkgdir"),workingDirectory());
-    env.appendOrSet(QLatin1String("APP_ID"),m_appId);
-
-    QFileInfo desk(m_desktopFile);
-    env.set(QStringLiteral("QTC_DESKTOP_PATH"),
-            QStringLiteral("/home/phablet/dev_tmp/%1/%2")
-            .arg(target()->project()->displayName())
-            .arg(desk.fileName()));
-
-    env.set(QStringLiteral("QTC_DESKTOP_DEST"),
-            QStringLiteral("/home/phablet/.local/share/applications/%1")
-            .arg(desk.fileName()));
-
     return env;
 }
 
@@ -160,6 +139,7 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
     m_arguments.clear();
     m_desktopFile.clear();
     m_appId.clear();
+    m_clickPackage.clear();
 
     QDir package_dir(target()->activeBuildConfiguration()->buildDirectory().toString()+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR));
     if(!package_dir.exists()) {
@@ -169,9 +149,29 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
         return false;
     }
 
-    m_desktopFile = UbuntuLocalRunConfiguration::getDesktopFile(this,&m_appId,errorMessage);
+    m_desktopFile = UbuntuLocalRunConfiguration::getDesktopFile(this,appId(),errorMessage);
     if(m_desktopFile.isEmpty())
         return false;
+
+    ProjectExplorer::DeployConfiguration *deplConf = qobject_cast<ProjectExplorer::DeployConfiguration*>(target()->activeDeployConfiguration());
+    ProjectExplorer::BuildStepList *bsList = deplConf->stepList();
+    foreach(ProjectExplorer::BuildStep *currStep ,bsList->steps()) {
+        UbuntuPackageStep *pckStep = qobject_cast<UbuntuPackageStep*>(currStep);
+        if(!pckStep)
+            continue;
+
+        QFileInfo info(pckStep->packagePath());
+        if(info.exists()) {
+            m_clickPackage = info.fileName();
+            break;
+        }
+    }
+
+    if(m_clickPackage.isEmpty()) {
+        if (errorMessage)
+            *errorMessage = tr("Could not find a click package to run, please check if the deploy configuration has a click package step");
+        return false;
+    }
 
     /*
      * Tries to read the Exec line from the desktop file, to
@@ -225,14 +225,6 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
 
         m_remoteExecutable = command;
     }
-
-    QFileInfo desk(m_desktopFile);
-    m_arguments.append(QString::fromLatin1("--desktop_file_hint=/home/phablet/.local/share/applications/%2")
-                            .arg(target()->project()->displayName())
-                            .arg(desk.fileName()));
-
-    m_arguments.append(QLatin1String("--stage_hint=main_stage"));
-
     return true;
 }
 
@@ -247,6 +239,16 @@ QVariantMap UbuntuRemoteRunConfiguration::toMap() const
     QVariantMap m = AbstractRemoteLinuxRunConfiguration::toMap();
     if(debug) qDebug()<<Q_FUNC_INFO;
     return m;
+}
+
+QString UbuntuRemoteRunConfiguration::appId() const
+{
+    return id().suffixAfter(typeId());
+}
+
+QString UbuntuRemoteRunConfiguration::clickPackage() const
+{
+    return m_clickPackage;
 }
 
 Core::Id UbuntuRemoteRunConfiguration::typeId()

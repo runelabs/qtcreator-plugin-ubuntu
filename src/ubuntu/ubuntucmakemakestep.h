@@ -58,49 +58,6 @@ public:
     friend class UbuntuCMakeMakeStepFactory;
 };
 
-class UbuntuCMakeDeployStep : public CMakeProjectManager::MakeStep
-{
-    Q_OBJECT
-
-public:
-    UbuntuCMakeDeployStep(ProjectExplorer::BuildStepList *bsl);
-    UbuntuCMakeDeployStep(ProjectExplorer::BuildStepList *bsl, UbuntuCMakeDeployStep *bs);
-
-    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-    virtual ~UbuntuCMakeDeployStep() override;
-
-protected:
-    virtual bool fromMap(const QVariantMap &map) override;
-
-    friend class UbuntuCMakeMakeStepFactory;
-};
-
-class UbuntuClickPackageStep : public ProjectExplorer::AbstractProcessStep
-{
-    Q_OBJECT
-public:
-    UbuntuClickPackageStep(ProjectExplorer::BuildStepList *bsl);
-    UbuntuClickPackageStep(ProjectExplorer::BuildStepList *bsl, UbuntuClickPackageStep *bs);
-
-    virtual ~UbuntuClickPackageStep();
-
-    virtual bool init() override;
-    virtual void run(QFutureInterface<bool> &fi) override;
-    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-
-    QString packagePath () const;
-protected:
-    // AbstractProcessStep interface
-    virtual void stdOutput(const QString &line) override;
-    virtual void stdError(const QString &line) override;
-    virtual void processFinished(int exitCode, QProcess::ExitStatus status) override;
-
-private:
-    QList<ProjectExplorer::Task> m_tasks;
-    QString    m_lastLine;
-    QString    m_clickPackageName;
-};
-
 } // namespace Internal
 } // namespace Ubuntu
 

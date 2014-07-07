@@ -59,7 +59,6 @@ private slots:
     void onKitsLoaded ();
 
 protected:
-    UbuntuWelcomeMode*      m_ubuntuWelcomeMode;
     UbuntuDeviceMode*       m_ubuntuDeviceMode;
     UbuntuMenu*             m_ubuntuMenu;
     UbuntuIRCMode*          m_ubuntuIRCMode;

@@ -20,6 +20,7 @@
 #include "ubuntucmakemakestep.h"
 #include "ubuntuconstants.h"
 #include "ubuntuprojectguesser.h"
+#include "ubuntupackagestep.h"
 
 #include <utils/qtcassert.h>
 
@@ -47,6 +48,23 @@ enum {
     debug = 0
 };
 
+UbuntuRemoteDeployConfiguration::UbuntuRemoteDeployConfiguration(ProjectExplorer::Target *target)
+    : RemoteLinux::RemoteLinuxDeployConfiguration(target,Constants::UBUNTU_DEPLOYCONFIGURATION_ID,QString())
+{
+    setDefaultDisplayName(tr("Deploy to Ubuntu Device"));
+}
+
+UbuntuRemoteDeployConfiguration::UbuntuRemoteDeployConfiguration(ProjectExplorer::Target *target, UbuntuRemoteDeployConfiguration *source) :
+    RemoteLinux::RemoteLinuxDeployConfiguration(target,source)
+{
+
+}
+
+ProjectExplorer::NamedWidget *UbuntuRemoteDeployConfiguration::createConfigWidget()
+{
+    return new ProjectExplorer::NamedWidget();
+}
+
 UbuntuDirectUploadStep::UbuntuDirectUploadStep(ProjectExplorer::BuildStepList *bsl)
     : AbstractRemoteLinuxDeployStep(bsl, UbuntuDirectUploadStep::stepId())
     , m_deployService(new RemoteLinux::GenericDirectUploadService(this))
@@ -70,7 +88,16 @@ UbuntuDirectUploadStep::~UbuntuDirectUploadStep()
 
 void UbuntuDirectUploadStep::run(QFutureInterface<bool> &fi)
 {
+    m_foundClickPackage = false;
     projectNameChanged();
+    if(!m_foundClickPackage) {
+        emit addOutput(tr("Deploy step failed. No click package was created"), ErrorMessageOutput);
+        fi.reportResult(false);
+        emit finished();
+        return;
+    }
+
+
     m_deployService->setIncrementalDeployment(false);
     m_deployService->setIgnoreMissingFiles(false);
 
@@ -158,15 +185,26 @@ void UbuntuDirectUploadStep::projectNameChanged()
     if(debug) qDebug()<<"------------------------ Updating DEPLOYLIST ---------------------------";
     //iterate over the .deploy dir and put all files in the list
     QDir d(target()->activeBuildConfiguration()->buildDirectory().toString()+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR));
+    ProjectExplorer::BuildStepList *bsList = deployConfiguration()->stepList();
 
     QList<ProjectExplorer::DeployableFile> list;
-    createFileList(  d
-                     , QLatin1String("/")
-                     , QString::fromLatin1("/home/phablet/dev_tmp/%1").arg(target()->project()->displayName())
-                     , &list);
+    foreach(ProjectExplorer::BuildStep *currStep ,bsList->steps()) {
+        UbuntuPackageStep *pckStep = qobject_cast<UbuntuPackageStep*>(currStep);
+        if(!pckStep)
+            continue;
 
-    m_deployService->setDeployableFiles(list);
-    target()->project()->displayName();
+        QFileInfo info(pckStep->packagePath());
+        if(info.exists()) {
+            list.append(ProjectExplorer::DeployableFile(info.filePath(),
+                                                        QStringLiteral("/tmp")));
+
+            list.append(ProjectExplorer::DeployableFile(QStringLiteral("%1/qtc_device_applaunch.py").arg(Constants::UBUNTU_SCRIPTPATH),
+                                                        QStringLiteral("/tmp")));
+            m_deployService->setDeployableFiles(list);
+            m_foundClickPackage = true;
+            break;
+        }
+    }
 }
 
 
@@ -213,21 +251,20 @@ bool UbuntuRemoteDeployConfigurationFactory::canCreate(ProjectExplorer::Target *
 ProjectExplorer::DeployConfiguration *UbuntuRemoteDeployConfigurationFactory::create(ProjectExplorer::Target *parent,
                                                                                const Core::Id id)
 {
-    Q_ASSERT(canCreate(parent, id));
+    QTC_ASSERT(canCreate(parent, id),return 0);
 
     ProjectExplorer::DeployConfiguration * const dc
-            = new RemoteLinux::RemoteLinuxDeployConfiguration(parent, id,
-                                                              tr("Deploy to Ubuntu Device"));
+            = new UbuntuRemoteDeployConfiguration(parent);
 
     int step = 0;
     if(parent->project()->id() == Core::Id(CMakeProjectManager::Constants::CMAKEPROJECT_ID)){
-        UbuntuCMakeDeployStep* mkStep = new UbuntuCMakeDeployStep(dc->stepList());
-        mkStep->setUseNinja(false);
-        dc->stepList()->insertStep(0, mkStep);
-        step++;
+        UbuntuPackageStep *pckStep = new UbuntuPackageStep(dc->stepList());
+        dc->stepList()->insertStep(0,pckStep);
     }
 
-    dc->stepList()->insertStep(step+1, new RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
+    RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep *checkSpace = new RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList());
+    checkSpace->setPathToCheck(QStringLiteral("/tmp"));
+    dc->stepList()->insertStep(step+1, checkSpace);
 
     UbuntuDirectUploadStep* upload = new UbuntuDirectUploadStep(dc->stepList());
     dc->stepList()->insertStep(step+2,upload);
@@ -244,10 +281,10 @@ ProjectExplorer::DeployConfiguration *UbuntuRemoteDeployConfigurationFactory::re
 {
     if (!canRestore(parent, map))
         return 0;
-    Core::Id id = ProjectExplorer::idFromMap(map);
+
     RemoteLinux::RemoteLinuxDeployConfiguration * const dc
-            = new RemoteLinux::RemoteLinuxDeployConfiguration(parent, id,
-                                                              tr("Deploy to Ubuntu Device"));
+            = new UbuntuRemoteDeployConfiguration(parent);
+
     if (!dc->fromMap(map)) {
         delete dc;
         return 0;

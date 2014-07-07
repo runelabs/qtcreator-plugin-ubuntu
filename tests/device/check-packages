@@ -1,0 +1,56 @@
+#!/bin/bash
+################################################################################
+# Copyright 2013 Canonical Ltd.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; version 2.1.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
+################################################################################
+
+# Required packages
+PACKAGES="software-properties-common gdebi-core fakeroot dh-make build-essential qt5-default qtbase5-dev qtdeclarative5-dev libqt5xmlpatterns5-dev qtscript5-dev qttools5-dev qt3d5-dev qtmultimedia5-dev libqt5svg5-dev libqt5graphicaleffects5 qtdeclarative5-dev-tools qttools5-dev-tools qtlocation5-dev qtpim5-dev qt-components-ubuntu ubuntu-dev-tools debhelper openssh-server"
+
+# Failure counter
+F_I=0
+
+# Success counter
+S_I=0
+
+# Total counter
+T_I=0
+
+
+#######################################
+# Checks for package availability
+echo
+for PACKAGE in ${PACKAGES}; do
+  echo -n "Checking if '${PACKAGE}' is available... "
+  FOUND=`apt-cache policy ${PACKAGE}|grep -i candidate|wc -l`
+  if [[ ${FOUND} -eq 0 ]]; then
+   echo "!NOT FOUND!"
+   let "F_I = $F_I + 1"
+  else
+   echo "[OK]"
+   let "S_I = $S_I + 1"
+  fi
+  let "T_I = $T_I + 1"
+done
+
+#######################################
+# Print summary
+echo
+echo " Found packages: ${S_I}/${T_I}"
+echo " Missing packages: ${F_I}/${T_I}"
+echo
+
+exit ${F_I}

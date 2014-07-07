@@ -18,6 +18,9 @@
 
 #include "ubunturemoteruncontrolfactory.h"
 #include "ubunturemoterunconfiguration.h"
+#include "ubunturemotedebugsupport.h"
+#include "ubunturemoteruncontrol.h"
+#include "ubunturemoteanalyzesupport.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <debugger/debuggerstartparameters.h>
@@ -71,7 +74,7 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
         QTC_ASSERT(rc, return 0);
         switch (mode) {
         case ProjectExplorer::NormalRunMode:
-            return new RemoteLinux::RemoteLinuxRunControl(rc);
+            return new UbuntuRemoteRunControl(rc);
         case ProjectExplorer::DebugRunMode:
         case ProjectExplorer::DebugRunModeWithBreakOnMain: {
             ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(rc->target()->kit());
@@ -97,16 +100,16 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
                     = Debugger::DebuggerPlugin::createDebugger(params, rc, errorMessage);
             if (!runControl)
                 return 0;
-            RemoteLinux::LinuxDeviceDebugSupport * const debugSupport =
-                    new RemoteLinux::LinuxDeviceDebugSupport(rc, runControl->engine());
+            UbuntuRemoteDebugSupport * const debugSupport =
+                    new UbuntuRemoteDebugSupport(rc, runControl->engine());
             connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
             return runControl;
         }
         case ProjectExplorer::QmlProfilerRunMode: {
             Analyzer::AnalyzerStartParameters params = RemoteLinux::RemoteLinuxAnalyzeSupport::startParameters(rc, mode);
             Analyzer::AnalyzerRunControl *runControl = Analyzer::AnalyzerManager::createRunControl(params, runConfiguration);
-            RemoteLinux::RemoteLinuxAnalyzeSupport * const analyzeSupport =
-                    new RemoteLinux::RemoteLinuxAnalyzeSupport(rc, runControl, mode);
+            UbuntuRemoteAnalyzeSupport * const analyzeSupport =
+                    new UbuntuRemoteAnalyzeSupport(rc, runControl, mode);
             connect(runControl, SIGNAL(finished()), analyzeSupport, SLOT(handleProfilingFinished()));
             return runControl;
         }

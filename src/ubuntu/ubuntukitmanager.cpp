@@ -3,6 +3,7 @@
 #include "ubuntuconstants.h"
 #include "ubuntucmaketool.h"
 #include "ubuntudevice.h"
+#include "ubuntuclickdialog.h"
 
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kit.h>
@@ -76,32 +77,43 @@ void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
 
     QList<ClickToolChain*> toolchains = clickToolChains();
 
-    //search a tk with a compatible arch
-    ClickToolChain* match = 0;
+    auto findCompatibleTc = [&](){
+        ClickToolChain* match = 0;
+        if(toolchains.size() > 0) {
+            qSort(toolchains.begin(),toolchains.end(),lessThanToolchain);
 
-    if(toolchains.size() > 0) {
-        qSort(toolchains.begin(),toolchains.end(),lessThanToolchain);
+            for( int i = toolchains.size() -1; i >= 0; i-- ) {
+                ClickToolChain* tc = toolchains[i];
+                if( tc->targetAbi() == requiredAbi ) {
+                    match = tc;
+                    break;
+                }
 
-        for( int i = toolchains.size() -1; i >= 0; i-- ) {
-            ClickToolChain* tc = toolchains[i];
-            if( tc->targetAbi() == requiredAbi ) {
-                match = tc;
-                break;
+                //the abi is compatible but not exactly the same
+                //lets continue and see if we find a better candidate
+                if(tc->targetAbi().isCompatibleWith(requiredAbi))
+                    match = tc;
             }
-
-            //the abi is compatible but not exactly the same
-            //lets continue and see if we find a better candidate
-            if(tc->targetAbi().isCompatibleWith(requiredAbi))
-                match = tc;
         }
-    }
+        return match;
+    };
 
-    if(!match)  {
-        QMessageBox::warning(0,
-                             tr("No click target found"),
-                             tr("Could not find a compatible build chroot, \n"
-                                "please create one in Tools -> Options -> Ubuntu"));
-        return;
+    //search a tk with a compatible arch
+    ClickToolChain* match = findCompatibleTc();
+    while(!match) {
+        //create target
+        int choice = QMessageBox::question(0,
+                              tr("No target available"),
+                              tr("There is no compatible chroot available on your system, do you want to create it now?"));
+
+        if(choice == QMessageBox::Yes) {
+            if(!UbuntuClickDialog::createClickChrootModal(false, device->architecture()))
+                return;
+
+            toolchains = clickToolChains();
+            match = findCompatibleTc();
+        } else
+            return;
     }
 
     ProjectExplorer::Kit* newKit = createKit(match);

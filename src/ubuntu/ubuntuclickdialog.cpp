@@ -18,12 +18,15 @@
 #include "ubuntuclickdialog.h"
 #include "ui_ubuntuclickdialog.h"
 #include "ubuntuconstants.h"
+#include "clicktoolchain.h"
+#include "ubuntukitmanager.h"
 
 #include <QMessageBox>
 #include <QPushButton>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/processparameters.h>
+#include <projectexplorer/toolchainmanager.h>
 #include <texteditor/fontsettings.h>
 
 
@@ -88,16 +91,27 @@ int UbuntuClickDialog::runClickModal(ProjectExplorer::ProcessParameters *params)
     return dlg.m_exitCode;
 }
 
-int UbuntuClickDialog::createClickChrootModal()
+bool UbuntuClickDialog::createClickChrootModal(bool redetectKits, const QString &arch)
 {
 
     UbuntuClickTool::Target t;
-    if(!UbuntuCreateNewChrootDialog::getNewChrootTarget(&t))
-        return 0;
+    if(!UbuntuCreateNewChrootDialog::getNewChrootTarget(&t,arch))
+        return false;
 
     ProjectExplorer::ProcessParameters params;
     UbuntuClickTool::parametersForCreateChroot(t,&params);
-    return runClickModal(&params);
+
+    bool success = (runClickModal(&params) == 0);
+
+    if(success) {
+        ClickToolChain* tc = new ClickToolChain(t, ProjectExplorer::ToolChain::AutoDetection);
+        ProjectExplorer::ToolChainManager::registerToolChain(tc);
+
+        if(redetectKits)
+            UbuntuKitManager::autoDetectKits();
+    }
+
+    return success;
 }
 
 int UbuntuClickDialog::maintainClickModal(const UbuntuClickTool::Target &target, const UbuntuClickTool::MaintainMode &mode)

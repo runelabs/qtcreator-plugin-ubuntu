@@ -117,3 +117,19 @@ function setAppArmorFileName($appId, $appArmorFile) {
     jsonData.hooks[$appId].apparmor = $appArmorFile;
     return true;
 }
+
+function injectDebugPolicy () {
+    if(!jsonData.hasOwnProperty("policy_groups"))
+        return false;
+
+    var debugPolicy= "debug";
+
+    for(var i = 0; i < jsonData.policy_groups.length; i++) {
+        if(jsonData.policy_groups[i] === debugPolicy )
+            return true;
+    }
+
+    jsonData.policy_groups.push(debugPolicy);
+
+    return true;
+}

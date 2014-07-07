@@ -21,6 +21,7 @@
 
 #include <projectexplorer/deployconfiguration.h>
 #include <remotelinux/abstractremotelinuxdeploystep.h>
+#include <remotelinux/remotelinuxdeployconfiguration.h>
 
 namespace RemoteLinux {
 class GenericDirectUploadService;
@@ -28,6 +29,20 @@ class GenericDirectUploadService;
 
 namespace Ubuntu {
 namespace Internal {
+
+class UbuntuRemoteDeployConfiguration : public RemoteLinux::RemoteLinuxDeployConfiguration
+{
+    Q_OBJECT
+public:
+
+    UbuntuRemoteDeployConfiguration(ProjectExplorer::Target *target);
+    UbuntuRemoteDeployConfiguration(ProjectExplorer::Target *target,
+        UbuntuRemoteDeployConfiguration *source);
+
+    ProjectExplorer::NamedWidget *createConfigWidget() override;
+
+
+};
 
 class UbuntuDirectUploadStep : public RemoteLinux::AbstractRemoteLinuxDeployStep
 {
@@ -56,6 +71,7 @@ private slots:
 
 private:
     RemoteLinux::GenericDirectUploadService *m_deployService;
+    bool m_foundClickPackage;
 };
 
 class UbuntuDeployStepFactory : public ProjectExplorer::IBuildStepFactory

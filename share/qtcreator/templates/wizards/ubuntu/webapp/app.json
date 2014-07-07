@@ -5,7 +5,7 @@
     "audio",
     "content_exchange",
     "video",
-    "webview",
+    "webview"
   ],
   "policy_version": 1.1
 }

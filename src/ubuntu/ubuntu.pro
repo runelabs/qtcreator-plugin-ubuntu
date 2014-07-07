@@ -22,7 +22,8 @@ FORMS += \
     ubuntusettingsdeviceconnectivitywidget.ui \
     ubuntusettingsclickwidget.ui \
     ubuntuclickdialog.ui \
-    ubuntucreatenewchrootdialog.ui
+    ubuntucreatenewchrootdialog.ui \
+    ubuntupackagestepconfigwidget.ui
 
 RESOURCES += \
     resources.qrc
@@ -108,7 +109,14 @@ SOURCES += \
     ubunturemoteruncontrolfactory.cpp \
     ubuntulocalrunconfiguration.cpp \
     ubuntudevicesmodel.cpp \
-    ubuntushared.cpp
+    ubunturemoteruncontrol.cpp \
+    ubunturemotedebugsupport.cpp \
+    ubunturemoteanalyzesupport.cpp \
+    ubuntudevicesignaloperation.cpp \
+    ubunturemoterunner.cpp \
+    abstractremoterunsupport.cpp\
+    ubuntushared.cpp \
+    ubuntupackagestep.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -167,5 +175,12 @@ HEADERS += \
     ubuntulocalrunconfigurationfactory.h \
     ubunturemoteruncontrolfactory.h \
     ubuntulocalrunconfiguration.h \
-    ubuntudevicesmodel.h
+    ubuntudevicesmodel.h \
+    ubunturemoteruncontrol.h \
+    ubunturemotedebugsupport.h \
+    ubunturemoteanalyzesupport.h \
+    ubuntudevicesignaloperation.h \
+    ubunturemoterunner.h \
+    abstractremoterunsupport.h \
+    ubuntupackagestep.h
 
