@@ -166,8 +166,13 @@ void UbuntuManifestTest::testAppArmorFile()
     testSave(APPARMOR_TEMPLATE);
 }
 
+
 void UbuntuManifestTest::testWritePolicyVersion ()
 {
+#ifdef Q_PROCESSOR_POWER
+    return;
+#endif
+
     UbuntuClickManifest mani;
     QVERIFY( mani.load(APPARMOR_TEMPLATE,"testProject") );
     mani.setFileName(MANIFEST_FILE);
