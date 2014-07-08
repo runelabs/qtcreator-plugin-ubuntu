@@ -1,3 +1,16 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140708-0ubuntu1) utopic; urgency=low
+
+  [ Benjamin Zeller ]
+  * Adding unit tests for UbuntuClickManifest
+  * Migrating Wizards to QtC custom wizard API and description files.
+    Dropping homegrown solution. Merged Scope wizards into one with a
+    Combobox to select between network/no network (LP: #1330397)
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 08 Jul 2014 09:46:33 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20140704.1-0ubuntu1) utopic; urgency=low
 
   [ daker ]
