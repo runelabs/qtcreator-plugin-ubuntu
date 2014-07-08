@@ -1,0 +1,13 @@
+{
+@if "%ScopeType%" == "network"
+  "description": "A simple Unity scope that accesses the network",
+@else
+  "description": "A simple Unity scope that accesses local content",
+@endif
+  "hooks": {
+    "%ClickHookName%": {
+      "scope": "%ClickHookName%",
+      "apparmor": "apparmor_%ClickHookName%.json"
+    }
+  }
+}

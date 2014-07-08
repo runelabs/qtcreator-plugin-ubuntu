@@ -2,10 +2,9 @@ usr/bin/ubuntu-sdk
 usr/share/qtcreator/templates/wizards/ubuntu/webapp
 usr/share/qtcreator/templates/wizards/ubuntu/backendplustabs
 usr/share/qtcreator/templates/wizards/ubuntu/html5-simple
-usr/share/qtcreator/templates/wizards/ubuntu/projectypes.json
-usr/share/qtcreator/templates/wizards/ubuntu/scope-local-content
-usr/share/qtcreator/templates/wizards/ubuntu/scope-network
+usr/share/qtcreator/templates/wizards/ubuntu/scope
 usr/share/qtcreator/templates/wizards/ubuntu/simple
 usr/share/qtcreator/templates/wizards/ubuntu/tabs
 usr/share/qtcreator/templates/wizards/ubuntu/goproject
+usr/share/qtcreator/templates/wizards/ubuntu/share
 usr/share/qtcreator/ubuntu

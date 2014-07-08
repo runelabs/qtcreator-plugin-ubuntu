@@ -1,5 +1,9 @@
 {
+@if "%ScopeType%" == "network"
     "template": "ubuntu-scope-network",
+@else
+    "template": "ubuntu-scope-local-content",
+@endif
     "policy_groups": [],
     "policy_version": 1.2
 }

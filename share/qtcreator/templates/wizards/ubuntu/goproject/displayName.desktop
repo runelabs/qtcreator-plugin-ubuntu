@@ -1,7 +1,7 @@
 [Desktop Entry]
-Name=%DISPLAYNAME%
-Exec=%DISPLAYNAME%
-Icon=%DISPLAYNAME%.png
+Name=%ProjectName%
+Exec=%ProjectName%
+Icon=%ProjectName%.png
 Terminal=false
 Type=Application
 X-Ubuntu-Touch=true

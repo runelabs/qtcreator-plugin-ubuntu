@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wizard version="1" kind="project" firstpage="10" id="UbuntuUnityScope" category="A.UbuntuProject"
+        platformIndependent="true" 
+        class="ubuntu-project-cmake"
+				featuresRequired=""
+        >
+    <icon>../share/ubuntu.png</icon>
+    <description>A simple C++ based Unity Scope</description>
+    <displayname>Unity Scope</displayname>
+    <displaycategory>Ubuntu</displaycategory>
+    <files>
+			<file source="data/displayName.ini.in"   	target="data/%ClickDomain%.%ProjectName%_%ClickHookName%.ini.in" openeditor="false"/>
+			<file source="data/CMakeLists.txt"   			target="data/CMakeLists.txt" openeditor="false"/>
+			<file source="displayName.json"   				target="apparmor_%ClickHookName%.json" openeditor="false"/>
+			<file source="test/simpletest.cpp"   			target="test/simpletest.cpp" openeditor="false"/>
+			<file source="test/CMakeLists.txt"   			target="test/CMakeLists.txt" openeditor="false"/>
+			<file source="manifest.json"   						target="manifest.json" openeditor="false"/>
+			<file source="src/displayName-preview.h"  target="src/%ClickHookName:l%-preview.h" openeditor="false"/>
+			<file source="src/displayName-query.h"   	target="src/%ClickHookName:l%-query.h" openeditor="false"/>
+			<file source="src/displayName-preview.cpp"	target="src/%ClickHookName:l%-preview.cpp" openeditor="false"/>
+			<file source="src/displayName-query.cpp"   	target="src/%ClickHookName:l%-query.cpp" openeditor="false"/>
+			<file source="src/CMakeLists.txt"   				target="src/CMakeLists.txt" openeditor="false"/>
+			<file source="src/displayName-scope.h"   		target="src/%ClickHookName:l%-scope.h" openeditor="false"/>
+			<file source="src/displayName-scope.cpp"  	target="src/%ClickHookName:l%-scope.cpp" openeditor="false"/>
+			<file source="readme.txt"                  	target="readme.txt" openeditor="true"/>
+			<file source="CMakeLists.txt"   					target="CMakeLists.txt" openeditor="true" openproject="true"/>
+    </files>
+
+	  <!-- Create a 2nd wizard page with click package parameters -->
+		<fieldpagetitle>Click package parameters</fieldpagetitle>
+		<fields>
+			<field mandatory="true" name="ClickDomain">
+			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
+			                defaulttext="com.ubuntu.developer" placeholdertext="Domain"/>
+			  <fielddescription>Domain:</fielddescription>
+			</field>
+			<field mandatory="true" name="ClickMaintainer">
+			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
+			                defaulttext="" placeholdertext="Maintainer"/>
+			  <fielddescription>Maintainer:</fielddescription>
+			</field>
+			<field mandatory="true" name="ClickHookName">
+			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
+			                defaulttext="myscope" placeholdertext="scope hook name"/>
+			  <fielddescription>Hook:</fielddescription>
+			</field>
+		  <field name="ScopeType">
+		    <fieldcontrol class="QComboBox" defaultindex="0">
+		      <comboentries>
+		        <comboentry value="local">
+		    	    <comboentrytext>Scope with local content</comboentrytext>
+		        </comboentry>
+				    <comboentry value="network">
+		    	    <comboentrytext>Scope with network access</comboentrytext>
+				    </comboentry>
+			    </comboentries>
+		    </fieldcontrol>
+		    <fielddescription>Scope type:</fielddescription>
+		  </field>
+		</fields>
+
+</wizard>

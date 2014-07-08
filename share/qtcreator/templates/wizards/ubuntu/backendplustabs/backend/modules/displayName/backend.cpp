@@ -6,7 +6,7 @@
 
 void BackendPlugin::registerTypes(const char *uri)
 {
-    Q_ASSERT(uri == QLatin1String("%DISPLAYNAME%"));
+    Q_ASSERT(uri == QLatin1String("%ProjectName%"));
 
     qmlRegisterType<MyType>(uri, 1, 0, "MyType");
 }

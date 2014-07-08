@@ -4,17 +4,14 @@
 #include <unity/scopes/SearchQueryBase.h>
 #include <unity/scopes/ReplyProxyFwd.h>
 
-class %DISPLAYNAME_CAPITAL%Query : public unity::scopes::SearchQueryBase
+class %ClickHookName:s%Query : public unity::scopes::SearchQueryBase
 {
 public:
-    %DISPLAYNAME_CAPITAL%Query(std::string const& query);
-    ~%DISPLAYNAME_CAPITAL%Query();
+    %ClickHookName:s%Query(unity::scopes::CannedQuery const& query, unity::scopes::SearchMetadata const& metadata);
+    ~%ClickHookName:s%Query();
     virtual void cancelled() override;
 
     virtual void run(unity::scopes::SearchReplyProxy const& reply) override;
-
-private:
-    std::string query_;
 };
 
 #endif

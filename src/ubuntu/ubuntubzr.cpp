@@ -22,15 +22,38 @@
 
 using namespace Ubuntu::Internal;
 
-UbuntuBzr::UbuntuBzr(QObject *parent) :
-    QObject(parent), m_bInitialized(false)
+UbuntuBzr *UbuntuBzr::m_instance = 0;
+
+UbuntuBzr::UbuntuBzr() :
+    m_bInitialized(false)
 {
+    Q_ASSERT(m_instance == 0);
+    m_instance = this;
+
     connect(&m_cmd,SIGNAL(finished(int)),this,SLOT(scriptExecuted(int)));
     m_cmd.setWorkingDirectory(QCoreApplication::applicationDirPath());
+
+    initialize();
+}
+
+UbuntuBzr::~UbuntuBzr()
+{
+    m_instance = 0;
+}
+
+UbuntuBzr *UbuntuBzr::instance()
+{
+    return m_instance;
 }
 
 void UbuntuBzr::initialize() {
-    m_cmd.start(QString(QLatin1String(Constants::UBUNTUBZR_INITIALIZE)).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH));
+    if(m_cmd.state() == QProcess::NotRunning)
+        m_cmd.start(QString(QLatin1String(Constants::UBUNTUBZR_INITIALIZE)).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH));
+}
+
+bool UbuntuBzr::waitForFinished(int msecs)
+{
+    return m_cmd.waitForFinished(msecs);
 }
 
 void UbuntuBzr::scriptExecuted(int sta) {

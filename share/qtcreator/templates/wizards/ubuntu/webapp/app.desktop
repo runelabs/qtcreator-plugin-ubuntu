@@ -7,9 +7,9 @@
 #
 # More details on http://developer.ubuntu.com/publish/webapp/
 [Desktop Entry]
-Name=%DISPLAYNAME%
+Name=%ProjectName%
 Type=Application
 Icon=app.png
-Exec=webapp-container --enable-back-forward --store-session-cookies --webappUrlPatterns=https?://m.%DISPLAYNAME%.com/* http://m.%DISPLAYNAME%.com
+Exec=webapp-container --enable-back-forward --store-session-cookies --webappUrlPatterns=https?://m.%ProjectName%.com/* http://m.%ProjectName%.com
 Terminal=false
 X-Ubuntu-Touch=true

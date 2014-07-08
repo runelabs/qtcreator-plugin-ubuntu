@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wizard version="1" kind="project" firstpage="10" id="UbuntuWebApp" category="A.UbuntuProject"
+        platformIndependent="true" 
+        class="ubuntu-project-plain"
+				featuresRequired=""
+        >
+    <icon>../share/ubuntu.png</icon>
+    <description>Web App template, for converting a web site into a standalone application. Web Apps are restricted to using available W3C APIs only, unlike HTML5 Apps which have full platform access.</description>
+    <displayname>Web App</displayname>
+    <displaycategory>Ubuntu</displaycategory>
+    <files>
+			<file source="app.json"   target="app.json" openeditor="true"/>
+			<file source="app.desktop"   target="app.desktop" openeditor="true"/>
+		</files>
+</wizard>

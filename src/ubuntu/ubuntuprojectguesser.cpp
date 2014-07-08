@@ -138,7 +138,7 @@ bool UbuntuProjectGuesser::isClickAppProject(ProjectExplorer::Project *project)
 
 Utils::FileName UbuntuProjectGuesser::findScopesIniRecursive(const Utils::FileName &searchdir)
 {
-    return findFileRecursive(searchdir,QLatin1String("^.*-scope.ini.*$"));
+    return findFileRecursive(searchdir,QLatin1String("^.*\\.ini.*$"));
 }
 
 Utils::FileName UbuntuProjectGuesser::findFileRecursive(const Utils::FileName &searchdir, const QString &regexp)

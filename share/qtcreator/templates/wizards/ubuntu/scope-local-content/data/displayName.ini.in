@@ -1,8 +1,0 @@
-[ScopeConfig]
-DisplayName = %DISPLAYNAME_CAPITAL% Scope
-Description = This is a %DISPLAYNAME_CAPITAL% scope
-Author = Firstname Lastname
-Art = %DISPLAYNAME%.Art
-Icon = %DISPLAYNAME%.Icon
-SearchHint = %DISPLAYNAME%.SearchHint
-HotKey = %DISPLAYNAME%.HotKey

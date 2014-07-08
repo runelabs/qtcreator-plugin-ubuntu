@@ -1,2 +1,2 @@
-module %DISPLAYNAME%
-plugin %DISPLAYNAME%backend
+module %ProjectName%
+plugin %ProjectName%backend

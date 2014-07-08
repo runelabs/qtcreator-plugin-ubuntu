@@ -25,7 +25,7 @@ class ClickAppTestCase(base.UbuntuUIToolkitAppTestCase):
     """Common test case that provides several useful methods for the tests."""
 
     package_id = ''  # TODO
-    app_name = '%DISPLAYNAME%'
+    app_name = '%ProjectName%'
 
     def setUp(self):
         super(ClickAppTestCase, self).setUp()

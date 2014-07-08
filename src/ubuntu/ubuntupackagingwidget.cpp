@@ -82,7 +82,11 @@ UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
 
     ui->treeViewValidate->setModel(m_validationModel);
 
-    connect(&m_bzr,SIGNAL(initializedChanged()),SLOT(bzrChanged()));
+    UbuntuBzr *bzr = UbuntuBzr::instance();
+    connect(bzr,SIGNAL(initializedChanged()),SLOT(bzrChanged()));
+    if(bzr->isInitialized())
+        bzrChanged();
+
     connect(&m_manifest,SIGNAL(loaded()),SLOT(reload()));
     connect(&m_apparmor,SIGNAL(loaded()),SLOT(reload()));
     connect(&m_ubuntuProcess,SIGNAL(started(QString)),this,SLOT(onStarted(QString)));
@@ -94,8 +98,6 @@ UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
     connect(m_validationModel,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(onNewValidationData()));
 
     connect(UbuntuMenu::instance(),SIGNAL(requestBuildAndInstallProject()),this,SLOT(buildAndInstallPackageRequested()));
-
-    m_bzr.initialize();
 
     ui->comboBoxFramework->blockSignals(true);
     ui->comboBoxFramework->addItems(UbuntuClickTool::getSupportedFrameworks());
@@ -348,8 +350,11 @@ bool UbuntuPackagingWidget::openManifestForProject() {
 
 void UbuntuPackagingWidget::bzrChanged() {
     // left empty on purpose
-    m_manifest.setMaintainer(m_bzr.whoami());
-    QString userName = m_bzr.launchpadId();
+
+    UbuntuBzr *bzr = UbuntuBzr::instance();
+
+    m_manifest.setMaintainer(bzr->whoami());
+    QString userName = bzr->launchpadId();
     if (userName.isEmpty()) userName = QLatin1String(Constants::USERNAME);
     // Commented out for bug #1219948  - https://bugs.launchpad.net/qtcreator-plugin-ubuntu/+bug/1219948
     //m_manifest.setName(QString(QLatin1String("com.ubuntu.developer.%0.%1")).arg(userName).arg(m_projectName));
@@ -375,8 +380,8 @@ void UbuntuPackagingWidget::on_pushButtonReset_clicked() {
     updatePolicyForFramework(m_manifest.frameworkName());
     m_apparmor.save();
 
-    m_manifest.setMaintainer(m_bzr.whoami());
-    QString userName = m_bzr.launchpadId();
+    m_manifest.setMaintainer(UbuntuBzr::instance()->whoami());
+    QString userName = UbuntuBzr::instance()->launchpadId();
     if (userName.isEmpty()) userName = QLatin1String(Constants::USERNAME);
     m_manifest.setName(createPackageName(userName,m_projectName));
     m_manifest.save();
@@ -471,6 +476,8 @@ void UbuntuPackagingWidget::addMissingFieldsToManifest (QString fileName)
     QJsonObject targetObject = inDoc.object();
     QJsonObject::const_iterator i = templateObject.constBegin();
 
+    UbuntuBzr *bzr = UbuntuBzr::instance();
+
     bool changed = false;
     for(;i != templateObject.constEnd(); i++) {
         if(!targetObject.contains(i.key())) {
@@ -479,15 +486,15 @@ void UbuntuPackagingWidget::addMissingFieldsToManifest (QString fileName)
             if(debug) qDebug()<<"Manifest file missing key: "<<i.key();
 
             if (i.key() == QStringLiteral("name")) {
-                QString userName = m_bzr.launchpadId();
+                QString userName = bzr->launchpadId();
                 if (userName.isEmpty()) userName = QLatin1String(Constants::USERNAME);
                 targetObject.insert(i.key(),createPackageName(userName,m_projectName));
 
                 if(debug) qDebug()<<"Setting to "<<createPackageName(userName,m_projectName);
             } else if (i.key() == QStringLiteral("maintainer")) {
-                targetObject.insert(i.key(),m_bzr.whoami());
+                targetObject.insert(i.key(),bzr->whoami());
 
-                if(debug) qDebug()<<"Setting to "<<m_bzr.whoami();
+                if(debug) qDebug()<<"Setting to "<<bzr->whoami();
             } else if (i.key() == QStringLiteral("framework")) {
                 targetObject.insert(i.key(),UbuntuClickTool::getMostRecentFramework( QString() ));
             } else {
@@ -534,7 +541,7 @@ bool UbuntuPackagingWidget::load_manifest(QString fileName) {
        return false;
     // Commented out for bug #1274265 https://bugs.launchpad.net/qtcreator-plugin-ubuntu/+bug/1274265
     //m_manifest.setMaintainer(m_bzr.whoami());
-    QString userName = m_bzr.launchpadId();
+    QString userName = UbuntuBzr::instance()->launchpadId();
     if (userName.isEmpty()) userName = QLatin1String(Constants::USERNAME);
     m_projectName.replace(QLatin1String(Constants::UNDERLINE),QLatin1String(Constants::DASH));
     // Commented out for bug #1219948  - https://bugs.launchpad.net/qtcreator-plugin-ubuntu/+bug/1219948

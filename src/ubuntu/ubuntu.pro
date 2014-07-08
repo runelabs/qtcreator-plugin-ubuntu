@@ -63,7 +63,6 @@ SOURCES += \
     ubuntuproject.cpp \
     ubuntuprojectfile.cpp \
     ubuntuprojectnode.cpp \
-    ubuntuprojectapp.cpp \
     ubuntuversion.cpp \
     ubuntufeatureprovider.cpp \
     ubuntuversionmanager.cpp \
@@ -131,7 +130,6 @@ HEADERS += \
     ubuntuproject.h \
     ubuntuprojectfile.h \
     ubuntuprojectnode.h \
-    ubuntuprojectapp.h \
     ubuntuversion.h \
     ubuntufeatureprovider.h \
     ubuntuversionmanager.h \

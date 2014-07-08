@@ -4,17 +4,17 @@ import GoProject 1.1
 
 GoProject {
     Application {
-        name: "%DISPLAYNAME%"
+        name: "%ProjectName%"
 
         GoFiles {
         }
 
         /* Include .qml, .js, and image files from main directory and subdirectories */
         QmlFiles {
-            directory:"share/%DISPLAYNAME%"
+            directory:"share/%ProjectName%"
         }
         JavaScriptFiles {
-            directory:"share/%DISPLAYNAME%"
+            directory:"share/%ProjectName%"
         }
     }
     Package {
