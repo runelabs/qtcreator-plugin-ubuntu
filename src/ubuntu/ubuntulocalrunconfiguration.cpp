@@ -97,27 +97,84 @@ bool UbuntuLocalRunConfiguration::ensureConfigured(QString *errorMessage)
 
 QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfiguration* config, QString appId, QString *errorMessage)
 {
+
+    //lambda reads the desktop file from the manifest
+    auto getDesktopFromManifest = [&]( UbuntuClickManifest &manifest ){
+        QList<UbuntuClickManifest::Hook> hooks = manifest.hooks();
+        if (hooks.isEmpty()) {
+            if(errorMessage)
+                *errorMessage = tr("No valid hooks property in the manifest");
+
+            return QString();
+        }
+
+        foreach(const UbuntuClickManifest::Hook& hook, hooks) {
+            if( hook.appId == appId )
+                return hook.desktopFile;
+        }
+
+        return QString();
+    };
+
     QString manifestPath;
     if(qobject_cast<UbuntuLocalRunConfiguration*>(config)) {
         //For a locally compiled project, we have no CLICK_MODE enabled, that means we have to search
         //the project and build trees for our desktop file so we can query the main qml file from the desktop file
-        QRegularExpression desktopFinder = QRegularExpression(QString::fromLatin1("^%1\\.desktop$")
-                                                              .arg(appId));
-        QFileInfo desktopInfo = UbuntuProjectGuesser::findFileRecursive(config->target()->activeBuildConfiguration()->buildDirectory(),
-                                                                        desktopFinder).toFileInfo();
-        if (!desktopInfo.exists()) {
 
-            //search again in the project directory
-            desktopInfo = UbuntuProjectGuesser::findFileRecursive(Utils::FileName::fromString(config->target()->project()->projectDirectory()),
-                                                                                    desktopFinder).toFileInfo();
+        Utils::FileName projectDir = Utils::FileName::fromString(config->target()->project()->projectDirectory());
 
-            if(!desktopInfo.exists()) {
-               if(errorMessage)
-                   *errorMessage = tr("Could not find a desktop file for the hook: %1, \nmaybe it is missing in the install targets.").arg(appId);
+        //lambda that searches for the desktop file in the project and build directory
+        auto searchDesktopFile = [&]( const QString &desktopFileName ){
+            QRegularExpression desktopFinder = QRegularExpression(QString::fromLatin1("^%1$")
+                                                                  .arg(desktopFileName));
+
+            QFileInfo desktopInfo = UbuntuProjectGuesser::findFileRecursive(config->target()->activeBuildConfiguration()->buildDirectory(),
+                                                                            desktopFinder).toFileInfo();
+            if (!desktopInfo.exists()) {
+
+                //search again in the project directory
+                desktopInfo = UbuntuProjectGuesser::findFileRecursive(Utils::FileName::fromString(config->target()->project()->projectDirectory()),
+                                                                      desktopFinder).toFileInfo();
+
+                if(!desktopInfo.exists())
+                    return QString();
+            }
+            return desktopInfo.absoluteFilePath();
+        };
+
+        //first lets check if the informations in the manifest file are helpful
+        QFileInfo manifestFile(projectDir.appendPath(QStringLiteral("manifest.json")).toString());
+        if ( manifestFile.exists() ) {
+            UbuntuClickManifest manifest;
+            if(manifest.load(manifestFile.absoluteFilePath(),config->target()->project()->displayName())){
+                QString desktop = getDesktopFromManifest(manifest);
+
+                if(!desktop.isEmpty()) {
+                    QFileInfo d(desktop);
+
+                    desktop = searchDesktopFile(d.fileName());
+                    if(!desktop.isEmpty())
+                        return desktop;
+                }
             }
         }
 
-        return desktopInfo.absoluteFilePath();
+        //ok we had no luck in the manifest file, lets search for a desktop file that is named like the appid
+        QString desk = searchDesktopFile(appId.append(QStringLiteral(".desktop")));
+        if ( !desk.isEmpty() )
+            return desk;
+
+        //still nothing, last hope search for a desktop file with the project name
+        //@FIXME THIS WILL NOT WORK CORRECTLY WITH MULTIPLE HOOKS IN THE SAME PROJECT
+        desk = searchDesktopFile(config->target()->project()->displayName().append(QStringLiteral(".desktop")));
+        if(desk.isEmpty()) {
+            if(errorMessage)
+                *errorMessage = tr("Could not find a desktop file for the hook: %1, \nmaybe it is missing in the install targets.").arg(appId);
+
+            return QString();
+        }
+
+        return desk;
     }
 
     QDir package_dir(config->target()->activeBuildConfiguration()->buildDirectory().toString()+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR));
@@ -138,16 +195,9 @@ QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfigur
         return QString();
     }
 
-    QList<UbuntuClickManifest::Hook> hooks = manifest.hooks();
-    if (hooks.isEmpty()) {
-       if(errorMessage)
-           *errorMessage = tr("No valid hooks property in the manifest");
-    }
-
-    foreach(const UbuntuClickManifest::Hook& hook, hooks) {
-        if( hook.appId == appId )
-            return QDir::cleanPath(package_dir.absoluteFilePath(hook.desktopFile));
-    }
+    QString desk = getDesktopFromManifest(manifest);
+    if(!desk.isEmpty())
+        return QDir::cleanPath(package_dir.absoluteFilePath(desk));
 
     if (errorMessage)
         *errorMessage = tr("Could not find a %1 hook in the manifest file").arg(appId);
@@ -325,7 +375,7 @@ bool UbuntuLocalRunConfiguration::ensureUbuntuProjectConfigured(QString *errorMe
             Utils::Environment env = Utils::Environment::systemEnvironment();
             m_executable = env.searchInPath(QString::fromLatin1(Ubuntu::Constants::UBUNTUHTML_PROJECT_LAUNCHER_EXE));
             m_args = QStringList()<<QString::fromLatin1("--www=%0/www").arg(ubuntuProject->projectDirectory())
-                                  <<QString::fromLatin1("--inspector");
+                                 <<QString::fromLatin1("--inspector");
         } else {
             m_executable = QtSupport::QtKitInformation::qtVersion(target()->kit())->qmlsceneCommand();
             m_args = QStringList()<<QString(QLatin1String("%0.qml")).arg(ubuntuProject->displayName());
