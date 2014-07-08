@@ -1,0 +1,23 @@
+{
+    "name": "com.ubuntu.developer.username.myapp",
+    "description": "description of myapp",
+    "framework": "myFramework",
+    "architecture": "all",
+    "title": "myapp",
+    "hooks": {
+        "myapp": {
+            "apparmor": "myapp.json",
+            "desktop": "myapp.desktop"
+        },
+        "myapp2": {
+            "apparmor": "myapp2.json",
+            "desktop": "myapp2.desktop"
+        },
+        "myscope": {
+            "apparmor": "myscope.json",
+            "scope": "myscope.ini"
+        }
+    },
+    "version": "0.1",
+    "maintainer": "maintainerName"
+}

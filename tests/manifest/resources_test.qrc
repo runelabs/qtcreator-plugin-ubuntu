@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/ubuntu/test/manifest">
+        <file>manifest.json.template</file>
+        <file>myapp.json.template</file>
+    </qresource>
+</RCC>

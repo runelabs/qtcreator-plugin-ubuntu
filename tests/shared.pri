@@ -41,7 +41,15 @@ INCLUDEPATH += $$QTCREATOR_SOURCES/src/
 
 ## make sure the QtProject libs are available when building locally
 !isEmpty(UBUNTU_LOCAL_BUILD) {
+
+    DESTDIRAPPNAME = "qtcreator"
+    DESTDIRBASE = "$$(XDG_DATA_HOME)"
+    isEmpty(DESTDIRBASE):DESTDIRBASE = "$$(HOME)/.local/share/data"
+    else:DESTDIRBASE = "$$DESTDIRBASE/data"
+
     LIBS += -L$$DESTDIRBASE/QtProject/$$DESTDIRAPPNAME/plugins/$$QTCREATOR_VERSION/QtProject
+    LIBS += -L$$DESTDIRBASE/QtProject/$$DESTDIRAPPNAME/plugins/$$QTCREATOR_VERSION/Canonical
 }
 LIBS += -L$$[QT_INSTALL_LIBS]/qtcreator
 LIBS += -L$$[QT_INSTALL_LIBS]/qtcreator/plugins/QtProject
+LIBS += -L$$[QT_INSTALL_LIBS]/qtcreator/plugins/Canonical

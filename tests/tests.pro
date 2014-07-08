@@ -1,4 +1,5 @@
 TEMPLATE = subdirs
 SUBDIRS  = validation \
     adbportlist \
-    ubuntuversion
+    ubuntuversion \
+    manifest
