@@ -84,7 +84,6 @@ protected slots:
 
     void on_pushButton_addpolicy_clicked();
     void on_pushButtonClickPackage_clicked();
-    void on_pushButtonReset_clicked();
     void on_pushButtonReviewersTools_clicked();
 
     void on_pushButtonReload_clicked();
@@ -104,6 +103,8 @@ signals:
 protected:
     void addMissingFieldsToManifest(QString fileName);
     void updatePolicyForFramework (const QString &fw);
+    void loadManifestDefaults ();
+    void loadAppArmorDefaults ();
 private slots:
     void on_comboBoxFramework_currentIndexChanged(int index);
 

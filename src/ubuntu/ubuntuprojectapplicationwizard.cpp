@@ -67,15 +67,14 @@ QWizard *UbuntuProjectApplicationWizard::createWizardDialog (QWidget *parent, co
         bzr->initialize();
         bzr->waitForFinished();
     }
+
     if(bzr->isInitialized()) {
         maintainer = bzr->launchpadId();
         whoami     = bzr->whoami();
     }
 
-
     projectDialog->setField(QStringLiteral("ClickMaintainer"),whoami);
     projectDialog->setField(QStringLiteral("ClickDomain"),QString(QStringLiteral("com.ubuntu.developer.")+maintainer));
-
     return projectDialog;
 }
 

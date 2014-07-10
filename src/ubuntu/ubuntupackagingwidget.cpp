@@ -310,7 +310,7 @@ bool UbuntuPackagingWidget::openManifestForProject() {
         if (!existsManifest) {
             m_manifest.setFileName(fileName);
             m_apparmor.setFileName(defaultAppArmorName);
-            on_pushButtonReset_clicked();
+            loadManifestDefaults();
 
             //make sure runconfigs are created
             foreach(ProjectExplorer::Target *t, startupProject->targets()) {
@@ -334,7 +334,7 @@ bool UbuntuPackagingWidget::openManifestForProject() {
 
         if (QFile(fileAppArmorName).exists()==false) {
             m_apparmor.setFileName(fileAppArmorName);
-            on_pushButtonReset_clicked();
+            loadAppArmorDefaults();
         } else {
             load_apparmor(fileAppArmorName);
         }
@@ -361,12 +361,31 @@ void UbuntuPackagingWidget::bzrChanged() {
     reload();
 }
 
-void UbuntuPackagingWidget::on_pushButtonReset_clicked() {
-    QString fileName = m_manifest.fileName();
+void UbuntuPackagingWidget::loadManifestDefaults()
+{
+    QString fileName         = m_manifest.fileName();
     QString fileAppArmorName = m_apparmor.fileName();
     load_manifest(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_MANIFEST));
-    load_apparmor(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_MYAPP));
+
     m_manifest.setFileName(fileName);
+
+    QDir projectDir(m_projectDir);
+
+    if(!fileAppArmorName.isEmpty())
+        m_manifest.setAppArmorFileName(m_manifest.hooks()[0].appId,projectDir.relativeFilePath(fileAppArmorName));
+
+    m_manifest.setMaintainer(UbuntuBzr::instance()->whoami());
+    QString userName = UbuntuBzr::instance()->launchpadId();
+    if (userName.isEmpty()) userName = QLatin1String(Constants::USERNAME);
+    m_manifest.setName(createPackageName(userName,m_projectName));
+    m_manifest.save();
+    reload();
+}
+
+void UbuntuPackagingWidget::loadAppArmorDefaults()
+{
+    QString fileAppArmorName = m_apparmor.fileName();
+    load_apparmor(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_MYAPP));
 
     QDir projectDir(m_projectDir);
     if(fileAppArmorName.isEmpty() || !QFile::exists(fileAppArmorName)) {
@@ -374,17 +393,13 @@ void UbuntuPackagingWidget::on_pushButtonReset_clicked() {
         fileAppArmorName = projectDir.absoluteFilePath(fileAppArmorName);
     } else {
         m_manifest.setAppArmorFileName(m_manifest.hooks()[0].appId,projectDir.relativeFilePath(fileAppArmorName));
+        m_manifest.save();
     }
 
     m_apparmor.setFileName(fileAppArmorName);
     updatePolicyForFramework(m_manifest.frameworkName());
     m_apparmor.save();
 
-    m_manifest.setMaintainer(UbuntuBzr::instance()->whoami());
-    QString userName = UbuntuBzr::instance()->launchpadId();
-    if (userName.isEmpty()) userName = QLatin1String(Constants::USERNAME);
-    m_manifest.setName(createPackageName(userName,m_projectName));
-    m_manifest.save();
     reload();
 }
 
