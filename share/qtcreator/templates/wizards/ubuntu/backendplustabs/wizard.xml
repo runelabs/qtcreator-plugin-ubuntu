@@ -17,11 +17,11 @@ Includes also
     <files>
         <file source="CMakeLists.txt"                          target="CMakeLists.txt" openproject="true"/>
         <file source="backend/CMakeLists.txt"                  target="backend/CMakeLists.txt" openeditor="false"/>
-        <file source="backend/modules/displayName/backend.h"   target="backend/modules/%ProjectName%/backend.h" openeditor="false"/>
-        <file source="backend/modules/displayName/backend.cpp" target="backend/modules/%ProjectName%/backend.cpp" openeditor="false"/>
-        <file source="backend/modules/displayName/mytype.h"    target="backend/modules/%ProjectName%/mytype.h" openeditor="false"/>
-        <file source="backend/modules/displayName/mytype.cpp"  target="backend/modules/%ProjectName%/mytype.cpp" openeditor="false"/>
-        <file source="backend/modules/displayName/qmldir"      target="backend/modules/%ProjectName%/qmldir" openeditor="false"/>
+        <file source="backend/modules/displayName/backend.h"   target="backend/modules/%ClickHookName:s%/backend.h" openeditor="false"/>
+        <file source="backend/modules/displayName/backend.cpp" target="backend/modules/%ClickHookName:s%/backend.cpp" openeditor="false"/>
+        <file source="backend/modules/displayName/mytype.h"    target="backend/modules/%ClickHookName:s%/mytype.h" openeditor="false"/>
+        <file source="backend/modules/displayName/mytype.cpp"  target="backend/modules/%ClickHookName:s%/mytype.cpp" openeditor="false"/>
+        <file source="backend/modules/displayName/qmldir"      target="backend/modules/%ClickHookName:s%/qmldir" openeditor="false"/>
         <file source="backend/tests/unit/tst_mytype.qml"       target="backend/tests/unit/tst_mytype.qml" openeditor="false"/>
         <file source="app/graphics/toolbarIcon@8.png"          target="app/graphics/toolbarIcon@8.png" openeditor="false" binary="true"/>
 				<file source="app/displayName.desktop.in"              target="app/%ClickHookName%.desktop.in" openeditor="false"/>

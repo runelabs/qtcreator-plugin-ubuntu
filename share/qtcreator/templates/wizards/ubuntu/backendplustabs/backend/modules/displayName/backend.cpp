@@ -6,7 +6,7 @@
 
 void BackendPlugin::registerTypes(const char *uri)
 {
-    Q_ASSERT(uri == QLatin1String("%ProjectName%"));
+    Q_ASSERT(uri == QLatin1String("%ClickHookName:s%"));
 
     qmlRegisterType<MyType>(uri, 1, 0, "MyType");
 }

@@ -36,7 +36,7 @@ set(EXEC "qmlscene $@ ${%ProjectName:u%_DIR}/${MAIN_QML}")
 
 install(FILES manifest.json DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(DIRECTORY "app/graphics" DESTINATION ${DATA_DIR})
-install(FILES "${CMAKE_PROJECT_NAME}.json" DESTINATION ${DATA_DIR})
+install(FILES "%ClickHookName%.json" DESTINATION ${DATA_DIR})
 
 add_subdirectory(app)
 add_subdirectory(backend)

@@ -1,2 +1,2 @@
-module %ProjectName%
-plugin %ProjectName%backend
+module %ClickHookName:s%
+plugin %ClickHookName:s%backend

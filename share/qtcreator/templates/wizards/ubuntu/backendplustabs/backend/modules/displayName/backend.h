@@ -7,7 +7,7 @@
 /*
  ----8<-----
 
- import %ProjectName% 1.0
+ import %ClickHookName:s% 1.0
 
  Rectangle {
    width: 200

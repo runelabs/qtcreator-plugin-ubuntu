@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=%ProjectName%
+Name=%ClickHookName%
 Exec=ubuntu-html5-app-launcher $@ --www=www
 Icon=%ProjectName%.png
 Terminal=false
