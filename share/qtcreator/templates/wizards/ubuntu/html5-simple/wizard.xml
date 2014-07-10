@@ -17,17 +17,28 @@ Unlike the default Qt HTML5 template, there is no C++ code or compilation necess
 			<file source="www/index.html" 			   target="www/index.html" openeditor="true"/>
 			<file source="www/js/app.js"  			   target="www/js/app.js" openeditor="false"/>
 			<file source="displayName.png"   		   target="%ProjectName%.png" openeditor="false" binary="true"/>
-			<file source="displayName.desktop"     target="%ProjectName%.desktop" openeditor="false"/>
+			<file source="displayName.desktop"     target="%ClickHookName%.desktop" openeditor="false"/>
+			<file source="../share/manifest.json"   						target="manifest.json" openeditor="false"/>
     </files>
 
 	  <!-- Create a 2nd wizard page with click package parameters -->
 		<fieldpagetitle>Click package parameters</fieldpagetitle>
 		<fields>
-				<field mandatory="true" name="ClickMaintainer">
-				    <fieldcontrol class="QLineEdit" validator='^[^"]+$'
-				                  defaulttext="" placeholdertext="Maintainer"/>
-				    <fielddescription>Maintainer:</fielddescription>
-				</field>
+			<field mandatory="true" name="ClickDomain">
+			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
+			                defaulttext="" placeholdertext="Domain"/>
+			  <fielddescription>Domain:</fielddescription>
+			</field>
+			<field mandatory="true" name="ClickMaintainer">
+			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
+			                defaulttext="" placeholdertext="Maintainer"/>
+			  <fielddescription>Maintainer:</fielddescription>
+			</field>
+			<field mandatory="true" name="ClickHookName">
+			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
+			                defaulttext="app" placeholdertext="app hook name"/>
+			  <fielddescription>Hook:</fielddescription>
+			</field>
 		</fields>
 
 </wizard>

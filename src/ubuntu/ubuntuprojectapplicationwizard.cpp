@@ -59,19 +59,22 @@ QWizard *UbuntuProjectApplicationWizard::createWizardDialog (QWidget *parent, co
                             wizardDialogParameters.defaultPath(),
                             wizardDialogParameters.extensionPages());
 
-    QString maintainer = QStringLiteral("Maintainer name");
+    QString maintainer = QStringLiteral("username");
+    QString whoami     = QStringLiteral("maintainerName");
     UbuntuBzr *bzr = UbuntuBzr::instance();
 
     if(!bzr->isInitialized()) {
         bzr->initialize();
         bzr->waitForFinished();
     }
-    if(bzr->isInitialized())
+
+    if(bzr->isInitialized()) {
         maintainer = bzr->launchpadId();
+        whoami     = bzr->whoami();
+    }
 
-
-    projectDialog->setField(QStringLiteral("ClickMaintainer"),maintainer);
-
+    projectDialog->setField(QStringLiteral("ClickMaintainer"),whoami);
+    projectDialog->setField(QStringLiteral("ClickDomain"),QString(QStringLiteral("com.ubuntu.developer.")+maintainer));
     return projectDialog;
 }
 
