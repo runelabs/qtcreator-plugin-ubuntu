@@ -4,6 +4,9 @@
 @else
   "description": "A simple Unity scope that accesses local content",
 @endif
+  "maintainer": "%ClickMaintainer%",
+  "name": "%ClickDomain%.%ProjectName%",
+  "title": "%ProjectName%",
   "hooks": {
     "%ClickHookName%": {
       "scope": "%ClickHookName%",

@@ -31,7 +31,7 @@
 		<fields>
 			<field mandatory="true" name="ClickDomain">
 			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
-			                defaulttext="com.ubuntu.developer" placeholdertext="Domain"/>
+			                defaulttext="" placeholdertext="Domain"/>
 			  <fielddescription>Domain:</fielddescription>
 			</field>
 			<field mandatory="true" name="ClickMaintainer">
