@@ -1,3 +1,13 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140710-0ubuntu1) utopic; urgency=low
+
+  [ Benjamin Zeller ]
+  * Fix the scope template manifest file, add missing fields
+
+  [ Anthony Wong ]
+  * Supports the plural form of i18n.tr
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 10 Jul 2014 17:42:32 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20140708-0ubuntu1) utopic; urgency=low
 
   [ Benjamin Zeller ]
