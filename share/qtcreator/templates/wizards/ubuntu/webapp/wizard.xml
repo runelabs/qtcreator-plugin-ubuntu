@@ -9,7 +9,10 @@
     <displayname>Web App</displayname>
     <displaycategory>Ubuntu</displaycategory>
     <files>
-			<file source="app.json"   target="app.json" openeditor="true"/>
-			<file source="app.desktop"   target="app.desktop" openeditor="true"/>
+                        <file source="displayName.ubuntuhtmlproject" target="%ProjectName%.ubuntuhtmlproject" openproject="true"/>
+			<file source="displayName.json"   target="%ProjectName%.json" openeditor="false"/>
+                        <file source="displayName.png"   target="%ProjectName%.png" openeditor="false"/>
+			<file source="displayName.desktop"   target="%ProjectName%.desktop" openeditor="true"/>
+                        <file source="manifest.json"   target="manifest.json" openeditor="false"/>
 		</files>
 </wizard>

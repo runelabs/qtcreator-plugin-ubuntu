@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=%ProjectName%
+Comment=webapp for %ProjectName%
+Type=Application
+Icon=%ProjectName%.png
+Exec=webapp-container --enable-back-forward --store-session-cookies --webappUrlPatterns=https?://m.%ProjectName%.com/* http://m.%ProjectName%.com
+Terminal=false
+X-Ubuntu-Touch=true
