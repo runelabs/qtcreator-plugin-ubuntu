@@ -6,10 +6,12 @@
 #   https://myapps.developer.ubuntu.com/dev/click-apps/
 #
 # More details on http://developer.ubuntu.com/publish/webapp/
+
 [Desktop Entry]
 Name=%ClickHookName%
+Comment=webapp for %ProjectName%
 Type=Application
-Icon=app.png
-Exec=webapp-container --enable-back-forward --store-session-cookies --webappUrlPatterns=https?://m.%ProjectName%.com/* http://m.%ProjectName%.com
+Icon=%ProjectName%.png
+Exec=webapp-container --enable-back-forward --store-session-cookies --webappUrlPatterns=https?://m.%ProjectName%.com/* http://m.%ProjectName%.com %u
 Terminal=false
 X-Ubuntu-Touch=true
