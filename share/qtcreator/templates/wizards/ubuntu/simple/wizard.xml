@@ -14,7 +14,7 @@ Includes also unit and functional tests.
     <files>
 			<file source="../share/displayName.qmlproject" 				target="%ProjectName%.qmlproject" openproject="true"/>
 			<file source="components/HelloComponent.qml"  target="components/HelloComponent.qml" openeditor="false"/>
-			<file source="main.qml"   										target="main.qml" openeditor="false"/>
+			<file source="main.qml"   										target="main.qml" openeditor="true"/>
 			<file source="displayName.png"   							target="%ProjectName%.png" openeditor="false" binary="true"/>
 			<file source="displayName.desktop"   					target="%ClickHookName%.desktop" openeditor="false"/>
 			<file source="tests/autopilot/displayName/test_main.py"   target="tests/autopilot/%ProjectName%/test_main.py" openeditor="false"/>

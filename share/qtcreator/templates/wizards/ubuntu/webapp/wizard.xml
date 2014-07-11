@@ -1,15 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wizard version="1" kind="project" firstpage="10" id="UbuntuWebApp" category="A.UbuntuProject"
-        platformIndependent="true" 
-        class="ubuntu-project-plain"
-				featuresRequired=""
-        >
+<wizard version="1" kind="project" firstpage="10" id="UbuntuWebApp" category="A.UbuntuProject" platformIndependent="true" class="ubuntu-project-plain" featuresRequired="">
     <icon>../share/ubuntu.png</icon>
     <description>Web App template, for converting a web site into a standalone application. Web Apps are restricted to using available W3C APIs only, unlike HTML5 Apps which have full platform access.</description>
     <displayname>Web App</displayname>
     <displaycategory>Ubuntu</displaycategory>
     <files>
-			<file source="app.json"   target="app.json" openeditor="true"/>
-			<file source="app.desktop"   target="app.desktop" openeditor="true"/>
-		</files>
+	<file source="displayName.ubuntuhtmlproject" target="%ProjectName%.ubuntuhtmlproject" openproject="true"/>
+	<file source="displayName.json"   target="%ClickHookName%.json" openeditor="false"/>
+	<file source="displayName.png"   target="%ProjectName%.png" openeditor="false" binary="true"/>
+	<file source="displayName.desktop"   target="%ClickHookName%.desktop" openeditor="true"/>
+        <file source="README"   target="README" openeditor="true"/>
+	<file source="../share/manifest.json"   target="manifest.json" openeditor="false"/>
+    </files>
+    <!-- Create a 2nd wizard page with click package parameters -->
+    <fieldpagetitle>Click package parameters</fieldpagetitle>
+    <fields>
+        <field mandatory="true" name="ClickDomain">
+            <fieldcontrol class="QLineEdit" validator='^[^"]+$' defaulttext="" placeholdertext="Domain"/>
+            <fielddescription>Domain:</fielddescription>
+        </field>
+        <field mandatory="true" name="ClickMaintainer">
+            <fieldcontrol class="QLineEdit" validator='^[^"]+$' defaulttext="" placeholdertext="Maintainer"/>
+            <fielddescription>Maintainer:</fielddescription>
+        </field>
+        <field mandatory="true" name="ClickHookName">
+            <fieldcontrol class="QLineEdit" validator='^[^"]+$' defaulttext="app" placeholdertext="app hook name"/>
+            <fielddescription>Hook:</fielddescription>
+        </field>
+    </fields>
 </wizard>

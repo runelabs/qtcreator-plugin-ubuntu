@@ -1,5 +1,4 @@
 *.pyc
-manifest.json
 qtcreator-plugin-ubuntu.json
 *.user
 tests/autopilot/ubuntusdk-autopilot.json
