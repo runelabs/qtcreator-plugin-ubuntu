@@ -7,7 +7,7 @@
     <files>
 	<file source="displayName.ubuntuhtmlproject" target="%ProjectName%.ubuntuhtmlproject" openproject="true"/>
 	<file source="displayName.json"   target="%ClickHookName%.json" openeditor="false"/>
-	<file source="displayName.png"   target="%ProjectName%.png" openeditor="false"/>
+	<file source="displayName.png"   target="%ProjectName%.png" openeditor="false" binary="true"/>
 	<file source="displayName.desktop"   target="%ClickHookName%.desktop" openeditor="true"/>
         <file source="README"   target="README" openeditor="true"/>
 	<file source="../share/manifest.json"   target="manifest.json" openeditor="false"/>
