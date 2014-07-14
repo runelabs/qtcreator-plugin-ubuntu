@@ -34,7 +34,7 @@
 #include "ubuntudevicesmodel.h"
 #include "localportsmanager.h"
 #include "ubuntubzr.h"
-
+#include "ubuntudeploystepfactory.h"
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
 #include <coreplugin/featureprovider.h>

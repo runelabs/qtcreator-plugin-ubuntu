@@ -151,6 +151,7 @@ const char UBUNTUPROJECT_DISPLAYNAME[] = "Ubuntu Project";
 const char UBUNTUPROJECT_RUNCONTROL_ID[] = "UbuntuProjectManager.UbuntuRunConfiguration";
 
 const char UBUNTUHTML_PROJECT_LAUNCHER_EXE[] = "ubuntu-html5-app-launcher";
+const char UBUNTUWEBAPP_PROJECT_LAUNCHER_EXE[] = "webapp-container";
 const char UBUNTUSCOPES_PROJECT_LAUNCHER_EXE[] = "unity-scope-tool";
 
 const char UBUNTU_PROJECT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Ubuntu");

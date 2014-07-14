@@ -31,6 +31,7 @@
 #include <remotelinux/remotelinuxenvironmentaspect.h>
 #include <utils/qtcprocess.h>
 #include <cmakeprojectmanager/cmakeproject.h>
+#include <cmakeprojectmanager/cmakeprojectconstants.h>
 
 #include <QFile>
 #include <QTextStream>
@@ -141,7 +142,7 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
     m_appId.clear();
     m_clickPackage.clear();
 
-    QDir package_dir(target()->activeBuildConfiguration()->buildDirectory().toString()+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR));
+    QDir package_dir(packageDir());
     if(!package_dir.exists()) {
         if(errorMessage)
             *errorMessage = tr("No packaging directory available, please check if the deploy configuration is correct.");
@@ -185,7 +186,8 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
         return false;
 
     QFileInfo commInfo(command);
-    if(commInfo.completeBaseName().startsWith(QLatin1String("qmlscene"))) {
+    QString executor = commInfo.completeBaseName();
+    if(executor.startsWith(QStringLiteral("qmlscene"))) {
         ProjectExplorer::ToolChain* tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
         if(tc->type() != QString::fromLatin1(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
             if(errorMessage)
@@ -198,12 +200,12 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
                 .arg(UbuntuClickTool::targetBasePath(clickTc->clickTarget()))
                 .arg(clickTc->gnutriplet());
 
-        m_remoteExecutable = QLatin1String("/usr/bin/qmlscene");
+        m_remoteExecutable = QStringLiteral("/usr/bin/qmlscene");
         m_arguments = args;
-    } else if(commInfo.completeBaseName().startsWith(QLatin1String("ubuntu-html5-app-launcher"))) {
-        if(errorMessage)
-            *errorMessage = tr("Run support for remote html projects not available");
-        return false;
+    } else if(executor.startsWith(QStringLiteral("ubuntu-html5-app-launcher"))
+              || executor.startsWith(QStringLiteral("webapp-container"))) {
+        m_remoteExecutable = QStringLiteral("");
+        m_arguments = args;
     } else {
         //looks like a application without a launcher
         CMakeProjectManager::CMakeProject* pro = static_cast<CMakeProjectManager::CMakeProject*> (target()->project());
@@ -259,6 +261,20 @@ Core::Id UbuntuRemoteRunConfiguration::typeId()
 void UbuntuRemoteRunConfiguration::setArguments(const QStringList &args)
 {
     m_arguments = args;
+}
+
+QString UbuntuRemoteRunConfiguration::packageDir() const
+{
+    ProjectExplorer::Project *p = target()->project();
+    if (p->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID)
+        return target()->activeBuildConfiguration()->buildDirectory().toString()+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR);
+    else if (p->id() == Ubuntu::Constants::UBUNTUPROJECT_ID) {
+        QDir pDir(p->projectDirectory());
+        return p->projectDirectory()+QDir::separator()+
+                QStringLiteral("..")+QDir::separator()+
+                pDir.dirName()+QStringLiteral("_build")+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR);
+    }
+    return QString();
 }
 
 } // namespace Internal

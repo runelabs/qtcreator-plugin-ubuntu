@@ -20,6 +20,7 @@
 #include "ubuntuproject.h"
 #include "ubuntuprojectguesser.h"
 #include "ubuntuclickmanifest.h"
+#include "ubunturemoterunconfiguration.h"
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
@@ -177,7 +178,15 @@ QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfigur
         return desk;
     }
 
-    QDir package_dir(config->target()->activeBuildConfiguration()->buildDirectory().toString()+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR));
+
+     UbuntuRemoteRunConfiguration *remConf = qobject_cast<UbuntuRemoteRunConfiguration*>(config);
+    if (!remConf) {
+        if(errorMessage)
+            *errorMessage = tr("Invalid configuration type");
+        return QString();
+    }
+
+    QDir package_dir(remConf->packageDir());
     if(!package_dir.exists()) {
         if(errorMessage)
             *errorMessage = tr("No packaging directory available, please check if the deploy configuration is correct.");
@@ -376,6 +385,13 @@ bool UbuntuLocalRunConfiguration::ensureUbuntuProjectConfigured(QString *errorMe
             m_executable = env.searchInPath(QString::fromLatin1(Ubuntu::Constants::UBUNTUHTML_PROJECT_LAUNCHER_EXE));
             m_args = QStringList()<<QString::fromLatin1("--www=%0/www").arg(ubuntuProject->projectDirectory())
                                  <<QString::fromLatin1("--inspector");
+        } else if (ubuntuProject->mainFile().endsWith(QStringLiteral(".desktop"), Qt::CaseInsensitive)) {
+            Utils::Environment env = Utils::Environment::systemEnvironment();
+
+            if(!readDesktopFile(ubuntuProject->projectDirectory()+QDir::separator()+ubuntuProject->mainFile(),&m_executable,&m_args,errorMessage))
+                return false;
+
+            m_executable = env.searchInPath(QString::fromLatin1(Ubuntu::Constants::UBUNTUWEBAPP_PROJECT_LAUNCHER_EXE));
         } else {
             m_executable = QtSupport::QtKitInformation::qtVersion(target()->kit())->qmlsceneCommand();
             m_args = QStringList()<<QString(QLatin1String("%0.qml")).arg(ubuntuProject->displayName());
