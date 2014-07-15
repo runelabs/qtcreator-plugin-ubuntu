@@ -21,6 +21,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/projectmacroexpander.h>
 #include <qmljs/qmljssimplereader.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -140,6 +141,24 @@ ProjectExplorer::KitMatcher *UbuntuProject::createRequiredKitMatcher() const
 ProjectExplorer::KitMatcher *UbuntuProject::createPreferredKitMatcher() const
 {
     return new QtSupport::QtVersionKitMatcher(Core::FeatureSet(QtSupport::Constants::FEATURE_DESKTOP));
+}
+
+QString UbuntuProject::shadowBuildDirectory(const QString &proFilePath, const ProjectExplorer::Kit *k, const QString &suffix)
+{
+    if (proFilePath.isEmpty())
+        return QString();
+
+    QFileInfo info(proFilePath);
+
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
+    if (version && !version->supportsShadowBuilds())
+        return info.absolutePath();
+
+    const QString projectName = QFileInfo(proFilePath).completeBaseName();
+    ProjectExplorer::ProjectMacroExpander expander(proFilePath, projectName, k, suffix);
+    QDir projectDir = QDir(projectDirectory(proFilePath));
+    QString buildPath = Utils::expandMacros(Core::DocumentManager::buildDirectory(), &expander);
+    return QDir::cleanPath(projectDir.absoluteFilePath(buildPath));
 }
 
 

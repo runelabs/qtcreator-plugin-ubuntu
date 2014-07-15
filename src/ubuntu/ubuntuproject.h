@@ -91,6 +91,7 @@ public:
     virtual ProjectExplorer::KitMatcher *createRequiredKitMatcher() const override;
     virtual ProjectExplorer::KitMatcher *createPreferredKitMatcher() const override;
 
+    static QString shadowBuildDirectory(const QString &proFilePath, const ProjectExplorer::Kit *k, const QString &suffix = QString());
 private:
     void extractProjectFileData(const QString& filename);
 

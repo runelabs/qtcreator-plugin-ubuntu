@@ -69,7 +69,7 @@ UbuntuHtmlBuildConfigurationFactory::~UbuntuHtmlBuildConfigurationFactory()
 int UbuntuHtmlBuildConfigurationFactory::priority(const ProjectExplorer::Target *parent) const
 {
     if (canHandle(parent))
-        return 0;
+        return 100;
     return -1;
 }
 
@@ -83,7 +83,7 @@ QList<ProjectExplorer::BuildInfo *> UbuntuHtmlBuildConfigurationFactory::availab
 int UbuntuHtmlBuildConfigurationFactory::priority(const ProjectExplorer::Kit *k, const QString &projectPath) const
 {
     return (k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
-            .matchesType(QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE))) ? 0 : -1;
+            .matchesType(QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE))) ? 100 : -1;
 }
 
 QList<ProjectExplorer::BuildInfo *> UbuntuHtmlBuildConfigurationFactory::availableSetups(const ProjectExplorer::Kit *k, const QString &projectPath) const
@@ -163,10 +163,7 @@ QList<ProjectExplorer::BuildInfo *> UbuntuHtmlBuildConfigurationFactory::createB
     QList<ProjectExplorer::BuildInfo *> builds;
 
     ProjectExplorer::BuildInfo *info = new ProjectExplorer::BuildInfo(this);
-    QDir pD(projectDir);
-    info->buildDirectory = Utils::FileName::fromString(QDir::cleanPath(pD.absolutePath()+
-            QDir::separator()+QStringLiteral("..")+
-            QDir::separator()+pD.dirName()+QStringLiteral("_build")));
+    info->buildDirectory = Utils::FileName::fromString(UbuntuProject::shadowBuildDirectory(projectDir,k,QStringLiteral("default")));
     info->typeName = tr("Html5");
     info->kitId    = k->id();
     info->supportsShadowBuild = true;
