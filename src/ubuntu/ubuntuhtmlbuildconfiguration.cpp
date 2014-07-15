@@ -77,7 +77,7 @@ QList<ProjectExplorer::BuildInfo *> UbuntuHtmlBuildConfigurationFactory::availab
 {
     if(!canHandle(parent))
         return QList<ProjectExplorer::BuildInfo *>();
-    return createBuildInfos(parent->kit(),parent->project()->projectDirectory());
+    return createBuildInfos(parent->kit(),parent->project()->projectFilePath());
 }
 
 int UbuntuHtmlBuildConfigurationFactory::priority(const ProjectExplorer::Kit *k, const QString &projectPath) const
@@ -92,7 +92,7 @@ QList<ProjectExplorer::BuildInfo *> UbuntuHtmlBuildConfigurationFactory::availab
     if(priority(k,projectPath) < 0 || !m.matches(k))
         return QList<ProjectExplorer::BuildInfo *>();
 
-    return createBuildInfos(k,ProjectExplorer::Project::projectDirectory(projectPath));
+    return createBuildInfos(k,projectPath);
 }
 
 UbuntuHtmlBuildConfiguration *UbuntuHtmlBuildConfigurationFactory::create(ProjectExplorer::Target *parent, const ProjectExplorer::BuildInfo *info) const
