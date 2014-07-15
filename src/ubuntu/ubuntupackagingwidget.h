@@ -110,7 +110,7 @@ private slots:
 
 private:
     void buildClickPackage ();
-    void clearAdditionalBuildSteps ();
+    void clearPackageBuildList ();
 
 private:
     bool m_reviewToolsInstalled;
@@ -130,7 +130,7 @@ private:
     ClickRunChecksParser* m_inputParser;
 
     //packaging support with buildsteps
-    QList<QPointer<ProjectExplorer::BuildStep> > m_additionalPackagingBuildSteps;
+    QSharedPointer<ProjectExplorer::BuildStepList> m_packageBuildSteps;
     QMetaObject::Connection m_buildManagerConnection;
     ClickPackageTask m_postPackageTask;
 };

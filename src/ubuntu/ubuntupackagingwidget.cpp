@@ -26,6 +26,7 @@
 #include "ubuntuvalidationresultmodel.h"
 #include "ubuntudevice.h"
 #include "ubuntupackagestep.h"
+#include "ubuntushared.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
@@ -112,7 +113,7 @@ UbuntuPackagingWidget::~UbuntuPackagingWidget()
     autoSave();
     delete ui;
 
-    clearAdditionalBuildSteps();
+    clearPackageBuildList();
 }
 
 QString UbuntuPackagingWidget::createPackageName(const QString &userName, const QString &projectName)
@@ -185,7 +186,9 @@ void UbuntuPackagingWidget::onValidationItemSelected(const QModelIndex &index)
     }
 }
 
-void UbuntuPackagingWidget::onMessage(QString msg) {
+void UbuntuPackagingWidget::onMessage(QString msg)
+{
+    if(debug) printToOutputPane(msg);
     m_reply.append(msg);
     m_inputParser->addRecievedData(msg);
 }
@@ -668,7 +671,9 @@ void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {
     if(!project)
         return;
 
-    if(project->projectManager()->mimeType() == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE)) {
+    QString mimeType = project->projectManager()->mimeType();
+    if(mimeType == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE)
+       || mimeType == QLatin1String(Ubuntu::Constants::UBUNTUPROJECT_MIMETYPE) ) {
         if(m_reviewToolsInstalled)
             m_postPackageTask = Verify;
         else
@@ -699,13 +704,13 @@ void UbuntuPackagingWidget::buildFinished(const bool success)
 {
     disconnect(m_buildManagerConnection);
     if (success) {
-        UbuntuPackageStep *pckStep = qobject_cast<UbuntuPackageStep*>(m_additionalPackagingBuildSteps.last());
+        UbuntuPackageStep *pckStep = qobject_cast<UbuntuPackageStep*>(m_packageBuildSteps->steps().last());
         if (pckStep && !pckStep->packagePath().isEmpty()) {
             m_ubuntuProcess.stop();
 
             QString sClickPackagePath = pckStep->packagePath();
             if (sClickPackagePath.isEmpty()) {
-                clearAdditionalBuildSteps();
+                clearPackageBuildList();
                 return;
             }
 
@@ -744,7 +749,7 @@ void UbuntuPackagingWidget::buildFinished(const bool success)
             }
         }
     }
-    clearAdditionalBuildSteps();
+    clearPackageBuildList();
 }
 
 void UbuntuPackagingWidget::buildAndInstallPackageRequested()
@@ -769,7 +774,11 @@ void UbuntuPackagingWidget::buildClickPackage()
     if(!project)
         return;
 
-    if(project->projectManager()->mimeType() == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE)) {
+    QString mimeType = project->projectManager()->mimeType();
+    bool isCMake = mimeType == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE);
+    bool isHtml  = mimeType == QLatin1String(Ubuntu::Constants::UBUNTUPROJECT_MIMETYPE);
+
+    if(isCMake || isHtml) {
         ProjectExplorer::Target* target = project->activeTarget();
         if(!target)
             return;
@@ -783,9 +792,16 @@ void UbuntuPackagingWidget::buildClickPackage()
             return;
         }
 
-        ProjectExplorer::BuildConfiguration* bc = target->activeBuildConfiguration();
-        if(!bc)
+        if(ProjectExplorer::BuildManager::isBuilding()) {
+            QMessageBox::information(this,tr("Build running"),tr("There is currently a build running, please wait for it to be finished"));
             return;
+        }
+
+        ProjectExplorer::BuildConfiguration* bc = target->activeBuildConfiguration();
+        if(!bc) {
+            QMessageBox::information(this,tr("Error"),tr("Please add a valid buildconfiguration to your project"));
+            return;
+        }
 
         if(!bc->isEnabled()) {
             QString disabledReason = bc->disabledReason();
@@ -793,27 +809,22 @@ void UbuntuPackagingWidget::buildClickPackage()
             return;
         }
 
-        if(ProjectExplorer::BuildManager::isBuilding()) {
-            QMessageBox::information(this,tr("Build running"),tr("There is currently a build running, please wait for it to be finished"));
-            return;
+        clearPackageBuildList();
+
+        m_packageBuildSteps = QSharedPointer<ProjectExplorer::BuildStepList> (new ProjectExplorer::BuildStepList(bc,ProjectExplorer::Constants::BUILDSTEPS_BUILD));
+        if (isCMake) {
+            //add the normal buildsteps
+            m_packageBuildSteps->cloneSteps(bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
         }
 
-        clearAdditionalBuildSteps();
-
-        ProjectExplorer::BuildStepList* steps = bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
-        if(!steps || steps->isEmpty())
-            return;
-
-        UbuntuPackageStep* package = new UbuntuPackageStep(steps);
+        //append the click packaging step
+        UbuntuPackageStep* package = new UbuntuPackageStep(m_packageBuildSteps.data());
         package->setPackageMode(UbuntuPackageStep::DisableDebugScript);
-
-        m_additionalPackagingBuildSteps.append(package);
+        m_packageBuildSteps->appendStep(package);
 
         m_buildManagerConnection = connect(ProjectExplorer::BuildManager::instance(),SIGNAL(buildQueueFinished(bool)),this,SLOT(buildFinished(bool)));
 
-        ProjectExplorer::BuildManager::buildList(steps,tr("Build Project"));
-        ProjectExplorer::BuildManager::appendStep(package ,tr("Creating Click package"));
-
+        ProjectExplorer::BuildManager::buildList(m_packageBuildSteps.data(),tr("Build Project"));
     }
 }
 
@@ -823,14 +834,14 @@ void UbuntuPackagingWidget::buildClickPackage()
  * \note This will cancel a current build if its building the ProjectConfiguration
  *       the BuildSteps belong to!
  */
-void UbuntuPackagingWidget::clearAdditionalBuildSteps()
+void UbuntuPackagingWidget::clearPackageBuildList()
 {
-    foreach(QPointer<ProjectExplorer::BuildStep> step,m_additionalPackagingBuildSteps) {
-        if(step) {
-            if(ProjectExplorer::BuildManager::isBuilding(step->projectConfiguration()))
-                ProjectExplorer::BuildManager::cancel();
-            delete step.data();
-        }
-    }
-    m_additionalPackagingBuildSteps.clear();
+    if (!m_packageBuildSteps)
+        return;
+
+    if(ProjectExplorer::BuildManager::isBuilding( static_cast<ProjectExplorer::ProjectConfiguration *>(m_packageBuildSteps->parent())))
+        ProjectExplorer::BuildManager::cancel();
+
+    m_packageBuildSteps->deleteLater();
+    m_packageBuildSteps.clear();
 }
