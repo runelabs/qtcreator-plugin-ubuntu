@@ -118,7 +118,8 @@ SOURCES += \
     ubuntushared.cpp \
     ubuntupackagestep.cpp \
     ubuntudeploystepfactory.cpp \
-    ubuntudirectuploadstep.cpp
+    ubuntudirectuploadstep.cpp \
+    ubuntuhtmlbuildconfiguration.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -186,5 +187,6 @@ HEADERS += \
     abstractremoterunsupport.h \
     ubuntupackagestep.h \
     ubuntudeploystepfactory.h \
-    ubuntudirectuploadstep.h
+    ubuntudirectuploadstep.h \
+    ubuntuhtmlbuildconfiguration.h
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wizard version="1" kind="project" firstpage="10" id="UbuntuAppSimpleHtml5'" category="A.UbuntuProject"
         platformIndependent="true" 
-        class="ubuntu-project-plain"
+        class="ubuntu-project-plain-html"
 				featuresRequired=""
         >
     <icon>../share/ubuntu.png</icon>

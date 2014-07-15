@@ -20,7 +20,10 @@
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/toolchain.h>
 #include <qmljs/qmljssimplereader.h>
+#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtsupportconstants.h>
 
 
 using namespace Ubuntu;
@@ -43,19 +46,6 @@ UbuntuProject::UbuntuProject(UbuntuProjectManager *manager, const QString &fileN
 
     m_rootNode = QSharedPointer<UbuntuProjectNode>(new UbuntuProjectNode(this, m_file.data()));
     m_manager->registerProject(this);
-
-    QList<ProjectExplorer::Kit *> kits = ProjectExplorer::KitManager::kits();
-    foreach (ProjectExplorer::Kit *kit, kits) {
-        //do not spawn invalid configurations
-        if(ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(kit) != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
-            continue;
-
-        addTarget(createTarget(kit));
-    }
-
-    if (needsConfiguration()) {
-        Core::ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
-    }
 
     extractProjectFileData(fileName);
 }
@@ -118,4 +108,49 @@ QStringList UbuntuProject::files(FilesMode) const {
     QStringList files;
     enumChild(projectDir(), files);
     return files;
+}
+
+bool UbuntuProject::supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const
+{
+    UbuntuKitMatcher matcher;
+    if (!matcher.matches(k)) {
+        if(errorMessage)
+            *errorMessage = tr("Only Desktop and Ubuntu Kits are supported");
+        return false;
+    }
+
+    return true;
+}
+
+bool UbuntuProject::needsConfiguration() const
+{
+    return targets().size() == 0;
+}
+
+bool UbuntuProject::supportsNoTargetPanel() const
+{
+    return true;
+}
+
+ProjectExplorer::KitMatcher *UbuntuProject::createRequiredKitMatcher() const
+{
+    return new UbuntuKitMatcher();
+}
+
+ProjectExplorer::KitMatcher *UbuntuProject::createPreferredKitMatcher() const
+{
+    return new QtSupport::QtVersionKitMatcher(Core::FeatureSet(QtSupport::Constants::FEATURE_DESKTOP));
+}
+
+
+bool UbuntuKitMatcher::matches(const ProjectExplorer::Kit *k) const
+{
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
+    if (tc->type() == QLatin1String(Ubuntu::Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
+        return true;
+
+    if (ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+        return true;
+
+    return false;
 }

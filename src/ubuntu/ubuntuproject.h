@@ -50,6 +50,14 @@ namespace Internal {
 class UbuntuProjectManager;
 class UbuntuProjectFile;
 class UbuntuProjectNode;
+
+class UbuntuKitMatcher : public ProjectExplorer::KitMatcher
+{
+public:
+    explicit UbuntuKitMatcher() { }
+    bool matches(const ProjectExplorer::Kit *k) const override;
+};
+
 class UbuntuProject : public ProjectExplorer::Project
 {
     Q_OBJECT
@@ -76,6 +84,13 @@ public:
         return m_mainFile;
     }
 
+    // Project interface
+    virtual bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const override;
+    virtual bool needsConfiguration() const override;
+    virtual bool supportsNoTargetPanel() const override;
+    virtual ProjectExplorer::KitMatcher *createRequiredKitMatcher() const override;
+    virtual ProjectExplorer::KitMatcher *createPreferredKitMatcher() const override;
+
 private:
     void extractProjectFileData(const QString& filename);
 
@@ -86,7 +101,6 @@ private:
 
     QString m_fileName;
     QSharedPointer<UbuntuProjectNode> m_rootNode;
-    
 };
 }
 }

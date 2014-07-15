@@ -94,6 +94,9 @@ bool UbuntuPackageStep::init()
                 //UbuntuClickPackageStep::run will stop if tasks exist
                 return true;
             } else {
+                //backward compatibility, old HTML5 projects did not have a Buildconfiguration
+                //this would crash otherwise
+
                 //ubuntu + qml project types
                 QDir pDir(projectDir);
                 m_buildDir = QDir::cleanPath(target()->project()->projectDirectory()

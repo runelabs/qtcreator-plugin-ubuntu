@@ -41,7 +41,8 @@ class UbuntuProjectApplicationWizard : public ProjectExplorer::CustomProjectWiza
 public:
 
     enum ProjectType{
-        UbuntuProject, //handles Qml, Html basic projects
+        UbuntuHTMLProject,
+        UbuntuQMLProject,
         CMakeProject,
         GoProject
     };

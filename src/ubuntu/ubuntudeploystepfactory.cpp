@@ -25,6 +25,9 @@ QList<Core::Id> UbuntuDeployStepFactory::availableCreationIds(ProjectExplorer::B
 {
     QList<Core::Id> types;
 
+    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
+        return types;
+
     Core::Id targetDevice = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(parent->target()->kit());
     if(targetDevice != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE && targetDevice != Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID)
         return types;
