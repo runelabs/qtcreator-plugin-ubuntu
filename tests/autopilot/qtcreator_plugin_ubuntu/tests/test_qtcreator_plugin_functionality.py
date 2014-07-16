@@ -36,11 +36,11 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
        new_chroot_dialog = self.ide.wait_select_single('Ubuntu::Internal::UbuntuCreateNewChrootDialog')
        arch_combobox = new_chroot_dialog.wait_select_single('QComboBox', objectName = 'comboBoxArch')
        self.pointing_device.click_object(arch_combobox)
-       i386_modelindex = new_chroot_dialog.wait_select_single('QModelIndex', text='i386')
+       i386_modelindex = new_chroot_dialog.wait_select_single('QModelIndex', text='armhf')
        self.pointing_device.click_object(i386_modelindex)
        series_combobox = new_chroot_dialog.wait_select_single('QComboBox', objectName = 'comboBoxSeries')
        self.pointing_device.click_object(series_combobox)
-       fw1410_modelindex = new_chroot_dialog.wait_select_single('QModelIndex', text='Framework-14.10')
+       fw1410_modelindex = new_chroot_dialog.wait_select_single('QModelIndex', text='Framework-14.04')
        self.pointing_device.click_object(fw1410_modelindex)
        button_box = new_chroot_dialog.wait_select_single('QDialogButtonBox', objectName = 'buttonBox')
        ok_pushbutton = button_box.wait_select_single('QPushButton', text='&OK')
@@ -49,9 +49,17 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
        """ The next step is to enter the password to the pkexec's dialog """
        sleep(2)
        kbd = Keyboard.create("X11")
-       kbd.type("enter password here", delay=0.2)
+       kbd.type("", delay=0.2)
        kbd.press_and_release('Enter')
        click_dialog = self.ide.wait_select_single('Ubuntu::Internal::UbuntuClickDialog')
+
+       dialog_button_box = click_dialog.wait_select_single('QDialogButtonBox', objectName = 'buttonBox')
+       close_button = dialog_button_box.wait_select_single('QPushButton', text = '&Close')
+
+       while True:
+          if(close_button.enabled): break;
+          sleep(1)
+       self.pointing_device.click_object(close_button)
        sleep(2)
 
     def test_create_app_with_simple_ui(self):
