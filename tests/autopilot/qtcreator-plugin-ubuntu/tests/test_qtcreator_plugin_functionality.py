@@ -49,7 +49,7 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
        """ The next step is to enter the password to the pkexec's dialog """
        sleep(2)
        kbd = Keyboard.create("X11")
-       kbd.type("tohuva1", delay=0.2)
+       kbd.type("put password here", delay=0.2)
        kbd.press_and_release('Enter')
        click_dialog = self.ide.wait_select_single('Ubuntu::Internal::UbuntuClickDialog')
        sleep(2)
