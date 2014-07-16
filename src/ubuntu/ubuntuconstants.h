@@ -440,7 +440,7 @@ const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS[] = "ReviewersToolsEnabled";
 const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS_LOCATION[] = "ReviewersToolsLocation";
 const bool  SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS = false;
 const bool  SETTINGS_CLICK_REVIEWERSTOOLS_TRUE = true;
-const char  SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION[] = "/usr/bin/click-run-checks %0";
+const char  SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION[] = "/usr/bin/click-run-checks \"%0\"";
 const char  UBUNTUSETTINGSCLICKWIDGET_FILEDIALOG[] = "Location of click-reviewers-tools";
 
 //build configuration
