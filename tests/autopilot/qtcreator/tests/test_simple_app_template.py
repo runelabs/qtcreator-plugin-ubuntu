@@ -99,7 +99,7 @@ class CMakeApplicationTest(QtCreatorTestCase):
 #       kbd.press_and_release('Ctrl+r')
 #       sleep(20)
 
-    def test_options(self):
+    def options(self):
        sleep(1)
        kbd = Keyboard.create("X11")
        kbd.press_and_release('Alt+t')
@@ -111,10 +111,61 @@ class CMakeApplicationTest(QtCreatorTestCase):
        self.pointing_device.click_object(new_target_button)
        sleep(2)
 
+    def test_create_app_with_simple_ui(self):
+       """" Open the New File and Project dialog by triggering the right action """
+       action = self.ide.wait_select_single('QAction', text = '&New File or Project...')
+       action.slots.trigger()
+       new_project_dialog = self._get_main_window().wait_select_single('Core::Internal::NewDialog')
+
+       """  Choose the App with Simple UI template in the Ubuntu category  """
+       ubuntu_modelindex = new_project_dialog.wait_select_single('QModelIndex', text='  Ubuntu')
+       self.pointing_device.click_object(ubuntu_modelindex)
+       app_with_simple_ui_modelindex = new_project_dialog.wait_select_single('QModelIndex', text='App with Simple UI')
+       self.pointing_device.click_object(app_with_simple_ui_modelindex)
+       choose_pushbutton = new_project_dialog.wait_select_single('QPushButton', text='Choose...')
+       self.pointing_device.click_object(choose_pushbutton)
+       application_wizard_dialog = self._get_main_window().wait_select_single('Ubuntu::Internal::UbuntuProjectApplicationWizardDialog')
+
+       """ Clear the default project name and enter the test name to the edit line and hit the Next->Next->Finish buttons """
+       projectname_lineedit = application_wizard_dialog.wait_select_single('Utils::ProjectNameValidatingLineEdit')
+       kbd = Keyboard.create("X11")
+       kbd.press_and_release('Ctrl+A')
+       kbd.press_and_release('Delete')
+       with kbd.focused_type(projectname_lineedit) as kb:
+              kb.type("appwithsimpleui")
+              self.assertThat(projectname_lineedit.text, Equals("appwithsimpleui"))
+       next_pushbutton = application_wizard_dialog.wait_select_single('QPushButton', text = '&Next >')
+       self.pointing_device.click_object(next_pushbutton)
+       next_pushbutton = application_wizard_dialog.wait_select_single('QPushButton', text = '&Next >')
+       self.pointing_device.click_object(next_pushbutton)
+       next_pushbutton = application_wizard_dialog.wait_select_single('QPushButton', text = '&Finish')
+       self.pointing_device.click_object(next_pushbutton)
+
+       """ Change to the Publish mode and click on the Create package button"""
+       kbd.press_and_release('Ctrl+6')
+       fancy_tab_widget = self._get_main_window().wait_select_single('Core::Internal::FancyTabWidget')
+       packaging_widget = fancy_tab_widget.wait_select_single('UbuntuPackagingWidget', objectName = 'UbuntuPackagingWidget')
+       packaging_groupbox = packaging_widget.wait_select_single('QGroupBox', objectName = 'groupBoxPackaging')
+       click_package_pushbutton = packaging_groupbox.wait_select_single('QPushButton', objectName = 'pushButtonClickPackage')
+       self.pointing_device.click_object(click_package_pushbutton)
+
+       """ I do not know how to figure out when the click package check is done """
+       sleep(10)
+
+       """ Check the error type if there was any error during the package creation """
+       validation_groupbox = packaging_widget.wait_select_single('QGroupBox', objectName = 'groupBoxValidate')
+       errorinfo_groupbox = validation_groupbox.wait_select_single('QGroupBox', objectName = 'groupBoxErrorInfo')
+       errortype_label = errorinfo_groupbox.wait_select_single('QLabel', objectName = 'labelErrorType')
+       self.assertThat(errortype_label.text, Equals(""))
+
     def test_plugins(self):
-        sleep(1)
-        action = self.ide.wait_select_single(
-            'QAction', text='About &Plugins...'
-        )
+        """ Open the About Plugins dialog """
+        action = self.ide.wait_select_single('QAction', text='About &Plugins...')
         action.slots.trigger()
-        sleep(10)
+
+        """ Check for each Ubuntu specific plugin in the plugin tree """
+        plugin_dialog = self._get_main_window().wait_select_single('Core::Internal::PluginDialog')
+        ubuntu_treewidgetitem = plugin_dialog.wait_select_single('QTreeWidgetItem', text='Ubuntu')
+        cmake_treewidgetitem = plugin_dialog.wait_select_single('QTreeWidgetItem', text='CMakeProjectManager')
+        remotelinux_treewidgetitem = plugin_dialog.wait_select_single('QTreeWidgetItem', text='RemoteLinux')
+        golang_treewidgetitem = plugin_dialog.wait_select_single('QTreeWidgetItem', text='GoLang')
