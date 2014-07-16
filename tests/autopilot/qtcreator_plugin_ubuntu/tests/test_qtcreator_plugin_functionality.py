@@ -20,6 +20,23 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
     def setUp(self):
         super(QtCreatorPluginTestPlan, self).setUp()
 
+    def test_x86_emulator_creation(self):
+       """ Change to the Devices mode and click on the add new emulator button """
+       kbd = Keyboard.create("X11")
+       kbd.press_and_release('Ctrl+9')
+       devices_quickview = self.ide.wait_select_single('QQuickView', source = 'file:///usr/share/qtcreator/ubuntu/devicespage/main.qml')
+       add_emulator_button = devices_quickview.wait_select_single('Button', text = 'Add Emulator')
+       self.assertIsNot(add_emulator_button, None)
+       if (add_emulator_button.enabled): print('Enabled')
+       self.pointing_device.move_to_object(add_emulator_button)
+       self.pointing_device.click_object(add_emulator_button)
+
+       sleep(2)
+#       config_emulator_dialog = devices_quickview.wait_select_single('Dialog', title = 'Create emulator')
+#          QQuickLoader
+#page10 -> SplitView -> QQuickItem -> SplitView -> QQuickItem -> ToolBar-> QQuickItem -> QQuickRow -> Button text='Add Emulator'
+
+
     def test_x86_fw1410_click_chroot_creation(self):
        """ Open the Options dialog by triggering the right action """
        action = self.ide.wait_select_single('QAction', text = '&Options...')
