@@ -18,97 +18,34 @@ class CMakeApplicationTest(QtCreatorTestCase):
 
     def setUp(self):
         super(CMakeApplicationTest, self).setUp()
-        sleep(5)
 
-    def create_new_local_cmake_project(self):
-        """Create a cmake project with Tabbed UI + QML plugin against local desktop kit"""
-        sleep(5)
-        kbd = Keyboard.create("X11")
-        kbd.press_and_release('Ctrl+N')
-        sleep(1)
-        kbd.press_and_release('Tab')
-        kbd.press_and_release('Down')
-        kbd.press_and_release('Down')
-        kbd.press_and_release('Down')
-        kbd.press_and_release('Down')
-        kbd.press_and_release('Enter')
-        kbd.press_and_release('Enter')
-        kbd.press_and_release('Enter')
-        kbd.press_and_release('Enter')
-        sleep(10)
-        kbd.press_and_release('Ctrl+r')
-        sleep(10)
-
-    def create_new_simple_ui_project_and_deploy_on_device(self):
-       """Create a Simple UI QML app"""
-       sleep(5)
-       kbd = Keyboard.create("X11")
-       kbd.press_and_release('Ctrl+N')
-       sleep(1)
-       kbd.press_and_release('Tab')
-       kbd.press_and_release('Enter')
-       kbd.press_and_release('Enter')
-       kbd.press_and_release('Enter')
-       sleep(3)
-       kbd.press_and_release('Ctrl+F12')
-       sleep(20)
-
-    def create_new_simple_ui_project_and_run_locally(self):
-       """Create a Simple UI QML app"""
-       sleep(5)
-       kbd = Keyboard.create("X11")
-       kbd.press_and_release('Ctrl+N')
-       self._get_main_window().wait_select_single('Core::Internal::NewDialog')
-       sleep(1)
-       kbd.press_and_release('Tab')
-       button = self._get_new_project_dialog().select_single('QPushButton', text='&Choose...' )
-       self.pointing_device.click_object(button)
-       next_button = self._get_new_project_wizard_dialog().select_single('QPushButton', text='&Next >')
-       self.pointing_device.click_object(next_button)
-       finish_button = self._get_new_project_wizard_dialog().select_single('QPushButton', text='&Finish')
-       self.pointing_device.click_object(finish_button)
-       sleep(3)
-       kbd.press_and_release('Ctrl+r')
-       sleep(20)
-
-
-    def create_new_chroot_cmake_project(self):
-       """Create a cmake project with Tabbed UI + QML plugin against click chroot kit"""
-       sleep(5)
-       kbd = Keyboard.create("X11")
-       kbd.press_and_release('Ctrl+N')
-       sleep(1)
-       kbd.press_and_release('Tab')
-       kbd.press_and_release('Down')
-       kbd.press_and_release('Down')
-       kbd.press_and_release('Down')
-       kbd.press_and_release('Down')
-       kbd.press_and_release('Enter')
-       kbd.press_and_release('Enter')
-       kbd.press_and_release('Tab')
-       kbd.press_and_release('Tab')
-       kbd.press_and_release('Space')
-       kbd.press_and_release('Tab')
-       kbd.press_and_release('Tab')
-       kbd.press_and_release('Tab')
-       kbd.press_and_release('Space')
-       kbd.press_and_release('Tab')
-       kbd.press_and_release('Enter')
-       kbd.press_and_release('Enter')
-       sleep(10)
-#       kbd.press_and_release('Ctrl+r')
-#       sleep(20)
-
-    def options(self):
-       sleep(1)
-       kbd = Keyboard.create("X11")
-       kbd.press_and_release('Alt+t')
-       sleep(1)
-       kbd.press_and_release('o')
+    def test_x86_fw1410_click_chroot_creation(self):
+       """ Open the Options dialog by triggering the right action """
+       action = self.ide.wait_select_single('QAction', text = '&Options...')
+       action.slots.trigger()
        setting_dialog = self._get_main_window().wait_select_single('Core::Internal::SettingsDialog')
-       kbd.press_and_release('u')
-       new_target_button = setting_dialog.select_single('QPushButton', text='Create Click Target' )
+
+       """ Select the Ubuntu category and click on the Create Click Target button """
+       ubuntu_modelindex = setting_dialog.wait_select_single('QModelIndex', text='Ubuntu')
+       self.pointing_device.click_object(ubuntu_modelindex)
+       new_target_button = setting_dialog.wait_select_single('QPushButton', text='Create Click Target' )
        self.pointing_device.click_object(new_target_button)
+
+       """ Select the i386 architecture and 14.10 framework in the dialog and push the OK button """
+       new_chroot_dialog = self.ide.wait_select_single('Ubuntu::Internal::UbuntuCreateNewChrootDialog')
+       arch_combobox = new_chroot_dialog.wait_select_single('QComboBox', objectName = 'comboBoxArch')
+       self.pointing_device.click_object(arch_combobox)
+       i386_modelindex = new_chroot_dialog.wait_select_single('QModelIndex', text='i386')
+       self.pointing_device.click_object(i386_modelindex)
+       series_combobox = new_chroot_dialog.wait_select_single('QComboBox', objectName = 'comboBoxSeries')
+       self.pointing_device.click_object(series_combobox)
+       fw1410_modelindex = new_chroot_dialog.wait_select_single('QModelIndex', text='Framework-14.10')
+       self.pointing_device.click_object(fw1410_modelindex)
+       button_box = new_chroot_dialog.wait_select_single('QDialogButtonBox', objectName = 'buttonBox')
+       ok_pushbutton = button_box.wait_select_single('QPushButton', text='&OK')
+       self.pointing_device.click_object(ok_pushbutton)
+
+       """ The next step is to enter the password to the pkexec's dialog """
        sleep(2)
 
     def test_create_app_with_simple_ui(self):
