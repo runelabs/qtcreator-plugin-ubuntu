@@ -14,10 +14,11 @@ from testtools.matchers import Equals
 from autopilot.input import Keyboard
 from time import sleep
 
-class CMakeApplicationTest(QtCreatorTestCase):
+#class CMakeApplicationTest(QtCreatorTestCase):
+class QtCreatorPluginTestPlan(QtCreatorTestCase):
 
     def setUp(self):
-        super(CMakeApplicationTest, self).setUp()
+        super(QtCreatorPluginTestPlan, self).setUp()
 
     def test_x86_fw1410_click_chroot_creation(self):
        """ Open the Options dialog by triggering the right action """
@@ -46,6 +47,11 @@ class CMakeApplicationTest(QtCreatorTestCase):
        self.pointing_device.click_object(ok_pushbutton)
 
        """ The next step is to enter the password to the pkexec's dialog """
+       sleep(2)
+       kbd = Keyboard.create("X11")
+       kbd.type("tohuva1", delay=0.2)
+       kbd.press_and_release('Enter')
+       click_dialog = self.ide.wait_select_single('Ubuntu::Internal::UbuntuClickDialog')
        sleep(2)
 
     def test_create_app_with_simple_ui(self):
