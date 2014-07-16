@@ -51,11 +51,11 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
        kbd = Keyboard.create("X11")
        kbd.type("", delay=0.2)
        kbd.press_and_release('Enter')
-       click_dialog = self.ide.wait_select_single('Ubuntu::Internal::UbuntuClickDialog')
 
+       """ Open the Click run dialog and wait for it finishes the job """
+       click_dialog = self.ide.wait_select_single('Ubuntu::Internal::UbuntuClickDialog')
        dialog_button_box = click_dialog.wait_select_single('QDialogButtonBox', objectName = 'buttonBox')
        close_button = dialog_button_box.wait_select_single('QPushButton', text = '&Close')
-
        while True:
           if(close_button.enabled): break;
           sleep(1)
