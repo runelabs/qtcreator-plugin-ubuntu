@@ -5,9 +5,9 @@
 # under the terms of the GNU General Public License version 3, as published
 # by the Free Software Foundation.
 
-"""qtcreator autopilot tests."""
+""" qtcreator-plugin-ubuntu autopilot tests."""
 
-from qtcreator.tests import QtCreatorTestCase
+from qtcreator_plugin_ubuntu.tests import QtCreatorTestCase
 
 from autopilot.matchers import Eventually
 from testtools.matchers import Equals
@@ -49,7 +49,7 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
        """ The next step is to enter the password to the pkexec's dialog """
        sleep(2)
        kbd = Keyboard.create("X11")
-       kbd.type("put password here", delay=0.2)
+       kbd.type("enter password here", delay=0.2)
        kbd.press_and_release('Enter')
        click_dialog = self.ide.wait_select_single('Ubuntu::Internal::UbuntuClickDialog')
        sleep(2)
