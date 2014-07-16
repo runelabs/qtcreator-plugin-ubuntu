@@ -24,15 +24,17 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
        """ Change to the Devices mode and click on the add new emulator button """
        kbd = Keyboard.create("X11")
        kbd.press_and_release('Ctrl+9')
-       devices_quickview = self.ide.wait_select_single('QQuickView', source = 'file:///usr/share/qtcreator/ubuntu/devicespage/main.qml')
-       add_emulator_button = devices_quickview.wait_select_single('Button', text = 'Add Emulator')
-       self.assertIsNot(add_emulator_button, None)
-       if (add_emulator_button.enabled): print('Enabled')
-       self.pointing_device.move_to_object(add_emulator_button)
+       devices_quickview = self.ide.wait_select_single(
+            'QQuickView',
+            source='file:///usr/share/qtcreator/ubuntu/devicespage/main.qml')
+       add_emulator_button = devices_quickview.select_single(
+            'Button', text='Add Emulator')
+       add_emulator_button.visible.wait_for(True)
        self.pointing_device.click_object(add_emulator_button)
 
        sleep(2)
-#       config_emulator_dialog = devices_quickview.wait_select_single('Dialog', title = 'Create emulator')
+       config_emulator_dialog = devices_quickview.wait_select_single(
+            'Dialog', title='Create emulator')
 #          QQuickLoader
 #page10 -> SplitView -> QQuickItem -> SplitView -> QQuickItem -> ToolBar-> QQuickItem -> QQuickRow -> Button text='Add Emulator'
 
