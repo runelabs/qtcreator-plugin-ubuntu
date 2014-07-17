@@ -21,24 +21,22 @@ SCRIPTPATH=`dirname $0`
 EMULATOR_NAME=$1
 
 # wait for the emulator process to come up
-
 until pid=$(${SCRIPTPATH}/local_emulator_pid ${EMULATOR_NAME}); 
 do
         sleep 0.1;
 done;
 
 # wait for the emulator to assign the port
-
 until port=$(netstat -anp 2>&1|grep tcp|grep ${pid}|head -1|awk '{print $4}'|sed -n  's/.*\:\([0-9]*$\)/\1/p'|egrep -v "^$")
 do
         sleep 0.1;
 done;
 
 # disable the setup wizard for the emulator, so it can boot straight to the shell
-
+set +e
 phablet-config -s emulator-${port} welcome-wizard --disable|grep -v "already disabled"
+set -1
 
 # return the serial number the adb will use for that emulator
-
 echo "emulator-${port}"
 
