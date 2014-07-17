@@ -20,6 +20,26 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
     def setUp(self):
         super(QtCreatorPluginTestPlan, self).setUp()
 
+    def type_password(self):
+       """ Hopefully soon obsolate function to enter the user's password to the pkexec's dialog """
+       sleep(2)
+       kbd = Keyboard.create("X11")
+       kbd.type("here comes the password", delay=0.2)
+       kbd.press_and_release('Enter')
+
+    def test_x86_emulator_start(self):
+       """ Change to the Devices mode, select the TestX86Emulator and deploy it """
+       kbd = Keyboard.create("X11")
+       kbd.press_and_release('Ctrl+9')
+       devices_quickview = self.ide.wait_select_single('QQuickView', source='file:///usr/share/qtcreator/ubuntu/devicespage/main.qml')
+       devices_ubuntulistview = devices_quickview.wait_select_single('UbuntuListView', objectName = 'devicesList')
+       while True:
+          if(devices_ubuntulistview.visible): break;
+          sleep(1)
+       emulator_listitem = devices_ubuntulistview.wait_select_single('Standard', text = 'TestX86Emulator')
+       self.pointing_device.click_object(emulator_listitem)
+       # TODO: continue with capturing the started emulator en evaluate the status
+
     def test_x86_emulator_creation(self):
        """ Change to the Devices mode and click on the add new emulator button """
        kbd = Keyboard.create("X11")
@@ -37,12 +57,17 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
        kbd.type("TestX86Emulator", delay=0.2)
        create_button = config_emulator_dialog.wait_select_single('Button', text = 'create')
        self.pointing_device.click_object(create_button)
-       """ The next step is to enter the password to the pkexec's dialog """
+       """ Enter the password to the pkexec's dialog """
+       self.type_password() 
+
+       """ Wait the emulator creation to finish """
+       devices_ubuntulistview = devices_quickview.wait_select_single('UbuntuListView', objectName = 'devicesList')
+       while True:
+           if(devices_ubuntulistview.visible): break;
+           sleep(1)
+       print("The device is created")  
+       emulator_listitem = devices_ubuntulistview.wait_select_single('Standard', text = 'TestX86Emulator')
        sleep(2)
-       kbd = Keyboard.create("X11")
-       kbd.type("Here comes the passwrod", delay=0.2)
-       kbd.press_and_release('Enter')
-       sleep(10)
 
     def test_x86_fw1410_click_chroot_creation(self):
        """ Open the Options dialog by triggering the right action """
@@ -70,11 +95,8 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
        ok_pushbutton = button_box.wait_select_single('QPushButton', text='&OK')
        self.pointing_device.click_object(ok_pushbutton)
 
-       """ The next step is to enter the password to the pkexec's dialog """
-       sleep(2)
-       kbd = Keyboard.create("X11")
-       kbd.type("here comes the password", delay=0.2)
-       kbd.press_and_release('Enter')
+       """ Enter the password to the pkexec's dialog """
+       self.type_password()
 
        """ Open the Click run dialog and wait for it finishes the job """
        click_dialog = self.ide.wait_select_single('Ubuntu::Internal::UbuntuClickDialog')
