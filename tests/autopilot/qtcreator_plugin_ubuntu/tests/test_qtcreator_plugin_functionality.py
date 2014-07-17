@@ -25,8 +25,10 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
        kbd = Keyboard.create("X11")
        kbd.press_and_release('Ctrl+9')
        devices_quickview = self.ide.wait_select_single('QQuickView', source='file:///usr/share/qtcreator/ubuntu/devicespage/main.qml')
+       sleep(5)
        add_emulator_button = devices_quickview.select_single('Button', text='Add Emulator')
        add_emulator_button.visible.wait_for(True)
+    
        self.pointing_device.click_object(add_emulator_button)
 
        sleep(2)
