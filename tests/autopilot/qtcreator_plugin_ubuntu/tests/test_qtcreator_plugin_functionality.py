@@ -25,17 +25,24 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
        kbd = Keyboard.create("X11")
        kbd.press_and_release('Ctrl+9')
        devices_quickview = self.ide.wait_select_single('QQuickView', source='file:///usr/share/qtcreator/ubuntu/devicespage/main.qml')
-       sleep(5)
        add_emulator_button = devices_quickview.select_single('Button', text='Add Emulator')
        add_emulator_button.visible.wait_for(True)
-    
-       self.pointing_device.click_object(add_emulator_button)
-
-       sleep(2)
+       """ The simple click_object() moves the pointer to the center of the button, but in some environment the responsive area of the button is smaller """
+       self.pointing_device.move(add_emulator_button.globalRect.x + add_emulator_button.width - 1, add_emulator_button.globalRect.y + add_emulator_button.height - 1)
+       self.pointing_device.click()
        config_emulator_dialog = devices_quickview.wait_select_single('Dialog', title='Create emulator')
-#          QQuickLoader
-#page10 -> SplitView -> QQuickItem -> SplitView -> QQuickItem -> ToolBar-> QQuickItem -> QQuickRow -> Button text='Add Emulator'
-
+       emulatorname_textfield = config_emulator_dialog.wait_select_single('TextField', placeholderText = 'Emulator name')
+       self.pointing_device.click_object(emulatorname_textfield)
+       kbd = Keyboard.create("X11")
+       kbd.type("TestX86Emulator", delay=0.2)
+       create_button = config_emulator_dialog.wait_select_single('Button', text = 'create')
+       self.pointing_device.click_object(create_button)
+       """ The next step is to enter the password to the pkexec's dialog """
+       sleep(2)
+       kbd = Keyboard.create("X11")
+       kbd.type("Here comes the passwrod", delay=0.2)
+       kbd.press_and_release('Enter')
+       sleep(10)
 
     def test_x86_fw1410_click_chroot_creation(self):
        """ Open the Options dialog by triggering the right action """
