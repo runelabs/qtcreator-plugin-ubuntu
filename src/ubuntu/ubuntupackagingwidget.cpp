@@ -99,10 +99,9 @@ UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
     connect(m_validationModel,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(onNewValidationData()));
 
     connect(UbuntuMenu::instance(),SIGNAL(requestBuildAndInstallProject()),this,SLOT(buildAndInstallPackageRequested()));
+    connect(ProjectExplorer::SessionManager::instance(),SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),this,SLOT(onStartupProjectChanged()));
 
-    ui->comboBoxFramework->blockSignals(true);
-    ui->comboBoxFramework->addItems(UbuntuClickTool::getSupportedFrameworks());
-    ui->comboBoxFramework->blockSignals(false);
+    updateFrameworkList();
 
     m_reviewToolsInstalled = false;
     checkClickReviewerTool();
@@ -283,6 +282,26 @@ void UbuntuPackagingWidget::on_pushButtonReviewersTools_clicked() {
     m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(clickPackage));
 }
 
+void UbuntuPackagingWidget::onStartupProjectChanged()
+{
+    ProjectExplorer::Project *currProject = ProjectExplorer::SessionManager::startupProject();
+    if (currProject == m_currentProject.data())
+        return;
+
+    if(m_currentProject)
+        m_currentProject->disconnect(this);
+
+    m_currentProject = currProject;
+    connect(currProject,SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),this,SLOT(onActiveTargetChanged()));
+    onActiveTargetChanged();
+}
+
+void UbuntuPackagingWidget::onActiveTargetChanged()
+{
+    if(this->isVisible())
+        updateFrameworkList();
+}
+
 void UbuntuPackagingWidget::autoSave() {
     save((ui->tabWidget->currentWidget() == ui->tabSimple));
 }
@@ -292,6 +311,8 @@ bool UbuntuPackagingWidget::openManifestForProject() {
     ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
 
     if (startupProject) {
+        updateFrameworkList();
+
         m_projectName = startupProject->displayName();
         m_projectDir  = startupProject->projectDirectory();
 
@@ -514,7 +535,12 @@ void UbuntuPackagingWidget::addMissingFieldsToManifest (QString fileName)
 
                 if(debug) qDebug()<<"Setting to "<<bzr->whoami();
             } else if (i.key() == QStringLiteral("framework")) {
-                targetObject.insert(i.key(),UbuntuClickTool::getMostRecentFramework( QString() ));
+                const UbuntuClickTool::Target *t = 0;
+                ProjectExplorer::Project *p = ProjectExplorer::SessionManager::startupProject();
+                if (p)
+                    t = UbuntuClickTool::clickTargetFromTarget(p->activeTarget());
+
+                targetObject.insert(i.key(),UbuntuClickTool::getMostRecentFramework( QString(), t));
             } else {
                 targetObject.insert(i.key(),i.value());
 
@@ -600,6 +626,7 @@ void UbuntuPackagingWidget::reload() {
     ui->lineEdit_version->setText(m_manifest.version());
     ui->lineEdit_description->setText(m_manifest.description());
 
+    updateFrameworkList();
     int idx = ui->comboBoxFramework->findText(m_manifest.frameworkName());
 
     //disable the currentIndexChanged signal, reloading the files
@@ -844,4 +871,17 @@ void UbuntuPackagingWidget::clearPackageBuildList()
 
     m_packageBuildSteps->deleteLater();
     m_packageBuildSteps.clear();
+}
+
+void UbuntuPackagingWidget::updateFrameworkList()
+{
+    const UbuntuClickTool::Target *t = 0;
+    ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
+    if (startupProject)
+        t = UbuntuClickTool::clickTargetFromTarget(startupProject->activeTarget());
+
+    ui->comboBoxFramework->blockSignals(true);
+    ui->comboBoxFramework->clear();
+    ui->comboBoxFramework->addItems(UbuntuClickTool::getSupportedFrameworks(t));
+    ui->comboBoxFramework->blockSignals(false);
 }

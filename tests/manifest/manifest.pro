@@ -10,6 +10,7 @@ PLUGIN_SRC_ROOT = $${PWD}/../../src/ubuntu
 
 INCLUDEPATH += $${PLUGIN_SRC_ROOT}
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
+DEFINES += IN_TEST_PROJECT
 
 SOURCES += \
     tst_manifest.cpp \

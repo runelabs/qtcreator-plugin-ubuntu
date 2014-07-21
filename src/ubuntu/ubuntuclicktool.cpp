@@ -20,6 +20,7 @@
 #include "ubuntuclickmanifest.h"
 #include "ubuntuconstants.h"
 #include "ubuntushared.h"
+#include "clicktoolchain.h"
 
 #include <QRegularExpression>
 #include <QDir>
@@ -44,6 +45,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/kitinformation.h>
 #include <utils/qtcprocess.h>
 #include <utils/environment.h>
 #include <utils/consoleprocess.h>
@@ -96,21 +98,21 @@ void UbuntuClickTool::parametersForMaintainChroot(const UbuntuClickTool::Maintai
 {
     QString arguments;
     switch (mode) {
-    case Upgrade:
-        params->setCommand(QLatin1String(Constants::UBUNTU_CLICK_BINARY));
-        arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_UPGRADE_ARGS)
-                .arg(target.architecture)
-                .arg(target.framework)
-                .arg(target.series);
-        break;
-    case Delete:
-        params->setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
-        arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_DESTROY_ARGS)
-                .arg(Constants::UBUNTU_SCRIPTPATH)
-                .arg(target.architecture)
-                .arg(target.framework)
-                .arg(target.series);
-        break;
+        case Upgrade:
+            params->setCommand(QLatin1String(Constants::UBUNTU_CLICK_BINARY));
+            arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_UPGRADE_ARGS)
+                    .arg(target.architecture)
+                    .arg(target.framework)
+                    .arg(target.series);
+            break;
+        case Delete:
+            params->setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
+            arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_DESTROY_ARGS)
+                    .arg(Constants::UBUNTU_SCRIPTPATH)
+                    .arg(target.architecture)
+                    .arg(target.framework)
+                    .arg(target.series);
+            break;
     }
 
 
@@ -190,27 +192,101 @@ QString UbuntuClickTool::targetBasePath(const UbuntuClickTool::Target &target)
  * \brief UbuntuClickTool::getSupportedFrameworks
  * returns all available frameworks on the host system
  */
-QStringList UbuntuClickTool::getSupportedFrameworks()
+QStringList UbuntuClickTool::getSupportedFrameworks(const UbuntuClickTool::Target *target)
 {
-    QStringList items;
-    QDir frameworksDir(QLatin1String(Constants::UBUNTU_CLICK_FRAMEWORKS_BASEPATH));
+#if 0
+    QProcess proc;
+    proc.setProgram(QStringLiteral("click"));
 
-    if(!frameworksDir.exists())
-        return items;
+    QStringList args;
+    if (target) {
+        args << QStringLiteral("chroot")
+             << QStringLiteral("-a")
+             << target->architecture
+             << QStringLiteral("-f")
+             << target->framework
+             << QStringLiteral("run")
+             << QStringLiteral("click");
+    }
+    args << QStringLiteral("framework")
+         << QStringLiteral("list");
 
-    QStringList availableFrameworkFiles = frameworksDir.entryList(QStringList()<<QLatin1String("*.framework"),
-                                                           QDir::Files | QDir::NoDotAndDotDot,
-                                                           QDir::Name | QDir::Reversed);
-
-    QStringList availableFrameworks;
-    foreach(QString fw, availableFrameworkFiles) {
-        fw.replace(QLatin1String(".framework"),QString());
-        availableFrameworks.append(fw);
+    if(debug) qDebug()<<"click"<<Utils::QtcProcess::joinArgs(args);
+    proc.setArguments(args);
+    proc.start();
+    if (!proc.waitForFinished()) {
+        proc.kill();
+        return QStringList();
     }
 
-    if(debug) qDebug()<<"Available Frameworks on the host"<<availableFrameworks;
-    return availableFrameworks;
+    if(proc.exitCode() != 0 || proc.exitStatus() != QProcess::NormalExit)
+        return QStringList();
 
+    QStringList allFws = QString::fromLocal8Bit(proc.readAllStandardOutput()).split(QStringLiteral("\n"),QString::SkipEmptyParts);
+
+    //reverse the list
+    QStringList result;
+    result.reserve( allFws.size() );
+    std::reverse_copy( allFws.begin(), allFws.end(), std::back_inserter( result ) );
+
+    return result;
+#endif
+
+    if (!target) {
+        QStringList items;
+        QDir frameworksDir(QLatin1String(Constants::UBUNTU_CLICK_FRAMEWORKS_BASEPATH));
+
+        if(!frameworksDir.exists())
+            return items;
+
+        QStringList availableFrameworkFiles = frameworksDir.entryList(QStringList()<<QLatin1String("*.framework"),
+                                                                      QDir::Files | QDir::NoDotAndDotDot,
+                                                                      QDir::Name | QDir::Reversed);
+
+        QStringList availableFrameworks;
+        foreach(QString fw, availableFrameworkFiles) {
+            fw.replace(QLatin1String(".framework"),QString());
+            availableFrameworks.append(fw);
+        }
+
+        if(debug) qDebug()<<"Available Frameworks on the host"<<availableFrameworks;
+        return availableFrameworks;
+    } else {
+        //hardcode for now, click chroots are broken, click is not installed and even if its installed
+        //it does not show any valid informations
+        if(target->majorVersion == 14 && target->minorVersion == 10) {
+            return QStringList() << QStringLiteral("ubuntu-sdk-14.10-qml-dev3")
+                                 << QStringLiteral("ubuntu-sdk-14.10-qml-dev2")
+                                 << QStringLiteral("ubuntu-sdk-14.10-qml-dev1")
+                                 << QStringLiteral("ubuntu-sdk-14.10-papi-dev2")
+                                 << QStringLiteral("ubuntu-sdk-14.10-papi-dev1")
+                                 << QStringLiteral("ubuntu-sdk-14.10-html-dev2")
+                                 << QStringLiteral("ubuntu-sdk-14.10-html-dev1")
+                                 << QStringLiteral("ubuntu-sdk-14.10-dev2")
+                                 << QStringLiteral("ubuntu-sdk-14.10-dev1")
+                                 << QStringLiteral("ubuntu-sdk-14.04")
+                                 << QStringLiteral("ubuntu-sdk-14.04-qml")
+                                 << QStringLiteral("ubuntu-sdk-14.04-qml-dev1")
+                                 << QStringLiteral("ubuntu-sdk-14.04-papi")
+                                 << QStringLiteral("ubuntu-sdk-14.04-papi-dev1")
+                                 << QStringLiteral("ubuntu-sdk-14.04-html")
+                                 << QStringLiteral("ubuntu-sdk-14.04-html-dev1")
+                                 << QStringLiteral("ubuntu-sdk-14.04-dev1")
+                                 << QStringLiteral("ubuntu-sdk-13.10");
+        } else if (target->majorVersion == 14 && target->minorVersion == 4){
+            return QStringList() << QStringLiteral("ubuntu-sdk-14.04")
+                                 << QStringLiteral("ubuntu-sdk-14.04-qml")
+                                 << QStringLiteral("ubuntu-sdk-14.04-qml-dev1")
+                                 << QStringLiteral("ubuntu-sdk-14.04-papi")
+                                 << QStringLiteral("ubuntu-sdk-14.04-papi-dev1")
+                                 << QStringLiteral("ubuntu-sdk-14.04-html")
+                                 << QStringLiteral("ubuntu-sdk-14.04-html-dev1")
+                                 << QStringLiteral("ubuntu-sdk-14.04-dev1")
+                                 << QStringLiteral("ubuntu-sdk-13.10");
+        } else {
+            return QStringList() << QStringLiteral("ubuntu-sdk-13.10");
+        }
+    }
 }
 
 /*!
@@ -231,10 +307,10 @@ bool UbuntuClickTool::targetExists(const UbuntuClickTool::Target &target)
  * returns the framework with the highest number supporting the subFramework
  * or a empty string of no framework with the given \a subFramework was found
  */
-QString UbuntuClickTool::getMostRecentFramework(const QString &subFramework)
+QString UbuntuClickTool::getMostRecentFramework(const QString &subFramework, const Target *target)
 {
     //returned list is ordered from newest -> oldest framework
-    QStringList allFws = getSupportedFrameworks();
+    QStringList allFws = getSupportedFrameworks(target);
 
     QString currFw;
     foreach(const QString &framework, allFws) {
@@ -419,6 +495,32 @@ bool UbuntuClickTool::targetFromPath(const QString &targetPath, UbuntuClickTool:
 
     *tg = t;
     return true;
+}
+
+/*!
+ * \brief UbuntuClickTool::clickTargetFromTarget
+ * Tries to get the Click target from a projectconfiguration,
+ * \returns 0 if nothing was found
+ */
+const UbuntuClickTool::Target *UbuntuClickTool::clickTargetFromTarget(ProjectExplorer::Target *t)
+{
+#ifndef IN_TEST_PROJECT
+    if(!t)
+        return 0;
+
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(t->kit());
+    if(!tc || (tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)))
+        return 0;
+
+    ClickToolChain *clickTc = static_cast<ClickToolChain*>(tc);
+    if(!clickTc)
+        return 0;
+
+    return  &clickTc->clickTarget();
+#else
+    Q_UNUSED(t);
+    return 0;
+#endif
 }
 
 QDebug operator<<(QDebug dbg, const UbuntuClickTool::Target& t)
