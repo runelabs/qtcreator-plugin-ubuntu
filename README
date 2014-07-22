@@ -1,0 +1,12 @@
+This is the qtcreator plugin for ubuntu.
+
+To build it run:
+$ mkdir build
+$ cd build
+$ qmake ..
+$ make
+
+To test (if you already have the package "qtcreator-plugin-ubuntu" installed):
+$ sudo cp ./builddir/lib/qtcreator/plugins/Canonical/libUbuntu.so \
+    /usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH )/qtcreator/plugins/Canonical/libUbuntu.so
+
