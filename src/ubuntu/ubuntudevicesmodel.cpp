@@ -811,7 +811,7 @@ void UbuntuDevicesModel::deleteEmulator(const QString &name)
         ProjectExplorer::DeviceManager::instance()->removeDevice(m_knownDevices[index]->device()->id());
     else {
         emit logMessage(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONERROR).arg(QLatin1String(proc.readAll())));
-        QMessageBox::critical(0,tr("Could not delete emulator"),tr("The emulator %1 could not be deleted because of a error, check the logs for details").arg(name));
+        QMessageBox::critical(Core::ICore::mainWindow(),tr("Could not delete emulator"),tr("The emulator %1 could not be deleted because of a error, check the logs for details").arg(name));
     }
 
 }
