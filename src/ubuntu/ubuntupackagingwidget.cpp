@@ -299,7 +299,7 @@ void UbuntuPackagingWidget::onStartupProjectChanged()
 void UbuntuPackagingWidget::onActiveTargetChanged()
 {
     if(this->isVisible())
-        updateFrameworkList();
+        reload();
 }
 
 void UbuntuPackagingWidget::autoSave() {
