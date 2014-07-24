@@ -43,7 +43,7 @@ Depends: android-tools-adb,
          qtcreator-plugin-cmake (>= 3.1.1~),
          qtcreator-plugin-remotelinux (>= 3.1.1~),
          qtdeclarative5-controls-plugin,
-         webapp-container,
+         webapp-container [i386 amd64 armhf],
 # Only for unity8-supported archs
          unity-scope-tool [i386 amd64 armhf],
          ${shlibs:Depends},
