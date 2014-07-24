@@ -151,6 +151,7 @@ const char UBUNTUPROJECT_DISPLAYNAME[] = "Ubuntu Project";
 const char UBUNTUPROJECT_RUNCONTROL_ID[] = "UbuntuProjectManager.UbuntuRunConfiguration";
 
 const char UBUNTUHTML_PROJECT_LAUNCHER_EXE[] = "ubuntu-html5-app-launcher";
+const char UBUNTUWEBAPP_PROJECT_LAUNCHER_EXE[] = "webapp-container";
 const char UBUNTUSCOPES_PROJECT_LAUNCHER_EXE[] = "unity-scope-tool";
 
 const char UBUNTU_PROJECT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Ubuntu");
@@ -508,7 +509,7 @@ const char UBUNTU_CLICK_CMAKE_MAKESTEP_ID[] = "UbuntuProjectManager.UbuntuCMake.
 const char UBUNTU_CLICK_CMAKE_WRAPPER[]  = "%0/qtc_chroot_cmake2";
 const char UBUNTU_CLICK_MAKE_WRAPPER[]   = "%0/qtc_chroot_make2";
 const char UBUNTU_CLICK_GCC_WRAPPER[]    = "%0/qtc_chroot_gcc";
-
+const char UBUNTU_CLICK_HTML_BC_ID[]     = "UbuntuProjectManager.UbuntuHTML5.BuildConfiguration";
 //Devicesupport
 const char UBUNTU_DEVICE_TYPE_ID[] = "UbuntuProjectManager.DeviceTypeId";
 const char UBUNTU_DEVICE_SSHIDENTITY[] = "%0/.config/ubuntu-sdk/ubuntudevice_id_rsa";

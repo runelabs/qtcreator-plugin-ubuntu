@@ -17,6 +17,7 @@ UBUNTU_LOCAL_BUILD = $$(UBUNTU_QTC_PLUGIN_LOCALBUILD)
     DEFINES += UBUNTU_RESOURCE_PATH_LOCAL=\"$${PATHSTR}\" UBUNTU_BUILD_LOCAL
 
     #create a link so we get our wizards in the new project wizard
+    system("rm '$$(HOME)/.config/QtProject/qtcreator/templates'")
     system("ln -s '$${PWD}/../share/qtcreator/templates' '$$(HOME)/.config/QtProject/qtcreator/templates'")
 }
 

@@ -71,13 +71,14 @@ public:
 
     static QString targetBasePath (const Target& target);
     static bool getTargetFromUser (Target* target, const QString &framework=QString());
-    static QStringList getSupportedFrameworks ();
-    static QString getMostRecentFramework ( const QString &subFramework );
+    static QStringList getSupportedFrameworks (const Target *target);
+    static QString getMostRecentFramework ( const QString &subFramework, const Target *target );
 
     static bool          targetExists (const Target& target);
     static QList<Target> listAvailableTargets (const QString &framework=QString());
     static QPair<int,int> targetVersion (const Target& target);
     static bool        targetFromPath(const QString& targetPath, Target* tg);
+    static const Target *clickTargetFromTarget(ProjectExplorer::Target *t);
 };
 
 QDebug operator<<(QDebug dbg, const UbuntuClickTool::Target& t);

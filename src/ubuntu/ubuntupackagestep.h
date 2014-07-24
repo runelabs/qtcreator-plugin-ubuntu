@@ -81,6 +81,7 @@ private:
     State m_state;
     QString m_lastLine;
     QString m_clickPackageName;
+    QString m_buildDir;
     QList<ProjectExplorer::Task> m_tasks;
     QFutureInterface<bool> *m_futureInterface;
 

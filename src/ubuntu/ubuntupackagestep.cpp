@@ -13,6 +13,7 @@
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/ioutputparser.h>
 #include <utils/qtcprocess.h>
+#include <cmakeprojectmanager/cmakeprojectconstants.h>
 
 #include <QDir>
 #include <QTimer>
@@ -67,42 +68,117 @@ bool UbuntuPackageStep::init()
 {
     m_tasks.clear();
 
-    ProjectExplorer::BuildConfiguration *bc = target()->activeBuildConfiguration();
-    if (!bc){
-        ProjectExplorer::Task t(ProjectExplorer::Task::Error
-                                ,tr("No valid BuildConfiguration set for step: %1").arg(displayName())
-                                ,Utils::FileName(),-1
-                                ,ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
-        m_tasks.append(t);
+    QString projectDir = target()->project()->projectDirectory();
+    QString deployDir;
+    Utils::Environment env = Utils::Environment::systemEnvironment();
+    Utils::AbstractMacroExpander *mExp = 0;
 
-        //UbuntuClickPackageStep::run will stop if tasks exist
-        return true;
+    {
+        ProjectExplorer::BuildConfiguration *bc = target()->activeBuildConfiguration();
+        if(bc) {
+            m_buildDir  = bc->buildDirectory().toString();
+            deployDir = bc->buildDirectory().toString()
+                    + QDir::separator()
+                    + QString::fromLatin1(Constants::UBUNTU_DEPLOY_DESTDIR);
+            env = bc->environment();
+            mExp = bc->macroExpander();
+        } else {
+            //cmake projects NEED a buildconfiguration
+            if (target()->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID) {
+                ProjectExplorer::Task t(ProjectExplorer::Task::Error
+                                        ,tr("No valid BuildConfiguration set for step: %1").arg(displayName())
+                                        ,Utils::FileName(),-1
+                                        ,ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+                m_tasks.append(t);
 
+                //UbuntuClickPackageStep::run will stop if tasks exist
+                return true;
+            } else {
+                //backward compatibility, old HTML5 projects did not have a Buildconfiguration
+                //this would crash otherwise
+
+                //ubuntu + qml project types
+                QDir pDir(projectDir);
+                m_buildDir = QDir::cleanPath(target()->project()->projectDirectory()
+                                           +QDir::separator()+QStringLiteral("..")
+                                           +QDir::separator()+pDir.dirName()+QStringLiteral("_build"));
+                deployDir = m_buildDir+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR);
+
+                //clean up the old "build"
+                QDir bd(m_buildDir);
+                if(!bd.exists(m_buildDir))
+                    bd.mkdir(m_buildDir);
+            }
+        }
     }
 
     //build the make process arguments
     {
-        QStringList arguments;
-        arguments << QStringLiteral("DESTDIR=%1").arg(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
-                  << QStringLiteral("install");
+        if (target()->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID) {
+            QStringList arguments;
+            arguments << QStringLiteral("DESTDIR=%1").arg(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                      << QStringLiteral("install");
 
-        ProjectExplorer::ProcessParameters* params = &m_MakeParam;
-        params->setMacroExpander(bc->macroExpander());
+            ProjectExplorer::ProcessParameters* params = &m_MakeParam;
+            params->setMacroExpander(mExp);
 
-        //setup process parameters
-        params->setWorkingDirectory(bc->buildDirectory().toString());
-        params->setCommand(
-                    makeCommand(ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit()),
-                                bc->environment()));
-        params->setArguments(Utils::QtcProcess::joinArgs(arguments));
+            //setup process parameters
+            params->setWorkingDirectory(m_buildDir);
+            params->setCommand(
+                        makeCommand(ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit()),
+                                    env));
+            params->setArguments(Utils::QtcProcess::joinArgs(arguments));
 
-        Utils::Environment env = bc->environment();
-        // Force output to english for the parsers. Do this here and not in the toolchain's
-        // addToEnvironment() to not screw up the users run environment.
-        env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
-        params->setEnvironment(env);
+            Utils::Environment tmpenv = env;
+            // Force output to english for the parsers. Do this here and not in the toolchain's
+            // addToEnvironment() to not screw up the users run environment.
+            tmpenv.set(QLatin1String("LC_ALL"), QLatin1String("C"));
+            params->setEnvironment(tmpenv);
 
-        params->resolveAll();
+            params->resolveAll();
+        } else {
+            //QML and HTML projects are just rsynced for now
+            QStringList arguments;
+            arguments << QStringLiteral("-avh")
+                      << QStringLiteral("--delete")
+                      << QStringLiteral("--exclude")<<QStringLiteral(".bzr")
+                      << QStringLiteral("--exclude")<<QStringLiteral(".git")
+                      << QStringLiteral("--exclude")<<QStringLiteral(".hg")
+                      << QStringLiteral("--exclude")<<QStringLiteral(".svn")
+                      << QStringLiteral("--exclude")<<QStringLiteral("*.qmlproject")
+                      << QStringLiteral("--exclude")<<QStringLiteral("*.user")
+                      << QStringLiteral("--exclude")<<QStringLiteral("tests")
+                      << QStringLiteral("--exclude")<<QStringLiteral("Makefile")
+                      << QStringLiteral("--exclude")<<QStringLiteral(".excludes")
+                      << QStringLiteral("--exclude")<<QStringLiteral("*.ubuntuhtmlproject");
+
+            QFile excludes (projectDir+QDir::separator()+QStringLiteral(".excludes"));
+            if (excludes.open(QIODevice::ReadOnly)) {
+                while (excludes.canReadLine()) {
+                    arguments << QStringLiteral("--exclude") << QString::fromUtf8(excludes.readLine());
+                }
+                excludes.close();
+            }
+
+            arguments << projectDir+QDir::separator()
+                      << deployDir;
+
+            ProjectExplorer::ProcessParameters* params = &m_MakeParam;
+            params->setMacroExpander(mExp);
+
+            //setup process parameters
+            params->setWorkingDirectory(m_buildDir);
+            params->setCommand(QStringLiteral("rsync"));
+            params->setArguments(Utils::QtcProcess::joinArgs(arguments));
+
+            Utils::Environment tmpenv = env;
+            // Force output to english for the parsers. Do this here and not in the toolchain's
+            // addToEnvironment() to not screw up the users run environment.
+            tmpenv.set(QLatin1String("LC_ALL"), QLatin1String("C"));
+            params->setEnvironment(tmpenv);
+
+            params->resolveAll();
+        }
     }
 
 
@@ -110,23 +186,21 @@ bool UbuntuPackageStep::init()
     {
         QStringList arguments;
         arguments << QLatin1String("build")
-                  << bc->buildDirectory().toString()
-                     + QDir::separator()
-                     + QString::fromLatin1(Constants::UBUNTU_DEPLOY_DESTDIR);
+                  << deployDir;
 
         ProjectExplorer::ProcessParameters* params = &m_ClickParam;
-        params->setMacroExpander(bc->macroExpander());
+        params->setMacroExpander(mExp);
 
         //setup process parameters
-        params->setWorkingDirectory(bc->buildDirectory().toString());
+        params->setWorkingDirectory(m_buildDir);
         params->setCommand(QLatin1String("click"));
         params->setArguments(Utils::QtcProcess::joinArgs(arguments));
 
-        Utils::Environment env = bc->environment();
+        Utils::Environment tmpEnv = env;
         // Force output to english for the parsers. Do this here and not in the toolchain's
         // addToEnvironment() to not screw up the users run environment.
-        env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
-        params->setEnvironment(env);
+        tmpEnv.set(QLatin1String("LC_ALL"), QLatin1String("C"));
+        params->setEnvironment(tmpEnv);
 
         params->resolveAll();
     }
@@ -198,7 +272,7 @@ QString UbuntuPackageStep::packagePath() const
 {
     if(m_clickPackageName.isEmpty())
         return QString();
-    return target()->activeBuildConfiguration()->buildDirectory().toString()
+    return m_buildDir
             + QDir::separator()
             + m_clickPackageName;
 }
@@ -376,6 +450,11 @@ void UbuntuPackageStep::injectDebugHelperStep()
 {
     ProjectExplorer::BuildConfiguration *bc = target()->activeBuildConfiguration();
 
+    if(!bc) {
+        QTimer::singleShot(0,this,SLOT(doNextStep()));
+        return;
+    }
+
     bool ubuntuDevice = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(bc->target()->kit()) == Constants::UBUNTU_DEVICE_TYPE_ID;
     bool injectDebugScript = (m_packageMode == EnableDebugScript) ||
             (m_packageMode == AutoEnableDebugScript && bc->buildType() == ProjectExplorer::BuildConfiguration::Debug);
@@ -400,10 +479,10 @@ void UbuntuPackageStep::injectDebugHelperStep()
 
         UbuntuClickManifest manifest;
         if(!manifest.load(bc->buildDirectory()
-                      .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
-                      .appendPath(QStringLiteral("manifest.json"))
-                      .toString(),
-                      projectName)) {
+                          .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                          .appendPath(QStringLiteral("manifest.json"))
+                          .toString(),
+                          projectName)) {
 
             emit addOutput(tr("Could not find the manifest.json file in %1.\nPlease check if it is added to the install targets in your project file")
                            .arg(bc->buildDirectory()
@@ -514,7 +593,7 @@ void UbuntuPackageStep::doNextStep()
 
             //return to MainLoop to update the progressBar
             QTimer::singleShot(0,this,SLOT(injectDebugHelperStep()));
-                    break;
+            break;
         }
         case PreparePackage: {
             m_futureInterface->setProgressValueAndText(2,tr("Building click package"));
@@ -533,7 +612,7 @@ void UbuntuPackageStep::doNextStep()
             QRegularExpressionMatch m = exp.match(m_lastLine);
             if(m.hasMatch()) {
                 m_clickPackageName = m.captured(1);
-                emit addOutput(tr("The click package has been created in %1").arg(target()->activeBuildConfiguration()->buildDirectory().toString()) ,
+                emit addOutput(tr("The click package has been created in %1").arg(m_buildDir) ,
                                ProjectExplorer::BuildStep::MessageOutput);
             }
 
