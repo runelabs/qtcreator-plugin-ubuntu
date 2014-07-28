@@ -624,7 +624,7 @@ void UbuntuMenu::menuItemTriggered() {
                         UbuntuDevice::ConstPtr device = UbuntuDeviceMode::instance()->device();
                         if (device) {
                             if( device->deviceState() != ProjectExplorer::IDevice::DeviceReadyToUse ) {
-                                QMessageBox::warning(0,tr("Device not ready"),tr("The currently selected device is not ready, please select another one on the devices mode"));
+                                QMessageBox::warning(Core::ICore::mainWindow(),tr("Device not ready"),tr("The currently selected device is not ready, please select another one on the devices mode"));
                                 return;
                             }
 

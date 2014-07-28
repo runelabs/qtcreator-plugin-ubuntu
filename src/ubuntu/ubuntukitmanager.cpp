@@ -68,7 +68,7 @@ void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
 {
     ProjectExplorer::Abi requiredAbi = ClickToolChain::architectureNameToAbi(device->architecture());
     if(requiredAbi.isNull()) {
-        QMessageBox::warning(0,
+        QMessageBox::warning(Core::ICore::mainWindow(),
                              tr("Unknown device architecture"),
                              tr("Kit autocreation for %1 is not supported!")
                              .arg(device->architecture()));
@@ -102,7 +102,7 @@ void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
     ClickToolChain* match = findCompatibleTc();
     while(!match) {
         //create target
-        int choice = QMessageBox::question(0,
+        int choice = QMessageBox::question(Core::ICore::mainWindow(),
                               tr("No target available"),
                               tr("There is no compatible chroot available on your system, do you want to create it now?"));
 
