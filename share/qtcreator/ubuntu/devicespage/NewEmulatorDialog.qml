@@ -36,9 +36,9 @@ Dialog {
 
     ListItem.ItemSelector {
         id: channel
-        model: [i18n.tr("stable"), 
+        model: [i18n.tr("devel-proposed"), 
                 i18n.tr("devel"), 
-                i18n.tr("devel-proposed")]
+                i18n.tr("stable")]
     }
 
     Button {
