@@ -50,8 +50,8 @@ Depends: android-tools-adb,
          ${misc:Depends},
 Recommends: ubuntu-sdk,
             ubuntu-ui-toolkit-examples,
-            qtcreator-plugin-go
-Suggests: click-reviewers-tools
+            qtcreator-plugin-go,
+            click-reviewers-tools
 Description: Ubuntu plugin for Qt Creator IDE
  Qt Creator is a new, lightweight, cross-platform integrated development
  environment (IDE) designed to make development with the Qt application
