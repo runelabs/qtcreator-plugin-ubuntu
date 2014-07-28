@@ -1,3 +1,16 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140728-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * Custom qmake to deal with click chroots
+  * Enable channel selection when creating an emulator ( (LP: #1334691,
+    #1257711)
+
+  [ Michael Vogt ]
+  * README file is added to the project
+  * Added missing dialog/message box parents. (LP: #1346783)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 28 Jul 2014 09:38:56 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20140724-0ubuntu1) utopic; urgency=low
 
   [ Zoltán Balogh ]
