@@ -34,18 +34,26 @@ Dialog {
             i18n.tr("armhf")]
     }
 
+    ListItem.ItemSelector {
+        id: channel
+        model: [i18n.tr("devel"), 
+                i18n.tr("devel-proposed"), 
+                i18n.tr("stable")]
+    }
+
     Button {
-        text: "cancel"
+        text: "Cancel"
+        color: UbuntuColors.warmGrey
         onClicked: PopupUtils.close(dialogue)
     }
     Button {
-        text: "create"
+        text: "Create"
         color: UbuntuColors.orange
         enabled: !inputName.hasError
         onClicked: {
             if(inputName.hasError)
                 return;
-            devicesModel.createEmulatorImage(inputName.text,arch.model[arch.selectedIndex]);
+            devicesModel.createEmulatorImage(inputName.text,arch.model[arch.selectedIndex],channel.model[channel.selectedIndex]);
             PopupUtils.close(dialogue);
         }
     }

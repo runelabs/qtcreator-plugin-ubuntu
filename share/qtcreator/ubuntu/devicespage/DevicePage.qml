@@ -32,7 +32,8 @@ Page {
             Button {
                 visible: devicesModel.cancellable
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "cancel"
+                color: UbuntuColors.warmGrey
+                text: "Cancel"
                 onClicked: devicesModel.cancel()
             }
         }

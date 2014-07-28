@@ -726,7 +726,7 @@ void UbuntuDevicesModel::installEmulator()
     m_process->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE));
 }
 
-void UbuntuDevicesModel::createEmulatorImage(const QString &name, const QString &arch)
+void UbuntuDevicesModel::createEmulatorImage(const QString &name, const QString &arch, const QString &channel)
 {
     setState(CreateEmulatorImage);
     setCancellable(true);
@@ -740,7 +740,7 @@ void UbuntuDevicesModel::createEmulatorImage(const QString &name, const QString 
     strEmulatorPath += QDir::separator();
     m_process->append(QStringList()
                       << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT)
-                      .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(strEmulatorPath).arg(strEmulatorName).arg(arch)
+                      .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(strEmulatorPath).arg(strEmulatorName).arg(arch).arg(channel)
                       << QCoreApplication::applicationDirPath());
     m_process->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
 }
