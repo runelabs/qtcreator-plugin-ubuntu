@@ -1,3 +1,9 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140724-0ubuntu2) utopic; urgency=medium
+
+  * Local build wit channel selection for emulator creation
+
+ -- Zoltán Balogh <zoltan@bakter.hu>  Mon, 28 Jul 2014 10:29:44 +0300
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20140724-0ubuntu1) utopic; urgency=low
 
   [ Zoltán Balogh ]
