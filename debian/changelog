@@ -1,3 +1,12 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140728.1-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * Do not exit the click_destroy_target when umounting fails
+  * Move the click-reviewers-tools to the recommended packages (LP:
+    #1349052) (LP: #1349052)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 28 Jul 2014 17:40:26 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20140728-0ubuntu1) utopic; urgency=low
 
   [ Zoltán Balogh ]
