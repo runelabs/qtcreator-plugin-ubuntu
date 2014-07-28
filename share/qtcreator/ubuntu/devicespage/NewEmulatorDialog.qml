@@ -34,6 +34,13 @@ Dialog {
             i18n.tr("armhf")]
     }
 
+    ListItem.ItemSelector {
+        id: channel
+        model: [i18n.tr("stable"), 
+                i18n.tr("devel"), 
+                i18n.tr("devel-proposed")]
+    }
+
     Button {
         text: "cancel"
         onClicked: PopupUtils.close(dialogue)
@@ -45,7 +52,7 @@ Dialog {
         onClicked: {
             if(inputName.hasError)
                 return;
-            devicesModel.createEmulatorImage(inputName.text,arch.model[arch.selectedIndex]);
+            devicesModel.createEmulatorImage(inputName.text,arch.model[arch.selectedIndex],channel.model[channel.selectedIndex]);
             PopupUtils.close(dialogue);
         }
     }
