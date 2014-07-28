@@ -42,11 +42,12 @@ Dialog {
     }
 
     Button {
-        text: "cancel"
+        text: "Cancel"
+        color: UbuntuColors.warmGrey
         onClicked: PopupUtils.close(dialogue)
     }
     Button {
-        text: "create"
+        text: "Create"
         color: UbuntuColors.orange
         enabled: !inputName.hasError
         onClicked: {
