@@ -29,12 +29,14 @@
 #include "ubuntudevicefactory.h"
 #include "clicktoolchain.h"
 #include "ubuntucmakebuildconfiguration.h"
+#include "ubuntuhtmlbuildconfiguration.h"
 #include "ubunturemotedeployconfiguration.h"
 #include "ubuntulocaldeployconfiguration.h"
 #include "ubuntudevicesmodel.h"
 #include "localportsmanager.h"
 #include "ubuntubzr.h"
 #include "ubuntuqtversion.h"
+#include "ubuntudeploystepfactory.h"
 
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -135,6 +137,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     addAutoReleasedObject(new UbuntuCMakeToolFactory);
     addAutoReleasedObject(new UbuntuCMakeMakeStepFactory);
     addAutoReleasedObject(new UbuntuCMakeBuildConfigurationFactory);
+    addAutoReleasedObject(new UbuntuHtmlBuildConfigurationFactory);
 
     //ubuntu device support
     addAutoReleasedObject(new UbuntuDeviceFactory);
@@ -149,8 +152,12 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
                     QStringLiteral("ubuntu-project-cmake"),
                     Core::IWizard::ProjectWizard));
     addAutoReleasedObject(
-                new UbuntuWizardFactory<UbuntuProjectApplicationWizard,UbuntuProjectApplicationWizard::UbuntuProject>(
-                    QStringLiteral("ubuntu-project-plain"),
+                new UbuntuWizardFactory<UbuntuProjectApplicationWizard,UbuntuProjectApplicationWizard::UbuntuHTMLProject>(
+                    QStringLiteral("ubuntu-project-plain-html"),
+                    Core::IWizard::ProjectWizard));
+    addAutoReleasedObject(
+                new UbuntuWizardFactory<UbuntuProjectApplicationWizard,UbuntuProjectApplicationWizard::UbuntuQMLProject>(
+                    QStringLiteral("ubuntu-project-plain-qml"),
                     Core::IWizard::ProjectWizard));
     addAutoReleasedObject(
                 new UbuntuWizardFactory<UbuntuProjectApplicationWizard,UbuntuProjectApplicationWizard::GoProject>(

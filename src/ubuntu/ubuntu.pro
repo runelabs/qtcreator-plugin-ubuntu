@@ -117,7 +117,10 @@ SOURCES += \
     abstractremoterunsupport.cpp\
     ubuntushared.cpp \
     ubuntupackagestep.cpp \
-    ubuntuqtversion.cpp
+    ubuntuqtversion.cpp \
+    ubuntudeploystepfactory.cpp \
+    ubuntudirectuploadstep.cpp \
+    ubuntuhtmlbuildconfiguration.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -184,5 +187,8 @@ HEADERS += \
     ubunturemoterunner.h \
     abstractremoterunsupport.h \
     ubuntupackagestep.h \
-    ubuntuqtversion.h
+    ubuntuqtversion.h \
+    ubuntudeploystepfactory.h \
+    ubuntudirectuploadstep.h \
+    ubuntuhtmlbuildconfiguration.h
 

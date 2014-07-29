@@ -85,6 +85,8 @@ protected slots:
     void on_pushButton_addpolicy_clicked();
     void on_pushButtonClickPackage_clicked();
     void on_pushButtonReviewersTools_clicked();
+    void onStartupProjectChanged ();
+    void onActiveTargetChanged   ();
 
     void on_pushButtonReload_clicked();
 
@@ -110,7 +112,8 @@ private slots:
 
 private:
     void buildClickPackage ();
-    void clearAdditionalBuildSteps ();
+    void clearPackageBuildList ();
+    void updateFrameworkList ();
 
 private:
     bool m_reviewToolsInstalled;
@@ -130,8 +133,12 @@ private:
     ClickRunChecksParser* m_inputParser;
 
     //packaging support with buildsteps
-    QList<QPointer<ProjectExplorer::BuildStep> > m_additionalPackagingBuildSteps;
+    QSharedPointer<ProjectExplorer::BuildStepList> m_packageBuildSteps;
     QMetaObject::Connection m_buildManagerConnection;
     ClickPackageTask m_postPackageTask;
+
+    //current used startup project and target
+    QPointer<ProjectExplorer::Project> m_currentProject;
+    QPointer<ProjectExplorer::Target>  m_currentTarget;
 };
 #endif // UBUNTUPACKAGINGWIDGET_H

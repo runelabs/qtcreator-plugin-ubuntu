@@ -59,6 +59,8 @@ public:
     static Core::Id typeId ();
     void setArguments (const QStringList &args);
 
+    QString packageDir () const;
+
 private:
     QString m_clickPackage;
     QString m_appId;

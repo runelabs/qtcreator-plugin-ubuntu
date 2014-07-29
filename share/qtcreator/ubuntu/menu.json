@@ -74,20 +74,6 @@
                 ]
             },
             {
-                "name": "Run Application on Device",
-                "id": "Ubuntu.Build.RunHtml5",
-                "workingDirectory": "%0/..",
-                "projectRequired": true,
-                "keysequence": "Ctrl+F12",
-                "deviceRequired": true,
-                "ubuntuHtmlProjectRequired": true,
-                "saveRequired": true,
-                "context" : ["UbuntuProject.ProjectContext"],
-                "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_device_run_app_click %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp"
-                ]
-            },
-            {
                 "name": "Close Application on Device",
                 "id": "Ubuntu.Build.CancelRun",
                 "keysequence": "Ctrl+Shift+F12",
@@ -116,12 +102,30 @@
                 "workingDirectory": "%0/..",
                 "projectRequired": true,
                 "deviceRequired": true,
-                "context": ["QmlProject.ProjectContext","UbuntuProject.ProjectContext"],
+                "context": ["QmlProject.ProjectContext"],
                 "saveRequired": true,
                 "actions": [
                     "%SCRIPTDIRECTORY%/qtc_project_click_createanddeploy %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp %USERNAME%"
                 ]
             },
+            {
+                "name": "Install Application on Device",
+                "id": "Ubuntu.Build.PackageInstall.Html",
+                "workingDirectory": "%0/..",
+                "projectRequired": true,
+                "deviceRequired": true,
+                "context": ["UbuntuProject.ProjectContext"],
+                "saveRequired": true,
+                "actions": [
+                    {
+                        "metacall": {
+                             "method":"requestBuildAndInstallProject",
+                             "args":[]
+                        }
+                    }
+                ]
+            },
+
             {
                 "name": "Install Application on Device",
                 "id": "Ubuntu.Build.PackageInstall.CMake",
@@ -138,8 +142,8 @@
                         }
                     }
                 ]
-            },
-						{
+            },				
+            {
                 "name": "Install Application on Device",
                 "id": "Ubuntu.Build.PackageInstall.Go",
                 "workingDirectory": "%0/..",

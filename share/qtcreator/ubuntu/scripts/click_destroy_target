@@ -42,7 +42,6 @@ do
         if [ $? -ne 0 ]
         then
             echo "Unmounting ${MOUNTPOINT} failed"
-            exit 1
         fi
     fi
 done

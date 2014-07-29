@@ -83,7 +83,7 @@ void UbuntuClickDialog::runClick( )
 
 int UbuntuClickDialog::runClickModal(ProjectExplorer::ProcessParameters *params)
 {
-    UbuntuClickDialog dlg;
+    UbuntuClickDialog dlg(Core::ICore::mainWindow());
     dlg.setParameters(params);
     QMetaObject::invokeMethod(&dlg,"runClick",Qt::QueuedConnection);
     dlg.exec();

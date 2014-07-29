@@ -726,7 +726,7 @@ void UbuntuDevicesModel::installEmulator()
     m_process->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE));
 }
 
-void UbuntuDevicesModel::createEmulatorImage(const QString &name, const QString &arch)
+void UbuntuDevicesModel::createEmulatorImage(const QString &name, const QString &arch, const QString &channel)
 {
     setState(CreateEmulatorImage);
     setCancellable(true);
@@ -740,7 +740,7 @@ void UbuntuDevicesModel::createEmulatorImage(const QString &name, const QString 
     strEmulatorPath += QDir::separator();
     m_process->append(QStringList()
                       << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT)
-                      .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(strEmulatorPath).arg(strEmulatorName).arg(arch)
+                      .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(strEmulatorPath).arg(strEmulatorName).arg(arch).arg(channel)
                       << QCoreApplication::applicationDirPath());
     m_process->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
 }
@@ -811,7 +811,7 @@ void UbuntuDevicesModel::deleteEmulator(const QString &name)
         ProjectExplorer::DeviceManager::instance()->removeDevice(m_knownDevices[index]->device()->id());
     else {
         emit logMessage(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONERROR).arg(QLatin1String(proc.readAll())));
-        QMessageBox::critical(0,tr("Could not delete emulator"),tr("The emulator %1 could not be deleted because of a error, check the logs for details").arg(name));
+        QMessageBox::critical(Core::ICore::mainWindow(),tr("Could not delete emulator"),tr("The emulator %1 could not be deleted because of a error, check the logs for details").arg(name));
     }
 
 }

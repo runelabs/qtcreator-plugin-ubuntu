@@ -118,7 +118,7 @@ const char UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE_SCRIPT[] = "%0/local_ins
 const char UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES_SCRIPT[] = "%0/local_search_images";
 const char UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES[] = "Search configured emulator instances.";
 const char UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR[] = "Creating new emulator instance.";
-const char UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT[] = "%0/local_create_emulator %1 %2 %3";
+const char UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT[] = "%0/local_create_emulator %1 %2 %3 %4";
 const char UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR[] = "Starting the selected emulator.";
 const char UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT[] = "%0/local_start_emulator";
 const char UBUNTUDEVICESWIDGET_LOCAL_STOP_EMULATOR_SCRIPT[] = "%0/local_stop_emulator";
@@ -151,6 +151,7 @@ const char UBUNTUPROJECT_DISPLAYNAME[] = "Ubuntu Project";
 const char UBUNTUPROJECT_RUNCONTROL_ID[] = "UbuntuProjectManager.UbuntuRunConfiguration";
 
 const char UBUNTUHTML_PROJECT_LAUNCHER_EXE[] = "ubuntu-html5-app-launcher";
+const char UBUNTUWEBAPP_PROJECT_LAUNCHER_EXE[] = "webapp-container";
 const char UBUNTUSCOPES_PROJECT_LAUNCHER_EXE[] = "unity-scope-tool";
 
 const char UBUNTU_PROJECT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Ubuntu");
@@ -440,7 +441,7 @@ const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS[] = "ReviewersToolsEnabled";
 const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS_LOCATION[] = "ReviewersToolsLocation";
 const bool  SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS = false;
 const bool  SETTINGS_CLICK_REVIEWERSTOOLS_TRUE = true;
-const char  SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION[] = "/usr/bin/click-run-checks %0";
+const char  SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION[] = "/usr/bin/click-run-checks \"%0\"";
 const char  UBUNTUSETTINGSCLICKWIDGET_FILEDIALOG[] = "Location of click-reviewers-tools";
 
 //build configuration
@@ -508,7 +509,7 @@ const char UBUNTU_CLICK_CMAKE_MAKESTEP_ID[] = "UbuntuProjectManager.UbuntuCMake.
 const char UBUNTU_CLICK_CMAKE_WRAPPER[]  = "%0/qtc_chroot_cmake2";
 const char UBUNTU_CLICK_MAKE_WRAPPER[]   = "%0/qtc_chroot_make2";
 const char UBUNTU_CLICK_GCC_WRAPPER[]    = "%0/qtc_chroot_gcc";
-
+const char UBUNTU_CLICK_HTML_BC_ID[]     = "UbuntuProjectManager.UbuntuHTML5.BuildConfiguration";
 //Devicesupport
 const char UBUNTU_DEVICE_TYPE_ID[] = "UbuntuProjectManager.DeviceTypeId";
 const char UBUNTU_DEVICE_SSHIDENTITY[] = "%0/.config/ubuntu-sdk/ubuntudevice_id_rsa";

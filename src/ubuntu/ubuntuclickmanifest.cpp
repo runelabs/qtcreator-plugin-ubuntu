@@ -34,6 +34,7 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/iprojectmanager.h>
+#include <projectexplorer/target.h>
 
 using namespace Ubuntu::Internal;
 
@@ -287,20 +288,22 @@ bool UbuntuClickManifest::load(const QString &fileName, const QString &projectNa
 
     if (fileName == QLatin1String(":/ubuntu/manifest.json.template")) {
 
-        QString mimeType = ProjectExplorer::SessionManager::startupProject()->projectManager()->mimeType();
-        QString proName  = ProjectExplorer::SessionManager::startupProject()->projectFilePath();
+
+        ProjectExplorer::Project *proj = ProjectExplorer::SessionManager::startupProject();
+        QString mimeType = proj->projectManager()->mimeType();
+        QString proName  = proj->projectFilePath();
 
         bool isUbuntuProject = (mimeType == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
         bool isUbuntuHtmlProject = proName.endsWith(QLatin1String(Constants::UBUNTUHTMLPROJECT_SUFFIX));
 
         QString defFramework;
         if(isUbuntuProject && isUbuntuHtmlProject) {
-            defFramework = UbuntuClickTool::getMostRecentFramework(QLatin1String("html"));
+            defFramework = UbuntuClickTool::getMostRecentFramework(QLatin1String("html"),UbuntuClickTool::clickTargetFromTarget(proj->activeTarget()));
 
             if(defFramework.isEmpty())
                 defFramework = QLatin1String(Constants::UBUNTU_DEFAULT_HTML_FRAMEWORK);
         } else {
-            defFramework = UbuntuClickTool::getMostRecentFramework(QLatin1String("qml"));
+            defFramework = UbuntuClickTool::getMostRecentFramework(QLatin1String("qml"),UbuntuClickTool::clickTargetFromTarget(proj->activeTarget()));
 
             if(defFramework.isEmpty())
                 defFramework = QLatin1String(Constants::UBUNTU_DEFAULT_QML_FRAMEWORK);

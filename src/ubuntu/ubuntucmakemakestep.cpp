@@ -50,11 +50,6 @@ QList<Core::Id> UbuntuCMakeMakeStepFactory::availableCreationIds(ProjectExplorer
     if(!canHandle(parent->target()))
         return QList<Core::Id>();
 
-    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_DEPLOY) {
-        return QList<Core::Id>()
-                << Core::Id(Constants::UBUNTU_CLICK_PACKAGESTEP_ID);
-    }
-
     return QList<Core::Id>() << Core::Id(Constants::UBUNTU_CLICK_CMAKE_MAKESTEP_ID);
 }
 
@@ -83,8 +78,6 @@ QString UbuntuCMakeMakeStepFactory::displayNameForId(const Core::Id id) const
 {
     if (id == Constants::UBUNTU_CLICK_CMAKE_MAKESTEP_ID)
         return tr("UbuntuSDK-Make", "Display name for UbuntuCMakeMakeStep id.");
-    if (id == Constants::UBUNTU_CLICK_PACKAGESTEP_ID)
-        return tr("UbuntuSDK create click package", "Display name for UbuntuPackageStep id.");
     return QString();
 }
 
@@ -100,11 +93,6 @@ ProjectExplorer::BuildStep *UbuntuCMakeMakeStepFactory::create(ProjectExplorer::
     if (!canCreate(parent, id))
         return 0;
 
-    if (id == Constants::UBUNTU_CLICK_PACKAGESTEP_ID) {
-        UbuntuPackageStep *step = new UbuntuPackageStep(parent);
-        return step;
-    }
-
     UbuntuCMakeMakeStep *step = new UbuntuCMakeMakeStep(parent);
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
         step->setUseNinja(false);
@@ -117,11 +105,6 @@ ProjectExplorer::BuildStep *UbuntuCMakeMakeStepFactory::create(ProjectExplorer::
 bool UbuntuCMakeMakeStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
 {
     Core::Id toRestore = ProjectExplorer::idFromMap(map);
-
-    //backwards compatibility to older projects
-    if( toRestore == Constants::UBUNTU_DEPLOY_MAKESTEP_ID )
-        return canHandle(parent->target());
-
     return canCreate(parent, toRestore);
 }
 
@@ -131,18 +114,11 @@ ProjectExplorer::BuildStep *UbuntuCMakeMakeStepFactory::restore(ProjectExplorer:
         return 0;
 
     Core::Id toRestore = ProjectExplorer::idFromMap(map);
-
-    //backwards compatibility to older projects
-    if( toRestore == Constants::UBUNTU_DEPLOY_MAKESTEP_ID ) {
-        UbuntuPackageStep *step = new UbuntuPackageStep(parent);
+    ProjectExplorer::BuildStep* step = create(parent,toRestore);
+    if(step->fromMap(map))
         return step;
-    } else {
-        ProjectExplorer::BuildStep* step = create(parent,toRestore);
-        if(step->fromMap(map))
-            return step;
 
-        delete step;
-    }
+    delete step;
     return 0;
 }
 
@@ -158,8 +134,6 @@ ProjectExplorer::BuildStep *UbuntuCMakeMakeStepFactory::clone(ProjectExplorer::B
 
     if(product->id() == Core::Id(Constants::UBUNTU_CLICK_CMAKE_MAKESTEP_ID))
         return new UbuntuCMakeMakeStep(parent, static_cast<UbuntuCMakeMakeStep *>(product));
-    else if(product->id() == Core::Id(Constants::UBUNTU_CLICK_PACKAGESTEP_ID))
-        return new UbuntuPackageStep(parent, static_cast<UbuntuPackageStep *>(product));
 
     QTC_ASSERT(false,return 0);
 }

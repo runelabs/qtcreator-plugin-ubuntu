@@ -10,11 +10,12 @@ Dialog {
     property string emulatorImageName
 
     Button {
-        text: i18n.tr("cancel")
+        text: i18n.tr("Cancel")
+        color: UbuntuColors.warmGrey
         onClicked: PopupUtils.close(dialogue)
     }
     Button {
-        text: i18n.tr("delete")
+        text: i18n.tr("Delete")
         color: UbuntuColors.orange
         onClicked: {
             console.log("Deleting emu: "+dialogue.emulatorImageName);

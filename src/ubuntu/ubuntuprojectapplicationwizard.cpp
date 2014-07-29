@@ -32,6 +32,9 @@
 #include <extensionsystem/pluginmanager.h>
 #include <cmakeprojectmanager/cmakekitinformation.h>
 
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/toolchain.h>
+
 #include <QDir>
 
 
@@ -40,6 +43,7 @@ using namespace Ubuntu::Internal;
 enum {
     debug = 0
 };
+
 
 UbuntuProjectApplicationWizard::UbuntuProjectApplicationWizard(ProjectType type)
     : m_type(type)
@@ -167,7 +171,7 @@ void UbuntuProjectApplicationWizardDialog::init()
 void UbuntuProjectApplicationWizardDialog::addTargetSetupPage(int id)
 {
     //no target setup page required for basic projects
-    if(m_type == UbuntuProjectApplicationWizard::UbuntuProject)
+    if(m_type == UbuntuProjectApplicationWizard::UbuntuQMLProject)
         return;
 
     m_targetSetupPage = new ProjectExplorer::TargetSetupPage;
@@ -207,6 +211,10 @@ void UbuntuProjectApplicationWizardDialog::addTargetSetupPage(int id)
                 m_targetSetupPage->setRequiredKitMatcher(new QtSupport::QtVersionKitMatcher(features));
             break;
         }
+        case UbuntuProjectApplicationWizard::UbuntuHTMLProject: {
+            m_targetSetupPage->setRequiredKitMatcher(new UbuntuKitMatcher());
+            break;
+        }
         default:
             break;
     }
@@ -237,6 +245,11 @@ void UbuntuProjectApplicationWizardDialog::generateProfileName(const QString &pr
                                           +projectName
                                           +QDir::separator()
                                           +QString::fromLatin1("%1.goproject").arg(projectName));
+    } else if (m_type == UbuntuProjectApplicationWizard::UbuntuHTMLProject) {
+        m_targetSetupPage->setProjectPath(path+QDir::separator()
+                                          +projectName
+                                          +QDir::separator()
+                                          +QString::fromLatin1("%1.ubuntuhtmlproject").arg(projectName));
     } else {
         m_targetSetupPage->setProjectPath(path+QDir::separator()+projectName+QDir::separator()+QLatin1String("CMakeLists.txt"));
     }
