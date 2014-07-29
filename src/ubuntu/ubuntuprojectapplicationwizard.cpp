@@ -170,10 +170,6 @@ void UbuntuProjectApplicationWizardDialog::init()
 
 void UbuntuProjectApplicationWizardDialog::addTargetSetupPage(int id)
 {
-    //no target setup page required for basic projects
-    if(m_type == UbuntuProjectApplicationWizard::UbuntuQMLProject)
-        return;
-
     m_targetSetupPage = new ProjectExplorer::TargetSetupPage;
     const QString platform = selectedPlatform();
 
@@ -211,6 +207,7 @@ void UbuntuProjectApplicationWizardDialog::addTargetSetupPage(int id)
                 m_targetSetupPage->setRequiredKitMatcher(new QtSupport::QtVersionKitMatcher(features));
             break;
         }
+        case UbuntuProjectApplicationWizard::UbuntuQMLProject:
         case UbuntuProjectApplicationWizard::UbuntuHTMLProject: {
             m_targetSetupPage->setRequiredKitMatcher(new UbuntuKitMatcher());
             break;
@@ -250,6 +247,11 @@ void UbuntuProjectApplicationWizardDialog::generateProfileName(const QString &pr
                                           +projectName
                                           +QDir::separator()
                                           +QString::fromLatin1("%1.ubuntuhtmlproject").arg(projectName));
+    } else if (m_type == UbuntuProjectApplicationWizard::UbuntuQMLProject) {
+        m_targetSetupPage->setProjectPath(path+QDir::separator()
+                                          +projectName
+                                          +QDir::separator()
+                                          +QString::fromLatin1("%1.qmlproject").arg(projectName));
     } else {
         m_targetSetupPage->setProjectPath(path+QDir::separator()+projectName+QDir::separator()+QLatin1String("CMakeLists.txt"));
     }

@@ -37,6 +37,7 @@
 #include "ubuntubzr.h"
 #include "ubuntuqtversion.h"
 #include "ubuntudeploystepfactory.h"
+#include "ubuntuqmlbuildconfiguration.h"
 
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -138,6 +139,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     addAutoReleasedObject(new UbuntuCMakeMakeStepFactory);
     addAutoReleasedObject(new UbuntuCMakeBuildConfigurationFactory);
     addAutoReleasedObject(new UbuntuHtmlBuildConfigurationFactory);
+    addAutoReleasedObject(new UbuntuQmlBuildConfigurationFactory);
 
     //ubuntu device support
     addAutoReleasedObject(new UbuntuDeviceFactory);
