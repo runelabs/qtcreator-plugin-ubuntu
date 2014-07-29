@@ -550,6 +550,11 @@ const char GO_SUPPORT_FEATURE[] = "GoLang.GoSupport";
 
 const char UBUNTU_GO_BUILD_TARGETS[] = "%GOBUILDTARGETS%";
 
+//Qtversion support
+const char UBUNTU_QTVERSION_TYPE[]   = "UbuntuProjectManager.QtVersion";
+const char UBUNTU_PLATFORM_NAME[]    = "Ubuntu Phone";
+const char UBUNTU_PLATFORM_NAME_TR[] = QT_TRANSLATE_NOOP("UbuntuProjectManager", "Ubuntu Phone");
+
 } // namespace Ubuntu
 } // namespace Constants
 

@@ -29,6 +29,8 @@ class DebuggerItem;
 namespace Ubuntu {
 namespace Internal {
 
+class UbuntuQtVersion;
+
 class UbuntuKitManager : public QObject
 {
     Q_OBJECT
@@ -41,6 +43,7 @@ public:
     static QVariant createOrFindDebugger(const Utils::FileName &path);
     static void fixKit (ProjectExplorer::Kit* k);
     static QList<ClickToolChain *> clickToolChains();
+    static UbuntuQtVersion *createOrFindQtVersion(ClickToolChain* tc);
 };
 
 } // namespace Internal

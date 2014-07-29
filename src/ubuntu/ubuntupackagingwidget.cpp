@@ -26,6 +26,7 @@
 #include "ubuntuvalidationresultmodel.h"
 #include "ubuntudevice.h"
 #include "ubuntupackagestep.h"
+#include "ubuntushared.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
@@ -186,6 +187,7 @@ void UbuntuPackagingWidget::onValidationItemSelected(const QModelIndex &index)
 }
 
 void UbuntuPackagingWidget::onMessage(QString msg) {
+    printToOutputPane(msg);
     m_reply.append(msg);
     m_inputParser->addRecievedData(msg);
 }

@@ -116,7 +116,8 @@ SOURCES += \
     ubunturemoterunner.cpp \
     abstractremoterunsupport.cpp\
     ubuntushared.cpp \
-    ubuntupackagestep.cpp
+    ubuntupackagestep.cpp \
+    ubuntuqtversion.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -182,5 +183,6 @@ HEADERS += \
     ubuntudevicesignaloperation.h \
     ubunturemoterunner.h \
     abstractremoterunsupport.h \
-    ubuntupackagestep.h
+    ubuntupackagestep.h \
+    ubuntuqtversion.h
 

@@ -79,8 +79,11 @@ def on_focus(focused_app_id, state):
         sys.stdout.flush()
 
 def on_log_io(file, condition):
-    print (file.read().decode())
-    sys.stdout.flush()
+    output = file.read().decode()
+    if len(output) > 0:
+        print (output)
+        sys.stdout.flush()
+
     return True
 
 
@@ -212,7 +215,11 @@ logFileFd=logFile.fileno()
 file_flags = fcntl.fcntl(logFileFd, fcntl.F_GETFL)
 fcntl.fcntl(logFileFd, fcntl.F_SETFL, file_flags | os.O_NDELAY)
 
-GObject.io_add_watch(logTailProc.stdout,GObject.IO_IN | GObject.IO_HUP,on_log_io)
+#since pygobject version 3.8 the old way of calling io_add_watch is deprecated
+if (GObject.pygobject_version[0] > 3 or (GObject.pygobject_version[0] == 3 and GObject.pygobject_version[1] >= 8)):
+    GLib.io_add_watch(logTailProc.stdout,GLib.PRIORITY_DEFAULT,GObject.IO_IN | GObject.IO_HUP,on_log_io)
+else:
+    GObject.io_add_watch(logTailProc.stdout,GObject.IO_IN | GObject.IO_HUP,on_log_io)
 
 state = {}
 state['loop'] = GLib.MainLoop()
@@ -222,9 +229,15 @@ state['exitCode'] = 0
 
 print ("Registering hooks")
 sys.stdout.flush()
-GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGTERM, on_sigterm, state)
-GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGINT, on_sigterm, state)
-GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGHUP, on_sigterm, state)
+
+if "unix_signal_add" in dir(GLib):
+    GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGTERM, on_sigterm, state)
+    GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGINT, on_sigterm, state)
+    GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGHUP, on_sigterm, state)
+else:
+    GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGTERM, on_sigterm, state)
+    GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGINT, on_sigterm, state)
+    GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGHUP, on_sigterm, state)
 
 UAL.observer_add_app_failed(on_failed, state)
 UAL.observer_add_app_started(on_started, state)

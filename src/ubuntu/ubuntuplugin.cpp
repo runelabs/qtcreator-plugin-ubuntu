@@ -34,6 +34,7 @@
 #include "ubuntudevicesmodel.h"
 #include "localportsmanager.h"
 #include "ubuntubzr.h"
+#include "ubuntuqtversion.h"
 
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -155,6 +156,9 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
                 new UbuntuWizardFactory<UbuntuProjectApplicationWizard,UbuntuProjectApplicationWizard::GoProject>(
                     QStringLiteral("ubuntu-project-go"),
                     Core::IWizard::ProjectWizard));
+
+    //register Qt version
+    addAutoReleasedObject(new Ubuntu::Internal::UbuntuQtVersionFactory);
 
     //disabled for now, keeping the code because we might need a deploy method
     //for local applications in the future
