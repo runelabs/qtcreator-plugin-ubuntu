@@ -38,6 +38,7 @@
 #include "ubuntuqtversion.h"
 #include "ubuntudeploystepfactory.h"
 #include "ubuntuqmlbuildconfiguration.h"
+#include "ubuntufirstrunwizard.h"
 
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -197,6 +198,9 @@ void UbuntuPlugin::onKitsLoaded()
     UbuntuKitManager::autoDetectKits();
     disconnect(ProjectExplorer::KitManager::instance(),SIGNAL(kitsLoaded())
                ,this,SLOT(onKitsLoaded()));
+
+    UbuntuFirstRunWizard wiz;
+    wiz.exec();
 }
 
 Q_EXPORT_PLUGIN2(Ubuntu, UbuntuPlugin)

@@ -121,7 +121,8 @@ SOURCES += \
     ubuntudeploystepfactory.cpp \
     ubuntudirectuploadstep.cpp \
     ubuntuhtmlbuildconfiguration.cpp \
-    ubuntuqmlbuildconfiguration.cpp
+    ubuntuqmlbuildconfiguration.cpp \
+    ubuntufirstrunwizard.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -192,5 +193,6 @@ HEADERS += \
     ubuntudeploystepfactory.h \
     ubuntudirectuploadstep.h \
     ubuntuhtmlbuildconfiguration.h \
-    ubuntuqmlbuildconfiguration.h
+    ubuntuqmlbuildconfiguration.h \
+    ubuntufirstrunwizard.h
 
