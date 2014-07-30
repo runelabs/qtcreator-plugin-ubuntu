@@ -923,7 +923,7 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
             }
 
             QMutableStringListIterator iter(lines);
-            QRegularExpression regexName   (QStringLiteral("^(\\w+)"));
+            QRegularExpression regexName   (QStringLiteral("^(\\S+)"));
             QRegularExpression regexUbuntu (QStringLiteral("ubuntu=([0-9]+)"));
             QRegularExpression regexDevice (QStringLiteral("device=([0-9]+)"));
             QRegularExpression regexVersion(QStringLiteral("version=([0-9]+)"));
