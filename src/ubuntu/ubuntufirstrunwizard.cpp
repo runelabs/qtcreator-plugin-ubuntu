@@ -179,13 +179,17 @@ UbuntuSetupEmulatorWizardPage::UbuntuSetupEmulatorWizardPage(QWidget *parent)
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(label);
     layout->addSpacing(10);
-    layout->addWidget(new QLabel(tr("List of available emulators")));
+    layout->addWidget(new QLabel(tr("List of available devices")));
     layout->addWidget(m_devicesList);
     layout->addWidget(m_createEmulatorCheckBox);
     setLayout(layout);
+
+    connect(ProjectExplorer::DeviceManager::instance(),SIGNAL(deviceAdded(Core::Id)),this,SLOT(updateDevicesList()));
+    connect(ProjectExplorer::DeviceManager::instance(),SIGNAL(deviceRemoved(Core::Id)),this,SLOT(updateDevicesList()));
+    connect(ProjectExplorer::DeviceManager::instance(),SIGNAL(deviceListReplaced()),this,SLOT(updateDevicesList()));
 }
 
-void UbuntuSetupEmulatorWizardPage::initializePage()
+void UbuntuSetupEmulatorWizardPage::updateDevicesList()
 {
     m_devicesList->clear();
     ProjectExplorer::DeviceManager *devMgr = ProjectExplorer::DeviceManager::instance();
@@ -197,13 +201,15 @@ void UbuntuSetupEmulatorWizardPage::initializePage()
         if(dev->type() != Constants::UBUNTU_DEVICE_TYPE_ID)
             continue;
 
-        if(dev->machineType() != ProjectExplorer::IDevice::Emulator)
-            continue;
-
         QTreeWidgetItem* devItem = new QTreeWidgetItem;
         devItem->setText(0,dev->displayName());
         m_devicesList->addTopLevelItem(devItem);
     }
+}
+
+void UbuntuSetupEmulatorWizardPage::initializePage()
+{
+    updateDevicesList();
 }
 
 bool UbuntuSetupEmulatorWizardPage::isComplete() const

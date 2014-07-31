@@ -72,6 +72,9 @@ public:
     virtual void initializePage();
     virtual bool isComplete() const;
 
+protected slots:
+    void updateDevicesList ();
+
 private:
     QCheckBox *m_createEmulatorCheckBox;
     QTreeWidget *m_devicesList;
