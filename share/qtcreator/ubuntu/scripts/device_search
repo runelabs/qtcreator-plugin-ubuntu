@@ -23,4 +23,23 @@ fi
 #if [ $?==1 ]; then
 #  exit
 #fi
-adb devices -l | grep -Ev "List of devices attached" | grep -Ev "emulator-" | sed "/^$/d"
+#adb devices -l | grep -Ev "List of devices attached" | grep -Ev "emulator-" | sed "/^$/d"
+
+
+IFS=$'\n'
+
+for DEVICES_INFO in `adb devices -l | grep -Ev "List of devices attached" | grep -Ev "emulator-" | sed "/^$/d"`
+do
+#086e443edf51b915       device usb:3-1 product:occam model:Nexus_4 device:mako
+#echo $DEVICES_INFO
+
+        if [[ ${DEVICES_INFO} =~ ^([a-z0-9]+)(.*)$ ]]; then
+                NAME="${BASH_REMATCH[1]}"
+                REST="${BASH_REMATCH[2]}"
+                ARCH=`adb -s ${NAME} shell uname -p`
+		ARCH=${ARCH/arm*/armhf}
+                ARCH=${ARCH//[[:blank:]]/}
+                echo "$NAME$REST arch:$ARCH"
+        fi
+done
+
