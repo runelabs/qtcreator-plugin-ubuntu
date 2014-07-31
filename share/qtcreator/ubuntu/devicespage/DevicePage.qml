@@ -11,7 +11,6 @@ Page {
     id: devicePage
     flickable: null
 
-
     Item {
         anchors.fill: parent
         visible: devicesModel.busy
@@ -145,6 +144,11 @@ Page {
                         tooltip: text
                         iconSource: "qrc:/ubuntu/images/list-add.png"
                         onClicked: PopupUtils.open(resourceRoot+"/NewEmulatorDialog.qml",devicePage);
+                    }
+
+                    Connections{
+                        target: deviceMode
+                        onOpenAddEmulatorDialog: PopupUtils.open(resourceRoot+"/NewEmulatorDialog.qml",devicePage);
                     }
                 }
             }

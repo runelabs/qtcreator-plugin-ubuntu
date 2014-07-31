@@ -51,6 +51,7 @@
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QtQml>
+#include <QFile>
 #include <coreplugin/icore.h>
 
 using namespace Ubuntu;
@@ -199,8 +200,30 @@ void UbuntuPlugin::onKitsLoaded()
     disconnect(ProjectExplorer::KitManager::instance(),SIGNAL(kitsLoaded())
                ,this,SLOT(onKitsLoaded()));
 
-    UbuntuFirstRunWizard wiz;
-    wiz.exec();
+    QTimer::singleShot(0,this,SLOT(showFirstStartWizard()));
+}
+
+void UbuntuPlugin::showFirstStartWizard()
+{
+    QString file = QStringLiteral("%1/.config/ubuntu-sdk/firstrun")
+            .arg(QDir::homePath());
+
+    if(!QFile::exists(file)) {
+        QFile f(file);
+        f.open(QIODevice::WriteOnly);
+        f.write("1");
+        f.close();
+
+        UbuntuFirstRunWizard wiz;
+        if( wiz.exec() == QDialog::Accepted ) {
+            if (wiz.field(QStringLiteral("createEmulator")).toBool()) {
+                Core::ModeManager::activateMode(Ubuntu::Constants::UBUNTU_MODE_DEVICES);
+
+                //invoke the method the next time the event loop starts
+                QMetaObject::invokeMethod(m_ubuntuDeviceMode,"showAddEmulatorDialog",Qt::QueuedConnection);
+            }
+        }
+    }
 }
 
 Q_EXPORT_PLUGIN2(Ubuntu, UbuntuPlugin)

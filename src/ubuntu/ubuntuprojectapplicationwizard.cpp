@@ -21,6 +21,7 @@
 #include "ubuntuconstants.h"
 #include "ubuntuproject.h"
 #include "ubuntubzr.h"
+#include "ubuntufirstrunwizard.h"
 
 #include <coreplugin/mimedatabase.h>
 
@@ -57,6 +58,7 @@ QWizard *UbuntuProjectApplicationWizard::createWizardDialog (QWidget *parent, co
     UbuntuProjectApplicationWizardDialog *projectDialog = new UbuntuProjectApplicationWizardDialog(parent,
                                                                                                    m_type ,
                                                                                                    wizardDialogParameters);
+    projectDialog->addChrootSetupPage(12);
     projectDialog->addTargetSetupPage(13);
 
     initProjectWizardDialog(projectDialog,
@@ -166,6 +168,28 @@ void UbuntuProjectApplicationWizardDialog::init()
 
     connect(this, SIGNAL(projectParametersChanged(QString,QString)),
             this, SLOT(generateProfileName(QString,QString)));
+}
+
+void UbuntuProjectApplicationWizardDialog::addChrootSetupPage(int id)
+{
+    QList<ProjectExplorer::Kit *> allKits = ProjectExplorer::KitManager::kits();
+
+    bool found = false;
+    foreach(ProjectExplorer::Kit *curr, allKits) {
+        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(curr);
+        if (tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
+            found = true;
+            break;
+        }
+    }
+
+    if(found)
+        return;
+
+    if (id >= 0)
+        setPage(id, new UbuntuSetupChrootWizardPage);
+    else
+        id = addPage(new UbuntuSetupChrootWizardPage);
 }
 
 void UbuntuProjectApplicationWizardDialog::addTargetSetupPage(int id)

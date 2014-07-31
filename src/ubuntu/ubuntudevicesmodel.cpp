@@ -1028,7 +1028,7 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
 
                     if (lineData.count() == 2) {
                         QString sSerialNumber = lineData.takeFirst();
-                        QString sDeviceInfo = lineData.takeFirst();
+                        //QString sDeviceInfo = lineData.takeFirst();
 
                         //sometimes the adb server is not started when adb devices is
                         //executed, we just skip those lines

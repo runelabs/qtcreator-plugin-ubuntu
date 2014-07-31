@@ -37,6 +37,8 @@ class UbuntuQMLDeviceMode : public QObject {
 public:
     UbuntuQMLDeviceMode( UbuntuDeviceMode *parent );
 
+    void showAddEmulatorDialog ();
+
 public slots:
     void deviceSelected ( const QVariant index );
     void addText (const QString &arg);
@@ -45,6 +47,7 @@ public slots:
 signals:
     void logChanged(const QString &arg);
     void appendText(const QString &newText);
+    void openAddEmulatorDialog ();
 
 private:
     UbuntuDeviceMode* m_mode;
@@ -63,6 +66,9 @@ public:
     UbuntuDevice::ConstPtr device();
 
     void deviceSelected ( const QVariant index );
+
+public slots:
+    void showAddEmulatorDialog ();
 
 signals:
     void updateDeviceActions ();

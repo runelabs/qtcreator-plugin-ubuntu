@@ -7,7 +7,7 @@
 class QLabel;
 class QPushButton;
 class QTreeWidget;
-class QTextEdit;
+class QCheckBox;
 
 namespace ProjectExplorer {
     class Kit;
@@ -60,17 +60,8 @@ public:
     virtual void initializePage();
     virtual bool isComplete() const;
 
-protected slots:
-    void onCreateEmulatorsClicked ();
-    void onProcMessage (const QString &text);
-    void onProcFinished ( const QString &program, int code );
-
 private:
-    QPushButton *m_createButton;
-    QTreeWidget *m_kitList;
-    UbuntuProcess *m_proc;
-    QTextEdit *m_procOutput;
-    QList<ProjectExplorer::Kit *> m_kitsToCreate;
+    QCheckBox *m_createEmulatorCheckBox;
 };
 
 } // namespace Internal
