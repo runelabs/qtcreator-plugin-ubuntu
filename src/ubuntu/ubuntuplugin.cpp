@@ -200,7 +200,7 @@ void UbuntuPlugin::onKitsLoaded()
     disconnect(ProjectExplorer::KitManager::instance(),SIGNAL(kitsLoaded())
                ,this,SLOT(onKitsLoaded()));
 
-    QTimer::singleShot(0,this,SLOT(showFirstStartWizard()));
+    showFirstStartWizard();
 }
 
 void UbuntuPlugin::showFirstStartWizard()
@@ -209,18 +209,21 @@ void UbuntuPlugin::showFirstStartWizard()
             .arg(QDir::homePath());
 
     if(!QFile::exists(file)) {
-        QFile f(file);
-        f.open(QIODevice::WriteOnly);
-        f.write("1");
-        f.close();
-
-        UbuntuFirstRunWizard wiz;
+        UbuntuFirstRunWizard wiz(Core::ICore::mainWindow());
         if( wiz.exec() == QDialog::Accepted ) {
             if (wiz.field(QStringLiteral("createEmulator")).toBool()) {
                 Core::ModeManager::activateMode(Ubuntu::Constants::UBUNTU_MODE_DEVICES);
 
                 //invoke the method the next time the event loop starts
                 QMetaObject::invokeMethod(m_ubuntuDeviceMode,"showAddEmulatorDialog",Qt::QueuedConnection);
+            }
+
+            if(wiz.field(QStringLiteral("disableWizard")).toBool()) {
+                QFile f(file);
+                if(f.open(QIODevice::WriteOnly)) {
+                    f.write("1");
+                    f.close();
+                }
             }
         }
     }

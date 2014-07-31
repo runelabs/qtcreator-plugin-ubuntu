@@ -5,9 +5,11 @@
 #include "clicktoolchain.h"
 #include "ubuntudevicesmodel.h"
 #include "ubuntuprocess.h"
+#include "ubuntudevice.h"
 
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 
 #include <QLabel>
 #include <QPushButton>
@@ -18,6 +20,7 @@
 #include <QDebug>
 #include <QVariant>
 #include <QHeaderView>
+#include <QSpacerItem>
 
 namespace Ubuntu {
 namespace Internal {
@@ -29,23 +32,48 @@ enum {
 UbuntuFirstRunWizard::UbuntuFirstRunWizard(QWidget *parent) :
     QWizard(parent)
 {
-    QWizardPage *page = new QWizardPage;
-    QLabel *label = new QLabel(tr("<h1 style=\"text-align: center;\">Welcome to the Ubuntu-SDK</h1>"
-                               "<p>This Wizard will help you to setup your development environment and enables you to create Applications for the Ubuntu platform.</p>"
-                               "<p>The next time you start QtCreator, this Wizard will not be shown anymore, but you can always create new Targets in the Tools -&gt; Options -&gt; Ubuntu Settings Page, "
-                               "or using the Devicepage and select &quot;Autocreate kit&quot; when a device is attached.</p>"
-                               "<p>Have a lot of fun!</p>"));
-    label->setWordWrap(true);
-
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->addWidget(label);
-    page->setLayout(layout);
-
-    addPage(page);
+    addPage(new UbuntuIntroductionWizardPage);
     addPage(new UbuntuSetupChrootWizardPage);
     addPage(new UbuntuSetupEmulatorWizardPage);
 
     setMinimumSize(800,600);
+}
+
+
+
+UbuntuIntroductionWizardPage::UbuntuIntroductionWizardPage(QWidget *parent) :
+    QWizardPage(parent)
+{
+    QLabel *label = new QLabel(tr("<h1 style=\"text-align: center;\">Welcome to the Ubuntu-SDK</h1>"
+                               "<p>This Wizard will help to setup a development environment to create Applications for the Ubuntu platform.</p>"
+                               "<p>The next time QtCreator is started this Wizard will not be shown anymore, but it is always possible to create:"
+                               "<ul><li>new Targets in the  &quot;Tools -&gt; Options -&gt; Ubuntu&quot; Settings Page,</li>"
+                               "<li>new emulators on the Devices pages by clicking on the &quot;+&quot; button</li></ul>"
+                               "</p>"
+                               "<p>Have a lot of fun!</p>"));
+    label->setWordWrap(true);
+
+    QCheckBox *check = new QCheckBox(tr("Do not show this Wizard the next time."));
+    check->setChecked(true);
+
+
+    registerField(QStringLiteral("disableWizard"),check);
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(label);
+    layout->addStretch();
+    layout->addWidget(check);
+    setLayout(layout);
+}
+
+void UbuntuIntroductionWizardPage::initializePage()
+{
+
+}
+
+bool UbuntuIntroductionWizardPage::isComplete() const
+{
+    return true;
 }
 
 UbuntuSetupChrootWizardPage::UbuntuSetupChrootWizardPage(QWidget *parent)
@@ -55,11 +83,11 @@ UbuntuSetupChrootWizardPage::UbuntuSetupChrootWizardPage(QWidget *parent)
 
     setTitle(tr("Build targets"));
 
-    QLabel *label = new QLabel(tr("<p>In order to create Apps for the Ubuntu platform, you need to create Kits that contain the development tools and libraries for the devices.</p>"
-                                  "<p><strong>Note: </strong>If you want to develop using the Emulator, we suggest to use a i386 Kit and Emulator to get the best experience</p>"));
+    QLabel *label = new QLabel(tr("<p>In order to create Apps for the Ubuntu platform, it is required to create Kits. Kits enable cross-platform and cross-configuration development. Kits consist of a set of values that define one environment, such as a target device, sysroot to build against,  toolchain to build with, platform specific API set, and some metadata.</p>"
+                                  "<p><strong>Note: </strong>It is recommended to create Kits for each possible traget architecture (i386, armhf). When developing with the emulator, the best experience is provided by using a i386 emulator and Kit</p>"));
     label->setWordWrap(true);
 
-    m_kitExistsLabel = new QLabel(tr("These Kits are already available on your machine, but you can still create new ones."));
+    m_kitExistsLabel = new QLabel(tr("These Kits are already available on the machine, but it is also possible to create new ones."));
     m_kitExistsLabel->setWordWrap(true);
     m_kitExistsLabel->setVisible(false);
 
@@ -119,7 +147,7 @@ bool UbuntuSetupChrootWizardPage::isComplete() const
 
 void UbuntuSetupChrootWizardPage::onCreateKitButtonClicked()
 {
-    UbuntuClickDialog::createClickChrootModal();
+    UbuntuClickDialog::createClickChrootModal(true,QString(),this);
     initializePage();
 }
 
@@ -127,24 +155,53 @@ UbuntuSetupEmulatorWizardPage::UbuntuSetupEmulatorWizardPage(QWidget *parent)
     : QWizardPage(parent)
 {
 
-    QLabel *label = new QLabel(tr("<p>To be able to run your applications you either need a physical device, or a Ubuntu Emulator.<br />"
-                                  "Please enable the checkbox below if you want to create a emulator right away, after pressing the &quot;Finish&quot; button the device page will be opened.</p>"
-                                  "<p>Skip that step if you just want to use your physical device.</p>"
+    QLabel *label = new QLabel(tr("<p>To be able to run applications either a physical device or a Ubuntu Emulator can be used.<br />"
+                                  "Please enable the checkbox below if a emulator should be created right away and after pressing the &quot;Finish&quot; button the device page will be opened.</p>"
+                                  "<p>Skip that step if only physical devices are used.</p>"
                                   "<p><strong>Note: </strong>Currently we suggest to use only the i386 emulator, because it provides the best experience</p>"));
     label->setWordWrap(true);
 
     m_createEmulatorCheckBox = new QCheckBox(tr("Create emulator"));
     registerField(QStringLiteral("createEmulator"),m_createEmulatorCheckBox);
 
+    m_devicesList =new QTreeWidget;
+    m_devicesList->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    m_devicesList->setSelectionMode(QAbstractItemView::NoSelection);
+    m_devicesList->setItemsExpandable(false);
+    m_devicesList->header()->setStretchLastSection(true);
+    m_devicesList->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    m_devicesList->setColumnCount(1);
+
+    QStringList headers;
+    headers << tr("Device Name");
+    m_devicesList->setHeaderLabels(headers);
+
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(label);
+    layout->addWidget(m_devicesList);
     layout->addWidget(m_createEmulatorCheckBox);
     setLayout(layout);
 }
 
 void UbuntuSetupEmulatorWizardPage::initializePage()
 {
+    m_devicesList->clear();
+    ProjectExplorer::DeviceManager *devMgr = ProjectExplorer::DeviceManager::instance();
+    for(int i = 0; i < devMgr->deviceCount(); i++) {
+        ProjectExplorer::IDevice::ConstPtr dev = devMgr->deviceAt(i);
+        if(!dev)
+            continue;
 
+        if(dev->type() != Constants::UBUNTU_DEVICE_TYPE_ID)
+            continue;
+
+        if(dev->machineType() != ProjectExplorer::IDevice::Emulator)
+            continue;
+
+        QTreeWidgetItem* devItem = new QTreeWidgetItem;
+        devItem->setText(0,dev->displayName());
+        m_devicesList->addTopLevelItem(devItem);
+    }
 }
 
 bool UbuntuSetupEmulatorWizardPage::isComplete() const

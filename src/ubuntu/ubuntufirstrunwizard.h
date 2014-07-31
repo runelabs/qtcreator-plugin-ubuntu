@@ -30,6 +30,18 @@ public slots:
 
 };
 
+class UbuntuIntroductionWizardPage : public QWizardPage
+{
+    Q_OBJECT
+public:
+    UbuntuIntroductionWizardPage (QWidget *parent = 0);
+
+    // QWizardPage interface
+    virtual void initializePage();
+    virtual bool isComplete() const;
+};
+
+
 class UbuntuSetupChrootWizardPage : public QWizardPage
 {
     Q_OBJECT
@@ -62,6 +74,7 @@ public:
 
 private:
     QCheckBox *m_createEmulatorCheckBox;
+    QTreeWidget *m_devicesList;
 };
 
 } // namespace Internal

@@ -81,9 +81,9 @@ void UbuntuClickDialog::runClick( )
     m_process->start();
 }
 
-int UbuntuClickDialog::runClickModal(ProjectExplorer::ProcessParameters *params)
+int UbuntuClickDialog::runClickModal(ProjectExplorer::ProcessParameters *params, QWidget *parent)
 {
-    UbuntuClickDialog dlg(Core::ICore::mainWindow());
+    UbuntuClickDialog dlg( parent ? parent : Core::ICore::mainWindow());
     dlg.setParameters(params);
     QMetaObject::invokeMethod(&dlg,"runClick",Qt::QueuedConnection);
     dlg.exec();
@@ -91,17 +91,17 @@ int UbuntuClickDialog::runClickModal(ProjectExplorer::ProcessParameters *params)
     return dlg.m_exitCode;
 }
 
-bool UbuntuClickDialog::createClickChrootModal(bool redetectKits, const QString &arch)
+bool UbuntuClickDialog::createClickChrootModal(bool redetectKits, const QString &arch, QWidget *parent)
 {
 
     UbuntuClickTool::Target t;
-    if(!UbuntuCreateNewChrootDialog::getNewChrootTarget(&t,arch))
+    if(!UbuntuCreateNewChrootDialog::getNewChrootTarget(&t,arch,parent))
         return false;
 
     ProjectExplorer::ProcessParameters params;
     UbuntuClickTool::parametersForCreateChroot(t,&params);
 
-    bool success = (runClickModal(&params) == 0);
+    bool success = (runClickModal(&params,parent) == 0);
 
     if(success) {
         ClickToolChain* tc = new ClickToolChain(t, ProjectExplorer::ToolChain::AutoDetection);
