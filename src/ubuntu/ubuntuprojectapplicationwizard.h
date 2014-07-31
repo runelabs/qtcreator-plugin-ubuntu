@@ -68,6 +68,7 @@ public:
                                                   const Core::WizardDialogParameters &parameters);
     virtual ~UbuntuProjectApplicationWizardDialog();
 
+    void addChrootSetupPage(int id = -1);
     void addTargetSetupPage(int id = -1);
 
     QList<Core::Id> selectedKits() const;

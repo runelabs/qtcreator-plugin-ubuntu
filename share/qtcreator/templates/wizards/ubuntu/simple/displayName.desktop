@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=%ClickHookName%
-Exec=/usr/bin/qmlscene $@ /usr/share/%ProjectName%/%ProjectName%.qml
+Exec=qmlscene $@ main.qml
 Icon=%ProjectName%.png
 Terminal=false
 Type=Application

@@ -4,6 +4,7 @@
 #include "ubuntucmaketool.h"
 #include "ubuntudevice.h"
 #include "ubuntuclickdialog.h"
+#include "ubuntuqtversion.h"
 
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kit.h>
@@ -15,8 +16,10 @@
 #include <qtsupport/qtkitinformation.h>
 #include <cmakeprojectmanager/cmakekitinformation.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>
+#include <qtsupport/qtversionmanager.h>
 
 #include <QMessageBox>
+#include <QTextStream>
 
 namespace Ubuntu {
 namespace Internal {
@@ -62,6 +65,53 @@ QList<ClickToolChain *> UbuntuKitManager::clickToolChains()
         }
     }
     return toolchains;
+}
+
+UbuntuQtVersion *UbuntuKitManager::createOrFindQtVersion(ClickToolChain *tc)
+{
+
+    QString qmakePath = QStringLiteral("%1/.config/ubuntu-sdk/qmake-%2-%3")
+            .arg(QDir::homePath())
+            .arg(tc->clickTarget().framework)
+            .arg(tc->clickTarget().architecture);
+
+    if(!QFile::exists(qmakePath)) {
+        QFile qmakeTemplate(Constants::UBUNTU_RESOURCE_PATH+QStringLiteral("/ubuntu/scripts/qtc_chroot_qmake"));
+        if(qmakeTemplate.open(QIODevice::ReadOnly)) {
+
+            QTextStream in(&qmakeTemplate);
+            QString templ = in.readAll();
+
+            templ = templ
+                    .arg(tc->clickTarget().architecture)
+                    .arg(tc->clickTarget().framework);
+
+
+            QFile qmakeScript(qmakePath);
+
+            qmakeScript.open(QIODevice::WriteOnly);
+            qmakeScript.setPermissions(QFile::ExeUser | QFile::ReadUser | QFile::ReadGroup);
+
+            {
+                QTextStream out(&qmakeScript);
+                out << templ;
+            }
+
+            qmakeScript.close();
+        }
+    } else {
+        //try to find a already existing Qt Version for this chroot
+        foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::versions()) {
+            if (qtVersion->type() != QLatin1String(Constants::UBUNTU_QTVERSION_TYPE))
+                continue;
+            if (qtVersion->qmakeCommand().toFileInfo() == QFileInfo(qmakePath))
+                return static_cast<UbuntuQtVersion*> (qtVersion);
+        }
+    }
+
+    UbuntuQtVersion *qtVersion = new UbuntuQtVersion(Utils::FileName::fromString(qmakePath),false);
+    QtSupport::QtVersionManager::addVersion(qtVersion);
+    return qtVersion;
 }
 
 void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
@@ -265,8 +315,7 @@ ProjectExplorer::Kit *UbuntuKitManager::createKit(ClickToolChain *tc)
     ProjectExplorer::SysRootKitInformation::setSysRoot(newKit,Utils::FileName::fromString(UbuntuClickTool::targetBasePath(tc->clickTarget())));
 
     //@TODO add gdbserver support
-    //@TODO add real qt version
-    QtSupport::QtKitInformation::setQtVersion(newKit, 0);
+    QtSupport::QtKitInformation::setQtVersion(newKit, createOrFindQtVersion(tc));
     return newKit;
 }
 
@@ -341,6 +390,9 @@ void UbuntuKitManager::fixKit(ProjectExplorer::Kit *k)
     //values the user cannot change
     k->setSticky(ProjectExplorer::SysRootKitInformation::id(),true);
     k->setMutable(ProjectExplorer::SysRootKitInformation::id(),false);
+
+    //make sure we use a ubuntu Qt version
+    QtSupport::QtKitInformation::setQtVersion(k, createOrFindQtVersion(tc));
 
 }
 

@@ -15,6 +15,10 @@
 #
 # Author: Zoltán Balogh <zoltan.balogh@canonical.com>
 
+
+CLICK_CHROOT_ARCH="%1"
+CLICK_CHROOT_FW="%2"
+
 if [ -z "$CLICK_CHROOT_ARCH" ]; then
     echo "Need to set CLICK_CHROOT_ARCH"
     exit 1

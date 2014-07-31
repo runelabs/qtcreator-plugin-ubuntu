@@ -35,7 +35,11 @@
 #include "ubuntudevicesmodel.h"
 #include "localportsmanager.h"
 #include "ubuntubzr.h"
+#include "ubuntuqtversion.h"
 #include "ubuntudeploystepfactory.h"
+#include "ubuntuqmlbuildconfiguration.h"
+#include "ubuntufirstrunwizard.h"
+
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
 #include <coreplugin/featureprovider.h>
@@ -47,6 +51,7 @@
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QtQml>
+#include <QFile>
 #include <coreplugin/icore.h>
 
 using namespace Ubuntu;
@@ -136,6 +141,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     addAutoReleasedObject(new UbuntuCMakeMakeStepFactory);
     addAutoReleasedObject(new UbuntuCMakeBuildConfigurationFactory);
     addAutoReleasedObject(new UbuntuHtmlBuildConfigurationFactory);
+    addAutoReleasedObject(new UbuntuQmlBuildConfigurationFactory);
 
     //ubuntu device support
     addAutoReleasedObject(new UbuntuDeviceFactory);
@@ -161,6 +167,9 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
                 new UbuntuWizardFactory<UbuntuProjectApplicationWizard,UbuntuProjectApplicationWizard::GoProject>(
                     QStringLiteral("ubuntu-project-go"),
                     Core::IWizard::ProjectWizard));
+
+    //register Qt version
+    addAutoReleasedObject(new Ubuntu::Internal::UbuntuQtVersionFactory);
 
     //disabled for now, keeping the code because we might need a deploy method
     //for local applications in the future
@@ -190,6 +199,34 @@ void UbuntuPlugin::onKitsLoaded()
     UbuntuKitManager::autoDetectKits();
     disconnect(ProjectExplorer::KitManager::instance(),SIGNAL(kitsLoaded())
                ,this,SLOT(onKitsLoaded()));
+
+    showFirstStartWizard();
+}
+
+void UbuntuPlugin::showFirstStartWizard()
+{
+    QString file = QStringLiteral("%1/.config/ubuntu-sdk/firstrun")
+            .arg(QDir::homePath());
+
+    if(!QFile::exists(file)) {
+        UbuntuFirstRunWizard wiz(Core::ICore::mainWindow());
+        if( wiz.exec() == QDialog::Accepted ) {
+            if (wiz.field(QStringLiteral("createEmulator")).toBool()) {
+                Core::ModeManager::activateMode(Ubuntu::Constants::UBUNTU_MODE_DEVICES);
+
+                //invoke the method the next time the event loop starts
+                QMetaObject::invokeMethod(m_ubuntuDeviceMode,"showAddEmulatorDialog",Qt::QueuedConnection);
+            }
+
+            if(wiz.field(QStringLiteral("disableWizard")).toBool()) {
+                QFile f(file);
+                if(f.open(QIODevice::WriteOnly)) {
+                    f.write("1");
+                    f.close();
+                }
+            }
+        }
+    }
 }
 
 Q_EXPORT_PLUGIN2(Ubuntu, UbuntuPlugin)
