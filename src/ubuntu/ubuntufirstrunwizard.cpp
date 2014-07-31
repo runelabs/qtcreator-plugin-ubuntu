@@ -46,8 +46,8 @@ UbuntuIntroductionWizardPage::UbuntuIntroductionWizardPage(QWidget *parent) :
 {
     QLabel *label = new QLabel(tr("<h1 style=\"text-align: center;\">Welcome to the Ubuntu-SDK</h1>"
                                "<p>This Wizard will help to setup a development environment to create Applications for the Ubuntu platform.</p>"
-                               "<p>The next time QtCreator is started this Wizard will not be shown anymore, but it is always possible to create:"
-                               "<ul><li>new Targets in the  &quot;Tools -&gt; Options -&gt; Ubuntu&quot; Settings Page,</li>"
+                               "<p>At any time later it is possible to create:"
+                               "<ul><li>new targets in the  &quot;Tools -&gt; Options -&gt; Ubuntu&quot; Settings Page,</li>"
                                "<li>new emulators on the Devices pages by clicking on the &quot;+&quot; button</li></ul>"
                                "</p>"
                                "<p>Have a lot of fun!</p>"));
@@ -178,6 +178,8 @@ UbuntuSetupEmulatorWizardPage::UbuntuSetupEmulatorWizardPage(QWidget *parent)
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(label);
+    layout->addSpacing(10);
+    layout->addWidget(new QLabel(tr("List of available emulators")));
     layout->addWidget(m_devicesList);
     layout->addWidget(m_createEmulatorCheckBox);
     setLayout(layout);
