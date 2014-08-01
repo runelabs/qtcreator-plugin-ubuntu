@@ -116,7 +116,7 @@ protected:
     UbuntuDevicesItem *createItem (UbuntuDevice::Ptr dev);
     int indexFromHelper (QObject* possibleHelper);
     void deviceChanged(QObject* possibleHelper, const QVector<int> &relatedRoles);
-    void registerNewDevice(const QString &serial);
+    void registerNewDevice(const QString &serial, const QString &arch);
 
     void setState(UbuntuDevicesModel::State newState);
     void setBusy(bool arg);

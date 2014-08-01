@@ -755,7 +755,7 @@ void UbuntuPackagingWidget::buildFinished(const bool success)
                     ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(pckStep->target()->kit());
                     if (!dev)
                         break; //fall through to clear buildsteps
-                    if (dev->type() != Constants::UBUNTU_DEVICE_TYPE_ID)
+                    if (!dev->type().toString().startsWith(QLatin1String(Constants::UBUNTU_DEVICE_TYPE_ID)))
                         break; //fall through to clear buildsteps
 
                     UbuntuDevice::ConstPtr ubuntuDev = qSharedPointerCast<const UbuntuDevice>(dev);
@@ -814,7 +814,7 @@ void UbuntuPackagingWidget::buildClickPackage()
         if(!k)
             return;
 
-        if(ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k) != Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID) {
+        if(!ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k).toString().startsWith(QLatin1String(Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID))) {
             QMessageBox::warning(this,tr("Wrong kit type"),tr("It is not supported to create click packages for a non UbuntuSDK target"));
             return;
         }

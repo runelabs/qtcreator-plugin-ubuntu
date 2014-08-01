@@ -155,7 +155,7 @@ public:
     virtual ~UbuntuDevice ();
 
     static Ptr create();
-    static Ptr create(const QString &name,const QString &serial, MachineType machineType, Origin origin = ManuallyAdded);
+    static Ptr create(const QString &name,const QString &serial, MachineType machineType, const QString &archName, Origin origin = ManuallyAdded);
 
     QString serialNumber () const;
     UbuntuDeviceHelper *helper () const;
@@ -207,7 +207,7 @@ public:
     ConstPtr sharedFromThis() const;
 protected:
     UbuntuDevice();
-    UbuntuDevice(const QString &name,MachineType machineType, Origin origin, Core::Id id);
+    UbuntuDevice(const QString &name,MachineType machineType, Origin origin, Core::Id id, const QString &architecture);
     UbuntuDevice(const UbuntuDevice &other);
     void loadDefaultConfig();
     void setupPrivateKey  ();

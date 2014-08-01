@@ -93,7 +93,7 @@ void UbuntuRemoteAnalyzeSupport::startExecution()
     runner->setEnv(environment());
     runner->setQmlDebugPort(d->qmlPort);
 
-    QTC_ASSERT(device()->type() == Constants::UBUNTU_DEVICE_TYPE_ID,return);
+    QTC_ASSERT(device()->type().toString().startsWith(QLatin1String(Constants::UBUNTU_DEVICE_TYPE_ID)),return);
     runner->start(qSharedPointerCast<const UbuntuDevice>(device()),clickPackage());
 }
 
