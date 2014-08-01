@@ -19,8 +19,21 @@ if [ $1 -eq 1 ]; then
     adb kill-server > /dev/null
     adb start-server > /dev/null
 fi
-#adb root &> /dev/null
-#if [ $?==1 ]; then
-#  exit
-#fi
-adb devices -l | grep -Ev "List of devices attached" | grep -Ev "emulator-" | sed "/^$/d"
+
+IFS=$'\n'
+
+for DEVICES_INFO in `adb devices -l | grep -Ev "List of devices attached" | grep -Ev "emulator-" | sed "/^$/d"`
+do
+        if [[ ${DEVICES_INFO} =~ ^([a-z0-9]+)(.*)$ ]]; then
+                NAME="${BASH_REMATCH[1]}"
+                REST="${BASH_REMATCH[2]}"
+		ARCH=`adb -s ${NAME} shell uname -p 2>&1|egrep -v "device not found"`
+		if [ $? -ne 0 ]
+		then
+			continue
+		fi
+		ARCH=${ARCH/arm*/armhf}
+                ARCH=${ARCH//[[:blank:]]/}
+                echo "$NAME$REST arch:$ARCH"
+        fi
+done
