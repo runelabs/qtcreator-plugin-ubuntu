@@ -510,6 +510,7 @@ const char UBUNTU_CLICK_CMAKE_WRAPPER[]  = "%0/qtc_chroot_cmake2";
 const char UBUNTU_CLICK_MAKE_WRAPPER[]   = "%0/qtc_chroot_make2";
 const char UBUNTU_CLICK_GCC_WRAPPER[]    = "%0/qtc_chroot_gcc";
 const char UBUNTU_CLICK_HTML_BC_ID[]     = "UbuntuProjectManager.UbuntuHTML5.BuildConfiguration";
+const char UBUNTU_CLICK_QML_BC_ID[]      = "UbuntuProjectManager.UbuntuQml.BuildConfiguration";
 //Devicesupport
 const char UBUNTU_DEVICE_TYPE_ID[] = "UbuntuProjectManager.DeviceTypeId";
 const char UBUNTU_DEVICE_SSHIDENTITY[] = "%0/.config/ubuntu-sdk/ubuntudevice_id_rsa";
@@ -550,6 +551,11 @@ const char GO_RUNCONFIG_ID[] = "GoLang.GoRunConfiguration";
 const char GO_SUPPORT_FEATURE[] = "GoLang.GoSupport";
 
 const char UBUNTU_GO_BUILD_TARGETS[] = "%GOBUILDTARGETS%";
+
+//Qtversion support
+const char UBUNTU_QTVERSION_TYPE[]   = "UbuntuProjectManager.QtVersion";
+const char UBUNTU_PLATFORM_NAME[]    = "Ubuntu Phone";
+const char UBUNTU_PLATFORM_NAME_TR[] = QT_TRANSLATE_NOOP("UbuntuProjectManager", "Ubuntu Phone");
 
 } // namespace Ubuntu
 } // namespace Constants

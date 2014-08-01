@@ -57,6 +57,7 @@ public:
 
 private slots:
     void onKitsLoaded ();
+    void showFirstStartWizard ();
 
 protected:
     UbuntuDeviceMode*       m_ubuntuDeviceMode;

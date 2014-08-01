@@ -35,7 +35,7 @@ QList<Core::Id> UbuntuDeployStepFactory::availableCreationIds(ProjectExplorer::B
     bool isRemote = targetDevice.toString().startsWith(QLatin1String(Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID));
     bool isCMake  = parent->target()->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID;
     bool isHTML   = parent->target()->project()->id() == Ubuntu::Constants::UBUNTUPROJECT_ID;
-    //bool isQML    = parent->target()->project()->id() == "QmlProjectManager.QmlProject";
+    bool isQML    = parent->target()->project()->id() == "QmlProjectManager.QmlProject";
 
     if (isRemote) {
         //IF we have a remote device we just support a ubuntu toolchain
@@ -47,7 +47,7 @@ QList<Core::Id> UbuntuDeployStepFactory::availableCreationIds(ProjectExplorer::B
     if(isRemote && isCMake && !UbuntuProjectGuesser::isScopesProject(parent->target()->project()))
         types << Constants::UBUNTU_DEPLOY_UPLOADSTEP_ID
               << Constants::UBUNTU_CLICK_PACKAGESTEP_ID;
-    else if(isRemote && isHTML)
+    else if(isRemote && ( isHTML || isQML ) )
         types << Constants::UBUNTU_DEPLOY_UPLOADSTEP_ID
               << Constants::UBUNTU_CLICK_PACKAGESTEP_ID;
 

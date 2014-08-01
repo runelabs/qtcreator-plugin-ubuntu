@@ -51,9 +51,9 @@ QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(Project
     bool isCMake  = parent->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID;
     bool isHTML   = parent->project()->id() == Ubuntu::Constants::UBUNTUPROJECT_ID;
     bool isApp    = UbuntuProjectGuesser::isClickAppProject(parent->project());
-    //bool isQML    = parent->target()->project()->id() == "QmlProjectManager.QmlProject";
+    bool isQML    = parent->project()->id() == "QmlProjectManager.QmlProject";
 
-    if (!isCMake && !isHTML)
+    if (!isCMake && !isHTML &&!isQML)
         return types;
 
     if (isRemote) {
@@ -78,7 +78,7 @@ QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(Project
     }
     else if (isRemote) {
         //when CMake we only support App projects, scopes have no way to be controlled on the device atm
-        if ((isCMake && isApp) || isHTML) {
+        if ((isCMake && isApp) || isHTML || isQML) {
             foreach (const UbuntuClickManifest::Hook &hook, hooks) {
                 types << UbuntuRemoteRunConfiguration::typeId().withSuffix(hook.appId);
             }

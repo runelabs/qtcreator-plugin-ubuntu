@@ -85,7 +85,8 @@ QList<Core::Id> UbuntuRemoteDeployConfigurationFactory::availableCreationIds(Pro
 
     //for now only support cmake and ubuntu projects
     if(projectTypeId != CMakeProjectManager::Constants::CMAKEPROJECT_ID
-            && projectTypeId != Ubuntu::Constants::UBUNTUPROJECT_ID)
+            && projectTypeId != Ubuntu::Constants::UBUNTUPROJECT_ID
+            && projectTypeId != "QmlProjectManager.QmlProject")
         return ids;
 
     const Core::Id devType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(parent->kit());

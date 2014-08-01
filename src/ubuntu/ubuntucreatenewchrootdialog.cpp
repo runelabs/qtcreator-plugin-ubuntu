@@ -19,6 +19,9 @@
 #include "ui_ubuntucreatenewchrootdialog.h"
 
 #include "ubuntuconstants.h"
+
+#include <coreplugin/icore.h>
+
 namespace Ubuntu {
 
 namespace Constants {
@@ -66,9 +69,9 @@ UbuntuCreateNewChrootDialog::~UbuntuCreateNewChrootDialog()
  * Opens a dialog that lets the user select a new chroot, returns false
  * if the user pressed cancel
  */
-bool UbuntuCreateNewChrootDialog::getNewChrootTarget(UbuntuClickTool::Target *target, const QString &arch)
+bool UbuntuCreateNewChrootDialog::getNewChrootTarget(UbuntuClickTool::Target *target, const QString &arch, QWidget *parent)
 {
-    UbuntuCreateNewChrootDialog dlg(arch);
+    UbuntuCreateNewChrootDialog dlg(arch, parent ? parent : Core::ICore::mainWindow());
     if( dlg.exec() == QDialog::Accepted) {
         bool ok = false;
 

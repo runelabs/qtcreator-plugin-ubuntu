@@ -1,3 +1,14 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140731-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * Deal with emulator names with any non white space characters
+
+  [ Benjamin Zeller ]
+  * Adding device runsupport for QML projects. Create a QtVersion per
+    chroot on the host. Fix deprecated warnings in the SDK launcher .
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 31 Jul 2014 10:39:53 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20140728.1-0ubuntu1) utopic; urgency=low
 
   [ Zoltán Balogh ]

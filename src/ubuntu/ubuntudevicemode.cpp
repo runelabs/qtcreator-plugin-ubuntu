@@ -103,6 +103,11 @@ void UbuntuDeviceMode::deviceSelected(const QVariant index)
     emit updateDeviceActions ();
 }
 
+void UbuntuDeviceMode::showAddEmulatorDialog()
+{
+    m_qmlControl->showAddEmulatorDialog();
+}
+
 void UbuntuDeviceMode::modeChanged(Core::IMode *mode)
 {
     Q_UNUSED(mode);
@@ -123,6 +128,11 @@ UbuntuQMLDeviceMode::UbuntuQMLDeviceMode(UbuntuDeviceMode *parent)
       m_mode(parent)
 {
 
+}
+
+void UbuntuQMLDeviceMode::showAddEmulatorDialog()
+{
+    emit openAddEmulatorDialog();
 }
 
 void UbuntuQMLDeviceMode::deviceSelected(const QVariant index)

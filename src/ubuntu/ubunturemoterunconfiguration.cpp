@@ -268,7 +268,7 @@ QString UbuntuRemoteRunConfiguration::packageDir() const
     ProjectExplorer::Project *p = target()->project();
     if (p->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID)
         return target()->activeBuildConfiguration()->buildDirectory().toString()+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR);
-    else if (p->id() == Ubuntu::Constants::UBUNTUPROJECT_ID) {
+    else if (p->id() == Ubuntu::Constants::UBUNTUPROJECT_ID || p->id() == "QmlProjectManager.QmlProject") {
         if (!target()->activeBuildConfiguration()) {
             //backwards compatibility, try to not crash QtC for old projects
             //they did not create a buildconfiguration back then

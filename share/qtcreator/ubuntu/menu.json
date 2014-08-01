@@ -48,20 +48,6 @@
         "submenu": [
             {
                 "name": "Run Application on Device",
-                "id": "Ubuntu.Build.Run",
-                "workingDirectory": "%0/..",
-                "projectRequired": true,
-                "keysequence": "Ctrl+F12",
-                "deviceRequired": true,
-                "qmlProjectRequired": true,
-                "saveRequired": true,
-                "context" : ["QmlProject.ProjectContext"],
-                "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_device_run_app_click %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp"
-                ]
-            },
-            {
-                "name": "Run Application on Device",
                 "id": "Ubuntu.Build.Run.Go",
                 "workingDirectory": "%0/..",
                 "projectRequired": true,
@@ -80,32 +66,9 @@
                 "projectRequired": true,
                 "deviceRequired": true,
                 "qmlProjectRequired": true,
+                "context": ["GoProject.ProjectContext"],
                 "actions": [
                     "%SCRIPTDIRECTORY%/qtc_device_close_all_apps %SERIALNUMBER% %DISPLAYNAME%"
-                ]
-            },
-            {
-                "name": "Create Application Package",
-                "id": "Ubuntu.Build.Package",
-                "workingDirectory": "%0/..",
-                "projectRequired": true,
-                "context": "QmlProject.ProjectContext",
-                "ubuntuProjectRequired": true,
-                "saveRequired": true,
-                "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_project_click_create %FOLDERNAME% %BUILDDIR%"
-                ]
-            },
-            {
-                "name": "Install Application on Device",
-                "id": "Ubuntu.Build.PackageInstall",
-                "workingDirectory": "%0/..",
-                "projectRequired": true,
-                "deviceRequired": true,
-                "context": ["QmlProject.ProjectContext"],
-                "saveRequired": true,
-                "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_project_click_createanddeploy %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp %USERNAME%"
                 ]
             },
             {
@@ -114,7 +77,7 @@
                 "workingDirectory": "%0/..",
                 "projectRequired": true,
                 "deviceRequired": true,
-                "context": ["UbuntuProject.ProjectContext"],
+                "context": ["UbuntuProject.ProjectContext","QmlProject.ProjectContext"],
                 "saveRequired": true,
                 "actions": [
                     {

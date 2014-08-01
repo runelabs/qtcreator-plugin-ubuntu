@@ -38,7 +38,7 @@ public:
     explicit UbuntuCreateNewChrootDialog(const QString &arch = QString(), QWidget *parent = 0);
     ~UbuntuCreateNewChrootDialog();
 
-    static bool getNewChrootTarget(UbuntuClickTool::Target *target, const QString &arch);
+    static bool getNewChrootTarget(UbuntuClickTool::Target *target, const QString &arch, QWidget *parent = 0);
 
 private:
     Ui::UbuntuCreateNewChrootDialog *ui;

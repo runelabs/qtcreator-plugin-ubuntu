@@ -42,6 +42,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <ssh/sshconnection.h>
+#include <qmlprojectmanager/qmlprojectconstants.h>
 
 
 #include <QFileDialog>
@@ -187,7 +188,7 @@ void UbuntuPackagingWidget::onValidationItemSelected(const QModelIndex &index)
 
 void UbuntuPackagingWidget::onMessage(QString msg)
 {
-    if(debug) printToOutputPane(msg);
+    printToOutputPane(msg);
     m_reply.append(msg);
     m_inputParser->addRecievedData(msg);
 }
@@ -700,7 +701,8 @@ void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {
 
     QString mimeType = project->projectManager()->mimeType();
     if(mimeType == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE)
-       || mimeType == QLatin1String(Ubuntu::Constants::UBUNTUPROJECT_MIMETYPE) ) {
+       || mimeType == QLatin1String(Ubuntu::Constants::UBUNTUPROJECT_MIMETYPE)
+       || mimeType == QLatin1String(QmlProjectManager::Constants::QMLPROJECT_MIMETYPE)) {
         if(m_reviewToolsInstalled)
             m_postPackageTask = Verify;
         else
@@ -804,8 +806,9 @@ void UbuntuPackagingWidget::buildClickPackage()
     QString mimeType = project->projectManager()->mimeType();
     bool isCMake = mimeType == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE);
     bool isHtml  = mimeType == QLatin1String(Ubuntu::Constants::UBUNTUPROJECT_MIMETYPE);
+    bool isQml   = mimeType == QLatin1String(QmlProjectManager::Constants::QMLPROJECT_MIMETYPE);
 
-    if(isCMake || isHtml) {
+    if(isCMake || isHtml || isQml) {
         ProjectExplorer::Target* target = project->activeTarget();
         if(!target)
             return;

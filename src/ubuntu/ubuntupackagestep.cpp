@@ -457,7 +457,8 @@ void UbuntuPackageStep::injectDebugHelperStep()
 
     bool ubuntuDevice = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(bc->target()->kit()).toString().startsWith(QLatin1String(Constants::UBUNTU_DEVICE_TYPE_ID));
     bool injectDebugScript = (m_packageMode == EnableDebugScript) ||
-            (m_packageMode == AutoEnableDebugScript && bc->buildType() == ProjectExplorer::BuildConfiguration::Debug);
+            (m_packageMode == AutoEnableDebugScript && bc->buildType() == ProjectExplorer::BuildConfiguration::Debug)
+            || (m_packageMode == AutoEnableDebugScript && bc->target()->project()->id() == "QmlProjectManager.QmlProject");
 
     //debughelper script name, source and destination path
     const QString debScript = QStringLiteral("qtc_device_debughelper.py");
