@@ -1235,7 +1235,7 @@ QList<Core::Id> UbuntuDevice::actionIds() const
 
 QString UbuntuDevice::displayType() const
 {
-    return tr("Ubuntu Device");
+    return tr("Ubuntu Device (%1)").arg(architecture());
 }
 
 ProjectExplorer::IDevice::Ptr  UbuntuDevice::clone() const
