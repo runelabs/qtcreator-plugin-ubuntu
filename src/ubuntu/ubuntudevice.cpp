@@ -39,7 +39,7 @@ namespace Ubuntu {
 namespace Internal {
 
 enum {
-    debug = 0
+    debug = 1
 };
 
 const QLatin1String DEVICE_SETTINGS_VERSION("UbuntuDevice.Version");
@@ -877,8 +877,8 @@ UbuntuDevice::UbuntuDevice()
     loadDefaultConfig();
 }
 
-UbuntuDevice::UbuntuDevice(const QString &name, ProjectExplorer::IDevice::MachineType machineType, ProjectExplorer::IDevice::Origin origin, Core::Id id)
-    : LinuxDevice(name,Core::Id(Constants::UBUNTU_DEVICE_TYPE_ID),machineType,origin,id)
+UbuntuDevice::UbuntuDevice(const QString &name, ProjectExplorer::IDevice::MachineType machineType, ProjectExplorer::IDevice::Origin origin, Core::Id id, const QString &architecture)
+    : LinuxDevice(name,Core::Id(Constants::UBUNTU_DEVICE_TYPE_ID).withSuffix(architecture),machineType,origin,id)
     , m_helper(new UbuntuDeviceHelper(this))
     , m_processState(NotStarted)
 {
@@ -1146,7 +1146,9 @@ QString UbuntuDevice::imageName() const
 
 QString UbuntuDevice::architecture() const
 {
-    return m_architecture;
+    QString arch = this->type().suffixAfter(Constants::UBUNTU_DEVICE_TYPE_ID);
+    if(debug) qDebug()<<"Reporting device architecture as: "<<arch;
+    return arch;
 }
 
 UbuntuDevice::FeatureState UbuntuDevice::hasNetworkConnection() const
@@ -1233,7 +1235,7 @@ QList<Core::Id> UbuntuDevice::actionIds() const
 
 QString UbuntuDevice::displayType() const
 {
-    return tr("Ubuntu Device");
+    return tr("Ubuntu Device (%1)").arg(architecture());
 }
 
 ProjectExplorer::IDevice::Ptr  UbuntuDevice::clone() const
@@ -1274,9 +1276,9 @@ UbuntuDevice::ConstPtr UbuntuDevice::sharedFromThis() const
     return qSharedPointerCast<const UbuntuDevice>(LinuxDevice::sharedFromThis());
 }
 
-UbuntuDevice::Ptr UbuntuDevice::create(const QString &name, const QString& serial, ProjectExplorer::IDevice::MachineType machineType, ProjectExplorer::IDevice::Origin origin)
+UbuntuDevice::Ptr UbuntuDevice::create(const QString &name, const QString& serial, ProjectExplorer::IDevice::MachineType machineType, const QString &archName, ProjectExplorer::IDevice::Origin origin)
 {
-    return Ptr(new UbuntuDevice(name,machineType,origin,Core::Id::fromSetting(serial)));
+    return Ptr(new UbuntuDevice(name,machineType,origin,Core::Id::fromSetting(serial),archName));
 }
 
 //////////////

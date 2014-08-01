@@ -90,7 +90,7 @@ QList<Core::Id> UbuntuRemoteDeployConfigurationFactory::availableCreationIds(Pro
         return ids;
 
     const Core::Id devType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(parent->kit());
-    if (devType == Constants::UBUNTU_DEVICE_TYPE_ID && !UbuntuProjectGuesser::isScopesProject(parent->project()))
+    if (devType.toString().startsWith(QLatin1String(Constants::UBUNTU_DEVICE_TYPE_ID)) && !UbuntuProjectGuesser::isScopesProject(parent->project()))
         ids << Core::Id(Constants::UBUNTU_DEPLOYCONFIGURATION_ID);
 
     return ids;

@@ -128,7 +128,7 @@ void UbuntuRemoteDebugSupport::startExecution()
     connect(launcher, SIGNAL(finished(bool)), SLOT(handleAppRunnerFinished(bool)));
     connect(launcher, SIGNAL(reportError(QString)), SLOT(handleAppRunnerError(QString)));
 
-    QTC_ASSERT(device()->type() == Constants::UBUNTU_DEVICE_TYPE_ID,return);
+    QTC_ASSERT(device()->type().toString().startsWith(QLatin1String(Constants::UBUNTU_DEVICE_TYPE_ID)),return);
     launcher->start(qSharedPointerCast<const UbuntuDevice>(device()),clickPackage());
 }
 

@@ -29,7 +29,6 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <texteditor/fontsettings.h>
 
-
 #include "ubuntucreatenewchrootdialog.h"
 
 namespace Ubuntu {
