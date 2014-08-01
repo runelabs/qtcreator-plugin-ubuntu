@@ -23,6 +23,15 @@ SCRIPTPATH=$(dirname $0)
 CHECK_FILES=("/etc/schroot/chroot.d/click-${FRAMEWORK}-${ARCHITECTURE}")
 CHECK_DIRS=("/var/lib/schroot/chroots/click-${FRAMEWORK}-${ARCHITECTURE}")
 
+click chroot -a $ARCHITECTURE -f $FRAMEWORK exists
+
+if [ $? -eq 0 ]
+then
+	echo "The click target click-${FRAMEWORK}-${ARCHITECTURE} exists already"
+        exit 1
+fi
+
+
 for FILE in $CHECK_FILES
 do
     if [ -f $FILE ]
@@ -42,6 +51,7 @@ do
 done
 
 click chroot -a $ARCHITECTURE -f $FRAMEWORK create
+
 if [ $? -eq 0 ]
 then
     echo "The click target was created successfully, installing required packages"
