@@ -28,7 +28,10 @@ then
     ARCH_ARGS='-DQT_IMPORTS_DIR=/usr/lib/arm-linux-gnueabihf/qt5/qml'
 fi
 
-rm  -rf CMakeFiles  CMakeCache.txt  cmake_install.cmake  Makefile
+if [[ ! "$@" =~ "help" ]]
+then
+    rm  -rf CMakeFiles  CMakeCache.txt  cmake_install.cmake  Makefile
+fi
 
 export QT_SELECT=qt5:$CLICK_SDK_ARCH
 /usr/bin/click chroot -a $CLICK_SDK_ARCH -f $CLICK_SDK_FRAMEWORK run cmake ${ARCH_ARGS} "$@"
