@@ -37,7 +37,7 @@ Unlike the default Qt HTML5 template, there is no C++ code or compilation necess
 			<field mandatory="true" name="ClickHookName">
 			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
 			                defaulttext="app" placeholdertext="app hook name"/>
-			  <fielddescription>Hook:</fielddescription>
+			  <fielddescription>App name:</fielddescription>
 			</field>
 		</fields>
 

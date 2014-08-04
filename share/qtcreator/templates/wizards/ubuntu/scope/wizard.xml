@@ -42,7 +42,7 @@
 			<field mandatory="true" name="ClickHookName">
 			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
 			                defaulttext="myscope" placeholdertext="scope hook name"/>
-			  <fielddescription>Hook:</fielddescription>
+			  <fielddescription>Scope name:</fielddescription>
 			</field>
 		  <field name="ScopeType">
 		    <fieldcontrol class="QComboBox" defaultindex="0">
