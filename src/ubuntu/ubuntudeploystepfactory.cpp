@@ -29,10 +29,10 @@ QList<Core::Id> UbuntuDeployStepFactory::availableCreationIds(ProjectExplorer::B
         return types;
 
     Core::Id targetDevice = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(parent->target()->kit());
-    if(targetDevice != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE && targetDevice != Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID)
+    if(targetDevice != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE && !targetDevice.toString().startsWith(QLatin1String(Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID)))
         return types;
 
-    bool isRemote = targetDevice == Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID;
+    bool isRemote = targetDevice.toString().startsWith(QLatin1String(Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID));
     bool isCMake  = parent->target()->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID;
     bool isHTML   = parent->target()->project()->id() == Ubuntu::Constants::UBUNTUPROJECT_ID;
     bool isQML    = parent->target()->project()->id() == "QmlProjectManager.QmlProject";

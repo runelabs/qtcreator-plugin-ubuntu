@@ -42,12 +42,12 @@ QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(Project
     QList<Core::Id> types;
 
     Core::Id targetDevice = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(parent->kit());
-    if(targetDevice != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE && targetDevice != Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID) {
+    if(targetDevice != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE && !targetDevice.toString().startsWith(QLatin1String(Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID))) {
         if(debug) qDebug()<<"Rejecting device type: "<<targetDevice.toString();
         return types;
     }
 
-    bool isRemote = targetDevice == Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID;
+    bool isRemote = targetDevice.toString().startsWith(QLatin1String(Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID));
     bool isCMake  = parent->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID;
     bool isHTML   = parent->project()->id() == Ubuntu::Constants::UBUNTUPROJECT_ID;
     bool isApp    = UbuntuProjectGuesser::isClickAppProject(parent->project());

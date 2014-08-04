@@ -455,7 +455,7 @@ void UbuntuPackageStep::injectDebugHelperStep()
         return;
     }
 
-    bool ubuntuDevice = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(bc->target()->kit()) == Constants::UBUNTU_DEVICE_TYPE_ID;
+    bool ubuntuDevice = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(bc->target()->kit()).toString().startsWith(QLatin1String(Constants::UBUNTU_DEVICE_TYPE_ID));
     bool injectDebugScript = (m_packageMode == EnableDebugScript) ||
             (m_packageMode == AutoEnableDebugScript && bc->buildType() == ProjectExplorer::BuildConfiguration::Debug)
             || (m_packageMode == AutoEnableDebugScript && bc->target()->project()->id() == "QmlProjectManager.QmlProject");

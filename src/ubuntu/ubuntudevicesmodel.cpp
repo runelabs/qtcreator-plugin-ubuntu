@@ -418,7 +418,7 @@ void UbuntuDevicesModel::readDevicesFromSettings()
     ProjectExplorer::DeviceManager* devMgr = ProjectExplorer::DeviceManager::instance();
     for(int i = 0; i < devMgr->deviceCount(); i++) {
         ProjectExplorer::IDevice::ConstPtr dev = devMgr->deviceAt(i);
-        if(dev && dev->type() == Core::Id(Constants::UBUNTU_DEVICE_TYPE_ID)) {
+        if(dev && dev->type().toString().startsWith(QLatin1String(Constants::UBUNTU_DEVICE_TYPE_ID))) {
 
             //ugly hack to get a mutable version of the device
             //no idea why its necessary to lock it up
@@ -499,7 +499,7 @@ void UbuntuDevicesModel::deviceAdded(const Core::Id &id)
     if(!ptr)
         return;
 
-    if(ptr->type() != Core::Id(Constants::UBUNTU_DEVICE_TYPE_ID))
+    if(!ptr->type().toString().startsWith(QLatin1String(Constants::UBUNTU_DEVICE_TYPE_ID)))
         return;
 
     if(debug) qDebug()<<"Device Manager reports device added: "<<id.toString();
@@ -572,7 +572,7 @@ void UbuntuDevicesModel::deviceConnected(const QString &id)
  *       will happen automatically when the device is
  *       registered in the device manager
  */
-void UbuntuDevicesModel::registerNewDevice(const QString &serial)
+void UbuntuDevicesModel::registerNewDevice(const QString &serial, const QString &arch)
 {
     if(findDevice(Core::Id::fromSetting(serial).uniqueIdentifier()) >= 0)
         return;
@@ -581,6 +581,7 @@ void UbuntuDevicesModel::registerNewDevice(const QString &serial)
                 tr("Ubuntu Device")
                 , serial
                 , ProjectExplorer::IDevice::Hardware
+                , arch
                 , ProjectExplorer::IDevice::AutoDetected);
 
     ProjectExplorer::DeviceManager::instance()->addDevice(dev);
@@ -927,10 +928,11 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
             }
 
             QMutableStringListIterator iter(lines);
-            QRegularExpression regexName   (QStringLiteral("^(\\w+)"));
+            QRegularExpression regexName   (QStringLiteral("^(\\S+)"));
             QRegularExpression regexUbuntu (QStringLiteral("ubuntu=([0-9]+)"));
             QRegularExpression regexDevice (QStringLiteral("device=([0-9]+)"));
             QRegularExpression regexVersion(QStringLiteral("version=([0-9]+)"));
+            QRegularExpression regexArch   (QStringLiteral("arch=(\\w+)"));
             while (iter.hasNext()) {
                 QString line = iter.next();
                 if(line.isEmpty()) {
@@ -944,6 +946,7 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
                 QRegularExpressionMatch mUbu  = regexUbuntu.match(line);
                 QRegularExpressionMatch mDev  = regexDevice.match(line);
                 QRegularExpressionMatch mVer  = regexVersion.match(line);
+                QRegularExpressionMatch mArch = regexArch.match(line);
 
 
                 if(!mName.hasMatch())
@@ -956,6 +959,7 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
                 QString ubuntuVer = tr("unknown");
                 QString deviceVer = tr("unknown");
                 QString imageVer = tr("unknown");
+                QString archType = QStringLiteral("i386");
 
                 if(mUbu.hasMatch())
                     ubuntuVer = mUbu.captured(1);
@@ -965,6 +969,9 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
 
                 if(mVer.hasMatch())
                     imageVer = mVer.captured(1);
+
+                if(mArch.hasMatch())
+                    archType = mArch.captured(1);
 
                 bool addToManager = false;
                 Ubuntu::Internal::UbuntuDevice::Ptr dev;
@@ -979,6 +986,7 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
                                 deviceSerial,
                                 deviceSerial,
                                 ProjectExplorer::IDevice::Emulator,
+                                archType,
                                 ProjectExplorer::IDevice::AutoDetected);
 
                     addToManager = true;
@@ -1028,7 +1036,18 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
 
                     if (lineData.count() == 2) {
                         QString sSerialNumber = lineData.takeFirst();
-                        //QString sDeviceInfo = lineData.takeFirst();
+                        QString sDeviceInfo = lineData.takeFirst();
+
+                        QRegularExpression archExp(QStringLiteral("arch:([\\w]+)"));
+                        QRegularExpressionMatch archMatch = archExp.match(sDeviceInfo);
+
+                        QString arch = QStringLiteral("armhf");
+                        if(archMatch.hasMatch()) {
+                            arch = archMatch.captured(1);
+                        } else {
+                            qDebug()<<"Could not get the architecture from: "<<sDeviceInfo<<" defaulting to armhf";
+                        }
+
 
                         //sometimes the adb server is not started when adb devices is
                         //executed, we just skip those lines
@@ -1044,7 +1063,7 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
                             continue;
                         }
 
-                        registerNewDevice(sSerialNumber);
+                        registerNewDevice(sSerialNumber,arch);
                     }
                 }
             }

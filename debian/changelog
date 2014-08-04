@@ -1,3 +1,27 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140801-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * Discover the processor type of the device and the emulator
+  * Use the click API to check if the chroot exists (LP: #1351065) (LP:
+    #1351065)
+
+  [ Benjamin Zeller ]
+  * Store architecture of a device in the devicetype ID. Fix all
+    existing devices and Kits .
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 01 Aug 2014 16:05:25 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140731-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * Deal with emulator names with any non white space characters
+
+  [ Benjamin Zeller ]
+  * Adding device runsupport for QML projects. Create a QtVersion per
+    chroot on the host. Fix deprecated warnings in the SDK launcher .
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 31 Jul 2014 10:39:53 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20140728.1-0ubuntu1) utopic; urgency=low
 
   [ Zoltán Balogh ]
