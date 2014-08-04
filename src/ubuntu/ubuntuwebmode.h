@@ -34,11 +34,13 @@ public:
     explicit UbuntuWebMode(QObject *parent = 0);
     void initialize();
 
+    QUrl url () const;
+
 public slots:
     void setUrl(QUrl url) { m_webView.setUrl(url); }
 
 protected slots:
-    void modeChanged(Core::IMode*);
+    virtual void modeChanged(Core::IMode*);
     void updateAddress(QUrl url);
     void goToAddress();
 

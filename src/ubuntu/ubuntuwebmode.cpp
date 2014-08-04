@@ -30,6 +30,7 @@
 #include <QVBoxLayout>
 #include <QScrollArea>
 #include <QFile>
+#include <QWebView>
 
 using namespace Ubuntu::Internal;
 
@@ -42,6 +43,7 @@ UbuntuWebMode::UbuntuWebMode(QObject *parent) :
     setId(Ubuntu::Constants::UBUNTU_MODE_WEB);
     setObjectName(QLatin1String(Ubuntu::Constants::UBUNTU_MODE_WEB));
 
+
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
@@ -50,9 +52,9 @@ UbuntuWebMode::UbuntuWebMode(QObject *parent) :
     connect(&m_webView,SIGNAL(urlChanged(QUrl)),SLOT(updateAddress(QUrl)));
     connect(&m_addressBar,SIGNAL(returnPressed()),SLOT(goToAddress()));
 
-
-    //Utils::StyledBar* styledBar = new Utils::StyledBar(&m_modeWidget);
-    //layout->addWidget(styledBar);
+    //fit into look and feel
+    Utils::StyledBar* styledBar = new Utils::StyledBar(&m_modeWidget);
+    layout->addWidget(styledBar);
 
     QScrollArea *scrollArea = new QScrollArea(&m_modeWidget);
     scrollArea->setFrameShape(QFrame::NoFrame);
@@ -77,6 +79,11 @@ void UbuntuWebMode::goToAddress() {
 
 void UbuntuWebMode::initialize() {
 
+}
+
+QUrl UbuntuWebMode::url() const
+{
+    return m_webView.url();
 }
 
 void UbuntuWebMode::modeChanged(Core::IMode*) {
