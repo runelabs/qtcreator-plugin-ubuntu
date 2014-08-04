@@ -23,6 +23,8 @@
 
 #include "ubuntuwebmode.h"
 
+namespace ProjectExplorer { class Project; }
+
 namespace Ubuntu {
 namespace Internal {
 
@@ -33,6 +35,15 @@ class UbuntuAPIMode : public UbuntuWebMode
 public:
     explicit UbuntuAPIMode(QObject *parent = 0);
 
+protected slots:
+    // UbuntuWebMode interface
+    virtual void modeChanged(Core::IMode *mode);
+    void startupProjectChanged (ProjectExplorer::Project *startup);
+    void activeTargetChanged ();
+
+private:
+    QUrl defaultUrl () const;
+    QMetaObject::Connection m_currProjectConnection;
 };
 
 }
