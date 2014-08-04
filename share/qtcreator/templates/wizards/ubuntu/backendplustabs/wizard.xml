@@ -59,7 +59,7 @@ Includes also
 			<field mandatory="true" name="ClickHookName">
 			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
 			                defaulttext="myapp" placeholdertext="app hook name"/>
-			  <fielddescription>Hook:</fielddescription>
+			  <fielddescription>App name:</fielddescription>
 			</field>
 		</fields>
 

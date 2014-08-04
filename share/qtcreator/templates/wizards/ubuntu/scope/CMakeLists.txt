@@ -1,7 +1,7 @@
-project(%ProjectName% CXX)
+project(%ProjectName:l% CXX)
 cmake_minimum_required(VERSION 2.8.10)
-set(SCOPE_NAME %ClickHookName%)
-set(SCOPE_LIB_TARGET_NAME %ClickDomain%.%ProjectName%_%ClickHookName%)
+set(SCOPE_NAME %ClickHookName:l%)
+set(SCOPE_LIB_TARGET_NAME %ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pedantic -Wall -Wextra")
 set(UBUNTU_PROJECT_TYPE "Scope" CACHE INTERNAL "Tells QtCreator this is a Scope project")
@@ -18,4 +18,4 @@ enable_testing()
 add_subdirectory(test)
 
 install(FILES manifest.json DESTINATION "/")
-install(FILES "apparmor_%ClickHookName%.json" DESTINATION "/")
+install(FILES "apparmor_%ClickHookName:l%.json" DESTINATION "/")

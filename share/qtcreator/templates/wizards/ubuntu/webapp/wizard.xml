@@ -25,7 +25,7 @@
         </field>
         <field mandatory="true" name="ClickHookName">
             <fieldcontrol class="QLineEdit" validator='^[^"]+$' defaulttext="app" placeholdertext="app hook name"/>
-            <fielddescription>Hook:</fielddescription>
+            <fielddescription>App name:</fielddescription>
         </field>
     </fields>
 </wizard>

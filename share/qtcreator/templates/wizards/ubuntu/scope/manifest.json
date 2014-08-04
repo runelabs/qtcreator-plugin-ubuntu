@@ -5,12 +5,12 @@
   "description": "A simple Unity scope that accesses local content",
 @endif
   "maintainer": "%ClickMaintainer%",
-  "name": "%ClickDomain%.%ProjectName%",
-  "title": "%ProjectName%",
+  "name": "%ClickDomain:l%.%ProjectName:l%",
+  "title": "%ProjectName:l%",
   "hooks": {
-    "%ClickHookName%": {
-      "scope": "%ClickHookName%",
-      "apparmor": "apparmor_%ClickHookName%.json"
+    "%ClickHookName:l%": {
+      "scope": "%ClickHookName:l%",
+      "apparmor": "apparmor_%ClickHookName:l%.json"
     }
   }
 }
