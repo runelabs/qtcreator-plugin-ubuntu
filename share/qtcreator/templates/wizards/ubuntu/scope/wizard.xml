@@ -9,9 +9,9 @@
     <displayname>Unity Scope</displayname>
     <displaycategory>Ubuntu</displaycategory>
     <files>
-			<file source="data/displayName.ini.in"   	target="data/%ClickDomain%.%ProjectName%_%ClickHookName%.ini.in" openeditor="false"/>
+			<file source="data/displayName.ini.in"   	target="data/%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini.in" openeditor="false"/>
 			<file source="data/CMakeLists.txt"   			target="data/CMakeLists.txt" openeditor="false"/>
-			<file source="displayName.json"   				target="apparmor_%ClickHookName%.json" openeditor="false"/>
+			<file source="displayName.json"   				target="apparmor_%ClickHookName:l%.json" openeditor="false"/>
 			<file source="test/simpletest.cpp"   			target="test/simpletest.cpp" openeditor="false"/>
 			<file source="test/CMakeLists.txt"   			target="test/CMakeLists.txt" openeditor="false"/>
 			<file source="manifest.json"   						target="manifest.json" openeditor="false"/>
@@ -47,9 +47,11 @@
 		  <field name="ScopeType">
 		    <fieldcontrol class="QComboBox" defaultindex="0">
 		      <comboentries>
+<!--
 		        <comboentry value="local">
 		    	    <comboentrytext>Scope with local content</comboentrytext>
 		        </comboentry>
+-->
 				    <comboentry value="network">
 		    	    <comboentrytext>Scope with network access</comboentrytext>
 				    </comboentry>

@@ -1,11 +1,11 @@
 # Put the ini file in the build directory next to the scope
 # .so file so test tools can find both easily.
 configure_file(
-  "%ClickDomain%.%ProjectName%_%ClickHookName%.ini.in"
-  "${CMAKE_BINARY_DIR}/src/%ClickDomain%.%ProjectName%_%ClickHookName%.ini"
+  "%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini.in"
+  "${CMAKE_BINARY_DIR}/src/%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini"
 )
 
 INSTALL(
-  FILES "${CMAKE_BINARY_DIR}/src/%ClickDomain%.%ProjectName%_%ClickHookName%.ini"
+  FILES "${CMAKE_BINARY_DIR}/src/%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini"
   DESTINATION "${INI_INSTALLDIR}"
 )
