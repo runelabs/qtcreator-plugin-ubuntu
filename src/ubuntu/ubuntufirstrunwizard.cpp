@@ -198,7 +198,7 @@ void UbuntuSetupEmulatorWizardPage::updateDevicesList()
         if(!dev)
             continue;
 
-        if(dev->type() != Constants::UBUNTU_DEVICE_TYPE_ID)
+        if(!dev->type().toString().startsWith(QLatin1String(Constants::UBUNTU_DEVICE_TYPE_ID)))
             continue;
 
         QTreeWidgetItem* devItem = new QTreeWidgetItem;

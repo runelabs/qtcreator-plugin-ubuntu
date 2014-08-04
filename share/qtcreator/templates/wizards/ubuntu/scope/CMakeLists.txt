@@ -1,6 +1,6 @@
-project(%ProjectName% CXX)
+project(%ProjectName:l% CXX)
 cmake_minimum_required(VERSION 2.8.10)
-set(SCOPE_NAME %ClickHookName%)
+set(SCOPE_NAME %ClickHookName:l%)
 set(SCOPE_LIB_TARGET_NAME %ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pedantic -Wall -Wextra")

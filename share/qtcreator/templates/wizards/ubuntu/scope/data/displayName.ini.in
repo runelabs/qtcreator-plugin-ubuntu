@@ -2,7 +2,7 @@
 DisplayName = %ProjectName:c% Scope
 Description = This is a %ProjectName:c% scope
 Author = Firstname Lastname
-Art = %ProjectName%.Art
-Icon = %ProjectName%.Icon
-SearchHint = %ProjectName%.SearchHint
-HotKey = %ProjectName%.HotKey
+Art = %ProjectName:l%.Art
+Icon = %ProjectName:l%.Icon
+SearchHint = %ProjectName:l%.SearchHint
+HotKey = %ProjectName:l%.HotKey
