@@ -565,6 +565,7 @@ void UbuntuPackagingWidget::updatePolicyForFramework(const QString &fw)
     if(fw.isEmpty())
         return;
 
+#if 0
     QProcess proc;
     proc.setProgram(QStringLiteral("aa-clickquery"));
     proc.setArguments(QStringList{
@@ -576,6 +577,33 @@ void UbuntuPackagingWidget::updatePolicyForFramework(const QString &fw)
         m_apparmor.setPolicyVersion(QString::fromUtf8(proc.readAllStandardOutput()));
         m_apparmor.save();
     }
+#else
+    static const QMap<QString,QString> policy {
+        {QStringLiteral("ubuntu-sdk-13.10"),QStringLiteral("1.0")},
+        {QStringLiteral("ubuntu-sdk-14.04-dev1"),QStringLiteral("1.1")},
+        {QStringLiteral("ubuntu-sdk-14.04-html-dev1"),QStringLiteral("1.1")},
+        {QStringLiteral("ubuntu-sdk-14.04-html"),QStringLiteral("1.1")},
+        {QStringLiteral("ubuntu-sdk-14.04-papi-dev1"),QStringLiteral("1.1")},
+        {QStringLiteral("ubuntu-sdk-14.04-papi"),QStringLiteral("1.1")},
+        {QStringLiteral("ubuntu-sdk-14.04-qml-dev1"),QStringLiteral("1.1")},
+        {QStringLiteral("ubuntu-sdk-14.04-qml"),QStringLiteral("1.1")},
+        {QStringLiteral("ubuntu-sdk-14.04"),QStringLiteral("1.1")},
+        {QStringLiteral("ubuntu-sdk-14.10-dev1"),QStringLiteral("1.2")},
+        {QStringLiteral("ubuntu-sdk-14.10-dev2"),QStringLiteral("1.2")},
+        {QStringLiteral("ubuntu-sdk-14.10-html-dev1"),QStringLiteral("1.2")},
+        {QStringLiteral("ubuntu-sdk-14.10-html-dev2"),QStringLiteral("1.2")},
+        {QStringLiteral("ubuntu-sdk-14.10-papi-dev1"),QStringLiteral("1.2")},
+        {QStringLiteral("ubuntu-sdk-14.10-papi-dev2"),QStringLiteral("1.2")},
+        {QStringLiteral("ubuntu-sdk-14.10-qml-dev1"),QStringLiteral("1.2")},
+        {QStringLiteral("ubuntu-sdk-14.10-qml-dev2"),QStringLiteral("1.2")},
+        {QStringLiteral("ubuntu-sdk-14.10-qml-dev3"),QStringLiteral("1.2")}
+    };
+
+    if(policy.contains(fw)) {
+        m_apparmor.setPolicyVersion(policy[fw]);
+        m_apparmor.save();
+    }
+#endif
 }
 
 bool UbuntuPackagingWidget::load_manifest(QString fileName) {

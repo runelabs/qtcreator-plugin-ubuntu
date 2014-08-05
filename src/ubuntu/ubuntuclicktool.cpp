@@ -232,6 +232,7 @@ QStringList UbuntuClickTool::getSupportedFrameworks(const UbuntuClickTool::Targe
     return result;
 #endif
 
+#if 0
     if (!target) {
         QStringList items;
         QDir frameworksDir(QLatin1String(Constants::UBUNTU_CLICK_FRAMEWORKS_BASEPATH));
@@ -287,6 +288,31 @@ QStringList UbuntuClickTool::getSupportedFrameworks(const UbuntuClickTool::Targe
             return QStringList() << QStringLiteral("ubuntu-sdk-13.10");
         }
     }
+#endif
+
+    //quick and dirty fix for trusty dev env
+    Q_UNUSED(target);
+    static QStringList frameworks {
+        QStringLiteral("ubuntu-sdk-14.10-qml-dev3"),
+        QStringLiteral("ubuntu-sdk-14.10-qml-dev2"),
+        QStringLiteral("ubuntu-sdk-14.10-qml-dev1"),
+        QStringLiteral("ubuntu-sdk-14.10-papi-dev2"),
+        QStringLiteral("ubuntu-sdk-14.10-papi-dev1"),
+        QStringLiteral("ubuntu-sdk-14.10-html-dev2"),
+        QStringLiteral("ubuntu-sdk-14.10-html-dev1"),
+        QStringLiteral("ubuntu-sdk-14.10-dev2"),
+        QStringLiteral("ubuntu-sdk-14.10-dev1"),
+        QStringLiteral("ubuntu-sdk-14.04"),
+        QStringLiteral("ubuntu-sdk-14.04-qml"),
+        QStringLiteral("ubuntu-sdk-14.04-qml-dev1"),
+        QStringLiteral("ubuntu-sdk-14.04-papi"),
+        QStringLiteral("ubuntu-sdk-14.04-papi-dev1"),
+        QStringLiteral("ubuntu-sdk-14.04-html"),
+        QStringLiteral("ubuntu-sdk-14.04-html-dev1"),
+        QStringLiteral("ubuntu-sdk-14.04-dev1"),
+        QStringLiteral("ubuntu-sdk-13.10")
+    };
+    return frameworks;
 }
 
 /*!
