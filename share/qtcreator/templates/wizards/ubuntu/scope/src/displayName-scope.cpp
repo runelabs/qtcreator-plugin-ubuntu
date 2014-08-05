@@ -5,7 +5,7 @@
 
 using namespace unity::scopes;
 
-void %ClickHookName:s%Scope::start(std::string const&, RegistryProxy const&)
+void %ClickHookName:s%Scope::start(std::string const&)
 {
 }
 
