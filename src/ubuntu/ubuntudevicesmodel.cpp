@@ -147,6 +147,26 @@ bool UbuntuDevicesModel::setData(const QModelIndex &index, const QVariant &value
             return true;
             break;
         }
+        case EmulatorScaleFactorRole: {
+            if(!value.type() == QVariant::String)
+                return false;
+
+            QString set = value.toString();
+            if(dev->scaleFactor() != set)
+                dev->setScaleFactor(set);
+            return true;
+            break;
+        }
+        case EmulatorMemorySettingRole: {
+            if(!value.type() == QVariant::String)
+                return false;
+
+            QString set = value.toString();
+            if(dev->memorySetting() != set)
+                dev->setMemorySetting(set);
+            return true;
+            break;
+        }
         default:
             break;
     }
@@ -206,6 +226,10 @@ QVariant UbuntuDevicesModel::data(const QModelIndex &index, int role) const
             return m_knownDevices[index.row()]->device()->ubuntuVersion();
         case EmulatorImageVersionRole:
             return m_knownDevices[index.row()]->device()->imageVersion();
+        case EmulatorScaleFactorRole:
+            return m_knownDevices[index.row()]->device()->scaleFactor();
+        case EmulatorMemorySettingRole:
+            return m_knownDevices[index.row()]->device()->memorySetting();
         default:
             break;
     }
@@ -235,6 +259,8 @@ QHash<int, QByteArray> UbuntuDevicesModel::roleNames() const
     roles.insert(EmulatorDeviceVersionRole,"emuDeviceVersion");
     roles.insert(EmulatorUbuntuVersionRole,"emuUbuntuVersion");
     roles.insert(EmulatorImageVersionRole,"emuImageVersion");
+    roles.insert(EmulatorScaleFactorRole,"emulatorScaleFactor");
+    roles.insert(EmulatorMemorySettingRole,"emulatorMemorySetting");
     return roles;
 }
 
@@ -464,7 +490,8 @@ void UbuntuDevicesModel::deviceInfoUpdated()
             << SerialIdRole << ModelInfoRole
             << DeviceInfoRole << ProductInfoRole
             << EmulatorDeviceVersionRole << EmulatorUbuntuVersionRole
-            << EmulatorImageVersionRole;
+            << EmulatorImageVersionRole << EmulatorScaleFactorRole
+            << EmulatorMemorySettingRole;
 
     deviceChanged(sender(),relatedRoles);
 }
@@ -775,11 +802,7 @@ void UbuntuDevicesModel::startEmulator(const QString &name, const QString &memor
     if(idx < 0)
         return;
 
-    QStringList args = QStringList() << name << memory << scale;
-    if(QProcess::startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                            ,args
-                            ,QCoreApplication::applicationDirPath())) {
-
+    if(m_knownDevices[idx]->device()->startEmulator(memory,scale)) {
         //trigger the device detection
         m_knownDevices[idx]->device()->helper()->refresh();
     }

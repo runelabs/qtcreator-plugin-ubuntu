@@ -2,10 +2,10 @@
 #define UBUNTU_INTERNAL_UBUNTUDIRECTUPLOADSTEP_H
 
 #include <remotelinux/abstractremotelinuxdeploystep.h>
+#include <QPointer>
 
-namespace RemoteLinux {
-class GenericDirectUploadService;
-}
+namespace RemoteLinux { class GenericDirectUploadService; }
+class QProgressDialog;
 
 namespace Ubuntu {
 namespace Internal {
@@ -34,10 +34,20 @@ public:
 
 private slots:
     void projectNameChanged();
+    void handleWaitDialogFinished ();
+    void handleDeviceUpdated ();
+
+protected:
+    void handleDeviceReady ();
 
 private:
     RemoteLinux::GenericDirectUploadService *m_deployService;
     bool m_foundClickPackage;
+
+    //wait support for the device/emulator to come up
+    QMetaObject::Connection m_deviceMgrConn;
+    QPointer<QProgressDialog> m_waitDialog;
+    QFutureInterface<bool> *m_future;
 };
 
 } // namespace Internal

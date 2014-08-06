@@ -43,7 +43,9 @@ public:
         EmulatorImageRole,
         EmulatorDeviceVersionRole,
         EmulatorUbuntuVersionRole,
-        EmulatorImageVersionRole
+        EmulatorImageVersionRole,
+        EmulatorScaleFactorRole,
+        EmulatorMemorySettingRole
     };
 
     enum State {

@@ -46,6 +46,7 @@ Depends: android-tools-adb,
          webapp-container [i386 amd64 armhf],
 # Only for unity8-supported archs
          unity-scope-tool [i386 amd64 armhf],
+         gdb-multiarch,
          ${shlibs:Depends},
          ${misc:Depends},
 Recommends: ubuntu-sdk,

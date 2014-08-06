@@ -20,12 +20,11 @@
 #define UBUNTU_INTERNAL_UBUNTUDEPLOYCONFIGURATION_H
 
 #include <projectexplorer/deployconfiguration.h>
-#include <remotelinux/remotelinuxdeployconfiguration.h>
 
 namespace Ubuntu {
 namespace Internal {
 
-class UbuntuRemoteDeployConfiguration : public RemoteLinux::RemoteLinuxDeployConfiguration
+class UbuntuRemoteDeployConfiguration : public ProjectExplorer::DeployConfiguration
 {
     Q_OBJECT
 public:
