@@ -32,12 +32,12 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildstep.h>
+#include <projectexplorer/buildsteplist.h>
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
-#include <remotelinux/remotelinuxcheckforfreediskspacestep.h>
-
 #include <QDir>
+#include <QObject>
 
 namespace Ubuntu {
 namespace Internal {
@@ -47,13 +47,13 @@ enum {
 };
 
 UbuntuRemoteDeployConfiguration::UbuntuRemoteDeployConfiguration(ProjectExplorer::Target *target)
-    : RemoteLinux::RemoteLinuxDeployConfiguration(target,Constants::UBUNTU_DEPLOYCONFIGURATION_ID,QString())
+    : DeployConfiguration(target,Constants::UBUNTU_DEPLOYCONFIGURATION_ID)
 {
     setDefaultDisplayName(tr("Deploy to Ubuntu Device"));
 }
 
 UbuntuRemoteDeployConfiguration::UbuntuRemoteDeployConfiguration(ProjectExplorer::Target *target, UbuntuRemoteDeployConfiguration *source) :
-    RemoteLinux::RemoteLinuxDeployConfiguration(target,source)
+    DeployConfiguration(target,source)
 {
 
 }
@@ -121,12 +121,8 @@ ProjectExplorer::DeployConfiguration *UbuntuRemoteDeployConfigurationFactory::cr
     UbuntuPackageStep *pckStep = new UbuntuPackageStep(dc->stepList());
     dc->stepList()->insertStep(0,pckStep);
 
-    RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep *checkSpace = new RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList());
-    checkSpace->setPathToCheck(QStringLiteral("/tmp"));
-    dc->stepList()->insertStep(step+1, checkSpace);
-
     UbuntuDirectUploadStep* upload = new UbuntuDirectUploadStep(dc->stepList());
-    dc->stepList()->insertStep(step+2,upload);
+    dc->stepList()->insertStep(step+1,upload);
     return dc;
 }
 
@@ -141,7 +137,7 @@ ProjectExplorer::DeployConfiguration *UbuntuRemoteDeployConfigurationFactory::re
     if (!canRestore(parent, map))
         return 0;
 
-    RemoteLinux::RemoteLinuxDeployConfiguration * const dc
+    UbuntuRemoteDeployConfiguration * const dc
             = new UbuntuRemoteDeployConfiguration(parent);
 
     if (!dc->fromMap(map)) {
@@ -156,8 +152,8 @@ ProjectExplorer::DeployConfiguration *UbuntuRemoteDeployConfigurationFactory::cl
 {
     if (!canClone(parent, product))
         return 0;
-    return new RemoteLinux::RemoteLinuxDeployConfiguration(parent
-                                                           ,qobject_cast<RemoteLinux::RemoteLinuxDeployConfiguration *>(product));
+
+    return new UbuntuRemoteDeployConfiguration(parent, qobject_cast<UbuntuRemoteDeployConfiguration *>(product));
 }
 
 } // namespace Internal

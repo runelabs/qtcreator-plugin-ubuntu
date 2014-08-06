@@ -43,7 +43,9 @@ public:
         EmulatorImageRole,
         EmulatorDeviceVersionRole,
         EmulatorUbuntuVersionRole,
-        EmulatorImageVersionRole
+        EmulatorImageVersionRole,
+        EmulatorScaleFactorRole,
+        EmulatorMemorySettingRole
     };
 
     enum State {
@@ -106,7 +108,7 @@ public slots:
     void triggerKitRemove       ( const int devId, const QVariant &kitid );
     void triggerRedetect        ( const int devId );
     void createEmulatorImage    ( const QString &name, const QString &arch, const QString &channel );
-    void startEmulator          ( const QString &name, const QString &memory, const QString &scale );
+    void startEmulator          ( const QString &name );
     void stopEmulator           ( const QString &name );
     void deleteEmulator         ( const QString &name );
     QVariant validateEmulatorName(const QString &name );

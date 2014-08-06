@@ -34,6 +34,7 @@
 #include <QDir>
 #include <QDebug>
 #include <QRegularExpression>
+#include <QSet>
 
 namespace Ubuntu {
 namespace Internal {
@@ -42,9 +43,15 @@ enum {
     debug = 1
 };
 
-const QLatin1String DEVICE_SETTINGS_VERSION("UbuntuDevice.Version");
-const QLatin1String DEVICE_INFO_KEY("UbuntuDevice.InfoString");
-const QLatin1String DEVICE_SERIAL_ARCHITECTURE("UbuntuDevice.Arch");
+const QString DEVICE_SETTINGS_VERSION(QStringLiteral("UbuntuDevice.Version"));
+const QString DEVICE_INFO_KEY(QStringLiteral("UbuntuDevice.InfoString"));
+const QString DEVICE_SERIAL_ARCHITECTURE(QStringLiteral("UbuntuDevice.Arch"));
+const QString DEVICE_SCALE_FACTOR(QStringLiteral("UbuntuDevice.EmulatorScaleFactor"));
+const QString DEVICE_MEMORY_SETTING(QStringLiteral("UbuntuDevice.EmulatorMemory"));
+const QSet<QString> supportedScaleFactors {QStringLiteral("1.0"), QStringLiteral("0.9"), QStringLiteral("0.8"), QStringLiteral("0.7"),
+            QStringLiteral("0.6"),QStringLiteral("0.5"), QStringLiteral("0.4"), QStringLiteral("0.3"), QStringLiteral("0.2"),
+            QStringLiteral("0.1")};
+const QSet<QString> supportedMemorySettings {QStringLiteral("512"), QStringLiteral("768"), QStringLiteral("1024")};
 
 /*!
  * \class UbuntuDeviceHelper
@@ -881,6 +888,8 @@ UbuntuDevice::UbuntuDevice(const QString &name, ProjectExplorer::IDevice::Machin
     : LinuxDevice(name,Core::Id(Constants::UBUNTU_DEVICE_TYPE_ID).withSuffix(architecture),machineType,origin,id)
     , m_helper(new UbuntuDeviceHelper(this))
     , m_processState(NotStarted)
+    , m_scaleFactor(QStringLiteral("1.0"))
+    , m_memory(QStringLiteral("512"))
 {
     setDeviceState(ProjectExplorer::IDevice::DeviceStateUnknown);
     loadDefaultConfig();
@@ -897,6 +906,8 @@ UbuntuDevice::UbuntuDevice(const UbuntuDevice &other)
     , m_ubuntuVersion(other.m_ubuntuVersion)
     , m_deviceVersion(other.m_deviceVersion)
     , m_imageVersion(other.m_imageVersion)
+    , m_scaleFactor(other.m_scaleFactor)
+    , m_memory(other.m_memory)
 {
     setDeviceState(ProjectExplorer::IDevice::DeviceDisconnected);
     m_helper->init();
@@ -1138,6 +1149,17 @@ QString UbuntuDevice::imageVersion() const
     return m_imageVersion;
 }
 
+bool UbuntuDevice::startEmulator()
+{
+    if ( machineType() != IDevice::Emulator )
+        return false;
+
+    QStringList args = QStringList() << imageName() << m_memory << m_scaleFactor;
+    return QProcess::startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
+                            ,args
+                            ,QCoreApplication::applicationDirPath());
+}
+
 
 QString UbuntuDevice::imageName() const
 {
@@ -1222,6 +1244,36 @@ QString UbuntuDevice::detectionStateString( ) const
     return QString();
 }
 
+QString UbuntuDevice::scaleFactor() const
+{
+    return m_scaleFactor;
+}
+
+bool UbuntuDevice::setScaleFactor(const QString &factor)
+{
+    if(supportedScaleFactors.contains(factor)) {
+        m_scaleFactor = factor;
+        emit m_helper->deviceInfoUpdated();
+        return true;
+    }
+    return false;
+}
+
+QString UbuntuDevice::memorySetting() const
+{
+    return m_memory;
+}
+
+bool UbuntuDevice::setMemorySetting(const QString &memory)
+{
+    if(supportedMemorySettings.contains(memory)) {
+        m_memory = memory;
+        emit m_helper->deviceInfoUpdated();
+        return true;
+    }
+    return false;
+}
+
 ProjectExplorer::IDeviceWidget *UbuntuDevice::createWidget()
 {
     return new RemoteLinux::GenericLinuxDeviceConfigurationWidget(sharedFromThis());
@@ -1246,12 +1298,27 @@ ProjectExplorer::IDevice::Ptr  UbuntuDevice::clone() const
 void UbuntuDevice::fromMap(const QVariantMap &map)
 {
     LinuxDevice::fromMap(map);
+
+    if(map.contains(DEVICE_SCALE_FACTOR)) {
+        m_scaleFactor = map[DEVICE_SCALE_FACTOR].toString();
+        if(!supportedScaleFactors.contains(m_scaleFactor))
+            m_scaleFactor = QStringLiteral("1.0");
+    }
+    if(map.contains(DEVICE_MEMORY_SETTING)) {
+        m_memory = map[DEVICE_MEMORY_SETTING].toString();
+
+        if(!supportedMemorySettings.contains(m_memory))
+            m_memory = QStringLiteral("512");
+    }
+
     m_helper->init();
 }
 
 QVariantMap UbuntuDevice::toMap() const
 {
     QVariantMap map = LinuxDevice::toMap();
+    map.insert(DEVICE_SCALE_FACTOR,m_scaleFactor);
+    map.insert(DEVICE_MEMORY_SETTING,m_memory);
     return map;
 }
 

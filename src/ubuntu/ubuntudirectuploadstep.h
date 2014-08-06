@@ -2,13 +2,14 @@
 #define UBUNTU_INTERNAL_UBUNTUDIRECTUPLOADSTEP_H
 
 #include <remotelinux/abstractremotelinuxdeploystep.h>
+#include <QPointer>
 
-namespace RemoteLinux {
-class GenericDirectUploadService;
-}
+namespace RemoteLinux { class GenericDirectUploadService; }
 
 namespace Ubuntu {
 namespace Internal {
+
+class UbuntuWaitForDeviceDialog;
 
 class UbuntuDirectUploadStep : public RemoteLinux::AbstractRemoteLinuxDeployStep
 {
@@ -34,10 +35,16 @@ public:
 
 private slots:
     void projectNameChanged();
+    void handleWaitDialogCanceled();
+    void handleDeviceReady ();
 
 private:
     RemoteLinux::GenericDirectUploadService *m_deployService;
     bool m_foundClickPackage;
+
+    //wait support for the device/emulator to come up
+    QPointer<UbuntuWaitForDeviceDialog> m_waitDialog;
+    QFutureInterface<bool> *m_future;
 };
 
 } // namespace Internal

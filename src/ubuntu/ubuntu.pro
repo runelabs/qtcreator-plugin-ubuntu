@@ -122,7 +122,8 @@ SOURCES += \
     ubuntudirectuploadstep.cpp \
     ubuntuhtmlbuildconfiguration.cpp \
     ubuntuqmlbuildconfiguration.cpp \
-    ubuntufirstrunwizard.cpp
+    ubuntufirstrunwizard.cpp \
+    ubuntuwaitfordevicedialog.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -194,5 +195,6 @@ HEADERS += \
     ubuntudirectuploadstep.h \
     ubuntuhtmlbuildconfiguration.h \
     ubuntuqmlbuildconfiguration.h \
-    ubuntufirstrunwizard.h
+    ubuntufirstrunwizard.h \
+    ubuntuwaitfordevicedialog.h
 
