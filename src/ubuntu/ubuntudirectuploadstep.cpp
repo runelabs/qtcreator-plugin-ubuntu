@@ -3,6 +3,7 @@
 #include "ubuntuconstants.h"
 #include "ubuntudevice.h"
 #include "ubunturemotedeployconfiguration.h"
+#include "ubuntuwaitfordevicedialog.h"
 
 #include <utils/qtcassert.h>
 #include <projectexplorer/deployablefile.h>
@@ -15,7 +16,6 @@
 #include <remotelinux/genericdirectuploadservice.h>
 
 #include <QFileInfo>
-#include <QProgressDialog>
 
 namespace Ubuntu {
 namespace Internal {
@@ -91,33 +91,21 @@ void UbuntuDirectUploadStep::run(QFutureInterface<bool> &fi)
         if (m_waitDialog)
             return;
 
-        m_waitDialog = new QProgressDialog(Core::ICore::mainWindow());
-        m_waitDialog->setMinimum(0);
-        m_waitDialog->setMaximum(0);
+        m_waitDialog = new UbuntuWaitForDeviceDialog(Core::ICore::mainWindow());
+        connect(m_waitDialog.data(),SIGNAL(canceled()),this,SLOT(handleWaitDialogCanceled()));
+        connect(m_waitDialog.data(),SIGNAL(deviceReady()),this,SLOT(handleDeviceReady()));
+        m_waitDialog->show(dev);
 
-        connect(m_waitDialog.data(),SIGNAL(canceled()),this,SLOT(handleWaitDialogFinished()));
-        m_deviceMgrConn = connect(ProjectExplorer::DeviceManager::instance(),
-                                   SIGNAL(deviceUpdated(Core::Id)),
-                                   this,
-                                   SLOT(handleDeviceUpdated()));
-
-        if(dev->machineType() == ProjectExplorer::IDevice::Emulator) {
+        if(dev->machineType() == ProjectExplorer::IDevice::Emulator && dev->deviceState() == ProjectExplorer::IDevice::DeviceDisconnected)
             dev->helper()->device()->startEmulator();
-            m_waitDialog->setLabelText(tr("Waiting for the emulator to come up."));
-        } else {
-            m_waitDialog->setLabelText(tr("The device is not ready please connect it to your machine."));
-        }
-        m_waitDialog->show();
+
     } else {
         handleDeviceReady();
     }
 }
 
-void UbuntuDirectUploadStep::handleWaitDialogFinished( )
+void UbuntuDirectUploadStep::handleWaitDialogCanceled( )
 {
-    if(m_deviceMgrConn)
-        disconnect(m_deviceMgrConn);
-
     m_waitDialog->deleteLater();
 
     emit addOutput(tr("Deploy step failed"), ErrorMessageOutput);
@@ -126,29 +114,10 @@ void UbuntuDirectUploadStep::handleWaitDialogFinished( )
     emit finished();
 }
 
-void UbuntuDirectUploadStep::handleDeviceUpdated()
-{
-    UbuntuDevice::ConstPtr dev = deviceFromTarget(target());
-    if(!dev) {
-        m_waitDialog->cancel();
-        return;
-    }
-
-    if(dev->deviceState() == ProjectExplorer::IDevice::DeviceReadyToUse) {
-        if(m_waitDialog) {
-            m_waitDialog->disconnect(this);
-            m_waitDialog->cancel();
-            m_waitDialog->deleteLater();
-        }
-        if(m_deviceMgrConn)
-            disconnect(m_deviceMgrConn);
-
-        handleDeviceReady();
-    }
-}
-
 void UbuntuDirectUploadStep::handleDeviceReady()
 {
+    m_waitDialog->deleteLater();
+
     QString whyNot;
     if(!deployService()->isDeploymentPossible(&whyNot)) {
         emit addOutput(tr("Deploy step failed. %1").arg(whyNot), ErrorMessageOutput);

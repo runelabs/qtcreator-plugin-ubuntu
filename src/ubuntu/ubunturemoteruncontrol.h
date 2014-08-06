@@ -54,6 +54,8 @@ private slots:
     void handleRemoteOutput(const QByteArray &output);
     void handleRemoteErrorOutput(const QByteArray &output);
     void handleProgressReport(const QString &progressString);
+    void handleDeviceReady ();
+    void handleWaitDialogCanceled();
 
 private:
     void setFinished();

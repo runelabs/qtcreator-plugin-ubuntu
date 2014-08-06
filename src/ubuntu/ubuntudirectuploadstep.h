@@ -5,10 +5,11 @@
 #include <QPointer>
 
 namespace RemoteLinux { class GenericDirectUploadService; }
-class QProgressDialog;
 
 namespace Ubuntu {
 namespace Internal {
+
+class UbuntuWaitForDeviceDialog;
 
 class UbuntuDirectUploadStep : public RemoteLinux::AbstractRemoteLinuxDeployStep
 {
@@ -34,10 +35,7 @@ public:
 
 private slots:
     void projectNameChanged();
-    void handleWaitDialogFinished ();
-    void handleDeviceUpdated ();
-
-protected:
+    void handleWaitDialogCanceled();
     void handleDeviceReady ();
 
 private:
@@ -45,8 +43,7 @@ private:
     bool m_foundClickPackage;
 
     //wait support for the device/emulator to come up
-    QMetaObject::Connection m_deviceMgrConn;
-    QPointer<QProgressDialog> m_waitDialog;
+    QPointer<UbuntuWaitForDeviceDialog> m_waitDialog;
     QFutureInterface<bool> *m_future;
 };
 

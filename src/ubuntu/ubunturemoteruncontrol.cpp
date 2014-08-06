@@ -31,6 +31,7 @@
 #include "ubunturemoteruncontrol.h"
 #include "ubunturemoterunconfiguration.h"
 #include "ubunturemoterunner.h"
+#include "ubuntuwaitfordevicedialog.h"
 #include "ubuntudevice.h"
 
 #include <remotelinux/abstractremotelinuxrunconfiguration.h>
@@ -38,6 +39,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <utils/environment.h>
+#include <coreplugin/icore.h>
 
 #include <QString>
 #include <QIcon>
@@ -56,6 +58,8 @@ public:
     UbuntuDevice::ConstPtr device;
     QString clickPackage;
     Utils::Environment environment;
+
+    QPointer<UbuntuWaitForDeviceDialog> waitDialog;
 };
 
 UbuntuRemoteRunControl::UbuntuRemoteRunControl(RunConfiguration *rc)
@@ -76,21 +80,28 @@ UbuntuRemoteRunControl::~UbuntuRemoteRunControl()
 
 void UbuntuRemoteRunControl::start()
 {
-    d->running = true;
-    emit started();
-    d->runner.disconnect(this);
+    if(d->device->deviceState() != ProjectExplorer::IDevice::DeviceReadyToUse) {
+        if(d->waitDialog)
+            return;
 
-    connect(&d->runner, SIGNAL(reportError(QString)), SLOT(handleErrorMessage(QString)));
-    connect(&d->runner, SIGNAL(launcherStderr(QByteArray)),
-        SLOT(handleRemoteErrorOutput(QByteArray)));
-    connect(&d->runner, SIGNAL(launcherStdout(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
-    connect(&d->runner, SIGNAL(finished(bool)), SLOT(handleRunnerFinished()));
+        d->waitDialog = new UbuntuWaitForDeviceDialog(Core::ICore::mainWindow());
+        connect(d->waitDialog.data(),SIGNAL(canceled()),this,SLOT(handleWaitDialogCanceled()));
+        connect(d->waitDialog.data(),SIGNAL(deviceReady()),this,SLOT(handleDeviceReady()));
+        d->waitDialog->show(d->device);
 
-    d->runner.start(d->device, d->clickPackage);
+        if(d->device->machineType() == ProjectExplorer::IDevice::Emulator && d->device->deviceState() == ProjectExplorer::IDevice::DeviceDisconnected)
+            d->device->helper()->device()->startEmulator();
+    } else {
+        handleDeviceReady();
+    }
 }
 
 RunControl::StopResult UbuntuRemoteRunControl::stop()
 {
+    if(d->waitDialog && !d->running) {
+        d->waitDialog->cancel();
+        return StoppedSynchronously;
+    }
     d->runner.stop();
     return AsynchronousStop;
 }
@@ -118,6 +129,29 @@ void UbuntuRemoteRunControl::handleRemoteErrorOutput(const QByteArray &output)
 void UbuntuRemoteRunControl::handleProgressReport(const QString &progressString)
 {
     appendMessage(progressString + QLatin1Char('\n'), Utils::NormalMessageFormat);
+}
+
+void UbuntuRemoteRunControl::handleDeviceReady()
+{
+    d->waitDialog->deleteLater();
+
+    d->running = true;
+    emit started();
+    d->runner.disconnect(this);
+
+    connect(&d->runner, SIGNAL(reportError(QString)), SLOT(handleErrorMessage(QString)));
+    connect(&d->runner, SIGNAL(launcherStderr(QByteArray)),
+        SLOT(handleRemoteErrorOutput(QByteArray)));
+    connect(&d->runner, SIGNAL(launcherStdout(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
+    connect(&d->runner, SIGNAL(finished(bool)), SLOT(handleRunnerFinished()));
+
+    d->runner.start(d->device, d->clickPackage);
+}
+
+void UbuntuRemoteRunControl::handleWaitDialogCanceled()
+{
+    d->waitDialog->deleteLater();
+    setFinished();
 }
 
 bool UbuntuRemoteRunControl::isRunning() const
