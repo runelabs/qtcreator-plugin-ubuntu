@@ -23,7 +23,7 @@ RowLayout {
                 }
                 ActivityIndicator{
                     visible: deviceItemView.deviceBusy
-                    running: true
+                    running: visible
                 }
             }
 

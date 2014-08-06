@@ -1149,12 +1149,12 @@ QString UbuntuDevice::imageVersion() const
     return m_imageVersion;
 }
 
-bool UbuntuDevice::startEmulator(const QString &memory, const QString &scale)
+bool UbuntuDevice::startEmulator()
 {
     if ( machineType() != IDevice::Emulator )
         return false;
 
-    QStringList args = QStringList() << imageName() << memory << scale;
+    QStringList args = QStringList() << imageName() << m_memory << m_scaleFactor;
     return QProcess::startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
                             ,args
                             ,QCoreApplication::applicationDirPath());
@@ -1249,12 +1249,14 @@ QString UbuntuDevice::scaleFactor() const
     return m_scaleFactor;
 }
 
-void UbuntuDevice::setScaleFactor(const QString &factor)
+bool UbuntuDevice::setScaleFactor(const QString &factor)
 {
     if(supportedScaleFactors.contains(factor)) {
         m_scaleFactor = factor;
         emit m_helper->deviceInfoUpdated();
+        return true;
     }
+    return false;
 }
 
 QString UbuntuDevice::memorySetting() const
@@ -1262,12 +1264,14 @@ QString UbuntuDevice::memorySetting() const
     return m_memory;
 }
 
-void UbuntuDevice::setMemorySetting(const QString &memory)
+bool UbuntuDevice::setMemorySetting(const QString &memory)
 {
     if(supportedMemorySettings.contains(memory)) {
         m_memory = memory;
         emit m_helper->deviceInfoUpdated();
+        return true;
     }
+    return false;
 }
 
 ProjectExplorer::IDeviceWidget *UbuntuDevice::createWidget()

@@ -16,6 +16,7 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QMessageBox>
+#include <QTimer>
 
 namespace Ubuntu {
 namespace Internal {
@@ -153,7 +154,8 @@ bool UbuntuDevicesModel::setData(const QModelIndex &index, const QVariant &value
 
             QString set = value.toString();
             if(dev->scaleFactor() != set)
-                dev->setScaleFactor(set);
+                return dev->setScaleFactor(set);
+
             return true;
             break;
         }
@@ -163,7 +165,8 @@ bool UbuntuDevicesModel::setData(const QModelIndex &index, const QVariant &value
 
             QString set = value.toString();
             if(dev->memorySetting() != set)
-                dev->setMemorySetting(set);
+                return dev->setMemorySetting(set);
+
             return true;
             break;
         }
@@ -796,13 +799,13 @@ void UbuntuDevicesModel::queryAdb()
     m_process->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_DETECTDEVICES));
 }
 
-void UbuntuDevicesModel::startEmulator(const QString &name, const QString &memory, const QString &scale)
+void UbuntuDevicesModel::startEmulator(const QString &name)
 {
     int idx = findDevice(Core::Id::fromSetting(name).uniqueIdentifier());
     if(idx < 0)
         return;
 
-    if(m_knownDevices[idx]->device()->startEmulator(memory,scale)) {
+    if(m_knownDevices[idx]->device()->startEmulator()) {
         //trigger the device detection
         m_knownDevices[idx]->device()->helper()->refresh();
     }

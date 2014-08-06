@@ -184,7 +184,7 @@ public:
     QString ubuntuVersion() const;
     QString deviceVersion() const;
     QString imageVersion() const;
-    bool startEmulator (const QString &memory = QStringLiteral("512"), const QString &scale = QStringLiteral("1.0"));
+    bool startEmulator ();
 
     FeatureState developerModeEnabled () const;
     FeatureState hasNetworkConnection () const;
@@ -195,10 +195,10 @@ public:
     QString detectionStateString () const;
 
     QString scaleFactor () const;
-    void setScaleFactor (const QString &factor);
+    bool setScaleFactor (const QString &factor);
 
     QString memorySetting () const;
-    void setMemorySetting (const QString &memory);
+    bool setMemorySetting (const QString &memory);
 
     // IDevice interface
     virtual ProjectExplorer::IDeviceWidget *createWidget() override;

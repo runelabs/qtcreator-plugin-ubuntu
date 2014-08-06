@@ -21,7 +21,7 @@ ListItem.Standard {
     control: Row {
         ActivityIndicator {
             visible: input === FeatureState.Unknown
-            running: true
+            running: visible
         }
         Switch {
             id: switchbox

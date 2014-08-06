@@ -9,10 +9,6 @@ import Ubuntu.Components.Popups 0.1
 import Ubuntu.DevicesModel 0.1
 
 ColumnLayout {
-
-    property alias memory: emulatorMemoryComboBox.currentText
-    property alias scale: emulatorScaleComboBox.currentText
-
     UbuntuListView {
         anchors.left: parent.left
         width: units.gu(50)
@@ -37,6 +33,13 @@ ColumnLayout {
                 control: Controls.ComboBox {
                     id: emulatorScaleComboBox
                     model: ["1.0", "0.9", "0.8", "0.7", "0.6","0.5", "0.4", "0.3", "0.2","0.1"]
+                    currentIndex: {
+                        var idx = find(emulatorScaleFactor);
+                        return idx >= 0 ? idx : 0;
+                    }
+                    onActivated: {
+                        emulatorScaleFactor = textAt(index);
+                    }
                 }
             }
 
@@ -47,7 +50,17 @@ ColumnLayout {
                 control: Controls.ComboBox {
                     id: emulatorMemoryComboBox
                     model: ["512", "768", "1024"]
+
+                    currentIndex: {
+                        var idx = find(emulatorMemorySetting);
+                        return idx >= 0 ? idx : 0;
+                    }
+                    onActivated: {
+                        emulatorMemorySetting = textAt(index);
+                    }
                 }
+
+
             }
         }
     }
