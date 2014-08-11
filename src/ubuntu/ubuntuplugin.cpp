@@ -217,13 +217,13 @@ void UbuntuPlugin::showFirstStartWizard()
                 //invoke the method the next time the event loop starts
                 QMetaObject::invokeMethod(m_ubuntuDeviceMode,"showAddEmulatorDialog",Qt::QueuedConnection);
             }
+        }
 
-            if(wiz.field(QStringLiteral("disableWizard")).toBool()) {
-                QFile f(file);
-                if(f.open(QIODevice::WriteOnly)) {
-                    f.write("1");
-                    f.close();
-                }
+        if(wiz.field(QStringLiteral("disableWizard")).toBool()) {
+            QFile f(file);
+            if(f.open(QIODevice::WriteOnly)) {
+                f.write("1");
+                f.close();
             }
         }
     }
