@@ -60,6 +60,7 @@ public:
     void setArguments (const QStringList &args);
 
     QString packageDir () const;
+    void setRunning (const bool set = true);
 
 private:
     QString m_clickPackage;
@@ -68,6 +69,7 @@ private:
     QString m_localExecutable;
     QString m_remoteExecutable;
     QStringList m_arguments;
+    bool    m_running;
 
 };
 
