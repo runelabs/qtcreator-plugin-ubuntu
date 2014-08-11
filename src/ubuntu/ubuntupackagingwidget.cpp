@@ -433,7 +433,12 @@ void UbuntuPackagingWidget::save(bool bSaveSimple) {
     switch (m_previous_tab) {
         case 0: {
             // set package name to lower, bug #1219877
-            m_manifest.setName(ui->lineEdit_name->text().toLower());
+            QString packageName = ui->lineEdit_name->text();
+            static const QRegularExpression varCheck(QStringLiteral("@.*@"));
+            if(!varCheck.match(packageName).hasMatch())
+                packageName = packageName.toLower();
+
+            m_manifest.setName(packageName);
             m_manifest.setMaintainer(ui->lineEdit_maintainer->text());
             m_manifest.setVersion(ui->lineEdit_version->text());
             m_manifest.setTitle(ui->lineEdit_title->text());

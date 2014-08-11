@@ -159,6 +159,13 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
         return false;
 
     ProjectExplorer::DeployConfiguration *deplConf = qobject_cast<ProjectExplorer::DeployConfiguration*>(target()->activeDeployConfiguration());
+    if(!deplConf) {
+        if(errorMessage)
+            *errorMessage = tr("No valid deploy configuration is set.");
+
+        return false;
+    }
+
     ProjectExplorer::BuildStepList *bsList = deplConf->stepList();
     foreach(ProjectExplorer::BuildStep *currStep ,bsList->steps()) {
         UbuntuPackageStep *pckStep = qobject_cast<UbuntuPackageStep*>(currStep);
