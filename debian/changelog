@@ -1,3 +1,21 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140806-0ubuntu1) utopic; urgency=low
+
+  [ Benjamin Zeller ]
+  * Add gdb-multiarch as a dependency lp:1338440. Save Emulator Settings
+    lp:1336154. Autostart Emulator when its not started lp:1336660. Show
+    a dialog that tells the user to attach the device and can wait. for
+    the device being ready (LP: #1338440, #1336154, #1336660)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 06 Aug 2014 16:23:36 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140805.1-0ubuntu1) utopic; urgency=low
+
+  [ Benjamin Zeller ]
+  * Quick and dirty fix for trusty development env, until we sorted out
+    how to handle frameworks and policy versions correctly
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 05 Aug 2014 11:40:36 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20140804.1-0ubuntu1) utopic; urgency=low
 
   [ Benjamin Zeller ]
