@@ -136,13 +136,13 @@ Page {
                     Controls.ToolButton {
                         text: i18n.tr("Refresh devices")
                         tooltip: text
-                        iconSource: "qrc:/ubuntu/images/view-refresh.png"
+                        iconSource: "qrc:/ubuntu/images/reload.svg"
                         onClicked: devicesModel.refresh()
                     }
                     Controls.ToolButton {
                         text: i18n.tr("Add Emulator")
                         tooltip: text
-                        iconSource: "qrc:/ubuntu/images/list-add.png"
+                        iconSource: "qrc:/ubuntu/images/list-add.svg"
                         onClicked: PopupUtils.open(resourceRoot+"/NewEmulatorDialog.qml",devicePage);
                     }
 

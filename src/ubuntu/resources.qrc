@@ -16,5 +16,8 @@
         <file>manifestlib.js</file>
         <file>images/view-refresh.png</file>
         <file>images/list-add.png</file>
+        <file>images/reload.svg</file>
+        <file>images/list-add.svg</file>
+        <file>images/list-remove.svg</file>
     </qresource>
 </RCC>
