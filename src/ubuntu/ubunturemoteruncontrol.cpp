@@ -60,6 +60,7 @@ public:
     Utils::Environment environment;
 
     QPointer<UbuntuWaitForDeviceDialog> waitDialog;
+    QPointer<UbuntuRemoteRunConfiguration> runConfig;
 };
 
 UbuntuRemoteRunControl::UbuntuRemoteRunControl(RunConfiguration *rc)
@@ -68,9 +69,9 @@ UbuntuRemoteRunControl::UbuntuRemoteRunControl(RunConfiguration *rc)
     d->running = false;
 
     d->device = qSharedPointerCast<const UbuntuDevice>(DeviceKitInformation::device(rc->target()->kit()));
-    const UbuntuRemoteRunConfiguration * const lrc = static_cast<UbuntuRemoteRunConfiguration *>(rc);
-    d->environment = lrc->environment();
-    d->clickPackage = lrc->clickPackage();
+    d->runConfig = QPointer<UbuntuRemoteRunConfiguration>(static_cast<UbuntuRemoteRunConfiguration *>(rc));
+    d->environment = d->runConfig->environment();
+    d->clickPackage = d->runConfig->clickPackage();
 }
 
 UbuntuRemoteRunControl::~UbuntuRemoteRunControl()
@@ -134,9 +135,13 @@ void UbuntuRemoteRunControl::handleProgressReport(const QString &progressString)
 void UbuntuRemoteRunControl::handleDeviceReady()
 {
     d->waitDialog->deleteLater();
-
     d->running = true;
+
+    if(d->runConfig)
+        d->runConfig->setRunning(true);
+
     emit started();
+
     d->runner.disconnect(this);
 
     connect(&d->runner, SIGNAL(reportError(QString)), SLOT(handleErrorMessage(QString)));
@@ -166,6 +171,8 @@ QIcon UbuntuRemoteRunControl::icon() const
 
 void UbuntuRemoteRunControl::setFinished()
 {
+    if(d->runConfig)
+        d->runConfig->setRunning(false);
     d->runner.disconnect(this);
     d->running = false;
     emit finished();

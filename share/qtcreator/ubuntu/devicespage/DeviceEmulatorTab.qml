@@ -10,9 +10,9 @@ import Ubuntu.DevicesModel 0.1
 
 ColumnLayout {
     UbuntuListView {
-        anchors.left: parent.left
+        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
         width: units.gu(50)
-        Layout.fillHeight: true
+        height: childrenRect.height
         model: VisualItemModel {
             ListItem.SingleValue {
                 text: i18n.tr("Ubuntu version")
@@ -59,9 +59,13 @@ ColumnLayout {
                         emulatorMemorySetting = textAt(index);
                     }
                 }
-
-
             }
         }
+    }
+    ListItem.Divider{}
+    DeviceKitManager{
+        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+        Layout.fillHeight: true
+        width: units.gu(50)
     }
 }

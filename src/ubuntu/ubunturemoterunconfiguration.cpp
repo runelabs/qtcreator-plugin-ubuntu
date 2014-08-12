@@ -48,14 +48,16 @@ enum {
 };
 
 UbuntuRemoteRunConfiguration::UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent, Core::Id id)
-    : AbstractRemoteLinuxRunConfiguration(parent,id)
+    : AbstractRemoteLinuxRunConfiguration(parent,id),
+      m_running(false)
 {
     setDisplayName(appId());
     addExtraAspect(new RemoteLinux::RemoteLinuxEnvironmentAspect(this));
 }
 
 UbuntuRemoteRunConfiguration::UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent, UbuntuRemoteRunConfiguration *source)
-    : AbstractRemoteLinuxRunConfiguration(parent,source)
+    : AbstractRemoteLinuxRunConfiguration(parent,source),
+      m_running(false)
 {
 }
 
@@ -114,11 +116,13 @@ QWidget *UbuntuRemoteRunConfiguration::createConfigurationWidget()
 
 bool UbuntuRemoteRunConfiguration::isEnabled() const
 {
-    return true;
+    return (!m_running);
 }
 
 QString UbuntuRemoteRunConfiguration::disabledReason() const
 {
+    if(m_running)
+        return tr("This configuration is already running on the device");
     return QString();
 }
 
@@ -155,6 +159,13 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
         return false;
 
     ProjectExplorer::DeployConfiguration *deplConf = qobject_cast<ProjectExplorer::DeployConfiguration*>(target()->activeDeployConfiguration());
+    if(!deplConf) {
+        if(errorMessage)
+            *errorMessage = tr("No valid deploy configuration is set.");
+
+        return false;
+    }
+
     ProjectExplorer::BuildStepList *bsList = deplConf->stepList();
     foreach(ProjectExplorer::BuildStep *currStep ,bsList->steps()) {
         UbuntuPackageStep *pckStep = qobject_cast<UbuntuPackageStep*>(currStep);
@@ -280,6 +291,14 @@ QString UbuntuRemoteRunConfiguration::packageDir() const
             return target()->activeBuildConfiguration()->buildDirectory().toString()+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR);
     }
     return QString();
+}
+
+void UbuntuRemoteRunConfiguration::setRunning(const bool set)
+{
+    if(m_running != set) {
+        m_running = set;
+        emit enabledChanged();
+    }
 }
 
 } // namespace Internal

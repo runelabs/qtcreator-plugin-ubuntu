@@ -136,13 +136,13 @@ Page {
                     Controls.ToolButton {
                         text: i18n.tr("Refresh devices")
                         tooltip: text
-                        iconSource: "qrc:/ubuntu/images/view-refresh.png"
+                        iconSource: "qrc:/ubuntu/images/reload.svg"
                         onClicked: devicesModel.refresh()
                     }
                     Controls.ToolButton {
                         text: i18n.tr("Add Emulator")
                         tooltip: text
-                        iconSource: "qrc:/ubuntu/images/list-add.png"
+                        iconSource: "qrc:/ubuntu/images/list-add.svg"
                         onClicked: PopupUtils.open(resourceRoot+"/NewEmulatorDialog.qml",devicePage);
                     }
 
@@ -224,11 +224,33 @@ Page {
                         }
                     }
 
-                    Label {
+                    ColumnLayout {
                         visible: !deviceConnected && !deviceBooting && !detectionError && (machineType !== DeviceMachineType.Emulator)
-                        anchors.centerIn: parent
-                        text: "The device is currently not connected"
-                        fontSize: "large"
+                        anchors.left: parent.left
+                        anchors.top: emulatorToolBar.bottom
+                        anchors.bottom: parent.bottom
+                        anchors.margins: 10
+                        width: units.gu(75)
+                        spacing: units.gu(1)
+
+                        Label {
+                            text:"Device Status: Disconnected"
+                            fontSize: "large"
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                        }
+                        ListItem.SingleValue {
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            text:i18n.tr("Serial ID")
+                            Layout.fillWidth: true
+                            value: serial
+                        }
+                        ListItem.Divider{}
+                        DeviceKitManager {
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillHeight: true
+                            Layout.fillWidth: true
+                        }
                     }
 
                     DeviceEmulatorTab {
@@ -238,6 +260,7 @@ Page {
                         anchors.right: parent.right
                         anchors.top: emulatorToolBar.bottom
                         anchors.bottom: parent.bottom
+                        anchors.margins: 10
                     }
 
                     Column {
