@@ -249,7 +249,7 @@ void UbuntuClickManifest::save(QString fileName) {
 }
 
 void UbuntuClickManifest::reload() {
-    load(m_fileName,m_projectName);
+    load(m_fileName);
 }
 
 QString UbuntuClickManifest::raw() {
@@ -263,11 +263,9 @@ void UbuntuClickManifest::setRaw(QString data) {
     emit loaded();
 }
 
-bool UbuntuClickManifest::load(const QString &fileName, const QString &projectName) {
+bool UbuntuClickManifest::load(const QString &fileName) {
 
     setFileName(fileName);
-    m_projectName = projectName;
-
     QFile file(fileName);
 
     if (!file.exists()) {
@@ -286,6 +284,7 @@ bool UbuntuClickManifest::load(const QString &fileName, const QString &projectNa
     QString data = QString::fromUtf8(file.readAll());
     file.close();
 
+#if 0
     if (fileName == QLatin1String(":/ubuntu/manifest.json.template")) {
 
 
@@ -323,12 +322,22 @@ bool UbuntuClickManifest::load(const QString &fileName, const QString &projectNa
             data.replace(QString(QLatin1String("%0.desktop")).arg(tmpProjectName),original_desktop_file);
         }
     }
+#endif
 
-    callSetStringFunction(QLatin1String("fromJSON"),data);
+    return loadFromString(data);
+}
 
-    m_bInitialized = true;
-    emit loaded();
-    return true;
+bool UbuntuClickManifest::loadFromString(const QString &data)
+{
+    //@TODO probably return the error message
+    QScriptValue ret = callFunction(QStringLiteral("fromJSON"),QScriptValueList{QScriptValue(data)});
+    bool success = ret.toBool();
+    if(success) {
+        m_bInitialized = true;
+        emit loaded();
+    }
+
+    return success;
 }
 
 QScriptValue UbuntuClickManifest::callFunction(QString functionName, QScriptValueList args) {

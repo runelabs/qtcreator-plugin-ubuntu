@@ -615,7 +615,7 @@ bool UbuntuPackagingWidget::load_manifest(QString fileName) {
 
     addMissingFieldsToManifest(fileName);
 
-   if(! m_manifest.load(fileName,m_projectName) )
+   if(! m_manifest.load(fileName) )
        return false;
     // Commented out for bug #1274265 https://bugs.launchpad.net/qtcreator-plugin-ubuntu/+bug/1274265
     //m_manifest.setMaintainer(m_bzr.whoami());
@@ -628,7 +628,7 @@ bool UbuntuPackagingWidget::load_manifest(QString fileName) {
 }
 
 void UbuntuPackagingWidget::load_apparmor(QString fileAppArmorName) {
-    m_apparmor.load(fileAppArmorName,m_projectName);
+    m_apparmor.load(fileAppArmorName);
 }
 
 void UbuntuPackagingWidget::load_excludes(QString excludesFile) {

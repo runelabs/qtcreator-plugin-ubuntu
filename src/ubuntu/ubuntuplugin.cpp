@@ -39,6 +39,7 @@
 #include "ubuntudeploystepfactory.h"
 #include "ubuntuqmlbuildconfiguration.h"
 #include "ubuntufirstrunwizard.h"
+#include "ubuntumanifesteditorfactory.h"
 
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -175,6 +176,20 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     //for local applications in the future
     //addAutoReleasedObject(new UbuntuLocalDeployConfigurationFactory);
     addAutoReleasedObject(new UbuntuDeployStepFactory);
+
+    //add support for the manifest editor
+    Core::MimeGlobPattern ubuntuManifestGlobPattern(QStringLiteral("manifest.json*"), Core::MimeGlobPattern::MaxWeight);
+    Core::MimeType ubuntuManifestMimeType;
+    ubuntuManifestMimeType.setType(QLatin1String(Constants::UBUNTU_MANIFEST_MIME_TYPE));
+    ubuntuManifestMimeType.setComment(tr("Ubuntu Manifest file"));
+    ubuntuManifestMimeType.setGlobPatterns(QList<Core::MimeGlobPattern>() << ubuntuManifestGlobPattern);
+    ubuntuManifestMimeType.setSubClassesOf(QStringList() << QLatin1String("application/json"));
+
+    if (!Core::MimeDatabase::addMimeType(ubuntuManifestMimeType)) {
+        *errorString = tr("Could not add mime-type for manifest.json editor.");
+        return false;
+    }
+    addAutoReleasedObject(new Internal::UbuntuManifestEditorFactory);
 
     //trigger kit autodetection and update after projectexplorer loaded the kits
     connect(ProjectExplorer::KitManager::instance(),SIGNAL(kitsLoaded())

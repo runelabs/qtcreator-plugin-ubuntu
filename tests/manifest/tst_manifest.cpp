@@ -20,7 +20,7 @@ UbuntuManifestTest::UbuntuManifestTest()
 void UbuntuManifestTest::testWriteStringValue(const QString &value, StrWriteFunc write, StrReadFunc read)
 {
     UbuntuClickManifest mani;
-    QVERIFY( mani.load(MANIFEST_TEMPLATE,"testProject") );
+    QVERIFY( mani.load(MANIFEST_TEMPLATE) );
     mani.setFileName(MANIFEST_FILE);
     mani.save();
 
@@ -33,7 +33,7 @@ void UbuntuManifestTest::testWriteStringValue(const QString &value, StrWriteFunc
 void UbuntuManifestTest::testSave(const QString &templateFile)
 {
     UbuntuClickManifest mani;
-    QVERIFY( mani.load(templateFile,"testProject") );
+    QVERIFY( mani.load(templateFile) );
     mani.setFileName(MANIFEST_FILE);
     mani.save();
 
@@ -54,7 +54,7 @@ void UbuntuManifestTest::testSave()
 void UbuntuManifestTest::testWriteAppArmorName()
 {
     UbuntuClickManifest mani;
-    QVERIFY( mani.load(MANIFEST_TEMPLATE,"testProject") );
+    QVERIFY( mani.load(MANIFEST_TEMPLATE) );
     mani.setFileName(MANIFEST_FILE);
     mani.save();
 
@@ -108,7 +108,7 @@ void UbuntuManifestTest::testWriteDescription()
 void UbuntuManifestTest::testWriteFrameworkName()
 {
     UbuntuClickManifest mani;
-    QVERIFY( mani.load(MANIFEST_TEMPLATE,"testProject") );
+    QVERIFY( mani.load(MANIFEST_TEMPLATE) );
     mani.setFileName(MANIFEST_FILE);
     mani.save();
 
@@ -122,7 +122,7 @@ void UbuntuManifestTest::testWriteFrameworkName()
 void UbuntuManifestTest::testReadHooks()
 {
     UbuntuClickManifest mani;
-    QVERIFY( mani.load(MANIFEST_TEMPLATE,"testProject") );
+    QVERIFY( mani.load(MANIFEST_TEMPLATE) );
     mani.setFileName(MANIFEST_FILE);
     mani.save();
 
@@ -174,7 +174,7 @@ void UbuntuManifestTest::testWritePolicyVersion ()
 #endif
 
     UbuntuClickManifest mani;
-    QVERIFY( mani.load(APPARMOR_TEMPLATE,"testProject") );
+    QVERIFY( mani.load(APPARMOR_TEMPLATE) );
     mani.setFileName(MANIFEST_FILE);
     mani.save();
 
@@ -196,7 +196,7 @@ void UbuntuManifestTest::testWritePolicyVersion ()
 void UbuntuManifestTest::testWritePolicyGroups()
 {
     UbuntuClickManifest mani;
-    QVERIFY( mani.load(APPARMOR_TEMPLATE,"testProject") );
+    QVERIFY( mani.load(APPARMOR_TEMPLATE) );
     mani.setFileName(MANIFEST_FILE);
     mani.save();
 

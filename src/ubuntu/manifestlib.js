@@ -1,7 +1,13 @@
 var jsonData = undefined;
 
 function fromJSON($data) {
-    jsonData = JSON.parse($data);
+    try{
+        jsonData = JSON.parse($data);
+    }catch(err){
+        //catch all exceptions
+        return false;
+    }
+
     return (jsonData !== undefined)
 }
 

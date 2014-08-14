@@ -67,7 +67,7 @@ QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(Project
     UbuntuClickManifest manifest;
 
     //if we have no manifest, we can not query the app id's
-    if(!manifest.load(manifestPath,parent->displayName()))
+    if(!manifest.load(manifestPath))
         return types;
 
     QList<UbuntuClickManifest::Hook> hooks = manifest.hooks();

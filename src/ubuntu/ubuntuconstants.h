@@ -557,6 +557,11 @@ const char UBUNTU_QTVERSION_TYPE[]   = "UbuntuProjectManager.QtVersion";
 const char UBUNTU_PLATFORM_NAME[]    = "Ubuntu Phone";
 const char UBUNTU_PLATFORM_NAME_TR[] = QT_TRANSLATE_NOOP("UbuntuProjectManager", "Ubuntu Phone");
 
+//Manifest Editor
+const char UBUNTU_MANIFEST_MIME_TYPE[] = "application/vnd.canonical.click.click_manifest";
+const char UBUNTU_MANIFEST_EDITOR_ID[] = "UbuntuProjectManager.UbuntuManifestEditor.Id";
+const char UBUNTU_MANIFEST_EDITOR_CONTEXT[] = "UbuntuProjectManager.UbuntuManifestEditor.Context.Id";
+
 } // namespace Ubuntu
 } // namespace Constants
 

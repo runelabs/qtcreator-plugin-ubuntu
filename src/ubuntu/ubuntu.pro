@@ -23,7 +23,8 @@ FORMS += \
     ubuntusettingsclickwidget.ui \
     ubuntuclickdialog.ui \
     ubuntucreatenewchrootdialog.ui \
-    ubuntupackagestepconfigwidget.ui
+    ubuntupackagestepconfigwidget.ui \
+    ubuntumanifesteditor.ui
 
 RESOURCES += \
     resources.qrc
@@ -123,7 +124,11 @@ SOURCES += \
     ubuntuhtmlbuildconfiguration.cpp \
     ubuntuqmlbuildconfiguration.cpp \
     ubuntufirstrunwizard.cpp \
-    ubuntuwaitfordevicedialog.cpp
+    ubuntuwaitfordevicedialog.cpp \
+    ubuntumanifesteditor.cpp \
+    ubuntumanifesteditorfactory.cpp \
+    ubuntumanifesteditorwidget.cpp \
+    ubuntumanifestdocument.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -196,5 +201,9 @@ HEADERS += \
     ubuntuhtmlbuildconfiguration.h \
     ubuntuqmlbuildconfiguration.h \
     ubuntufirstrunwizard.h \
-    ubuntuwaitfordevicedialog.h
+    ubuntuwaitfordevicedialog.h \
+    ubuntumanifesteditor.h \
+    ubuntumanifesteditorfactory.h \
+    ubuntumanifesteditorwidget.h \
+    ubuntumanifestdocument.h
 

@@ -90,7 +90,8 @@ public slots:
 
     void save() { save(m_fileName); }
     void save(QString fileName);
-    bool load(const QString &fileName, const QString &projectName);
+    bool load(const QString &fileName);
+    bool loadFromString(const QString &data);
     void reload();
 
     QString raw();

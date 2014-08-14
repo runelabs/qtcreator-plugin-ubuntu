@@ -147,7 +147,7 @@ QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfigur
         QFileInfo manifestFile(projectDir.appendPath(QStringLiteral("manifest.json")).toString());
         if ( manifestFile.exists() ) {
             UbuntuClickManifest manifest;
-            if(manifest.load(manifestFile.absoluteFilePath(),config->target()->project()->displayName())){
+            if(manifest.load(manifestFile.absoluteFilePath())){
                 QString desktop = getDesktopFromManifest(manifest);
 
                 if(!desktop.isEmpty()) {
@@ -197,7 +197,7 @@ QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfigur
 
     //read the manifest
     UbuntuClickManifest manifest;
-    if(!manifest.load(manifestPath,config->target()->project()->displayName())) {
+    if(!manifest.load(manifestPath)) {
         if(errorMessage)
             *errorMessage = tr("Could not open the manifest file in the package directory, make sure its installed into the root of the click package.");
 
