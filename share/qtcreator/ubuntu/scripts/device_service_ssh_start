@@ -18,7 +18,6 @@
 . `dirname $0`/functions.inc
 
 if [ ! "$(adb_shell getprop persist.service.ssh)" = "true" ];then
-    adb_shell setprop persist.service.ssh true >/dev/null 2>&1
-    adb_shell start ssh >/dev/null 2>&1
+    adb_shell gdbus call -y -d com.canonical.PropertyService -o /com/canonical/PropertyService -m com.canonical.PropertyService.SetProperty ssh true >/dev/null
 fi
 
