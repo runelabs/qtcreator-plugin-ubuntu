@@ -1,3 +1,21 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140812.1-0ubuntu1) utopic; urgency=low
+
+  [ Zygmunt Krynicki ]
+  * This branch fixes two problems: 3b5a62a Fix parameter check in
+    'device_search' script 831db0a Don't ignore devices with upper-case
+    serial number
+
+  [ Benjamin Zeller ]
+  * Fix bug LP:1338936 "Use Suru Icon theme for buttons". Fix Bug
+    lp:1355086 "welcome wizard "do not show again" does not work if you
+    click cancel". Disable runconfiguration if the app is running to
+    prevent execution of the same configuration multiple times. Make it
+    possible to create Kits even if the Device is not attached. Do not
+    crash if there is no deploy configuration. Do not change the project
+    name if it contains a cmake var (LP: #1338936, #1355086)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 12 Aug 2014 08:12:11 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20140806-0ubuntu1) utopic; urgency=low
 
   [ Benjamin Zeller ]

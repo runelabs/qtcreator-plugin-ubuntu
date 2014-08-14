@@ -15,7 +15,7 @@
 #
 # Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
 
-if [ $1 -eq 1 ]; then
+if [ "$1" = "1" ]; then
     adb kill-server > /dev/null
     adb start-server > /dev/null
 fi
@@ -24,7 +24,7 @@ IFS=$'\n'
 
 for DEVICES_INFO in `adb devices -l | grep -Ev "List of devices attached" | grep -Ev "emulator-" | sed "/^$/d"`
 do
-        if [[ ${DEVICES_INFO} =~ ^([a-z0-9]+)(.*)$ ]]; then
+        if [[ ${DEVICES_INFO} =~ ^([a-zA-Z0-9]+)(.*)$ ]]; then
                 NAME="${BASH_REMATCH[1]}"
                 REST="${BASH_REMATCH[2]}"
 		ARCH=`adb -s ${NAME} shell uname -p 2>&1|egrep -v "device not found"`
