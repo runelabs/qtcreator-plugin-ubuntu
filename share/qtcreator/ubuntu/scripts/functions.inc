@@ -15,6 +15,8 @@
 #
 # Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
 
+echo $0 >> /tmp/sdk.logs
+
 set -e
 
 SCRIPTPATH=`dirname $0`
@@ -23,8 +25,7 @@ CONFIGDIR=~/.config/ubuntu-sdk
 SSHIDENTITY=${CONFIGDIR}/ubuntudevice_id_rsa
 USERNAME=phablet
 
-function adb_root {
-	adb -s ${SERIALNUMBER} root &> /dev/null 
+function adb_wait {
 	adb -s ${SERIALNUMBER} wait-for-device &> /dev/null
 }
 
@@ -131,7 +132,7 @@ function wait_for_network_state_switch_on {
 }
 
 function clone_network_setup_from_host_to_device {
-	pkexec phablet-network -s ${SERIALNUMBER}
+	pkexec /home/balogh/Downloads/phablet-network -s ${SERIALNUMBER}
 }
 
 #############################################################
@@ -147,4 +148,4 @@ if [ ! -d ${CONFIGDIR} ]; then
   mkdir -p ${CONFIGDIR}
 fi
 
-adb_root
+adb_wait
