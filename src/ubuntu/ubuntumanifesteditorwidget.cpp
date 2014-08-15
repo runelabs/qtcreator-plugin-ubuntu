@@ -2,7 +2,6 @@
 #include "ubuntuconstants.h"
 #include "ubuntumanifestdocument.h"
 #include "ubuntumanifesteditor.h"
-#include "ubuntuclickmanifest.h"
 #include "ubuntuclicktool.h"
 #include "clicktoolchain.h"
 
@@ -12,6 +11,7 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/kitinformation.h>
+#include <coreplugin/infobar.h>
 
 #include <QStackedWidget>
 #include <QDebug>
@@ -19,6 +19,8 @@
 
 namespace Ubuntu {
 namespace Internal {
+
+const char infoBarId[] = "UbuntuProjectManager.UbuntuManifestEditor.InfoBar";
 
 //try to find the project by the file path
 ProjectExplorer::Project *ubuntuProject(const QString &file)
@@ -30,7 +32,7 @@ ProjectExplorer::Project *ubuntuProject(const QString &file)
         ProjectExplorer::Kit *kit = project->activeTarget()->kit();
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(kit);
         if (tc && tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
-               && fileName.isChildOf(Utils::FileName::fromString(project->projectDirectory())))
+                && fileName.isChildOf(Utils::FileName::fromString(project->projectDirectory())))
             return project;
     }
     return 0;
@@ -54,8 +56,7 @@ UbuntuManifestEditorWidget::UbuntuManifestEditorWidget(UbuntuManifestEditor *edi
     QWidget *mainWidget = new QWidget();
     m_ui->setupUi(mainWidget);
 
-    m_sourceEditor = new TextEditor::PlainTextEditorWidget();
-
+    m_sourceEditor = new UbuntuManifestTextEditorWidget(this);
     m_widgetStack->insertWidget(General,mainWidget);
     m_widgetStack->insertWidget(Source,m_sourceEditor);
     setWidgetResizable(true);
@@ -88,6 +89,10 @@ bool UbuntuManifestEditorWidget::open(QString *errorString, const QString &fileN
         if(activePage() != Source)
             syncToWidgets(m_manifest.data());
         return true;
+    } else {
+        //switch to source page without syncing
+        m_widgetStack->setCurrentIndex(Source);
+        updateInfoBar(tr("Parse error"));
     }
 
     //ops something went wrong, we need to show the error somewhere
@@ -111,16 +116,29 @@ bool UbuntuManifestEditorWidget::setActivePage(UbuntuManifestEditorWidget::Edito
 
     if(page == UbuntuManifestEditorWidget::Source)
         syncToSource();
-    else
-        syncToWidgets();
+    else {
+        //this could fail because the user edited the source manually
+        if(!syncToWidgets()){
+            return false;
+        }
+    }
 
     m_widgetStack->setCurrentIndex(page);
     return true;
 }
 
-void UbuntuManifestEditorWidget::preSave()
+/*!
+ * \brief UbuntuManifestEditorWidget::preSave
+ * Called right before the document is stored
+ */
+bool UbuntuManifestEditorWidget::preSave()
 {
-
+    //sync the current widget state to source, so we save the correct data
+    if(activePage() == General)
+        syncToSource();
+    else
+        return syncToWidgets();
+    return true;
 }
 
 Core::IEditor *UbuntuManifestEditorWidget::editor() const
@@ -139,19 +157,22 @@ void UbuntuManifestEditorWidget::setDirty()
     emit uiEditorChanged();
 }
 
-void UbuntuManifestEditorWidget::syncToWidgets()
+bool UbuntuManifestEditorWidget::syncToWidgets()
 {
     QSharedPointer<UbuntuClickManifest> man(new UbuntuClickManifest);
     if(man->loadFromString(m_sourceEditor->toPlainText())) {
         m_manifest.swap(man);
         syncToWidgets(m_manifest.data());
-        return;
+        updateInfoBar(QString());
+        return true;
     }
 
-    //something went wrong, lets show the error text
+    QString text = tr("There is a error in the file, please check the syntax.");
+    updateInfoBar(text);
+    return false;
 }
 
-void UbuntuManifestEditorWidget::syncToWidgets(UbuntuClickManifest *source)
+bool UbuntuManifestEditorWidget::syncToWidgets(UbuntuClickManifest *source)
 {
     QString data = source->maintainer();
     if(data != m_ui->lineEdit_maintainer->text())
@@ -199,6 +220,55 @@ void UbuntuManifestEditorWidget::syncToWidgets(UbuntuClickManifest *source)
     //set the dirty flag manually in case something has changed
     if(m_ui->comboBoxFramework->currentData() != fwData)
         setDirty();
+
+    QSet<int> idxToKeep;
+    QList<UbuntuClickManifest::Hook> hooks = source->hooks();
+    foreach(const UbuntuClickManifest::Hook &hook, hooks) {
+        int idx = m_ui->comboBoxHook->findText(hook.appId);
+        QWidget *container = 0;
+
+        //create a new one
+        if(idx < 0) {
+            container = createHookWidget(hook);
+            m_ui->comboBoxHook->addItem(hook.appId);
+            idx = m_ui->stackedWidget->addWidget(container);
+        } else
+            container = m_ui->stackedWidget->widget(idx);
+
+        if(!hook.desktopFile.isEmpty()) {
+            QLineEdit *desktop  = container->findChild<QLineEdit*>(hook.appId+QStringLiteral(".desktop"));
+            QLineEdit *appArmor = container->findChild<QLineEdit*>(hook.appId+QStringLiteral(".apparmor"));
+            if(desktop && desktop->text() != hook.desktopFile)
+                desktop->setText(hook.desktopFile);
+            if(appArmor && appArmor->text() != hook.appArmorFile)
+                appArmor->setText(hook.appArmorFile);
+        } else if (!hook.scope.isEmpty()){
+            QLineEdit *scope  = container->findChild<QLineEdit*>(hook.appId+QStringLiteral(".scope"));
+            QLineEdit *appArmor = container->findChild<QLineEdit*>(hook.appId+QStringLiteral(".apparmor"));
+            if(scope && scope->text() != hook.scope)
+                scope->setText(hook.scope);
+            if(appArmor && appArmor->text() != hook.appArmorFile)
+                appArmor->setText(hook.appArmorFile);
+        }
+        idxToKeep.insert(idx);
+    }
+
+    //clean up old widgets
+    if(idxToKeep.size() != m_ui->comboBoxHook->count()) {
+        for(int i = m_ui->comboBoxHook->count(); i >= 0; i--) {
+            if(!idxToKeep.contains(i)) {
+                m_ui->comboBoxHook->removeItem(i);
+                QWidget* toRemove = m_ui->stackedWidget->widget(i);
+                m_ui->stackedWidget->removeWidget(toRemove);
+                delete toRemove;
+            }
+        }
+    }
+
+    m_dirty = false;
+    emit uiEditorChanged();
+
+    return true;
 }
 
 void UbuntuManifestEditorWidget::syncToSource()
@@ -220,14 +290,39 @@ void UbuntuManifestEditorWidget::syncToSource()
     if(m_ui->comboBoxFramework->currentText() != tr(Constants::UBUNTU_UNKNOWN_FRAMEWORK_NAME))
         m_manifest->setFrameworkName(m_ui->comboBoxFramework->currentText());
 
+    for(int idx = 0; idx < m_ui->comboBoxHook->count(); idx++) {
+        QWidget *container  = m_ui->stackedWidget->widget(idx);
+        QString appId       = m_ui->comboBoxHook->itemText(idx);
+        QLineEdit *desktop  = container->findChild<QLineEdit*>(appId+QStringLiteral(".desktop"));
+        QLineEdit *scope    = container->findChild<QLineEdit*>(appId+QStringLiteral(".scope"));
+        QLineEdit *appArmor = container->findChild<QLineEdit*>(appId+QStringLiteral(".apparmor"));
 
-    QString result = m_manifest->raw();
+        UbuntuClickManifest::Hook hook;
+        hook.appId = appId;
+        hook.appArmorFile = appArmor->text();
+
+        if(desktop)
+            hook.desktopFile = desktop->text();
+        else if(scope)
+            hook.scope = desktop->text();
+        else
+            //What to do here, this should never happen
+            continue;
+
+        m_manifest->setHook(hook);
+    }
+
+
+    QString result = m_manifest->raw()+QStringLiteral("\n");
     QString src    = m_sourceEditor->toPlainText();
     if (result == src)
         return;
 
     m_sourceEditor->setPlainText(result);
     m_sourceEditor->document()->setModified(true);
+
+    m_dirty = false;
+    emit uiEditorChanged();
 }
 
 void UbuntuManifestEditorWidget::updateFrameworkList()
@@ -243,6 +338,62 @@ void UbuntuManifestEditorWidget::updateFrameworkList()
     m_ui->comboBoxFramework->clear();
     m_ui->comboBoxFramework->addItems(UbuntuClickTool::getSupportedFrameworks(t));
     m_ui->comboBoxFramework->blockSignals(false);
+}
+
+void UbuntuManifestEditorWidget::updateInfoBar(const QString &errorMessage)
+{
+    Core::InfoBar *infoBar = m_sourceEditor->baseTextDocument()->infoBar();
+    infoBar->removeInfo(infoBarId);
+
+    if(!errorMessage.isEmpty()){
+        Core::InfoBarEntry infoBarEntry(infoBarId, errorMessage);
+        infoBar->addInfo(infoBarEntry);
+    }
+}
+
+
+QWidget *UbuntuManifestEditorWidget::createHookWidget(const UbuntuClickManifest::Hook &hook)
+{
+    QWidget *container = new QWidget(m_ui->stackedWidget);
+    QVBoxLayout *layout = new QVBoxLayout(container);
+    if(!hook.desktopFile.isEmpty()) {
+        //App hook
+        QLabel* label = new QLabel(tr("Desktop file"));
+        layout->addWidget(label);
+
+        QLineEdit *lE = new QLineEdit();
+        lE->setObjectName(hook.appId+QStringLiteral(".desktop"));
+        connect(lE,SIGNAL(textChanged(QString)),this,SLOT(setDirty()));
+        layout->addWidget(lE);
+
+        label = new QLabel(tr("Apparmor file"));
+        layout->addWidget(label);
+
+        lE = new QLineEdit();
+        lE->setObjectName(hook.appId+QStringLiteral(".apparmor"));
+        connect(lE,SIGNAL(textChanged(QString)),this,SLOT(setDirty()));
+        layout->addWidget(lE);
+    } else if(!hook.scope.isEmpty()) {
+        //Scope hook
+        QLabel* label = new QLabel(tr("Scope ini file"));
+        layout->addWidget(label);
+
+        QLineEdit *lE = new QLineEdit();
+        lE->setObjectName(hook.appId+QStringLiteral(".scope"));
+        connect(lE,SIGNAL(textChanged(QString)),this,SLOT(setDirty()));
+        layout->addWidget(lE);
+
+        label = new QLabel(tr("Apparmor file"));
+        layout->addWidget(label);
+
+        lE = new QLineEdit();
+        lE->setObjectName(hook.appId+QStringLiteral(".apparmor"));
+        connect(lE,SIGNAL(textChanged(QString)),this,SLOT(setDirty()));
+        layout->addWidget(lE);
+    }
+    layout->addStretch();
+    container->setLayout(layout);
+    return container;
 }
 
 UbuntuManifestTextEditorWidget::UbuntuManifestTextEditorWidget(UbuntuManifestEditorWidget *parent)

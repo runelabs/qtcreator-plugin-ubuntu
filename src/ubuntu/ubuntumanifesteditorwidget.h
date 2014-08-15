@@ -1,6 +1,7 @@
 #ifndef UBUNTU_INTERNAL_UBUNTUMANIFESTEDITORWIDGET_H
 #define UBUNTU_INTERNAL_UBUNTUMANIFESTEDITORWIDGET_H
 
+#include "ubuntuclickmanifest.h"
 
 #include <texteditor/basetexteditor.h>
 #include <texteditor/plaintexteditor.h>
@@ -44,7 +45,7 @@ public:
     EditorPage activePage() const;
     bool setActivePage(EditorPage page);
 
-    void preSave();
+    bool preSave();
 
     Core::IEditor *editor() const;
     TextEditor::PlainTextEditorWidget *textEditorWidget() const;
@@ -53,10 +54,14 @@ protected slots:
     void setDirty ();
 
 protected:
-    void syncToWidgets ();
-    void syncToWidgets (UbuntuClickManifest *source);
+    bool syncToWidgets ();
+    bool syncToWidgets (UbuntuClickManifest *source);
     void syncToSource  ();
     void updateFrameworkList ();
+
+    void updateInfoBar(const QString &errorMessage);
+private:
+    QWidget *createHookWidget (const UbuntuClickManifest::Hook &hook);
 
 signals:
     void uiEditorChanged();

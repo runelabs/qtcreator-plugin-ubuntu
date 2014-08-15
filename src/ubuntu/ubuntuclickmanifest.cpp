@@ -191,6 +191,25 @@ QList<UbuntuClickManifest::Hook> UbuntuClickManifest::hooks()
     return hooks;
 }
 
+void UbuntuClickManifest::setHook(const UbuntuClickManifest::Hook &hook)
+{
+    Q_UNUSED(hook);
+
+    QScriptValue scriptValue = engine.newObject();
+
+    scriptValue.setProperty(QStringLiteral("appId"),hook.appId);
+    scriptValue.setProperty(QStringLiteral("apparmor"),hook.appArmorFile);
+    if(!hook.desktopFile.isEmpty()) {
+        scriptValue.setProperty(QStringLiteral("desktop"),hook.desktopFile);
+    } else if(!hook.appArmorFile.isEmpty()) {
+        scriptValue.setProperty(QStringLiteral("scope"),hook.scope);
+    } else
+        //not known
+        return;
+
+    callSetFunction(QStringLiteral("setHook"),QScriptValueList{scriptValue});
+}
+
 void UbuntuClickManifest::setFrameworkName(const QString &name)
 {
     if (!isInitialized()) { return; }

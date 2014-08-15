@@ -76,6 +76,7 @@ public slots:
     QStringList policyGroups(QString appName);
 
     QList<Hook> hooks ();
+    void setHook (const Hook &hook);
     
     void setPolicyVersion(const QString &version);
     QString policyVersion();

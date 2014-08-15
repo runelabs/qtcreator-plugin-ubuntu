@@ -39,7 +39,11 @@ UbuntuManifestEditor::UbuntuManifestEditor() : Core::IEditor(), m_toolBar(0)
 
 bool UbuntuManifestEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
-    return editorWidget()->open(errorString,fileName,realFileName);
+    if(editorWidget()->open(errorString,fileName,realFileName)){
+        syncCurrentAction();
+        return true;
+    }
+    return false;
 }
 
 QWidget *UbuntuManifestEditor::toolBar()
@@ -73,9 +77,21 @@ int UbuntuManifestEditor::currentColumn() const
     return cursor.position() - cursor.block().position() + 1;
 }
 
+void UbuntuManifestEditor::syncCurrentAction()
+{
+    foreach (QAction *action, m_actionGroup->actions()) {
+        if (action->data().toInt() == editorWidget()->activePage()) {
+            action->setChecked(true);
+            break;
+        }
+    }
+}
+
 void UbuntuManifestEditor::changeEditorPage(QAction *action)
 {
-    editorWidget()->setActivePage(static_cast<UbuntuManifestEditorWidget::EditorPage>(action->data().toInt()));
+    if(!editorWidget()->setActivePage(static_cast<UbuntuManifestEditorWidget::EditorPage>(action->data().toInt()))){
+        syncCurrentAction();
+    }
 }
 
 } // namespace Internal

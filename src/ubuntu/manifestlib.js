@@ -67,6 +67,19 @@ function getHooks() {
     return jsonData.hooks;
 }
 
+function setHook($hook) {
+    if(!jsonData.hooks.hasOwnProperty($hook.appId))
+        jsonData.hooks[$hook.appId] = {};
+
+    if($hook.hasOwnProperty("scope")) {
+        jsonData.hooks[$hook.appId]["scope"] = $hook["scope"];
+        jsonData.hooks[$hook.appId]["apparmor"] = $hook["apparmor"];
+    } else if ($hook.hasOwnProperty("desktop")) {
+        jsonData.hooks[$hook.appId]["desktop"] = $hook["desktop"];
+        jsonData.hooks[$hook.appId]["apparmor"] = $hook["apparmor"];
+    }
+}
+
 function getFrameworkName() {
     return jsonData.framework;
 }

@@ -23,12 +23,16 @@ UbuntuManifestDocument::UbuntuManifestDocument(UbuntuManifestEditorWidget *edito
       m_editorWidget(editorWidget)
 {
     setMimeType(QLatin1String(Constants::UBUNTU_MANIFEST_MIME_TYPE));
-    connect(editorWidget, SIGNAL(uiEditorChanged()),this, SIGNAL(changed()));
+    connect(editorWidget, SIGNAL(uiEditorChanged()),this,SIGNAL(changed()));
 }
 
 bool UbuntuManifestDocument::save(QString *errorString, const QString &fileName, bool autoSave)
 {
-    m_editorWidget->preSave();
+    if(!m_editorWidget->preSave()) {
+        *errorString = tr("Please check the info box in the editor.");
+        return false;
+    }
+
     return BaseTextDocument::save(errorString, fileName, autoSave);
 }
 

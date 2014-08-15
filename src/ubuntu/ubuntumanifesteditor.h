@@ -27,6 +27,9 @@ public:
     int currentColumn() const;
     void gotoLine(int line, int column = 0) { textEditor()->gotoLine(line, column); }
 
+private:
+    void syncCurrentAction ();
+
 private slots:
     void changeEditorPage(QAction *action);
 
