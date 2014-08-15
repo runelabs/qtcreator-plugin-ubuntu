@@ -92,7 +92,7 @@ bool UbuntuManifestEditorWidget::open(QString *errorString, const QString &fileN
     } else {
         //switch to source page without syncing
         m_widgetStack->setCurrentIndex(Source);
-        updateInfoBar(tr("Parse error"));
+        updateInfoBar(tr("There is a error in the file, please check the syntax."));
     }
 
     //ops something went wrong, we need to show the error somewhere
