@@ -19,3 +19,5 @@ add_subdirectory(test)
 
 install(FILES manifest.json DESTINATION "/")
 install(FILES "%ClickHookName:l%.apparmor" DESTINATION "/")
+
+add_custom_target("%ProjectName:l%_ClickFiles" ALL SOURCES "%ClickHookName:l%.apparmor" "manifest.json")

@@ -240,7 +240,7 @@ void UbuntuManifestEditorWidget::syncToSource()
         if(desktop)
             hook.desktopFile = desktop->text();
         else if(scope)
-            hook.scope = desktop->text();
+            hook.scope = scope->text();
         else
             //What to do here, this should never happen
             continue;

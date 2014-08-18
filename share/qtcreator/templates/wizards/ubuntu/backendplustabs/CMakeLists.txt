@@ -53,3 +53,5 @@ add_custom_target("check" /usr/bin/qmltestrunner -input ${CMAKE_SOURCE_DIR}/app/
 add_custom_target("run" /usr/bin/qmlscene -I ${CMAKE_BINARY_DIR}/backend  ${CMAKE_SOURCE_DIR}/app/%ProjectName%.qml
                     DEPENDS %ProjectName%backend %ProjectName%backend-qmldir
                     WORKING_DIRECTORY ./app)
+
+add_custom_target("%ProjectName:l%_ClickFiles" ALL SOURCES "%ClickHookName%.apparmor" "manifest.json")
