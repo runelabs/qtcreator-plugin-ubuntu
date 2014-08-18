@@ -34,7 +34,7 @@ using namespace Ubuntu;
 using namespace Ubuntu::Internal;
 
 enum {
-    debug = 1
+    debug = 0
 };
 
 QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const

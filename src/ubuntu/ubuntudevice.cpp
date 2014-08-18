@@ -40,7 +40,7 @@ namespace Ubuntu {
 namespace Internal {
 
 enum {
-    debug = 1
+    debug = 0
 };
 
 const QString DEVICE_SETTINGS_VERSION(QStringLiteral("UbuntuDevice.Version"));
