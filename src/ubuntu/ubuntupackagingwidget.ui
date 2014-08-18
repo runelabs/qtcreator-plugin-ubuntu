@@ -127,20 +127,24 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QPushButton" name="pushButtonClickPackage">
-          <property name="text">
-           <string>Create and validate Click package</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+	  <item>
+           <widget class="QPushButton" name="pushButtonReviewersTools">
+            <property name="text">
+             <string>Validate existing Click package</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButtonClickPackage">
+            <property name="text">
+             <string>Create and validate Click package</string>
+            </property>
+           </widget>
+          </item>
+	 </layout>
         </item>
-        <item>
-         <widget class="QPushButton" name="pushButtonReviewersTools">
-          <property name="text">
-           <string>Validate existing Click package</string>
-          </property>
-         </widget>
-        </item>
-        <item>
+         <item>
          <widget class="QTreeView" name="treeViewValidate">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
