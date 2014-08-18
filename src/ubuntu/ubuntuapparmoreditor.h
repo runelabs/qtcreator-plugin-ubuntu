@@ -46,7 +46,8 @@ protected:
     virtual QWidget *createMainWidget();
 
 protected slots:
-    void on_pushButton_addpolicy_clicked();
+    void on_pushButton_addpolicy_clicked();    
+    void on_listWidget_customContextMenuRequested(const QPoint &p);
 
 private:
     QSharedPointer<UbuntuClickManifest> m_apparmor;

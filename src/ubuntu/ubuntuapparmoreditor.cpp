@@ -135,11 +135,14 @@ QWidget *UbuntuApparmorEditorWidget::createMainWidget()
     m_ui = new Ui::UbuntuAppArmorEditor();
     m_ui->setupUi(mainWidget);
 
-    //ui->listWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_ui->listWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 
     connect(m_ui->listWidget,SIGNAL(itemChanged(QListWidgetItem*)),this,SLOT(setDirty()));
+    connect(m_ui->listWidget,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(on_listWidget_customContextMenuRequested(QPoint)));
     connect(m_ui->listWidget->model(),SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(setDirty()));
     connect(m_ui->listWidget->model(),SIGNAL(columnsInserted(QModelIndex,int,int)),this,SLOT(setDirty()));
+    connect(m_ui->listWidget->model(),SIGNAL(rowsRemoved(QModelIndex,int,int)),this,SLOT(setDirty()));
+    connect(m_ui->listWidget->model(),SIGNAL(columnsRemoved(QModelIndex,int,int)),this,SLOT(setDirty()));
     connect(m_ui->pushButton_addpolicy,SIGNAL(clicked()),this,SLOT(on_pushButton_addpolicy_clicked()));
 
     return mainWidget;
@@ -152,18 +155,18 @@ void UbuntuApparmorEditorWidget::on_pushButton_addpolicy_clicked()
         m_ui->listWidget->addItems(dialog.selectedPolicyGroups());
     }
 }
-/*
-void UbuntuPackagingWidget::on_listWidget_customContextMenuRequested(QPoint p) {
-    if (ui->listWidget->selectedItems().count()==0) { return; }
+
+void UbuntuApparmorEditorWidget::on_listWidget_customContextMenuRequested(const QPoint &p) {
+    if (m_ui->listWidget->selectedItems().count()==0) { return; }
 
     QMenu contextMenu;
     contextMenu.addAction(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_MENU_REMOVE));
-    QAction* selectedItem = contextMenu.exec(ui->listWidget->mapToGlobal(p));
+    QAction* selectedItem = contextMenu.exec(m_ui->listWidget->mapToGlobal(p));
     if (selectedItem) {
-        delete ui->listWidget->currentItem();
+        delete m_ui->listWidget->currentItem();
     }
 }
-*/
+
 
 } // namespace Internal
 } // namespace Ubuntu
