@@ -2,6 +2,7 @@
 #include "ubuntuconstants.h"
 #include "ubuntuabstractguieditordocument.h"
 #include "ubuntumanifesteditor.h"
+#include "ubuntuapparmoreditor.h"
 #include "ubuntuclicktool.h"
 #include "clicktoolchain.h"
 #include "ubuntubzr.h"
@@ -13,6 +14,9 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/kitinformation.h>
 #include <coreplugin/infobar.h>
+#include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/itexteditor.h>
 
 #include <QStackedWidget>
 #include <QDebug>
@@ -48,7 +52,7 @@ QWidget *UbuntuManifestEditorWidget::createMainWidget()
     m_ui = new Ui::UbuntuManifestEditor();
     m_ui->setupUi(w);
 
-    connect(m_ui->comboBoxFramework,SIGNAL(currentIndexChanged(int)),this,SLOT(setDirty()));
+    connect(m_ui->comboBoxFramework,SIGNAL(currentIndexChanged(int)),this,SLOT(onFrameworkChanged()));
     connect(m_ui->lineEdit_description,SIGNAL(textChanged(QString)),this,SLOT(setDirty()));
     connect(m_ui->lineEdit_maintainer,SIGNAL(textChanged(QString)),this,SLOT(setDirty()));
     connect(m_ui->lineEdit_name,SIGNAL(textChanged(QString)),this,SLOT(setDirty()));
@@ -288,6 +292,61 @@ void UbuntuManifestEditorWidget::bzrChanged()
         syncToSource();
 }
 
+void UbuntuManifestEditorWidget::onFrameworkChanged()
+{
+    Core::DocumentModel *model = Core::EditorManager::documentModel();
+
+    QString v = policyForFramework(m_ui->comboBoxFramework->currentText());
+    if(v.isEmpty())
+        return;
+
+    //make sure all changes are in the manifest instance
+    syncToSource();
+
+    QList<UbuntuClickManifest::Hook> hooks = m_manifest->hooks();
+    foreach(const UbuntuClickManifest::Hook &hook, hooks){
+        QFileInfo mFile(textEditorWidget()->baseTextDocument()->filePath());
+        QString aaFile = mFile.absolutePath()+QDir::separator()+hook.appArmorFile;
+        if(!QFile::exists(aaFile))
+            continue;
+
+        QList<Core::IEditor*> editors = model->editorsForFilePath(aaFile);
+        if(editors.size()) {
+            if(debug) qDebug()<<"Write into editor contents";
+
+            foreach(Core::IEditor *ed, editors){
+                //first check if we have a ubuntu apparmor editor
+                UbuntuApparmorEditor *uEd = qobject_cast<UbuntuApparmorEditor *>(ed);
+                if(uEd) {
+                    uEd->guiEditor()->setVersion(v);
+                    break;
+                }
+
+                //ok that is no ubuntu editor, lets check if its a basic texteditor and just
+                //replace the contents
+                TextEditor::BaseTextEditor *txtEd = qobject_cast<TextEditor::BaseTextEditor *>(ed);
+                if(txtEd) {
+                    //ok this is more complicated, first lets get the contents
+                    UbuntuClickManifest aa;
+                    if(aa.loadFromString(txtEd->baseTextDocument()->plainText())){
+                        aa.setPolicyVersion(v);
+                        txtEd->baseTextDocument()->setPlainText(aa.raw());
+                        txtEd->baseTextDocument()->document()->setModified(true);
+                        break;
+                    }
+                }
+            }
+        } else {
+            if(debug) qDebug()<<"Write the closed file";
+            UbuntuClickManifest aa;
+            if(aa.load(aaFile)) {
+                aa.setPolicyVersion(v);
+                aa.save();
+            }
+        }
+    }
+}
+
 QWidget *UbuntuManifestEditorWidget::createHookWidget(const UbuntuClickManifest::Hook &hook)
 {
     QWidget *container = new QWidget(m_ui->stackedWidget);
@@ -411,11 +470,11 @@ void UbuntuManifestEditorWidget::addMissingFieldsToManifest (QString fileName)
     }
 }
 
-/*
-void UbuntuPackagingWidget::updatePolicyForFramework(const QString &fw)
+
+QString UbuntuManifestEditorWidget::policyForFramework(const QString &fw)
 {
     if(fw.isEmpty())
-        return;
+        return QString();
 
 #if 0
     QProcess proc;
@@ -452,14 +511,12 @@ void UbuntuPackagingWidget::updatePolicyForFramework(const QString &fw)
     };
 
     if(policy.contains(fw)) {
-        m_apparmor.setPolicyVersion(policy[fw]);
-        m_apparmor.save();
+        return policy[fw];
     }
+    return QString();
 #endif
 }
 
-
-*/
 
 } // namespace Internal
 } // namespace Ubuntu

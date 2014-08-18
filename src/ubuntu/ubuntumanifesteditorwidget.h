@@ -38,10 +38,12 @@ protected:
     void syncToSource  ();
     QWidget *createMainWidget();
     void updateFrameworkList ();    
-    void addMissingFieldsToManifest(QString fileName);
+    void addMissingFieldsToManifest(QString fileName);    
+    QString policyForFramework(const QString &fw);
 
 protected slots:
     void bzrChanged ();
+    void onFrameworkChanged ();
 
 private:
     QWidget *createHookWidget (const UbuntuClickManifest::Hook &hook);

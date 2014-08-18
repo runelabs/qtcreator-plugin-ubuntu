@@ -20,6 +20,8 @@ public:
     UbuntuApparmorEditor();
     ~UbuntuApparmorEditor();
 
+    UbuntuApparmorEditorWidget *guiEditor() const;
+
 protected:
     // UbuntuAbstractGuiEditor interface
     virtual UbuntuAbstractGuiEditorWidget *createGuiEditor();
@@ -38,6 +40,7 @@ public:
     // UbuntuAbstractGuiEditorWidget interface
 public:
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    void setVersion (const QString &version);
 
 protected:
     virtual bool syncToWidgets();

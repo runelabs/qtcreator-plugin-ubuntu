@@ -20,6 +20,11 @@ UbuntuApparmorEditor::~UbuntuApparmorEditor()
         delete m_editorWidget;
 }
 
+UbuntuApparmorEditorWidget *UbuntuApparmorEditor::guiEditor() const
+{
+    return m_editorWidget;
+}
+
 UbuntuAbstractGuiEditorWidget *UbuntuApparmorEditor::createGuiEditor()
 {
     if(m_editorWidget == 0)
@@ -62,6 +67,23 @@ bool UbuntuApparmorEditorWidget::open(QString *errorString, const QString &fileN
 
     //ops something went wrong, we need to show the error somewhere
     return true;
+}
+
+void UbuntuApparmorEditorWidget::setVersion(const QString &version)
+{
+    //make sure all changes are in source
+    if(activePage() != Source)
+        syncToSource();
+
+    UbuntuClickManifest aa;
+    if(aa.loadFromString(textEditorWidget()->baseTextDocument()->plainText())) {
+        aa.setPolicyVersion(version);
+        textEditorWidget()->baseTextDocument()->setPlainText(aa.raw()+QStringLiteral("\n"));
+        textEditorWidget()->document()->setModified(true);
+
+        if(activePage() == General)
+            syncToWidgets();
+    }
 }
 
 bool UbuntuApparmorEditorWidget::syncToWidgets()
