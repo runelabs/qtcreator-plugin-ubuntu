@@ -7,4 +7,9 @@
     <glob pattern="*.ubuntuhtmlproject"/>
     <glob pattern="*.ubuntuproject"/>
   </mime-type>
+  <mime-type type="application/vnd.canonical.click.apparmor">
+    <sub-class-of type="application/json"/>
+    <comment>Ubuntu Apparmor description file</comment>
+    <glob pattern="*.apparmor"/>
+  </mime-type>
 </mime-info>

@@ -14,11 +14,12 @@ Unlike the default Qt HTML5 template, there is no C++ code or compilation necess
     <displaycategory>Ubuntu</displaycategory>
     <files>
 			<file source="displayName.ubuntuhtmlproject" target="%ProjectName%.ubuntuhtmlproject" openproject="true"/>
-			<file source="www/index.html" 			   target="www/index.html" openeditor="true"/>
 			<file source="www/js/app.js"  			   target="www/js/app.js" openeditor="false"/>
 			<file source="displayName.png"   		   target="%ProjectName%.png" openeditor="false" binary="true"/>
 			<file source="displayName.desktop"     target="%ClickHookName%.desktop" openeditor="false"/>
-			<file source="../share/manifest.json"   						target="manifest.json" openeditor="false"/>
+			<file source="../share/manifest.json"   						target="manifest.json" openeditor="true"/>
+        	<file source="www/index.html" 			   target="www/index.html" openeditor="true"/>
+                <file source="../share/displayName.apparmor"                     target="%ClickHookName%.apparmor" openeditor="false"/>
     </files>
 
 	  <!-- Create a 2nd wizard page with click package parameters -->

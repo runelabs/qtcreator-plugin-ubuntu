@@ -39,7 +39,7 @@
 #include "ubuntudeploystepfactory.h"
 #include "ubuntuqmlbuildconfiguration.h"
 #include "ubuntufirstrunwizard.h"
-#include "ubuntumanifesteditorfactory.h"
+#include "ubuntueditorfactory.h"
 
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -189,7 +189,9 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
         *errorString = tr("Could not add mime-type for manifest.json editor.");
         return false;
     }
+
     addAutoReleasedObject(new Internal::UbuntuManifestEditorFactory);
+    addAutoReleasedObject(new Internal::UbuntuApparmorEditorFactory);
 
     //trigger kit autodetection and update after projectexplorer loaded the kits
     connect(ProjectExplorer::KitManager::instance(),SIGNAL(kitsLoaded())
@@ -207,6 +209,9 @@ void UbuntuPlugin::extensionsInitialized()
     if (m_ubuntuCoreAppsMode) m_ubuntuCoreAppsMode->initialize();
     if (m_ubuntuWikiMode) m_ubuntuWikiMode->initialize();
     m_ubuntuPackagingMode->initialize();
+
+    Core::MimeType mt = Core::MimeDatabase::findByFile(QFileInfo(QLatin1String("/tmp/app.apparmor")));
+    qDebug()<<"!!!!!!!!!!!!!!!!!!!!!!!MimeType is"<<mt.comment();
 }
 
 void UbuntuPlugin::onKitsLoaded()

@@ -12,7 +12,8 @@ Includes also unit and functional tests.
     <displayname>App with Simple UI</displayname>
     <displaycategory>Ubuntu</displaycategory>
     <files>
-			<file source="../share/displayName.qmlproject" 				target="%ProjectName%.qmlproject" openproject="true"/>
+			<file source="../share/manifest.json"   						target="manifest.json" openeditor="true"/>
+	         	<file source="../share/displayName.qmlproject" 				target="%ProjectName%.qmlproject" openproject="true"/>
 			<file source="components/HelloComponent.qml"  target="components/HelloComponent.qml" openeditor="false"/>
 			<file source="main.qml"   										target="main.qml" openeditor="true"/>
 			<file source="displayName.png"   							target="%ProjectName%.png" openeditor="false" binary="true"/>
@@ -22,7 +23,7 @@ Includes also unit and functional tests.
 			<file source="tests/autopilot/run"  										  target="tests/autopilot/run" openeditor="false"/>
 			<file source="tests/unit/tst_hellocomponent.qml"   				target="tests/unit/tst_hellocomponent.qml" openeditor="false"/>
 			<file source="Makefile"   																target="Makefile" openeditor="false"/>
-			<file source="../share/manifest.json"   						target="manifest.json" openeditor="false"/>
+                        <file source="../share/displayName.apparmor"                     target="%ClickHookName%.apparmor" openeditor="false"/>
     </files>
 
 	  <!-- Create a 2nd wizard page with click package parameters -->

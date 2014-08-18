@@ -7,12 +7,12 @@
 namespace Ubuntu {
 namespace Internal {
 
-class UbuntuManifestEditorWidget;
+class UbuntuAbstractGuiEditorWidget;
 
-class UbuntuManifestDocument : public TextEditor::PlainTextDocument
+class UbuntuAbstractGuiEditorDocument : public TextEditor::PlainTextDocument
 {
 public:
-    UbuntuManifestDocument(UbuntuManifestEditorWidget *editorWidget);
+    UbuntuAbstractGuiEditorDocument(const QString &mimeType, UbuntuAbstractGuiEditorWidget *editorWidget);
     bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false);
 
     QString defaultPath() const override;
@@ -21,7 +21,7 @@ public:
     bool isModified() const override;
     bool isSaveAsAllowed() const override;
 private:
-    UbuntuManifestEditorWidget *m_editorWidget;
+    UbuntuAbstractGuiEditorWidget *m_editorWidget;
 };
 
 } // namespace Internal

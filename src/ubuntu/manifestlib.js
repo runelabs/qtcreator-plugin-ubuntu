@@ -88,7 +88,7 @@ function setFrameworkName($name) {
    jsonData.framework = $name;
 }
 
-function getPolicyGroups($appname) {
+function getPolicyGroups() {
 /*    var appProfile = jsonData.security.profiles[$appname];
     if (appProfile===undefined) {
         jsonData.security.profiles.push( { $appname: { policy_groups: "" } } );
@@ -99,7 +99,7 @@ function getPolicyGroups($appname) {
 
 }
 
-function setPolicyGroups($appname,$groups) {
+function setPolicyGroups($groups) {
     if ($groups.length === 0) {
         jsonData.policy_groups = [];
         return;

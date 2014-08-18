@@ -5,7 +5,7 @@
     "title": "%ProjectName%",
     "hooks": {
         "%ClickHookName%": {
-            "apparmor": "%ClickHookName%.json",
+            "apparmor": "%ClickHookName%.apparmor",
             "desktop":  "%ClickHookName%.desktop"
         }
     },

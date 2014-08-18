@@ -209,7 +209,7 @@ void UbuntuManifestTest::testWritePolicyGroups()
     ]
     */
 
-    QStringList polGroups = mani.policyGroups(QString());
+    QStringList polGroups = mani.policyGroups();
     QCOMPARE(polGroups.size(),3);
     QCOMPARE(polGroups[0],QString("networking"));
     QCOMPARE(polGroups[1],QString("someOtherGroup"));
@@ -218,9 +218,9 @@ void UbuntuManifestTest::testWritePolicyGroups()
     polGroups.append("addedGroup1");
     polGroups.append("addedGroup2");
 
-    mani.setPolicyGroups(QString(),polGroups);
+    mani.setPolicyGroups(polGroups);
 
-    polGroups = mani.policyGroups(QString());
+    polGroups = mani.policyGroups();
     QCOMPARE(polGroups.size(),5);
     QCOMPARE(polGroups[0],QString("networking"));
     QCOMPARE(polGroups[1],QString("someOtherGroup"));

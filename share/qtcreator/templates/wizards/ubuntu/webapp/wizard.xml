@@ -5,12 +5,12 @@
     <displayname>Web App</displayname>
     <displaycategory>Ubuntu</displaycategory>
     <files>
-	<file source="displayName.ubuntuhtmlproject" target="%ProjectName%.ubuntuhtmlproject" openproject="true"/>
-	<file source="displayName.json"   target="%ClickHookName%.json" openeditor="false"/>
+	<file source="../share/manifest.json"   target="manifest.json" openeditor="true"/>
+        <file source="displayName.ubuntuhtmlproject" target="%ProjectName%.ubuntuhtmlproject" openproject="true"/>
+	<file source="displayName.apparmor"   target="%ClickHookName%.apparmor" openeditor="false"/>
 	<file source="displayName.png"   target="%ProjectName%.png" openeditor="false" binary="true"/>
 	<file source="displayName.desktop"   target="%ClickHookName%.desktop" openeditor="true"/>
         <file source="README"   target="README" openeditor="true"/>
-	<file source="../share/manifest.json"   target="manifest.json" openeditor="false"/>
     </files>
     <!-- Create a 2nd wizard page with click package parameters -->
     <fieldpagetitle>Click package parameters</fieldpagetitle>

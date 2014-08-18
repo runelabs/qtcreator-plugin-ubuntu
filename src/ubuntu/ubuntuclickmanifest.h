@@ -72,8 +72,8 @@ public slots:
     void setDescription(QString description);
     QString description();
 
-    void setPolicyGroups(QString appName, QStringList groups);
-    QStringList policyGroups(QString appName);
+    void setPolicyGroups(QStringList groups);
+    QStringList policyGroups();
 
     QList<Hook> hooks ();
     void setHook (const Hook &hook);

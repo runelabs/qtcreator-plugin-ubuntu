@@ -14,6 +14,14 @@ public:
     Core::IEditor *createEditor();
 };
 
+class UbuntuApparmorEditorFactory : public Core::IEditorFactory
+{
+    Q_OBJECT
+public:
+    explicit UbuntuApparmorEditorFactory();
+    Core::IEditor *createEditor();
+};
+
 } // namespace Internal
 } // namespace Ubuntu
 

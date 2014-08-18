@@ -7,6 +7,8 @@
 #include <texteditor/plaintexteditor.h>
 
 #include <QScrollArea>
+#include <QPointer>
+#include "ubuntuabstractguieditorwidget.h"
 #include "ui_ubuntumanifesteditor.h"
 
 class QStackedWidget;
@@ -14,67 +16,39 @@ class QStackedWidget;
 namespace Ubuntu {
 namespace Internal {
 
-class UbuntuManifestEditor;
+class UbuntuAbstractGuiEditor;
 class UbuntuManifestEditorWidget;
 class UbuntuClickManifest;
 
-class UbuntuManifestTextEditorWidget : public TextEditor::PlainTextEditorWidget
-{
-public:
-    UbuntuManifestTextEditorWidget(UbuntuManifestEditorWidget *parent = 0);
-protected:
-    UbuntuManifestEditorWidget *m_parent;
-};
-
-class UbuntuManifestEditorWidget : public QScrollArea
+class UbuntuManifestEditorWidget : public UbuntuAbstractGuiEditorWidget
 {
     Q_OBJECT
 public:
-    enum EditorPage {
-        General = 0,
-        Source = 1
-    };
 
-    explicit UbuntuManifestEditorWidget(UbuntuManifestEditor *editor);
+    explicit UbuntuManifestEditorWidget();
     ~UbuntuManifestEditorWidget();
 
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
 
-    bool isModified() const;
-
-    EditorPage activePage() const;
-    bool setActivePage(EditorPage page);
-
-    bool preSave();
-
-    Core::IEditor *editor() const;
-    TextEditor::PlainTextEditorWidget *textEditorWidget() const;
-
-protected slots:
-    void setDirty ();
+    static QString createPackageName (const QString &userName, const QString &projectName);
 
 protected:
     bool syncToWidgets ();
     bool syncToWidgets (UbuntuClickManifest *source);
     void syncToSource  ();
-    void updateFrameworkList ();
+    QWidget *createMainWidget();
+    void updateFrameworkList ();    
+    void addMissingFieldsToManifest(QString fileName);
 
-    void updateInfoBar(const QString &errorMessage);
+protected slots:
+    void bzrChanged ();
+
 private:
     QWidget *createHookWidget (const UbuntuClickManifest::Hook &hook);
 
-signals:
-    void uiEditorChanged();
-
 private:
     Ui::UbuntuManifestEditor *m_ui;
-    UbuntuManifestEditor *m_editor;
-    QStackedWidget *m_widgetStack;
-    TextEditor::PlainTextEditorWidget *m_sourceEditor;
-
     QSharedPointer<UbuntuClickManifest> m_manifest;
-    bool m_dirty;
-
 };
 
 } // namespace Internal

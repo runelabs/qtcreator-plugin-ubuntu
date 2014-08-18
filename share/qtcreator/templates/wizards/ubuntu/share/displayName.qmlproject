@@ -23,6 +23,12 @@ Project {
         filter: "Makefile"
     }
     Files {
+        filter: "*.apparmor"
+    }
+    Files {
+	filter: "*.json"
+    }
+    Files {
         directory: "www"
         filter: "*"
     }

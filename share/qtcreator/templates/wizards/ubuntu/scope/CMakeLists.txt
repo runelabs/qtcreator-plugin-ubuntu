@@ -18,4 +18,4 @@ enable_testing()
 add_subdirectory(test)
 
 install(FILES manifest.json DESTINATION "/")
-install(FILES "apparmor_%ClickHookName:l%.json" DESTINATION "/")
+install(FILES "%ClickHookName:l%.apparmor" DESTINATION "/")

@@ -130,19 +130,19 @@ QString UbuntuClickManifest::policyVersion () {
     return callGetStringFunction(QLatin1String("getPolicyVersion"));
 }
 
-void UbuntuClickManifest::setPolicyGroups(QString appName, QStringList groups) {
+void UbuntuClickManifest::setPolicyGroups(QStringList groups) {
     if (!isInitialized()) { return; }
 
     QStringList args;
-    args << appName << groups.join(QLatin1String(" "));
+    args << groups.join(QLatin1String(" "));
     callSetStringListFunction(QLatin1String("setPolicyGroups"),args);
     emit policyGroupsChanged();
 
 }
 
-QStringList UbuntuClickManifest::policyGroups(QString appName) {
+QStringList UbuntuClickManifest::policyGroups() {
     if (!isInitialized()) { return QStringList(); }
-    QStringList retval = callGetStringListFunction(QLatin1String("getPolicyGroups"),appName);
+    QStringList retval = callGetStringListFunction(QLatin1String("getPolicyGroups"));
     return retval;
 }
 

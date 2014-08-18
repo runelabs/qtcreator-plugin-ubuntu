@@ -1,6 +1,7 @@
-#include "ubuntumanifesteditorfactory.h"
+#include "ubuntueditorfactory.h"
 #include "ubuntumanifesteditor.h"
 #include "ubuntuconstants.h"
+#include "ubuntuapparmoreditor.h"
 
 #include <coreplugin/id.h>
 #include <texteditor/texteditoractionhandler.h>
@@ -18,7 +19,7 @@ public:
 private:
     TextEditor::BaseTextEditorWidget *resolveTextEditorWidget(Core::IEditor *editor) const
     {
-        UbuntuManifestEditor *ubuntuManifestEditor = static_cast<UbuntuManifestEditor *>(editor);
+        UbuntuAbstractGuiEditor *ubuntuManifestEditor = static_cast<UbuntuAbstractGuiEditor *>(editor);
         return ubuntuManifestEditor->textEditor();
     }
 };
@@ -34,6 +35,19 @@ UbuntuManifestEditorFactory::UbuntuManifestEditorFactory()
 Core::IEditor *UbuntuManifestEditorFactory::createEditor()
 {
     return new UbuntuManifestEditor();
+}
+
+UbuntuApparmorEditorFactory::UbuntuApparmorEditorFactory()
+{
+    setId(Constants::UBUNTU_APPARMOR_EDITOR_ID);
+    setDisplayName(tr("Ubuntu Apparmor editor"));
+    addMimeType(Constants::UBUNTU_APPARMOR_MIME_TYPE);
+    new UbuntuTextEditorActionHandler(this);
+}
+
+Core::IEditor *UbuntuApparmorEditorFactory::createEditor()
+{
+    return new UbuntuApparmorEditor();
 }
 
 } // namespace Internal

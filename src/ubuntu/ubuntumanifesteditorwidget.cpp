@@ -1,9 +1,10 @@
 #include "ubuntumanifesteditorwidget.h"
 #include "ubuntuconstants.h"
-#include "ubuntumanifestdocument.h"
+#include "ubuntuabstractguieditordocument.h"
 #include "ubuntumanifesteditor.h"
 #include "ubuntuclicktool.h"
 #include "clicktoolchain.h"
+#include "ubuntubzr.h"
 
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
@@ -15,52 +16,37 @@
 
 #include <QStackedWidget>
 #include <QDebug>
-
+#include <QJsonParseError>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 namespace Ubuntu {
 namespace Internal {
 
-const char infoBarId[] = "UbuntuProjectManager.UbuntuManifestEditor.InfoBar";
+enum {
+    debug = 0
+};
 
-//try to find the project by the file path
-ProjectExplorer::Project *ubuntuProject(const QString &file)
+UbuntuManifestEditorWidget::UbuntuManifestEditorWidget()
+    : UbuntuAbstractGuiEditorWidget(QLatin1String(Constants::UBUNTU_MANIFEST_MIME_TYPE)),
+      m_ui(0)
 {
-    Utils::FileName fileName = Utils::FileName::fromString(file);
-    foreach (ProjectExplorer::Project *project, ProjectExplorer::SessionManager::projects()) {
-        if (!project->activeTarget())
-            continue;
-        ProjectExplorer::Kit *kit = project->activeTarget()->kit();
-        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(kit);
-        if (tc && tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
-                && fileName.isChildOf(Utils::FileName::fromString(project->projectDirectory())))
-            return project;
-    }
-    return 0;
+    createUI();
+
+    UbuntuBzr *bzr = UbuntuBzr::instance();
+    connect(bzr,SIGNAL(initializedChanged()),SLOT(bzrChanged()));
+    if(bzr->isInitialized())
+        bzrChanged();
 }
 
-UbuntuManifestEditorWidget::UbuntuManifestEditorWidget(UbuntuManifestEditor *editor)
-    : QScrollArea(),
-      m_ui(0),
-      m_editor(editor),
-      m_widgetStack(0),
-      m_sourceEditor(0),
-      m_dirty(false)
+QWidget *UbuntuManifestEditorWidget::createMainWidget()
 {
-    //make sure this is cleaned up when the editor is deleted
-    connect(editor,SIGNAL(destroyed()),this,SLOT(deleteLater()));
+    Q_ASSERT_X(m_ui == 0,Q_FUNC_INFO,"createMainWidget was called multiple times");
 
-    //this contains the source and GUI based editor
-    m_widgetStack = new QStackedWidget;
+    QWidget *w = new QWidget();
     m_ui = new Ui::UbuntuManifestEditor();
-
-    QWidget *mainWidget = new QWidget();
-    m_ui->setupUi(mainWidget);
-
-    m_sourceEditor = new UbuntuManifestTextEditorWidget(this);
-    m_widgetStack->insertWidget(General,mainWidget);
-    m_widgetStack->insertWidget(Source,m_sourceEditor);
-    setWidgetResizable(true);
-    setWidget(m_widgetStack);
+    m_ui->setupUi(w);
 
     connect(m_ui->comboBoxFramework,SIGNAL(currentIndexChanged(int)),this,SLOT(setDirty()));
     connect(m_ui->lineEdit_description,SIGNAL(textChanged(QString)),this,SLOT(setDirty()));
@@ -69,7 +55,9 @@ UbuntuManifestEditorWidget::UbuntuManifestEditorWidget(UbuntuManifestEditor *edi
     connect(m_ui->lineEdit_title,SIGNAL(textChanged(QString)),this,SLOT(setDirty()));
     connect(m_ui->lineEdit_version,SIGNAL(textChanged(QString)),this,SLOT(setDirty()));
 
+    return w;
 }
+
 
 UbuntuManifestEditorWidget::~UbuntuManifestEditorWidget()
 {
@@ -78,7 +66,9 @@ UbuntuManifestEditorWidget::~UbuntuManifestEditorWidget()
 
 bool UbuntuManifestEditorWidget::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
-    bool result = m_sourceEditor->open(errorString, fileName, realFileName);
+    addMissingFieldsToManifest(realFileName);
+
+    bool result = UbuntuAbstractGuiEditorWidget::open(errorString,fileName,realFileName);
 
     if(!result)
         return result;
@@ -97,64 +87,6 @@ bool UbuntuManifestEditorWidget::open(QString *errorString, const QString &fileN
 
     //ops something went wrong, we need to show the error somewhere
     return true;
-}
-
-bool UbuntuManifestEditorWidget::isModified() const
-{
-    return m_dirty;
-}
-
-UbuntuManifestEditorWidget::EditorPage UbuntuManifestEditorWidget::activePage() const
-{
-    return static_cast<EditorPage>(m_widgetStack->currentIndex());
-}
-
-bool UbuntuManifestEditorWidget::setActivePage(UbuntuManifestEditorWidget::EditorPage page)
-{
-    if(page == static_cast<UbuntuManifestEditorWidget::EditorPage>(m_widgetStack->currentIndex()))
-        return true;
-
-    if(page == UbuntuManifestEditorWidget::Source)
-        syncToSource();
-    else {
-        //this could fail because the user edited the source manually
-        if(!syncToWidgets()){
-            return false;
-        }
-    }
-
-    m_widgetStack->setCurrentIndex(page);
-    return true;
-}
-
-/*!
- * \brief UbuntuManifestEditorWidget::preSave
- * Called right before the document is stored
- */
-bool UbuntuManifestEditorWidget::preSave()
-{
-    //sync the current widget state to source, so we save the correct data
-    if(activePage() == General)
-        syncToSource();
-    else
-        return syncToWidgets();
-    return true;
-}
-
-Core::IEditor *UbuntuManifestEditorWidget::editor() const
-{
-    return m_editor;
-}
-
-TextEditor::PlainTextEditorWidget *UbuntuManifestEditorWidget::textEditorWidget() const
-{
-    return m_sourceEditor;
-}
-
-void UbuntuManifestEditorWidget::setDirty()
-{
-    m_dirty = true;
-    emit uiEditorChanged();
 }
 
 bool UbuntuManifestEditorWidget::syncToWidgets()
@@ -340,17 +272,21 @@ void UbuntuManifestEditorWidget::updateFrameworkList()
     m_ui->comboBoxFramework->blockSignals(false);
 }
 
-void UbuntuManifestEditorWidget::updateInfoBar(const QString &errorMessage)
+void UbuntuManifestEditorWidget::bzrChanged()
 {
-    Core::InfoBar *infoBar = m_sourceEditor->baseTextDocument()->infoBar();
-    infoBar->removeInfo(infoBarId);
+    UbuntuBzr *bzr = UbuntuBzr::instance();
 
-    if(!errorMessage.isEmpty()){
-        Core::InfoBarEntry infoBarEntry(infoBarId, errorMessage);
-        infoBar->addInfo(infoBarEntry);
-    }
+    m_ui->lineEdit_maintainer->setText(bzr->whoami());
+
+    /* Commented out for bug #1219948  - https://bugs.launchpad.net/qtcreator-plugin-ubuntu/+bug/1219948
+    QString userName = bzr->launchpadId();
+    if (userName.isEmpty()) userName = QLatin1String(Constants::USERNAME);
+    m_ui->lineEdit_maintainer->setText(QString(QLatin1String("com.ubuntu.developer.%0.%1")).arg(userName).arg(m_projectName));
+    */
+
+    if(activePage() != General)
+        syncToSource();
 }
-
 
 QWidget *UbuntuManifestEditorWidget::createHookWidget(const UbuntuClickManifest::Hook &hook)
 {
@@ -396,14 +332,134 @@ QWidget *UbuntuManifestEditorWidget::createHookWidget(const UbuntuClickManifest:
     return container;
 }
 
-UbuntuManifestTextEditorWidget::UbuntuManifestTextEditorWidget(UbuntuManifestEditorWidget *parent)
-    : TextEditor::PlainTextEditorWidget(new UbuntuManifestDocument(parent), parent),
-      m_parent(parent)
+QString UbuntuManifestEditorWidget::createPackageName(const QString &userName, const QString &projectName)
 {
-    baseTextDocument()->setMimeType(QLatin1String(Constants::UBUNTU_MANIFEST_MIME_TYPE));
+    return QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_NAME)).arg(userName).arg(projectName);
+}
+
+void UbuntuManifestEditorWidget::addMissingFieldsToManifest (QString fileName)
+{
+    QFile in(fileName);
+    if(!in.open(QIODevice::ReadOnly))
+        return;
+
+    QFile templateFile(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_MANIFEST));
+    if(!templateFile.open(QIODevice::ReadOnly))
+        return;
+
+    QString projectName = tr("unknown");
+    ProjectExplorer::Project *p = ubuntuProject(fileName);
+    if(p)
+        projectName = p->displayName();
+
+    QJsonParseError err;
+    QJsonDocument templateDoc = QJsonDocument::fromJson(templateFile.readAll(),&err);
+    if(err.error != QJsonParseError::NoError)
+        return;
+
+    QJsonDocument inDoc = QJsonDocument::fromJson(in.readAll(),&err);
+    if(err.error != QJsonParseError::NoError)
+        return;
+
+    in.close();
+
+    QJsonObject templateObject = templateDoc.object();
+    QJsonObject targetObject = inDoc.object();
+    QJsonObject::const_iterator i = templateObject.constBegin();
+
+    UbuntuBzr *bzr = UbuntuBzr::instance();
+
+    bool changed = false;
+    for(;i != templateObject.constEnd(); i++) {
+        if(!targetObject.contains(i.key())) {
+            changed = true;
+
+            if(debug) qDebug()<<"Manifest file missing key: "<<i.key();
+
+            if (i.key() == QStringLiteral("name")) {
+                QString userName = bzr->launchpadId();
+                if (userName.isEmpty()) userName = QLatin1String(Constants::USERNAME);
+                targetObject.insert(i.key(),createPackageName(userName,projectName));
+
+                if(debug) qDebug()<<"Setting to "<<createPackageName(userName,projectName);
+            } else if (i.key() == QStringLiteral("maintainer")) {
+                targetObject.insert(i.key(),bzr->whoami());
+
+                if(debug) qDebug()<<"Setting to "<<bzr->whoami();
+            } else if (i.key() == QStringLiteral("framework")) {
+                const UbuntuClickTool::Target *t = 0;
+                ProjectExplorer::Project *p = ProjectExplorer::SessionManager::startupProject();
+                if (p)
+                    t = UbuntuClickTool::clickTargetFromTarget(p->activeTarget());
+
+                targetObject.insert(i.key(),UbuntuClickTool::getMostRecentFramework( QString(), t));
+            } else {
+                targetObject.insert(i.key(),i.value());
+
+                if(debug) qDebug() <<"Setting to "<<i.value();
+            }
+        }
+    }
+
+    if (changed) {
+        if(!in.open(QIODevice::WriteOnly | QIODevice::Truncate))
+            return;
+        QJsonDocument doc(targetObject);
+        QByteArray data = doc.toJson();
+        in.write(data);
+        in.close();
+    }
+}
+
+/*
+void UbuntuPackagingWidget::updatePolicyForFramework(const QString &fw)
+{
+    if(fw.isEmpty())
+        return;
+
+#if 0
+    QProcess proc;
+    proc.setProgram(QStringLiteral("aa-clickquery"));
+    proc.setArguments(QStringList{
+                      QStringLiteral("--click-framework=%1").arg(fw),
+                      QStringLiteral("--query=policy_version")});
+    proc.start();
+    proc.waitForFinished();
+    if(proc.exitCode() == 0 && proc.exitStatus() == QProcess::NormalExit) {
+        m_apparmor.setPolicyVersion(QString::fromUtf8(proc.readAllStandardOutput()));
+        m_apparmor.save();
+    }
+#else
+    static const QMap<QString,QString> policy {
+        {QStringLiteral("ubuntu-sdk-13.10"),QStringLiteral("1.0")},
+        {QStringLiteral("ubuntu-sdk-14.04-dev1"),QStringLiteral("1.1")},
+        {QStringLiteral("ubuntu-sdk-14.04-html-dev1"),QStringLiteral("1.1")},
+        {QStringLiteral("ubuntu-sdk-14.04-html"),QStringLiteral("1.1")},
+        {QStringLiteral("ubuntu-sdk-14.04-papi-dev1"),QStringLiteral("1.1")},
+        {QStringLiteral("ubuntu-sdk-14.04-papi"),QStringLiteral("1.1")},
+        {QStringLiteral("ubuntu-sdk-14.04-qml-dev1"),QStringLiteral("1.1")},
+        {QStringLiteral("ubuntu-sdk-14.04-qml"),QStringLiteral("1.1")},
+        {QStringLiteral("ubuntu-sdk-14.04"),QStringLiteral("1.1")},
+        {QStringLiteral("ubuntu-sdk-14.10-dev1"),QStringLiteral("1.2")},
+        {QStringLiteral("ubuntu-sdk-14.10-dev2"),QStringLiteral("1.2")},
+        {QStringLiteral("ubuntu-sdk-14.10-html-dev1"),QStringLiteral("1.2")},
+        {QStringLiteral("ubuntu-sdk-14.10-html-dev2"),QStringLiteral("1.2")},
+        {QStringLiteral("ubuntu-sdk-14.10-papi-dev1"),QStringLiteral("1.2")},
+        {QStringLiteral("ubuntu-sdk-14.10-papi-dev2"),QStringLiteral("1.2")},
+        {QStringLiteral("ubuntu-sdk-14.10-qml-dev1"),QStringLiteral("1.2")},
+        {QStringLiteral("ubuntu-sdk-14.10-qml-dev2"),QStringLiteral("1.2")},
+        {QStringLiteral("ubuntu-sdk-14.10-qml-dev3"),QStringLiteral("1.2")}
+    };
+
+    if(policy.contains(fw)) {
+        m_apparmor.setPolicyVersion(policy[fw]);
+        m_apparmor.save();
+    }
+#endif
 }
 
 
+*/
 
 } // namespace Internal
 } // namespace Ubuntu
