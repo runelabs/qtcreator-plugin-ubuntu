@@ -73,7 +73,9 @@ protected slots:
 
     void checkClickReviewerTool();
     void buildFinished (const bool success);
-    void buildAndInstallPackageRequested ();
+    void buildAndInstallPackageRequested ();    
+    void buildAndVerifyPackageRequested();
+    void buildPackageRequested();
 
 signals:
     void reviewToolsInstalledChanged(const bool& installed);

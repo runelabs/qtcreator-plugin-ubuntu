@@ -212,6 +212,19 @@ void UbuntuPlugin::extensionsInitialized()
 
     Core::MimeType mt = Core::MimeDatabase::findByFile(QFileInfo(QLatin1String("/tmp/app.apparmor")));
     qDebug()<<"!!!!!!!!!!!!!!!!!!!!!!!MimeType is"<<mt.comment();
+
+    //add the create click package menu item to the project context menu
+    Core::ActionContainer *mproject =
+            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
+    if(mproject) {
+        Core::Command *comm = Core::ActionManager::command("Ubuntu.Build.CreateClickPackage");
+        if(comm)
+            mproject->addAction(comm, ProjectExplorer::Constants::G_PROJECT_BUILD);
+
+        comm = Core::ActionManager::command("Ubuntu.Build.CreateManifest");
+                if(comm)
+                    mproject->addAction(comm, ProjectExplorer::Constants::G_PROJECT_BUILD);
+    }
 }
 
 void UbuntuPlugin::onKitsLoaded()

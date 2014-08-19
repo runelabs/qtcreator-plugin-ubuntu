@@ -282,7 +282,7 @@ void UbuntuClickManifest::setRaw(QString data) {
     emit loaded();
 }
 
-bool UbuntuClickManifest::load(const QString &fileName) {
+bool UbuntuClickManifest::load(const QString &fileName,ProjectExplorer::Project *proj) {
 
     setFileName(fileName);
     QFile file(fileName);
@@ -303,11 +303,10 @@ bool UbuntuClickManifest::load(const QString &fileName) {
     QString data = QString::fromUtf8(file.readAll());
     file.close();
 
-#if 0
-    if (fileName == QLatin1String(":/ubuntu/manifest.json.template")) {
+    if (fileName == QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_MANIFEST)) {
+        if(!proj)
+            return false;
 
-
-        ProjectExplorer::Project *proj = ProjectExplorer::SessionManager::startupProject();
         QString mimeType = proj->projectManager()->mimeType();
         QString proName  = proj->projectFilePath();
 
@@ -328,7 +327,7 @@ bool UbuntuClickManifest::load(const QString &fileName) {
         }
         data.replace(QLatin1String("myFramework"),defFramework);
 
-        QString tmpProjectName = projectName;
+        QString tmpProjectName = proj->displayName();
         tmpProjectName.replace(QLatin1String("_"),QLatin1String("-"));
         data.replace(QLatin1String("myapp"),tmpProjectName);
         QString original_security_manifest_name = QString(QLatin1String("%0.json")).arg(tmpProjectName);
@@ -341,7 +340,6 @@ bool UbuntuClickManifest::load(const QString &fileName) {
             data.replace(QString(QLatin1String("%0.desktop")).arg(tmpProjectName),original_desktop_file);
         }
     }
-#endif
 
     return loadFromString(data);
 }

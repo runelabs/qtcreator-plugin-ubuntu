@@ -25,6 +25,8 @@
 #include <QStringList>
 #include <QScriptValue>
 
+namespace ProjectExplorer { class Project; }
+
 namespace Ubuntu {
 namespace Internal {
 
@@ -91,7 +93,7 @@ public slots:
 
     void save() { save(m_fileName); }
     void save(QString fileName);
-    bool load(const QString &fileName);
+    bool load(const QString &fileName,ProjectExplorer::Project *proj = 0);
     bool loadFromString(const QString &data);
     void reload();
 

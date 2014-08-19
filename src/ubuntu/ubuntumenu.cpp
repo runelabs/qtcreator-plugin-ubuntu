@@ -23,6 +23,7 @@
 #include "ubuntuproject.h"
 #include "ubuntuclicktool.h"
 #include "ubuntudevice.h"
+#include "ubuntuclickmanifest.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -38,6 +39,8 @@
 #include <projectexplorer/compileoutputwindow.h>
 #include <projectexplorer/iprojectmanager.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/toolchain.h>
 #include <utils/qtcprocess.h>
 #include <ssh/sshconnection.h>
 
@@ -88,6 +91,10 @@ UbuntuMenu::UbuntuMenu(QObject *parent) :
 
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(),SIGNAL(updateRunActions()),this,SLOT(slotUpdateActions()));
     connect(UbuntuDeviceMode::instance(),SIGNAL(updateDeviceActions()),this,SLOT(slotUpdateActions()));
+
+    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
+    connect(projectExplorer, SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)),
+            this, SLOT(setContextMenuProject(ProjectExplorer::Project*)));
 }
 
 
@@ -97,6 +104,7 @@ void UbuntuMenu::slotUpdateActions() {
     bool isQmakeProject = false;
     bool isUbuntuProject = false;
     bool isUbuntuHtmlProject = false;
+    bool isClickTarget = false;
 
     if (startupProject) {
         isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMLPROJECT_MIMETYPE));
@@ -104,6 +112,10 @@ void UbuntuMenu::slotUpdateActions() {
         isUbuntuProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
         isUbuntuHtmlProject = isProperUbuntuHtmlProject(startupProject);
         isUbuntuProject = isUbuntuProject || isUbuntuHtmlProject || isQmlProject;
+        isClickTarget = startupProject->activeTarget()
+                && startupProject->activeTarget()->kit()
+                && ProjectExplorer::ToolChainKitInformation::toolChain(startupProject->activeTarget()->kit())
+                && ProjectExplorer::ToolChainKitInformation::toolChain(startupProject->activeTarget()->kit())->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID);
     }
 
     //bool canRun = projectExplorerInstance->canRun(startupProject,ProjectExplorer::NormalRunMode);
@@ -117,13 +129,14 @@ void UbuntuMenu::slotUpdateActions() {
         bool requiresQmakeProject = act->property(Constants::UBUNTU_MENUJSON_QMAKEPROJECTREQUIRED).toBool();
         bool requiresUbuntuProject = act->property(Constants::UBUNTU_MENUJSON_UBUNTUPROJECTREQUIRED).toBool();
         bool requiresUbuntuHtmlProject = act->property(Constants::UBUNTU_MENUJSON_UBUNTUHTMLPROJECTREQUIRED).toBool();
+        bool requiresClickToolchain = act->property(Constants::UBUNTU_MENUJSON_CLICKTOOLCHAINREQUIRED).toBool();
         bool actionEnabled = ( (requiresQmakeProject ? isQmakeProject : true) &&
                                (requiresQmlProject ? isQmlProject : true) &&
                                (requiresUbuntuHtmlProject ? isUbuntuHtmlProject : true) &&
                                (requiresDevice ? deviceDetected : true) &&
                                (requiresProject ? projectOpen : true) &&
-                               (requiresUbuntuProject ? isUbuntuProject : true));
-
+                               (requiresUbuntuProject ? isUbuntuProject : true) &&
+                               (requiresClickToolchain ? isClickTarget : true) );
         act->setEnabled( actionEnabled );
     }
 }
@@ -148,6 +161,56 @@ void UbuntuMenu::onFinished(QString cmd, int code) {
 void UbuntuMenu::onFinished(const QProcess *programm, QString cmd, int)
 {
     emit finished_action(programm,cmd);
+}
+
+void UbuntuMenu::createManifestFile()
+{
+    if(Q_UNLIKELY(!m_ctxMenuProject))
+        return;
+
+    QString manifestFilePath = m_ctxMenuProject->projectDirectory()+QDir::separator()+QLatin1String("manifest.json");
+
+    UbuntuClickManifest manifest;
+    if(QFile::exists(manifestFilePath)) {
+        if(!manifest.load(manifestFilePath)) {
+            QMessageBox::warning(Core::ICore::mainWindow(),tr("Error"),
+                                 tr("The manifest.json file already exists, but can not be opened."));
+            return;
+        }
+    } else {
+        if(!manifest.load(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_MANIFEST),m_ctxMenuProject.data())) {
+            QMessageBox::warning(Core::ICore::mainWindow(),tr("Error"),
+                                 tr("Could not open the manifest.json template"));
+            return;
+        }
+
+        manifest.setFileName(manifestFilePath);
+        manifest.save();
+    }
+
+    QList<UbuntuClickManifest::Hook> hooks = manifest.hooks();
+    foreach(const UbuntuClickManifest::Hook &hook, hooks) {
+        if(!hook.appArmorFile.isEmpty()) {
+            UbuntuClickManifest aaFile;
+            QString aaFilePath = QDir::cleanPath(m_ctxMenuProject->projectDirectory()+QDir::separator()+hook.appArmorFile);
+            if(QFile::exists(aaFilePath))
+                continue;
+
+            if(!aaFile.load(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_MYAPP))) {
+                printToOutputPane(tr("Could not open the apparmor template"));
+                continue;
+            }
+            aaFile.setFileName(aaFilePath);
+            aaFile.save();
+        }
+    }
+
+    QMessageBox::information(Core::ICore::mainWindow(),tr("Files created"),tr("The manifest.json and apparmor files have been created in the project directory.\nPlease make sure to add them to your project file."));
+}
+
+void UbuntuMenu::setContextMenuProject(ProjectExplorer::Project *p)
+{
+    m_ctxMenuProject = p;
 }
 
 QString UbuntuMenu::menuPath(QString fileName) {
@@ -211,6 +274,7 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
         bool actionUbuntuHtmlProjectRequired = false;
         bool actionSaveRequired = false;
         bool clickTargetRequired = false;
+        bool clickToolchainRequired = false;
 
         if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_NAME))) {
             actionName = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_NAME)).toString();
@@ -266,6 +330,9 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
         if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_CLICKTARGETREQUIRED))) {
             clickTargetRequired = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_CLICKTARGETREQUIRED)).toBool();
         }
+        if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_CLICKTOOLCHAINREQUIRED))) {
+            clickToolchainRequired = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_CLICKTOOLCHAINREQUIRED)).toBool();
+        }
 
         if (obj.contains(QLatin1String(Constants::UBUNTU_MENUJSON_ACTIONS)) && obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_ACTIONS)).isArray()) {
             QJsonValue actions = obj.value(QLatin1String(Constants::UBUNTU_MENUJSON_ACTIONS));
@@ -290,6 +357,7 @@ void UbuntuMenu::parseMenu(QJsonObject obj, Core::ActionContainer*& parent, cons
         act->setProperty(Constants::UBUNTU_MENUJSON_UBUNTUHTMLPROJECTREQUIRED,actionUbuntuHtmlProjectRequired);
         act->setProperty(Constants::UBUNTU_MENUJSON_SAVEREQUIRED,actionSaveRequired);
         act->setProperty(Constants::UBUNTU_MENUJSON_CLICKTARGETREQUIRED,clickTargetRequired);
+        act->setProperty(Constants::UBUNTU_MENUJSON_CLICKTOOLCHAINREQUIRED,clickToolchainRequired);
 
         connect(act, SIGNAL(triggered()), this, SLOT(menuItemTriggered()));
         m_actions.insert(Core::Id(actionId.toUtf8().constData()),act);
@@ -470,79 +538,79 @@ void UbuntuMenu::menuItemTriggered() {
                             int argsCount = args.size();
                             if (argsCount > 9) {
                                 ok = QMetaObject::invokeMethod(this,methodName.data(),
-                                                              (args.at(0)),
-                                                              (args.at(1)),
-                                                              (args.at(2)),
-                                                              (args.at(3)),
-                                                              (args.at(4)),
-                                                              (args.at(5)),
-                                                              (args.at(6)),
-                                                              (args.at(7)),
-                                                              (args.at(8)),
-                                                              (args.at(9)));
+                                                               (args.at(0)),
+                                                               (args.at(1)),
+                                                               (args.at(2)),
+                                                               (args.at(3)),
+                                                               (args.at(4)),
+                                                               (args.at(5)),
+                                                               (args.at(6)),
+                                                               (args.at(7)),
+                                                               (args.at(8)),
+                                                               (args.at(9)));
                             } else if (argsCount > 8) {
                                 ok = QMetaObject::invokeMethod(this,methodName.data(),
-                                                              (args.at(0)),
-                                                              (args.at(1)),
-                                                              (args.at(2)),
-                                                              (args.at(3)),
-                                                              (args.at(4)),
-                                                              (args.at(5)),
-                                                              (args.at(6)),
-                                                              (args.at(7)),
-                                                              (args.at(8)));
+                                                               (args.at(0)),
+                                                               (args.at(1)),
+                                                               (args.at(2)),
+                                                               (args.at(3)),
+                                                               (args.at(4)),
+                                                               (args.at(5)),
+                                                               (args.at(6)),
+                                                               (args.at(7)),
+                                                               (args.at(8)));
                             } else if (argsCount > 7) {
                                 ok = QMetaObject::invokeMethod(this,methodName.data(),
-                                                              (args.at(0)),
-                                                              (args.at(1)),
-                                                              (args.at(2)),
-                                                              (args.at(3)),
-                                                              (args.at(4)),
-                                                              (args.at(5)),
-                                                              (args.at(6)),
-                                                              (args.at(7)));
+                                                               (args.at(0)),
+                                                               (args.at(1)),
+                                                               (args.at(2)),
+                                                               (args.at(3)),
+                                                               (args.at(4)),
+                                                               (args.at(5)),
+                                                               (args.at(6)),
+                                                               (args.at(7)));
                             } else if (argsCount > 6) {
                                 ok = QMetaObject::invokeMethod(this,methodName.data(),
-                                                              (args.at(0)),
-                                                              (args.at(1)),
-                                                              (args.at(2)),
-                                                              (args.at(3)),
-                                                              (args.at(4)),
-                                                              (args.at(5)),
-                                                              (args.at(6)));
+                                                               (args.at(0)),
+                                                               (args.at(1)),
+                                                               (args.at(2)),
+                                                               (args.at(3)),
+                                                               (args.at(4)),
+                                                               (args.at(5)),
+                                                               (args.at(6)));
                             } else if (argsCount > 5) {
                                 ok = QMetaObject::invokeMethod(this,methodName.data(),
-                                                              (args.at(0)),
-                                                              (args.at(1)),
-                                                              (args.at(2)),
-                                                              (args.at(3)),
-                                                              (args.at(4)),
-                                                              (args.at(5)));
+                                                               (args.at(0)),
+                                                               (args.at(1)),
+                                                               (args.at(2)),
+                                                               (args.at(3)),
+                                                               (args.at(4)),
+                                                               (args.at(5)));
                             } else if (argsCount > 4) {
                                 ok = QMetaObject::invokeMethod(this,methodName.data(),
-                                                              (args.at(0)),
-                                                              (args.at(1)),
-                                                              (args.at(2)),
-                                                              (args.at(3)),
-                                                              (args.at(4)));
+                                                               (args.at(0)),
+                                                               (args.at(1)),
+                                                               (args.at(2)),
+                                                               (args.at(3)),
+                                                               (args.at(4)));
                             } else if (argsCount > 3) {
                                 ok = QMetaObject::invokeMethod(this,methodName.data(),
-                                                              (args.at(0)),
-                                                              (args.at(1)),
-                                                              (args.at(2)),
-                                                              (args.at(3)));
+                                                               (args.at(0)),
+                                                               (args.at(1)),
+                                                               (args.at(2)),
+                                                               (args.at(3)));
                             } else if (argsCount > 2) {
                                 ok = QMetaObject::invokeMethod(this,methodName.data(),
-                                                              (args.at(0)),
-                                                              (args.at(1)),
-                                                              (args.at(2)));
+                                                               (args.at(0)),
+                                                               (args.at(1)),
+                                                               (args.at(2)));
                             } else if (argsCount > 1) {
                                 ok = QMetaObject::invokeMethod(this,methodName.data(),
-                                                              (args.at(0)),
-                                                              (args.at(1)));
+                                                               (args.at(0)),
+                                                               (args.at(1)));
                             } else if (argsCount > 0) {
                                 ok = QMetaObject::invokeMethod(this,methodName.data(),
-                                                              (args.at(0)));
+                                                               (args.at(0)));
                             } else {
                                 ok = QMetaObject::invokeMethod(this,methodName.data());
                             }

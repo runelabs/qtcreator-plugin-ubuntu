@@ -128,7 +128,7 @@
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
-	  <item>
+          <item>
            <widget class="QPushButton" name="pushButtonReviewersTools">
             <property name="text">
              <string>Validate existing Click package</string>
@@ -142,9 +142,16 @@
             </property>
            </widget>
           </item>
-	 </layout>
+          <item>
+           <widget class="QPushButton" name="pushButton">
+            <property name="text">
+             <string>Install on device</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
-         <item>
+        <item>
          <widget class="QTreeView" name="treeViewValidate">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">

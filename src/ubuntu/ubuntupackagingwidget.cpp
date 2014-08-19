@@ -87,6 +87,8 @@ UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
     connect(m_validationModel,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(onNewValidationData()));
 
     connect(UbuntuMenu::instance(),SIGNAL(requestBuildAndInstallProject()),this,SLOT(buildAndInstallPackageRequested()));
+    connect(UbuntuMenu::instance(),SIGNAL(requestBuildAndVerifyProject()),this,SLOT(buildAndVerifyPackageRequested()));
+    connect(UbuntuMenu::instance(),SIGNAL(requestBuildProject()),this,SLOT(buildPackageRequested()));
 
     m_reviewToolsInstalled = false;
     checkClickReviewerTool();
@@ -335,6 +337,18 @@ void UbuntuPackagingWidget::buildFinished(const bool success)
 void UbuntuPackagingWidget::buildAndInstallPackageRequested()
 {
     m_postPackageTask = Install;
+    buildClickPackage();
+}
+
+void UbuntuPackagingWidget::buildAndVerifyPackageRequested()
+{
+    m_postPackageTask = Verify;
+    buildClickPackage();
+}
+
+void UbuntuPackagingWidget::buildPackageRequested()
+{
+    m_postPackageTask = None;
     buildClickPackage();
 }
 

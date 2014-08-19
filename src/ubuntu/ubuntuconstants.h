@@ -278,6 +278,7 @@ const char  UBUNTU_MENUJSON_QMAKEPROJECTREQUIRED[] = "qmakeProjectRequired";
 const char  UBUNTU_MENUJSON_UBUNTUPROJECTREQUIRED[] = "ubuntuProjectRequired";
 const char  UBUNTU_MENUJSON_UBUNTUHTMLPROJECTREQUIRED[] = "ubuntuHtmlProjectRequired";
 const char  UBUNTU_MENUJSON_CLICKTARGETREQUIRED[] = "needsClickTarget"; //will ask the user to choose a click target
+const char  UBUNTU_MENUJSON_CLICKTOOLCHAINREQUIRED[] = "needsClickToolchain"; //requires a click toolchain
 const char  UBUNTU_MENUJSON_SAVEREQUIRED[] = "saveRequired";
 const char  UBUNTU_MENUJSON_MESSAGEDIALOG[] = "messageDialog";
 const char  UBUNTU_MENUJSON_METACALL[] = "metacall";
