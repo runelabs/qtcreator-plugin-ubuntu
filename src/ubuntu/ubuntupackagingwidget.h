@@ -76,6 +76,7 @@ protected slots:
     void buildAndInstallPackageRequested ();    
     void buildAndVerifyPackageRequested();
     void buildPackageRequested();
+    void targetChanged();
 
 signals:
     void reviewToolsInstalledChanged(const bool& installed);

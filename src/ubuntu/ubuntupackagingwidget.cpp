@@ -38,6 +38,7 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/toolchain.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
@@ -89,6 +90,9 @@ UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
     connect(UbuntuMenu::instance(),SIGNAL(requestBuildAndInstallProject()),this,SLOT(buildAndInstallPackageRequested()));
     connect(UbuntuMenu::instance(),SIGNAL(requestBuildAndVerifyProject()),this,SLOT(buildAndVerifyPackageRequested()));
     connect(UbuntuMenu::instance(),SIGNAL(requestBuildProject()),this,SLOT(buildPackageRequested()));
+
+    connect(ui->pushButtonCreateAndInstall,SIGNAL(clicked()),this,SLOT(buildAndInstallPackageRequested()));
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance(),SIGNAL(updateRunActions()),this,SLOT(targetChanged()));
 
     m_reviewToolsInstalled = false;
     checkClickReviewerTool();
@@ -255,8 +259,8 @@ void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {
 
     QString mimeType = project->projectManager()->mimeType();
     if(mimeType == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE)
-       || mimeType == QLatin1String(Ubuntu::Constants::UBUNTUPROJECT_MIMETYPE)
-       || mimeType == QLatin1String(QmlProjectManager::Constants::QMLPROJECT_MIMETYPE)) {
+            || mimeType == QLatin1String(Ubuntu::Constants::UBUNTUPROJECT_MIMETYPE)
+            || mimeType == QLatin1String(QmlProjectManager::Constants::QMLPROJECT_MIMETYPE)) {
         if(m_reviewToolsInstalled)
             m_postPackageTask = Verify;
         else
@@ -350,6 +354,19 @@ void UbuntuPackagingWidget::buildPackageRequested()
 {
     m_postPackageTask = None;
     buildClickPackage();
+}
+
+void UbuntuPackagingWidget::targetChanged()
+{
+    ProjectExplorer::Project *p = ProjectExplorer::SessionManager::startupProject();
+    bool buildButtonsEnabled = p &&
+            p->activeTarget() &&
+            p->activeTarget()->kit() &&
+            ProjectExplorer::ToolChainKitInformation::toolChain(p->activeTarget()->kit()) &&
+            ProjectExplorer::ToolChainKitInformation::toolChain(p->activeTarget()->kit())->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID);
+
+    ui->pushButtonClickPackage->setEnabled(buildButtonsEnabled);
+    ui->pushButtonCreateAndInstall->setEnabled(buildButtonsEnabled);
 }
 
 
