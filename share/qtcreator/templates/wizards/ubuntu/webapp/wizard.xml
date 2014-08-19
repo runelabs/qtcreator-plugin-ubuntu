@@ -11,7 +11,8 @@
 	<file source="displayName.png"   target="%ProjectName%.png" openeditor="false" binary="true"/>
 	<file source="displayName.desktop"   target="%ClickHookName%.desktop" openeditor="true"/>
         <file source="README"   target="README" openeditor="true"/>
-    </files>
+        <file source="../share/.excludes"   target=".excludes" openeditor="false"/>
+   </files>
     <!-- Create a 2nd wizard page with click package parameters -->
     <fieldpagetitle>Click package parameters</fieldpagetitle>
     <fields>

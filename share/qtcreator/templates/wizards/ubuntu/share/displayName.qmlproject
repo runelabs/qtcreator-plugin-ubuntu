@@ -26,7 +26,8 @@ Project {
         filter: "*.apparmor"
     }
     Files {
-	filter: "*.json"
+	directory: "."
+        paths: ["manifest.json",".excludes"]
     }
     Files {
         directory: "www"

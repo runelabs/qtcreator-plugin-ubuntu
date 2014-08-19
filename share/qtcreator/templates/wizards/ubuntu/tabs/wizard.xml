@@ -28,7 +28,8 @@ Includes also unit and functional tests.</description>
 			<file source="tests/unit/tst_hellocomponent.qml"  target="tests/unit/tst_hellocomponent.qml" openeditor="false"/>
 			<file source="Makefile"   												target="Makefile" openeditor="false"/>
                         <file source="../share/displayName.apparmor"                     target="%ClickHookName%.apparmor" openeditor="false"/>
-    </files>
+                        <file source="../share/.excludes"                     target=".excludes" openeditor="false"/>
+   </files>
 
 	  <!-- Create a 2nd wizard page with click package parameters -->
 		<fieldpagetitle>Click package parameters</fieldpagetitle>

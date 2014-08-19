@@ -17,6 +17,9 @@ Project {
         filter: "*.desktop"
     }
     Files {
+	filter: ".excludes"
+    }
+    Files {
         filter: "www/*.html"
     }
     Files {

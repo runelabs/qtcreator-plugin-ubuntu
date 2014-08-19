@@ -20,7 +20,8 @@ Unlike the default Qt HTML5 template, there is no C++ code or compilation necess
 			<file source="../share/manifest.json"   						target="manifest.json" openeditor="true"/>
         	<file source="www/index.html" 			   target="www/index.html" openeditor="true"/>
                 <file source="../share/displayName.apparmor"                     target="%ClickHookName%.apparmor" openeditor="false"/>
-    </files>
+                <file source="../share/.excludes"                     target=".excludes" openeditor="false"/>
+   </files>
 
 	  <!-- Create a 2nd wizard page with click package parameters -->
 		<fieldpagetitle>Click package parameters</fieldpagetitle>
