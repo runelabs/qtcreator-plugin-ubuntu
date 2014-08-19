@@ -23,6 +23,13 @@ Project {
         filter: "Makefile"
     }
     Files {
+        filter: "*.apparmor"
+    }
+    Files {
+	directory: "."
+        paths: ["manifest.json",".excludes"]
+    }
+    Files {
         directory: "www"
         filter: "*"
     }

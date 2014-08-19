@@ -6,7 +6,7 @@
     "title": "myapp",
     "hooks": {
         "myapp": {
-            "apparmor": "myapp.json",
+            "apparmor": "myapp.apparmor",
             "desktop": "myapp.desktop"
         }
     },

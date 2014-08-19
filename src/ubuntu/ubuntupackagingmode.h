@@ -36,9 +36,6 @@ public:
     explicit UbuntuPackagingMode(QObject *parent = 0);
     void initialize();
 
-    static UbuntuClickManifest *manifest ();
-    static UbuntuClickManifest *appArmor ();
-
 protected slots:
     void modeChanged(Core::IMode*);
 

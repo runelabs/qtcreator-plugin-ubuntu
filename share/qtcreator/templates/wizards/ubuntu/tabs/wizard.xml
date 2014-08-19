@@ -11,7 +11,8 @@ Includes also unit and functional tests.</description>
     <displayname>App with Tabbed UI</displayname>
     <displaycategory>Ubuntu</displaycategory>
     <files>
-			<file source="../share/displayName.qmlproject" 	target="%ProjectName%.qmlproject" openproject="true"/>
+		<file source="../share/manifest.json"   						target="manifest.json" openeditor="true"/>
+		<file source="../share/displayName.qmlproject" 	target="%ProjectName%.qmlproject" openproject="true"/>
 			<file source="main.qml"   											target="main.qml" openeditor="true"/>
 			<file source="graphics/toolbarIcon@8.png"   		target="graphics/toolbarIcon@8.png" openeditor="false" binary="true"/>
 			<file source="components/HelloComponent.qml"   	target="components/HelloComponent.qml" openeditor="false"/>
@@ -26,8 +27,9 @@ Includes also unit and functional tests.</description>
 			<file source="tests/autopilot/run"   							target="tests/autopilot/run" openeditor="false"/>
 			<file source="tests/unit/tst_hellocomponent.qml"  target="tests/unit/tst_hellocomponent.qml" openeditor="false"/>
 			<file source="Makefile"   												target="Makefile" openeditor="false"/>
-			<file source="../share/manifest.json"   						target="manifest.json" openeditor="false"/>
-    </files>
+                        <file source="../share/displayName.apparmor"                     target="%ClickHookName%.apparmor" openeditor="false"/>
+                        <file source="../share/.excludes"                     target=".excludes" openeditor="false"/>
+   </files>
 
 	  <!-- Create a 2nd wizard page with click package parameters -->
 		<fieldpagetitle>Click package parameters</fieldpagetitle>

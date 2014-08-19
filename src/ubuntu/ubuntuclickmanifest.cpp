@@ -130,19 +130,19 @@ QString UbuntuClickManifest::policyVersion () {
     return callGetStringFunction(QLatin1String("getPolicyVersion"));
 }
 
-void UbuntuClickManifest::setPolicyGroups(QString appName, QStringList groups) {
+void UbuntuClickManifest::setPolicyGroups(QStringList groups) {
     if (!isInitialized()) { return; }
 
     QStringList args;
-    args << appName << groups.join(QLatin1String(" "));
+    args << groups.join(QLatin1String(" "));
     callSetStringListFunction(QLatin1String("setPolicyGroups"),args);
     emit policyGroupsChanged();
 
 }
 
-QStringList UbuntuClickManifest::policyGroups(QString appName) {
+QStringList UbuntuClickManifest::policyGroups() {
     if (!isInitialized()) { return QStringList(); }
-    QStringList retval = callGetStringListFunction(QLatin1String("getPolicyGroups"),appName);
+    QStringList retval = callGetStringListFunction(QLatin1String("getPolicyGroups"));
     return retval;
 }
 
@@ -189,6 +189,25 @@ QList<UbuntuClickManifest::Hook> UbuntuClickManifest::hooks()
     }
 
     return hooks;
+}
+
+void UbuntuClickManifest::setHook(const UbuntuClickManifest::Hook &hook)
+{
+    Q_UNUSED(hook);
+
+    QScriptValue scriptValue = engine.newObject();
+
+    scriptValue.setProperty(QStringLiteral("appId"),hook.appId);
+    scriptValue.setProperty(QStringLiteral("apparmor"),hook.appArmorFile);
+    if(!hook.desktopFile.isEmpty()) {
+        scriptValue.setProperty(QStringLiteral("desktop"),hook.desktopFile);
+    } else if(!hook.appArmorFile.isEmpty()) {
+        scriptValue.setProperty(QStringLiteral("scope"),hook.scope);
+    } else
+        //not known
+        return;
+
+    callSetFunction(QStringLiteral("setHook"),QScriptValueList{scriptValue});
 }
 
 void UbuntuClickManifest::setFrameworkName(const QString &name)
@@ -249,7 +268,7 @@ void UbuntuClickManifest::save(QString fileName) {
 }
 
 void UbuntuClickManifest::reload() {
-    load(m_fileName,m_projectName);
+    load(m_fileName);
 }
 
 QString UbuntuClickManifest::raw() {
@@ -263,11 +282,9 @@ void UbuntuClickManifest::setRaw(QString data) {
     emit loaded();
 }
 
-bool UbuntuClickManifest::load(const QString &fileName, const QString &projectName) {
+bool UbuntuClickManifest::load(const QString &fileName,ProjectExplorer::Project *proj) {
 
     setFileName(fileName);
-    m_projectName = projectName;
-
     QFile file(fileName);
 
     if (!file.exists()) {
@@ -286,10 +303,10 @@ bool UbuntuClickManifest::load(const QString &fileName, const QString &projectNa
     QString data = QString::fromUtf8(file.readAll());
     file.close();
 
-    if (fileName == QLatin1String(":/ubuntu/manifest.json.template")) {
+    if (fileName == QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_MANIFEST)) {
+        if(!proj)
+            return false;
 
-
-        ProjectExplorer::Project *proj = ProjectExplorer::SessionManager::startupProject();
         QString mimeType = proj->projectManager()->mimeType();
         QString proName  = proj->projectFilePath();
 
@@ -310,7 +327,7 @@ bool UbuntuClickManifest::load(const QString &fileName, const QString &projectNa
         }
         data.replace(QLatin1String("myFramework"),defFramework);
 
-        QString tmpProjectName = projectName;
+        QString tmpProjectName = proj->displayName();
         tmpProjectName.replace(QLatin1String("_"),QLatin1String("-"));
         data.replace(QLatin1String("myapp"),tmpProjectName);
         QString original_security_manifest_name = QString(QLatin1String("%0.json")).arg(tmpProjectName);
@@ -324,11 +341,20 @@ bool UbuntuClickManifest::load(const QString &fileName, const QString &projectNa
         }
     }
 
-    callSetStringFunction(QLatin1String("fromJSON"),data);
+    return loadFromString(data);
+}
 
-    m_bInitialized = true;
-    emit loaded();
-    return true;
+bool UbuntuClickManifest::loadFromString(const QString &data)
+{
+    //@TODO probably return the error message
+    QScriptValue ret = callFunction(QStringLiteral("fromJSON"),QScriptValueList{QScriptValue(data)});
+    bool success = ret.toBool();
+    if(success) {
+        m_bInitialized = true;
+        emit loaded();
+    }
+
+    return success;
 }
 
 QScriptValue UbuntuClickManifest::callFunction(QString functionName, QScriptValueList args) {

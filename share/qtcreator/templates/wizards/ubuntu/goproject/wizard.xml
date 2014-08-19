@@ -15,6 +15,7 @@
 			<file source="displayName.desktop"   				target="%ClickHookName%.desktop" openeditor="false"/>
 			<file source="src/displayName/main.go"   		target="src/%ProjectName%/main.go" openeditor="false"/>
 			<file source="../share/manifest.json"   						target="manifest.json" openeditor="false"/>
+                        <file source="../share/displayName.apparmor"                     target="%ClickHookName%.apparmor" openeditor="false"/>
     </files>
 
 	  <!-- Create a 2nd wizard page with click package parameters -->

@@ -39,6 +39,7 @@
 #include "ubuntudeploystepfactory.h"
 #include "ubuntuqmlbuildconfiguration.h"
 #include "ubuntufirstrunwizard.h"
+#include "ubuntueditorfactory.h"
 
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -176,6 +177,22 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     //addAutoReleasedObject(new UbuntuLocalDeployConfigurationFactory);
     addAutoReleasedObject(new UbuntuDeployStepFactory);
 
+    //add support for the manifest editor
+    Core::MimeGlobPattern ubuntuManifestGlobPattern(QStringLiteral("manifest.json*"), Core::MimeGlobPattern::MaxWeight);
+    Core::MimeType ubuntuManifestMimeType;
+    ubuntuManifestMimeType.setType(QLatin1String(Constants::UBUNTU_MANIFEST_MIME_TYPE));
+    ubuntuManifestMimeType.setComment(tr("Ubuntu Manifest file"));
+    ubuntuManifestMimeType.setGlobPatterns(QList<Core::MimeGlobPattern>() << ubuntuManifestGlobPattern);
+    ubuntuManifestMimeType.setSubClassesOf(QStringList() << QLatin1String("application/json"));
+
+    if (!Core::MimeDatabase::addMimeType(ubuntuManifestMimeType)) {
+        *errorString = tr("Could not add mime-type for manifest.json editor.");
+        return false;
+    }
+
+    addAutoReleasedObject(new Internal::UbuntuManifestEditorFactory);
+    addAutoReleasedObject(new Internal::UbuntuApparmorEditorFactory);
+
     //trigger kit autodetection and update after projectexplorer loaded the kits
     connect(ProjectExplorer::KitManager::instance(),SIGNAL(kitsLoaded())
             ,this,SLOT(onKitsLoaded()));
@@ -192,6 +209,22 @@ void UbuntuPlugin::extensionsInitialized()
     if (m_ubuntuCoreAppsMode) m_ubuntuCoreAppsMode->initialize();
     if (m_ubuntuWikiMode) m_ubuntuWikiMode->initialize();
     m_ubuntuPackagingMode->initialize();
+
+    Core::MimeType mt = Core::MimeDatabase::findByFile(QFileInfo(QLatin1String("/tmp/app.apparmor")));
+    qDebug()<<"!!!!!!!!!!!!!!!!!!!!!!!MimeType is"<<mt.comment();
+
+    //add the create click package menu item to the project context menu
+    Core::ActionContainer *mproject =
+            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
+    if(mproject) {
+        Core::Command *comm = Core::ActionManager::command("Ubuntu.Build.CreateClickPackage");
+        if(comm)
+            mproject->addAction(comm, ProjectExplorer::Constants::G_PROJECT_BUILD);
+
+        comm = Core::ActionManager::command("Ubuntu.Build.CreateManifest");
+                if(comm)
+                    mproject->addAction(comm, ProjectExplorer::Constants::G_PROJECT_BUILD);
+    }
 }
 
 void UbuntuPlugin::onKitsLoaded()

@@ -482,8 +482,7 @@ void UbuntuPackageStep::injectDebugHelperStep()
         if(!manifest.load(bc->buildDirectory()
                           .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
                           .appendPath(QStringLiteral("manifest.json"))
-                          .toString(),
-                          projectName)) {
+                          .toString())) {
 
             emit addOutput(tr("Could not find the manifest.json file in %1.\nPlease check if it is added to the install targets in your project file")
                            .arg(bc->buildDirectory()
@@ -504,8 +503,7 @@ void UbuntuPackageStep::injectDebugHelperStep()
             if (!appArmor.load(bc->buildDirectory()
                                .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
                                .appendPath(hook.appArmorFile)
-                               .toString(),
-                               projectName)) {
+                               .toString())) {
                 qWarning()<<"Could not open the apparmor file for: "<<hook.appId;
                 continue;
             }

@@ -47,6 +47,21 @@
         "group": "ProjectExplorer.Group.Run",
         "submenu": [
             {
+                "name": "Create manifest files",
+                "id": "Ubuntu.Build.CreateManifest",
+                "workingDirectory": "%0/..",
+                "projectRequired": true,
+                "context": ["UbuntuProject.ProjectContext","QmlProject.ProjectContext","CMakeProject.ProjectContext"],
+                "actions": [
+                    {
+                        "metacall": {
+                             "method":"createManifestFile",
+                             "args":[]
+                        }
+                    }
+                ]
+            },
+            {
                 "name": "Run Application on Device",
                 "id": "Ubuntu.Build.Run.Go",
                 "workingDirectory": "%0/..",
@@ -72,13 +87,30 @@
                 ]
             },
             {
+                "name": "Create Click package",
+                "id": "Ubuntu.Build.CreateClickPackage",
+                "workingDirectory": "%0/..",
+                "projectRequired": true,
+                "context": ["UbuntuProject.ProjectContext","QmlProject.ProjectContext","CMakeProject.ProjectContext"],
+                "saveRequired": true,
+                "needsClickToolchain" : true,
+                "actions": [
+                    {
+                        "metacall": {
+                             "method":"requestBuildProject",
+                             "args":[]
+                        }
+                    }
+                ]
+            },
+            {
                 "name": "Install Application on Device",
                 "id": "Ubuntu.Build.PackageInstall.Html",
                 "workingDirectory": "%0/..",
                 "projectRequired": true,
-                "deviceRequired": true,
                 "context": ["UbuntuProject.ProjectContext","QmlProject.ProjectContext"],
                 "saveRequired": true,
+                "needsClickToolchain" : true,
                 "actions": [
                     {
                         "metacall": {
@@ -94,9 +126,9 @@
                 "id": "Ubuntu.Build.PackageInstall.CMake",
                 "workingDirectory": "%0/..",
                 "projectRequired": true,
-                "deviceRequired": true,
                 "context": ["CMakeProject.ProjectContext"],
                 "saveRequired": true,
+                "needsClickToolchain" : true,
                 "actions": [
                     {
                         "metacall": {

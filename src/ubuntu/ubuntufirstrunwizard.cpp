@@ -26,7 +26,7 @@ namespace Ubuntu {
 namespace Internal {
 
 enum {
-    debug = 1
+    debug = 0
 };
 
 UbuntuFirstRunWizard::UbuntuFirstRunWizard(QWidget *parent) :
