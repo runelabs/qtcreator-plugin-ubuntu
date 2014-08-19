@@ -168,6 +168,8 @@ void UbuntuMenu::createManifestFile()
     if(Q_UNLIKELY(!m_ctxMenuProject))
         return;
 
+    bool changed = false;
+
     QString manifestFilePath = m_ctxMenuProject->projectDirectory()+QDir::separator()+QLatin1String("manifest.json");
 
     UbuntuClickManifest manifest;
@@ -184,6 +186,7 @@ void UbuntuMenu::createManifestFile()
             return;
         }
 
+        changed = true;
         manifest.setFileName(manifestFilePath);
         manifest.save();
     }
@@ -200,12 +203,16 @@ void UbuntuMenu::createManifestFile()
                 printToOutputPane(tr("Could not open the apparmor template"));
                 continue;
             }
+            changed = true;
             aaFile.setFileName(aaFilePath);
             aaFile.save();
         }
     }
 
-    QMessageBox::information(Core::ICore::mainWindow(),tr("Files created"),tr("The manifest.json and apparmor files have been created in the project directory.\nPlease make sure to add them to your project file."));
+    QMessageBox::information(Core::ICore::mainWindow(),
+                             tr("Files created"),
+                             changed ? tr("The manifest.json and apparmor files have been created in the project directory.\nPlease make sure to add them to your project file.")
+                                     : tr("All required files already exist in your project directory"));
 }
 
 void UbuntuMenu::setContextMenuProject(ProjectExplorer::Project *p)
