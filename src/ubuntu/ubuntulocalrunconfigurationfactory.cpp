@@ -22,6 +22,8 @@
 #include "ubuntudevice.h"
 #include "clicktoolchain.h"
 #include "ubuntuclickmanifest.h"
+#include "ubuntucmakecache.h"
+
 #include <cmakeprojectmanager/cmakeproject.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
@@ -63,7 +65,11 @@ QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(Project
             return types;
     }
 
-    QString manifestPath = QStringLiteral("%1/manifest.json").arg(parent->project()->projectDirectory());
+    QString manifestPath = QDir::cleanPath(parent->project()->projectDirectory()
+                                           +QDir::separator()
+                                           +UbuntuCMakeCache::getValue(QStringLiteral("UBUNTU_MANIFEST_PATH"),
+                                                                       parent->activeBuildConfiguration(),
+                                                                       QStringLiteral("manifest.json")).toString());
     UbuntuClickManifest manifest;
 
     //if we have no manifest, we can not query the app id's

@@ -132,7 +132,8 @@ SOURCES += \
     ubuntuabstractguieditor.cpp \
     ubuntuabstractguieditordocument.cpp \
     ubuntuapparmoreditor.cpp \
-    ubuntueditorfactory.cpp
+    ubuntueditorfactory.cpp \
+    ubuntucmakecache.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -212,5 +213,6 @@ HEADERS += \
     ubuntuabstractguieditor.h \
     ubuntuabstractguieditordocument.h \
     ubuntuapparmoreditor.h \
-    ubuntueditorfactory.h
+    ubuntueditorfactory.h \
+    ubuntucmakecache.h
 

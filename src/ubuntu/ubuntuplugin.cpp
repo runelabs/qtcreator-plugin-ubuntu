@@ -40,6 +40,7 @@
 #include "ubuntuqmlbuildconfiguration.h"
 #include "ubuntufirstrunwizard.h"
 #include "ubuntueditorfactory.h"
+#include "ubuntucmakecache.h"
 
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -140,6 +141,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     addAutoReleasedObject(new ClickToolChainFactory);
     addAutoReleasedObject(new UbuntuCMakeToolFactory);
     addAutoReleasedObject(new UbuntuCMakeMakeStepFactory);
+    addAutoReleasedObject(new UbuntuCMakeCache);
     addAutoReleasedObject(new UbuntuCMakeBuildConfigurationFactory);
     addAutoReleasedObject(new UbuntuHtmlBuildConfigurationFactory);
     addAutoReleasedObject(new UbuntuQmlBuildConfigurationFactory);

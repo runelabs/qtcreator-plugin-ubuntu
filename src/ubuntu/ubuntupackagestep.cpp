@@ -473,9 +473,6 @@ void UbuntuPackageStep::injectDebugHelperStep()
         QFile::remove(debTargetPath);
 
     if( injectDebugScript && ubuntuDevice ) {
-
-        QString projectName = target()->project()->displayName();
-
         QRegularExpression deskExecRegex(QStringLiteral("^(\\s*[Ee][Xx][Ee][cC]=.*)$"),QRegularExpression::MultilineOption);
 
         UbuntuClickManifest manifest;
