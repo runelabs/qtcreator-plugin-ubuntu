@@ -25,6 +25,7 @@
 #include <QStringList>
 #include <QVariant>
 #include <QIcon>
+#include <QDir>
 
 
 namespace Ubuntu {
@@ -235,6 +236,7 @@ ClickRunChecksParser::ClickRunChecksParser(QObject *parent)
 
 }
 
+
 /*!
  * \brief ClickRunChecksParser::beginRecieveData
  * Clear alls internal data and starts a completely new parse
@@ -285,7 +287,7 @@ void ClickRunChecksParser::endRecieveData(const QString &data)
  */
 bool ClickRunChecksParser::tryParseNextSection(bool dataComplete)
 {
-    QRegularExpression re(QLatin1String("^([=]+[\\s]+[A-Za-z0-9\\-_]+[\\s]+[=]+)$")); // match section beginnings
+    QRegularExpression re(QStringLiteral("^([=]+[\\s]+[A-Za-z0-9\\-_]+[\\s]+[=]+)$")); // match section beginnings
     re.setPatternOptions(QRegularExpression::MultilineOption);
 
     QRegularExpressionMatchIterator matchIter = re.globalMatch(m_data,m_nextSectionOffset);
@@ -314,10 +316,8 @@ bool ClickRunChecksParser::tryParseNextSection(bool dataComplete)
     type.remove(QLatin1String("="));
     type = type.trimmed();
 
-    if(type == QLatin1String("click-check-lint")
-            || type == QLatin1String("click-check-desktop")
-            || type == QLatin1String("click-check-security")
-            || type == QLatin1String("click-check-functional")) {
+    static const QRegularExpression regExp(QStringLiteral("^(click-check-.*)"));
+    if(regExp.match(type).hasMatch()) {
         parseJsonSection(type,startOffset,(endOffset-startOffset)+1);
     } else {
         //ignore unknown sections

@@ -16,6 +16,7 @@
  * Author: Benjamin Zeller <benjamin.zeller@canonical.com>
  */
 #include "ubuntuprojectguesser.h"
+#include "ubuntucmakecache.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
@@ -213,21 +214,9 @@ QString UbuntuProjectGuesser::projectTypeFromCacheOrProject(ProjectExplorer::Pro
     if(project->activeTarget()
             && project->activeTarget()->activeBuildConfiguration())
     {
-        QFile cache(project->activeTarget()->activeBuildConfiguration()->buildDirectory().toString()
-                    + QDir::separator()
-                    + QLatin1String("CMakeCache.txt"));
-
-        if(cache.exists() && cache.open(QIODevice::ReadOnly)) {
-            QRegularExpression regExp(QLatin1String("^UBUNTU_PROJECT_TYPE:(.*)=\\s*(\\S*)\\s*$"));
-            QTextStream in(&cache);
-            while (!in.atEnd()) {
-                QString contents = in.readLine();
-                QRegularExpressionMatch m = regExp.match(contents);
-                if(m.hasMatch()) {
-                    return m.captured(2);
-                }
-            }
-        }
+        QVariant val = UbuntuCMakeCache::getValue(QStringLiteral("UBUNTU_PROJECT_TYPE"),project->activeTarget()->activeBuildConfiguration());
+        if(val.isValid())
+            return val.toString();
     }
 
     QFile projectFile(project->projectFilePath());

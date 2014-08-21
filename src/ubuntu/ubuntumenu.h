@@ -89,7 +89,6 @@ private:
     bool isProperUbuntuHtmlProject(ProjectExplorer::Project *project) const;
     static UbuntuMenu *m_instance;
     QPointer<ProjectExplorer::Project> m_ctxMenuProject;
-
 };
 
 

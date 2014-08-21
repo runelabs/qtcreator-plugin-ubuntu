@@ -68,7 +68,6 @@ signals:
     void parsedNewTopLevelItem (DataItem* item);
 private:
     QString m_data;
-
     int     m_nextSectionOffset;
     int     m_errorCount;
     int     m_warnCount;

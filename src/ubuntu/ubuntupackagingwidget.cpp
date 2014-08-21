@@ -27,6 +27,7 @@
 #include "ubuntudevice.h"
 #include "ubuntupackagestep.h"
 #include "ubuntushared.h"
+#include "ubuntucmakecache.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
@@ -116,9 +117,11 @@ void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd)
 
     ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
 
-    //@TODO this could fail if the manifest file is not named correctly
+    QVariant manifestPath = UbuntuCMakeCache::getValue(QStringLiteral("UBUNTU_MANIFEST_PATH"),
+                                                       startupProject->activeTarget()->activeBuildConfiguration(),
+                                                       QStringLiteral("manifest.json"));
     UbuntuClickManifest manifest;
-    if(!manifest.load(startupProject->projectDirectory()+QDir::separator()+QStringLiteral("manifest.json")))
+    if(!manifest.load(startupProject->projectDirectory()+QDir::separator()+manifestPath.toString()))
         return;
 
     QString sClickPackageName;
