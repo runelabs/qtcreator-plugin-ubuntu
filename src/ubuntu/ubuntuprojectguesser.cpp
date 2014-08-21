@@ -220,7 +220,7 @@ QString UbuntuProjectGuesser::projectTypeFromCacheOrProject(ProjectExplorer::Pro
     }
 
     QFile projectFile(project->projectFilePath());
-    if (!projectFile.exists() || !projectFile.open(QIODevice::ReadOnly)) {
+    if (projectFile.exists() && projectFile.open(QIODevice::ReadOnly)) {
         QRegularExpression regExp(QLatin1String("^\\s*SET\\s*\\(\\s*UBUNTU_PROJECT_TYPE\\s*\"?(\\S*)\"?"));
         QTextStream in(&projectFile);
         while (!in.atEnd()) {

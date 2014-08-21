@@ -401,3 +401,15 @@ QStringList UbuntuClickManifest::callGetStringListFunction(QString functionName,
     return retval.toVariant().toStringList();
 }
 
+/*!
+ * \brief UbuntuClickManifest::Hook::type
+ * Returns the hook type depending on which fields are not empty
+ */
+UbuntuClickManifest::Hook::Type UbuntuClickManifest::Hook::type() const
+{
+    if(!desktopFile.isEmpty())
+        return Application;
+    else if(!scope.isEmpty())
+        return Scope;
+    return Invalid;
+}

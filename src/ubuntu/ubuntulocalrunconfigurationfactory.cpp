@@ -52,7 +52,6 @@ QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(Project
     bool isRemote = targetDevice.toString().startsWith(QLatin1String(Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID));
     bool isCMake  = parent->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID;
     bool isHTML   = parent->project()->id() == Ubuntu::Constants::UBUNTUPROJECT_ID;
-    bool isApp    = UbuntuProjectGuesser::isClickAppProject(parent->project());
     bool isQML    = parent->project()->id() == "QmlProjectManager.QmlProject";
 
     if (!isCMake && !isHTML &&!isQML)
@@ -79,14 +78,19 @@ QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(Project
     QList<UbuntuClickManifest::Hook> hooks = manifest.hooks();
     if (!isRemote) {
         foreach (const UbuntuClickManifest::Hook &hook, hooks) {
-            types << Core::Id(Constants::UBUNTUPROJECT_RUNCONTROL_ID).withSuffix(hook.appId);
+            if(hook.type() == UbuntuClickManifest::Hook::Application)
+                types << Core::Id(Constants::UBUNTUPROJECT_RUNCONTROL_APP_ID).withSuffix(hook.appId);
+            else if (hook.type() == UbuntuClickManifest::Hook::Scope)
+                types << Core::Id(Constants::UBUNTUPROJECT_RUNCONTROL_SCOPE_ID).withSuffix(hook.appId);
         }
     }
     else if (isRemote) {
-        //when CMake we only support App projects, scopes have no way to be controlled on the device atm
-        if ((isCMake && isApp) || isHTML || isQML) {
+        if (isCMake || isHTML || isQML) {
             foreach (const UbuntuClickManifest::Hook &hook, hooks) {
-                types << UbuntuRemoteRunConfiguration::typeId().withSuffix(hook.appId);
+                if(hook.type() == UbuntuClickManifest::Hook::Application)
+                    types << Core::Id(Constants::UBUNTUPROJECT_REMOTE_RUNCONTROL_APP_ID).withSuffix(hook.appId);
+                else if (hook.type() == UbuntuClickManifest::Hook::Scope)
+                    types << Core::Id(Constants::UBUNTUPROJECT_REMOTE_RUNCONTROL_SCOPE_ID).withSuffix(hook.appId);
             }
         }
     }
@@ -96,10 +100,14 @@ QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(Project
 
 QString UbuntuLocalRunConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    if (id.toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_ID )))
-        return id.suffixAfter(Constants::UBUNTUPROJECT_RUNCONTROL_ID);
-    else if(id.toString().startsWith(UbuntuRemoteRunConfiguration::typeId().toString()))
-        return id.suffixAfter(UbuntuRemoteRunConfiguration::typeId());
+    if (id.toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_APP_ID )))
+        return id.suffixAfter(Constants::UBUNTUPROJECT_RUNCONTROL_APP_ID);
+    else if (id.toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_SCOPE_ID )))
+        return id.suffixAfter(Constants::UBUNTUPROJECT_RUNCONTROL_SCOPE_ID);
+    else if (id.toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_REMOTE_RUNCONTROL_APP_ID )))
+        return id.suffixAfter(Constants::UBUNTUPROJECT_REMOTE_RUNCONTROL_APP_ID);
+    else if (id.toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_REMOTE_RUNCONTROL_SCOPE_ID )))
+        return id.suffixAfter(Constants::UBUNTUPROJECT_REMOTE_RUNCONTROL_SCOPE_ID);
     return QString();
 }
 
@@ -117,9 +125,9 @@ ProjectExplorer::RunConfiguration *UbuntuLocalRunConfigurationFactory::doCreate(
     if (!canCreate(parent, id))
         return NULL;
 
-    if ( id.toString().startsWith(UbuntuRemoteRunConfiguration::typeId().toString()) )
+    if ( id.toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_REMOTE_RUNCONTROL_BASE_ID)))
         return new UbuntuRemoteRunConfiguration(parent, id);
-    else if (id.toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_ID)))
+    else if (id.toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_BASE_ID)))
         return new UbuntuLocalRunConfiguration(parent, id);
 
     return 0;
@@ -148,7 +156,7 @@ ProjectExplorer::RunConfiguration *UbuntuLocalRunConfigurationFactory::clone(Pro
     if (!canClone(parent, source))
         return NULL;
 
-    if(source->id().toString().startsWith(UbuntuRemoteRunConfiguration::typeId().toString()))
+    if(source->id().toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_REMOTE_RUNCONTROL_BASE_ID)))
         return new UbuntuRemoteRunConfiguration(parent,static_cast<UbuntuRemoteRunConfiguration*>(source));
 
     return new UbuntuLocalRunConfiguration(parent,static_cast<UbuntuLocalRunConfiguration*>(source));

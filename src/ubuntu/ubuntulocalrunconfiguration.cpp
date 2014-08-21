@@ -31,6 +31,7 @@
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
 #include <cmakeprojectmanager/cmakeproject.h>
+#include <cmakeprojectmanager/cmakeprojectconstants.h>
 using namespace Ubuntu::Internal;
 
 enum {
@@ -40,7 +41,7 @@ enum {
 UbuntuLocalRunConfiguration::UbuntuLocalRunConfiguration(ProjectExplorer::Target *parent, Core::Id id)
     : ProjectExplorer::LocalApplicationRunConfiguration(parent, id)
 {
-    setDisplayName(parent->project()->displayName());
+    setDisplayName(appId());
     addExtraAspect(new ProjectExplorer::LocalEnvironmentAspect(this));
 }
 
@@ -61,7 +62,10 @@ bool UbuntuLocalRunConfiguration::isEnabled() const
 
 QString UbuntuLocalRunConfiguration::appId() const
 {
-    return id().suffixAfter(Constants::UBUNTUPROJECT_RUNCONTROL_ID);
+    if(id().toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_APP_ID)))
+        return id().suffixAfter(Constants::UBUNTUPROJECT_RUNCONTROL_APP_ID);
+    else
+        return id().suffixAfter(Constants::UBUNTUPROJECT_RUNCONTROL_SCOPE_ID);
 }
 
 QString UbuntuLocalRunConfiguration::executable() const
@@ -89,10 +93,19 @@ bool UbuntuLocalRunConfiguration::ensureConfigured(QString *errorMessage)
     if(!LocalApplicationRunConfiguration::ensureConfigured(errorMessage))
         return false;
 
-    if(UbuntuProjectGuesser::isClickAppProject(target()->project()))
-        return ensureClickAppConfigured(errorMessage);
-    else if(UbuntuProjectGuesser::isScopesProject(target()->project()))
-        return ensureScopesAppConfigured(errorMessage);
+    if(target()->project()->id() != Constants::UBUNTUPROJECT_ID) {
+        QString idString = id().toString();
+        if(idString.startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_APP_ID)))
+            return ensureClickAppConfigured(errorMessage);
+        else if(idString.startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_SCOPE_ID)))
+            return ensureScopesAppConfigured(errorMessage);
+
+        //all other hook types can not be configured
+        //should never happen
+        if(errorMessage)
+            *errorMessage = tr("Unknown hook type, only scope and app hooks are supported");
+        return false;
+    }
 
     return ensureUbuntuProjectConfigured(errorMessage);
 }
@@ -430,7 +443,8 @@ bool UbuntuLocalRunConfiguration::ensureUbuntuProjectConfigured(QString *errorMe
 
 void UbuntuLocalRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
 {
-    if(UbuntuProjectGuesser::isClickAppProject(target()->project())) {
+    if(id().toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_APP_ID))
+            && target()->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID) {
         CMakeProjectManager::CMakeProject* proj = static_cast<CMakeProjectManager::CMakeProject*> (target()->project());
         QList<CMakeProjectManager::CMakeBuildTarget> targets = proj->buildTargets();
         QSet<QString> usedPaths;

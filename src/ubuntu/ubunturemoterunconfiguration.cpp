@@ -142,8 +142,6 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
 {
     if(debug) qDebug()<<"--------------------- Reconfiguring RunConfiguration ----------------------------";
     m_arguments.clear();
-    m_desktopFile.clear();
-    m_appId.clear();
     m_clickPackage.clear();
 
     QDir package_dir(packageDir());
@@ -153,10 +151,6 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
 
         return false;
     }
-
-    m_desktopFile = UbuntuLocalRunConfiguration::getDesktopFile(this,appId(),errorMessage);
-    if(m_desktopFile.isEmpty())
-        return false;
 
     ProjectExplorer::DeployConfiguration *deplConf = qobject_cast<ProjectExplorer::DeployConfiguration*>(target()->activeDeployConfiguration());
     if(!deplConf) {
@@ -185,60 +179,70 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
         return false;
     }
 
-    /*
-     * Tries to read the Exec line from the desktop file, to
-     * extract arguments and to know which "executor" is used on
-     * the phone
-     */
-    QStringList args;
-    QString command;
+    if(id().toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_REMOTE_RUNCONTROL_APP_ID))) {
 
-    if(!UbuntuLocalRunConfiguration::readDesktopFile(m_desktopFile,&command,&args,errorMessage))
-        return false;
-
-    QFileInfo commInfo(command);
-    QString executor = commInfo.completeBaseName();
-    if(executor.startsWith(QStringLiteral("qmlscene"))) {
-        ProjectExplorer::ToolChain* tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
-        if(tc->type() != QString::fromLatin1(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
-            if(errorMessage)
-                *errorMessage = tr("Wrong toolchain type. Please check your build configuration.");
+        QString desktopFile = UbuntuLocalRunConfiguration::getDesktopFile(this,appId(),errorMessage);
+        if(desktopFile.isEmpty())
             return false;
-        }
+        /*
+         * Tries to read the Exec line from the desktop file, to
+         * extract arguments and to know which "executor" is used on
+         * the phone
+         */
+        QStringList args;
+        QString command;
 
-        ClickToolChain* clickTc = static_cast<ClickToolChain*>(tc);
-        m_localExecutable  = QString::fromLatin1("%1/usr/lib/%2/qt5/bin/qmlscene")
-                .arg(UbuntuClickTool::targetBasePath(clickTc->clickTarget()))
-                .arg(clickTc->gnutriplet());
-
-        m_remoteExecutable = QStringLiteral("/usr/bin/qmlscene");
-        m_arguments = args;
-    } else if(executor.startsWith(QStringLiteral("ubuntu-html5-app-launcher"))
-              || executor.startsWith(QStringLiteral("webapp-container"))) {
-        m_remoteExecutable = QStringLiteral("");
-        m_arguments = args;
-    } else {
-        //looks like a application without a launcher
-        CMakeProjectManager::CMakeProject* pro = static_cast<CMakeProjectManager::CMakeProject*> (target()->project());
-        foreach(const CMakeProjectManager::CMakeBuildTarget &t, pro->buildTargets()) {
-            if(t.library || t.executable.isEmpty())
-                continue;
-
-            QFileInfo execInfo(t.executable);
-
-            if(execInfo.fileName() == commInfo.fileName())
-                m_localExecutable = t.executable;
-        }
-
-        if (m_localExecutable.isEmpty()) {
-            if(errorMessage)
-                *errorMessage = tr("Could not find %1 in the project targets").arg(command);
+        if(!UbuntuLocalRunConfiguration::readDesktopFile(desktopFile,&command,&args,errorMessage))
             return false;
-        }
 
-        m_remoteExecutable = command;
+        QFileInfo commInfo(command);
+        QString executor = commInfo.completeBaseName();
+        if(executor.startsWith(QStringLiteral("qmlscene"))) {
+            ProjectExplorer::ToolChain* tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
+            if(tc->type() != QString::fromLatin1(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
+                if(errorMessage)
+                    *errorMessage = tr("Wrong toolchain type. Please check your build configuration.");
+                return false;
+            }
+
+            ClickToolChain* clickTc = static_cast<ClickToolChain*>(tc);
+            m_localExecutable  = QString::fromLatin1("%1/usr/lib/%2/qt5/bin/qmlscene")
+                    .arg(UbuntuClickTool::targetBasePath(clickTc->clickTarget()))
+                    .arg(clickTc->gnutriplet());
+
+            m_remoteExecutable = QStringLiteral("/usr/bin/qmlscene");
+            m_arguments = args;
+        } else if(executor.startsWith(QStringLiteral("ubuntu-html5-app-launcher"))
+                  || executor.startsWith(QStringLiteral("webapp-container"))) {
+            m_remoteExecutable = QStringLiteral("");
+            m_arguments = args;
+        } else {
+            //looks like a application without a launcher
+            CMakeProjectManager::CMakeProject* pro = static_cast<CMakeProjectManager::CMakeProject*> (target()->project());
+            foreach(const CMakeProjectManager::CMakeBuildTarget &t, pro->buildTargets()) {
+                if(t.library || t.executable.isEmpty())
+                    continue;
+
+                QFileInfo execInfo(t.executable);
+
+                if(execInfo.fileName() == commInfo.fileName())
+                    m_localExecutable = t.executable;
+            }
+
+            if (m_localExecutable.isEmpty()) {
+                if(errorMessage)
+                    *errorMessage = tr("Could not find %1 in the project targets").arg(command);
+                return false;
+            }
+
+            m_remoteExecutable = command;
+        }
+        return true;
     }
-    return true;
+
+    if(errorMessage)
+        *errorMessage = tr("Incompatible runconfiguration type id");
+    return false;
 }
 
 bool UbuntuRemoteRunConfiguration::fromMap(const QVariantMap &map)
@@ -256,17 +260,15 @@ QVariantMap UbuntuRemoteRunConfiguration::toMap() const
 
 QString UbuntuRemoteRunConfiguration::appId() const
 {
-    return id().suffixAfter(typeId());
+    if(id().toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_REMOTE_RUNCONTROL_APP_ID)))
+        return id().suffixAfter(Constants::UBUNTUPROJECT_REMOTE_RUNCONTROL_APP_ID);
+    else
+        return id().suffixAfter(Constants::UBUNTUPROJECT_REMOTE_RUNCONTROL_SCOPE_ID);
 }
 
 QString UbuntuRemoteRunConfiguration::clickPackage() const
 {
     return m_clickPackage;
-}
-
-Core::Id UbuntuRemoteRunConfiguration::typeId()
-{
-    return Core::Id("UbuntuProjectManager.RemoteRunConfiguration");
 }
 
 void UbuntuRemoteRunConfiguration::setArguments(const QStringList &args)
