@@ -33,7 +33,25 @@ class QtCreatorTestCase(AutopilotTestCase):
     def _set_temporary_home_directory(self):
         self._create_temporary_directory()
 
- #       self.patch_environment('HOME', self.temporary_directory)
+        sourcedir = os.environ['HOME']+"/.bazaar"
+        destdir = self.temporary_directory + "/.bazaar"
+        shutil.copytree(sourcedir, destdir, symlinks=False, ignore=None)
+
+        sourcedir = os.environ['HOME']+"/.config/QtProject/qtcreator"
+        destdir = self.temporary_directory + "/.config/QtProject/qtcreator"
+        shutil.copytree(sourcedir, destdir, symlinks=False, ignore=None)
+
+        sourcedir = os.environ['HOME']+"/.config/ubuntu-sdk"
+        destdir = self.temporary_directory + "/.config/ubuntu-sdk"
+        shutil.copytree(sourcedir, destdir, symlinks=False, ignore=None)
+
+
+        self.patch_environment('HOME', self.temporary_directory)
+        print os.environ['HOME']
+        os.chdir(os.environ['HOME'])
+        if not os.path.exists('.config/ubuntu-sdk'):
+            os.makedirs('.config/ubuntu-sdk')
+        open('.config/ubuntu-sdk/firstrun', 'w')
 
     def _get_main_window(self):
         return self.ide.wait_select_single(

@@ -13,6 +13,7 @@ from autopilot.matchers import Eventually
 from testtools.matchers import Equals
 from autopilot.input import Keyboard
 from time import sleep
+import re
 
 #class CMakeApplicationTest(QtCreatorTestCase):
 class QtCreatorPluginTestPlan(QtCreatorTestCase):
@@ -26,6 +27,33 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
        kbd = Keyboard.create("X11")
        kbd.type("here comes the password", delay=0.2)
        kbd.press_and_release('Enter')
+
+# tools -> options -> Build & Run -> Kits -> ".* for armhf (GCC ubuntu-sdk-14.10-utopic)"
+    def test_existing_kits(self):
+       """ Open the Options dialog by triggering the right action """
+       action = self.ide.wait_select_single('QAction', text = '&Options...')
+       action.slots.trigger()
+       setting_dialog = self._get_main_window().wait_select_single('Core::Internal::SettingsDialog')
+
+       """ Se/lect the Ubuntu category and click on the Create Click Target button """
+       ubuntu_modelindex = setting_dialog.wait_select_single('QModelIndex', text='Build & Run')
+       self.pointing_device.click_object(ubuntu_modelindex)
+
+
+       for index, whatever in enumerate(setting_dialog.select_many('QItemSelectionModel')):
+             print whatever.text
+
+       for index, kit in enumerate(setting_dialog.select_many('QModelIndex')): 
+          if re.search('GCC ubuntu-sdk', kit.text): 
+             print kit.text
+
+#       kit_modelindex = setting_dialog.wait_select_single('QModelIndex', text='UbuntuSDK for armhf (GCC ubuntu-sdk-14.10-utopic)')
+#       kit_modelindex = setting_dialog.wait_select_single('QModelIndex', text=~'.*armhf.*')
+#       self.pointing_device.click_object(kit_modelindex)
+
+# QWidget ->  QTreeView -> 
+       sleep(2)
+
 
     def test_x86_emulator_start(self):
        """ Change to the Devices mode, select the TestX86Emulator and deploy it """
@@ -135,6 +163,17 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
               self.assertThat(projectname_lineedit.text, Equals("appwithsimpleui"))
        next_pushbutton = application_wizard_dialog.wait_select_single('QPushButton', text = '&Next >')
        self.pointing_device.click_object(next_pushbutton)
+       sleep(3)
+       next_pushbutton = application_wizard_dialog.wait_select_single('QPushButton', text = '&Next >')
+       self.pointing_device.click_object(next_pushbutton)
+
+       for index, checkbox_kit in enumerate(application_wizard_dialog.select_many('QCheckBox')):
+         if re.search('GCC ubuntu-sdk', checkbox_kit.text):
+          self.pointing_device.click_object(checkbox_kit)
+       checkbox_kit = application_wizard_dialog.wait_select_single('QCheckBox', text ='Desktop')
+       """  Nonsense, but the default checkbox can not be simple clicked on """
+       self.pointing_device.move(checkbox_kit.globalRect.x + 100, checkbox_kit.globalRect.y + (checkbox_kit.height / 2))
+       self.pointing_device.click()
        next_pushbutton = application_wizard_dialog.wait_select_single('QPushButton', text = '&Next >')
        self.pointing_device.click_object(next_pushbutton)
        next_pushbutton = application_wizard_dialog.wait_select_single('QPushButton', text = '&Finish')
@@ -144,8 +183,9 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
        kbd.press_and_release('Ctrl+6')
        fancy_tab_widget = self._get_main_window().wait_select_single('Core::Internal::FancyTabWidget')
        packaging_widget = fancy_tab_widget.wait_select_single('UbuntuPackagingWidget', objectName = 'UbuntuPackagingWidget')
-       packaging_groupbox = packaging_widget.wait_select_single('QGroupBox', objectName = 'groupBoxPackaging')
-       click_package_pushbutton = packaging_groupbox.wait_select_single('QPushButton', objectName = 'pushButtonClickPackage')
+       #packaging_groupbox = packaging_widget.wait_select_single('QGroupBox ', objectName = 'groupBoxValidate')
+       #packaging_groupbox = packaging_widget.wait_select_single('QGroupBox', objectName = 'groupBoxPackaging')
+       click_package_pushbutton = packaging_widget.wait_select_single('QPushButton', objectName = 'pushButtonClickPackage')
        self.pointing_device.click_object(click_package_pushbutton)
 
        """ I do not know how to figure out when the click package check is done """
