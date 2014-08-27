@@ -317,7 +317,7 @@ runner = None
 
 if "scope" in manifest['hooks'][hook_name]:
     runner = ScopeRunner(app_id,loop)
-else if "desktop" in manifest['hooks'][hook_name]:
+elif "desktop" in manifest['hooks'][hook_name]:
     runner = AppRunner(app_id,loop)
 else:
     print("Hook is not supported, only scope and app hooks can be executed",flush=True)
