@@ -37,55 +37,161 @@ import signal
 import subprocess
 import argparse
 import fcntl
+import dbus
+import dbus.service
+import dbus.mainloop.glib
 
-def on_sigterm(state):
-    print("Received exit signal, stopping application")
-    sys.stdout.flush()
-    UAL.stop_application(state['expected_app_id'])
+# Runner to handle scopes
+class ScopeRunner(dbus.service.Object):
+    def __init__(self,appid,loop):
+        self.appId = appid
+        self.loop  = loop
+        busName = dbus.service.BusName('com.ubuntu.SDKAppLaunch', bus = dbus.SessionBus())
+        dbus.service.Object.__init__(self, busName, '/ScopeRegistryCallback')
 
-def on_failed(launched_app_id, failure_type, state):
-    print("Received a failed event")
-    sys.stdout.flush()
-    if launched_app_id == state['expected_app_id']:
-        if failure_type == UAL.AppFailed.CRASH:
-            state['message']  = 'Application crashed.'
-            state['exitCode'] = 1
-        elif failure_type == UAL.AppFailed.START_FAILURE:
-            state['message'] = 'Application failed to start.'
-            state['exitCode'] = 1
+    @dbus.service.method("com.ubuntu.SDKAppLaunch",
+                         in_signature='si', out_signature='')
+    def ScopeLoaded(self, name, pid):
+        if(name == self.appid):
+            print("Scope started: "+str(pid),flush=True)
 
-        state['loop'].quit()
+    @dbus.service.method("com.ubuntu.SDKAppLaunch",
+                         in_signature='s', out_signature='')
+    def ScopeStopped(self, name):
+        print("Scope stopped, exiting",flush=True)
+        mainloop.quit()
 
-def on_started(launched_app_id, state):
-    if launched_app_id == state['expected_app_id']:
-        print("Application started: "+str(UAL.get_primary_pid(state['expected_app_id'])))
-        sys.stdout.flush()
+    def launch(self):
+        try:
+            self.loop.run()
+        except KeyboardInterrupt:
+            pass
+        return 0
 
-def on_stopped(stopped_app_id, state):
-    if stopped_app_id == state['expected_app_id']:
-        print("Stopping Application")
-        sys.stdout.flush()
-        state['exitCode'] = 0
-        state['loop'].quit()
+    def stop(self):
+        return None
 
-def on_resume(resumed_app_id, state):
-    if resumed_app_id == state['expected_app_id']:
-        print("Application was resumed")
-        sys.stdout.flush()
+# Runner to handle apps
+class AppRunner:
+    def __init__(self,appid,loop):
+        self.appid = appid
+        self.exitCode = 0
+        self.message = ""
+        self.loop = loop
 
-def on_focus(focused_app_id, state):
-    if focused_app_id == state['expected_app_id']:
-        print("Application was focused")
-        sys.stdout.flush()
+    def on_failed(self,launched_app_id, failure_type):
+        print("Received a failed event",flush=True)
+        if launched_app_id == self.appid:
+            if failure_type == UAL.AppFailed.CRASH:
+                self.message  = 'Application crashed.'
+                self.exitCode = 1
+            elif failure_type == UAL.AppFailed.START_FAILURE:
+                self.message  = 'Application failed to start.'
+                self.exitCode = 1
+            self.loop.quit()
 
-def on_log_io(file, condition):
-    output = file.read().decode()
-    if len(output) > 0:
-        print (output)
-        sys.stdout.flush()
+    def on_started(self,launched_app_id):
+        if launched_app_id == self.appid:
+            print("Application started: "+str(UAL.get_primary_pid(self.appid)),flush=True)
 
+    def on_stopped(self,stopped_app_id):
+        if stopped_app_id == self.appid:
+            print("Stopping Application",flush=True)
+            self.exitCode = 0
+            self.loop.quit()
+
+    def on_resume(self,resumed_app_id):
+        if resumed_app_id == self.appid:
+            print("Application was resumed",flush=True)
+
+    def on_focus(self,focused_app_id):
+        if focused_app_id == self.appid:
+            print("Application was focused",flush=True)
+
+    def launch(self):
+        print ("Registering hooks",flush=True)
+        UAL.observer_add_app_failed(self.on_failed)
+        UAL.observer_add_app_started(self.on_started)
+        UAL.observer_add_app_focus(self.on_focus)
+        UAL.observer_add_app_stop(self.on_stopped)
+        UAL.observer_add_app_resume(self.on_resume)
+
+        print ("Start Application",flush=True)
+
+        #start up the application
+        UAL.start_application(self.appid)
+
+        try:
+            self.loop.run()
+        except KeyboardInterrupt:
+            pass
+
+        print ("The Application exited, cleaning up")
+
+        UAL.observer_delete_app_failed(self.on_failed)
+        UAL.observer_delete_app_started(self.on_started)
+        UAL.observer_delete_app_focus(self.on_focus)
+        UAL.observer_delete_app_stop(self.on_stopped)
+        UAL.observer_delete_app_resume(self.on_resume)
+
+        return self.exitCode
+
+    def stop(self):
+        UAL.stop_application(self.appid)
+
+#object = ScopeRegistryCallback(appid)
+#loop.run()
+
+def on_sigterm(runner):
+    print("Received exit signal, stopping application",flush=True)
+    runner.stop()
+
+def create_procpipe(path,callback):
+    if(os.path.exists(path)):
+        os.unlink(path)
+
+    os.mkfifo(path)
+    pipe = os.open(path,os.O_RDONLY | os.O_NONBLOCK)
+
+    # make pipe non-blocking:
+    fl = fcntl.fcntl(pipe, fcntl.F_GETFL)
+    fcntl.fcntl(pipe, fcntl.F_SETFL, fl | os.O_NONBLOCK)
+
+    if GObject.pygobject_version < (3,7,2):
+        GObject.io_add_watch(pipe,GObject.IO_IN | GObject.IO_HUP,callback)
+    else:
+        GLib.io_add_watch(pipe,GLib.PRIORITY_DEFAULT,GObject.IO_IN | GObject.IO_HUP,callback)
+
+    return pipe
+
+def readPipe(pipe):
+    output=""
+    while True:
+        try:
+            output += os.read(pipe,256).decode();
+        except OSError as err:
+            if err.errno == os.errno.EAGAIN or err.errno == os.errno.EWOULDBLOCK:
+                break
+            else:
+                raise  # something else has happened -- better reraise
+
+        if len(output) <= 0 :
+            break
+
+    return output;
+
+def on_proc_stdout(file, condition):
+    output = readPipe(file)
+    print (output,end="",flush=True)
     return True
 
+def on_proc_stderr(file, condition):
+    output = readPipe(file)
+    print (output ,file=sys.stderr,end="",flush=True)
+    return True
+
+#make glib the default dbus event loop
+dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
 # register options to the argument parser
 parser = argparse.ArgumentParser(description="SDK application launcher")
@@ -97,15 +203,14 @@ parser.add_argument('--hook', action='store', dest='targetHook', help="Specify t
 
 options = parser.parse_args()
 
-print("Executing: "+options.clickPck)
-print("Launcher PID: "+str(os.getpid()), file=sys.stderr)
-sys.stderr.flush()
+print("Executing: "+options.clickPck,flush=True)
+print("Launcher PID: "+str(os.getpid()), file=sys.stderr,flush=True)
 
 needs_debug_conf=False
 conf_obj={}
 
 if options.environmentList is not None:
-    print("Setting env "+", ".join(options.environmentList))
+    print("Setting env "+", ".join(options.environmentList),flush=True)
     needs_debug_conf=True
     conf_obj['env'] = {}
     for env in options.environmentList:
@@ -117,16 +222,12 @@ if options.environmentList is not None:
 if options.gdbPort is not None:
     needs_debug_conf=True
     conf_obj['gdbPort'] = options.gdbPort
-    print("GDB Port"+options.gdbPort)
+    print("GDB Port"+options.gdbPort,flush=True)
 
 if options.qmlDebug is not None:
     needs_debug_conf=True
     conf_obj['qmlDebug'] = options.qmlDebug
-    print("QML Debug Settings:"+options.qmlDebug)
-
-
-#flush stdout
-sys.stdout.flush()
+    print("QML Debug Settings:"+options.qmlDebug,flush=True)
 
 hook_name = None
 package_name = None
@@ -140,7 +241,7 @@ try:
     manifest_json = subprocess.check_output(["click","info",options.clickPck])
     manifest=json.loads(manifest_json.decode())
 except subprocess.CalledProcessError:
-    print("Could not call click")
+    print("Could not call click",file=sys.stderr,flush=True)
     sys.exit(1)
 
 #get the hook name we want to execute
@@ -148,21 +249,21 @@ if len(manifest['hooks']) == 1:
     hook_name = list(manifest['hooks'].keys())[0]
 else:
     if options.targetHook is None:
-        print("There are multiple hooks in the manifest file, please specify one")
+        print("There are multiple hooks in the manifest file, please specify one",flush=True,file=sys.stderr)
         sys.exit(1)
     else:
         if options.targetHook in manifest['hooks']:
             hook_name = options.targetHook
         else:
-            print("Unknown hook selected")
+            print("Unknown hook selected",file=sys.stderr,flush=True)
             sys.exit(1)
 
 if 'version' not in manifest:
-    print("Version key is missing from the manifest file")
+    print("Version key is missing from the manifest file",flush=True,file=sys.stderr)
     sys.exit(1)
 
 if 'name' not in manifest:
-    print("Package name not in the manifest file")
+    print("Package name not in the manifest file",flush=True,file=sys.stderr)
     sys.exit(1)
 
 package_name = manifest['name']
@@ -174,15 +275,15 @@ try:
     package_arch = subprocess.check_output(["dpkg","-f",options.clickPck,"Architecture"])
     package_arch = package_arch.decode()
 except subprocess.CalledProcessError:
-    print("Could not query architecture from the package")
+    print("Could not query architecture from the package",flush=True,file=sys.stderr)
     sys.exit(1)
 
 #build the appid
 app_id = package_name+"_"+hook_name+"_"+package_version
 debug_file_name = "/tmp/"+app_id+"_debug.json"
 
-print("AppId: "+app_id)
-print("Architecture: "+package_arch)
+print("AppId: "+app_id,flush=True)
+print("Architecture: "+package_arch,flush=True)
 
 #create the debug description file if required
 if needs_debug_conf:
@@ -199,83 +300,55 @@ if needs_debug_conf:
 
 success = subprocess.call(["pkcon","install-local",options.clickPck,"-p"])
 if success != 0:
-    print("Installing the application failed")
+    print("Installing the application failed",flush=True)
     sys.exit(1)
 
-print("Application installed, executing")
-sys.stdout.flush()
+print("Application installed, executing",flush=True)
 
+#create 2 named pipes and listen for data
+stdoutPipeName = "/tmp/"+app_id+".stdout"
+procStdOut = create_procpipe(stdoutPipeName,on_proc_stdout)
 
-#start a subprocess waiting for the log file to be created
-#to forward the log to the launcher output
-logTailProc = subprocess.Popen(['sh','-c','while ! tail -n 0 -f '+UAL.application_log_path(app_id) +' 2>/dev/null ; do sleep 1 ; done'],stdout=subprocess.PIPE)
-logFile=logTailProc.stdout
-logFileFd=logFile.fileno()
+stderrPipeName = "/tmp/"+app_id+".stderr"
+procStdErr = create_procpipe(stderrPipeName,on_proc_stderr)
 
-file_flags = fcntl.fcntl(logFileFd, fcntl.F_GETFL)
-fcntl.fcntl(logFileFd, fcntl.F_SETFL, file_flags | os.O_NDELAY)
+loop = GLib.MainLoop()
+runner = None
 
-#since pygobject version 3.8 the old way of calling io_add_watch is deprecated
-if (GObject.pygobject_version[0] > 3 or (GObject.pygobject_version[0] == 3 and GObject.pygobject_version[1] >= 8)):
-    GLib.io_add_watch(logTailProc.stdout,GLib.PRIORITY_DEFAULT,GObject.IO_IN | GObject.IO_HUP,on_log_io)
+if "scope" in manifest['hooks'][hook_name]:
+    runner = ScopeRunner(app_id,loop)
+else if "desktop" in manifest['hooks'][hook_name]:
+    runner = AppRunner(app_id,loop)
 else:
-    GObject.io_add_watch(logTailProc.stdout,GObject.IO_IN | GObject.IO_HUP,on_log_io)
-
-state = {}
-state['loop'] = GLib.MainLoop()
-state['message'] = ''
-state['expected_app_id'] = app_id
-state['exitCode'] = 0
-
-print ("Registering hooks")
-sys.stdout.flush()
+    print("Hook is not supported, only scope and app hooks can be executed",flush=True)
+    sys.exit(1)
 
 if "unix_signal_add" in dir(GLib):
-    GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGTERM, on_sigterm, state)
-    GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGINT, on_sigterm, state)
-    GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGHUP, on_sigterm, state)
+    GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGTERM, on_sigterm, runner)
+    GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGINT, on_sigterm, runner)
+    GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGHUP, on_sigterm, runner)
 else:
-    GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGTERM, on_sigterm, state)
-    GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGINT, on_sigterm, state)
-    GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGHUP, on_sigterm, state)
+    GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGTERM, on_sigterm, runner)
+    GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGINT, on_sigterm, runner)
+    GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGHUP, on_sigterm, runner)
 
-UAL.observer_add_app_failed(on_failed, state)
-UAL.observer_add_app_started(on_started, state)
-UAL.observer_add_app_focus(on_focus, state)
-UAL.observer_add_app_stop(on_stopped, state)
-UAL.observer_add_app_resume(on_resume, state)
-
-print ("Start Application")
-sys.stdout.flush()
-
-#start up the application
-UAL.start_application(app_id)
-
-try:
-    state['loop'].run()
-except KeyboardInterrupt:
-    pass
-
-print ("The Application exited, cleaning up")
-
-
-logTailProc.kill()
-
-UAL.observer_delete_app_failed(on_failed)
-UAL.observer_delete_app_started(on_started)
-UAL.observer_delete_app_focus(on_focus)
-UAL.observer_delete_app_stop(on_stopped)
-UAL.observer_delete_app_resume(on_resume)
+#execute the hook, this will not return before the app or scope finished to run
+exitCode = runner.launch()
 
 success = subprocess.call(["pkcon","remove",package_name+";"+package_version+";"+package_arch+";local:click","-p"])
 if success != 0:
-    print("Uninstalling the application failed")
+    print("Uninstalling the application failed",flush=True)
 
 if needs_debug_conf:
     try:
         if os.path.isfile(debug_file_name):
             os.remove(debug_file_name)
     except:
-        print("Could not remove the debug description file: "+debug_file_name+"\n Please delete it manually")
+        print("Could not remove the debug description file: "+debug_file_name+"\n Please delete it manually",flush=True,file=sys.stderr)
 
-sys.exit(state['exitCode'])
+os.close(procStdOut)
+os.unlink(stdoutPipeName)
+os.close(procStdErr)
+os.unlink(stderrPipeName)
+
+sys.exit(exitCode)

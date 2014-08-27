@@ -56,7 +56,7 @@ UbuntuRemoteClickApplicationRunner::~UbuntuRemoteClickApplicationRunner()
     delete d;
 }
 
-void UbuntuRemoteClickApplicationRunner::start( UbuntuDevice::ConstPtr device, const QString &clickPackageName)
+void UbuntuRemoteClickApplicationRunner::start( UbuntuDevice::ConstPtr device, const QString &clickPackageName, const QString &hook)
 {
     QTC_ASSERT(d->m_proc.isNull(), return);
     QTC_ASSERT(device, return);
@@ -72,7 +72,9 @@ void UbuntuRemoteClickApplicationRunner::start( UbuntuDevice::ConstPtr device, c
 
 
     QStringList args;
-    args << QStringLiteral("/tmp/%1").arg(clickPackageName);
+    args << QStringLiteral("/tmp/%1").arg(clickPackageName)
+         << QStringLiteral("--hook")
+         << hook;
 
     Utils::Environment &env = d->m_env;
     Utils::Environment::const_iterator i = env.constBegin();
