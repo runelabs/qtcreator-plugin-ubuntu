@@ -277,6 +277,7 @@ void ClickRunChecksParser::endRecieveData(const QString &data)
 
     bool canContinue = true;
     while(canContinue) canContinue=tryParseNextSection(true);
+    emit finished();
 }
 
 /*!

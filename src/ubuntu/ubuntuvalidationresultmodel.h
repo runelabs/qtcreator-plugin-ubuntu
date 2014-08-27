@@ -66,6 +66,7 @@ protected:
 
 signals:
     void parsedNewTopLevelItem (DataItem* item);
+    void finished ();
 private:
     QString m_data;
     int     m_nextSectionOffset;
