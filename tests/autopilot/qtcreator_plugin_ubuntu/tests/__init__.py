@@ -45,6 +45,9 @@ class QtCreatorTestCase(AutopilotTestCase):
         destdir = self.temporary_directory + "/.config/ubuntu-sdk"
         shutil.copytree(sourcedir, destdir, symlinks=False, ignore=None)
 
+        sourcedir = os.environ['HOME']+"/.local/share/data/QtProject/qtcreator"
+        destdir = self.temporary_directory + "/.local/share/data/QtProject/qtcreator"
+        shutil.copytree(sourcedir, destdir, symlinks=False, ignore=None)
 
         self.patch_environment('HOME', self.temporary_directory)
         print os.environ['HOME']
