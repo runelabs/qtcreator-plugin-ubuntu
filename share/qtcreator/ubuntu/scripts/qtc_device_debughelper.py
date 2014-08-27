@@ -32,12 +32,14 @@ args   = shlex.split(sys.argv[1])
 env    = os.environ
 
 stdoutPipeName = "/tmp/"+app_id+".stdout"
-newStdOut = os.open(stdoutPipeName,os.O_WRONLY | os.O_NONBLOCK)
-stderrPipeName = "/tmp/"+app_id+".stderr"
-newStdErr = os.open(stderrPipeName,os.O_WRONLY | os.O_NONBLOCK)
+if(os.path.exists(stdoutPipeName)):
+    newStdOut = os.open(stdoutPipeName,os.O_WRONLY | os.O_NONBLOCK)
+    os.dup2(newStdOut, sys.stdout.fileno());
 
-os.dup2(newStdOut, sys.stdout.fileno());
-os.dup2(newStdErr, sys.stderr.fileno());
+stderrPipeName = "/tmp/"+app_id+".stderr"
+if(os.path.exists(stderrPipeName)):
+    newStdErr = os.open(stderrPipeName,os.O_WRONLY | os.O_NONBLOCK)
+    os.dup2(newStdErr, sys.stderr.fileno());
 
 effective_cmd = command = shutil.which(args.pop(0))
 if command is None:
