@@ -22,6 +22,8 @@
 import gi
 from gi.repository import GLib
 from gi.repository import GObject
+from gi.repository import Click
+from click.json_helpers import json_array_to_python
 
 try:
     gi.Repository.get_default().require("UbuntuAppLaunch")
@@ -277,6 +279,15 @@ try:
 except subprocess.CalledProcessError:
     print("Could not query architecture from the package",flush=True,file=sys.stderr)
     sys.exit(1)
+
+#check if the app is already installed on the device, so we do not break existing installations
+db = Click.DB()
+db.read(db_dir=None)
+arr = json_array_to_python(db.get_manifests(all_versions=False))
+for installAppManifest in arr:
+    if installAppManifest["name"] == package_name:
+        print("Error: This application is already installed on the device, uninstall it or temporarily change the name in the manifest.json file!",flush=True,file=sys.stderr)
+        sys.exit(1)
 
 #build the appid
 app_id = package_name+"_"+hook_name+"_"+package_version
