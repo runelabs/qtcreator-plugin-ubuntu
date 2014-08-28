@@ -37,6 +37,7 @@ import signal
 import subprocess
 import argparse
 import fcntl
+import shlex
 
 def on_sigterm(state):
     print("Received exit signal, stopping application")
@@ -209,7 +210,9 @@ sys.stdout.flush()
 
 #start a subprocess waiting for the log file to be created
 #to forward the log to the launcher output
-logTailProc = subprocess.Popen(['sh','-c','while ! tail -n 0 -f '+UAL.application_log_path(app_id) +' 2>/dev/null ; do sleep 1 ; done'],stdout=subprocess.PIPE)
+logcmd = 'while ! tail -n 0 -f %s 2>/dev/null ; do sleep 1 ; done' % (
+    shlex.quote(UAL.application_log_path(app_id))
+logTailProc = subprocess.Popen(logcmd, shell=True, stdout=subprocess.PIPE)
 logFile=logTailProc.stdout
 logFileFd=logFile.fileno()
 
