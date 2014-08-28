@@ -30,7 +30,6 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
 
 # tools -> options -> Build & Run -> Kits -> ".* for armhf (GCC ubuntu-sdk-14.10-utopic)"
     def test_existing_kits(self):
-        return
         """ Open the Options dialog by triggering the right action """
         action = self.ide.wait_select_single('QAction', text = '&Options...')
         action.slots.trigger()
@@ -57,7 +56,6 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
 
 
     def test_x86_emulator_start(self):
-        return
         """ Change to the Devices mode, select the TestX86Emulator and deploy it """
         kbd = Keyboard.create("X11")
         kbd.press_and_release('Ctrl+9')
@@ -71,7 +69,6 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
         # TODO: continue with capturing the started emulator en evaluate the status
 
     def test_x86_emulator_creation(self):
-        return
         """ Change to the Devices mode and click on the add new emulator button """
         kbd = Keyboard.create("X11")
         kbd.press_and_release('Ctrl+9')
@@ -101,7 +98,6 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
         sleep(2)
 
     def test_x86_fw1410_click_chroot_creation(self):
-        return
         """ Open the Options dialog by triggering the right action """
         action = self.ide.wait_select_single('QAction', text = '&Options...')
         action.slots.trigger()
@@ -142,42 +138,19 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
         self.assertTrue('Click exited with no errors' in  output_plaintextedit.plainText)
         self.pointing_device.click_object(close_button)
 
+    def test_create_app_with_backend(self):
+        self._createAndOpenProject('App with QML Extension Library',"appwithbackend")
+        sleep(20)
+
+        """ Try to build the project """
+        trojanHorse = self.ide.wait_select_single('Ubuntu::Internal::UbuntuTestControl')
+        sigwatch = trojanHorse.watch_signal("buildFinished()")
+        trojanHorse.slots.triggerCommand("ProjectExplorer.Build")
+        self.assertThat(lambda: sigwatch.was_emitted, Eventually(Equals(True)))
+        sleep(1)
+        self.assertTrue(trojanHorse.lastBuildSuccess)
     def test_create_app_with_simple_ui(self):
-        """ Open the New File and Project dialog by triggering the right action """
-        action = self.ide.wait_select_single('QAction', text = '&New File or Project...')
-        action.slots.trigger()
-        new_project_dialog = self._get_main_window().wait_select_single('Core::Internal::NewDialog')
-
-        """  Choose the App with Simple UI template in the Ubuntu category  """
-        ubuntu_modelindex = new_project_dialog.wait_select_single('QModelIndex', text='  Ubuntu')
-        self.pointing_device.click_object(ubuntu_modelindex)
-        app_with_simple_ui_modelindex = new_project_dialog.wait_select_single('QModelIndex', text='App with Simple UI')
-        self.pointing_device.click_object(app_with_simple_ui_modelindex)
-        choose_pushbutton = new_project_dialog.wait_select_single('QPushButton', text='Choose...')
-        self.pointing_device.click_object(choose_pushbutton)
-        application_wizard_dialog = self._get_main_window().wait_select_single('Ubuntu::Internal::UbuntuProjectApplicationWizardDialog')
-
-        """ Clear the default project name and enter the test name to the edit line and hit the Next->Next->Finish buttons """
-        projectname_lineedit = application_wizard_dialog.wait_select_single('Utils::ProjectNameValidatingLineEdit')
-        projectname_lineedit.slots.clear()
-        projectname_lineedit.slots.setText("appwithsimpleui")
-        next_pushbutton = application_wizard_dialog.wait_select_single('QPushButton', text = '&Next >')
-        next_pushbutton.slots.click()
-        next_pushbutton = application_wizard_dialog.wait_select_single('QPushButton', text = '&Next >')
-        next_pushbutton.slots.click()
-
-        for index, checkbox_kit in enumerate(application_wizard_dialog.select_many('QCheckBox')):
-            if re.search('GCC ubuntu-sdk', checkbox_kit.text):
-                checkbox_kit.slots.setChecked(True)
-
-        checkbox_kit = application_wizard_dialog.wait_select_single('QCheckBox', text ='Desktop')
-        checkbox_kit.slots.setChecked(False)
-
-        next_pushbutton = application_wizard_dialog.wait_select_single('QPushButton', text = '&Next >')
-        next_pushbutton.slots.click()
-        next_pushbutton = application_wizard_dialog.wait_select_single('QPushButton', text = '&Finish')
-        next_pushbutton.slots.click()
-
+        self._createAndOpenProject('App with Simple UI',"appwithsimpleui")
         """ Change to the Publish mode and click on the Create package button"""
         fancy_tab_widget = self._get_main_window().wait_select_single('Core::Internal::FancyTabWidget')
         fancy_tab_widget.slots.setCurrentIndex(5)
@@ -197,7 +170,7 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
         errortype_label = errorinfo_groupbox.wait_select_single('QLabel', objectName = 'labelErrorType')
         self.assertThat(errortype_label.text, Equals(""))
 
-    def test_plugins(self):
+    def _test_plugins(self):
         """ Open the About Plugins dialog """
         action = self.ide.wait_select_single('QAction', text='About &Plugins...')
         action.slots.trigger()
