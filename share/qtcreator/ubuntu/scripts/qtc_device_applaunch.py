@@ -197,7 +197,8 @@ if needs_debug_conf:
 #we have all informations, now install the click package
 #@TODO check if its already installed
 
-success = subprocess.call(["pkcon","install-local",options.clickPck,"-p"])
+success = subprocess.call(
+    ["pkcon","--allow-untrusted","install-local",options.clickPck,"-p"])
 if success != 0:
     print("Installing the application failed")
     sys.exit(1)
