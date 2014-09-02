@@ -271,6 +271,7 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
         for(const UbuntuClickManifest::Hook &hook : manifest.hooks()) {
             if(hook.appId == appId()) {
                 iniFilePath = bc->buildDirectory()
+                        .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
                         .appendPath(hook.scope)
                         .appendPath(manifest.name()+QStringLiteral("_")+hook.appId+QStringLiteral(".ini"))
                         .toString();
@@ -311,6 +312,9 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
         //if debugging is enabled we inject the debughelper, so we need
         //to remove it here
         if(executable.contains(QStringLiteral("qtc_device_debughelper.py"))) {
+            //remove the mode and the scope id argument
+            args.takeFirst();
+            args.takeFirst();
             args = Utils::QtcProcess::splitArgs(args[0]);
             executable = args.takeFirst();
         }

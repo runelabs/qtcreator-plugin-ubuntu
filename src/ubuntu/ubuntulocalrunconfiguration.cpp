@@ -283,16 +283,13 @@ bool UbuntuLocalRunConfiguration::readDesktopFile(const QString &desktopFile, QS
     *executable = args.takeFirst();
 
     //if debugging is enabled we inject the debughelper, so we need
-    //to remove it here
+    //to remove it and the mode argument here
     if(executable->contains(QStringLiteral("qtc_device_debughelper.py"))) {
-        args = Utils::QtcProcess::splitArgs(args[0]);
+        args = Utils::QtcProcess::splitArgs(args[1]);
         *executable = args.takeFirst();
     }
 
     *arguments  = args;
-
-
-
     qDebug()<<args;
 
     return true;

@@ -19,7 +19,7 @@
 #include <QTimer>
 #include <QRegularExpression>
 #include <QVariant>
-#include <QSettings>
+#include <glib-2.0/glib.h>
 
 namespace Ubuntu {
 namespace Internal {
@@ -466,14 +466,6 @@ void UbuntuPackageStep::injectDebugHelperStep()
     //debughelper script name, source and destination path
     const QString debScript = QStringLiteral("qtc_device_debughelper.py");
     const QString debSourcePath = QStringLiteral("%1/%2").arg(Constants::UBUNTU_SCRIPTPATH).arg(debScript);
-    const QString debTargetPath = QStringLiteral("%1/%2/%3")
-            .arg(bc->buildDirectory().toString())
-            .arg(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
-            .arg(debScript);
-
-    //make sure there is no old script in case we don't want to package it
-    if(QFile::exists(debTargetPath))
-        QFile::remove(debTargetPath);
 
     if(ubuntuDevice) {
         QRegularExpression deskExecRegex(QStringLiteral("^(\\s*[Ee][Xx][Ee][cC]=.*)$"),QRegularExpression::MultilineOption);
@@ -510,49 +502,100 @@ void UbuntuPackageStep::injectDebugHelperStep()
 
             if (hook.desktopFile.isEmpty() && !hook.scope.isEmpty()) {
                 //this is a scope hook
-                QString iniFilePath(bc->buildDirectory()
-                                .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
-                                .appendPath(hook.scope)
-                                .appendPath(manifest.name()+QStringLiteral("_")+hook.appId+QStringLiteral(".ini"))
-                                .toString());
+                const QString iniFilePath(bc->buildDirectory()
+                                          .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                                          .appendPath(hook.scope)
+                                          .appendPath(manifest.name()+QStringLiteral("_")+hook.appId+QStringLiteral(".ini"))
+                                          .toString());
+
+                const QString debTargetPath = bc->buildDirectory()
+                        .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                        .appendPath(hook.scope)
+                        .appendPath(debScript).toString();
+
+                //make sure there is no old script in case we don't want to package it
+                if(QFile::exists(debTargetPath))
+                    QFile::remove(debTargetPath);
+
                 if(!QFile::exists(iniFilePath))
                     continue;
 
-                QSettings iniFile(iniFilePath,QSettings::IniFormat);
-                if(iniFile.status() != QSettings::NoError) {
+                GKeyFile* keyFile = g_key_file_new();
+                GKeyFileFlags flags = static_cast<GKeyFileFlags>(G_KEY_FILE_KEEP_TRANSLATIONS|G_KEY_FILE_KEEP_COMMENTS);
+                if(!g_key_file_load_from_file(keyFile,qPrintable(iniFilePath),flags,NULL)){
+                    g_key_file_free(keyFile);
                     qWarning()<<"Could not read the ini file";
                     continue;
                 }
 
-                iniFile.beginGroup(QStringLiteral("ScopeConfig"));
-
                 if(injectDebugScript) {
-                    QString srKey(QStringLiteral("ScopeRunner"));
+                    QString subCmd;
+                    if(g_key_file_has_key(keyFile,"ScopeConfig","ScopeRunner",NULL)) {
+                        gchar *value = g_key_file_get_string(keyFile,"ScopeConfig","ScopeRunner",NULL);
+                        if(value == NULL) {
+                            qWarning()<<"Could not read the ScopeRunner entry";
+                            g_key_file_free(keyFile);
+                            continue;
+                        }
 
-                    QDir scopePath(QDir::separator()+hook.scope);
-                    QString debScriptPath = scopePath.relativeFilePath(QDir::separator()+debScript);
+                        subCmd = QString::fromUtf8(value);
+                        g_free(value);
 
-                    if(iniFile.contains(srKey)) {
-                        iniFile.setValue(srKey,QString(debScriptPath+QStringLiteral(" ")+iniFile.value(srKey).toString()));
                     } else {
                         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
                         if(!tc || tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
                             qWarning()<<"Incompatible Toolchain for hook"<<hook.appId;
                             continue;
                         }
-                        iniFile.setValue(srKey,QString(debScriptPath+QStringLiteral(" /usr/lib/%1/unity-scopes/scoperunner %R %S").arg(static_cast<ClickToolChain*>(tc)->gnutriplet())));
+
+                        subCmd = QStringLiteral("/usr/lib/%1/unity-scopes/scoperunner '' %S ").arg(static_cast<ClickToolChain*>(tc)->gnutriplet());
                     }
+
+                    QString command = QStringLiteral("./%1 scope %2 %3")
+                            .arg(debScript)
+                            .arg(manifest.name()+QStringLiteral("_")+hook.appId) //tell our script the appid
+                            .arg(subCmd);
+
+                    g_key_file_set_string(keyFile,"ScopeConfig","ScopeRunner",command.toUtf8().data());
+
+                    //copy the helper script to the click package tree
+                    if(QFile::exists(debSourcePath))
+                        QFile::copy(debSourcePath,debTargetPath);
                 }
 
-                //we always need DebugMode enabled so the scope does not time out
-                iniFile.setValue(QStringLiteral("DebugMode"),true);
-                iniFile.endGroup();
-                iniFile.sync();
+                g_key_file_set_boolean(keyFile,"ScopeConfig","DebugMode",TRUE);
+
+                gsize size = 0;
+                gchar *settingData = g_key_file_to_data (keyFile, &size, NULL);
+                if(!settingData) {
+                    qWarning()<<"Could not convert the new data into the ini file";
+                    g_key_file_free(keyFile);
+                    continue;
+                }
+
+                gboolean ret = g_file_set_contents (qPrintable(iniFilePath), settingData, size,  NULL);
+                g_free (settingData);
+                g_key_file_free (keyFile);
+
+                if(!ret)
+                    qWarning()<<"Could not write the updated ini file";
 
             } else if(!hook.desktopFile.isEmpty() && hook.scope.isEmpty()){
 
+                const QString debTargetPath = bc->buildDirectory()
+                        .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                        .appendPath(debScript).toString();
+
+                //make sure there is no old script in case we don't want to package it
+                if(QFile::exists(debTargetPath))
+                    QFile::remove(debTargetPath);
+
                 if(!injectDebugScript)
                     continue;
+
+                //copy the helper script to the click package tree
+                if(QFile::exists(debSourcePath))
+                    QFile::copy(debSourcePath,debTargetPath);
 
                 //inject the debug helper into the Exec line in the desktop file
                 //@BUG if there are env vars set in the Exec line (Var=something command) this will fail
@@ -583,8 +626,7 @@ void UbuntuPackageStep::injectDebugHelperStep()
                 //replaces the exec line with out patched version
                 contents.replace(m.capturedStart(1),
                                  m.capturedLength(1),
-                                 QStringLiteral("Exec=./%1 \"%2\"").arg(debScript).arg(exec));
-
+                                 QStringLiteral("Exec=./%1 app \"%2\"").arg(debScript).arg(exec));
 
                 if(!deskFileFd.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
                     continue;
@@ -603,12 +645,6 @@ void UbuntuPackageStep::injectDebugHelperStep()
                 qWarning() <<"Could not inject debug policy, debugging with gdb will not work";
 
             appArmor.save();
-        }
-
-        if(injectDebugScript) {
-            //copy the helper script to the click package tree
-            if(QFile::exists(debSourcePath))
-                QFile::copy(debSourcePath,debTargetPath);
         }
     }
 

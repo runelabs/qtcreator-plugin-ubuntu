@@ -54,23 +54,47 @@ class ScopeRunner(dbus.service.Object):
     @dbus.service.method("com.ubuntu.SDKAppLaunch",
                          in_signature='si', out_signature='')
     def ScopeLoaded(self, name, pid):
+        print("Scope loaded:"+name+" "+self.appid)
         if(name == self.appid):
-            print("Scope started: "+str(pid),flush=True)
+            print("Application started: "+str(pid),flush=True)
 
     @dbus.service.method("com.ubuntu.SDKAppLaunch",
                          in_signature='s', out_signature='')
     def ScopeStopped(self, name):
         print("Scope stopped, exiting",flush=True)
-        mainloop.quit()
+        self.loop.quit()
 
     def launch(self):
         try:
-            self.loop.run()
+            scopeUrl = "scope://"+self.appId
+            if(self._dispatchUrl(scopeUrl)):
+                self.loop.run()
+                #just make the default scope visible again
+                self._dispatchUrl("scope://clickscope")
+            else:
+                print("Error: Could start the scope.",flush=True,file=sys.stderr)
+                return 1
         except KeyboardInterrupt:
             pass
         return 0
 
+    def _dispatchUrl(self,url):
+        try:
+            bus = dbus.SessionBus()
+            urlDispatcher = bus.get_object('com.canonical.URLDispatcher',
+                                           '/com/canonical/URLDispatcher')
+
+            print("Dispatching url: "+url)
+
+            urlDispatcher.DispatchURL(url,"",
+                                      dbus_interface='com.canonical.URLDispatcher')
+        except dbus.DBusException:
+            print("Error: Could start the scope.",flush=True,file=sys.stderr)
+            return False
+        return True
+
     def stop(self):
+        self.loop.quit()
         return None
 
 # Runner to handle apps
@@ -140,9 +164,6 @@ class AppRunner:
 
     def stop(self):
         UAL.stop_application(self.appid)
-
-#object = ScopeRegistryCallback(appid)
-#loop.run()
 
 def on_sigterm(runner):
     print("Received exit signal, stopping application",flush=True)
@@ -237,6 +258,7 @@ package_version = None
 package_arch = None
 manifest = None
 app_id = None
+tmp_dir = "/tmp/"
 
 #get the manifest information from the click package
 try:
@@ -287,11 +309,34 @@ arr = json_array_to_python(db.get_manifests(all_versions=False))
 for installAppManifest in arr:
     if installAppManifest["name"] == package_name:
         print("Error: This application is already installed on the device, uninstall it or temporarily change the name in the manifest.json file!",flush=True,file=sys.stderr)
-        sys.exit(1)
+        #sys.exit(1)
 
 #build the appid
-app_id = package_name+"_"+hook_name+"_"+package_version
-debug_file_name = "/tmp/"+app_id+"_debug.json"
+app_id   = None
+debug_file_name = None
+
+loop = GLib.MainLoop()
+runner = None
+
+if "scope" in manifest['hooks'][hook_name]:
+    app_id   = package_name+"_"+hook_name
+    runner   = ScopeRunner(app_id,loop)
+    tmp_dir  = os.path.expanduser('~')+"/.local/share/unity-scopes/leaf-net/"+package_name+"/"
+    if(not os.path.exists(tmp_dir)):
+        print("Creating the scope fancy directory")
+        os.mkdir(tmp_dir)
+
+    print("Setting the tmp dir to: "+tmp_dir)
+
+elif "desktop" in manifest['hooks'][hook_name]:
+    app_id   = package_name+"_"+hook_name+"_"+package_version
+    runner   = AppRunner(app_id,loop)
+else:
+    print("Hook is not supported, only scope and app hooks can be executed",flush=True)
+    #TODO move to uninstall
+    sys.exit(1)
+
+debug_file_name = tmp_dir+app_id+"_debug.json"
 
 print("AppId: "+app_id,flush=True)
 print("Architecture: "+package_arch,flush=True)
@@ -317,22 +362,12 @@ if success != 0:
 print("Application installed, executing",flush=True)
 
 #create 2 named pipes and listen for data
-stdoutPipeName = "/tmp/"+app_id+".stdout"
+stdoutPipeName = tmp_dir+app_id+".stdout"
 procStdOut = create_procpipe(stdoutPipeName,on_proc_stdout)
 
-stderrPipeName = "/tmp/"+app_id+".stderr"
+stderrPipeName = tmp_dir+app_id+".stderr"
 procStdErr = create_procpipe(stderrPipeName,on_proc_stderr)
 
-loop = GLib.MainLoop()
-runner = None
-
-if "scope" in manifest['hooks'][hook_name]:
-    runner = ScopeRunner(app_id,loop)
-elif "desktop" in manifest['hooks'][hook_name]:
-    runner = AppRunner(app_id,loop)
-else:
-    print("Hook is not supported, only scope and app hooks can be executed",flush=True)
-    sys.exit(1)
 
 if "unix_signal_add" in dir(GLib):
     GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGTERM, on_sigterm, runner)

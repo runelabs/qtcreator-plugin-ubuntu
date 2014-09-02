@@ -9,7 +9,7 @@ CONFIG += c++11
 # required for Ubuntu Device Notifier
 CONFIG += link_pkgconfig
 
-PKGCONFIG += libudev
+PKGCONFIG += libudev glib-2.0
 #####################################
 
 #####################################
