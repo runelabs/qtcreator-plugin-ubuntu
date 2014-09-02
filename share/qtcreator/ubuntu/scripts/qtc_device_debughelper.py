@@ -19,8 +19,6 @@
 #
 # Author: Benjamin Zeller <benjamin.zeller@canonical.com>
 
-# version 4
-
 import json
 import os
 import os.path
@@ -60,10 +58,10 @@ if(os.path.exists(stderrPipeName)):
     newStdErr = os.open(stderrPipeName,os.O_WRONLY | os.O_NONBLOCK)
     os.dup2(newStdErr, sys.stderr.fileno());
 
+print ("---------- Debug helper ------------")
 print ("Setting up environment")
-print ("Package: "+packagename)
-print ("TmpDir: "+tmpdir)
-print ("AppId: "+app_id)
+print ("TmpDir:  "+tmpdir)
+print ("AppId:   "+app_id)
 
 if (args[0][0] == "/"):
     effective_cmd = command = args.pop(0)
@@ -112,7 +110,9 @@ if os.path.isfile(debug_file_name):
 #execv wants the command again in the arguments
 args.insert(0,effective_cmd)
 
-print("Executing: ",effective_cmd,args)
+print ("Environment initialized, starting the application")
+print ("---------- Debug helper ------------")
+print ("")
 
 #flush all descriptors
 sys.stdout.flush()

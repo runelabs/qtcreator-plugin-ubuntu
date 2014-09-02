@@ -43,23 +43,23 @@ import dbus
 import dbus.service
 import dbus.mainloop.glib
 
+#make glib the default dbus event loop
+dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+
 # Runner to handle scopes
 class ScopeRunner(dbus.service.Object):
     def __init__(self,appid,loop):
-        self.appId = appid
-        self.loop  = loop
         busName = dbus.service.BusName('com.ubuntu.SDKAppLaunch', bus = dbus.SessionBus())
         dbus.service.Object.__init__(self, busName, '/ScopeRegistryCallback')
+        self.appId = appid
+        self.loop  = loop
 
-    @dbus.service.method("com.ubuntu.SDKAppLaunch",
-                         in_signature='si', out_signature='')
+    @dbus.service.method("com.ubuntu.SDKAppLaunch",in_signature='si', out_signature='')
     def ScopeLoaded(self, name, pid):
-        print("Scope loaded:"+name+" "+self.appid)
-        if(name == self.appid):
+        if(name == self.appId):
             print("Application started: "+str(pid),flush=True)
 
-    @dbus.service.method("com.ubuntu.SDKAppLaunch",
-                         in_signature='s', out_signature='')
+    @dbus.service.method("com.ubuntu.SDKAppLaunch",in_signature='s', out_signature='')
     def ScopeStopped(self, name):
         print("Scope stopped, exiting",flush=True)
         self.loop.quit()
@@ -89,7 +89,7 @@ class ScopeRunner(dbus.service.Object):
             urlDispatcher.DispatchURL(url,"",
                                       dbus_interface='com.canonical.URLDispatcher')
         except dbus.DBusException:
-            print("Error: Could start the scope.",flush=True,file=sys.stderr)
+            print("Error: Could not start the scope.",flush=True,file=sys.stderr)
             return False
         return True
 
@@ -213,9 +213,6 @@ def on_proc_stderr(file, condition):
     print (output ,file=sys.stderr,end="",flush=True)
     return True
 
-#make glib the default dbus event loop
-dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-
 # register options to the argument parser
 parser = argparse.ArgumentParser(description="SDK application launcher")
 parser.add_argument('clickPck',action="store")
@@ -309,7 +306,7 @@ arr = json_array_to_python(db.get_manifests(all_versions=False))
 for installAppManifest in arr:
     if installAppManifest["name"] == package_name:
         print("Error: This application is already installed on the device, uninstall it or temporarily change the name in the manifest.json file!",flush=True,file=sys.stderr)
-        #sys.exit(1)
+        sys.exit(1)
 
 #build the appid
 app_id   = None
@@ -323,7 +320,6 @@ if "scope" in manifest['hooks'][hook_name]:
     runner   = ScopeRunner(app_id,loop)
     tmp_dir  = os.path.expanduser('~')+"/.local/share/unity-scopes/leaf-net/"+package_name+"/"
     if(not os.path.exists(tmp_dir)):
-        print("Creating the scope fancy directory")
         os.mkdir(tmp_dir)
 
     print("Setting the tmp dir to: "+tmp_dir)
