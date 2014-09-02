@@ -395,10 +395,10 @@ bool UbuntuLocalRunConfiguration::ensureScopesAppConfigured(QString *errorMessag
         return false;
     }
 
-
-    Utils::FileName iniFile = UbuntuProjectGuesser::findScopesIniRecursive(target()->activeBuildConfiguration()->buildDirectory());
+    Utils::FileName iniFile = UbuntuProjectGuesser::findScopesIniRecursive(target()->activeBuildConfiguration()->buildDirectory(),appId());
     if(iniFile.toFileInfo().exists())
         m_args = QStringList()<<QString(iniFile.toFileInfo().absoluteFilePath());
+
     return true;
 }
 
