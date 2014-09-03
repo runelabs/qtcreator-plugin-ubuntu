@@ -24,9 +24,6 @@ find_package(PkgConfig)
 
 find_package(
   Boost
-  COMPONENTS
-    filesystem
-    system
   REQUIRED
 )
 
@@ -46,13 +43,12 @@ include_directories(
 )
 
 set(UBUNTU_PROJECT_TYPE "Scope" CACHE INTERNAL "Tells QtCreator this is a Scope project")
-set(SCOPE_NAME "%ClickHookName:l%")
-set(SCOPE_INSTALL_NAME "%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%")
-
-set(SCOPE_INSTALL_DIR "/${SCOPE_NAME}")
+set(SCOPE_INSTALL_DIR "/%ClickHookName:l%")
+add_definitions(-DPACKAGE_NAME="%ClickDomain:l%.%ProjectName:l%")
+add_definitions(-DSCOPE_NAME="%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%")
 
 install(FILES manifest.json DESTINATION "/")
-install(FILES "apparmor_%ClickHookName:l%.json" DESTINATION "/")
+install(FILES "%ClickHookName:l%.apparmor" DESTINATION "/")
 
 add_subdirectory(src)
 add_subdirectory(data)

@@ -1,7 +1,4 @@
 
-add_definitions(-DPACKAGE_NAME="%ClickDomain:l%.%ProjectName:l%")
-add_definitions(-DSCOPE_NAME="%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%")
-
 add_executable(
   scope-unit-tests
   scope/test-scope.cpp

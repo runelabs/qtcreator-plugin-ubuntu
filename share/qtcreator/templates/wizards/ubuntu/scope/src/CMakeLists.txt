@@ -7,9 +7,6 @@ configure_file(
   @ONLY
 )
 
-add_definitions(-DPACKAGE_NAME="%ClickDomain:l%.%ProjectName:l%")
-add_definitions(-DSCOPE_NAME="%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%")
-
 add_library(
   scope-static OBJECT
   api/client.cpp
