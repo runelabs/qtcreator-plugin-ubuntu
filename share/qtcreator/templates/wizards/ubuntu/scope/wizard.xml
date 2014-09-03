@@ -41,7 +41,7 @@
         <file source="CMakeLists.txt" openproject="true"/>
         <file source="displayName.apparmor" target="%ClickHookName:l%.apparmor"/>
         <file source="manifest.json" openeditor="true"/>
-        <file source="readme.txt" openeditor="true"/>
+        <file source="readme.txt"/>
     </files>
 
 	  <!-- Create a 2nd wizard page with click package parameters -->
