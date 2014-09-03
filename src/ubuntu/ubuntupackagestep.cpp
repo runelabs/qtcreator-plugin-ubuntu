@@ -520,6 +520,9 @@ void UbuntuPackageStep::injectDebugHelperStep()
                 if(!QFile::exists(iniFilePath))
                     continue;
 
+                if(!injectDebugScript)
+                    continue;
+
                 GKeyFile* keyFile = g_key_file_new();
                 GKeyFileFlags flags = static_cast<GKeyFileFlags>(G_KEY_FILE_KEEP_TRANSLATIONS|G_KEY_FILE_KEEP_COMMENTS);
                 if(!g_key_file_load_from_file(keyFile,qPrintable(iniFilePath),flags,NULL)){
@@ -528,40 +531,38 @@ void UbuntuPackageStep::injectDebugHelperStep()
                     continue;
                 }
 
-                if(injectDebugScript) {
-                    QString subCmd;
-                    if(g_key_file_has_key(keyFile,"ScopeConfig","ScopeRunner",NULL)) {
-                        gchar *value = g_key_file_get_string(keyFile,"ScopeConfig","ScopeRunner",NULL);
-                        if(value == NULL) {
-                            qWarning()<<"Could not read the ScopeRunner entry";
-                            g_key_file_free(keyFile);
-                            continue;
-                        }
-
-                        subCmd = QString::fromUtf8(value);
-                        g_free(value);
-
-                    } else {
-                        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
-                        if(!tc || tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
-                            qWarning()<<"Incompatible Toolchain for hook"<<hook.appId;
-                            continue;
-                        }
-
-                        subCmd = QStringLiteral("/usr/lib/%1/unity-scopes/scoperunner '' %S ").arg(static_cast<ClickToolChain*>(tc)->gnutriplet());
+                QString subCmd;
+                if(g_key_file_has_key(keyFile,"ScopeConfig","ScopeRunner",NULL)) {
+                    gchar *value = g_key_file_get_string(keyFile,"ScopeConfig","ScopeRunner",NULL);
+                    if(value == NULL) {
+                        qWarning()<<"Could not read the ScopeRunner entry";
+                        g_key_file_free(keyFile);
+                        continue;
                     }
 
-                    QString command = QStringLiteral("./%1 scope %2 %3")
-                            .arg(debScript)
-                            .arg(manifest.name()+QStringLiteral("_")+hook.appId) //tell our script the appid
-                            .arg(subCmd);
+                    subCmd = QString::fromUtf8(value);
+                    g_free(value);
 
-                    g_key_file_set_string(keyFile,"ScopeConfig","ScopeRunner",command.toUtf8().data());
+                } else {
+                    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
+                    if(!tc || tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
+                        qWarning()<<"Incompatible Toolchain for hook"<<hook.appId;
+                        continue;
+                    }
 
-                    //copy the helper script to the click package tree
-                    if(QFile::exists(debSourcePath))
-                        QFile::copy(debSourcePath,debTargetPath);
+                    subCmd = QStringLiteral("/usr/lib/%1/unity-scopes/scoperunner '' %S ").arg(static_cast<ClickToolChain*>(tc)->gnutriplet());
                 }
+
+                QString command = QStringLiteral("./%1 scope %2 %3")
+                        .arg(debScript)
+                        .arg(manifest.name()+QStringLiteral("_")+hook.appId) //tell our script the appid
+                        .arg(subCmd);
+
+                g_key_file_set_string(keyFile,"ScopeConfig","ScopeRunner",command.toUtf8().data());
+
+                //copy the helper script to the click package tree
+                if(QFile::exists(debSourcePath))
+                    QFile::copy(debSourcePath,debTargetPath);
 
                 g_key_file_set_boolean(keyFile,"ScopeConfig","DebugMode",TRUE);
 
@@ -640,9 +641,11 @@ void UbuntuPackageStep::injectDebugHelperStep()
                 continue;
             }
 
-            //enable debugging in the apparmor file, this will inject the debug policy
-            if (!appArmor.enableDebugging())
-                qWarning() <<"Could not inject debug policy, debugging with gdb will not work";
+            //if(target()->activeBuildConfiguration()->buildType() == ProjectExplorer::BuildConfiguration::Debug) {
+                //enable debugging in the apparmor file, this will inject the debug policy
+                if (!appArmor.enableDebugging())
+                    qWarning() <<"Could not inject debug policy, debugging with gdb will not work";
+            //}
 
             appArmor.save();
         }
