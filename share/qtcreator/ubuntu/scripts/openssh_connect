@@ -21,8 +21,9 @@ PORT=$2
 USERNAME=$3
 IP=$4
 
-#$SCRIPTPATH/device_portforward ${PORT} 3768
-if [ ! "$(adb_shell getprop persist.service.ssh)" = "true" ];then
-	 gdbus call -y -d com.canonical.PropertyService -o /com/canonical/PropertyService -m com.canonical.PropertyService.SetProperty ssh true >/dev/null
+SSH_SERVICE_STATUS=`adb_shell getprop persist.service.ssh`
+
+if [[ ${SSH_SERVICE_STATUS=} =~ "false" ]]; then
+	 adb_shell gdbus call -y -d com.canonical.PropertyService -o /com/canonical/PropertyService -m com.canonical.PropertyService.SetProperty ssh true >/dev/null
 fi
 x-terminal-emulator -e "ssh -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p $PORT $USERNAME@$IP" &
