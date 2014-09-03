@@ -15,6 +15,8 @@
 #
 # Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
 
+echo $0 >> /tmp/sdk.logs
+
 set -e
 
 SCRIPTPATH=`dirname $0`
@@ -23,8 +25,7 @@ CONFIGDIR=~/.config/ubuntu-sdk
 SSHIDENTITY=${CONFIGDIR}/ubuntudevice_id_rsa
 USERNAME=phablet
 
-function adb_root {
-	adb -s ${SERIALNUMBER} root &> /dev/null 
+function adb_wait {
 	adb -s ${SERIALNUMBER} wait-for-device &> /dev/null
 }
 
@@ -147,4 +148,4 @@ if [ ! -d ${CONFIGDIR} ]; then
   mkdir -p ${CONFIGDIR}
 fi
 
-adb_root
+adb_wait
