@@ -98,7 +98,8 @@ if os.path.isfile(debug_file_name):
 
         #work around bug LP:#1327216, cgroups authentication for Mir not available
         #remove this line as soon as its fixed
-        args.append("--desktop_file_hint="+app_id)
+        if mode == "app":
+            args.append("--desktop_file_hint="+app_id)
 
     if "env" in debug_settings:
         for key in debug_settings["env"]:
@@ -112,7 +113,7 @@ args.insert(0,effective_cmd)
 
 print ("Environment initialized, starting the application")
 print ("---------- Debug helper ------------")
-print ("")
+print ("Executing "+effective_cmd+str(args))
 
 #flush all descriptors
 sys.stdout.flush()
