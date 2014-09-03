@@ -40,12 +40,13 @@ class TestScope: public TypedScopeFixtureScope {
 protected:
     void SetUp() override
     {
-        fake_server_ = posix::exec(FAKE_SERVER, { }, { },
+        fake_server_ = posix::exec("/usr/bin/python3", { FAKE_SERVER }, { },
                 posix::StandardStream::stdout);
 
         ASSERT_GT(fake_server_.pid(), 0);
         string port;
         fake_server_.cout() >> port;
+        ASSERT_FALSE(port.empty());
 
         string apiroot = "http://127.0.0.1:" + port;
         setenv("NETWORK_SCOPE_APIROOT", apiroot.c_str(), true);
