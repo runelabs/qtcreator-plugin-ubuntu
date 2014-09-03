@@ -10,6 +10,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     endif()
 endif()
 
+# Set strict and naggy C++ compiler flags, and enable C++11
 add_definitions(
   -fno-permissive
   -std=c++11
@@ -22,11 +23,13 @@ add_definitions(
 include(GNUInstallDirs)
 find_package(PkgConfig)
 
+# We depend on Boost for string trimming
 find_package(
   Boost
   REQUIRED
 )
 
+# Search for out dependencies
 pkg_check_modules(
   SCOPE
   libunity-scopes>=0.6.0
@@ -35,6 +38,7 @@ pkg_check_modules(
   REQUIRED
 )
 
+# Add our dependencies to the include paths
 include_directories(
   "${CMAKE_SOURCE_DIR}/include"
   ${Boost_INCLUDE_DIRS}
@@ -43,19 +47,23 @@ include_directories(
 
 set(UBUNTU_PROJECT_TYPE "Scope" CACHE INTERNAL "Tells QtCreator this is a Scope project")
 set(SCOPE_INSTALL_DIR "/%ClickHookName:l%")
+
+# If we need to refer to the scope's name or package in code, these definitions will help
 add_definitions(-DPACKAGE_NAME="%ClickDomain:l%.%ProjectName:l%")
 add_definitions(-DSCOPE_NAME="%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%")
 
+# Install the click manifest
 install(FILES manifest.json DESTINATION "/")
 install(FILES "%ClickHookName:l%.apparmor" DESTINATION "/")
 
+# Add our main directories
 add_subdirectory(src)
 add_subdirectory(data)
 
+# Set up the tests
 enable_testing()
 add_subdirectory(tests)
 add_custom_target(
   check
   ${CMAKE_CTEST_COMMAND} --force-new-ctest-process --output-on-failure
 )
-
