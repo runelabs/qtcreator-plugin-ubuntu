@@ -16,6 +16,10 @@ GoProject {
         JavaScriptFiles {
             directory:"share/%ProjectName%"
         }
+        Files {
+            directory: "."
+            paths: ["manifest.json","%ClickHookName%.apparmor"]
+        }
     }
     Package {
         name: "gopkg.in/qml.v0"

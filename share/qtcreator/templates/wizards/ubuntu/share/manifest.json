@@ -5,10 +5,11 @@
     "title": "%ProjectName%",
     "hooks": {
         "%ClickHookName%": {
-            "apparmor": "%ClickHookName%.json",
+            "apparmor": "%ClickHookName%.apparmor",
             "desktop":  "%ClickHookName%.desktop"
         }
     },
     "version": "0.1",
     "maintainer": "%ClickMaintainer%"
 }
+

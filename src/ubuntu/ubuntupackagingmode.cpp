@@ -82,45 +82,7 @@ void UbuntuPackagingMode::initialize() {
 
 }
 
-UbuntuClickManifest *UbuntuPackagingMode::manifest()
-{
-    return m_instance->m_ubuntuPackagingWidget.manifest();
-}
-
-UbuntuClickManifest *UbuntuPackagingMode::appArmor()
-{
-    return m_instance->m_ubuntuPackagingWidget.appArmor();
-}
-
 void UbuntuPackagingMode::modeChanged(Core::IMode* currentMode) {
-    if (currentMode->id() == id()) {
-        ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
-
-        bool isQmlProject = false;
-        //bool isQmakeProject = false;
-        bool isUbuntuProject = false;
-        bool isCMakeProject = false;
-        bool isGoProject = false;
-
-        if (startupProject) {
-            isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMLPROJECT_MIMETYPE));
-            //isQmakeProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMAKE_MIMETYPE));
-            isUbuntuProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
-            isCMakeProject  = (startupProject->projectManager()->mimeType() == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
-            isGoProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::GO_PROJECT_MIMETYPE));
-        }
-
-        if (isQmlProject || isUbuntuProject || isCMakeProject || isGoProject) {
-            m_ubuntuPackagingWidget.openManifestForProject();
-            m_ubuntuPackagingWidget.setAvailable(true);
-        } else {
-            m_ubuntuPackagingWidget.setAvailable(false);
-        }
-
-    } else if (previousMode == id()) {
-        m_ubuntuPackagingWidget.save();
-    }
-
     previousMode = currentMode->id();
 }
 
@@ -143,12 +105,6 @@ void UbuntuPackagingMode::updateModeState() {
     }
 
     this->setEnabled((isQmlProject || isUbuntuProject || isCMakeProject || isGoProject || reviewToolsInstalled));
-    if (this->isEnabled()) {
-        //save only if something was loaded
-        if(m_ubuntuPackagingWidget.openManifestForProject()) {
-            m_ubuntuPackagingWidget.save();
-        }
-    }
 }
 
 void UbuntuPackagingMode::on_projectAdded(ProjectExplorer::Project *project) {

@@ -10,7 +10,8 @@
   "hooks": {
     "%ClickHookName:l%": {
       "scope": "%ClickHookName:l%",
-      "apparmor": "apparmor_%ClickHookName:l%.json"
+      "apparmor": "%ClickHookName:l%.apparmor"
     }
   }
 }
+

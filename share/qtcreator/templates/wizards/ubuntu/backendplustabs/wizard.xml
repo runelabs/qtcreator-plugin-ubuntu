@@ -24,9 +24,8 @@ Includes also
         <file source="backend/modules/displayName/qmldir"      target="backend/modules/%ClickHookName:s%/qmldir" openeditor="false"/>
         <file source="backend/tests/unit/tst_mytype.qml"       target="backend/tests/unit/tst_mytype.qml" openeditor="false"/>
         <file source="app/graphics/toolbarIcon@8.png"          target="app/graphics/toolbarIcon@8.png" openeditor="false" binary="true"/>
-				<file source="app/displayName.desktop.in"              target="app/%ClickHookName%.desktop.in" openeditor="false"/>
+	<file source="app/displayName.desktop.in"              target="app/%ClickHookName%.desktop.in" openeditor="false"/>
         <file source="app/graphics/displayName.png"            target="app/graphics/%ProjectName%.png" openeditor="false" binary="true"/>
-        <file source="app/displayName.qml"                     target="app/%ProjectName%.qml" openeditor="true"/>
         <file source="app/tests/unit/tst_hellocomponent.qml"   target="app/tests/unit/tst_hellocomponent.qml" openeditor="false"/>
         <file source="app/components/CMakeLists.txt"           target="app/components/CMakeLists.txt" openeditor="false"/>
         <file source="app/components/HelloComponent.qml"       target="app/components/HelloComponent.qml" openeditor="false"/>
@@ -40,8 +39,10 @@ Includes also
         <file source="app/tests/autopilot/displayName/__init__.py"       target="app/tests/autopilot/%ProjectName%/__init__.py" openeditor="false"/>
         <file source="app/tests/autopilot/displayName/main/__init__.py"  target="app/tests/autopilot/%ProjectName%/main/__init__.py" openeditor="false"/>
         <file source="cmake/Click.cmake"                                 target="cmake/Click.cmake" openeditor="false"/>
-			  <file source="../share/manifest.json"   						target="manifest.json" openeditor="false"/>
-    </files>
+        <file source="../share/manifest.json"   			 target="manifest.json" openeditor="true"/>
+        <file source="../share/displayName.apparmor"   			 target="%ClickHookName%.apparmor" openeditor="false"/>
+        <file source="app/displayName.qml"                     target="app/%ProjectName%.qml" openeditor="true"/>
+   </files>
 
 	  <!-- Create a 2nd wizard page with click package parameters -->
 		<fieldpagetitle>Click package parameters</fieldpagetitle>

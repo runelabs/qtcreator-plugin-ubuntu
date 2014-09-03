@@ -21,6 +21,7 @@
 #include "ubuntuprojectguesser.h"
 #include "ubuntuclickmanifest.h"
 #include "ubunturemoterunconfiguration.h"
+#include "ubuntucmakecache.h"
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
@@ -144,18 +145,34 @@ QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfigur
         };
 
         //first lets check if the informations in the manifest file are helpful
-        QFileInfo manifestFile(projectDir.appendPath(QStringLiteral("manifest.json")).toString());
-        if ( manifestFile.exists() ) {
-            UbuntuClickManifest manifest;
-            if(manifest.load(manifestFile.absoluteFilePath(),config->target()->project()->displayName())){
-                QString desktop = getDesktopFromManifest(manifest);
+        QVariant manifestPath = UbuntuCMakeCache::getValue(QStringLiteral("UBUNTU_MANIFEST_PATH"),
+                                                           config->target()->activeBuildConfiguration(),
+                                                           QStringLiteral("manifest.json"));
 
-                if(!desktop.isEmpty()) {
-                    QFileInfo d(desktop);
 
-                    desktop = searchDesktopFile(d.fileName());
-                    if(!desktop.isEmpty())
-                        return desktop;
+        //search for the manifest file in the project dir AND in the builddir
+        QList<Utils::FileName> searchPaths{
+            projectDir.appendPath(manifestPath.toString()),
+            config->target()->activeBuildConfiguration()->buildDirectory()
+                    .appendPath(QFileInfo(manifestPath.toString()).path())
+                    .appendPath(QStringLiteral("manifest.json"))
+        };
+
+        for(Utils::FileName path : searchPaths) {
+            QFileInfo manifestFile(path.toString());
+            if(debug) qDebug()<<"Searching for the manifest file: "<<manifestFile.absoluteFilePath();
+            if ( manifestFile.exists() ) {
+                UbuntuClickManifest manifest;
+                if(manifest.load(manifestFile.absoluteFilePath())){
+                    QString desktop = getDesktopFromManifest(manifest);
+
+                    if(!desktop.isEmpty()) {
+                        QFileInfo d(desktop);
+
+                        desktop = searchDesktopFile(d.fileName());
+                        if(!desktop.isEmpty())
+                            return desktop;
+                    }
                 }
             }
         }
@@ -193,11 +210,11 @@ QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfigur
 
         return QString();
     }
-    manifestPath = package_dir.absoluteFilePath(QLatin1String("manifest.json"));
+    manifestPath = package_dir.absoluteFilePath(QStringLiteral("manifest.json"));
 
     //read the manifest
     UbuntuClickManifest manifest;
-    if(!manifest.load(manifestPath,config->target()->project()->displayName())) {
+    if(!manifest.load(manifestPath)) {
         if(errorMessage)
             *errorMessage = tr("Could not open the manifest file in the package directory, make sure its installed into the root of the click package.");
 

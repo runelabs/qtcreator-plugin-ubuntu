@@ -11,10 +11,10 @@
     <files>
 			<file source="data/displayName.ini.in"   	target="data/%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini.in" openeditor="false"/>
 			<file source="data/CMakeLists.txt"   			target="data/CMakeLists.txt" openeditor="false"/>
-			<file source="displayName.json"   				target="apparmor_%ClickHookName:l%.json" openeditor="false"/>
+			<file source="displayName.apparmor"   				target="%ClickHookName:l%.apparmor" openeditor="false"/>
 			<file source="test/simpletest.cpp"   			target="test/simpletest.cpp" openeditor="false"/>
 			<file source="test/CMakeLists.txt"   			target="test/CMakeLists.txt" openeditor="false"/>
-			<file source="manifest.json"   						target="manifest.json" openeditor="false"/>
+			<file source="manifest.json"   						target="manifest.json" openeditor="true"/>
 			<file source="src/displayName-preview.h"  target="src/%ClickHookName:l%-preview.h" openeditor="false"/>
 			<file source="src/displayName-query.h"   	target="src/%ClickHookName:l%-query.h" openeditor="false"/>
 			<file source="src/displayName-preview.cpp"	target="src/%ClickHookName:l%-preview.cpp" openeditor="false"/>

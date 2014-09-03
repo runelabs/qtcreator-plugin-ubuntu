@@ -29,6 +29,7 @@
 #include <QString>
 #include <QList>
 #include <QJsonDocument>
+#include <QPointer>
 
 namespace ProjectExplorer {
 class Project;
@@ -61,6 +62,8 @@ signals:
     void finished_action(QString);
     void finished_action(const QProcess* process, QString cmd);
     void requestBuildAndInstallProject (); //triggered from menu.json
+    void requestBuildAndVerifyProject ();  //triggered from menu.json
+    void requestBuildProject ();           //triggered from menu.json
     
 protected slots:
     void menuItemTriggered();
@@ -69,6 +72,8 @@ protected slots:
     void onError(QString);
     void onFinished(QString cmd, int code);
     void onFinished(const QProcess* programm, QString cmd, int code);
+    void createManifestFile();
+    void setContextMenuProject(ProjectExplorer::Project* p);
 
 protected:
     typedef QList<QJsonValue> QJsonValueList;
@@ -83,7 +88,7 @@ protected:
 private:
     bool isProperUbuntuHtmlProject(ProjectExplorer::Project *project) const;
     static UbuntuMenu *m_instance;
-
+    QPointer<ProjectExplorer::Project> m_ctxMenuProject;
 };
 
 

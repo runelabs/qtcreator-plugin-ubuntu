@@ -25,6 +25,8 @@
 #include <QStringList>
 #include <QScriptValue>
 
+namespace ProjectExplorer { class Project; }
+
 namespace Ubuntu {
 namespace Internal {
 
@@ -72,10 +74,11 @@ public slots:
     void setDescription(QString description);
     QString description();
 
-    void setPolicyGroups(QString appName, QStringList groups);
-    QStringList policyGroups(QString appName);
+    void setPolicyGroups(QStringList groups);
+    QStringList policyGroups();
 
     QList<Hook> hooks ();
+    void setHook (const Hook &hook);
     
     void setPolicyVersion(const QString &version);
     QString policyVersion();
@@ -90,7 +93,8 @@ public slots:
 
     void save() { save(m_fileName); }
     void save(QString fileName);
-    bool load(const QString &fileName, const QString &projectName);
+    bool load(const QString &fileName,ProjectExplorer::Project *proj = 0);
+    bool loadFromString(const QString &data);
     void reload();
 
     QString raw();

@@ -278,6 +278,7 @@ const char  UBUNTU_MENUJSON_QMAKEPROJECTREQUIRED[] = "qmakeProjectRequired";
 const char  UBUNTU_MENUJSON_UBUNTUPROJECTREQUIRED[] = "ubuntuProjectRequired";
 const char  UBUNTU_MENUJSON_UBUNTUHTMLPROJECTREQUIRED[] = "ubuntuHtmlProjectRequired";
 const char  UBUNTU_MENUJSON_CLICKTARGETREQUIRED[] = "needsClickTarget"; //will ask the user to choose a click target
+const char  UBUNTU_MENUJSON_CLICKTOOLCHAINREQUIRED[] = "needsClickToolchain"; //requires a click toolchain
 const char  UBUNTU_MENUJSON_SAVEREQUIRED[] = "saveRequired";
 const char  UBUNTU_MENUJSON_MESSAGEDIALOG[] = "messageDialog";
 const char  UBUNTU_MENUJSON_METACALL[] = "metacall";
@@ -556,6 +557,14 @@ const char UBUNTU_GO_BUILD_TARGETS[] = "%GOBUILDTARGETS%";
 const char UBUNTU_QTVERSION_TYPE[]   = "UbuntuProjectManager.QtVersion";
 const char UBUNTU_PLATFORM_NAME[]    = "Ubuntu Phone";
 const char UBUNTU_PLATFORM_NAME_TR[] = QT_TRANSLATE_NOOP("UbuntuProjectManager", "Ubuntu Phone");
+
+//Manifest Editor
+const char UBUNTU_MANIFEST_MIME_TYPE[] = "application/vnd.canonical.click.manifest";
+const char UBUNTU_APPARMOR_MIME_TYPE[] = "application/vnd.canonical.click.apparmor";
+const char UBUNTU_MANIFEST_EDITOR_ID[] = "UbuntuProjectManager.UbuntuManifestEditor.Id";
+const char UBUNTU_MANIFEST_EDITOR_CONTEXT[] = "UbuntuProjectManager.UbuntuManifestEditor.Context.Id";
+const char UBUNTU_APPARMOR_EDITOR_ID[]      = "UbuntuProjectManager.UbuntuApparmorEditor.Id";
+const char UBUNTU_APPARMOR_EDITOR_CONTEXT[] = "UbuntuProjectManager.UbuntuApparmorEditor.Context.Id";
 
 } // namespace Ubuntu
 } // namespace Constants

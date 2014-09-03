@@ -1,3 +1,25 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140821-0ubuntu1) utopic; urgency=low
+
+  [ Benjamin Zeller ]
+  * Add UbuntuCMakeCache. Add support for UBUNTU_MANIFEST_PATH cache
+    variable to support core. apps Fallback to search the manifest file
+    in builddir if the desktop file. path in the project dir manifest
+    file is not valid (core apps compatibility) Fix bug lp:1358381 "new
+    click-check-* scripts not shown in Validate. section of Ubuntu
+    Publish" (LP: #1358381)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 21 Aug 2014 07:27:06 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140819-0ubuntu1) utopic; urgency=low
+
+  [ Benjamin Zeller ]
+  * Add real editors for manifest.json and apparmor files. Fix Bug
+    lp:1297021 (Plugin pollutes code dir with manifests). remove
+    manifest editors from packaging tab. cleanup Packaging Tab (credits
+    to bzoltan). (LP: #1297021)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 19 Aug 2014 10:52:54 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20140812.1-0ubuntu1) utopic; urgency=low
 
   [ Zygmunt Krynicki ]

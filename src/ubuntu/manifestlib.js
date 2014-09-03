@@ -1,7 +1,13 @@
 var jsonData = undefined;
 
 function fromJSON($data) {
-    jsonData = JSON.parse($data);
+    try{
+        jsonData = JSON.parse($data);
+    }catch(err){
+        //catch all exceptions
+        return false;
+    }
+
     return (jsonData !== undefined)
 }
 
@@ -61,6 +67,19 @@ function getHooks() {
     return jsonData.hooks;
 }
 
+function setHook($hook) {
+    if(!jsonData.hooks.hasOwnProperty($hook.appId))
+        jsonData.hooks[$hook.appId] = {};
+
+    if($hook.hasOwnProperty("scope")) {
+        jsonData.hooks[$hook.appId]["scope"] = $hook["scope"];
+        jsonData.hooks[$hook.appId]["apparmor"] = $hook["apparmor"];
+    } else if ($hook.hasOwnProperty("desktop")) {
+        jsonData.hooks[$hook.appId]["desktop"] = $hook["desktop"];
+        jsonData.hooks[$hook.appId]["apparmor"] = $hook["apparmor"];
+    }
+}
+
 function getFrameworkName() {
     return jsonData.framework;
 }
@@ -69,7 +88,7 @@ function setFrameworkName($name) {
    jsonData.framework = $name;
 }
 
-function getPolicyGroups($appname) {
+function getPolicyGroups() {
 /*    var appProfile = jsonData.security.profiles[$appname];
     if (appProfile===undefined) {
         jsonData.security.profiles.push( { $appname: { policy_groups: "" } } );
@@ -80,7 +99,7 @@ function getPolicyGroups($appname) {
 
 }
 
-function setPolicyGroups($appname,$groups) {
+function setPolicyGroups($groups) {
     if ($groups.length === 0) {
         jsonData.policy_groups = [];
         return;
