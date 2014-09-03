@@ -27,11 +27,47 @@ import subprocess
 import shlex
 import shutil
 
-app_id = os.environ.get('APP_ID')
-args   = shlex.split(sys.argv[1])
-env    = os.environ
 
-effective_cmd = command = shutil.which(args.pop(0))
+app_id = None
+args   = None
+tmpdir = "/tmp/"
+
+mode = sys.argv[1]
+
+if  mode == "scope":
+    app_id = sys.argv[2]
+    args   = sys.argv[3:]
+
+    #i hope this works
+    packagename = app_id[:app_id.rfind("_")]
+    tmpdir = "/home/phablet/.local/share/unity-scopes/leaf-net/"+packagename+"/"
+elif mode == "app":
+    app_id = os.environ.get('APP_ID')
+    args = shlex.split(sys.argv[2])
+else:
+    print("Unsupported script mode (scope|app)")
+    sys.exit(1)
+
+stdoutPipeName = tmpdir+app_id+".stdout"
+if(os.path.exists(stdoutPipeName)):
+    newStdOut = os.open(stdoutPipeName,os.O_WRONLY | os.O_NONBLOCK)
+    os.dup2(newStdOut, sys.stdout.fileno());
+
+stderrPipeName = tmpdir+app_id+".stderr"
+if(os.path.exists(stderrPipeName)):
+    newStdErr = os.open(stderrPipeName,os.O_WRONLY | os.O_NONBLOCK)
+    os.dup2(newStdErr, sys.stderr.fileno());
+
+print ("---------- Debug helper ------------")
+print ("Setting up environment")
+print ("TmpDir:  "+tmpdir)
+print ("AppId:   "+app_id)
+
+if (args[0][0] == "/"):
+    effective_cmd = command = args.pop(0)
+else:
+    effective_cmd = command = shutil.which(args.pop(0))
+
 if command is None:
     print("Executable was not found in the PATH")
     sys.exit(1)
@@ -39,7 +75,7 @@ if command is None:
 if app_id is None:
     sys.exit(1)
 
-debug_file_name = "/tmp/"+app_id+"_debug.json"
+debug_file_name = tmpdir+app_id+"_debug.json"
 
 if os.path.isfile(debug_file_name):
     f = open(debug_file_name,"r")
@@ -62,7 +98,8 @@ if os.path.isfile(debug_file_name):
 
         #work around bug LP:#1327216, cgroups authentication for Mir not available
         #remove this line as soon as its fixed
-        args.append("--desktop_file_hint="+app_id)
+        if mode == "app":
+            args.append("--desktop_file_hint="+app_id)
 
     if "env" in debug_settings:
         for key in debug_settings["env"]:
@@ -74,7 +111,9 @@ if os.path.isfile(debug_file_name):
 #execv wants the command again in the arguments
 args.insert(0,effective_cmd)
 
-print("Executing: ",effective_cmd,args)
+print ("Environment initialized, starting the application")
+print ("---------- Debug helper ------------")
+print ("Executing "+effective_cmd+str(args))
 
 #flush all descriptors
 sys.stdout.flush()

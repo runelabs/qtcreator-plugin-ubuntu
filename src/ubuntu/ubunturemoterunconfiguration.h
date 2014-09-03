@@ -56,7 +56,6 @@ public:
     QString appId () const;
     QString clickPackage () const;
 
-    static Core::Id typeId ();
     void setArguments (const QStringList &args);
 
     QString packageDir () const;
@@ -65,7 +64,6 @@ public:
 private:
     QString m_clickPackage;
     QString m_appId;
-    QString m_desktopFile;
     QString m_localExecutable;
     QString m_remoteExecutable;
     QStringList m_arguments;

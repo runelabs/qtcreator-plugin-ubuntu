@@ -19,6 +19,7 @@
 #include <QTimer>
 #include <QRegularExpression>
 #include <QVariant>
+#include <glib-2.0/glib.h>
 
 namespace Ubuntu {
 namespace Internal {
@@ -43,7 +44,7 @@ UbuntuPackageStep::UbuntuPackageStep(ProjectExplorer::BuildStepList *bsl) :
     m_futureInterface(0),
     m_process(0),
     m_outputParserChain(0),
-    m_packageMode(AutoEnableDebugScript)
+    m_packageMode(EnableDebugScript)
 {
     setDefaultDisplayName(tr("UbuntuSDK Click build"));
 }
@@ -100,8 +101,8 @@ bool UbuntuPackageStep::init()
                 //ubuntu + qml project types
                 QDir pDir(projectDir);
                 m_buildDir = QDir::cleanPath(target()->project()->projectDirectory()
-                                           +QDir::separator()+QStringLiteral("..")
-                                           +QDir::separator()+pDir.dirName()+QStringLiteral("_build"));
+                                             +QDir::separator()+QStringLiteral("..")
+                                             +QDir::separator()+pDir.dirName()+QStringLiteral("_build"));
                 deployDir = m_buildDir+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR);
 
                 //clean up the old "build"
@@ -251,6 +252,10 @@ bool UbuntuPackageStep::fromMap(const QVariantMap &map)
     setPackageMode(AutoEnableDebugScript);
     if (map.contains(QLatin1String(PACKAGE_MODE_KEY))) {
         int mode = map[QLatin1String(PACKAGE_MODE_KEY)].toInt();
+
+        //AutoEnableDebugScript is deprecated, we always want the helper packaged
+        if(mode == AutoEnableDebugScript)
+            mode = EnableDebugScript;
 
         if(mode >= AutoEnableDebugScript && mode <= DisableDebugScript)
             setPackageMode(static_cast<PackageMode>(mode));
@@ -456,23 +461,13 @@ void UbuntuPackageStep::injectDebugHelperStep()
     }
 
     bool ubuntuDevice = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(bc->target()->kit()).toString().startsWith(QLatin1String(Constants::UBUNTU_DEVICE_TYPE_ID));
-    bool injectDebugScript = (m_packageMode == EnableDebugScript) ||
-            (m_packageMode == AutoEnableDebugScript && bc->buildType() == ProjectExplorer::BuildConfiguration::Debug)
-            || (m_packageMode == AutoEnableDebugScript && bc->target()->project()->id() == "QmlProjectManager.QmlProject");
+    bool injectDebugScript = (m_packageMode == EnableDebugScript || m_packageMode == AutoEnableDebugScript);
 
     //debughelper script name, source and destination path
     const QString debScript = QStringLiteral("qtc_device_debughelper.py");
     const QString debSourcePath = QStringLiteral("%1/%2").arg(Constants::UBUNTU_SCRIPTPATH).arg(debScript);
-    const QString debTargetPath = QStringLiteral("%1/%2/%3")
-            .arg(bc->buildDirectory().toString())
-            .arg(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
-            .arg(debScript);
 
-    //make sure there is no old script in case we don't want to package it
-    if(QFile::exists(debTargetPath))
-        QFile::remove(debTargetPath);
-
-    if( injectDebugScript && ubuntuDevice ) {
+    if(ubuntuDevice) {
         QRegularExpression deskExecRegex(QStringLiteral("^(\\s*[Ee][Xx][Ee][cC]=.*)$"),QRegularExpression::MultilineOption);
 
         UbuntuClickManifest manifest;
@@ -507,9 +502,101 @@ void UbuntuPackageStep::injectDebugHelperStep()
 
             if (hook.desktopFile.isEmpty() && !hook.scope.isEmpty()) {
                 //this is a scope hook
-                qWarning()<<"Packaging Scope for debug is not support yet: "<<hook.appId;
-                continue;
+                const QString iniFilePath(bc->buildDirectory()
+                                          .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                                          .appendPath(hook.scope)
+                                          .appendPath(manifest.name()+QStringLiteral("_")+hook.appId+QStringLiteral(".ini"))
+                                          .toString());
+
+                const QString debTargetPath = bc->buildDirectory()
+                        .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                        .appendPath(hook.scope)
+                        .appendPath(debScript).toString();
+
+                //make sure there is no old script in case we don't want to package it
+                if(QFile::exists(debTargetPath))
+                    QFile::remove(debTargetPath);
+
+                if(!QFile::exists(iniFilePath))
+                    continue;
+
+                if(!injectDebugScript)
+                    continue;
+
+                GKeyFile* keyFile = g_key_file_new();
+                GKeyFileFlags flags = static_cast<GKeyFileFlags>(G_KEY_FILE_KEEP_TRANSLATIONS|G_KEY_FILE_KEEP_COMMENTS);
+                if(!g_key_file_load_from_file(keyFile,qPrintable(iniFilePath),flags,NULL)){
+                    g_key_file_free(keyFile);
+                    qWarning()<<"Could not read the ini file";
+                    continue;
+                }
+
+                QString subCmd;
+                if(g_key_file_has_key(keyFile,"ScopeConfig","ScopeRunner",NULL)) {
+                    gchar *value = g_key_file_get_string(keyFile,"ScopeConfig","ScopeRunner",NULL);
+                    if(value == NULL) {
+                        qWarning()<<"Could not read the ScopeRunner entry";
+                        g_key_file_free(keyFile);
+                        continue;
+                    }
+
+                    subCmd = QString::fromUtf8(value);
+                    g_free(value);
+
+                } else {
+                    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
+                    if(!tc || tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
+                        qWarning()<<"Incompatible Toolchain for hook"<<hook.appId;
+                        continue;
+                    }
+
+                    subCmd = QStringLiteral("/usr/lib/%1/unity-scopes/scoperunner '' %S ").arg(static_cast<ClickToolChain*>(tc)->gnutriplet());
+                }
+
+                QString command = QStringLiteral("./%1 scope %2 %3")
+                        .arg(debScript)
+                        .arg(manifest.name()+QStringLiteral("_")+hook.appId) //tell our script the appid
+                        .arg(subCmd);
+
+                g_key_file_set_string(keyFile,"ScopeConfig","ScopeRunner",command.toUtf8().data());
+
+                //copy the helper script to the click package tree
+                if(QFile::exists(debSourcePath))
+                    QFile::copy(debSourcePath,debTargetPath);
+
+                g_key_file_set_boolean(keyFile,"ScopeConfig","DebugMode",TRUE);
+
+                gsize size = 0;
+                gchar *settingData = g_key_file_to_data (keyFile, &size, NULL);
+                if(!settingData) {
+                    qWarning()<<"Could not convert the new data into the ini file";
+                    g_key_file_free(keyFile);
+                    continue;
+                }
+
+                gboolean ret = g_file_set_contents (qPrintable(iniFilePath), settingData, size,  NULL);
+                g_free (settingData);
+                g_key_file_free (keyFile);
+
+                if(!ret)
+                    qWarning()<<"Could not write the updated ini file";
+
             } else if(!hook.desktopFile.isEmpty() && hook.scope.isEmpty()){
+
+                const QString debTargetPath = bc->buildDirectory()
+                        .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                        .appendPath(debScript).toString();
+
+                //make sure there is no old script in case we don't want to package it
+                if(QFile::exists(debTargetPath))
+                    QFile::remove(debTargetPath);
+
+                if(!injectDebugScript)
+                    continue;
+
+                //copy the helper script to the click package tree
+                if(QFile::exists(debSourcePath))
+                    QFile::copy(debSourcePath,debTargetPath);
 
                 //inject the debug helper into the Exec line in the desktop file
                 //@BUG if there are env vars set in the Exec line (Var=something command) this will fail
@@ -540,8 +627,7 @@ void UbuntuPackageStep::injectDebugHelperStep()
                 //replaces the exec line with out patched version
                 contents.replace(m.capturedStart(1),
                                  m.capturedLength(1),
-                                 QStringLiteral("Exec=./%1 \"%2\"").arg(debScript).arg(exec));
-
+                                 QStringLiteral("Exec=./%1 app \"%2\"").arg(debScript).arg(exec));
 
                 if(!deskFileFd.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
                     continue;
@@ -555,16 +641,14 @@ void UbuntuPackageStep::injectDebugHelperStep()
                 continue;
             }
 
-            //enable debugging in the apparmor file, this will inject the debug policy
-            if (!appArmor.enableDebugging())
-                qWarning() <<"Could not inject debug policy, debugging with gdb will not work";
+            //if(target()->activeBuildConfiguration()->buildType() == ProjectExplorer::BuildConfiguration::Debug) {
+                //enable debugging in the apparmor file, this will inject the debug policy
+                if (!appArmor.enableDebugging())
+                    qWarning() <<"Could not inject debug policy, debugging with gdb will not work";
+            //}
 
             appArmor.save();
         }
-
-        //copy the helper script to the click package tree
-        if(QFile::exists(debSourcePath))
-            QFile::copy(debSourcePath,debTargetPath);
     }
 
     QTimer::singleShot(0,this,SLOT(doNextStep()));
@@ -678,7 +762,6 @@ UbuntuPackageStepConfigWidget::UbuntuPackageStepConfigWidget(UbuntuPackageStep *
     m_isUpdating(false)
 {
     ui->setupUi(this);
-    ui->comboBoxMode->addItem(tr("Auto"),static_cast<int>(UbuntuPackageStep::AutoEnableDebugScript));
     ui->comboBoxMode->addItem(tr("Yes") ,static_cast<int>(UbuntuPackageStep::EnableDebugScript));
     ui->comboBoxMode->addItem(tr("No")  ,static_cast<int>(UbuntuPackageStep::DisableDebugScript));
     connect(step,SIGNAL(packageModeChanged(PackageMode)),this,SLOT(updateMode()));

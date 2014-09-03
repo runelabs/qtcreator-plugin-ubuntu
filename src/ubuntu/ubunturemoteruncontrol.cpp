@@ -150,7 +150,7 @@ void UbuntuRemoteRunControl::handleDeviceReady()
     connect(&d->runner, SIGNAL(launcherStdout(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
     connect(&d->runner, SIGNAL(finished(bool)), SLOT(handleRunnerFinished()));
 
-    d->runner.start(d->device, d->clickPackage);
+    d->runner.start(d->device, d->clickPackage,d->runConfig->appId());
 }
 
 void UbuntuRemoteRunControl::handleWaitDialogCanceled()

@@ -148,7 +148,12 @@ const char UBUNTUPROJECT_SUFFIX[] = ".ubuntuproject";
 const char UBUNTUHTMLPROJECT_SUFFIX[] = ".ubuntuhtmlproject";
 const char UBUNTU_PROJECT_WIZARD_CATEGORY[] = "A.UbuntuProjects";
 const char UBUNTUPROJECT_DISPLAYNAME[] = "Ubuntu Project";
-const char UBUNTUPROJECT_RUNCONTROL_ID[] = "UbuntuProjectManager.UbuntuRunConfiguration";
+const char UBUNTUPROJECT_RUNCONTROL_BASE_ID[] = "UbuntuProjectManager.UbuntuRunConfiguration";
+const char UBUNTUPROJECT_RUNCONTROL_SCOPE_ID[] = "UbuntuProjectManager.UbuntuRunConfiguration.Scope";
+const char UBUNTUPROJECT_RUNCONTROL_APP_ID[] = "UbuntuProjectManager.UbuntuRunConfiguration.App";
+const char UBUNTUPROJECT_REMOTE_RUNCONTROL_BASE_ID[] = "UbuntuProjectManager.RemoteRunConfiguration";
+const char UBUNTUPROJECT_REMOTE_RUNCONTROL_SCOPE_ID[] = "UbuntuProjectManager.RemoteRunConfiguration.Scope";
+const char UBUNTUPROJECT_REMOTE_RUNCONTROL_APP_ID[] = "UbuntuProjectManager.RemoteRunConfiguration.App";
 
 const char UBUNTUHTML_PROJECT_LAUNCHER_EXE[] = "ubuntu-html5-app-launcher";
 const char UBUNTUWEBAPP_PROJECT_LAUNCHER_EXE[] = "webapp-container";

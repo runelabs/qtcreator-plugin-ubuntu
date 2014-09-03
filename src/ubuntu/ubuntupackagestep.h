@@ -29,7 +29,7 @@ public:
     };
 
     enum PackageMode {
-        AutoEnableDebugScript,
+        AutoEnableDebugScript, //Deprecated
         EnableDebugScript,
         DisableDebugScript
     };

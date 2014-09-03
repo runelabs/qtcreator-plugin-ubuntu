@@ -55,8 +55,7 @@ QList<Core::Id> UbuntuLocalDeployConfigurationFactory::availableCreationIds(Proj
     if(ProjectExplorer::DeviceKitInformation::deviceId(parent->kit()) != ProjectExplorer::Constants::DESKTOP_DEVICE_ID)
         return ids;
 
-    if(UbuntuProjectGuesser::isClickAppProject(parent->project()))
-        ids << Core::Id(Constants::UBUNTU_LOCAL_DEPLOYCONFIGURATION_ID);
+    ids << Core::Id(Constants::UBUNTU_LOCAL_DEPLOYCONFIGURATION_ID);
 
     return ids;
 }
