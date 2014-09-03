@@ -29,7 +29,7 @@ find_package(
   REQUIRED
 )
 
-# Search for out dependencies
+# Search for our dependencies
 pkg_check_modules(
   SCOPE
   libunity-scopes>=0.6.0
