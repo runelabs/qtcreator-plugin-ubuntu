@@ -19,8 +19,10 @@ Client::Client(Config::Ptr config) :
 
 void Client::get(const net::Uri::Path &path,
         const net::Uri::QueryParameters &parameters, json::Value &root) {
+    // Create a new HTTP client
     auto client = http::make_client();
 
+    // Start building the request configuration
     http::Request::Configuration configuration;
 
     // Build the URI from its components
@@ -30,16 +32,21 @@ void Client::get(const net::Uri::Path &path,
     // Give out a user agent string
     configuration.header.add("User-Agent", config_->user_agent);
 
+    // Build a HTTP request object from our configuration
     auto request = client->head(configuration);
 
     try {
+        // Synchronously make the HTTP request
+        // We bind the cancellable callback to #progress_report
         auto response = request->execute(
                 bind(&Client::progress_report, this, placeholders::_1));
 
+        // Check that we got a sensible HTTP status code
         if (response.status != http::Status::ok) {
             throw domain_error(root["error"].asString());
         }
 
+        // Parse the JSON from the response
         json::Reader reader;
         reader.parse(response.body, root);
 
@@ -56,9 +63,12 @@ void Client::get(const net::Uri::Path &path,
 Client::Current Client::weather(const string& query) {
     json::Value root;
 
-    // Build a URI and get the contents
+    // Build a URI and get the contents.
+    // The fist parameter forms the path part of the URI.
+    // The second parameter forms the CGI parameters.
     get( { "data", "2.5", "weather" },
             { { "q", query }, { "units", "metric" } }, root);
+    // e.g. http://api.openweathermap.org/data/2.5/weather?q=QUERY&units=metric
 
     Current result;
 
@@ -90,8 +100,11 @@ Client::Forecast Client::forecast_daily(const string& query, unsigned int cnt) {
     json::Value root;
 
     // Build a URI and get the contents
+    // The fist parameter forms the path part of the URI.
+    // The second parameter forms the CGI parameters.
     get( { "data", "2.5", "forecast", "daily" }, { { "q", query }, { "units",
             "metric" }, { "cnt", to_string(cnt) } }, root);
+    // e.g. http://api.openweathermap.org/data/2.5/forecast/daily/?q=QUERY&units=metric&cnt=7
 
     Forecast result;
 

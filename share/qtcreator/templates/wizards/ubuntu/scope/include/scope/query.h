@@ -8,6 +8,13 @@
 
 namespace scope {
 
+/**
+ * Represents an individual query.
+ *
+ * A new Query object will be constructed for each query. It is
+ * given query information, metadata about the search, and
+ * some scope-specific configuration.
+ */
 class Query: public unity::scopes::SearchQueryBase {
 public:
     Query(const unity::scopes::CannedQuery &query,

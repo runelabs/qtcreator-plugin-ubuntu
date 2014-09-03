@@ -19,8 +19,14 @@ namespace posix = core::posix;
 namespace sc = unity::scopes;
 namespace sct = unity::scopes::testing;
 
+/**
+ * Keep the tests in an anonymous namespace
+ */
 namespace {
 
+/**
+ * Custom matcher to check the properties of search results
+ */
 MATCHER_P2(ResultProp, prop, value, "") {
     if (arg.contains(prop)) {
         *result_listener << "result[" << prop << "] is " << arg[prop].serialize_json();
@@ -30,6 +36,9 @@ MATCHER_P2(ResultProp, prop, value, "") {
     return arg.contains(prop) && arg[prop] == sc::Variant(value);
 }
 
+/**
+ * Custom matcher to check the presence of departments
+ */
 MATCHER_P(IsDepartment, department, "") {
     return arg->serialize() == department->serialize();
 }
@@ -40,21 +49,30 @@ class TestScope: public TypedScopeFixtureScope {
 protected:
     void SetUp() override
     {
+        // Start up Python-based fake OpenWeatherMap server
         fake_server_ = posix::exec("/usr/bin/python3", { FAKE_SERVER }, { },
                 posix::StandardStream::stdout);
 
+        // Check it's running
         ASSERT_GT(fake_server_.pid(), 0);
         string port;
+        // The server will print out the random port it is using
         fake_server_.cout() >> port;
+        // Check we have a port
         ASSERT_FALSE(port.empty());
 
+        // Build up the API root
         string apiroot = "http://127.0.0.1:" + port;
+        // Override the API root that the scope will use
         setenv("NETWORK_SCOPE_APIROOT", apiroot.c_str(), true);
 
         // Do the parent SetUp
         TypedScopeFixtureScope::SetUp();
     }
 
+    /**
+     * Start by assuming the server is invalid
+     */
     posix::ChildProcess fake_server_ = posix::ChildProcess::invalid();
 };
 
@@ -62,11 +80,14 @@ TEST_F(TestScope, empty_search_string) {
     const sc::CategoryRenderer renderer;
     NiceMock<sct::MockSearchReply> reply;
 
+    // Build a query with an empty search string
     sc::CannedQuery query(SCOPE_NAME, "", "");
 
+    // Expect the current weather category
     EXPECT_CALL(reply, register_category("current", "London, GB", "", _)).Times(1)
             .WillOnce(Return(make_shared<sct::Category>("current", "London, GB", "", renderer)));
 
+    // With one result
     EXPECT_CALL(reply, push(Matcher<sc::CategorisedResult const&>(AllOf(
             ResultProp("title", "21.8°C"),
             ResultProp("art", "http://openweathermap.org/img/w/02d.png"),
@@ -74,8 +95,11 @@ TEST_F(TestScope, empty_search_string) {
             )))).WillOnce(
             Return(true));
 
+    // Expect the forecast category
     EXPECT_CALL(reply, register_category("forecast", "7 day forecast", "", _)).Times(1)
             .WillOnce(Return(make_shared<sct::Category>("forecast", "7 day forecast", "", renderer)));
+
+    // With seven results
     EXPECT_CALL(reply, push(Matcher<sc::CategorisedResult const&>(AllOf(
             ResultProp("title", "25.1°C to 18.8°C"),
             ResultProp("art", "http://openweathermap.org/img/w/10d.png"),
@@ -114,20 +138,29 @@ TEST_F(TestScope, empty_search_string) {
 
     sc::SearchReplyProxy reply_proxy(&reply, [](sc::SearchReply*) {}); // note: this is a std::shared_ptr with empty deleter
     sc::SearchMetadata meta_data("en_EN", "phone");
+
+    // Create a query object
     auto search_query = scope->search(query, meta_data);
     ASSERT_NE(nullptr, search_query);
+
+    // Run the search
     search_query->run(reply_proxy);
+
+    // Google Mock will make assertions when the mocks are destructed.
 }
 
 TEST_F(TestScope, search) {
     const sc::CategoryRenderer renderer;
     NiceMock<sct::MockSearchReply> reply;
 
+    // Build a query with a non-empty search string
     sc::CannedQuery query(SCOPE_NAME, "Manchester,uk", "");
 
+    // Expect the current weather category
     EXPECT_CALL(reply, register_category("current", "Manchester, GB", "", _)).Times(1)
             .WillOnce(Return(make_shared<sct::Category>("current", "Manchester, GB", "", renderer)));
 
+    // With one result
     EXPECT_CALL(reply, push(Matcher<sc::CategorisedResult const&>(AllOf(
             ResultProp("title", "17.4°C"),
             ResultProp("art", "http://openweathermap.org/img/w/03d.png"),
@@ -135,8 +168,11 @@ TEST_F(TestScope, search) {
             )))).WillOnce(
             Return(true));
 
+    // Expect the forecast category
     EXPECT_CALL(reply, register_category("forecast", "7 day forecast", "", _)).Times(1)
             .WillOnce(Return(make_shared<sct::Category>("forecast", "7 day forecast", "", renderer)));
+
+    // With seven results
     EXPECT_CALL(reply, push(Matcher<sc::CategorisedResult const&>(AllOf(
             ResultProp("title", "18.8°C to 12°C"),
             ResultProp("art", "http://openweathermap.org/img/w/01d.png"),
@@ -175,9 +211,15 @@ TEST_F(TestScope, search) {
 
     sc::SearchReplyProxy reply_proxy(&reply, [](sc::SearchReply*) {}); // note: this is a std::shared_ptr with empty deleter
     sc::SearchMetadata meta_data("en_EN", "phone");
+
+    // Create a query object
     auto search_query = scope->search(query, meta_data);
     ASSERT_NE(nullptr, search_query);
+
+    // Run the search
     search_query->run(reply_proxy);
+
+    // Google Mock will make assertions when the mocks are destructed.
 }
 
 } // namespace
