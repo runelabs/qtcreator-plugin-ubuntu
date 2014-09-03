@@ -32,7 +32,6 @@ pkg_check_modules(
   libunity-scopes>=0.6.0
   jsoncpp
   net-cpp>=1.1.0
-  process-cpp
   REQUIRED
 )
 

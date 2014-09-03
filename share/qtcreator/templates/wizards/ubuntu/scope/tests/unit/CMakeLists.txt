@@ -10,6 +10,7 @@ target_link_libraries(
   ${GTEST_BOTH_LIBRARIES}
   ${GMOCK_LIBRARIES}
   ${SCOPE_LDFLAGS}
+  ${TEST_LDFLAGS}
   ${Boost_LIBRARIES}
 )
 
