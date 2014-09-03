@@ -15,7 +15,7 @@
         <file source="data/displayName.ini" target="data/%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini"/>
         <file source="data/icon.png" binary="true"/>
         <file source="data/logo.png" binary="true"/>
-        <file source="data/screenshot.jpg" binary="true"/>
+        <file source="data/screenshot.png" binary="true"/>
 
         <file source="include/api/config.h"/>
         <file source="include/api/client.h"/>

@@ -10,7 +10,7 @@ install(
   FILES
     "icon.png"
     "logo.png"
-    "screenshot.jpg"
+    "screenshot.png"
   DESTINATION
     "${SCOPE_INSTALL_DIR}"
 )
