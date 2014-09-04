@@ -44,10 +44,7 @@ QList<Core::Id> UbuntuDeployStepFactory::availableCreationIds(ProjectExplorer::B
             return types;
     }
 
-    if(isRemote && isCMake && !UbuntuProjectGuesser::isScopesProject(parent->target()->project()))
-        types << Constants::UBUNTU_DEPLOY_UPLOADSTEP_ID
-              << Constants::UBUNTU_CLICK_PACKAGESTEP_ID;
-    else if(isRemote && ( isHTML || isQML ) )
+    if(isRemote && ( isHTML || isQML || isCMake) )
         types << Constants::UBUNTU_DEPLOY_UPLOADSTEP_ID
               << Constants::UBUNTU_CLICK_PACKAGESTEP_ID;
 

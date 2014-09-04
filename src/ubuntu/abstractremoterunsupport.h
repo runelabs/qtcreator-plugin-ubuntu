@@ -43,6 +43,7 @@ protected:
 
     ProjectExplorer::IDevice::ConstPtr device () const;
     QString clickPackage () const;
+    QString hook () const;
     Utils::Environment environment () const;
 
     UbuntuRemoteClickApplicationRunner *appRunner () const;

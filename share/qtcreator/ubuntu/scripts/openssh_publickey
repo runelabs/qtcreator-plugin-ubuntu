@@ -45,9 +45,9 @@ function check_key {
 function deploy_key {
 	echo "Deploy the host key to the device.."
 	KEY=`cat $SSHIDENTITY.pub`
-	phablet_shell "mkdir -p /home/$USERNAME/.ssh"
+	adb_shell "mkdir -p /home/$USERNAME/.ssh"
 	echo "..key folder created"
-	phablet_shell "echo $KEY >> /home/$USERNAME/.ssh/authorized_keys2"
+	adb_shell "echo $KEY >> /home/$USERNAME/.ssh/authorized_keys2"
 	echo "..key deployed!"
 }
 

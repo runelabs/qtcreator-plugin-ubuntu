@@ -94,7 +94,7 @@ void UbuntuRemoteAnalyzeSupport::startExecution()
     runner->setQmlDebugPort(d->qmlPort);
 
     QTC_ASSERT(device()->type().toString().startsWith(QLatin1String(Constants::UBUNTU_DEVICE_TYPE_ID)),return);
-    runner->start(qSharedPointerCast<const UbuntuDevice>(device()),clickPackage());
+    runner->start(qSharedPointerCast<const UbuntuDevice>(device()),clickPackage(),hook());
 }
 
 void UbuntuRemoteAnalyzeSupport::handleAppRunnerError(const QString &error)

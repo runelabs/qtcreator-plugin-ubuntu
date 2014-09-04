@@ -19,7 +19,7 @@ public:
     explicit UbuntuRemoteClickApplicationRunner(QObject *parent = 0);
     virtual ~UbuntuRemoteClickApplicationRunner();
 
-    void start ( UbuntuDevice::ConstPtr device, const QString &clickPackageName );
+    void start (UbuntuDevice::ConstPtr device, const QString &clickPackageName , const QString &hook);
     void stop  ();
 
     quint16 cppDebugPort() const;

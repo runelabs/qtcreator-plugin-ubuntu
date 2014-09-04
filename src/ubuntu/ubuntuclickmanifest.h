@@ -37,10 +37,19 @@ public:
     explicit UbuntuClickManifest(QObject *parent = 0);
 
     struct Hook {
+        enum Type{
+            Invalid,
+            Scope,
+            Application,
+            Helper
+        };
+
         QString appId;
         QString desktopFile;
         QString scope;
         QString appArmorFile;
+
+        Type type() const;
     };
 
 signals:

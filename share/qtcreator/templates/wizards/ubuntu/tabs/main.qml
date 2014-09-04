@@ -1,5 +1,5 @@
 import QtQuick 2.0
-import Ubuntu.Components 0.1
+import Ubuntu.Components 1.1
 import "ui"
 
 /*!
@@ -13,13 +13,16 @@ MainView {
     objectName: "mainView"
 
     // Note! applicationName needs to match the "name" field of the click manifest
-    applicationName: "%ClickDomain%.%ProjectName%"
+    applicationName: "%ClickDomain:l%.%ProjectName:l%"
 
     /* 
      This property enables the application to change orientation 
      when the device is rotated. The default is false.
     */
     //automaticOrientation: true
+
+    // Removes the old toolbar and enables new features of the new header. 
+    useDeprecatedToolbar: false
 
     width: units.gu(100)
     height: units.gu(75)

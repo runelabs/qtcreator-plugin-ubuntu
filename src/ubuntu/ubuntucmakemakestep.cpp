@@ -63,13 +63,11 @@ bool UbuntuCMakeMakeStepFactory::canHandle(const ProjectExplorer::Target *t) con
     if (!t->project()->supportsKit(t->kit()))
         return false;
 
-    if(ProjectExplorer::DeviceKitInformation::deviceId(t->kit()) == ProjectExplorer::Constants::DESKTOP_DEVICE_ID) {
-        return UbuntuProjectGuesser::isClickAppProject(t->project());
+    if(ProjectExplorer::DeviceKitInformation::deviceId(t->kit()) != ProjectExplorer::Constants::DESKTOP_DEVICE_ID) {
+        ProjectExplorer::ToolChain* tc = ProjectExplorer::ToolChainKitInformation::toolChain(t->kit());
+        if(!tc || tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
+            return false;
     }
-
-    ProjectExplorer::ToolChain* tc = ProjectExplorer::ToolChainKitInformation::toolChain(t->kit());
-    if(!tc || tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
-        return false;
 
     return t->project()->id() == Core::Id(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
 }

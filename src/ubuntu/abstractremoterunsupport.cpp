@@ -20,12 +20,14 @@ public:
 
     AbstractRemoteRunSupportPrivate( const UbuntuRemoteRunConfiguration *runConfig ) :
         clickPackage(runConfig->clickPackage()),
+        hook(runConfig->appId()),
         dev(ProjectExplorer::DeviceKitInformation::device(runConfig->target()->kit())),
         env(runConfig->environment()),
         freePorts(dev->freePorts()),
         m_state(AbstractRemoteRunSupport::Idle){}
 
     QString clickPackage;
+    QString hook;
     const ProjectExplorer::IDevice::ConstPtr dev;
     Utils::Environment env;
     Utils::PortList freePorts;
@@ -64,6 +66,11 @@ ProjectExplorer::IDevice::ConstPtr AbstractRemoteRunSupport::device() const
 QString AbstractRemoteRunSupport::clickPackage() const
 {
     return d->clickPackage;
+}
+
+QString AbstractRemoteRunSupport::hook() const
+{
+    return d->hook;
 }
 
 Utils::Environment AbstractRemoteRunSupport::environment() const
