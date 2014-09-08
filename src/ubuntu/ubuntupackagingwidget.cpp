@@ -185,7 +185,10 @@ void UbuntuPackagingWidget::onMessage(QString msg)
 }
 
 void UbuntuPackagingWidget::onFinished(QString cmd, int code) {
-    Q_UNUSED(code);
+    if(code == 0)
+       m_inputParser->emitTextItem(QLatin1String("Command finished successfully"),cmd,ClickRunChecksParser::NoIcon);
+    else
+       m_inputParser->emitTextItem(QLatin1String("Command failed"),cmd,ClickRunChecksParser::Error);
     m_inputParser->endRecieveData();
     if (cmd == QString::fromLatin1(Constants::UBUNTUWIDGETS_ONFINISHED_SCRIPT_LOCAL_PACKAGE_INSTALLED).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
         m_validationModel->clear();
