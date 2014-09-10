@@ -256,6 +256,8 @@ package_arch = None
 manifest = None
 app_id = None
 tmp_dir = "/tmp/"
+install_dir   = "/opt/click.ubuntu.com"
+apparmor_path = None
 
 #get the manifest information from the click package
 try:
@@ -275,6 +277,7 @@ else:
     else:
         if options.targetHook in manifest['hooks']:
             hook_name = options.targetHook
+            apparmor_path = manifest['hooks'][hook_name]["apparmor"]
         else:
             print("Unknown hook selected",file=sys.stderr,flush=True)
             sys.exit(1)
@@ -289,6 +292,7 @@ if 'name' not in manifest:
 
 package_name = manifest['name']
 package_version = manifest['version']
+install_dir = install_dir+"/"+package_name+"/current"
 
 #get the package arch
 #<cjwatson> (well, even more strictly it would match what "dpkg-deb -f foo.click Architecture" says)
@@ -337,6 +341,18 @@ debug_file_name = tmp_dir+app_id+"_debug.json"
 print("AppId: "+app_id,flush=True)
 print("Architecture: "+package_arch,flush=True)
 
+
+#we have all informations, now install the click package
+
+success = subprocess.call(["pkcon","install-local",options.clickPck,"-p"])
+if success != 0:
+    print("Installing the application failed",flush=True)
+    sys.exit(1)
+
+confined = True
+canRun   = True
+
+
 #create the debug description file if required
 if needs_debug_conf:
     try:
@@ -345,37 +361,32 @@ if needs_debug_conf:
         f.close()
     except OSError:
         print("Could not create the debug description file")
-        sys.exit(1)
+        canRun = False
 
-#we have all informations, now install the click package
-#@TODO check if its already installed
+if(canRun):
+    print("Application installed, executing",flush=True)
 
-success = subprocess.call(["pkcon","install-local",options.clickPck,"-p"])
-if success != 0:
-    print("Installing the application failed",flush=True)
-    sys.exit(1)
+    #create 2 named pipes and listen for data
+    stdoutPipeName = tmp_dir+app_id+".stdout"
+    procStdOut = create_procpipe(stdoutPipeName,on_proc_stdout)
 
-print("Application installed, executing",flush=True)
-
-#create 2 named pipes and listen for data
-stdoutPipeName = tmp_dir+app_id+".stdout"
-procStdOut = create_procpipe(stdoutPipeName,on_proc_stdout)
-
-stderrPipeName = tmp_dir+app_id+".stderr"
-procStdErr = create_procpipe(stderrPipeName,on_proc_stderr)
+    stderrPipeName = tmp_dir+app_id+".stderr"
+    procStdErr = create_procpipe(stderrPipeName,on_proc_stderr)
 
 
-if "unix_signal_add" in dir(GLib):
-    GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGTERM, on_sigterm, runner)
-    GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGINT, on_sigterm, runner)
-    GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGHUP, on_sigterm, runner)
+    if "unix_signal_add" in dir(GLib):
+        GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGTERM, on_sigterm, runner)
+        GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGINT, on_sigterm, runner)
+        GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGHUP, on_sigterm, runner)
+    else:
+        GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGTERM, on_sigterm, runner)
+        GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGINT, on_sigterm, runner)
+        GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGHUP, on_sigterm, runner)
+
+    #execute the hook, this will not return before the app or scope finished to run
+    exitCode = runner.launch()
 else:
-    GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGTERM, on_sigterm, runner)
-    GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGINT, on_sigterm, runner)
-    GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGHUP, on_sigterm, runner)
-
-#execute the hook, this will not return before the app or scope finished to run
-exitCode = runner.launch()
+    exitCode = 1
 
 success = subprocess.call(["pkcon","remove",package_name+";"+package_version+";"+package_arch+";local:click","-p"])
 if success != 0:

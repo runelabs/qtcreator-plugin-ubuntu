@@ -311,9 +311,7 @@ bool UbuntuLocalRunConfiguration::ensureClickAppConfigured(QString *errorMessage
     if(!UbuntuLocalRunConfiguration::readDesktopFile(desktopFile,&command,&args,errorMessage))
         return false;
 
-    m_workingDir = target()->activeBuildConfiguration()->buildDirectory().toString()
-            + QDir::separator()
-            + QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR);
+    m_workingDir = target()->activeBuildConfiguration()->buildDirectory().toString();
 
     QFileInfo commInfo(command);
     if(commInfo.fileName().startsWith(QLatin1String("qmlscene"))) {
@@ -457,7 +455,7 @@ void UbuntuLocalRunConfiguration::addToBaseEnvironment(Utils::Environment &env) 
                         if(usedPaths.contains(path))
                             continue;
 
-                        env.appendOrSet(QLatin1String("QML2_IMPORT_PATH"),path,QString::fromLatin1(":"));
+                        env.appendOrSet(QStringLiteral("QML2_IMPORT_PATH"),path,QStringLiteral(":"));
                         usedPaths.insert(path);
                     }
                 }

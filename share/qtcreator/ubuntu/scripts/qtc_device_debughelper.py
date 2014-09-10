@@ -27,6 +27,16 @@ import subprocess
 import shlex
 import shutil
 
+def is_confined ():
+    test_dir = os.path.expanduser('~')+"/.local/share"
+    print (str(os.listdir(test_dir)))
+    try:
+        print (str(os.listdir(test_dir)))
+        return True
+    except:
+        pass
+    return False
+
 
 app_id = None
 args   = None
@@ -57,6 +67,8 @@ stderrPipeName = tmpdir+app_id+".stderr"
 if(os.path.exists(stderrPipeName)):
     newStdErr = os.open(stderrPipeName,os.O_WRONLY | os.O_NONBLOCK)
     os.dup2(newStdErr, sys.stderr.fileno());
+
+is_confined()
 
 print ("---------- Debug helper ------------")
 print ("Setting up environment")
