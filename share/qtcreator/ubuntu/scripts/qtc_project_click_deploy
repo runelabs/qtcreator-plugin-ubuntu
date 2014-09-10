@@ -80,5 +80,5 @@ for FILE in $FILES;
 do
  echo "Installing $FILE to device.."
  # note adb shell and adb_shell are two different things, adb_shell comes from functions.inc
- adb_shell sudo -H -u ${TARGET_DEVICE_USERNAME} pkcon install-local ${TARGET_DEVICE_HOME}/${FILE}
+ adb_shell sudo -H -u ${TARGET_DEVICE_USERNAME} pkcon install-local --allow-untrusted ${TARGET_DEVICE_HOME}/${FILE}
 done
