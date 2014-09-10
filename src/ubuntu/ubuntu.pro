@@ -133,7 +133,8 @@ SOURCES += \
     ubuntuabstractguieditordocument.cpp \
     ubuntuapparmoreditor.cpp \
     ubuntueditorfactory.cpp \
-    ubuntucmakecache.cpp
+    ubuntucmakecache.cpp \
+    ubuntutestcontrol.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -214,5 +215,6 @@ HEADERS += \
     ubuntuabstractguieditordocument.h \
     ubuntuapparmoreditor.h \
     ubuntueditorfactory.h \
-    ubuntucmakecache.h
+    ubuntucmakecache.h \
+    ubuntutestcontrol.h
 

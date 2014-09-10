@@ -343,8 +343,8 @@ print("Architecture: "+package_arch,flush=True)
 
 
 #we have all informations, now install the click package
-
-success = subprocess.call(["pkcon","install-local",options.clickPck,"-p"])
+success = subprocess.call(
+    ["pkcon","--allow-untrusted","install-local",options.clickPck,"-p"])
 if success != 0:
     print("Installing the application failed",flush=True)
     sys.exit(1)

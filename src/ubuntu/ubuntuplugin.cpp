@@ -41,6 +41,7 @@
 #include "ubuntufirstrunwizard.h"
 #include "ubuntueditorfactory.h"
 #include "ubuntucmakecache.h"
+#include "ubuntutestcontrol.h"
 
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -227,6 +228,9 @@ void UbuntuPlugin::extensionsInitialized()
                 if(comm)
                     mproject->addAction(comm, ProjectExplorer::Constants::G_PROJECT_BUILD);
     }
+
+    //add ubuntu testcontrol to the object tree
+    new UbuntuTestControl(Core::ICore::mainWindow());
 }
 
 void UbuntuPlugin::onKitsLoaded()

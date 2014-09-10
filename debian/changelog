@@ -1,3 +1,39 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140903.3-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * Adopt connectivity scripts to the new adbd policy
+  * Change templates to use the Ubuntu.Components 1.1 and set
+    useDeprecatedToolbar to false in MainView
+  * test environment setup and simple app enhancements
+
+  [ Benjamin Zeller ]
+  * check if app is already installed on the device before overwriting
+    it. redirect stdout and stderr to pipes we can read from the
+    launcher. refactor launcher to support scopes. pass hook to the
+    launcher, so multiple hooks are supported. make sure name in the
+    manifest file only contains lowercase letters when created from a
+    template. always package debughelper to get correct output. Get rid
+    of project type guessing. Enable Scopes in deploy configurations.
+
+  [ Maxim Ermilov ]
+  * we are switching to cordova-ubuntu by default. all qtcreator
+    integration will be done via separate plugin (
+    https://code.launchpad.net/qtcreator-plugin-cordova-ubuntu ).
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 03 Sep 2014 11:50:17 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140821-0ubuntu1) utopic; urgency=low
+
+  [ Benjamin Zeller ]
+  * Add UbuntuCMakeCache. Add support for UBUNTU_MANIFEST_PATH cache
+    variable to support core. apps Fallback to search the manifest file
+    in builddir if the desktop file. path in the project dir manifest
+    file is not valid (core apps compatibility) Fix bug lp:1358381 "new
+    click-check-* scripts not shown in Validate. section of Ubuntu
+    Publish" (LP: #1358381)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 21 Aug 2014 07:27:06 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20140819-0ubuntu1) utopic; urgency=low
 
   [ Benjamin Zeller ]

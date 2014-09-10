@@ -13,6 +13,7 @@ from autopilot.testcase import AutopilotTestCase
 import shutil
 import tempfile
 import os
+import re
 
 class QtCreatorTestCase(AutopilotTestCase):
 
@@ -33,7 +34,28 @@ class QtCreatorTestCase(AutopilotTestCase):
     def _set_temporary_home_directory(self):
         self._create_temporary_directory()
 
- #       self.patch_environment('HOME', self.temporary_directory)
+        sourcedir = os.environ['HOME']+"/.bazaar"
+        destdir = self.temporary_directory + "/.bazaar"
+        shutil.copytree(sourcedir, destdir, symlinks=False, ignore=None)
+
+        sourcedir = os.environ['HOME']+"/.config/QtProject/qtcreator"
+        destdir = self.temporary_directory + "/.config/QtProject/qtcreator"
+        shutil.copytree(sourcedir, destdir, symlinks=False, ignore=None)
+
+        sourcedir = os.environ['HOME']+"/.config/ubuntu-sdk"
+        destdir = self.temporary_directory + "/.config/ubuntu-sdk"
+        shutil.copytree(sourcedir, destdir, symlinks=False, ignore=None)
+
+        sourcedir = os.environ['HOME']+"/.local/share/data/QtProject/qtcreator"
+        destdir = self.temporary_directory + "/.local/share/data/QtProject/qtcreator"
+        shutil.copytree(sourcedir, destdir, symlinks=False, ignore=None)
+
+        self.patch_environment('HOME', self.temporary_directory)
+        print os.environ['HOME']
+        os.chdir(os.environ['HOME'])
+        if not os.path.exists('.config/ubuntu-sdk'):
+            os.makedirs('.config/ubuntu-sdk')
+        open('.config/ubuntu-sdk/firstrun', 'w')
 
     def _get_main_window(self):
         return self.ide.wait_select_single(
@@ -135,6 +157,42 @@ class QtCreatorTestCase(AutopilotTestCase):
         next_button = self._get_wizard_next_button()
 
         self.pointing_device.click_object(next_button)
+
+    def _createAndOpenProject(self,typeString,name):
+        """ Open the New File and Project dialog by triggering the right action """
+        action = self.ide.wait_select_single('QAction', text = '&New File or Project...')
+        action.slots.trigger()
+        new_project_dialog = self._get_main_window().wait_select_single('Core::Internal::NewDialog')
+
+        """  Choose the App with Simple UI template in the Ubuntu category  """
+        ubuntu_modelindex = new_project_dialog.wait_select_single('QModelIndex', text='  Ubuntu')
+        self.pointing_device.click_object(ubuntu_modelindex)
+        app_with_simple_ui_modelindex = new_project_dialog.wait_select_single('QModelIndex', text=typeString)
+        self.pointing_device.click_object(app_with_simple_ui_modelindex)
+        choose_pushbutton = new_project_dialog.wait_select_single('QPushButton', text='Choose...')
+        self.pointing_device.click_object(choose_pushbutton)
+        application_wizard_dialog = self._get_main_window().wait_select_single('Ubuntu::Internal::UbuntuProjectApplicationWizardDialog')
+
+        """ Clear the default project name and enter the test name to the edit line and hit the Next->Next->Finish buttons """
+        projectname_lineedit = application_wizard_dialog.wait_select_single('Utils::ProjectNameValidatingLineEdit')
+        projectname_lineedit.slots.clear()
+        projectname_lineedit.slots.setText(name)
+        next_pushbutton = application_wizard_dialog.wait_select_single('QPushButton', text = '&Next >')
+        next_pushbutton.slots.click()
+        next_pushbutton = application_wizard_dialog.wait_select_single('QPushButton', text = '&Next >')
+        next_pushbutton.slots.click()
+
+        for index, checkbox_kit in enumerate(application_wizard_dialog.select_many('QCheckBox')):
+            if re.search('GCC ubuntu-sdk', checkbox_kit.text):
+                checkbox_kit.slots.setChecked(True)
+
+        checkbox_kit = application_wizard_dialog.wait_select_single('QCheckBox', text ='Desktop')
+        checkbox_kit.slots.setChecked(False)
+
+        next_pushbutton = application_wizard_dialog.wait_select_single('QPushButton', text = '&Next >')
+        next_pushbutton.slots.click()
+        next_pushbutton = application_wizard_dialog.wait_select_single('QPushButton', text = '&Finish')
+        next_pushbutton.slots.click()
 
     def switch_to_tab_by_name(self, tab_name):
         current_tab = self._get_current_active_tab_name()
