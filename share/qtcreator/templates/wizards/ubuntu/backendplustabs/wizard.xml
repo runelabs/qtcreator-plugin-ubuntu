@@ -48,17 +48,17 @@ Includes also
 		<fieldpagetitle>Click package parameters</fieldpagetitle>
 		<fields>
 			<field mandatory="true" name="ClickDomain">
-			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
+			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
 			                defaulttext="" placeholdertext="Domain"/>
 			  <fielddescription>Domain:</fielddescription>
 			</field>
 			<field mandatory="true" name="ClickMaintainer">
-			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
+			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
 			                defaulttext="" placeholdertext="Maintainer"/>
 			  <fielddescription>Maintainer:</fielddescription>
 			</field>
 			<field mandatory="true" name="ClickHookName">
-			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
+			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
 			                defaulttext="myapp" placeholdertext="app hook name"/>
 			  <fielddescription>App name:</fielddescription>
 			</field>

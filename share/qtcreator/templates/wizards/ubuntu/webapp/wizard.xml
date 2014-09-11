@@ -17,15 +17,15 @@
     <fieldpagetitle>Click package parameters</fieldpagetitle>
     <fields>
         <field mandatory="true" name="ClickDomain">
-            <fieldcontrol class="QLineEdit" validator='^[^"]+$' defaulttext="" placeholdertext="Domain"/>
+            <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$' defaulttext="" placeholdertext="Domain"/>
             <fielddescription>Domain:</fielddescription>
         </field>
         <field mandatory="true" name="ClickMaintainer">
-            <fieldcontrol class="QLineEdit" validator='^[^"]+$' defaulttext="" placeholdertext="Maintainer"/>
+            <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$' defaulttext="" placeholdertext="Maintainer"/>
             <fielddescription>Maintainer:</fielddescription>
         </field>
         <field mandatory="true" name="ClickHookName">
-            <fieldcontrol class="QLineEdit" validator='^[^"]+$' defaulttext="app" placeholdertext="app hook name"/>
+            <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$' defaulttext="app" placeholdertext="app hook name"/>
             <fielddescription>App name:</fielddescription>
         </field>
     </fields>
