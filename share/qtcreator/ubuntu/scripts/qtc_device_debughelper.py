@@ -26,36 +26,60 @@ import sys
 import subprocess
 import shlex
 import shutil
+import re
 
 def is_confined ():
     test_dir = os.path.expanduser('~')+"/.local/share"
-    print (str(os.listdir(test_dir)))
     try:
-        print (str(os.listdir(test_dir)))
-        return True
+        os.listdir(test_dir)
+        #if we reach the return statement we are not in confinement
+        return False
     except:
         pass
-    return False
-
+    return True
 
 app_id = None
 args   = None
 tmpdir = "/tmp/"
 
 mode = sys.argv[1]
+confined = is_confined()
 
 if  mode == "scope":
     app_id = sys.argv[2]
     args   = sys.argv[3:]
 
-    #i hope this works
-    packagename = app_id[:app_id.rfind("_")]
-    tmpdir = "/home/phablet/.local/share/unity-scopes/leaf-net/"+packagename+"/"
+    regex = re.compile("_");
+
+    try:
+        (packagename,hookname) = regex.split(app_id)
+    except ValueError as err:
+        print("Debug-helper> Invalid Application ID "+app_id+" "+repr(err),file=sys.stderr)
+        sys.exit(1)
+
+    if(confined):
+        tmpdir  = os.path.expanduser('~')+"/.local/share/unity-scopes/leaf-net/"+packagename+"/"
+    else:
+        tmpdir  = os.path.expanduser('~')+"/.local/share/unity-scopes/unconfined/"+packagename+"/"
+
 elif mode == "app":
     app_id = os.environ.get('APP_ID')
+
+    #i hope this works
+    pos = app_id.rfind("_")
+    pos = app_id.rfind("_",0,pos)
+
+    regex = re.compile("_");
+    try:
+        (packagename,hookname,version) = regex.split(app_id)
+    except ValueError as err:
+        print("Debug-helper> Invalid Application ID "+app_id+" "+repr(err),file=sys.stderr)
+        sys.exit(1)
+
     args = shlex.split(sys.argv[2])
+    tmpdir = os.path.expanduser('~')+"/.local/share/"+packagename+"/"
 else:
-    print("Unsupported script mode (scope|app)")
+    print("Debug-helper> Unsupported script mode (scope|app)")
     sys.exit(1)
 
 stdoutPipeName = tmpdir+app_id+".stdout"
@@ -68,12 +92,10 @@ if(os.path.exists(stderrPipeName)):
     newStdErr = os.open(stderrPipeName,os.O_WRONLY | os.O_NONBLOCK)
     os.dup2(newStdErr, sys.stderr.fileno());
 
-is_confined()
-
-print ("---------- Debug helper ------------")
-print ("Setting up environment")
-print ("TmpDir:  "+tmpdir)
-print ("AppId:   "+app_id)
+print ("Debug-helper> Setting up environment")
+print ("Debug-helper> TmpDir:      "+tmpdir)
+print ("Debug-helper> AppId:       "+app_id)
+print ("Debug-helper> Environment: "+("confined" if is_confined() else "unconfined"))
 
 if (args[0][0] == "/"):
     effective_cmd = command = args.pop(0)
@@ -81,7 +103,7 @@ else:
     effective_cmd = command = shutil.which(args.pop(0))
 
 if command is None:
-    print("Executable was not found in the PATH")
+    print("Debug-helper> Executable was not found in the PATH")
     sys.exit(1)
 
 if app_id is None:
@@ -94,7 +116,7 @@ if os.path.isfile(debug_file_name):
     try:
         debug_settings = json.load(f)
     except:
-        print("Could not load the settings file")
+        print("Debug-helper> Could not load the settings file")
         sys.exit(1)
 
     if "qmlDebug" in debug_settings:
@@ -103,7 +125,7 @@ if os.path.isfile(debug_file_name):
     if "gdbPort" in debug_settings:
         effective_cmd = shutil.which("gdbserver")
         if effective_cmd is None:
-            print("gdbserver was not found in the PATH")
+            print("Debug-helper> gdbserver was not found in the PATH")
             sys.exit(1)
         args.insert(0,":"+debug_settings["gdbPort"])
         args.insert(1,command)
@@ -123,9 +145,8 @@ if os.path.isfile(debug_file_name):
 #execv wants the command again in the arguments
 args.insert(0,effective_cmd)
 
-print ("Environment initialized, starting the application")
-print ("---------- Debug helper ------------")
-print ("Executing "+effective_cmd+str(args))
+print ("Debug-helper> Environment initialized, starting the application")
+print ("Debug-helper> Executing "+effective_cmd+str(args))
 
 #flush all descriptors
 sys.stdout.flush()

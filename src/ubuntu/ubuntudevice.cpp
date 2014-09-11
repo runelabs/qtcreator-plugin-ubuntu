@@ -596,7 +596,6 @@ void UbuntuDeviceHelper::stopProcess()
 
 void UbuntuDeviceHelper::addToLog(const QString &msg)
 {
-    qDebug()<<msg;
     m_log.append(msg);
     emit message(msg);
 }

@@ -57,11 +57,12 @@ class ScopeRunner(dbus.service.Object):
     @dbus.service.method("com.ubuntu.SDKAppLaunch",in_signature='si', out_signature='')
     def ScopeLoaded(self, name, pid):
         if(name == self.appId):
-            print("Application started: "+str(pid),flush=True)
+            #Do NOT change this line, its interpreted by the IDE
+            print("Sdk-Launcher> Application started: "+str(pid),flush=True)
 
     @dbus.service.method("com.ubuntu.SDKAppLaunch",in_signature='s', out_signature='')
     def ScopeStopped(self, name):
-        print("Scope stopped, exiting",flush=True)
+        print("Sdk-Launcher> Scope stopped, exiting",flush=True)
         self.loop.quit()
 
     def launch(self):
@@ -72,7 +73,7 @@ class ScopeRunner(dbus.service.Object):
                 #just make the default scope visible again
                 self._dispatchUrl("scope://clickscope")
             else:
-                print("Error: Could start the scope.",flush=True,file=sys.stderr)
+                print("Sdk-Launcher> Error: Could start the scope.",flush=True,file=sys.stderr)
                 return 1
         except KeyboardInterrupt:
             pass
@@ -84,12 +85,10 @@ class ScopeRunner(dbus.service.Object):
             urlDispatcher = bus.get_object('com.canonical.URLDispatcher',
                                            '/com/canonical/URLDispatcher')
 
-            print("Dispatching url: "+url)
-
             urlDispatcher.DispatchURL(url,"",
                                       dbus_interface='com.canonical.URLDispatcher')
         except dbus.DBusException:
-            print("Error: Could not start the scope.",flush=True,file=sys.stderr)
+            print("Sdk-Launcher> Error: Could not start the scope.",flush=True,file=sys.stderr)
             return False
         return True
 
@@ -106,7 +105,7 @@ class AppRunner:
         self.loop = loop
 
     def on_failed(self,launched_app_id, failure_type):
-        print("Received a failed event",flush=True)
+        print("Sdk-Launcher> Received a failed event",flush=True)
         if launched_app_id == self.appid:
             if failure_type == UAL.AppFailed.CRASH:
                 self.message  = 'Application crashed.'
@@ -118,31 +117,29 @@ class AppRunner:
 
     def on_started(self,launched_app_id):
         if launched_app_id == self.appid:
-            print("Application started: "+str(UAL.get_primary_pid(self.appid)),flush=True)
+            #Do NOT change this line, its interpreted by the IDE
+            print("Sdk-Launcher> Application started: "+str(UAL.get_primary_pid(self.appid)),flush=True)
 
     def on_stopped(self,stopped_app_id):
         if stopped_app_id == self.appid:
-            print("Stopping Application",flush=True)
+            print("Sdk-Launcher> Stopping Application",flush=True)
             self.exitCode = 0
             self.loop.quit()
 
     def on_resume(self,resumed_app_id):
         if resumed_app_id == self.appid:
-            print("Application was resumed",flush=True)
+            print("Sdk-Launcher> Application was resumed",flush=True)
 
     def on_focus(self,focused_app_id):
         if focused_app_id == self.appid:
-            print("Application was focused",flush=True)
+            print("Sdk-Launcher> Application was focused",flush=True)
 
     def launch(self):
-        print ("Registering hooks",flush=True)
         UAL.observer_add_app_failed(self.on_failed)
         UAL.observer_add_app_started(self.on_started)
         UAL.observer_add_app_focus(self.on_focus)
         UAL.observer_add_app_stop(self.on_stopped)
         UAL.observer_add_app_resume(self.on_resume)
-
-        print ("Start Application",flush=True)
 
         #start up the application
         UAL.start_application(self.appid)
@@ -152,7 +149,7 @@ class AppRunner:
         except KeyboardInterrupt:
             pass
 
-        print ("The Application exited, cleaning up")
+        print ("Sdk-Launcher> The Application exited, cleaning up")
 
         UAL.observer_delete_app_failed(self.on_failed)
         UAL.observer_delete_app_started(self.on_started)
@@ -166,7 +163,7 @@ class AppRunner:
         UAL.stop_application(self.appid)
 
 def on_sigterm(runner):
-    print("Received exit signal, stopping application",flush=True)
+    print("Sdk-Launcher> Received exit signal, stopping application",flush=True)
     runner.stop()
 
 def create_procpipe(path,callback):
@@ -213,6 +210,31 @@ def on_proc_stderr(file, condition):
     print (output ,file=sys.stderr,end="",flush=True)
     return True
 
+def is_confined (manifest_obj, hook_name):
+    if "apparmor" not in manifest_obj['hooks'][hook_name]:
+        raise Exception("Error: Invalid Manifest file")
+    if "name" not in manifest_obj:
+        raise Exception("Error: Invalid Manifest file")
+
+    install_dir   = "/opt/click.ubuntu.com/"
+    apparmor_path = install_dir+manifest_obj['name']+"/current/"+manifest_obj['hooks'][hook_name]["apparmor"]
+
+    if (not os.path.isfile(apparmor_path)):
+        raise Exception("Error: Apparmor path is not valid: "+apparmor_path)
+
+    try:
+        json_file = open(apparmor_path,"r")
+        apparmor=json.load(json_file)
+        json_file.close()
+    except Exception as err:
+        raise Exception("Error: Could not read the apparmor file "+str(err))
+
+    if ("template" in apparmor):
+        return apparmor["template"] != "unconfined"
+
+    #without a template the app is always confined
+    return True;
+
 # register options to the argument parser
 parser = argparse.ArgumentParser(description="SDK application launcher")
 parser.add_argument('clickPck',action="store")
@@ -223,14 +245,16 @@ parser.add_argument('--hook', action='store', dest='targetHook', help="Specify t
 
 options = parser.parse_args()
 
-print("Executing: "+options.clickPck,flush=True)
-print("Launcher PID: "+str(os.getpid()), file=sys.stderr,flush=True)
+print("Sdk-Launcher> Executing:    "+options.clickPck,flush=True)
+
+#Do NOT change this line, its interpreted by the IDE
+print("Sdk-Launcher> Launcher PID: "+str(os.getpid()), file=sys.stderr,flush=True)
 
 needs_debug_conf=False
 conf_obj={}
 
 if options.environmentList is not None:
-    print("Setting env "+", ".join(options.environmentList),flush=True)
+    print("Sdk-Launcher> Setting env "+", ".join(options.environmentList),flush=True)
     needs_debug_conf=True
     conf_obj['env'] = {}
     for env in options.environmentList:
@@ -242,12 +266,12 @@ if options.environmentList is not None:
 if options.gdbPort is not None:
     needs_debug_conf=True
     conf_obj['gdbPort'] = options.gdbPort
-    print("GDB Port"+options.gdbPort,flush=True)
+    print("Sdk-Launcher> GDB Port"+options.gdbPort,flush=True)
 
 if options.qmlDebug is not None:
     needs_debug_conf=True
     conf_obj['qmlDebug'] = options.qmlDebug
-    print("QML Debug Settings:"+options.qmlDebug,flush=True)
+    print("Sdk-Launcher> QML Debug Settings:"+options.qmlDebug,flush=True)
 
 hook_name = None
 package_name = None
@@ -256,7 +280,6 @@ package_arch = None
 manifest = None
 app_id = None
 tmp_dir = "/tmp/"
-install_dir   = "/opt/click.ubuntu.com"
 apparmor_path = None
 
 #get the manifest information from the click package
@@ -264,7 +287,7 @@ try:
     manifest_json = subprocess.check_output(["click","info",options.clickPck])
     manifest=json.loads(manifest_json.decode())
 except subprocess.CalledProcessError:
-    print("Could not call click",file=sys.stderr,flush=True)
+    print("Sdk-Launcher> Could not call click",file=sys.stderr,flush=True)
     sys.exit(1)
 
 #get the hook name we want to execute
@@ -272,27 +295,26 @@ if len(manifest['hooks']) == 1:
     hook_name = list(manifest['hooks'].keys())[0]
 else:
     if options.targetHook is None:
-        print("There are multiple hooks in the manifest file, please specify one",flush=True,file=sys.stderr)
+        print("Sdk-Launcher> There are multiple hooks in the manifest file, please specify one",flush=True,file=sys.stderr)
         sys.exit(1)
     else:
         if options.targetHook in manifest['hooks']:
             hook_name = options.targetHook
             apparmor_path = manifest['hooks'][hook_name]["apparmor"]
         else:
-            print("Unknown hook selected",file=sys.stderr,flush=True)
+            print("Sdk-Launcher> Unknown hook selected",file=sys.stderr,flush=True)
             sys.exit(1)
 
 if 'version' not in manifest:
-    print("Version key is missing from the manifest file",flush=True,file=sys.stderr)
+    print("Sdk-Launcher> Version key is missing from the manifest file",flush=True,file=sys.stderr)
     sys.exit(1)
 
 if 'name' not in manifest:
-    print("Package name not in the manifest file",flush=True,file=sys.stderr)
+    print("Sdk-Launcher> Package name not in the manifest file",flush=True,file=sys.stderr)
     sys.exit(1)
 
 package_name = manifest['name']
 package_version = manifest['version']
-install_dir = install_dir+"/"+package_name+"/current"
 
 #get the package arch
 #<cjwatson> (well, even more strictly it would match what "dpkg-deb -f foo.click Architecture" says)
@@ -300,7 +322,7 @@ try:
     package_arch = subprocess.check_output(["dpkg","-f",options.clickPck,"Architecture"])
     package_arch = package_arch.decode()
 except subprocess.CalledProcessError:
-    print("Could not query architecture from the package",flush=True,file=sys.stderr)
+    print("Sdk-Launcher> Could not query architecture from the package",flush=True,file=sys.stderr)
     sys.exit(1)
 
 #check if the app is already installed on the device, so we do not break existing installations
@@ -309,62 +331,82 @@ db.read(db_dir=None)
 arr = json_array_to_python(db.get_manifests(all_versions=False))
 for installAppManifest in arr:
     if installAppManifest["name"] == package_name:
-        print("Error: This application is already installed on the device, uninstall it or temporarily change the name in the manifest.json file!",flush=True,file=sys.stderr)
+        print("Sdk-Launcher> Error: This application is already installed on the device, uninstall it or temporarily change the name in the manifest.json file!",flush=True,file=sys.stderr)
         sys.exit(1)
 
 #build the appid
 app_id   = None
 debug_file_name = None
+app_mode  = None
 
 loop = GLib.MainLoop()
 runner = None
 
 if "scope" in manifest['hooks'][hook_name]:
+    app_mode = False
     app_id   = package_name+"_"+hook_name
     runner   = ScopeRunner(app_id,loop)
-    tmp_dir  = os.path.expanduser('~')+"/.local/share/unity-scopes/leaf-net/"+package_name+"/"
     if(not os.path.exists(tmp_dir)):
         os.mkdir(tmp_dir)
 
-    print("Setting the tmp dir to: "+tmp_dir)
-
 elif "desktop" in manifest['hooks'][hook_name]:
+    app_mode = True
     app_id   = package_name+"_"+hook_name+"_"+package_version
     runner   = AppRunner(app_id,loop)
 else:
-    print("Hook is not supported, only scope and app hooks can be executed",flush=True)
-    #TODO move to uninstall
+    print("Sdk-Launcher> Hook is not supported, only scope and app hooks can be executed",flush=True)
     sys.exit(1)
 
-debug_file_name = tmp_dir+app_id+"_debug.json"
-
-print("AppId: "+app_id,flush=True)
-print("Architecture: "+package_arch,flush=True)
-
-
+print("Sdk-Launcher> Installing application .....",flush=True)
 #we have all informations, now install the click package
 success = subprocess.call(
-    ["pkcon","--allow-untrusted","install-local",options.clickPck,"-p"])
+    ["pkcon","--allow-untrusted","install-local",options.clickPck,"-p"],stdout=subprocess.DEVNULL)
 if success != 0:
-    print("Installing the application failed",flush=True)
+    print("Sdk-Launcher> Installing the application failed",flush=True)
     sys.exit(1)
 
-confined = True
-canRun   = True
+print("Sdk-Launcher> Application installed successfully",flush=True)
 
+debug_file_name = None
+stdoutPipeName  = None
+procStdOut      = None
+stderrPipeName  = None
+procStdErr      = None
 
-#create the debug description file if required
-if needs_debug_conf:
-    try:
-        f = open(debug_file_name, 'w')
-        json.dump(conf_obj,f)
-        f.close()
-    except OSError:
-        print("Could not create the debug description file")
-        canRun = False
+try:
+    confined = is_confined(manifest,hook_name)
 
-if(canRun):
-    print("Application installed, executing",flush=True)
+    if (app_mode is True and confined):
+        tmp_dir  = os.path.expanduser('~')+"/.local/share/"+package_name+"/"
+    elif (app_mode is True and not confined):
+        tmp_dir  = os.path.expanduser('~')+"/.local/share/"+package_name+"/"
+    elif (app_mode is False and confined):
+        tmp_dir  = os.path.expanduser('~')+"/.local/share/unity-scopes/leaf-net/"+package_name+"/"
+    elif (app_mode is False and not confined):
+        tmp_dir  = os.path.expanduser('~')+"/.local/share/unity-scopes/unconfined/"+package_name+"/"
+    else:
+        #error we need to stop
+        raise Exception("There was a error specifying the communication directory.")
+
+    debug_file_name = tmp_dir+app_id+"_debug.json"
+
+    if(not os.path.exists(tmp_dir)):
+        os.mkdir(tmp_dir)
+
+    print("Sdk-Launcher> AppId:                   "+app_id,flush=True)
+    print("Sdk-Launcher> Architecture:            "+package_arch,flush=True,end="")
+    print("Sdk-Launcher> Application confined:    "+str(confined),flush=True)
+    print("Sdk-Launcher> Communication directory: "+tmp_dir,flush=True)
+
+    #create the debug description file if required
+    if needs_debug_conf:
+        try:
+            f = open(debug_file_name, 'w')
+            json.dump(conf_obj,f)
+            f.close()
+        except OSError:
+            #error we need to stop
+            raise Exception("Could not create the debug description file")
 
     #create 2 named pipes and listen for data
     stdoutPipeName = tmp_dir+app_id+".stdout"
@@ -372,7 +414,6 @@ if(canRun):
 
     stderrPipeName = tmp_dir+app_id+".stderr"
     procStdErr = create_procpipe(stderrPipeName,on_proc_stderr)
-
 
     if "unix_signal_add" in dir(GLib):
         GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGTERM, on_sigterm, runner)
@@ -385,23 +426,31 @@ if(canRun):
 
     #execute the hook, this will not return before the app or scope finished to run
     exitCode = runner.launch()
-else:
+
+except Exception as err:
+    print(repr(err),flush=True)
     exitCode = 1
 
-success = subprocess.call(["pkcon","remove",package_name+";"+package_version+";"+package_arch+";local:click","-p"])
-if success != 0:
-    print("Uninstalling the application failed",flush=True)
-
+#clean up the debug conf file if it still exists
 if needs_debug_conf:
     try:
-        if os.path.isfile(debug_file_name):
+        if (debug_file_name != None and os.path.isfile(debug_file_name)):
             os.remove(debug_file_name)
     except:
-        print("Could not remove the debug description file: "+debug_file_name+"\n Please delete it manually",flush=True,file=sys.stderr)
+        print("Sdk-Launcher> Could not remove the debug description file: "+debug_file_name+"\n Please delete it manually",flush=True,file=sys.stderr)
 
-os.close(procStdOut)
-os.unlink(stdoutPipeName)
-os.close(procStdErr)
-os.unlink(stderrPipeName)
+#close the pipes
+if (stdoutPipeName != None and os.path.exists(stdoutPipeName)):
+    os.close(procStdOut)
+    os.unlink(stdoutPipeName)
 
+if (stderrPipeName != None and os.path.exists(stderrPipeName)):
+    os.close(procStdErr)
+    os.unlink(stderrPipeName)
+
+success = subprocess.call(["pkcon","remove",package_name+";"+package_version+";"+package_arch+";local:click","-p"],stdout=subprocess.DEVNULL)
+if success != 0:
+    print("Sdk-Launcher> Uninstalling the application failed",flush=True)
+
+print("Sdk-Launcher> Finished",flush=True)
 sys.exit(exitCode)
