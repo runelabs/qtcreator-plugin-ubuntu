@@ -1,7 +1,8 @@
 project(%ProjectName% C CXX)
 cmake_minimum_required(VERSION 2.8.9)
 
-set (UBUNTU_PROJECT_TYPE "ClickApp" CACHE INTERNAL "Tells QtCreator this is a Click application project")
+#do not remove this line, its required for the correct functionality of the Ubuntu-SDK
+set(UBUNTU_MANIFEST_PATH "manifest.json.in" CACHE INTERNAL "Tells QtCreator location and name of the manifest file")
 set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 find_package(Qt5Core)
@@ -35,7 +36,17 @@ set(DESKTOP_DIR ${DATA_DIR})
 
 set(EXEC "qmlscene $@ ${%ProjectName:u%_DIR}/${MAIN_QML}")
 
-install(FILES manifest.json DESTINATION ${CMAKE_INSTALL_PREFIX})
+#This command figures out the target architecture and puts it into the manifest file
+execute_process(
+  COMMAND dpkg-architecture -qDEB_HOST_ARCH
+  OUTPUT_VARIABLE CLICK_ARCH
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+configure_file(manifest.json.in ${CMAKE_CURRENT_BINARY_DIR}/manifest.json)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/manifest.json
+        DESTINATION ${CMAKE_INSTALL_PREFIX})
+
 install(DIRECTORY "app/graphics" DESTINATION ${DATA_DIR})
 install(FILES "%ClickHookName%.apparmor" DESTINATION ${DATA_DIR})
 
@@ -55,4 +66,5 @@ add_custom_target("run" /usr/bin/qmlscene -I ${CMAKE_BINARY_DIR}/backend  ${CMAK
                     DEPENDS %ProjectName%backend %ProjectName%backend-qmldir
                     WORKING_DIRECTORY ./app)
 
-add_custom_target("%ProjectName:l%_ClickFiles" ALL SOURCES "%ClickHookName%.apparmor" "manifest.json")
+#no op custom target for all not compiled files, so they show up in the QtCreator project tree
+add_custom_target("%ProjectName:l%_ClickFiles" ALL SOURCES "%ClickHookName%.apparmor" "manifest.json.in")
