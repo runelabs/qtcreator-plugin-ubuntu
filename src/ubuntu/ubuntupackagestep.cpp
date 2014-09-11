@@ -643,8 +643,8 @@ void UbuntuPackageStep::injectDebugHelperStep()
 
             //if(target()->activeBuildConfiguration()->buildType() == ProjectExplorer::BuildConfiguration::Debug) {
                 //enable debugging in the apparmor file, this will inject the debug policy
-                //if (!appArmor.enableDebugging())
-               //     qWarning() <<"Could not inject debug policy, debugging with gdb will not work";
+                if (!appArmor.enableDebugging())
+                    qWarning() <<"Could not inject debug policy, debugging with gdb will not work";
             //}
 
             appArmor.save();
