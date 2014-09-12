@@ -2,28 +2,46 @@
 <wizard version="1" kind="project" firstpage="10" id="UbuntuUnityScope" category="A.UbuntuProject"
         platformIndependent="true" 
         class="ubuntu-project-cmake"
-				featuresRequired=""
+        featuresRequired=""
         >
     <icon>../share/ubuntu.png</icon>
     <description>A simple C++ based Unity Scope</description>
     <displayname>Unity Scope</displayname>
     <displaycategory>Ubuntu</displaycategory>
     <files>
-			<file source="data/displayName.ini.in"   	target="data/%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini.in" openeditor="false"/>
-			<file source="data/CMakeLists.txt"   			target="data/CMakeLists.txt" openeditor="false"/>
-			<file source="displayName.apparmor"   				target="%ClickHookName:l%.apparmor" openeditor="false"/>
-			<file source="test/simpletest.cpp"   			target="test/simpletest.cpp" openeditor="false"/>
-			<file source="test/CMakeLists.txt"   			target="test/CMakeLists.txt" openeditor="false"/>
-			<file source="manifest.json"   						target="manifest.json" openeditor="true"/>
-			<file source="src/displayName-preview.h"  target="src/%ClickHookName:l%-preview.h" openeditor="false"/>
-			<file source="src/displayName-query.h"   	target="src/%ClickHookName:l%-query.h" openeditor="false"/>
-			<file source="src/displayName-preview.cpp"	target="src/%ClickHookName:l%-preview.cpp" openeditor="false"/>
-			<file source="src/displayName-query.cpp"   	target="src/%ClickHookName:l%-query.cpp" openeditor="false"/>
-			<file source="src/CMakeLists.txt"   				target="src/CMakeLists.txt" openeditor="false"/>
-			<file source="src/displayName-scope.h"   		target="src/%ClickHookName:l%-scope.h" openeditor="false"/>
-			<file source="src/displayName-scope.cpp"  	target="src/%ClickHookName:l%-scope.cpp" openeditor="false"/>
-			<file source="readme.txt"                  	target="readme.txt" openeditor="true"/>
-			<file source="CMakeLists.txt"   					target="CMakeLists.txt" openeditor="true" openproject="true"/>
+        <file source="cmake/FindGMock.cmake"/>
+
+        <file source="data/CMakeLists.txt"/>
+        <file source="data/displayName.ini" target="data/%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini"/>
+        <file source="data/icon.png" binary="true"/>
+        <file source="data/logo.png" binary="true"/>
+        <file source="data/screenshot.png" binary="true"/>
+
+        <file source="include/api/config.h"/>
+        <file source="include/api/client.h"/>
+        <file source="include/scope/preview.h"/>
+        <file source="include/scope/query.h"/>
+        <file source="include/scope/scope.h"/>
+
+        <file source="src/CMakeLists.txt"/>
+        <file source="src/api/client.cpp"/>
+        <file source="src/scope/query.cpp"/>
+        <file source="src/scope/scope.cpp" openeditor="true"/>
+        <file source="src/scope/preview.cpp"/>
+
+        <file source="tests/server/forecast/daily/Manchester,uk.json"/>
+        <file source="tests/server/forecast/daily/London,uk.json"/>
+        <file source="tests/server/weather/Manchester,uk.json"/>
+        <file source="tests/server/weather/London,uk.json"/>
+        <file source="tests/server/server.py"/>
+        <file source="tests/CMakeLists.txt"/>
+        <file source="tests/unit/CMakeLists.txt"/>
+        <file source="tests/unit/scope/test-scope.cpp"/>
+
+        <file source="CMakeLists.txt" openproject="true"/>
+        <file source="displayName.apparmor" target="%ClickHookName:l%.apparmor"/>
+        <file source="manifest.json" openeditor="true"/>
+        <file source="readme.txt"/>
     </files>
 
 	  <!-- Create a 2nd wizard page with click package parameters -->

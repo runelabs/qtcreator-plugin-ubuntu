@@ -1,11 +1,16 @@
-# Put the ini file in the build directory next to the scope
-# .so file so test tools can find both easily.
-configure_file(
-  "%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini.in"
-  "${CMAKE_BINARY_DIR}/src/%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini"
+
+# Install the scope ini file
+install(
+  FILES "%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini"
+  DESTINATION ${SCOPE_INSTALL_DIR}
 )
 
-INSTALL(
-  FILES "${CMAKE_BINARY_DIR}/src/%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini"
-  DESTINATION "${INI_INSTALLDIR}"
+# Install the scope images
+install(
+  FILES
+    "icon.png"
+    "logo.png"
+    "screenshot.png"
+  DESTINATION
+    "${SCOPE_INSTALL_DIR}"
 )

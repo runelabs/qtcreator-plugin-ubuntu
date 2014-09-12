@@ -1,8 +1,0 @@
-[ScopeConfig]
-DisplayName = %ProjectName:c% Scope
-Description = This is a %ProjectName:c% scope
-Author = Firstname Lastname
-Art = %ProjectName:l%.Art
-Icon = %ProjectName:l%.Icon
-SearchHint = %ProjectName:l%.SearchHint
-HotKey = %ProjectName:l%.HotKey
