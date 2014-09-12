@@ -40,7 +40,7 @@ Includes also unit and functional tests.</description>
 			  <fielddescription>Domain:</fielddescription>
 			</field>
 			<field mandatory="true" name="ClickMaintainer">
-			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
+			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
 			                defaulttext="" placeholdertext="Maintainer"/>
 			  <fielddescription>Maintainer:</fielddescription>
 			</field>
