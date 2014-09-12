@@ -1,3 +1,38 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140912.3-0ubuntu1) utopic; urgency=low
+
+  [ Zoltán Balogh ]
+  * Put back the HTML5 template
+  * Add ubuntu-emulator to the dependencies. Fixes LP: #1367246 (LP:
+    #1367246)
+
+  [ CI bot ]
+  * Run pkcon with --allow-untrusted (LP: #1360582). (LP: #1360582)
+
+  [ Benjamin Zeller ]
+  * Less launcher output, add prefix so its clear if the output is from
+    launcher/app. Use default application directories to create control
+    files. Native Backend template now automatically substitutes the
+    correct architecture into the manifest file. Make sure the wizards
+    don't accept invalid characters .
+  * Make sure .ssh folder and authorized_keys2 file have the correct
+    owner and permissions
+
+  [ Pete Woods ]
+  * New scope template that talks to openweather API
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+  [ Michael Vogt ]
+  * Run pkcon with --allow-untrusted (LP: #1360582). (LP: #1360582)
+  * This branch cleans up the deploy script a little bit so that it
+    reports errors from e.g. scp/ssh to the user. It will also fail
+    early when a subcommand (like ssh) fails. (LP: #1366786)
+  * Another tiny branch. This makes it easier for the user to see when
+    his/her click package is deployed to the device. (LP: #1366791)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 12 Sep 2014 13:38:53 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20140908-0ubuntu1) utopic; urgency=low
 
   [ Michael Vogt ]
