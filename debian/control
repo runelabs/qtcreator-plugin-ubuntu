@@ -47,6 +47,7 @@ Depends: android-tools-adb,
 # Only for unity8-supported archs
          unity-scope-tool [i386 amd64 armhf],
          gdb-multiarch,
+         ubuntu-emulator,
          ${shlibs:Depends},
          ${misc:Depends},
 Recommends: ubuntu-sdk,
