@@ -48,7 +48,7 @@
 		<fieldpagetitle>Click package parameters</fieldpagetitle>
 		<fields>
 			<field mandatory="true" name="ClickDomain">
-			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
+			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
 			                defaulttext="" placeholdertext="Domain"/>
 			  <fielddescription>Domain:</fielddescription>
 			</field>
@@ -58,7 +58,7 @@
 			  <fielddescription>Maintainer:</fielddescription>
 			</field>
 			<field mandatory="true" name="ClickHookName">
-			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
+			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
 			                defaulttext="myscope" placeholdertext="scope hook name"/>
 			  <fielddescription>Scope name:</fielddescription>
 			</field>

@@ -39,7 +39,7 @@ Includes also
         <file source="app/tests/autopilot/displayName/__init__.py"       target="app/tests/autopilot/%ProjectName%/__init__.py" openeditor="false"/>
         <file source="app/tests/autopilot/displayName/main/__init__.py"  target="app/tests/autopilot/%ProjectName%/main/__init__.py" openeditor="false"/>
         <file source="cmake/Click.cmake"                                 target="cmake/Click.cmake" openeditor="false"/>
-        <file source="../share/manifest.json"   			 target="manifest.json" openeditor="true"/>
+        <file source="manifest.json.in"   			         target="manifest.json.in" openeditor="true"/>
         <file source="../share/displayName.apparmor"   			 target="%ClickHookName%.apparmor" openeditor="false"/>
         <file source="app/displayName.qml"                     target="app/%ProjectName%.qml" openeditor="true"/>
    </files>
@@ -48,7 +48,7 @@ Includes also
 		<fieldpagetitle>Click package parameters</fieldpagetitle>
 		<fields>
 			<field mandatory="true" name="ClickDomain">
-			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
+			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
 			                defaulttext="" placeholdertext="Domain"/>
 			  <fielddescription>Domain:</fielddescription>
 			</field>
@@ -58,7 +58,7 @@ Includes also
 			  <fielddescription>Maintainer:</fielddescription>
 			</field>
 			<field mandatory="true" name="ClickHookName">
-			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
+			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
 			                defaulttext="myapp" placeholdertext="app hook name"/>
 			  <fielddescription>App name:</fielddescription>
 			</field>
