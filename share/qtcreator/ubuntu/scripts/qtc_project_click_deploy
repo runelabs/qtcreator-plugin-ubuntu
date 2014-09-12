@@ -16,7 +16,9 @@
 # Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
 # Author: Benjamin Zeller <benjamin.zeller@canonical.com>
 
-. `dirname $0`/functions.inc
+set -e
+
+. $(dirname $0)/functions.inc
 
 PACKAGENAME=$2
 TARGET_DEVICE=$3
@@ -46,26 +48,24 @@ fi
 
 
 
-SCP="scp -v -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P${TARGET_DEVICE_PORT}"
-SSH="ssh -i ${SSHIDENTITY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p${TARGET_DEVICE_PORT} ${TARGET_DEVICE}"
+SCP="scp -i ${SSHIDENTITY} -o LogLevel=quiet -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P${TARGET_DEVICE_PORT}"
+SSH="ssh -i ${SSHIDENTITY} -o LogLevel=quiet -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p${TARGET_DEVICE_PORT} ${TARGET_DEVICE}"
 
-set +e
 
 # remove old files
 if [[ ! -z ${TARGET_DEVICE_HOME} ]]; then
         echo "Lets clear the device tmp folder at ${TARGET_DEVICE}:${TARGET_DEVICE_PORT}${TARGET_DEVICE_HOME}"
-        $SSH rm -rf ${TARGET_DEVICE_HOME}/* 2> /dev/null
+        $SSH rm -rf ${TARGET_DEVICE_HOME}/* 
 fi
 
 # make sure that the device has the target directory
 echo "Lets create the device tmp folder to ${TARGET_DEVICE}:${TARGET_DEVICE_PORT}${TARGET_DEVICE_HOME}"
-$SSH mkdir -vp ${TARGET_DEVICE_HOME} 2> /dev/null
+$SSH mkdir -vp ${TARGET_DEVICE_HOME} 
 
 # transfer click package to device
 PCK="$(pwd)/${PACKAGENAME}"
 echo "Transfer the click package ${PCK} to the device"
-set +e
-$SCP ${PACKAGENAME} ${TARGET_DEVICE}:${TARGET_DEVICE_HOME} 2> /dev/null
+$SCP ${PACKAGENAME} ${TARGET_DEVICE}:${TARGET_DEVICE_HOME} 
 if [[ ${?} -eq 0 ]]; then
         echo "..transfer complete!"
 else
@@ -80,5 +80,15 @@ for FILE in $FILES;
 do
  echo "Installing $FILE to device.."
  # note adb shell and adb_shell are two different things, adb_shell comes from functions.inc
- adb_shell sudo -H -u ${TARGET_DEVICE_USERNAME} pkcon install-local --allow-untrusted ${TARGET_DEVICE_HOME}/${FILE}
+ LOG="$(mktemp)"
+ adb_shell sudo -H -u ${TARGET_DEVICE_USERNAME} pkcon -p install-local --allow-untrusted ${TARGET_DEVICE_HOME}/${FILE} 2>&1 | tee $LOG
+ # adb shell does not return the exit code of what was run which is horrible
+ # (https://code.google.com/p/android/issues/detail?id=3254)
+ if grep "^Fatal error:" $LOG; then
+     echo "pkcon failed"
+     rm -f $LOG
+     exit 1;
+ fi
+ rm -rf $LOG
 done
+echo "All files installed succesfully"
