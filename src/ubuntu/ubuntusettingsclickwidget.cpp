@@ -80,7 +80,8 @@ void UbuntuSettingsClickWidget::on_pushButtonFindClickPackagingTools_clicked() {
 
 void UbuntuSettingsClickWidget::on_pushButtonCreateClickTarget_clicked()
 {
-    Internal::UbuntuClickDialog::createClickChrootModal();
+   QString dummy;
+   Internal::UbuntuClickDialog::createClickChrootModal(true, dummy, this);
     listExistingClickTargets();
 }
 
