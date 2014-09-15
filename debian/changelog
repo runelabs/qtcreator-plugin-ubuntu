@@ -1,3 +1,14 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140915-0ubuntu1) utopic; urgency=low
+
+  [ CI bot ]
+  * Run pkcon with --allow-untrusted (LP: #1360582). (LP: #1360582)
+
+  [ Michael Vogt ]
+  * Tiny fix to set the options dialog as modal parent for the
+    "runClick" dialog when creating a click chroot.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 15 Sep 2014 06:10:55 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20140912.3-0ubuntu1) utopic; urgency=low
 
   [ Zoltán Balogh ]
