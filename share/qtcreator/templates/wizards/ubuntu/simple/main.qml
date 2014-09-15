@@ -1,6 +1,5 @@
 import QtQuick 2.0
 import Ubuntu.Components 1.1
-import "components"
 
 /*!
     \brief MainView with a Label and Button elements.
@@ -35,7 +34,7 @@ MainView {
                 fill: parent
             }
 
-            HelloComponent {
+            Label {
                 id: label
                 objectName: "label"
 
