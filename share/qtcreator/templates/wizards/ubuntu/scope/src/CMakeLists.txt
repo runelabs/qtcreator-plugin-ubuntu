@@ -7,13 +7,25 @@ configure_file(
   @ONLY
 )
 
-# Build an object library for the scope code
-add_library(
-  scope-static OBJECT
+# The sources to build the scope
+set(SCOPE_SOURCES
   api/client.cpp
   scope/preview.cpp
   scope/query.cpp
   scope/scope.cpp
+)
+
+# Find all the headers
+file(GLOB_RECURSE
+  SCOPE_HEADERS
+  "${CMAKE_SOURCE_DIR}/include/*.h" 
+)
+
+# Build an object library for the scope code
+add_library(
+  scope-static OBJECT
+  ${SCOPE_SOURCES}
+  ${SCOPE_HEADERS}
 )
 
 # Ensure we export all the symbols
