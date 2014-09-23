@@ -80,11 +80,11 @@
         <field name="ContentType">
             <fieldcontrol class="QComboBox" defaultindex="0">
                 <comboentries>
-                    <comboentry value="empty">
-                        <comboentrytext>Empty scope</comboentrytext>
-                    </comboentry>
                     <comboentry value="network">
                         <comboentrytext>Scope using HTTP+JSON API</comboentrytext>
+                    </comboentry>
+                    <comboentry value="empty">
+                        <comboentrytext>Empty scope</comboentrytext>
                     </comboentry>
                 </comboentries>
             </fieldcontrol>
