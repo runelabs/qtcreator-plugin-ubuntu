@@ -44,39 +44,51 @@
         <file source="readme.txt"/>
     </files>
 
-	  <!-- Create a 2nd wizard page with click package parameters -->
-		<fieldpagetitle>Click package parameters</fieldpagetitle>
-		<fields>
-			<field mandatory="true" name="ClickDomain">
-			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
-			                defaulttext="" placeholdertext="Domain"/>
-			  <fielddescription>Domain:</fielddescription>
-			</field>
-			<field mandatory="true" name="ClickMaintainer">
-			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
-			                defaulttext="" placeholdertext="Maintainer"/>
-			  <fielddescription>Maintainer:</fielddescription>
-			</field>
-			<field mandatory="true" name="ClickHookName">
-			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
-			                defaulttext="myscope" placeholdertext="scope hook name"/>
-			  <fielddescription>Scope name:</fielddescription>
-			</field>
-		  <field name="ScopeType">
-		    <fieldcontrol class="QComboBox" defaultindex="0">
-		      <comboentries>
-<!--
-		        <comboentry value="local">
-		    	    <comboentrytext>Scope with local content</comboentrytext>
-		        </comboentry>
--->
-				    <comboentry value="network">
-		    	    <comboentrytext>Scope with network access</comboentrytext>
-				    </comboentry>
-			    </comboentries>
-		    </fieldcontrol>
-		    <fielddescription>Scope type:</fielddescription>
-		  </field>
-		</fields>
-
+    <!-- Create a 2nd wizard page with click package parameters -->
+    <fieldpagetitle>Click package parameters</fieldpagetitle>
+    <fields>
+        <field mandatory="true" name="ClickDomain">
+            <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
+                            defaulttext="" placeholdertext="Domain"/>
+            <fielddescription>Domain:</fielddescription>
+        </field>
+        <field mandatory="true" name="ClickMaintainer">
+            <fieldcontrol class="QLineEdit" validator='^[^"]+$'
+                            defaulttext="" placeholdertext="Maintainer"/>
+            <fielddescription>Maintainer:</fielddescription>
+        </field>
+        <field mandatory="true" name="ClickHookName">
+            <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
+                            defaulttext="myscope" placeholdertext="scope hook name"/>
+            <fielddescription>Scope name:</fielddescription>
+        </field>
+        <field name="ConfinementType">
+            <fieldcontrol class="QComboBox" defaultindex="0">
+                <comboentries>
+                    <comboentry value="ubuntu-scope-network">
+                        <comboentrytext>Scope with network access</comboentrytext>
+                    </comboentry>
+                    <!--
+                    <comboentry value="ubuntu-scope-local-content">
+                        <comboentrytext>Scope with local content</comboentrytext>
+                    </comboentry>
+                    -->
+                </comboentries>
+            </fieldcontrol>
+            <fielddescription>Confinement type:</fielddescription>
+        </field>
+        <field name="ContentType">
+            <fieldcontrol class="QComboBox" defaultindex="0">
+                <comboentries>
+                    <comboentry value="empty">
+                        <comboentrytext>Empty scope</comboentrytext>
+                    </comboentry>
+                    <comboentry value="network">
+                        <comboentrytext>Scope using HTTP+JSON API</comboentrytext>
+                    </comboentry>
+                </comboentries>
+            </fieldcontrol>
+            <fielddescription>Template type:</fielddescription>
+        </field>
+    </fields>
 </wizard>

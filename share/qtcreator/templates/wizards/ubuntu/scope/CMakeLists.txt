@@ -33,8 +33,10 @@ find_package(
 pkg_check_modules(
   SCOPE
   libunity-scopes>=0.6.0
+@if "%ContentType%" == "network"
   jsoncpp
   net-cpp>=1.1.0
+@endif
   REQUIRED
 )
 
