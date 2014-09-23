@@ -18,6 +18,7 @@ add_definitions(
   -Wall
   -Wextra
   -fPIC
+  -DQT_NO_KEYWORDS
 )
 
 include(GNUInstallDirs)
