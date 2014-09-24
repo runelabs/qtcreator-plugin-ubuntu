@@ -24,6 +24,7 @@
 #include "ubunturemotedeployconfiguration.h"
 #include "ubuntupackagestep.h"
 #include "ubuntuclickmanifest.h"
+#include "ui_ubunturemoterunconfigurationwidget.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
@@ -49,9 +50,14 @@ enum {
     debug = 0
 };
 
+const char FORCE_INSTALL_KEY[]="UbuntuRemoteRunConfiguration.ForceInstall";
+const char UNINSTALL_KEY[]="UbuntuRemoteRunConfiguration.Uninstall";
+
 UbuntuRemoteRunConfiguration::UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent, Core::Id id)
     : AbstractRemoteLinuxRunConfiguration(parent,id),
-      m_running(false)
+      m_running(false),
+      m_forceInstall(false),
+      m_uninstall(true)
 {
     setDisplayName(appId());
     addExtraAspect(new RemoteLinux::RemoteLinuxEnvironmentAspect(this));
@@ -59,7 +65,9 @@ UbuntuRemoteRunConfiguration::UbuntuRemoteRunConfiguration(ProjectExplorer::Targ
 
 UbuntuRemoteRunConfiguration::UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent, UbuntuRemoteRunConfiguration *source)
     : AbstractRemoteLinuxRunConfiguration(parent,source),
-      m_running(false)
+      m_running(false),
+      m_forceInstall(false),
+      m_uninstall(true)
 {
 }
 
@@ -113,7 +121,7 @@ QStringList UbuntuRemoteRunConfiguration::soLibSearchPaths() const
 
 QWidget *UbuntuRemoteRunConfiguration::createConfigurationWidget()
 {
-    return 0;
+    return new UbuntuRemoteRunConfigurationWidget(this);
 }
 
 bool UbuntuRemoteRunConfiguration::isEnabled() const
@@ -343,13 +351,21 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
 bool UbuntuRemoteRunConfiguration::fromMap(const QVariantMap &map)
 {
     if(debug) qDebug()<<Q_FUNC_INFO;
-    return AbstractRemoteLinuxRunConfiguration::fromMap(map);
+
+    if(!AbstractRemoteLinuxRunConfiguration::fromMap(map))
+        return false;
+
+    m_uninstall = map.value(QLatin1String(UNINSTALL_KEY),true).toBool();
+    m_forceInstall = map.value(QLatin1String(FORCE_INSTALL_KEY),false).toBool();
+    return true;
 }
 
 QVariantMap UbuntuRemoteRunConfiguration::toMap() const
 {
-    QVariantMap m = AbstractRemoteLinuxRunConfiguration::toMap();
     if(debug) qDebug()<<Q_FUNC_INFO;
+    QVariantMap m = AbstractRemoteLinuxRunConfiguration::toMap();
+    m.insert(QLatin1String(UNINSTALL_KEY),m_uninstall);
+    m.insert(QLatin1String(FORCE_INSTALL_KEY),m_forceInstall);
     return m;
 }
 
@@ -396,6 +412,54 @@ void UbuntuRemoteRunConfiguration::setRunning(const bool set)
         m_running = set;
         emit enabledChanged();
     }
+}
+bool UbuntuRemoteRunConfiguration::forceInstall() const
+{
+    return m_forceInstall;
+}
+
+void UbuntuRemoteRunConfiguration::setForceInstall(bool forceInstall)
+{
+    if(m_forceInstall == forceInstall)
+        return;
+
+    m_forceInstall = forceInstall;
+    emit forceInstallChanged(forceInstall);
+}
+bool UbuntuRemoteRunConfiguration::uninstall() const
+{
+    return m_uninstall;
+}
+
+void UbuntuRemoteRunConfiguration::setUninstall(bool uninstall)
+{
+    if(m_uninstall == uninstall)
+        return;
+
+    m_uninstall = uninstall;
+    emit uninstallChanged(uninstall);
+}
+
+
+
+UbuntuRemoteRunConfigurationWidget::UbuntuRemoteRunConfigurationWidget(UbuntuRemoteRunConfiguration *config, QWidget *parent)
+    : QWidget(parent),
+      m_config(config)
+{
+    m_ui = new Ui::UbuntuRemoteRunconfigurationWidget;
+    m_ui->setupUi(this);
+
+    m_ui->checkBoxForceInstall->setChecked(config->forceInstall());
+    m_ui->checkBoxUninstall->setChecked(config->uninstall());
+    connect(m_ui->checkBoxForceInstall,&QCheckBox::toggled,config,&UbuntuRemoteRunConfiguration::setForceInstall);
+    connect(m_ui->checkBoxUninstall,&QCheckBox::toggled,config,&UbuntuRemoteRunConfiguration::setUninstall);
+    connect(config,&UbuntuRemoteRunConfiguration::forceInstallChanged,m_ui->checkBoxForceInstall,&QCheckBox::setChecked);
+    connect(config,&UbuntuRemoteRunConfiguration::uninstallChanged,m_ui->checkBoxUninstall,&QCheckBox::setChecked);
+}
+
+UbuntuRemoteRunConfigurationWidget::~UbuntuRemoteRunConfigurationWidget()
+{
+    delete m_ui;
 }
 
 } // namespace Internal

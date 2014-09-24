@@ -15,7 +15,7 @@ namespace Internal {
 const QString SSH_BASE_COMMAND = QStringLiteral("ssh -i %1 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p%2 -tt %3@%4");
 
 enum {
-    debug = 0
+    debug = 1
 };
 
 class UbuntuRemoteClickApplicationRunnerPrivate
@@ -27,7 +27,9 @@ public:
         m_qmlDebugPort(0),
         m_launcherPid(-1),
         m_appPid(-1),
-        m_stopRequested(false)
+        m_stopRequested(false),
+        m_forceInstall(false),
+        m_uninstall(true)
     {
 
     }
@@ -42,13 +44,14 @@ public:
     int m_launcherPid;
     int m_appPid;
     bool m_stopRequested;
+    bool m_forceInstall;
+    bool m_uninstall;
 };
 
 UbuntuRemoteClickApplicationRunner::UbuntuRemoteClickApplicationRunner(QObject *parent) :
     QObject(parent),
     d (new UbuntuRemoteClickApplicationRunnerPrivate())
 {
-
 }
 
 UbuntuRemoteClickApplicationRunner::~UbuntuRemoteClickApplicationRunner()
@@ -87,6 +90,10 @@ void UbuntuRemoteClickApplicationRunner::start( UbuntuDevice::ConstPtr device, c
         args.append(QStringLiteral("--qmldebug=port:%1,block").arg(d->m_qmlDebugPort));
     if (d->m_cppDebugPort > 0)
         args.append(QStringLiteral("--cppdebug=%1").arg(d->m_cppDebugPort));
+    if (d->m_forceInstall)
+        args.append(QStringLiteral("--force-install"));
+    if (!d->m_uninstall)
+        args.append(QStringLiteral("--no-uninstall"));
 
 #if 1
 
@@ -182,6 +189,16 @@ Utils::Environment UbuntuRemoteClickApplicationRunner::env() const
 void UbuntuRemoteClickApplicationRunner::setEnv(const Utils::Environment &env)
 {
     d->m_env = env;
+}
+
+void UbuntuRemoteClickApplicationRunner::setForceInstall(const bool set)
+{
+    d->m_forceInstall = set;
+}
+
+void UbuntuRemoteClickApplicationRunner::setUninstall(const bool set)
+{
+    d->m_uninstall = set;
 }
 
 void UbuntuRemoteClickApplicationRunner::cleanup()

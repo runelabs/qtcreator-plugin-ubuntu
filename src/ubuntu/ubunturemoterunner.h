@@ -31,6 +31,9 @@ public:
     Utils::Environment env() const;
     void setEnv(const Utils::Environment &env);
 
+    void setForceInstall (const bool set);
+    void setUninstall    (const bool set);
+
 protected:
     void cleanup ();
 

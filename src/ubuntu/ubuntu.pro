@@ -25,7 +25,8 @@ FORMS += \
     ubuntucreatenewchrootdialog.ui \
     ubuntupackagestepconfigwidget.ui \
     ubuntumanifesteditor.ui \
-    ubuntuapparmoreditor.ui
+    ubuntuapparmoreditor.ui \
+    ubunturemoterunconfigurationwidget.ui
 
 RESOURCES += \
     resources.qrc

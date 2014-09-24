@@ -40,7 +40,8 @@ AbstractRemoteRunSupport::AbstractRemoteRunSupport(UbuntuRemoteRunConfiguration*
     QObject(parent),
     d(new AbstractRemoteRunSupportPrivate(runConfig))
 {
-
+    d->runner.setForceInstall(runConfig->forceInstall());
+    d->runner.setUninstall(runConfig->uninstall());
 }
 
 AbstractRemoteRunSupport::~AbstractRemoteRunSupport()
