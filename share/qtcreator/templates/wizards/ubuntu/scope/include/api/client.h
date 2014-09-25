@@ -7,12 +7,14 @@
 #include <deque>
 #include <map>
 #include <string>
+@if "%ContentType%" == "network"
 #include <core/net/http/request.h>
 #include <core/net/uri.h>
 
 namespace Json {
 class Value;
 }
+@endif
 
 namespace api {
 
@@ -23,6 +25,25 @@ namespace api {
  */
 class Client {
 public:
+
+@if "%ContentType%" == "empty"
+    /**
+     * Result struct
+     */
+    struct Result {
+        std::string uri;
+        std::string title;
+        std::string art;
+        std::string subtitle;
+        std::string description;
+    };
+
+    /**
+     * A list of weather information
+     */
+    typedef std::deque<Result> ResultList;
+@endif
+@if "%ContentType%" == "network"
     /**
      * Information about a City
      */
@@ -72,11 +93,19 @@ public:
         City city;
         WeatherList weather;
     };
+@endif
 
     Client(Config::Ptr config);
 
     virtual ~Client() = default;
 
+@if "%ContentType%" == "empty"
+    /**
+     * Search for results
+     */
+    virtual ResultList search(const std::string &query);
+@endif
+@if "%ContentType%" == "network"
     /**
      * Get the current weather for the specified location
      */
@@ -86,6 +115,7 @@ public:
      * Get the weather forecast for the specified location and duration
      */
     virtual Forecast forecast_daily(const std::string &query, unsigned int days = 7);
+@endif
 
     /**
      * Cancel any pending queries (this method can be called from a different thread)
@@ -95,6 +125,7 @@ public:
     virtual Config::Ptr config();
 
 protected:
+@if "%ContentType%" == "network"
     void get(const core::net::Uri::Path &path,
             const core::net::Uri::QueryParameters &parameters,
             Json::Value &root);
@@ -104,6 +135,7 @@ protected:
      */
     core::net::http::Request::Progress::Next progress_report(
             const core::net::http::Request::Progress& progress);
+@endif
 
     /**
      * Hang onto the configuration information

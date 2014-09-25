@@ -18,6 +18,35 @@ using namespace std;
 using namespace api;
 using namespace scope;
 
+@if "%ContentType%" == "empty"
+/**
+ * Define the layout for theresults
+ *
+ * The icon size is medium, and ask for the card layout
+ * itself to be horizontal. I.e. the text will be placed
+ * next to the image.
+ */
+const static string CATEGORY_TEMPLATE =
+        R"(
+{
+  "schema-version": 1,
+  "template": {
+    "category-layout": "grid",
+    "card-layout": "horizontal",
+    "card-size": "medium"
+  },
+  "components": {
+    "title": "title",
+    "art" : {
+      "field": "art"
+    },
+    "subtitle": "subtitle"
+  }
+}
+)";
+@endif
+
+@if "%ContentType%" == "network"
 /**
  * Define the layout for the forecast results
  *
@@ -66,6 +95,7 @@ const static string CITY_TEMPLATE =
   }
 }
 )";
+@endif
 
 Query::Query(const sc::CannedQuery &query, const sc::SearchMetadata &metadata,
         Config::Ptr config) :
@@ -76,6 +106,57 @@ void Query::cancelled() {
     client_.cancel();
 }
 
+@if "%ContentType%" == "empty"
+void Query::run(sc::SearchReplyProxy const& reply) {
+    try {
+        // Start by getting information about the query
+        const sc::CannedQuery &query(sc::SearchQueryBase::query());
+
+        // Trim the query string of whitespace
+        string query_string = alg::trim_copy(query.query_string());
+
+        Client::ResultList results;
+        if (query_string.empty()) {
+            // If the string is empty, pick a default
+            results = client_.search("default");
+        } else {
+            // otherwise, use the search string
+            results = client_.search(query_string);
+        }
+
+        // Register a category
+        auto cat = reply->register_category("results", "Results", "",
+                sc::CategoryRenderer(CATEGORY_TEMPLATE));
+
+        for (const auto &result : results) {
+            sc::CategorisedResult res(cat);
+
+            // We must have a URI
+            res.set_uri(result.uri);
+
+            res.set_title(result.title);
+
+            // Set the rest of the attributes, art, description, etc
+            res.set_art(result.art);
+            res["subtitle"] = result.subtitle;
+            res["description"] = result.description;
+
+            // Push the result
+            if (!reply->push(res)) {
+                // If we fail to push, it means the query has been cancelled.
+                // So don't continue;
+                return;
+            }
+        }
+    } catch (domain_error &e) {
+        // Handle exceptions being thrown by the client API
+        cerr << e.what() << endl;
+        reply->error(current_exception());
+    }
+}
+@endif
+
+@if "%ContentType%" == "network"
 void Query::run(sc::SearchReplyProxy const& reply) {
     try {
         // Start by getting information about the query
@@ -175,3 +256,4 @@ void Query::run(sc::SearchReplyProxy const& reply) {
         reply->error(current_exception());
     }
 }
+@endif

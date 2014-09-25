@@ -1,5 +1,6 @@
 #include <api/client.h>
 
+@if "%ContentType%" == "network"
 #include <core/net/error.h>
 #include <core/net/http/client.h>
 #include <core/net/http/content_type.h>
@@ -9,6 +10,7 @@
 namespace http = core::net::http;
 namespace json = Json;
 namespace net = core::net;
+@endif
 
 using namespace api;
 using namespace std;
@@ -17,6 +19,22 @@ Client::Client(Config::Ptr config) :
         config_(config), cancelled_(false) {
 }
 
+@if "%ContentType%" == "empty"
+Client::ResultList Client::search(const string &query) {
+    ResultList results;
+
+    Result result;
+    result.uri = "uri";
+    result.title = query;
+    result.art = "art.png";
+    result.subtitle = "subtitle";
+    result.description = "description";
+    results.emplace_back(result);
+
+    return results;
+}
+@endif
+@if "%ContentType%" == "network"
 void Client::get(const net::Uri::Path &path,
         const net::Uri::QueryParameters &parameters, json::Value &root) {
     // Create a new HTTP client
@@ -147,6 +165,7 @@ http::Request::Progress::Next Client::progress_report(
             http::Request::Progress::Next::abort_operation :
             http::Request::Progress::Next::continue_operation;
 }
+@endif
 
 void Client::cancel() {
     cancelled_ = true;

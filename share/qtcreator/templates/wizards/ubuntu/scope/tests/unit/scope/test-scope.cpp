@@ -47,6 +47,7 @@ typedef sct::TypedScopeFixture<Scope> TypedScopeFixtureScope;
 
 class TestScope: public TypedScopeFixtureScope {
 protected:
+@if "%ContentType%" == "network"
     void SetUp() override
     {
         // Start up Python-based fake OpenWeatherMap server
@@ -74,9 +75,11 @@ protected:
      * Start by assuming the server is invalid
      */
     posix::ChildProcess fake_server_ = posix::ChildProcess::invalid();
+ @endif
 };
 
 TEST_F(TestScope, empty_search_string) {
+@if "%ContentType%" == "network"
     const sc::CategoryRenderer renderer;
     NiceMock<sct::MockSearchReply> reply;
 
@@ -147,9 +150,11 @@ TEST_F(TestScope, empty_search_string) {
     search_query->run(reply_proxy);
 
     // Google Mock will make assertions when the mocks are destructed.
+@endif
 }
 
 TEST_F(TestScope, search) {
+@if "%ContentType%" == "network"
     const sc::CategoryRenderer renderer;
     NiceMock<sct::MockSearchReply> reply;
 
@@ -220,6 +225,7 @@ TEST_F(TestScope, search) {
     search_query->run(reply_proxy);
 
     // Google Mock will make assertions when the mocks are destructed.
+@endif
 }
 
 } // namespace

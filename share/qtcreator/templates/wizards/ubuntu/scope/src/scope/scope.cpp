@@ -14,11 +14,13 @@ using namespace scope;
 void Scope::start(string const&) {
     config_ = make_shared<Config>();
 
+@if "%ContentType%" == "network"
     // Under test we set a different API root
     char *apiroot = getenv("NETWORK_SCOPE_APIROOT");
     if (apiroot) {
         config_->apiroot = apiroot;
     }
+@endif
 }
 
 void Scope::stop() {
