@@ -58,7 +58,7 @@ class ScopeRunner(dbus.service.Object):
     def ScopeLoaded(self, name, pid):
         if(name == self.appId):
             #Do NOT change this line, its interpreted by the IDE
-            print("Sdk-Launcher> Application started: "+str(pid),flush=True)
+            print("Sdk-Launcher> Application started: "+str(pid), file=sys.stderr,flush=True)
 
     @dbus.service.method("com.ubuntu.SDKAppLaunch",in_signature='s', out_signature='')
     def ScopeStopped(self, name):
@@ -118,7 +118,7 @@ class AppRunner:
     def on_started(self,launched_app_id):
         if launched_app_id == self.appid:
             #Do NOT change this line, its interpreted by the IDE
-            print("Sdk-Launcher> Application started: "+str(UAL.get_primary_pid(self.appid)),flush=True)
+            print("Sdk-Launcher> Application started: "+str(UAL.get_primary_pid(self.appid)), file=sys.stderr,flush=True)
 
     def on_stopped(self,stopped_app_id):
         if stopped_app_id == self.appid:
@@ -242,10 +242,14 @@ parser.add_argument('--env', action='append', dest='environmentList', metavar="k
 parser.add_argument('--cppdebug', action='store', dest='gdbPort', help="Runs the app in gdbserver listening on specified port")
 parser.add_argument('--qmldebug', action='store', dest='qmlDebug', help="Value passed to the --qmldebug switch")
 parser.add_argument('--hook', action='store', dest='targetHook', help="Specify the application hook to run from the click package")
+parser.add_argument('--force-install', action='store_true', dest='forceInstall', help="Do not check if the click package is already installed", default=False)
+parser.add_argument('--no-uninstall', action='store_true', dest='noUninstall', help="Do remove the click package after execution is finished", default=False)
 
 options = parser.parse_args()
 
-print("Sdk-Launcher> Executing:    "+options.clickPck,flush=True)
+print("Sdk-Launcher> Executing:     "+options.clickPck,flush=True)
+print("Sdk-Launcher> Force Install: "+str(options.forceInstall),flush=True)
+print("Sdk-Launcher> Skip Uninstall:"+str(options.noUninstall),flush=True)
 
 #Do NOT change this line, its interpreted by the IDE
 print("Sdk-Launcher> Launcher PID: "+str(os.getpid()), file=sys.stderr,flush=True)
@@ -331,8 +335,15 @@ db.read(db_dir=None)
 arr = json_array_to_python(db.get_manifests(all_versions=False))
 for installAppManifest in arr:
     if installAppManifest["name"] == package_name:
-        print("Sdk-Launcher> Error: This application is already installed on the device, uninstall it or temporarily change the name in the manifest.json file!",flush=True,file=sys.stderr)
-        sys.exit(1)
+        if (not options.forceInstall):
+            print("Sdk-Launcher> Error: This application is already installed on the device, uninstall it or temporarily change the name in the manifest.json file!",flush=True,file=sys.stderr)
+            sys.exit(100)
+        else:
+            print("Sdk-Launcher> Uninstalling already installed package (--force-install)")
+            success = subprocess.call(["pkcon","remove",package_name+";"+package_version+";"+package_arch+";local:click","-p"],stdout=subprocess.DEVNULL)
+            if success != 0:
+                print("Sdk-Launcher> Uninstalling the application failed",flush=True)
+                sys.exit(1)
 
 #build the appid
 app_id   = None
@@ -448,9 +459,12 @@ if (stderrPipeName != None and os.path.exists(stderrPipeName)):
     os.close(procStdErr)
     os.unlink(stderrPipeName)
 
-success = subprocess.call(["pkcon","remove",package_name+";"+package_version+";"+package_arch+";local:click","-p"],stdout=subprocess.DEVNULL)
-if success != 0:
-    print("Sdk-Launcher> Uninstalling the application failed",flush=True)
+if (options.noUninstall):
+    print("Sdk-Launcher> Skipping uninstall step (--no-uninstall)")
+else:
+    success = subprocess.call(["pkcon","remove",package_name+";"+package_version+";"+package_arch+";local:click","-p"],stdout=subprocess.DEVNULL)
+    if success != 0:
+        print("Sdk-Launcher> Uninstalling the application failed",flush=True)
 
 print("Sdk-Launcher> Finished",flush=True)
 sys.exit(exitCode)

@@ -150,6 +150,8 @@ void UbuntuRemoteRunControl::handleDeviceReady()
     connect(&d->runner, SIGNAL(launcherStdout(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
     connect(&d->runner, SIGNAL(finished(bool)), SLOT(handleRunnerFinished()));
 
+    d->runner.setForceInstall(d->runConfig->forceInstall());
+    d->runner.setUninstall(d->runConfig->uninstall());
     d->runner.start(d->device, d->clickPackage,d->runConfig->appId());
 }
 

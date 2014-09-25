@@ -21,12 +21,18 @@
 #include <remotelinux/abstractremotelinuxrunconfiguration.h>
 #include <coreplugin/id.h>
 
+namespace Ui {
+    class UbuntuRemoteRunconfigurationWidget;
+}
+
 namespace Ubuntu {
 namespace Internal {
 
 class UbuntuRemoteRunConfiguration : public RemoteLinux::AbstractRemoteLinuxRunConfiguration
 {
     Q_OBJECT
+    Q_PROPERTY(bool forceInstall READ forceInstall WRITE setForceInstall NOTIFY forceInstallChanged)
+    Q_PROPERTY(bool uninstall READ uninstall WRITE setUninstall NOTIFY uninstallChanged)
 
 public:
     UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
@@ -61,6 +67,15 @@ public:
     QString packageDir () const;
     void setRunning (const bool set = true);
 
+    bool forceInstall() const;
+    void setForceInstall(bool forceInstall);
+
+    bool uninstall() const;
+    void setUninstall(bool uninstall);
+signals:
+    void forceInstallChanged(bool arg);
+    void uninstallChanged(bool arg);
+
 private:
     QString m_clickPackage;
     QString m_appId;
@@ -68,7 +83,20 @@ private:
     QString m_remoteExecutable;
     QStringList m_arguments;
     bool    m_running;
+    bool    m_forceInstall;
+    bool    m_uninstall;
+};
 
+class UbuntuRemoteRunConfigurationWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    UbuntuRemoteRunConfigurationWidget(UbuntuRemoteRunConfiguration *config, QWidget *parent = 0);
+    ~UbuntuRemoteRunConfigurationWidget();
+
+private:
+    UbuntuRemoteRunConfiguration *m_config;
+    Ui::UbuntuRemoteRunconfigurationWidget *m_ui;
 };
 
 } // namespace Internal
