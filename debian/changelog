@@ -1,3 +1,19 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20140925-0ubuntu1) utopic; urgency=low
+
+  [ Pete Woods ]
+  * Show headers in QtCreator for the scope template (LP: #1371010)
+  * Add new "empty" scope template
+
+  [ Benjamin Zeller ]
+  * Add runconfig option to disable the "app installed" check when
+    running a app. Add runconfig option to disable uninstall after the
+    app has finished. Ask the user if he wants to override the already
+    installed app .
+  * Make the simple template, really simple . make sure autopilot tests
+    work again .
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 25 Sep 2014 14:44:34 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20140915-0ubuntu1) utopic; urgency=low
 
   [ CI bot ]
