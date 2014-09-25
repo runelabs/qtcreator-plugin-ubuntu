@@ -330,16 +330,20 @@ except subprocess.CalledProcessError:
     sys.exit(1)
 
 #check if the app is already installed on the device, so we do not break existing installations
-if (not options.forceInstall):
-    db = Click.DB()
-    db.read(db_dir=None)
-    arr = json_array_to_python(db.get_manifests(all_versions=False))
-    for installAppManifest in arr:
-        if installAppManifest["name"] == package_name:
+db = Click.DB()
+db.read(db_dir=None)
+arr = json_array_to_python(db.get_manifests(all_versions=False))
+for installAppManifest in arr:
+    if installAppManifest["name"] == package_name:
+        if (not options.forceInstall):
             print("Sdk-Launcher> Error: This application is already installed on the device, uninstall it or temporarily change the name in the manifest.json file!",flush=True,file=sys.stderr)
             sys.exit(100)
-else:
-    print("Sdk-Launcher> Skipped to check if the application is already installed (--force-install)")
+        else:
+            print("Sdk-Launcher> Uninstalling already installed package (--force-install)")
+            success = subprocess.call(["pkcon","remove",package_name+";"+package_version+";"+package_arch+";local:click","-p"],stdout=subprocess.DEVNULL)
+            if success != 0:
+                print("Sdk-Launcher> Uninstalling the application failed",flush=True)
+                sys.exit(1)
 
 #build the appid
 app_id   = None
