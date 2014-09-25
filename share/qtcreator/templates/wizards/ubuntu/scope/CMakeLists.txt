@@ -57,7 +57,12 @@ install(FILES manifest.json DESTINATION "/")
 install(FILES "%ClickHookName:l%.apparmor" DESTINATION "/")
 
 # Make this file show up in QtCreator
-add_custom_target(hidden_files ALL SOURCES manifest.json)
+add_custom_target(hidden_files
+  ALL
+  SOURCES
+    manifest.json
+    "%ClickHookName:l%.apparmor"
+)
 
 # Add our main directories
 add_subdirectory(src)
