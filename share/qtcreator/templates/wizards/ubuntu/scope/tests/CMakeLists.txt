@@ -19,6 +19,16 @@ include_directories(
 )
 
 @if "%ContentType%" == "network"
+file(GLOB_RECURSE
+  TEST_FIXTURES
+  "server/*" 
+)
+
+# Make this file show up in QtCreator
+add_custom_target(hidden_test_fixtures ALL
+  SOURCES ${TEST_FIXTURES}
+)
+
 # Where to find the test server binary
 add_definitions(
   -DFAKE_SERVER="${CMAKE_CURRENT_SOURCE_DIR}/server/server.py"
