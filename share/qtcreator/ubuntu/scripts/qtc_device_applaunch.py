@@ -58,7 +58,7 @@ class ScopeRunner(dbus.service.Object):
     def ScopeLoaded(self, name, pid):
         if(name == self.appId):
             #Do NOT change this line, its interpreted by the IDE
-            print("Sdk-Launcher> Application started: "+str(pid),flush=True)
+            print("Sdk-Launcher> Application started: "+str(pid), file=sys.stderr,flush=True)
 
     @dbus.service.method("com.ubuntu.SDKAppLaunch",in_signature='s', out_signature='')
     def ScopeStopped(self, name):
@@ -118,7 +118,7 @@ class AppRunner:
     def on_started(self,launched_app_id):
         if launched_app_id == self.appid:
             #Do NOT change this line, its interpreted by the IDE
-            print("Sdk-Launcher> Application started: "+str(UAL.get_primary_pid(self.appid)),flush=True)
+            print("Sdk-Launcher> Application started: "+str(UAL.get_primary_pid(self.appid)), file=sys.stderr,flush=True)
 
     def on_stopped(self,stopped_app_id):
         if stopped_app_id == self.appid:
@@ -337,7 +337,7 @@ if (not options.forceInstall):
     for installAppManifest in arr:
         if installAppManifest["name"] == package_name:
             print("Sdk-Launcher> Error: This application is already installed on the device, uninstall it or temporarily change the name in the manifest.json file!",flush=True,file=sys.stderr)
-            sys.exit(1)
+            sys.exit(100)
 else:
     print("Sdk-Launcher> Skipped to check if the application is already installed (--force-install)")
 

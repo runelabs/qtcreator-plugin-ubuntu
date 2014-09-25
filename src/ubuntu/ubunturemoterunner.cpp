@@ -1,6 +1,7 @@
 #include "ubunturemoterunner.h"
 #include "ubuntudevice.h"
 
+#include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <ssh/sshconnection.h>
@@ -8,14 +9,15 @@
 #include <QProcess>
 #include <QPointer>
 #include <QRegularExpression>
+#include <QMessageBox>
 
 namespace Ubuntu {
 namespace Internal {
 
-const QString SSH_BASE_COMMAND = QStringLiteral("ssh -i %1 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p%2 -tt %3@%4");
+const QString SSH_BASE_COMMAND = QStringLiteral("ssh -i %1 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p%2 %3@%4");
 
 enum {
-    debug = 1
+    debug = 0
 };
 
 class UbuntuRemoteClickApplicationRunnerPrivate
@@ -39,6 +41,8 @@ public:
     Utils::Environment m_env;
     QPointer<QProcess> m_proc;
     UbuntuDevice::ConstPtr m_dev;
+    QString m_packageName;
+    QString m_hook;
 
     QString m_launcherOutput;
     int m_launcherPid;
@@ -67,6 +71,8 @@ void UbuntuRemoteClickApplicationRunner::start( UbuntuDevice::ConstPtr device, c
     d->m_dev  = device;
     d->m_proc = new QProcess(this);
     d->m_stopRequested = false;
+    d->m_packageName = clickPackageName;
+    d->m_hook = hook;
 
     connect(d->m_proc,SIGNAL(finished(int)),this,SLOT(handleLauncherProcessFinished()));
     connect(d->m_proc,SIGNAL(readyReadStandardOutput()),this,SLOT(handleLauncherStdOut()));
@@ -95,7 +101,7 @@ void UbuntuRemoteClickApplicationRunner::start( UbuntuDevice::ConstPtr device, c
     if (!d->m_uninstall)
         args.append(QStringLiteral("--no-uninstall"));
 
-#if 1
+#if 0
 
     QString subCommand = QStringLiteral("cd /tmp && ./qtc_device_applaunch.py %1")
             .arg(Utils::QtcProcess::joinArgs(args));
@@ -121,7 +127,7 @@ void UbuntuRemoteClickApplicationRunner::start( UbuntuDevice::ConstPtr device, c
     d->m_proc->start();
 #else
 
-    QString subCommand = QStringLiteral("bash -l -tt -c 'trap : SIGHUP SIGINT; /tmp/qtc_device_applaunch.py %1'")
+    QString subCommand = QStringLiteral("bash -l -c '/tmp/qtc_device_applaunch.py %1'")
             .arg(Utils::QtcProcess::joinArgs(args));
 
     QSsh::SshConnectionParameters params = device->sshParameters();
@@ -201,18 +207,25 @@ void UbuntuRemoteClickApplicationRunner::setUninstall(const bool set)
     d->m_uninstall = set;
 }
 
-void UbuntuRemoteClickApplicationRunner::cleanup()
+void UbuntuRemoteClickApplicationRunner::cleanup(CleanupMode mode)
 {
     d->m_proc->disconnect(this);
     d->m_proc->deleteLater();
     d->m_proc.clear();
     d->m_launcherPid = -1;
     d->m_appPid = -1;
-    d->m_env.clear();
-    d->m_dev.clear();
-    d->m_cppDebugPort = 0;
-    d->m_qmlDebugPort = 0;
     d->m_stopRequested = false;
+    d->m_dev.clear();
+
+    if(mode == CleanSettings) {
+        d->m_cppDebugPort = 0;
+        d->m_qmlDebugPort = 0;
+        d->m_packageName.clear();
+        d->m_hook.clear();
+        d->m_forceInstall = false;
+        d->m_uninstall = true;
+        d->m_env.clear();
+    }
 }
 
 void UbuntuRemoteClickApplicationRunner::handleLauncherProcessError(QProcess::ProcessError error)
@@ -224,6 +237,20 @@ void UbuntuRemoteClickApplicationRunner::handleLauncherProcessError(QProcess::Pr
 
 void UbuntuRemoteClickApplicationRunner::handleLauncherProcessFinished()
 {
+    int exitCode = d->m_proc->exitCode();
+    if(exitCode == 100) { //Application already installed
+        int choice = QMessageBox::question(Core::ICore::mainWindow(),
+                                           tr("Application already installed"),
+                                           tr("The Application is already installed on the device, do you want to override it?\n(This will uninstall the application completely after the debug session.)"));
+        if(choice == QMessageBox::Yes) {
+            //restart
+            UbuntuDevice::ConstPtr dev = d->m_dev;
+            cleanup(KeepSettings);
+            setForceInstall(true);
+            start(dev, d->m_packageName,d->m_hook);
+            return;
+        }
+    }
     emit finished( d->m_proc->exitCode() == 0 );
     cleanup();
 }
@@ -233,7 +260,14 @@ void UbuntuRemoteClickApplicationRunner::handleLauncherStdOut()
     QTC_ASSERT(!d->m_proc.isNull(),return);
 
     QByteArray output = d->m_proc->readAllStandardOutput();
+    emit launcherStdout(output);
+}
 
+void UbuntuRemoteClickApplicationRunner::handleLauncherStdErr()
+{
+    QTC_ASSERT(!d->m_proc.isNull(),return);
+
+    QByteArray output = d->m_proc->readAllStandardError();
     if (d->m_launcherPid <= 0 || d->m_appPid <= 0) {
         d->m_launcherOutput.append( QString::fromUtf8(output) );
 
@@ -247,6 +281,7 @@ void UbuntuRemoteClickApplicationRunner::handleLauncherStdOut()
                 if(!ok)
                     d->m_launcherPid = -1;
                 else {
+                    if(debug) qDebug()<<"Launcher PID: "<<d->m_launcherPid;
                     if(d->m_stopRequested)
                         stop();
                     else
@@ -264,19 +299,14 @@ void UbuntuRemoteClickApplicationRunner::handleLauncherStdOut()
 
                 if(!ok)
                     d->m_appPid = -1;
-                else
+                else {
+                    if(debug) { qDebug()<<"Application PID: "<<d->m_appPid; }
                     emit clickApplicationStarted(d->m_appPid);
+                }
             }
         }
     }
-
-    emit launcherStdout(output);
-}
-
-void UbuntuRemoteClickApplicationRunner::handleLauncherStdErr()
-{
-    QTC_ASSERT(!d->m_proc.isNull(),return);
-    emit launcherStderr(d->m_proc->readAllStandardError());
+    emit launcherStderr(output);
 }
 
 }

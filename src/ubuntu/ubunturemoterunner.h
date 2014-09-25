@@ -16,6 +16,12 @@ class UbuntuRemoteClickApplicationRunner : public QObject
 {
     Q_OBJECT
 public:
+
+    enum CleanupMode{
+        CleanSettings,
+        KeepSettings
+    };
+
     explicit UbuntuRemoteClickApplicationRunner(QObject *parent = 0);
     virtual ~UbuntuRemoteClickApplicationRunner();
 
@@ -35,7 +41,7 @@ public:
     void setUninstall    (const bool set);
 
 protected:
-    void cleanup ();
+    void cleanup (CleanupMode mode = CleanSettings);
 
 signals:
     void launcherStdout(const QByteArray &output);
