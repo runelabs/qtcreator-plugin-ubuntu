@@ -15,6 +15,7 @@
 #
 # Author: Benjamin Zeller<benjamin.zeller@canonical.com>
 
+: ${CLICK_CHROOT_SUFFIX:=click}
 
 USAGE="Usage: $0 targetArch targetFramework targetSeries makeOptions"
 
@@ -32,6 +33,6 @@ shift
 
 export QT_SELECT=qt5:$ARCH
 
-/usr/bin/click chroot -a $ARCH -f $FRAMEWORK run make $@
+/usr/bin/click chroot -a $ARCH -f $FRAMEWORK -n $CLICK_CHROOT_SUFFIX run make $@
 
 

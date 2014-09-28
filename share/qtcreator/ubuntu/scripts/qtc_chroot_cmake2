@@ -15,7 +15,7 @@
 #
 # Author: Benjamin Zeller<benjamin.zeller@canonical.com>
 
-
+: ${CLICK_CHROOT_SUFFIX:=click}
 : ${CLICK_SDK_ARCH:?"Need to set CLICK_SDK_ARCH non-empty"}
 : ${CLICK_SDK_FRAMEWORK:?"Need to set CLICK_SDK_FRAMEWORK non-empty"}
 # : ${CLICK_SDK_SERIES:?"Need to set CLICK_SDK_SERIES non-empty"}
@@ -34,6 +34,5 @@ then
 fi
 
 export QT_SELECT=qt5:$CLICK_SDK_ARCH
-/usr/bin/click chroot -a $CLICK_SDK_ARCH -f $CLICK_SDK_FRAMEWORK run cmake ${ARCH_ARGS} "$@"
-
+/usr/bin/click chroot -a $CLICK_SDK_ARCH -f $CLICK_SDK_FRAMEWORK -n $CLICK_CHROOT_SUFFIX  run cmake ${ARCH_ARGS} "$@"
 

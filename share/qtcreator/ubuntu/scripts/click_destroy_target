@@ -18,11 +18,12 @@
 ARCHITECTURE=$1
 FRAMEWORK=$2
 SERIES=$3
+NAME=$4
 
-CLEANUP_DIRS=("/var/lib/schroot/chroots/click-${FRAMEWORK}-${ARCHITECTURE}")
-CLEANUP_FILES=("/etc/schroot/chroot.d/click-${FRAMEWORK}-${ARCHITECTURE}")
+CLEANUP_DIRS=("/var/lib/schroot/chroots/${NAME}-${FRAMEWORK}-${ARCHITECTURE}")
+CLEANUP_FILES=("/etc/schroot/chroot.d/${NAME}-${FRAMEWORK}-${ARCHITECTURE}")
 
-click chroot -a $ARCHITECTURE -f $FRAMEWORK destroy
+click chroot -a $ARCHITECTURE -f $FRAMEWORK -n $NAME destroy
 
 if [ $? -eq 0 ]
 then
@@ -30,7 +31,7 @@ then
     exit 0
 fi
 
-for MOUNTPOINT in $(mount|grep click-$FRAMEWORK-$ARCHITECTURE|awk '{print $3}')
+for MOUNTPOINT in $(mount|grep $NAME-$FRAMEWORK-$ARCHITECTURE|awk '{print $3}')
 do
     echo "Unmounting ${MOUNTPOINT}"
     umount $MOUNTPOINT
