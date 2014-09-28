@@ -98,7 +98,8 @@ void UbuntuClickTool::parametersForCreateChroot(const Target &target, ProjectExp
             .arg(Constants::UBUNTU_SCRIPTPATH)
             .arg(target.architecture)
             .arg(target.framework)
-            .arg(target.series);
+            .arg(target.series)
+            .arg(clickChrootSuffix());
     params->setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
     params->setEnvironment(Utils::Environment::systemEnvironment());
     params->setArguments(command);
