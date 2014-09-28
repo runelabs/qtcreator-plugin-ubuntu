@@ -201,8 +201,9 @@ bool UbuntuClickTool::getTargetFromUser(Target *target, const QString &framework
 
 QString UbuntuClickTool::targetBasePath(const UbuntuClickTool::Target &target)
 {
-    return QString::fromLatin1("%1/click-%2-%3")
+    return QString::fromLatin1("%1/%2-%3-%4")
             .arg(QLatin1String(Constants::UBUNTU_CLICK_CHROOT_BASEPATH))
+	    .arg(clickChrootSuffix())
             .arg(target.framework)
             .arg(target.architecture);
 }
@@ -477,7 +478,6 @@ QPair<int, int> UbuntuClickTool::targetVersion(const UbuntuClickTool::Target &ta
  */
 bool UbuntuClickTool::targetFromPath(const QString &targetPath, UbuntuClickTool::Target *tg)
 {
-
     QRegularExpression clickFilter(QString::fromLatin1(Constants::UBUNTU_CLICK_TARGETS_REGEX).arg(clickChrootSuffix()));
     QRegularExpressionMatch match = clickFilter.match(targetPath);
     if(!match.hasMatch()) {
