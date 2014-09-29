@@ -9,18 +9,42 @@
 namespace Ubuntu {
 namespace Internal {
 
+const char SCRIPT_VERSION_KEY[] = "UbuntuQtVersion.ScriptVersion";
+
+/*!
+ * \brief MIN_SCRIPT_VERSION
+ * Increment this version if all qmake scripts in ~/.config/ubuntu-sdk
+ * need to be recreated
+ */
+const int  MIN_SCRIPT_VERSION   = 1;
+
 UbuntuQtVersion::UbuntuQtVersion()
-    : BaseQtVersion()
+    : BaseQtVersion(),
+      m_scriptVersion(MIN_SCRIPT_VERSION)
 { }
 
 UbuntuQtVersion::UbuntuQtVersion(const Utils::FileName &path, bool isAutodetected, const QString &autodetectionSource)
-    : BaseQtVersion(path, isAutodetected, autodetectionSource)
+    : BaseQtVersion(path, isAutodetected, autodetectionSource),
+      m_scriptVersion(MIN_SCRIPT_VERSION)
 {
     setDisplayName(defaultDisplayName(qtVersionString(), path, false));
 }
 
 UbuntuQtVersion::~UbuntuQtVersion()
 { }
+
+void UbuntuQtVersion::fromMap(const QVariantMap &map)
+{
+    BaseQtVersion::fromMap(map);
+    m_scriptVersion = map.value(QLatin1String(SCRIPT_VERSION_KEY),0).toInt();
+}
+
+QVariantMap UbuntuQtVersion::toMap() const
+{
+    QVariantMap map = BaseQtVersion::toMap();
+    map.insert(QLatin1String(SCRIPT_VERSION_KEY),m_scriptVersion);
+    return map;
+}
 
 UbuntuQtVersion *UbuntuQtVersion::clone() const
 {
@@ -51,6 +75,21 @@ QString UbuntuQtVersion::platformDisplayName() const
 {
     return QLatin1String(Constants::UBUNTU_PLATFORM_NAME_TR);
 }
+int UbuntuQtVersion::scriptVersion() const
+{
+    return m_scriptVersion;
+}
+
+void UbuntuQtVersion::setScriptVersion(int scriptVersion)
+{
+    m_scriptVersion = scriptVersion;
+}
+
+int UbuntuQtVersion::minimalScriptVersion()
+{
+    return MIN_SCRIPT_VERSION;
+}
+
 
 bool UbuntuQtVersionFactory::canRestore(const QString &type)
 {

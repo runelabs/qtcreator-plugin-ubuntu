@@ -72,10 +72,11 @@ QList<ClickToolChain *> UbuntuKitManager::clickToolChains()
 UbuntuQtVersion *UbuntuKitManager::createOrFindQtVersion(ClickToolChain *tc)
 {
 
-    QString qmakePath = QStringLiteral("%1/.config/ubuntu-sdk/qmake-%2-%3")
+    QString qmakePath = QStringLiteral("%1/.config/ubuntu-sdk/qmake-%2-%3-%4")
             .arg(QDir::homePath())
             .arg(tc->clickTarget().framework)
-            .arg(tc->clickTarget().architecture);
+            .arg(tc->clickTarget().architecture)
+            .arg(UbuntuClickTool::clickChrootSuffix());
 
     if(!QFile::exists(qmakePath)) {
         QFile qmakeTemplate(Constants::UBUNTU_RESOURCE_PATH+QStringLiteral("/ubuntu/scripts/qtc_chroot_qmake"));
@@ -86,7 +87,8 @@ UbuntuQtVersion *UbuntuKitManager::createOrFindQtVersion(ClickToolChain *tc)
 
             templ = templ
                     .arg(tc->clickTarget().architecture)
-                    .arg(tc->clickTarget().framework);
+                    .arg(tc->clickTarget().framework)
+                    .arg(UbuntuClickTool::clickChrootSuffix());
 
 
             QFile qmakeScript(qmakePath);
@@ -185,6 +187,20 @@ void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
 
 void UbuntuKitManager::autoDetectKits()
 {
+    //destroy all obsolete QtVersions, they are recreated later on in fixKit()
+    foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::versions()) {
+        if (qtVersion->type() != QLatin1String(Constants::UBUNTU_QTVERSION_TYPE))
+            continue;
+
+        UbuntuQtVersion* ver = static_cast<UbuntuQtVersion*> (qtVersion);
+        if(ver->scriptVersion() < UbuntuQtVersion::minimalScriptVersion()) {
+            //we need to remove that QtVersion
+            QFile::remove(ver->qmakeCommand().toString());
+            QtSupport::QtVersionManager::removeVersion(ver);
+
+        }
+    }
+
     // having a empty toolchains list will remove all autodetected kits for android
     // exactly what we want in that case
     QList<ClickToolChain *> toolchains = clickToolChains();
