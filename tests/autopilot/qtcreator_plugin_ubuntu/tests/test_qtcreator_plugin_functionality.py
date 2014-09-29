@@ -21,13 +21,6 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
     def setUp(self):
         super(QtCreatorPluginTestPlan, self).setUp()
 
-    def type_password(self):
-        """ Hopefully soon obsolate function to enter the user's password to the pkexec's dialog """
-        sleep(2)
-        kbd = Keyboard.create("X11")
-        kbd.type("here comes the password", delay=0.2)
-        kbd.press_and_release('Enter')
-
 # tools -> options -> Build & Run -> Kits -> ".* for armhf (GCC ubuntu-sdk-14.10-utopic)"
     def test_existing_kits(self):
         """ Open the Options dialog by triggering the right action """
@@ -85,8 +78,6 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
         kbd.type("TestX86Emulator", delay=0.2)
         create_button = config_emulator_dialog.wait_select_single('Button', text = 'create')
         self.pointing_device.click_object(create_button)
-        """ Enter the password to the pkexec's dialog """
-        self.type_password()
 
         """ Wait the emulator creation to finish """
         devices_ubuntulistview = devices_quickview.wait_select_single('UbuntuListView', objectName = 'devicesList')
@@ -123,9 +114,6 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
         ok_pushbutton = button_box.wait_select_single('QPushButton', text='&OK')
         self.pointing_device.click_object(ok_pushbutton)
 
-        """ Enter the password to the pkexec's dialog """
-        self.type_password()
-
         """ Open the Click run dialog and wait for it finishes the job """
         click_dialog = self.ide.wait_select_single('Ubuntu::Internal::UbuntuClickDialog')
         dialog_button_box = click_dialog.wait_select_single('QDialogButtonBox', objectName = 'buttonBox')
@@ -149,6 +137,7 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
         self.assertThat(lambda: sigwatch.was_emitted, Eventually(Equals(True)))
         sleep(1)
         self.assertTrue(trojanHorse.lastBuildSuccess)
+
     def test_create_app_with_simple_ui(self):
         self._createAndOpenProject('App with Simple UI',"appwithsimpleui")
         """ Change to the Publish mode and click on the Create package button"""

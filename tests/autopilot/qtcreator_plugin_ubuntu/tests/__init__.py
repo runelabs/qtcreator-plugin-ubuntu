@@ -14,12 +14,15 @@ import shutil
 import tempfile
 import os
 import re
+import time
+import datetime
 
 class QtCreatorTestCase(AutopilotTestCase):
 
     def setUp(self):
         self.pointing_device = Pointer(Mouse.create())
         self._set_temporary_home_directory()
+        self._set_click_chroot_suffix()
         super(QtCreatorTestCase, self).setUp()
         self.launch_qt_creator()
 
@@ -56,6 +59,11 @@ class QtCreatorTestCase(AutopilotTestCase):
         if not os.path.exists('.config/ubuntu-sdk'):
             os.makedirs('.config/ubuntu-sdk')
         open('.config/ubuntu-sdk/firstrun', 'w')
+
+    def _set_click_chroot_suffix(self):
+        ts = time.time()
+        st = datetime.datetime.fromtimestamp(ts).strftime('%Y%m%d%H%M%S')
+        os.environ["CLICK_CHROOT_SUFFIX"] = "testing" + st
 
     def _get_main_window(self):
         return self.ide.wait_select_single(
