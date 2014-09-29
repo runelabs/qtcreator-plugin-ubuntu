@@ -13,6 +13,11 @@ public:
     UbuntuQtVersion();
     UbuntuQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
     ~UbuntuQtVersion() override;
+
+    // BaseQtVersion interface
+    virtual void fromMap(const QVariantMap &map) override;
+    virtual QVariantMap toMap() const override;
+
     UbuntuQtVersion *clone() const override;
 
     QString type() const override;
@@ -23,6 +28,14 @@ public:
 
     QString platformName() const override;
     QString platformDisplayName() const override;
+
+    int scriptVersion() const;
+    void setScriptVersion(int scriptVersion);
+
+    static int minimalScriptVersion ();
+
+private:
+    int m_scriptVersion;
 };
 
 class UbuntuQtVersionFactory : public QtSupport::QtVersionFactory
