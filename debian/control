@@ -78,3 +78,28 @@ Description: Common data files for the Ubuntu plugin for Qt Creator IDE
  This package contains the runtime data files for the Ubuntu plugin for
  Qt Creator IDE.
 
+Package: qtcreator-plugin-ubuntu-autopilot
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         autopilot-qt5,
+         dpkg-dev,
+         libqt5test5,
+         libqt5widgets5,
+         python-autopilot (>= 1.4),
+         python-fixtures,
+         python-gi,
+         python-mock,
+         python-testscenarios,
+         python-testtools,
+         python3-fixtures,
+         python3-gi,
+         python3-testscenarios,
+         python3-testtools,
+         python3-autopilot (>= 1.4),
+         qttestability-autopilot,
+         ubuntu-ui-toolkit-examples,
+         qtcreator-plugin-ubuntu,
+Description: Test package for Ubuntu plugin for Qt Creator IDE
+ Autopilot tests for the Ubuntu plugin for Qt Creator IDE package
+
