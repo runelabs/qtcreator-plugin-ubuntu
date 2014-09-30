@@ -21,13 +21,6 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
     def setUp(self):
         super(QtCreatorPluginTestPlan, self).setUp()
 
-    def type_password(self):
-        """ Hopefully soon obsolate function to enter the user's password to the pkexec's dialog """
-        sleep(2)
-        kbd = Keyboard.create("X11")
-        kbd.type("here comes the password", delay=0.2)
-        kbd.press_and_release('Enter')
-
 # tools -> options -> Build & Run -> Kits -> ".* for armhf (GCC ubuntu-sdk-14.10-utopic)"
     def test_existing_kits(self):
         """ Open the Options dialog by triggering the right action """
@@ -54,19 +47,37 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
 # QWidget ->  QTreeView -> 
         sleep(2)
 
+    def test_create_app_with_backend(self):
+        self._createAndOpenProject('App with QML Extension Library',"appwithbackend")
+        sleep(20)
 
-    def test_x86_emulator_start(self):
-        """ Change to the Devices mode, select the TestX86Emulator and deploy it """
-        kbd = Keyboard.create("X11")
-        kbd.press_and_release('Ctrl+9')
-        devices_quickview = self.ide.wait_select_single('QQuickView', source='file:///usr/share/qtcreator/ubuntu/devicespage/main.qml')
-        devices_ubuntulistview = devices_quickview.wait_select_single('UbuntuListView', objectName = 'devicesList')
-        while True:
-            if(devices_ubuntulistview.visible): break;
-            sleep(1)
-        emulator_listitem = devices_ubuntulistview.wait_select_single('Standard', text = 'TestX86Emulator')
-        self.pointing_device.click_object(emulator_listitem)
-        # TODO: continue with capturing the started emulator en evaluate the status
+        """ Try to build the project """
+        trojanHorse = self.ide.wait_select_single('Ubuntu::Internal::UbuntuTestControl')
+        sigwatch = trojanHorse.watch_signal("buildFinished()")
+        trojanHorse.slots.triggerCommand("ProjectExplorer.Build")
+        self.assertThat(lambda: sigwatch.was_emitted, Eventually(Equals(True)))
+        sleep(1)
+        self.assertTrue(trojanHorse.lastBuildSuccess)
+
+
+    def test_create_app_with_simple_ui(self):
+        self._createAndOpenProject('App with Simple UI',"appwithsimpleui")
+        """ Change to the Publish mode and click on the Create package button"""
+        fancy_tab_widget = self._get_main_window().wait_select_single('Core::Internal::FancyTabWidget')
+        fancy_tab_widget.slots.setCurrentIndex(5)
+        packaging_widget = fancy_tab_widget.wait_select_single('UbuntuPackagingWidget', objectName = 'UbuntuPackagingWidget')
+        click_package_pushbutton = packaging_widget.wait_select_single('QPushButton', objectName = 'pushButtonClickPackage')
+        parser = packaging_widget.wait_select_single('Ubuntu::Internal::ClickRunChecksParser')
+
+        sigwatch = parser.watch_signal("finished()")
+        click_package_pushbutton.slots.click()
+        self.assertThat(lambda: sigwatch.was_emitted, Eventually(Equals(True)))
+
+        """ Check the error type if there was any error during the package creation """
+        validation_groupbox = packaging_widget.wait_select_single('QGroupBox', objectName = 'groupBoxValidate')
+        errorinfo_groupbox = validation_groupbox.wait_select_single('QGroupBox', objectName = 'groupBoxErrorInfo')
+        errortype_label = errorinfo_groupbox.wait_select_single('QLabel', objectName = 'labelErrorType')
+        self.assertThat(errortype_label.text, Equals(""))
 
     def test_x86_emulator_creation(self):
         """ Change to the Devices mode and click on the add new emulator button """
@@ -82,20 +93,28 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
         emulatorname_textfield = config_emulator_dialog.wait_select_single('TextField', placeholderText = 'Emulator name')
         self.pointing_device.click_object(emulatorname_textfield)
         kbd = Keyboard.create("X11")
-        kbd.type("TestX86Emulator", delay=0.2)
-        create_button = config_emulator_dialog.wait_select_single('Button', text = 'create')
+        kbd.type("TestX86Emulator", delay=0.1)
+        create_button = config_emulator_dialog.wait_select_single('Button', text = 'Create')
         self.pointing_device.click_object(create_button)
-        """ Enter the password to the pkexec's dialog """
-        self.type_password()
-
         """ Wait the emulator creation to finish """
         devices_ubuntulistview = devices_quickview.wait_select_single('UbuntuListView', objectName = 'devicesList')
         while True:
             if(devices_ubuntulistview.visible): break;
             sleep(1)
-        print("The device is created")
         emulator_listitem = devices_ubuntulistview.wait_select_single('Standard', text = 'TestX86Emulator')
-        sleep(2)
+
+    def test_x86_emulator_start(self):
+        """ Change to the Devices mode, select the TestX86Emulator and deploy it """
+        kbd = Keyboard.create("X11")
+        kbd.press_and_release('Ctrl+9')
+        devices_quickview = self.ide.wait_select_single('QQuickView', source='file:///usr/share/qtcreator/ubuntu/devicespage/main.qml')
+        devices_ubuntulistview = devices_quickview.wait_select_single('UbuntuListView', objectName = 'devicesList')
+        while True:
+            if(devices_ubuntulistview.visible): break;
+            sleep(1)
+        emulator_listitem = devices_ubuntulistview.wait_select_single('Standard', text = 'TestX86Emulator')
+        self.pointing_device.click_object(emulator_listitem)
+        # TODO: continue with capturing the started emulator en evaluate the status
 
     def test_x86_fw1410_click_chroot_creation(self):
         """ Open the Options dialog by triggering the right action """
@@ -123,9 +142,6 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
         ok_pushbutton = button_box.wait_select_single('QPushButton', text='&OK')
         self.pointing_device.click_object(ok_pushbutton)
 
-        """ Enter the password to the pkexec's dialog """
-        self.type_password()
-
         """ Open the Click run dialog and wait for it finishes the job """
         click_dialog = self.ide.wait_select_single('Ubuntu::Internal::UbuntuClickDialog')
         dialog_button_box = click_dialog.wait_select_single('QDialogButtonBox', objectName = 'buttonBox')
@@ -138,39 +154,9 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
         self.assertTrue('Click exited with no errors' in  output_plaintextedit.plainText)
         self.pointing_device.click_object(close_button)
 
-    def test_create_app_with_backend(self):
-        self._createAndOpenProject('App with QML Extension Library',"appwithbackend")
-        sleep(20)
 
-        """ Try to build the project """
-        trojanHorse = self.ide.wait_select_single('Ubuntu::Internal::UbuntuTestControl')
-        sigwatch = trojanHorse.watch_signal("buildFinished()")
-        trojanHorse.slots.triggerCommand("ProjectExplorer.Build")
-        self.assertThat(lambda: sigwatch.was_emitted, Eventually(Equals(True)))
-        sleep(1)
-        self.assertTrue(trojanHorse.lastBuildSuccess)
-    def test_create_app_with_simple_ui(self):
-        self._createAndOpenProject('App with Simple UI',"appwithsimpleui")
-        """ Change to the Publish mode and click on the Create package button"""
-        fancy_tab_widget = self._get_main_window().wait_select_single('Core::Internal::FancyTabWidget')
-        fancy_tab_widget.slots.setCurrentIndex(5)
-        packaging_widget = fancy_tab_widget.wait_select_single('UbuntuPackagingWidget', objectName = 'UbuntuPackagingWidget')
-        #packaging_groupbox = packaging_widget.wait_select_single('QGroupBox ', objectName = 'groupBoxValidate')
-        #packaging_groupbox = packaging_widget.wait_select_single('QGroupBox', objectName = 'groupBoxPackaging')
-        click_package_pushbutton = packaging_widget.wait_select_single('QPushButton', objectName = 'pushButtonClickPackage')
-        parser = packaging_widget.wait_select_single('Ubuntu::Internal::ClickRunChecksParser')
 
-        sigwatch = parser.watch_signal("finished()")
-        click_package_pushbutton.slots.click()
-        self.assertThat(lambda: sigwatch.was_emitted, Eventually(Equals(True)))
-
-        """ Check the error type if there was any error during the package creation """
-        validation_groupbox = packaging_widget.wait_select_single('QGroupBox', objectName = 'groupBoxValidate')
-        errorinfo_groupbox = validation_groupbox.wait_select_single('QGroupBox', objectName = 'groupBoxErrorInfo')
-        errortype_label = errorinfo_groupbox.wait_select_single('QLabel', objectName = 'labelErrorType')
-        self.assertThat(errortype_label.text, Equals(""))
-
-    def _test_plugins(self):
+    def test_plugins(self):
         """ Open the About Plugins dialog """
         action = self.ide.wait_select_single('QAction', text='About &Plugins...')
         action.slots.trigger()

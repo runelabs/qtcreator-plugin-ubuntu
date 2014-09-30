@@ -79,6 +79,8 @@ public:
     static QPair<int,int> targetVersion (const Target& target);
     static bool        targetFromPath(const QString& targetPath, Target* tg);
     static const Target *clickTargetFromTarget(ProjectExplorer::Target *t);
+    static QString clickChrootSuffix ();
+    static QString m_strClickChrootSuffix;
 };
 
 QDebug operator<<(QDebug dbg, const UbuntuClickTool::Target& t);

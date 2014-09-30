@@ -20,7 +20,8 @@ EMULATOR_PATH=$1
 EMULATOR_NAME=$2
 EMULATOR_ARCH=$3
 EMULATOR_CHANNEL=$4
-WHOAMI=`whoami`
+WHOAMI=$5
+USERHOME=$6
 
 if [[ -z ${EMULATOR_CHANNEL} ]]; then
         EMULATOR_CHANNEL="devel"
@@ -32,4 +33,6 @@ then
 	mkdir -p ${EMULATOR_PATH}
 fi
 
-pkexec sh -c "HOME=$HOME ubuntu-emulator create ${EMULATOR_NAME} --arch=${EMULATOR_ARCH} --channel=${EMULATOR_CHANNEL};chown ${WHOAMI}:${WHOAMI} ${EMULATOR_PATH} -R"
+HOME=${USERHOME} /usr/bin/ubuntu-emulator create ${EMULATOR_NAME} --arch=${EMULATOR_ARCH} --channel=${EMULATOR_CHANNEL}
+chown ${WHOAMI}:${WHOAMI} ${EMULATOR_PATH} -R
+

@@ -35,6 +35,7 @@
 #include <QAction>
 #include <QInputDialog>
 #include <QPushButton>
+#include <QProcess>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -62,6 +63,12 @@ enum {
     debug = 0
 };
 
+
+/**
+* Initialize the m_strClickChrootSuffix from the environment variable
+*/
+QString UbuntuClickTool::m_strClickChrootSuffix = QProcessEnvironment::systemEnvironment().value(QLatin1String(Constants::UBUNTU_CLICK_CHROOT_SUFFIX_ENV_VAR),QLatin1String(Constants::UBUNTU_CLICK_CHROOT_DEFAULT_NAME));
+
 /**
  * @brief UbuntuClickTool::UbuntuClickTool
  * Implements functionality needed for executing the click
@@ -69,6 +76,15 @@ enum {
  */
 UbuntuClickTool::UbuntuClickTool()
 {
+}
+
+/**
+ * @brief UbuntuClickTool::clickChrootSuffix
+ * Returns the click chroot suffix to be used with click operations
+ */
+QString UbuntuClickTool::clickChrootSuffix()
+{
+    return m_strClickChrootSuffix;
 }
 
 /**
@@ -82,8 +98,8 @@ void UbuntuClickTool::parametersForCreateChroot(const Target &target, ProjectExp
             .arg(Constants::UBUNTU_SCRIPTPATH)
             .arg(target.architecture)
             .arg(target.framework)
-            .arg(target.series);
-
+            .arg(target.series)
+            .arg(clickChrootSuffix());
     params->setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
     params->setEnvironment(Utils::Environment::systemEnvironment());
     params->setArguments(command);
@@ -103,7 +119,8 @@ void UbuntuClickTool::parametersForMaintainChroot(const UbuntuClickTool::Maintai
             arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_UPGRADE_ARGS)
                     .arg(target.architecture)
                     .arg(target.framework)
-                    .arg(target.series);
+                    .arg(target.series)
+                    .arg(clickChrootSuffix());
             break;
         case Delete:
             params->setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
@@ -111,7 +128,8 @@ void UbuntuClickTool::parametersForMaintainChroot(const UbuntuClickTool::Maintai
                     .arg(Constants::UBUNTU_SCRIPTPATH)
                     .arg(target.architecture)
                     .arg(target.framework)
-                    .arg(target.series);
+                    .arg(target.series)
+                    .arg(clickChrootSuffix());
             break;
     }
 
@@ -133,7 +151,8 @@ void UbuntuClickTool::openChrootTerminal(const UbuntuClickTool::Target &target)
     args << QString(QLatin1String(Constants::UBUNTU_CLICK_OPEN_TERMINAL))
             .arg(target.architecture)
             .arg(target.framework)
-            .arg(target.series);
+            .arg(target.series)
+            .arg(clickChrootSuffix());
 
     if(!QProcess::startDetached(term,args,QDir::homePath())) {
         printToOutputPane(QLatin1String(Constants::UBUNTU_CLICK_OPEN_TERMINAL_ERROR));
@@ -182,8 +201,9 @@ bool UbuntuClickTool::getTargetFromUser(Target *target, const QString &framework
 
 QString UbuntuClickTool::targetBasePath(const UbuntuClickTool::Target &target)
 {
-    return QString::fromLatin1("%1/click-%2-%3")
+    return QString::fromLatin1("%1/%2-%3-%4")
             .arg(QLatin1String(Constants::UBUNTU_CLICK_CHROOT_BASEPATH))
+	    .arg(clickChrootSuffix())
             .arg(target.framework)
             .arg(target.architecture);
 }
@@ -337,13 +357,10 @@ QString UbuntuClickTool::getMostRecentFramework(const QString &subFramework, con
 {
     //returned list is ordered from newest -> oldest framework
     QStringList allFws = getSupportedFrameworks(target);
-
     QString currFw;
     foreach(const QString &framework, allFws) {
-
         QString basename;
         QStringList extensions;
-
         QRegularExpression expr(QLatin1String(Constants::UBUNTU_CLICK_BASE_FRAMEWORK_REGEX));
         QRegularExpressionMatch match = expr.match(framework);
         if(match.hasMatch()) {
@@ -354,7 +371,6 @@ QString UbuntuClickTool::getMostRecentFramework(const QString &subFramework, con
         } else {
             continue;
         }
-
         //this is a multi purpose framework
         if (extensions.size() == 0
                 || (extensions.size() == 1 && extensions[0].startsWith(QLatin1String("dev")) )) {
@@ -382,15 +398,16 @@ QList<UbuntuClickTool::Target> UbuntuClickTool::listAvailableTargets(const QStri
 {
     QList<Target> items;
     QDir chrootDir(QLatin1String(Constants::UBUNTU_CLICK_CHROOT_BASEPATH));
-
-    QString filterRegex = QLatin1String(Constants::UBUNTU_CLICK_TARGETS_REGEX);
+    QString filterRegex;
+    filterRegex = QString::fromLatin1(Constants::UBUNTU_CLICK_TARGETS_REGEX).arg(clickChrootSuffix());
     if(!framework.isEmpty()) {
         QRegularExpression expr(QLatin1String(Constants::UBUNTU_CLICK_BASE_FRAMEWORK_REGEX));
         QRegularExpressionMatch match = expr.match(framework);
         if(match.hasMatch()) {
             if(debug) qDebug()<<"Filtering for base framework: "<<match.captured(1);
             filterRegex = QString::fromLatin1(Constants::UBUNTU_CLICK_TARGETS_FRAMEWORK_REGEX)
-                    .arg(match.captured(1));
+                        		     .arg(clickChrootSuffix())
+                                             .arg(match.captured(1));
         }
     }
 
@@ -461,8 +478,7 @@ QPair<int, int> UbuntuClickTool::targetVersion(const UbuntuClickTool::Target &ta
  */
 bool UbuntuClickTool::targetFromPath(const QString &targetPath, UbuntuClickTool::Target *tg)
 {
-    QRegularExpression clickFilter(QLatin1String(Constants::UBUNTU_CLICK_TARGETS_REGEX));
-
+    QRegularExpression clickFilter(QString::fromLatin1(Constants::UBUNTU_CLICK_TARGETS_REGEX).arg(clickChrootSuffix()));
     QRegularExpressionMatch match = clickFilter.match(targetPath);
     if(!match.hasMatch()) {
         return false;

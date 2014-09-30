@@ -18,29 +18,30 @@
 ARCHITECTURE=$1
 FRAMEWORK=$2
 SERIES=$3
+NAME=$4
 SCRIPTPATH=$(dirname $0)
 
-click chroot -a $ARCHITECTURE -f $FRAMEWORK exists
+click chroot -a $ARCHITECTURE -f $FRAMEWORK -n $NAME exists
 
 if [ $? -eq 0 ]
 then
-	echo "The click target click-${FRAMEWORK}-${ARCHITECTURE} exists already"
+	echo "The click target ${NAME}-${FRAMEWORK}-${ARCHITECTURE} exists already"
         exit 1
 fi
 
-click chroot -a $ARCHITECTURE -f $FRAMEWORK create
+click chroot -a $ARCHITECTURE -f $FRAMEWORK -n $NAME create
 
 if [ $? -eq 0 ]
 then
     echo "The click target was created successfully, installing required packages"
 
-    click chroot -a $ARCHITECTURE -f $FRAMEWORK maint apt-get install -y cmake
+    click chroot -a $ARCHITECTURE -f $FRAMEWORK  -n $NAME maint apt-get install -y cmake
 
     exit 0
 fi
 
 echo "There was an error creating the click target, cleaning up"
 
-"${SCRIPTPATH}/click_destroy_target" ${ARCHITECTURE} ${FRAMEWORK} ${SERIES}
+"${SCRIPTPATH}/click_destroy_target" ${ARCHITECTURE} ${FRAMEWORK} ${SERIES} ${NAME}
 
 exit 1
