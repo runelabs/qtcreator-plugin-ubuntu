@@ -59,14 +59,13 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
         sleep(1)
         self.assertTrue(trojanHorse.lastBuildSuccess)
 
+
     def test_create_app_with_simple_ui(self):
         self._createAndOpenProject('App with Simple UI',"appwithsimpleui")
         """ Change to the Publish mode and click on the Create package button"""
         fancy_tab_widget = self._get_main_window().wait_select_single('Core::Internal::FancyTabWidget')
         fancy_tab_widget.slots.setCurrentIndex(5)
         packaging_widget = fancy_tab_widget.wait_select_single('UbuntuPackagingWidget', objectName = 'UbuntuPackagingWidget')
-        #packaging_groupbox = packaging_widget.wait_select_single('QGroupBox ', objectName = 'groupBoxValidate')
-        #packaging_groupbox = packaging_widget.wait_select_single('QGroupBox', objectName = 'groupBoxPackaging')
         click_package_pushbutton = packaging_widget.wait_select_single('QPushButton', objectName = 'pushButtonClickPackage')
         parser = packaging_widget.wait_select_single('Ubuntu::Internal::ClickRunChecksParser')
 
