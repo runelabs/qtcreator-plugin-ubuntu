@@ -156,7 +156,7 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
         errortype_label = errorinfo_groupbox.wait_select_single('QLabel', objectName = 'labelErrorType')
         self.assertThat(errortype_label.text, Equals(""))
 
-    def _test_plugins(self):
+    def test_plugins(self):
         """ Open the About Plugins dialog """
         action = self.ide.wait_select_single('QAction', text='About &Plugins...')
         action.slots.trigger()
