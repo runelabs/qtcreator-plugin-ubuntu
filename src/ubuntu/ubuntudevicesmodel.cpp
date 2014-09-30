@@ -765,9 +765,17 @@ void UbuntuDevicesModel::doCreateEmulatorImage(UbuntuProcess *process, const QSt
     strEmulatorPath += QDir::separator();
     strEmulatorPath += QLatin1String(Constants::DEFAULT_EMULATOR_PATH);
     strEmulatorPath += QDir::separator();
-    process->append(QStringList()
-                      << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT)
-                      .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(strEmulatorPath).arg(strEmulatorName).arg(arch).arg(channel)
+    QString strUserName = QProcessEnvironment::systemEnvironment().value(QLatin1String("USER"));
+    QString strUserHome = QProcessEnvironment::systemEnvironment().value(QLatin1String("HOME")); 
+    process->append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT)
+                      .arg(QString::fromLatin1(Ubuntu::Constants::UBUNTU_SUDO_BINARY))
+                      .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
+                      .arg(strEmulatorPath)
+                      .arg(strEmulatorName)
+                      .arg(arch)
+                      .arg(channel)
+                      .arg(strUserName)
+                      .arg(strUserHome)
                       << QCoreApplication::applicationDirPath());
     process->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
 }

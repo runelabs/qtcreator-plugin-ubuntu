@@ -75,18 +75,15 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
         emulatorname_textfield = config_emulator_dialog.wait_select_single('TextField', placeholderText = 'Emulator name')
         self.pointing_device.click_object(emulatorname_textfield)
         kbd = Keyboard.create("X11")
-        kbd.type("TestX86Emulator", delay=0.2)
-        create_button = config_emulator_dialog.wait_select_single('Button', text = 'create')
+        kbd.type("TestX86Emulator", delay=0.1)
+        create_button = config_emulator_dialog.wait_select_single('Button', text = 'Create')
         self.pointing_device.click_object(create_button)
-
         """ Wait the emulator creation to finish """
         devices_ubuntulistview = devices_quickview.wait_select_single('UbuntuListView', objectName = 'devicesList')
         while True:
             if(devices_ubuntulistview.visible): break;
             sleep(1)
-        print("The device is created")
         emulator_listitem = devices_ubuntulistview.wait_select_single('Standard', text = 'TestX86Emulator')
-        sleep(2)
 
     def test_x86_fw1410_click_chroot_creation(self):
         """ Open the Options dialog by triggering the right action """
