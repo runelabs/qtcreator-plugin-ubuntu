@@ -21,8 +21,11 @@ class QtCreatorTestCase(AutopilotTestCase):
 
     def setUp(self):
         self.pointing_device = Pointer(Mouse.create())
-        self._set_temporary_home_directory()
-        self._set_click_chroot_suffix()
+#        sdk_test_mode = os.environ['SDK_TEST_MODE']
+        sdk_test_mode = os.environ.get('SDK_TEST_MODE','auto')
+        if sdk_test_mode != 'manual':
+          self._set_temporary_home_directory()
+          self._set_click_chroot_suffix()
         super(QtCreatorTestCase, self).setUp()
         self.launch_qt_creator()
 
