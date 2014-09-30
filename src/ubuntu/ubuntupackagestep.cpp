@@ -4,6 +4,7 @@
 #include "clicktoolchain.h"
 #include "ubuntuprojectguesser.h"
 #include "ubuntuclickmanifest.h"
+#include "ubuntupackageoutputparser.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
@@ -186,7 +187,8 @@ bool UbuntuPackageStep::init()
     //builds the click process arguments
     {
         QStringList arguments;
-        arguments << QLatin1String("build")
+        arguments << QStringLiteral("build")
+                  << QStringLiteral("--no-validate")
                   << deployDir;
 
         ProjectExplorer::ProcessParameters* params = &m_ClickParam;
@@ -205,6 +207,23 @@ bool UbuntuPackageStep::init()
 
         params->resolveAll();
     }
+
+    //builds the click review arguments
+    {
+        ProjectExplorer::ProcessParameters* params = &m_ReviewParam;
+        params->setMacroExpander(mExp);
+
+        //setup process parameters
+        params->setWorkingDirectory(m_buildDir);
+        params->setCommand(QLatin1String(Constants::CLICK_REVIEWERSTOOLS_BINARY));
+
+        Utils::Environment tmpEnv = env;
+        // Force output to english for the parsers. Do this here and not in the toolchain's
+        // addToEnvironment() to not screw up the users run environment.
+        tmpEnv.set(QLatin1String("LC_ALL"), QLatin1String("C"));
+        params->setEnvironment(tmpEnv);
+    }
+
     return true;
 }
 
@@ -223,7 +242,7 @@ void UbuntuPackageStep::run(QFutureInterface<bool> &fi)
 
     m_state = Idle;
     m_futureInterface = &fi;
-    m_futureInterface->setProgressRange(0,3);
+    m_futureInterface->setProgressRange(0,4);
     QTimer::singleShot(0,this,SLOT(doNextStep()));
 }
 
@@ -330,10 +349,22 @@ void UbuntuPackageStep::setupAndStartProcess(const ProjectExplorer::ProcessParam
     if(debug) qDebug()<<"Starting process "<<params.effectiveCommand()<<params.effectiveArguments();
 
     ProjectExplorer::IOutputParser *parser = target()->kit()->createOutputParser();
-    if (parser) {
-        if(m_outputParserChain)
-            delete m_outputParserChain;
 
+    //add special parser on click review step
+    if(m_state == ClickReview) {
+        if (parser)
+            parser->appendOutputParser(new UbuntuPackageOutputParser);
+        else
+            parser = new UbuntuPackageOutputParser;
+
+    }
+
+    if(m_outputParserChain) {
+        delete m_outputParserChain;
+        m_outputParserChain = 0;
+    }
+
+    if(parser) {
         m_outputParserChain = parser;
         m_outputParserChain->setWorkingDirectory(params.effectiveWorkingDirectory());
 
@@ -354,7 +385,7 @@ void UbuntuPackageStep::setupAndStartProcess(const ProjectExplorer::ProcessParam
  * \brief UbuntuPackageStep::checkLastProcessSuccess
  * Checks if the last process has run without any errors
  */
-bool UbuntuPackageStep::processFinished()
+bool UbuntuPackageStep::processFinished(FinishedCheckMode mode)
 {
     //make sure all data has been read
     QString line = QString::fromLocal8Bit(m_process->readAllStandardError());
@@ -365,34 +396,41 @@ bool UbuntuPackageStep::processFinished()
     if (!line.isEmpty())
         stdOutput(line);
 
+    bool success = true;
+
     if (m_outputParserChain) {
         m_outputParserChain->flush();
 
         if(m_outputParserChain->hasFatalErrors())
-            return false;
+            success = false;
     }
 
-    QString command;
-    if(m_state == MakeInstall)
-        command = QDir::toNativeSeparators(m_MakeParam.effectiveCommand());
-    else
-        command = QDir::toNativeSeparators(m_ClickParam.effectiveCommand());
+    if(success) {
+        QString command;
+        if(m_state == MakeInstall)
+            command = QDir::toNativeSeparators(m_MakeParam.effectiveCommand());
+        else
+            command = QDir::toNativeSeparators(m_ClickParam.effectiveCommand());
 
-    bool success = true;
-    if (m_process->exitStatus() == QProcess::NormalExit && m_process->exitCode() == 0) {
-        emit addOutput(tr("The process \"%1\" exited normally.").arg(command),
-                       BuildStep::MessageOutput);
-    } else if (m_process->exitStatus() == QProcess::NormalExit) {
-        emit addOutput(tr("The process \"%1\" exited with code %2.")
-                       .arg(command, QString::number(m_process->exitCode())),
-                       BuildStep::ErrorMessageOutput);
-        //error
-        success = false;
-    } else {
-        emit addOutput(tr("The process \"%1\" crashed.").arg(command), BuildStep::ErrorMessageOutput);
+        if (m_process->exitStatus() == QProcess::NormalExit && m_process->exitCode() == 0) {
+            emit addOutput(tr("The process \"%1\" exited normally.").arg(command),
+                           BuildStep::MessageOutput);
+        } else if (m_process->exitStatus() == QProcess::NormalExit) {
+            emit addOutput(tr("The process \"%1\" exited with code %2.")
+                           .arg(command, QString::number(m_process->exitCode())),
+                           BuildStep::ErrorMessageOutput);
+            if(mode == CheckReturnCode)
+                //error
+                success = false;
+            else {
+                emit addOutput(tr("Ignoring return code for this step"),BuildStep::ErrorMessageOutput);
+            }
+        } else {
+            emit addOutput(tr("The process \"%1\" crashed.").arg(command), BuildStep::ErrorMessageOutput);
 
-        //error
-        success = false;
+            //error
+            success = false;
+        }
     }
 
     //the process failed, lets clean up
@@ -401,7 +439,6 @@ bool UbuntuPackageStep::processFinished()
         cleanup();
         emit finished();
     }
-
     return success;
 }
 
@@ -421,6 +458,9 @@ void UbuntuPackageStep::cleanup()
         delete m_outputParserChain;
         m_outputParserChain = 0;
     }
+
+    //reset params
+    m_MakeParam = m_ClickParam = m_ReviewParam = ProjectExplorer::ProcessParameters();
 }
 
 void UbuntuPackageStep::stdOutput(const QString &line)
@@ -696,11 +736,23 @@ void UbuntuPackageStep::doNextStep()
                                ProjectExplorer::BuildStep::MessageOutput);
             }
 
+            m_futureInterface->setProgressValueAndText(3,tr("Reviewing click package"));
+            m_state = ClickReview;
+
+            m_ReviewParam.setArguments(QString::fromLatin1(Constants::CLICK_REVIEWERSTOOLS_ARGS).arg(packagePath()));
+            m_ReviewParam.resolveAll();
+            setupAndStartProcess(m_ReviewParam);
+            break;
+        }
+        case ClickReview: {
+            //we need to ignore the return code for now,
+            //until we have proper support for ignoring specific errors
+            if (!processFinished(IgnoreReturnCode))
+                return;
+
             m_futureInterface->reportResult(true);
             cleanup();
             emit finished();
-
-            break;
         }
 
         default:
