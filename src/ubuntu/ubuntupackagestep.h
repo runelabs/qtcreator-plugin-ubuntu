@@ -63,6 +63,7 @@ public:
 
 signals:
     void packageModeChanged(PackageMode arg);
+    void currentSubStepFinished();
 
 protected:
     void setupAndStartProcess ( const ProjectExplorer::ProcessParameters &params );

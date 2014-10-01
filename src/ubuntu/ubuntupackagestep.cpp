@@ -352,10 +352,12 @@ void UbuntuPackageStep::setupAndStartProcess(const ProjectExplorer::ProcessParam
 
     //add special parser on click review step
     if(m_state == ClickReview) {
+        UbuntuPackageOutputParser *packageStepParser = new UbuntuPackageOutputParser;
+        connect(this,SIGNAL(currentSubStepFinished()),packageStepParser,SLOT(setEndOfData()));
         if (parser)
-            parser->appendOutputParser(new UbuntuPackageOutputParser);
+            parser->appendOutputParser(packageStepParser);
         else
-            parser = new UbuntuPackageOutputParser;
+            parser = packageStepParser;
 
     }
 
@@ -395,6 +397,8 @@ bool UbuntuPackageStep::processFinished(FinishedCheckMode mode)
     line = QString::fromLocal8Bit(m_process->readAllStandardOutput());
     if (!line.isEmpty())
         stdOutput(line);
+
+    emit currentSubStepFinished();
 
     bool success = true;
 
