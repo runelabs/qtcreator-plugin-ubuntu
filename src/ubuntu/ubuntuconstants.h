@@ -118,7 +118,7 @@ const char UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE_SCRIPT[] = "%0/local_ins
 const char UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES_SCRIPT[] = "%0/local_search_images";
 const char UBUNTUDEVICESWIDGET_LOCAL_SEARCH_IMAGES[] = "Search configured emulator instances.";
 const char UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR[] = "Creating new emulator instance.";
-const char UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT[] = "%0/local_create_emulator %1 %2 %3 %4";
+const char UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT[] = "%0 %1/local_create_emulator %2 %3 %4 %5 %6 %7";
 const char UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR[] = "Starting the selected emulator.";
 const char UBUNTUDEVICESWIDGET_LOCAL_START_EMULATOR_SCRIPT[] = "%0/local_start_emulator";
 const char UBUNTUDEVICESWIDGET_LOCAL_STOP_EMULATOR_SCRIPT[] = "%0/local_stop_emulator";
@@ -458,20 +458,22 @@ const char    CLICK_REVIEWERSTOOLS_LOCATION[] = "/usr/bin/click-run-checks \"%0\
 const char UBUNTU_CLICK_BUILD_CONTEXTMENU_ID[] = "UbuntuProjectManager.RunClickBuildContextMenu";
 const char UBUNTU_CLICK_BUILD_CONTEXTMENU_TEXT[] = "Build in chroot";
 const char UBUNTU_CLICK_OPEN_TERMINAL_ERROR[] = "Error when starting terminal";
-const char UBUNTU_CLICK_TARGETS_REGEX[] = "^click-(.*)-([A-Za-z0-9]+)$";
-const char UBUNTU_CLICK_TARGETS_FRAMEWORK_REGEX[] = "^click-(%1)-([A-Za-z0-9]+)$";
+const char UBUNTU_CLICK_TARGETS_REGEX[] = "^%1-(.*)-([A-Za-z0-9]+)$";
+const char UBUNTU_CLICK_TARGETS_FRAMEWORK_REGEX[] = "^%1-(%2)-([A-Za-z0-9]+)$";
 const char UBUNTU_CLICK_BASE_FRAMEWORK_REGEX[] = "(ubuntu-sdk-[0-9]{1,2}.[0-9]{1,2})";
 const char UBUNTU_CLICK_VERSION_REGEX[] = "^DISTRIB_RELEASE=([0-9]+)\\.([0-9]+)$";
 const char UBUNTU_CLICK_SERIES_REGEX[]  = "^DISTRIB_CODENAME=([A-Za-z]+)$";
 
+const char UBUNTU_CLICK_CHROOT_SUFFIX_ENV_VAR[] = "CLICK_CHROOT_SUFFIX";
+const char UBUNTU_CLICK_CHROOT_DEFAULT_NAME[] = "click"; 
 const char UBUNTU_CLICK_BINARY[]  = "/usr/bin/click";
 const char UBUNTU_SUDO_BINARY[]   = "/usr/bin/pkexec";
 const char UBUNTU_CLICK_CHROOT_BASEPATH[] = "/var/lib/schroot/chroots";
 const char UBUNTU_CLICK_FRAMEWORKS_BASEPATH[] = "/usr/share/click/frameworks";
 const char UBUNTU_CLICK_CLICK_PACKAGE_DIR[] = "%CLICK_FRAMEWORK%-%CLICK_ARCH%/click_package";
-const char UBUNTU_CLICK_CHROOT_CREATE_ARGS[]  = "sh -c \"%0/click_create_target %1 %2 %3\"";
-const char UBUNTU_CLICK_CHROOT_DESTROY_ARGS[] = "sh -c \"%0/click_destroy_target %1 %2 %3\"";
-const char UBUNTU_CLICK_CHROOT_UPGRADE_ARGS[] = "chroot -a %0 -f %1 -s %2 upgrade";
+const char UBUNTU_CLICK_CHROOT_CREATE_ARGS[]  = "%0/click_create_target %1 %2 %3 %4";
+const char UBUNTU_CLICK_CHROOT_DESTROY_ARGS[] = "%0/click_destroy_target %1 %2 %3 %4";
+const char UBUNTU_CLICK_CHROOT_UPGRADE_ARGS[] = "chroot -a %0 -f %1 -s %2 -n %3 upgrade";
 const char UBUNTU_CLICK_CHROOT_CMAKE_SCRIPT[] = "%0/qtc_chroot_cmake";
 const char UBUNTU_CLICK_CHROOT_CMAKE_ARGS[]   = "%0 %1 %2 %3 %4";
 const char UBUNTU_CLICK_CHROOT_MAKE_SCRIPT[]  = "%0/qtc_chroot_make";
@@ -480,7 +482,7 @@ const char UBUNTU_CLICK_CHROOT_MAKE_CLEAN_ARGS[]   = "clean";
 const char UBUNTU_CLICK_CHROOT_MAKE_INSTALL_ARGS[] = "DESTDIR=click_package install";
 const char UBUNTU_CLICK_FIXAUTOMOC_SCRIPT[] = "%0/qtc_fixmoc";
 const char UBUNTU_CLICK_FIXAUTOMOC_ARGS[]   = "%0 %1 %2";
-const char UBUNTU_CLICK_OPEN_TERMINAL[] = "click chroot -a %0 -f %1 -s %2 maint /bin/bash";
+const char UBUNTU_CLICK_OPEN_TERMINAL[] = "click chroot -a %0 -f %1 -s %2 -n %3 maint /bin/bash";
 
 const char UBUNTU_CLICK_DELETE_TITLE[] = "Delete click chroot";
 const char UBUNTU_CLICK_DELETE_MESSAGE[] = "Are you sure you want to delete this chroot?";

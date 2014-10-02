@@ -15,6 +15,7 @@
 #
 # Author: Benjamin Zeller<benjamin.zeller@canonical.com>
 
+: ${CLICK_CHROOT_SUFFIX:=click}
 : ${CLICK_SDK_ARCH:?"Need to set CLICK_SDK_ARCH non-empty"}
 : ${CLICK_SDK_FRAMEWORK:?"Need to set CLICK_SDK_FRAMEWORK non-empty"}
 # : ${CLICK_SDK_SERIES:?"Need to set CLICK_SDK_SERIES non-empty"}
@@ -39,7 +40,4 @@ else
     exit 1
 fi
 
-
-/usr/bin/click chroot -a ${CLICK_SDK_ARCH} -f ${CLICK_SDK_FRAMEWORK} run ${GCC_BIN} $@
-
-
+/usr/bin/click chroot -a ${CLICK_SDK_ARCH} -f ${CLICK_SDK_FRAMEWORK} -n ${CLICK_CHROOT_SUFFIX} run ${GCC_BIN} $@
