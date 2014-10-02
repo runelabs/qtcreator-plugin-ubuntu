@@ -437,13 +437,11 @@ try:
         GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGHUP, on_sigterm, runner)
 
     #unlock the phone
-    powerd = subprocess.Popen(["powerd-cli", "display", "on"])
+    powerd = subprocess.Popen(["powerd-cli", "display", "on"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
     sessionBus   = dbus.SessionBus()
     unityGreeter = sessionBus.get_object('com.canonical.UnityGreeter','/')
     unityGreeterIFace = dbus.Interface(unityGreeter,dbus_interface='com.canonical.UnityGreeter')
     unityGreeterIFace.HideGreeter()
-
-    print("Sdk-Launcher> After Phone unlock",flush=True)
 
     #execute the hook, this will not return before the app or scope finished to run
     exitCode = runner.launch()
