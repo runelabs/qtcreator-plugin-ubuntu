@@ -39,7 +39,6 @@ public:
     void apply();
 
 protected slots:
-    void on_pushButtonFindClickPackagingTools_clicked();
     void on_pushButtonCreateClickTarget_clicked();
     void on_deleteClickChroot (const int index);
     void on_maintainClickChroot (const int index);

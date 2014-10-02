@@ -25,7 +25,13 @@ public:
         Idle,
         MakeInstall,
         PreparePackage,
-        ClickBuild
+        ClickBuild,
+        ClickReview
+    };
+
+    enum FinishedCheckMode {
+        CheckReturnCode,
+        IgnoreReturnCode
     };
 
     enum PackageMode {
@@ -57,10 +63,11 @@ public:
 
 signals:
     void packageModeChanged(PackageMode arg);
+    void currentSubStepFinished();
 
 protected:
     void setupAndStartProcess ( const ProjectExplorer::ProcessParameters &params );
-    bool processFinished ();
+    bool processFinished (FinishedCheckMode mode = CheckReturnCode);
     void cleanup ();
     void stdOutput ( const QString &line );
     void stdError  ( const QString &line );
@@ -87,6 +94,7 @@ private:
 
     ProjectExplorer::ProcessParameters m_MakeParam;
     ProjectExplorer::ProcessParameters m_ClickParam;
+    ProjectExplorer::ProcessParameters m_ReviewParam;
 
     Utils::QtcProcess *m_process;
     ProjectExplorer::IOutputParser *m_outputParserChain;

@@ -42,6 +42,7 @@
 #include "ubuntueditorfactory.h"
 #include "ubuntucmakecache.h"
 #include "ubuntutestcontrol.h"
+#include "ubuntupackageoutputparser.h"
 
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -153,6 +154,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
     //deploy support
     addAutoReleasedObject(new UbuntuRemoteDeployConfigurationFactory);
+    addAutoReleasedObject(new UbuntuClickReviewTaskHandler);
 
     //register wizards
     addAutoReleasedObject(

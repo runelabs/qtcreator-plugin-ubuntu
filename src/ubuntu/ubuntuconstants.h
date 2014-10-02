@@ -442,13 +442,17 @@ const char  SETTINGS_KEY_QML[] = "QML";
 const char  SETTINGS_KEY_SSH[] = "SSH";
 const char  SETTINGS_KEY_AUTOTOGGLE[] = "Auto_Toggle";
 
-const char  SETTINGS_GROUP_CLICK[] = "Click";
-const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS[] = "ReviewersToolsEnabled";
-const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS_LOCATION[] = "ReviewersToolsLocation";
-const bool  SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS = false;
-const bool  SETTINGS_CLICK_REVIEWERSTOOLS_TRUE = true;
-const char  SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION[] = "/usr/bin/click-run-checks \"%0\"";
-const char  UBUNTUSETTINGSCLICKWIDGET_FILEDIALOG[] = "Location of click-reviewers-tools";
+//const char  SETTINGS_GROUP_CLICK[] = "Click";
+//const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS[] = "ReviewersToolsEnabled";
+//const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS_LOCATION[] = "ReviewersToolsLocation";
+//const bool  SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS = false;
+//const bool  SETTINGS_CLICK_REVIEWERSTOOLS_TRUE = true;
+//const char  UBUNTUSETTINGSCLICKWIDGET_FILEDIALOG[] = "Location of click-reviewers-tools";
+
+//review tools
+const char    CLICK_REVIEWERSTOOLS_BINARY[]   = "/usr/bin/click-run-checks";
+const char    CLICK_REVIEWERSTOOLS_ARGS[]     = "\"%0\"";
+const char    CLICK_REVIEWERSTOOLS_LOCATION[] = "/usr/bin/click-run-checks \"%0\"";
 
 //build configuration
 const char UBUNTU_CLICK_BUILD_CONTEXTMENU_ID[] = "UbuntuProjectManager.RunClickBuildContextMenu";

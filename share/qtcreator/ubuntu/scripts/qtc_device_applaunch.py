@@ -39,6 +39,7 @@ import signal
 import subprocess
 import argparse
 import fcntl
+import shutil
 import dbus
 import dbus.service
 import dbus.mainloop.glib
@@ -435,12 +436,22 @@ try:
         GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGINT, on_sigterm, runner)
         GLib.unix_signal_add_full(GLib.PRIORITY_HIGH, signal.SIGHUP, on_sigterm, runner)
 
+    #unlock the phone
+    powerd = subprocess.Popen(["powerd-cli", "display", "on"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+    sessionBus   = dbus.SessionBus()
+    unityGreeter = sessionBus.get_object('com.canonical.UnityGreeter','/')
+    unityGreeterIFace = dbus.Interface(unityGreeter,dbus_interface='com.canonical.UnityGreeter')
+    unityGreeterIFace.HideGreeter()
+
     #execute the hook, this will not return before the app or scope finished to run
     exitCode = runner.launch()
 
 except Exception as err:
     print(repr(err),flush=True)
     exitCode = 1
+
+if(powerd):
+    powerd.terminate()
 
 #clean up the debug conf file if it still exists
 if needs_debug_conf:

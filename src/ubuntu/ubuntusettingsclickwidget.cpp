@@ -38,12 +38,8 @@ UbuntuSettingsClickWidget::UbuntuSettingsClickWidget(QWidget *parent) :
     ui(new Ui::UbuntuSettingsClickWidget)
 {
     ui->setupUi(this);
-    m_settings = new QSettings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
 
-    m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_CLICK));
-    ui->groupBox_4->setChecked(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_CLICK_REVIEWERSTOOLS),Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS).toBool());
-    ui->lineEditPackagingToolsLocation->setText(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_CLICK_REVIEWERSTOOLS_LOCATION),QLatin1String(Constants::SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS_LOCATION)).toString());
-    m_settings->endGroup();
+    m_settings = new QSettings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
 
     m_deleteMapper = new QSignalMapper(this);
     connect(m_deleteMapper, SIGNAL(mapped(int)),this, SLOT(on_deleteClickChroot(int)));
@@ -59,23 +55,12 @@ UbuntuSettingsClickWidget::UbuntuSettingsClickWidget(QWidget *parent) :
 }
 
 void UbuntuSettingsClickWidget::apply() {
-    m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_CLICK));
-    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_CLICK_REVIEWERSTOOLS),ui->groupBox_4->isChecked());
-    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_CLICK_REVIEWERSTOOLS_LOCATION),ui->lineEditPackagingToolsLocation->text());
-    m_settings->endGroup();
-
     m_settings->sync();
 }
 
 UbuntuSettingsClickWidget::~UbuntuSettingsClickWidget()
 {
     delete ui;
-}
-
-void UbuntuSettingsClickWidget::on_pushButtonFindClickPackagingTools_clicked() {
-    QString path = QFileDialog::getExistingDirectory(this,QLatin1String(Constants::UBUNTUSETTINGSCLICKWIDGET_FILEDIALOG));
-    if (path.isEmpty()) return;
-    ui->lineEditPackagingToolsLocation->setText(path);
 }
 
 void UbuntuSettingsClickWidget::on_pushButtonCreateClickTarget_clicked()

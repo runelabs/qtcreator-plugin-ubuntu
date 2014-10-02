@@ -135,7 +135,8 @@ SOURCES += \
     ubuntuapparmoreditor.cpp \
     ubuntueditorfactory.cpp \
     ubuntucmakecache.cpp \
-    ubuntutestcontrol.cpp
+    ubuntutestcontrol.cpp \
+    ubuntupackageoutputparser.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -217,5 +218,6 @@ HEADERS += \
     ubuntuapparmoreditor.h \
     ubuntueditorfactory.h \
     ubuntucmakecache.h \
-    ubuntutestcontrol.h
+    ubuntutestcontrol.h \
+    ubuntupackageoutputparser.h
 
