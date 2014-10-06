@@ -33,7 +33,9 @@ void UbuntuPackageOutputParser::stdError(const QString &line)
 
 bool UbuntuPackageOutputParser::hasFatalErrors() const
 {
-    return IOutputParser::hasFatalErrors() || m_fatalError;
+    //commented out due to bug lp:1377094 "Click review errors prevent applications from being deployed to the device"
+    //return IOutputParser::hasFatalErrors() || m_fatalError;
+    return IOutputParser::hasFatalErrors();
 }
 
 /*!
