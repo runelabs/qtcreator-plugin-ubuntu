@@ -2,62 +2,42 @@
  * Wait before the DOM has been loaded before initializing the Ubuntu UI layer
  */
 window.onload = function () {
+    function addClass(elem, className) {
+        elem.className += ' ' + className;
+    };
+
+    function removeClass(elem, className) {
+        elem.className = elem.className.replace(className, '');
+    };
+
+
     var UI = new UbuntuUI();
     UI.init();
 
-    // Wire all the simple logic
-    document.getElementById('no').addEventListener('click', function() {
-        UI.dialog('dialog1').hide();
-    });
-
-    function getContacts() {
-        return [].slice.call(document.querySelectorAll('#contacts li'));
-    };
-
-    var contacts = getContacts();
-    contacts.forEach(function (contact) {
-        contact.addEventListener('click', function() {
-            contact.classList.add('selected');
-        });
-    });
-
-    function getSelectedContacts() {
-        var selectedContactInputs = [].slice.call(document.querySelectorAll('#contacts li label input:checked'));
-        return selectedContactInputs.map(function (contactInputElement) { return contactInputElement.parentNode.parentNode; });
-    }
-
-    function getContactName(contact) {
-        return contact.querySelector('p').innerHTML;
-    }
-
-    function displayMessage(message) {
-        document.querySelector('#dialog1 h1').innerHTML = message;
-        UI.dialog('dialog1').show();
-    };
-
-    document.getElementById('call').addEventListener('click', function() {
-        var sc = getSelectedContacts();
-        if (! sc || sc.length !== 1) {
-            displayMessage('Please select one and only one contact');
-            return;
+    // Detect if Cordova script is uncommented or not and show the appropriate status.
+    var hasCordovaScript = false;
+    var scripts = [].slice.call(document.querySelectorAll('script'));
+    scripts.forEach(function (element) {
+        var attributes = element.attributes;
+        if (attributes && attributes.src && attributes.src.value.indexOf('cordova.js') !== -1) {
+            hasCordovaScript = true;
         }
-        displayMessage('Calling: ' + getContactName(sc[0]));
     });
 
-    document.getElementById('text').addEventListener('click', function() {
-        var sc = getSelectedContacts();
-        if (! sc || sc.length !== 1) {
-            displayMessage('Please select one and only one contact');
-            return;
-        }
-        displayMessage('Texting: ' + getContactName(sc[0]));
-    });
+    var cordovaLoadingIndicator = document.querySelector('.load-cordova');
+    if (!hasCordovaScript) {
+        removeClass(document.querySelector('.ko-cordova'), 'is-hidden');
+        addClass(cordovaLoadingIndicator, 'is-hidden');
+    }
 
     // Add an event listener that is pending on the initialization
     //  of the platform layer API, if it is being used.
     document.addEventListener("deviceready", function() {
-	if (console && console.log)
-	    console.log('Platform layer API ready');
+    	if (console && console.log) {    
+    	    console.log('Platform layer API ready');
+        }
+        removeClass(document.querySelector('.ok-cordova'), 'is-hidden');
+        addClass(cordovaLoadingIndicator, 'is-hidden');
     }, false);
 };
 
