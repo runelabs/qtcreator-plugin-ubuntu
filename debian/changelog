@@ -1,3 +1,23 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20141009-0ubuntu1) utopic; urgency=low
+
+  [ Benjamin Zeller ]
+  * Fix Bug 1377090: "Overiding an app doesn't work". Fix Bug 1377094:
+    "Click review errors prevent applications from being. deployed to
+    the device" (LP: #1377090, #1377094)
+  * Refactor UI of devicespage. Fix Bug #1372633 "Device tab content
+    page needs to allow vertical. scrolling" (LP: #1372633)
+  * Add a TaskHandler, so we can open the links directly from the Issues
+    tab. Removed unused Settings. Review click packages before uploading
+    them to the phone. Show review errors in Issues output view.
+
+  [ Jean-Francois Moy ]
+  * Improve the HTML5 application template (LP: #1377928)
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 09 Oct 2014 10:03:07 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20141002-0ubuntu1) utopic; urgency=low
 
   [ Benjamin Zeller ]
