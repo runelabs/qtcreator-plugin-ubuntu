@@ -38,16 +38,13 @@ QML_FILES += \
     $$QML_ROOT/welcome/Link.qml \
     $$QML_ROOT/welcome/NewsBox.qml\
     $$QML_ROOT/devicespage/main.qml \
-    $$QML_ROOT/devicespage/DeviceAdvancedTab.qml  \
-    $$QML_ROOT/devicespage/DeviceBuilderTab.qml  \
-    $$QML_ROOT/devicespage/DeviceLogTab.qml  \
     $$QML_ROOT/devicespage/DevicePage.qml  \
     $$QML_ROOT/devicespage/DeviceStatusTab.qml  \
     $$QML_ROOT/devicespage/FeatureStateItem.qml  \
     $$QML_ROOT/devicespage/NewEmulatorDialog.qml \
-    $$QML_ROOT/devicespage/LogPage.qml \
-    $$QML_ROOT/devicespage/DeviceEmulatorTab.qml \
-    $$QML_ROOT/devicespage/DeleteEmulatorDialog.qml
+    $$QML_ROOT/devicespage/DeleteEmulatorDialog.qml \
+    $$QML_ROOT/devicespage/ScrollableView.qml \
+    $$QML_ROOT/devicespage/SectionItem.qml
 
 OTHER_FILES += \
     UbuntuProject.mimetypes.xml \

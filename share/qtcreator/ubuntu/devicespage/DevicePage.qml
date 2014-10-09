@@ -153,15 +153,17 @@ Page {
                 }
             }
         }
+
         Item {
             id: centerItem
             Layout.minimumWidth: 400
             Layout.fillWidth: true
-            property int currentIndex: devicesList.currentIndex
+
             Repeater {
+                property int currentIndex: devicesList.currentIndex
                 model: devicesModel
-                anchors.fill: parent
-                Rectangle{
+
+                Rectangle {
                     id: deviceItemView
                     property bool deviceConnected: connectionState === DeviceConnectionState.ReadyToUse || connectionState === DeviceConnectionState.Connected
                     property bool deviceBusy: (detectionState != DeviceDetectionState.Done && detectionState != DeviceDetectionState.NotStarted)
@@ -171,6 +173,7 @@ Page {
 
                     color: Qt.rgba(0.0, 0.0, 0.0, 0.01)
                     visible: index == devicesList.currentIndex
+
 
                     Controls.ToolBar {
                         id: emulatorToolBar
@@ -205,95 +208,315 @@ Page {
                         }
                     }
 
-                    Controls.TabView {
-                        id: pagesTabView
+                    ScrollableView {
+                        id: deviceView
                         anchors.left: parent.left
                         anchors.right: parent.right
                         anchors.top: emulatorToolBar.bottom
                         anchors.bottom: parent.bottom
-                        anchors.margins: 12
-                        visible: deviceConnected && !deviceBooting && !detectionError
+                        clip: true
 
-                        Component.onCompleted: {
-                            addTab("Device", Qt.createComponent("DeviceStatusTab.qml"))
-                            if(machineType === DeviceMachineType.Emulator)
-                                addTab("Emulator", Qt.createComponent("DeviceEmulatorTab.qml"))
-                            addTab("Advanced", Qt.createComponent("DeviceAdvancedTab.qml"))
-                            addTab("Builder", Qt.createComponent("DeviceBuilderTab.qml"))
-                            addTab("Log", Qt.createComponent("DeviceLogTab.qml"))
+                        ListItem.Empty {
+                            divider.visible: false
+                            visible: detectionError
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: units.gu(2)
+                                anchors.rightMargin: units.gu(4)
+                                Icon {
+                                    id: errorIcon
+                                    anchors.left: parent.left
+                                    name: "security-alert"
+                                    height:parent.height - units.gu(2)
+                                    width: height
+                                }
+                                Label {
+                                    id: errorText
+                                    text: i18n.tr("There was a error in the device detection, check the log for details.")
+                                    fontSize: "large"
+                                    wrapMode: Text.Wrap
+                                    Layout.fillWidth: true
+                                }
+                                Button {
+                                    id: deviceRedetectButton
+                                    text: "Redetect"
+                                    onClicked: devicesModel.triggerRedetect(deviceId)
+                                }
+                            }
                         }
-                    }
 
-                    ColumnLayout {
-                        visible: !deviceConnected && !deviceBooting && !detectionError && (machineType !== DeviceMachineType.Emulator)
-                        anchors.left: parent.left
-                        anchors.top: emulatorToolBar.bottom
-                        anchors.bottom: parent.bottom
-                        anchors.margins: 10
-                        width: units.gu(75)
-                        spacing: units.gu(1)
+                        ListItem.Empty {
+                            divider.visible: false
+                            visible: deviceItemView.deviceBooting
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: units.gu(2)
+                                anchors.rightMargin: units.gu(4)
+                                ActivityIndicator {
+                                    running: deviceItemView.deviceBooting
+                                    height:parent.height - units.gu(2)
+                                    width: height
+                                }
+                                Label {
+                                    text: i18n.tr("The device is currently booting, if this text is still shown after the device has booted, press the refresh button.")
+                                    fontSize: "large"
+                                    wrapMode: Text.Wrap
+                                    Layout.fillWidth: true
+                                }
+                                Button {
+                                    text: "Redetect"
+                                    onClicked: devicesModel.triggerRedetect(deviceId)
+                                }
+                            }
+                        }
 
-                        Label {
-                            text:"Device Status: Disconnected"
-                            fontSize: "large"
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                        }
-                        ListItem.SingleValue {
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            text:i18n.tr("Serial ID")
-                            Layout.fillWidth: true
-                            value: serial
-                        }
-                        ListItem.Divider{}
-                        DeviceKitManager {
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillHeight: true
-                            Layout.fillWidth: true
-                        }
-                    }
+                        SectionItem {
+                            title: deviceItemView.deviceConnected ? "Device Status: "+detectionStateString : "Device Status: Disconnected"
+                            expanded: true
 
-                    DeviceEmulatorTab {
-                        id: emuSettings
-                        visible: !deviceConnected && !deviceBooting && !detectionError && (machineType === DeviceMachineType.Emulator)
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.top: emulatorToolBar.bottom
-                        anchors.bottom: parent.bottom
-                        anchors.margins: 10
-                    }
+                            Column {
+                                anchors.left: parent.left
+                                anchors.right: parent.right
 
-                    Column {
-                        visible: deviceBooting && !detectionError
-                        anchors.centerIn: parent
-                        spacing: units.gu(1)
-                        Label {
-                            text: i18n.tr("The device is currently booting.")
-                            fontSize: "large"
-                            anchors.horizontalCenter: parent.horizontalCenter
+                                ListItem.SingleValue {
+                                    visible: deviceItemView.deviceConnected || machineType !== DeviceMachineType.Emulator
+                                    text:i18n.tr("Serial ID")
+                                    value: serial
+                                }
+                                ListItem.SingleValue {
+                                    text: i18n.tr("Ubuntu version")
+                                    value: emuUbuntuVersion
+                                    visible: machineType === DeviceMachineType.Emulator
+                                }
+                                ListItem.SingleValue {
+                                    text: i18n.tr("Device version")
+                                    value: emuDeviceVersion
+                                    visible: machineType === DeviceMachineType.Emulator
+                                }
+                                ListItem.SingleValue {
+                                    text: i18n.tr("Image version")
+                                    value: emuImageVersion
+                                    visible: machineType === DeviceMachineType.Emulator
+                                }
+                                ListItem.Standard {
+                                    //show this listitem only when device is not connected
+                                    visible: machineType === DeviceMachineType.Emulator && !deviceItemView.deviceConnected
+                                    text: "Scale"
+                                    control: Controls.ComboBox {
+                                        id: emulatorScaleComboBox
+                                        model: ["1.0", "0.9", "0.8", "0.7", "0.6","0.5", "0.4", "0.3", "0.2","0.1"]
+                                        currentIndex: {
+                                            var idx = find(emulatorScaleFactor);
+                                            return idx >= 0 ? idx : 0;
+                                        }
+                                        onActivated: {
+                                            emulatorScaleFactor = textAt(index);
+                                        }
+                                    }
+                                }
+
+                                ListItem.Standard {
+                                    //show this listitem only when device is not connected
+                                    visible: machineType === DeviceMachineType.Emulator && !deviceItemView.deviceConnected
+                                    text: "Memory"
+                                    control: Controls.ComboBox {
+                                        id: emulatorMemoryComboBox
+                                        model: ["512", "768", "1024"]
+
+                                        currentIndex: {
+                                            var idx = find(emulatorMemorySetting);
+                                            return idx >= 0 ? idx : 0;
+                                        }
+                                        onActivated: {
+                                            emulatorMemorySetting = textAt(index);
+                                        }
+                                    }
+                                }
+                                ListItem.SingleValue {
+                                    text:i18n.tr("Device")
+                                    value: deviceInfo
+                                    visible: deviceItemView.deviceConnected
+                                }
+                                ListItem.SingleValue {
+                                    text:i18n.tr("Model")
+                                    value: modelInfo
+                                    visible: deviceItemView.deviceConnected
+                                }
+                                ListItem.SingleValue {
+                                    text:i18n.tr("Product")
+                                    value: productInfo
+                                    visible: deviceItemView.deviceConnected
+                                }
+
+                                FeatureStateItem {
+                                    text: "Has network connection"
+                                    input: hasNetworkConnection
+                                    inputRole: "hasNetworkConnection"
+                                    checkable: hasNetworkConnection == FeatureState.NotAvailable && !deviceItemView.deviceBusy && !deviceItemView.detectionError
+                                    visible: deviceItemView.deviceConnected
+                                }
+                                FeatureStateItem {
+                                    text: "Has devloper mode enabled"
+                                    input: developerModeEnabled
+                                    inputRole: "developerModeEnabled"
+                                    checkable: !deviceItemView.deviceBusy && !deviceItemView.detectionError
+                                    visible: deviceItemView.deviceConnected
+                                }
+                                /*
+                                FeatureStateItem {
+                                    text: "Has writeable image"
+                                    input: hasWriteableImage
+                                    inputRole: "hasWriteableImage"
+                                    checkable: false
+                                    visible: deviceItemView.deviceConnected
+                                }
+                                */
+                            }
                         }
-                        Label {
-                            text: i18n.tr("If this text is still shown after the device has booted, press the refresh button.")
-                            anchors.horizontalCenter: parent.horizontalCenter
+
+                        SectionItem {
+                            title: "Kits"
+                            expanded: true
+
+                            Column {
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+
+                                Repeater {
+                                    model: kits
+                                    delegate: ListItem.Standard {
+                                        text: modelData.displayName
+                                        Layout.fillWidth: true
+                                        control: Button{
+                                            text: "Remove"
+                                            enabled: !deviceItemView.deviceBusy
+                                            onClicked: devicesModel.triggerKitRemove(deviceId,modelData.id)
+                                        }
+                                    }
+                                }
+
+                                Item {
+                                    clip: true
+                                    visible: kits.length === 0
+                                    height: label.contentHeight + units.gu(15)
+                                    width: parent.width
+                                    Label {
+                                        id:label
+                                        anchors.centerIn: parent
+                                        anchors.bottom: button.top
+                                        fontSize: "large"
+                                        text: "There is currently no Kit defined for your device.\n In order to use the device in your Projects,\n you can either add a existing Kit "
+                                              +"\nor let Qt Creator autocreate one for you."
+                                    }
+                                    Button {
+                                        id: button
+                                        anchors.left: label.left
+                                        anchors.right: label.right
+                                        anchors.top: label.bottom
+                                        anchors.bottom: parent.bottom
+                                        anchors.topMargin: units.gu(2)
+                                        text: "Autocreate"
+                                        enabled: !deviceItemView.deviceBusy
+                                        onClicked: devicesModel.triggerKitAutocreate(deviceId)
+                                    }
+                                }
+
+
+                            }
                         }
-                        ActivityIndicator {
-                            running: deviceBooting
-                            anchors.horizontalCenter: parent.horizontalCenter
+
+                        SectionItem {
+                            title: "Control"
+                            visible: deviceItemView.deviceConnected
+
+                            Column {
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+
+                                ListItem.Standard {
+                                    text:"Clone time config from Host to Device"
+                                    control: Button{
+                                        text: "Execute"
+                                        enabled: !deviceItemView.deviceBusy && !deviceItemView.detectionError
+                                        onClicked: devicesModel.triggerCloneTimeConfig(deviceId)
+                                    }
+                                }
+                                ListItem.Standard {
+                                    text:"Enable port forwarding"
+                                    control: Button{
+                                        text: "Execute"
+                                        enabled: !deviceItemView.deviceBusy && !deviceItemView.detectionError
+                                        onClicked: devicesModel.triggerPortForwarding(deviceId)
+                                    }
+                                }
+                                ListItem.Standard {
+                                    text:"Setup public key authentication"
+                                    control: Button{
+                                        text: "Execute"
+                                        enabled: !deviceItemView.deviceBusy && !deviceItemView.detectionError
+                                        onClicked: devicesModel.triggerSSHSetup(deviceId)
+                                    }
+                                }
+                                ListItem.Standard {
+                                    text:"Open SSH connection to the device"
+                                    control: Button{
+                                        text: "Execute"
+                                        enabled: !deviceItemView.deviceBusy && !deviceItemView.detectionError
+                                        onClicked: devicesModel.triggerSSHConnection(deviceId)
+                                    }
+                                }
+                                ListItem.Standard {
+                                    text:"Reboot"
+                                    control: Button{
+                                        text: "Execute"
+                                        enabled: !deviceItemView.deviceBusy && !deviceItemView.detectionError
+                                        onClicked: devicesModel.triggerReboot(deviceId)
+                                    }
+                                }
+                                ListItem.Standard {
+                                    text:"Reboot to bootloader"
+                                    control: Button{
+                                        text: "Execute"
+                                        enabled: !deviceItemView.deviceBusy && !deviceItemView.detectionError
+                                        onClicked: devicesModel.triggerRebootBootloader(deviceId)
+                                    }
+                                }
+                                ListItem.Standard {
+                                    text:"Reboot to recovery"
+                                    control: Button{
+                                        text: "Execute"
+                                        enabled: !deviceItemView.deviceBusy && !deviceItemView.detectionError
+                                        onClicked: devicesModel.triggerRebootRecovery(deviceId)
+                                    }
+                                }
+                                ListItem.Standard {
+                                    text:"Shutdown"
+                                    control: Button{
+                                        text: "Execute"
+                                        enabled: !deviceItemView.deviceBusy && !deviceItemView.detectionError
+                                        onClicked: devicesModel.triggerShutdown(deviceId)
+                                    }
+                                }
+                            }
+
                         }
-                    }
-                    Column {
-                        visible: detectionError
-                        anchors.centerIn: parent
-                        spacing: units.gu(1)
-                        Label {
-                            text: i18n.tr("There was a error in the device detection, please press the redetect button to try again.")
-                            fontSize: "large"
-                            anchors.horizontalCenter: parent.horizontalCenter
-                        }
-                        Button {
-                            text: "Redetect"
-                            onClicked: devicesModel.triggerRedetect(deviceId)
-                            anchors.horizontalCenter: parent.horizontalCenter
+
+                        SectionItem {
+                            title: "Log"
+                            Column {
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                TextArea {
+                                    anchors.left: parent.left
+                                    anchors.right: parent.right
+                                    height: units.gu(60)
+                                    highlighted: true
+
+                                    readOnly: true
+                                    text: deviceLog
+                                    textFormat: TextEdit.AutoText
+                                }
+                            }
                         }
                     }
                 }
