@@ -344,7 +344,10 @@ for installAppManifest in arr:
             success = subprocess.call(["pkcon","remove",package_name+";"+package_version+";"+package_arch+";local:click","-p"],stdout=subprocess.DEVNULL)
             if success != 0:
                 print("Sdk-Launcher> Uninstalling the application failed",flush=True)
-                sys.exit(1)
+                # Continue even though we could not uninstall the app, the user wanted to override it anyway
+                # but for scopes we need to stop, because the scope may still be running and we need a clean state
+                if "scope" in manifest['hooks'][hook_name]:
+                    sys.exit(1)
 
 #build the appid
 app_id   = None
