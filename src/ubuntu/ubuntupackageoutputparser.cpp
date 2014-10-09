@@ -9,6 +9,9 @@ namespace Ubuntu {
 namespace Internal {
 
 const QRegularExpression DEBUG_POLICY_REGEX(QStringLiteral("security_policy_groups_safe_\\S+\\s+\\((\\S+)\\)"));
+const QRegularExpression DEBUG_SCOPE_POLICY_REGEX(QStringLiteral("security_policy_groups_scopes"));
+const QRegularExpression DEBUG_SCOPE_TEXT_REGEX(QStringLiteral("found inappropriate policy groups:\\s+(.*)"));
+const QString DEBUG_POLICY_NAME(QStringLiteral("debug"));
 
 UbuntuPackageOutputParser::UbuntuPackageOutputParser() :
     ProjectExplorer::IOutputParser(),
@@ -91,7 +94,7 @@ void UbuntuPackageOutputParser::emitTasks(const ClickRunChecksParser::DataItem *
         desc.append(QStringLiteral("\n")).append(item->link.toString());
 
     QRegularExpressionMatch match = DEBUG_POLICY_REGEX.match(item->type);
-    if(match.captured(1) == QStringLiteral("debug"))
+    if(match.captured(1) == DEBUG_POLICY_NAME)
         desc.append(QStringLiteral("\n")).append(tr("The debug policy group is automatically injected and should only be used for development.\nTo create a package for the store use the publish tab!"));
 
     task.description = desc;
@@ -105,8 +108,16 @@ bool UbuntuPackageOutputParser::isError(const ClickRunChecksParser::DataItem *it
         //add other error item types here if we just want them treated as warnings
         QRegularExpressionMatch match = DEBUG_POLICY_REGEX.match(item->type);
         if(match.hasMatch()) {
-            if(match.captured(1) == QStringLiteral("debug"))
+            if(match.captured(1) == DEBUG_POLICY_NAME)
                 return false;
+        }
+        match = DEBUG_SCOPE_POLICY_REGEX.match(item->type);
+        if(match.hasMatch()) {
+            match = DEBUG_SCOPE_TEXT_REGEX.match(item->text);
+            if(match.hasMatch()) {
+                if(match.captured(1).contains(DEBUG_POLICY_NAME))
+                    return false;
+            }
         }
     }
     return isError;
