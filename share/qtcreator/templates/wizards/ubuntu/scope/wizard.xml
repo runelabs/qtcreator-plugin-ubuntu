@@ -40,7 +40,7 @@
 
         <file source="CMakeLists.txt" openproject="true"/>
         <file source="displayName.apparmor" target="%ClickHookName:l%.apparmor"/>
-        <file source="manifest.json" openeditor="true"/>
+        <file source="manifest.json.in" openeditor="true"/>
         <file source="readme.txt"/>
     </files>
 

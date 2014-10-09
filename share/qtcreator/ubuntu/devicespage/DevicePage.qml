@@ -498,7 +498,6 @@ Page {
                                     }
                                 }
                             }
-
                         }
 
                         SectionItem {

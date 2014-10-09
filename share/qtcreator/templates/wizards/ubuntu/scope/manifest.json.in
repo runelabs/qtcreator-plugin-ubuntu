@@ -5,6 +5,7 @@
   "description": "A simple Unity scope that accesses local content",
 @endif
   "maintainer": "%ClickMaintainer%",
+  "architecture": "@CLICK_ARCH@",
   "name": "%ClickDomain:l%.%ProjectName:l%",
   "title": "%ProjectName:l%",
   "hooks": {
