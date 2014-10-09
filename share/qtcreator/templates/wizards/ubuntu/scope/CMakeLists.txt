@@ -55,15 +55,24 @@ set(SCOPE_INSTALL_DIR "/%ClickHookName:l%")
 add_definitions(-DPACKAGE_NAME="%ClickDomain:l%.%ProjectName:l%")
 add_definitions(-DSCOPE_NAME="%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%")
 
+#This command figures out the target architecture and puts it into the manifest file
+execute_process(
+  COMMAND dpkg-architecture -qDEB_HOST_ARCH
+  OUTPUT_VARIABLE CLICK_ARCH
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+configure_file(manifest.json.in ${CMAKE_CURRENT_BINARY_DIR}/manifest.json)
+
 # Install the click manifest
-install(FILES manifest.json DESTINATION "/")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/manifest.json DESTINATION "/")
 install(FILES "%ClickHookName:l%.apparmor" DESTINATION "/")
 
 # Make this file show up in QtCreator
 add_custom_target(hidden_files
   ALL
   SOURCES
-    manifest.json
+    manifest.json.in
     "%ClickHookName:l%.apparmor"
 )
 
