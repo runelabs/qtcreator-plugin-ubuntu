@@ -2,10 +2,10 @@ import QtQuick 2.0
 import QtQuick.Layouts 1.0
 import QtQuick.Controls 1.0 as Controls
 
-import Ubuntu.Components 0.1
-import Ubuntu.Components.ListItems 0.1 as ListItem
+import Ubuntu.Components 1.0
+import Ubuntu.Components.ListItems 1.0 as ListItem
 import Ubuntu.DevicesModel 0.1
-import Ubuntu.Components.Popups 0.1
+import Ubuntu.Components.Popups 1.0
 
 Page {
     id: devicePage
@@ -217,18 +217,18 @@ Page {
                         clip: true
 
                         ListItem.Empty {
+                            id: errorContainer
                             divider.visible: false
                             visible: detectionError
+                            height: errorText.contentHeight + units.gu(4)
                             RowLayout {
                                 anchors.fill: parent
-                                anchors.leftMargin: units.gu(2)
                                 anchors.rightMargin: units.gu(4)
-                                Icon {
+                                Image {
                                     id: errorIcon
-                                    anchors.left: parent.left
-                                    name: "security-alert"
-                                    height:parent.height - units.gu(2)
-                                    width: height
+                                    source: "qrc:/ubuntu/images/security-alert.svg"
+                                    fillMode: Image.PreserveAspectFit
+                                    Layout.maximumHeight: errorContainer.height
                                 }
                                 Label {
                                     id: errorText

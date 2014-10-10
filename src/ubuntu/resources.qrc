@@ -19,5 +19,8 @@
         <file>images/reload.svg</file>
         <file>images/list-add.svg</file>
         <file>images/list-remove.svg</file>
+        <file>images/security-alert.svg</file>
+        <file>images/view-expand.svg</file>
+        <file>images/view-collapse.svg</file>
     </qresource>
 </RCC>

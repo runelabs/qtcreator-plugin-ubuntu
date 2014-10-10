@@ -15,8 +15,8 @@
  */
 
 import QtQuick 2.0
-import Ubuntu.Components 0.1
-import Ubuntu.Components.ListItems 0.1 as ListItem
+import Ubuntu.Components 1.0
+import Ubuntu.Components.ListItems 1.0 as ListItem
 
 ListItem.Expandable {
     id: expandingColumnItem
@@ -38,9 +38,8 @@ ListItem.Expandable {
             id: headerRow
             anchors { left: parent.left; right: parent.right}
             height: childrenRect.height
-            Icon {
-                name: expandingColumnItem.expanded ? "view-collapse" : "view-expand"
-                color: UbuntuColors.orange
+            Image {
+                source:  expandingColumnItem.expanded ? "qrc:/ubuntu/images/view-collapse.svg" : "qrc:/ubuntu/images/view-expand.svg"
                 width: 24
                 height: 24
             }
