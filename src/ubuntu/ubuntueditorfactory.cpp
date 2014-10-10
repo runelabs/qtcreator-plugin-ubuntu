@@ -13,8 +13,8 @@ namespace Internal {
 class UbuntuTextEditorActionHandler : public TextEditor::TextEditorActionHandler
 {
 public:
-    explicit UbuntuTextEditorActionHandler(QObject *parent)
-        : TextEditorActionHandler(parent, Constants::UBUNTU_MANIFEST_EDITOR_CONTEXT)
+    explicit UbuntuTextEditorActionHandler(QObject *parent, Core::Id editorContext)
+        : TextEditorActionHandler(parent,editorContext)
     {}
 private:
     TextEditor::BaseTextEditorWidget *resolveTextEditorWidget(Core::IEditor *editor) const
@@ -29,7 +29,7 @@ UbuntuManifestEditorFactory::UbuntuManifestEditorFactory()
     setId(Constants::UBUNTU_MANIFEST_EDITOR_ID);
     setDisplayName(tr("Ubuntu Manifest editor"));
     addMimeType(Constants::UBUNTU_MANIFEST_MIME_TYPE);
-    new UbuntuTextEditorActionHandler(this);
+    new UbuntuTextEditorActionHandler(this,Constants::UBUNTU_MANIFEST_EDITOR_ID);
 }
 
 Core::IEditor *UbuntuManifestEditorFactory::createEditor()
@@ -42,7 +42,7 @@ UbuntuApparmorEditorFactory::UbuntuApparmorEditorFactory()
     setId(Constants::UBUNTU_APPARMOR_EDITOR_ID);
     setDisplayName(tr("Ubuntu Apparmor editor"));
     addMimeType(Constants::UBUNTU_APPARMOR_MIME_TYPE);
-    new UbuntuTextEditorActionHandler(this);
+    new UbuntuTextEditorActionHandler(this,Constants::UBUNTU_APPARMOR_EDITOR_ID);
 }
 
 Core::IEditor *UbuntuApparmorEditorFactory::createEditor()
