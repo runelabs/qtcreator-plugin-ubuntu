@@ -1,3 +1,12 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20141010-0ubuntu1) utopic; urgency=low
+
+  [ Benjamin Zeller ]
+  * Fix error warnings about overriding Actions. Fix missing devicepage
+    icons on trusty. Fix bug lp:1379644 "I can only get the test
+    configuration for scope. development" (LP: #1379644)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 10 Oct 2014 11:40:52 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20141009-0ubuntu1) utopic; urgency=low
 
   [ Benjamin Zeller ]
