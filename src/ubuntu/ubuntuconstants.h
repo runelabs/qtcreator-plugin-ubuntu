@@ -451,7 +451,7 @@ const char  SETTINGS_KEY_AUTOTOGGLE[] = "Auto_Toggle";
 
 //review tools
 const char    CLICK_REVIEWERSTOOLS_BINARY[]   = "/usr/bin/click-review";
-const char    CLICK_REVIEWERSTOOLS_ARGS[]     = "\"--sdk %0\"";
+const char    CLICK_REVIEWERSTOOLS_ARGS[]     = "--sdk \"%0\"";
 const char    CLICK_REVIEWERSTOOLS_LOCATION[] = "/usr/bin/click-review --sdk \"%0\"";
 
 //build configuration
