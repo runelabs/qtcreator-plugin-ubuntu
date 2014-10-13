@@ -33,6 +33,7 @@ set(ICON              "graphics/%ProjectName%.png")
 set(CMAKE_INSTALL_PREFIX /)
 set(DATA_DIR /)
 set(DESKTOP_DIR ${DATA_DIR})
+set(DESKTOP_FILE_NAME "%ClickHookName%.desktop")
 
 set(EXEC "qmlscene $@ ${%ProjectName:u%_DIR}/${MAIN_QML}")
 
@@ -52,6 +53,7 @@ install(FILES "%ClickHookName%.apparmor" DESTINATION ${DATA_DIR})
 
 add_subdirectory(app)
 add_subdirectory(backend)
+add_subdirectory(po)
 
 add_custom_target("autopilot" chmod +x ${CMAKE_SOURCE_DIR}/app/tests/autopilot/run
                     COMMAND ${CMAKE_SOURCE_DIR}/app/tests/autopilot/run

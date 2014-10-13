@@ -450,9 +450,9 @@ const char  SETTINGS_KEY_AUTOTOGGLE[] = "Auto_Toggle";
 //const char  UBUNTUSETTINGSCLICKWIDGET_FILEDIALOG[] = "Location of click-reviewers-tools";
 
 //review tools
-const char    CLICK_REVIEWERSTOOLS_BINARY[]   = "/usr/bin/click-run-checks";
-const char    CLICK_REVIEWERSTOOLS_ARGS[]     = "\"%0\"";
-const char    CLICK_REVIEWERSTOOLS_LOCATION[] = "/usr/bin/click-run-checks \"%0\"";
+const char    CLICK_REVIEWERSTOOLS_BINARY[]   = "/usr/bin/click-review";
+const char    CLICK_REVIEWERSTOOLS_ARGS[]     = "\"--sdk %0\"";
+const char    CLICK_REVIEWERSTOOLS_LOCATION[] = "/usr/bin/click-review --sdk \"%0\"";
 
 //build configuration
 const char UBUNTU_CLICK_BUILD_CONTEXTMENU_ID[] = "UbuntuProjectManager.RunClickBuildContextMenu";

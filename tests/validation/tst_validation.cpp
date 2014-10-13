@@ -50,7 +50,7 @@ void tst_Validation::testSimpleSectionParse()
     parser.endRecieveData();
 
     QVERIFY(items.length() == 1);
-    VERIFY_ITEM(items[0],QString("click-check-functional"),QString("No description"),ClickRunChecksParser::Error,5);
+    VERIFY_ITEM(items[0],QString("functional"),QString("No description"),ClickRunChecksParser::Error,5);
     VERIFY_ITEM(items[0]->children[0],QString("error1"),QString("Error text"),ClickRunChecksParser::Error,0);
     QCOMPARE(items[0]->children[0]->link,QUrl("http://somelink.com"));
     VERIFY_ITEM(items[0]->children[1],QString("warning1"),QString("Warning message"),ClickRunChecksParser::Warning,0);
@@ -65,7 +65,7 @@ void tst_Validation::testSimpleSectionParse()
 
 void tst_Validation::testFullOutputLint(ClickRunChecksParser::DataItem *item, bool *passed)
 {
-    VERIFY_ITEM(item,QString("click-check-lint"),QString("No description"),ClickRunChecksParser::Error,4);
+    VERIFY_ITEM(item,QString("lint"),QString("No description"),ClickRunChecksParser::Error,4);
     VERIFY_ITEM(item->children[0],QString("lint_error"),QString("errorText"),ClickRunChecksParser::Error,0);
     VERIFY_ITEM(item->children[1],QString("lint_info1"),QString("OK"),ClickRunChecksParser::Check,0);
     VERIFY_ITEM(item->children[2],QString("lint_info2"),QString("OK"),ClickRunChecksParser::Check,0);
@@ -75,7 +75,7 @@ void tst_Validation::testFullOutputLint(ClickRunChecksParser::DataItem *item, bo
 
 void tst_Validation::testFullOutputDesktop(ClickRunChecksParser::DataItem *item, bool *passed)
 {
-    VERIFY_ITEM(item,QString("click-check-desktop"),QString("No description"),ClickRunChecksParser::Error,3);
+    VERIFY_ITEM(item,QString("desktop"),QString("No description"),ClickRunChecksParser::Error,3);
     VERIFY_ITEM(item->children[0],QString("desktop_error (test1)"),QString("Error text for desktop file"),ClickRunChecksParser::Error,0);
     QCOMPARE(item->children[0]->link,QUrl("http://somelink.com"));
     VERIFY_ITEM(item->children[1],QString("desktop_warn (test1)"),QString("Warning text for desktop file"),ClickRunChecksParser::Warning,0);
@@ -86,7 +86,7 @@ void tst_Validation::testFullOutputDesktop(ClickRunChecksParser::DataItem *item,
 
 void tst_Validation::testFullOutputSecurity(ClickRunChecksParser::DataItem *item, bool *passed)
 {
-    VERIFY_ITEM(item,QString("click-check-security"),QString("No description"),ClickRunChecksParser::Check,3);
+    VERIFY_ITEM(item,QString("security"),QString("No description"),ClickRunChecksParser::Check,3);
     VERIFY_ITEM(item->children[0],QString("security_test1 (test.json)"),QString("OK"),ClickRunChecksParser::Check,0);
     VERIFY_ITEM(item->children[1],QString("security_test2 (test.json)"),QString("OK"),ClickRunChecksParser::Check,0);
     VERIFY_ITEM(item->children[2],QString("security_test3 (test.json)"),QString("OK"),ClickRunChecksParser::Check,0);
@@ -95,7 +95,7 @@ void tst_Validation::testFullOutputSecurity(ClickRunChecksParser::DataItem *item
 
 void tst_Validation::testFullOutputFunctional(ClickRunChecksParser::DataItem *item, bool *passed)
 {
-    VERIFY_ITEM(item,QString("click-check-functional"),QString("No description"),ClickRunChecksParser::Check,3);
+    VERIFY_ITEM(item,QString("functional"),QString("No description"),ClickRunChecksParser::Check,3);
     VERIFY_ITEM(item->children[0],QString("functional_test1"),QString("OK"),ClickRunChecksParser::Check,0);
     VERIFY_ITEM(item->children[1],QString("functional_test2"),QString("OK"),ClickRunChecksParser::Check,0);
     VERIFY_ITEM(item->children[2],QString("functional_test3"),QString("OK"),ClickRunChecksParser::Check,0);
@@ -170,15 +170,8 @@ void tst_Validation::testIncrementalParse()
     QTextStream in(&sourceFile);
     QString input = in.readAll();
 
-    int offset = input.indexOf("= click-check-lint =");
-    parser.beginRecieveData(input.left(offset));
-    input = input.mid(offset);
-
-    //until now only unrelevant sections have been parsed
-    QCOMPARE(items.length(),0);
-
     //parse to somewhere in the middle of a section
-    offset = input.indexOf("info",input.indexOf("= click-check-desktop ="));
+    int offset = input.indexOf("info",input.indexOf("= desktop ="));
     parser.addRecievedData(input.left(offset));
     input = input.mid(offset);
 
@@ -193,7 +186,7 @@ void tst_Validation::testIncrementalParse()
      * Add the beginning of the next section so the
      * parser knows where the last one ends
      */
-    QString functionalSectionStart("= click-check-functional =");
+    QString functionalSectionStart("= functional =");
     offset = input.indexOf(functionalSectionStart)+functionalSectionStart.length();
     parser.addRecievedData(input.left(offset));
     input = input.mid(offset);
