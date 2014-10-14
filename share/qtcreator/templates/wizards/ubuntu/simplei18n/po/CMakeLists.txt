@@ -27,8 +27,6 @@ file(GLOB_RECURSE I18N_SRC_FILES
 list(APPEND I18N_SRC_FILES ${CMAKE_CURRENT_BINARY_DIR}/${DESKTOP_FILE_NAME}.in.h)
 list(SORT I18N_SRC_FILES)
 
-message(STATUS ${I18N_SRC_FILES})
-
 add_custom_target(${POT_FILE} ALL
  COMMENT "Generating translation template"
  #read the translateable messages from the desktop file
