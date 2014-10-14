@@ -1,0 +1,15 @@
+{
+    "name": "%ClickDomain:l%.%ProjectName:l%",
+    "description": "description of %ProjectName%",
+    "architecture": "@CLICK_ARCH@",
+    "title": "%ProjectName%",
+    "hooks": {
+        "%ClickHookName%": {
+            "apparmor": "%ClickHookName%.apparmor",
+            "desktop":  "%ClickHookName%.desktop"
+        }
+    },
+    "version": "0.1",
+    "maintainer": "%ClickMaintainer%"
+}
+
