@@ -85,6 +85,7 @@ private:
     void buildClickPackage ();
     void clearPackageBuildList ();
     void updateFrameworkList ();
+    void resetValidationResult ();
 
 private:
     bool m_reviewToolsInstalled;

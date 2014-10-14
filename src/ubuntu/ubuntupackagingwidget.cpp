@@ -191,7 +191,7 @@ void UbuntuPackagingWidget::onFinished(QString cmd, int code) {
     else
        m_inputParser->emitTextItem(QLatin1String("Command failed"),cmd,ClickRunChecksParser::Error);
     if (cmd == QString::fromLatin1(Constants::UBUNTUWIDGETS_ONFINISHED_SCRIPT_LOCAL_PACKAGE_INSTALLED).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
-        m_validationModel->clear();
+        resetValidationResult();
         QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
         foreach(QString line, lines) {
             line = line.trimmed();
@@ -228,7 +228,7 @@ void UbuntuPackagingWidget::onError(QString msg) {
 }
 
 void UbuntuPackagingWidget::onStarted(QString cmd) {
-    m_validationModel->clear();
+    resetValidationResult();
     m_inputParser->emitTextItem(QLatin1String("Start Command"),cmd,ClickRunChecksParser::NoIcon);
 }
 
@@ -452,4 +452,11 @@ void UbuntuPackagingWidget::clearPackageBuildList()
 
     m_packageBuildSteps->deleteLater();
     m_packageBuildSteps.clear();
+}
+
+void UbuntuPackagingWidget::resetValidationResult()
+{
+    m_validationModel->clear();
+    ui->plainTextEditDescription->clear();
+    ui->labelErrorType->clear();
 }
