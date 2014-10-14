@@ -15,7 +15,9 @@
 #
 # Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
 
-echo $0 >> /tmp/sdk.logs
+# prefix the logs with the username, so this does not clash on a multiuser machine
+# Bug lp:1371807
+echo $0 >> /tmp/${USER}_sdk.logs
 
 set -e
 
