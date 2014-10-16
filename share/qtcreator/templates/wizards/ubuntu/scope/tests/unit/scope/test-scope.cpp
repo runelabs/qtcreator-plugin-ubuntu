@@ -68,6 +68,7 @@ protected:
         setenv("NETWORK_SCOPE_APIROOT", apiroot.c_str(), true);
 
         // Do the parent SetUp
+        TypedScopeFixture::set_scope_directory(TEST_SCOPE_DIRECTORY);
         TypedScopeFixtureScope::SetUp();
     }
 
