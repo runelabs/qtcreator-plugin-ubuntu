@@ -24,6 +24,8 @@ public slots:
     void triggerCommand(const QString &command);
     ProjectExplorer::BuildManager *buildManager();
 
+protected:
+    bool eventFilter(QObject *, QEvent *event);
 private:
     bool m_lastBuildSuccess;
 };
