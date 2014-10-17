@@ -18,6 +18,11 @@ include_directories(
   ${TEST_INCLUDE_DIRS}
 )
 
+# Where to find the scope ini file and .so
+add_definitions(
+  -DTEST_SCOPE_DIRECTORY="${CMAKE_BINARY_DIR}/src"
+)
+
 @if "%ContentType%" == "network"
 file(GLOB_RECURSE
   TEST_FIXTURES

@@ -19,6 +19,7 @@
 
         <file source="include/api/config.h"/>
         <file source="include/api/client.h"/>
+        <file source="include/scope/localization.h"/>
         <file source="include/scope/preview.h"/>
         <file source="include/scope/query.h"/>
         <file source="include/scope/scope.h"/>
@@ -28,6 +29,8 @@
         <file source="src/scope/query.cpp"/>
         <file source="src/scope/scope.cpp" openeditor="true"/>
         <file source="src/scope/preview.cpp"/>
+
+        <file source="po/CMakeLists.txt"/>
 
         <file source="tests/server/forecast/daily/Manchester,uk.json"/>
         <file source="tests/server/forecast/daily/London,uk.json"/>

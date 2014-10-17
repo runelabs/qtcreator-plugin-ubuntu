@@ -1,6 +1,7 @@
-#include <scope/scope.h>
-#include <scope/query.h>
+#include <scope/localization.h>
 #include <scope/preview.h>
+#include <scope/query.h>
+#include <scope/scope.h>
 
 #include <iostream>
 #include <sstream>
@@ -13,6 +14,11 @@ using namespace scope;
 
 void Scope::start(string const&) {
     config_ = make_shared<Config>();
+
+    setlocale(LC_ALL, "");
+    string translation_directory = ScopeBase::scope_directory()
+            + "/../share/locale/";
+    bindtextdomain(GETTEXT_PACKAGE, translation_directory.c_str());
 
 @if "%ContentType%" == "network"
     // Under test we set a different API root
