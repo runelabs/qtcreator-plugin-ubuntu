@@ -317,6 +317,8 @@ bool ClickRunChecksParser::tryParseNextSection(bool dataComplete)
     type.remove(QLatin1String("="));
     type = type.trimmed();
 
+    parseJsonSection(type,startOffset,(endOffset-startOffset)+1);
+    /*
     static const QRegularExpression regExp(QStringLiteral("^(click-check-.*)"));
     if(regExp.match(type).hasMatch()) {
         parseJsonSection(type,startOffset,(endOffset-startOffset)+1);
@@ -324,6 +326,7 @@ bool ClickRunChecksParser::tryParseNextSection(bool dataComplete)
         //ignore unknown sections
         return true;
     }
+    */
 
     return true;
 }

@@ -5,32 +5,22 @@
 				featuresRequired=""
         >
     <icon>../share/ubuntu.png</icon>
-    <description>A simple C++ based QtQuick2 Extension Library with
-Tabbed UI written in QML.
+    <description>A simple QML app with localization support.
 
 Includes also
- - a unit test for C++
  - unit and functional tests for QML
 </description>
-    <displayname>App with QML Extension Library</displayname>
+    <displayname>App with Simple UI and localization</displayname>
     <displaycategory>Ubuntu</displaycategory>
     <files>
         <file source="CMakeLists.txt"                          target="CMakeLists.txt" openproject="true"/>
-        <file source="backend/CMakeLists.txt"                  target="backend/CMakeLists.txt" openeditor="false"/>
-        <file source="backend/modules/displayName/backend.h"   target="backend/modules/%ClickHookName:s%/backend.h" openeditor="false"/>
-        <file source="backend/modules/displayName/backend.cpp" target="backend/modules/%ClickHookName:s%/backend.cpp" openeditor="false"/>
-        <file source="backend/modules/displayName/mytype.h"    target="backend/modules/%ClickHookName:s%/mytype.h" openeditor="false"/>
-        <file source="backend/modules/displayName/mytype.cpp"  target="backend/modules/%ClickHookName:s%/mytype.cpp" openeditor="false"/>
-        <file source="backend/modules/displayName/qmldir"      target="backend/modules/%ClickHookName:s%/qmldir" openeditor="false"/>
-        <file source="backend/tests/unit/tst_mytype.qml"       target="backend/tests/unit/tst_mytype.qml" openeditor="false"/>
         <file source="app/graphics/toolbarIcon@8.png"          target="app/graphics/toolbarIcon@8.png" openeditor="false" binary="true"/>
-	<file source="app/displayName.desktop.in"              target="app/%ClickHookName%.desktop.in" openeditor="false"/>
+	      <file source="app/displayName.desktop.in"              target="app/%ClickHookName%.desktop.in" openeditor="false"/>
         <file source="app/graphics/displayName.png"            target="app/graphics/%ProjectName%.png" openeditor="false" binary="true"/>
         <file source="app/tests/unit/tst_hellocomponent.qml"   target="app/tests/unit/tst_hellocomponent.qml" openeditor="false"/>
         <file source="app/components/CMakeLists.txt"           target="app/components/CMakeLists.txt" openeditor="false"/>
         <file source="app/components/HelloComponent.qml"       target="app/components/HelloComponent.qml" openeditor="false"/>
         <file source="app/ui/CMakeLists.txt"                   target="app/ui/CMakeLists.txt" openeditor="false"/>
-        <file source="app/ui/WorldTabTools.qml"                target="app/ui/WorldTabTools.qml" openeditor="false"/>
         <file source="app/ui/WorldTab.qml"                     target="app/ui/WorldTab.qml" openeditor="false"/>
         <file source="app/ui/HelloTab.qml"                     target="app/ui/HelloTab.qml" openeditor="false"/>
         <file source="app/CMakeLists.txt"                      target="app/CMakeLists.txt" openeditor="false"/>
@@ -38,7 +28,6 @@ Includes also
         <file source="app/tests/autopilot/displayName/main/test_main.py" target="app/tests/autopilot/%ProjectName%/main/test_main.py" openeditor="false"/>
         <file source="app/tests/autopilot/displayName/__init__.py"       target="app/tests/autopilot/%ProjectName%/__init__.py" openeditor="false"/>
         <file source="app/tests/autopilot/displayName/main/__init__.py"  target="app/tests/autopilot/%ProjectName%/main/__init__.py" openeditor="false"/>
-        <file source="cmake/Click.cmake"                                 target="cmake/Click.cmake" openeditor="false"/>
         <file source="manifest.json.in"   			               target="manifest.json.in" openeditor="true"/>
         <file source="../share/displayName.apparmor"   			   target="%ClickHookName%.apparmor" openeditor="false"/>
         <file source="app/displayName.qml"                     target="app/%ProjectName%.qml" openeditor="true"/>

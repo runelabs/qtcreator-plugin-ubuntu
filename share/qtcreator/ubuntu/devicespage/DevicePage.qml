@@ -143,7 +143,13 @@ Page {
                         text: i18n.tr("Add Emulator")
                         tooltip: text
                         iconSource: "qrc:/ubuntu/images/list-add.svg"
-                        onClicked: PopupUtils.open(resourceRoot+"/NewEmulatorDialog.qml",devicePage);
+                        onClicked: {
+                            if(!devicesModel.emulatorInstalled){
+                                PopupUtils.open(resourceRoot+"/EmulatorNotInstalled.qml",devicePage);
+                                return;
+                            }
+                            PopupUtils.open(resourceRoot+"/NewEmulatorDialog.qml",devicePage);
+                        }
                     }
 
                     Connections{
