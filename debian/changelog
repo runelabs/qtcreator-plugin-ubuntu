@@ -1,3 +1,22 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20141017-0ubuntu1) utopic; urgency=low
+
+  [ Pete Woods ]
+  * Add translation support to scope templates
+
+  [ Benjamin Zeller ]
+  * Fix bug lp:1363857 "Use click-review from click-reviewers-tools".
+    Fix bug lp:1379689 "Add internationalization support to QML app
+    templates". Fix bug lp:1361936 "error information box is not
+    updated". Fix bug lp:1368521 "After choosing "Create emulator",
+    nothing happens. after that" Fix bug lp:1371807 "multi user problem
+    writing to /tmp/sdk.log" (LP: #1361936, #1363857, #1368521,
+    #1371807, #1379689)
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 17 Oct 2014 10:16:41 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20141010-0ubuntu1) utopic; urgency=low
 
   [ Benjamin Zeller ]
