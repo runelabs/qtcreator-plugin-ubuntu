@@ -5,6 +5,9 @@
 #include <coreplugin/actionmanager/command.h>
 #include <QAction>
 
+#include <QApplication>
+#include <QMouseEvent>
+
 namespace Ubuntu {
 namespace Internal {
 
@@ -19,6 +22,21 @@ UbuntuTestControl::UbuntuTestControl(QObject *parent) :
 {
     connect(ProjectExplorer::BuildManager::instance(),SIGNAL(buildQueueFinished(bool)),
             this,SLOT(setLastBuildSuccess(bool)));
+
+    //QCoreApplication::instance()->installEventFilter(this);
+}
+
+bool UbuntuTestControl::eventFilter(QObject *, QEvent *event)
+{
+    if(event->type() == QEvent::MouseButtonPress) {
+        static ulong last_timestamp = 0;
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+        if(last_timestamp != mouseEvent->timestamp()) {
+            last_timestamp = mouseEvent->timestamp();
+            qDebug()<<qPrintable(QStringLiteral("MOUSEDOWN %1:%2").arg(mouseEvent->globalPos().x()).arg(mouseEvent->globalPos().y()));
+        }
+    }
+    return false;
 }
 
 bool UbuntuTestControl::lastBuildSuccess() const

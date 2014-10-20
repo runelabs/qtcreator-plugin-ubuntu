@@ -81,6 +81,16 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     qmlRegisterUncreatableType<UbuntuQmlFeatureState>("Ubuntu.DevicesModel",0,1,"FeatureState",QStringLiteral("Not instantiable"));
     qmlRegisterUncreatableType<UbuntuQmlDeviceMachineType>("Ubuntu.DevicesModel",0,1,"DeviceMachineType",QStringLiteral("Not instantiable"));
 
+    //create .config/ubuntu-sdk directory if it does not exist
+    QString confdir = QStringLiteral("%1/.config/ubuntu-sdk")
+            .arg(QDir::homePath());
+
+    QDir d = QDir::root();
+    if(!d.exists(confdir)) {
+        if(!d.mkpath(confdir))
+            qWarning()<<"Unable to create Ubuntu-SDK configuration directory "<<confdir;
+    }
+
     const QLatin1String mimetypesXml(Constants::UBUNTU_MIMETYPE_XML);
     if (!Core::MimeDatabase::addMimeTypes(mimetypesXml, errorString))
         return false;
@@ -214,9 +224,6 @@ void UbuntuPlugin::extensionsInitialized()
     if (m_ubuntuCoreAppsMode) m_ubuntuCoreAppsMode->initialize();
     if (m_ubuntuWikiMode) m_ubuntuWikiMode->initialize();
     m_ubuntuPackagingMode->initialize();
-
-    Core::MimeType mt = Core::MimeDatabase::findByFile(QFileInfo(QLatin1String("/tmp/app.apparmor")));
-    qDebug()<<"!!!!!!!!!!!!!!!!!!!!!!!MimeType is"<<mt.comment();
 
     //add the create click package menu item to the project context menu
     Core::ActionContainer *mproject =
