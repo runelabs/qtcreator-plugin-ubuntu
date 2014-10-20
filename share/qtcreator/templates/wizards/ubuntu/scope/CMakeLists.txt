@@ -2,9 +2,6 @@ project(%ProjectName:l% CXX)
 cmake_minimum_required(VERSION 2.8.10)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
 
-#do not remove this line, its required for the correct functionality of the Ubuntu-SDK
-set(UBUNTU_MANIFEST_PATH "manifest.json.in" CACHE INTERNAL "Tells QtCreator location and name of the manifest file")
-
 # We require g++ 4.9, to avoid ABI breakage with earlier version.
 set(cxx_version_required 4.9)
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -51,12 +48,19 @@ include_directories(
   ${SCOPE_INCLUDE_DIRS}
 )
 
+# Do not remove this line, its required for the correct functionality of the Ubuntu-SDK
+set(UBUNTU_MANIFEST_PATH "manifest.json.in" CACHE INTERNAL "Tells QtCreator location and name of the manifest file")
 set(UBUNTU_PROJECT_TYPE "Scope" CACHE INTERNAL "Tells QtCreator this is a Scope project")
+
+# Important project paths
+set(CMAKE_INSTALL_PREFIX /)
 set(SCOPE_INSTALL_DIR "/%ClickHookName:l%")
+set(GETTEXT_PACKAGE "%ProjectName:l%")
 
 # If we need to refer to the scope's name or package in code, these definitions will help
 add_definitions(-DPACKAGE_NAME="%ClickDomain:l%.%ProjectName:l%")
 add_definitions(-DSCOPE_NAME="%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%")
+add_definitions(-DGETTEXT_PACKAGE="${GETTEXT_PACKAGE}")
 
 #This command figures out the target architecture and puts it into the manifest file
 execute_process(
@@ -82,6 +86,7 @@ add_custom_target(hidden_files
 # Add our main directories
 add_subdirectory(src)
 add_subdirectory(data)
+add_subdirectory(po)
 
 # Set up the tests
 enable_testing()

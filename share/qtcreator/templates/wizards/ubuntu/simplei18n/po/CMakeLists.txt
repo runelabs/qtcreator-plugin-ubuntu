@@ -1,6 +1,6 @@
 include(FindGettext)
 
-#find the translation tools
+# Find the translation tools
 find_program(INTLTOOL_MERGE intltool-merge)
 if(NOT INTLTOOL_MERGE)
  message(FATAL_ERROR "Could not find intltool-merge, please install the intltool package")
@@ -29,17 +29,17 @@ list(SORT I18N_SRC_FILES)
 
 add_custom_target(${POT_FILE} ALL
  COMMENT "Generating translation template"
- #read the translateable messages from the desktop file
+ # Extract the translatable messages from the desktop file 
  COMMAND ${INTLTOOL_EXTRACT} --update --type=gettext/ini
  --srcdir=${CMAKE_BINARY_DIR}/app ${DESKTOP_FILE_NAME}.in
- #update the translation file
+ # Update the translation file
  COMMAND ${GETTEXT_XGETTEXT_EXECUTABLE} -o ${POT_FILE}
  --from-code=UTF-8
  --c++ --qt --add-comments=TRANSLATORS
  --keyword=tr --keyword=tr:1,2 --keyword=N_
  --package-name='${PROJECT}'
  -D ${CMAKE_CURRENT_SOURCE_DIR} ${I18N_SRC_FILES}
- #copy the up2date translation file to the source directory
+ # Copy the up2date translation file to the source directory
  COMMAND ${CMAKE_COMMAND} -E copy ${POT_FILE} ${CMAKE_CURRENT_SOURCE_DIR}
 )
 

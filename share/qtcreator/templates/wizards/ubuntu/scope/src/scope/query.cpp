@@ -1,5 +1,6 @@
 #include <boost/algorithm/string/trim.hpp>
 
+#include <scope/localization.h>
 #include <scope/query.h>
 
 #include <unity/scopes/Annotation.h>
@@ -125,7 +126,8 @@ void Query::run(sc::SearchReplyProxy const& reply) {
         }
 
         // Register a category
-        auto cat = reply->register_category("results", "Results", "",
+        auto cat = reply->register_category("results",
+                _("1 result", "%d results", results.size()), "",
                 sc::CategoryRenderer(CATEGORY_TEMPLATE));
 
         for (const auto &result : results) {
@@ -219,7 +221,7 @@ void Query::run(sc::SearchReplyProxy const& reply) {
 
         // Register a category for the forecast
         auto forecast_cat = reply->register_category("forecast",
-                "7 day forecast", "", sc::CategoryRenderer(WEATHER_TEMPLATE));
+                _("7 day forecast"), "", sc::CategoryRenderer(WEATHER_TEMPLATE));
 
         // For each of the forecast days
         for (const auto &weather : forecast.weather) {

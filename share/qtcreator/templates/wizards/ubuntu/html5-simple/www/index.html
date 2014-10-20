@@ -1,15 +1,24 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8">
     <title>An Ubuntu HTML5 application</title>
     <meta name="description" content="An Ubuntu HTML5 application">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
 
+    <!--
+         Application stylesheets
+         Include your own stylesheets below to style your application.
+      -->
+    <link rel="stylesheet" href="css/app.css" type="text/css" />
+
+    <!-- 
+        Ubuntu UI javascript imports - Ambiance theme
+        Ubuntu provides building blocks that you can use in your application. For more information, you can check out the documentation at http://design.ubuntu.com/apps.
+     -->
     <!-- Ubuntu UI Style imports - Ambiance theme -->
     <link href="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/css/appTemplate.css" rel="stylesheet" type="text/css" />
 
-    <!-- Ubuntu UI javascript imports - Ambiance theme -->
     <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/fast-buttons.js"></script>
     <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/core.js"></script>
     <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/buttons.js"></script>
@@ -18,115 +27,48 @@
     <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/pagestacks.js"></script>
     <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/tab.js"></script>
     <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/tabs.js"></script>
-
-    <!-- Application script -->
-    <script src="js/app.js"></script>
-  </head>
-
-  <body>
+</head>
+<body>
 
     <div data-role="mainview">
 
-      <header data-role="header">
-        <ul data-role="tabs">
-          <li data-role="tabitem" data-page="hello-page">Hello World</li>
-        </ul>
-      </header>
+        <header data-role="header">
+            <ul data-role="tabs">
+                <li data-role="tabitem" data-page="hello-page">Hello World</li>
+            </ul>
+        </header>
 
-      <div data-role="content">
+        <div data-role="content">
 
-          <!-- The application main page -->
+            <!-- The application main page -->
+            <div data-role="tab" id="hello-page">
 
-          <div data-role="tab" id="hello-page">
+                <!-- Start of Block - Replace this block with your own code -->
+                <header class="title large-font">Welcome to Ubuntu HTML5!</header>
 
-            <section data-role="list">
-                <header class="large-font">My List Header</header>
-                <ul data-role="listview" id="contacts">
+                <p class="introduction">The Ubuntu Developer documentation is a good starting point to learn more about the HTML5 platform.</p>
 
-                    <li>
-                        <aside>
-                            <img alt="placeholder" src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/img/avatar_contacts_list@8.png">
-                        </aside>
-
-                        <p>Jane</p>
-
-                        <!-- A list item side control -->
-                        <label>
-                            <input type="checkbox" data-type="switch">
-                            <span class="toggle">
-                                <span class="toggle-handle"></span>
-                                <span class="toggle-bg"></span>
-                            </span>
-                        </label>
-                    </li>
-
-                    <li>
-                        <aside>
-                            <img alt="placeholder" src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/img/avatar_contacts_list@8.png">
-                        </aside>
-
-                        <p>Mark</p>
-
-                        <!-- A list item side control -->
-                        <label>
-                            <input type="checkbox" data-type="switch">
-                            <span class="toggle">
-                                <span class="toggle-handle"></span>
-                                <span class="toggle-bg"></span>
-                            </span>
-                        </label>
-                    </li>
-
-                    <li>
-                        <aside>
-                            <img alt="placeholder" src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/img/avatar_contacts_list@8.png">
-                        </aside>
-
-                        <p>Olivier</p>
-
-                        <!-- A list item side control -->
-                        <label>
-                            <input type="checkbox" data-type="switch">
-                            <span class="toggle">
-                                <span class="toggle-handle"></span>
-                                <span class="toggle-bg"></span>
-                            </span>
-                        </label>
-                    </li>
-
-                </ul>
-
-            </section>
-
-            <div class="inset" style="margin-top: 1em; text-align: center" >
-
-                <div style="margin: 0em 1em 1em 1em">
-                    <button id="text" data-role="button" class="ubuntu" style="width: 100%">
-                      Text
+                <a href="http://developer.ubuntu.com/apps/html-5/" target="_blank">
+                    <button class="button" data-role="button" class="ubuntu">
+                        HTML5 Platform Documentation
                     </button>
-                </div>
-                <div style="margin: 0em 1em 1em 1em">
-                    <button id="call" data-role="button" class="ubuntu" style="width: 100%">
-                      Call
-                      <span class="icon icon-call"></span>
+                </a>
+
+                <header class="title large-font">HTML5 API</header>
+                <p class="introduction">The Ubuntu HTML5 platform offers plenty of APIs. An updated listing and documentation can be accessed below.</p>
+
+                <a href="http://developer.ubuntu.com/api/html5/current/" target="_blank">
+                    <button class="button" data-role="button" class="ubuntu">
+                        APIs Documentation
                     </button>
-                 </div>
+                </a>
 
             </div>
+            <!-- End of Block-->
 
-            <div data-role="dialog" id="dialog1">
-                <section>
-                    <h1></h1>
-                    <menu>
-                        <button data-role="button" id="no">OK</button>
-                    </menu>
-                </section>
-            </div>
-
-          </div>
-
-      </div>
-      
+        </div>
     </div>
-  </body>
+
+    <script src="js/app.js"></script>
+</body>
 </html>

@@ -1,3 +1,51 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20141017-0ubuntu1) utopic; urgency=low
+
+  [ Pete Woods ]
+  * Add translation support to scope templates
+
+  [ Benjamin Zeller ]
+  * Fix bug lp:1363857 "Use click-review from click-reviewers-tools".
+    Fix bug lp:1379689 "Add internationalization support to QML app
+    templates". Fix bug lp:1361936 "error information box is not
+    updated". Fix bug lp:1368521 "After choosing "Create emulator",
+    nothing happens. after that" Fix bug lp:1371807 "multi user problem
+    writing to /tmp/sdk.log" (LP: #1361936, #1363857, #1368521,
+    #1371807, #1379689)
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 17 Oct 2014 10:16:41 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+14.10.20141010-0ubuntu1) utopic; urgency=low
+
+  [ Benjamin Zeller ]
+  * Fix error warnings about overriding Actions. Fix missing devicepage
+    icons on trusty. Fix bug lp:1379644 "I can only get the test
+    configuration for scope. development" (LP: #1379644)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 10 Oct 2014 11:40:52 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+14.10.20141009-0ubuntu1) utopic; urgency=low
+
+  [ Benjamin Zeller ]
+  * Fix Bug 1377090: "Overiding an app doesn't work". Fix Bug 1377094:
+    "Click review errors prevent applications from being. deployed to
+    the device" (LP: #1377090, #1377094)
+  * Refactor UI of devicespage. Fix Bug #1372633 "Device tab content
+    page needs to allow vertical. scrolling" (LP: #1372633)
+  * Add a TaskHandler, so we can open the links directly from the Issues
+    tab. Removed unused Settings. Review click packages before uploading
+    them to the phone. Show review errors in Issues output view.
+
+  [ Jean-Francois Moy ]
+  * Improve the HTML5 application template (LP: #1377928)
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 09 Oct 2014 10:03:07 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20141002-0ubuntu1) utopic; urgency=low
 
   [ Benjamin Zeller ]

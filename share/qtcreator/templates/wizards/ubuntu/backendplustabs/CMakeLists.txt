@@ -1,19 +1,19 @@
 project(%ProjectName% C CXX)
 cmake_minimum_required(VERSION 2.8.9)
 
-#do not remove this line, its required for the correct functionality of the Ubuntu-SDK
+# Do not remove this line, its required for the correct functionality of the Ubuntu-SDK
 set(UBUNTU_MANIFEST_PATH "manifest.json.in" CACHE INTERNAL "Tells QtCreator location and name of the manifest file")
 set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 find_package(Qt5Core)
 find_package(Qt5Qml)
 find_package(Qt5Quick)
-#find_package(ubuntu-sdk-libs)
+# find_package(ubuntu-sdk-libs)
 
-#automatically create moc files
+# Automatically create moc files
 set(CMAKE_AUTOMOC ON)
 
-# components PATH
+# Components PATH
 execute_process(
     COMMAND dpkg-architecture -qDEB_HOST_MULTIARCH
     OUTPUT_VARIABLE ARCH_TRIPLET
@@ -29,7 +29,7 @@ set(%ProjectName:u%_DIR "share/qml/%ProjectName%")
 set(MAIN_QML          "%ProjectName%.qml")
 set(ICON              "graphics/%ProjectName%.png")
 
-#set install paths
+# Set install paths
 set(CMAKE_INSTALL_PREFIX /)
 set(DATA_DIR /)
 set(DESKTOP_DIR ${DATA_DIR})
@@ -37,7 +37,7 @@ set(DESKTOP_FILE_NAME "%ClickHookName%.desktop")
 
 set(EXEC "qmlscene $@ ${%ProjectName:u%_DIR}/${MAIN_QML}")
 
-#This command figures out the target architecture and puts it into the manifest file
+# This command figures out the target architecture for use in the manifest file
 execute_process(
   COMMAND dpkg-architecture -qDEB_HOST_ARCH
   OUTPUT_VARIABLE CLICK_ARCH
@@ -68,5 +68,5 @@ add_custom_target("run" /usr/bin/qmlscene -I ${CMAKE_BINARY_DIR}/backend  ${CMAK
                     DEPENDS %ProjectName%backend %ProjectName%backend-qmldir
                     WORKING_DIRECTORY ./app)
 
-#no op custom target for all not compiled files, so they show up in the QtCreator project tree
+# No op custom target for all not compiled files, so they show up in the QtCreator project tree
 add_custom_target("%ProjectName:l%_ClickFiles" ALL SOURCES "%ClickHookName%.apparmor" "manifest.json.in")

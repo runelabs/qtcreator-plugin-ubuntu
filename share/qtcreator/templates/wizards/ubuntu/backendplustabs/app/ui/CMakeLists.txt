@@ -1,6 +1,6 @@
 file(GLOB UI_QML_JS_FILES *.qml *.js)
 
-# make the files visible in the qtcreator tree
+# Make the files visible in the qtcreator tree
 add_custom_target(%ProjectName:l%_ui_QMlFiles ALL SOURCES ${UI_QML_JS_FILES})
 
 install(FILES ${UI_QML_JS_FILES} DESTINATION ${%ProjectName:u%_DIR}/ui)
