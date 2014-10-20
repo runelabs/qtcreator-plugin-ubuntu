@@ -1,3 +1,14 @@
+qtcreator-plugin-ubuntu (3.1.1+14.10.20141020-0ubuntu1) utopic; urgency=low
+
+  [ Benjamin Zeller ]
+  * Remove all references to cordova from plugin. Fix debug support:
+    since we switched to SSH stdout and stderr are. forwarded correctly
+    to us. So we really need to read stderr to pick up the gdb port
+    message Create the ubuntu-sdk configdirectory if it does not exist
+    right at. the beginning
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 20 Oct 2014 20:56:05 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20141017-0ubuntu1) utopic; urgency=low
 
   [ Pete Woods ]
