@@ -170,6 +170,11 @@ void UbuntuRemoteDebugSupport::handleDebuggingFinished()
 
 void UbuntuRemoteDebugSupport::handleRemoteOutput(const QByteArray &output)
 {
+    showMessage(QString::fromUtf8(output), Debugger::AppOutput);
+}
+
+void UbuntuRemoteDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
+{
     if( state() != ScanningPorts ) {
 
         if (!d->engine)
@@ -186,12 +191,6 @@ void UbuntuRemoteDebugSupport::handleRemoteOutput(const QByteArray &output)
         }
     }
 
-    showMessage(QString::fromUtf8(output), Debugger::AppOutput);
-
-}
-
-void UbuntuRemoteDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
-{
     showMessage(QString::fromUtf8(output), Debugger::AppError);
 }
 
