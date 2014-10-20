@@ -23,7 +23,7 @@ UbuntuTestControl::UbuntuTestControl(QObject *parent) :
     connect(ProjectExplorer::BuildManager::instance(),SIGNAL(buildQueueFinished(bool)),
             this,SLOT(setLastBuildSuccess(bool)));
 
-    QCoreApplication::instance()->installEventFilter(this);
+    //QCoreApplication::instance()->installEventFilter(this);
 }
 
 bool UbuntuTestControl::eventFilter(QObject *, QEvent *event)
