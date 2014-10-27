@@ -83,8 +83,14 @@
         <field name="ContentType">
             <fieldcontrol class="QComboBox" defaultindex="0">
                 <comboentries>
-                    <comboentry value="network">
-                        <comboentrytext>Scope using HTTP+JSON API</comboentrytext>
+                    <comboentry value="network-netcpp-json">
+                        <comboentrytext>Pure C++ scope using HTTP+JSON API</comboentrytext>
+                    </comboentry>
+                    <comboentry value="network-netcpp-qjson">
+                        <comboentrytext>Qt scope using HTTP+JSON API</comboentrytext>
+                    </comboentry>
+                    <comboentry value="network-netcpp-qxml">
+                        <comboentrytext>Qt scope using HTTP+XML API</comboentrytext>
                     </comboentry>
                     <comboentry value="empty">
                         <comboentrytext>Empty scope</comboentrytext>

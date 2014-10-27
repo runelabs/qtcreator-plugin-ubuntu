@@ -56,6 +56,13 @@ target_link_libraries(
   ${Boost_LIBRARIES}
 )
 
+@if "%ContentType%" == "network-netcpp-qjson"
+qt5_use_modules(
+  scope
+  Core
+)
+@endif
+
 # Set the correct library output name to conform to the securiry policy 
 set_target_properties(
   scope

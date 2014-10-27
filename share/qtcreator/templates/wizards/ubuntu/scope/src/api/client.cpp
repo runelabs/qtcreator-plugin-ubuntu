@@ -1,15 +1,21 @@
 #include <api/client.h>
 
-@if "%ContentType%" == "network"
+@if "%ContentType%".substring(0, "network-netcpp".length) === "network-netcpp"
 #include <core/net/error.h>
 #include <core/net/http/client.h>
 #include <core/net/http/content_type.h>
 #include <core/net/http/response.h>
+@if "%ContentType%" == "network-netcpp-json"
 #include <json/json.h>
+@elsif "%ContentType%" == "network-netcpp-qjson"
+#include <QVariantMap>
+@endif
 
 namespace http = core::net::http;
-namespace json = Json;
 namespace net = core::net;
+@if "%ContentType%" == "network-netcpp-json"
+namespace json = Json;
+@endif
 @endif
 
 using namespace api;
@@ -45,9 +51,14 @@ Client::ResultList Client::search(const string &query) {
     return results;
 }
 @endif
-@if "%ContentType%" == "network"
+@if "%ContentType%".substring(0, "network-netcpp".length) === "network-netcpp"
+@if "%ContentType%" == "network-netcpp-json"
 void Client::get(const net::Uri::Path &path,
         const net::Uri::QueryParameters &parameters, json::Value &root) {
+@elsif "%ContentType%" == "network-netcpp-qjson"
+void Client::get(const net::Uri::Path &path,
+        const net::Uri::QueryParameters &parameters, QJsonDocument &root) {
+@endif
     // Create a new HTTP client
     auto client = http::make_client();
 
@@ -72,9 +83,9 @@ void Client::get(const net::Uri::Path &path,
 
         // Check that we got a sensible HTTP status code
         if (response.status != http::Status::ok) {
-            throw domain_error(root["error"].asString());
+            throw domain_error(response.body);
         }
-
+@if "%ContentType%" == "network-netcpp-json"
         // Parse the JSON from the response
         json::Reader reader;
         reader.parse(response.body, root);
@@ -85,22 +96,46 @@ void Client::get(const net::Uri::Path &path,
                 || (cod.isUInt() && cod.asUInt() != 200)) {
             throw domain_error(root["message"].asString());
         }
+@elsif "%ContentType%" == "network-netcpp-qjson"
+        // Parse the JSON from the response
+        root = QJsonDocument::fromJson(response.body.c_str());
+
+        // Open weather map API error code can either be a string or int
+        QVariant cod = root.toVariant().toMap()["cod"];
+        if ((cod.isString() && cod.asString() != "200")
+                || (cod.isUInt() && cod.asUInt() != 200)) {
+            throw domain_error(root["message"].asString());
+        }
+@endif
     } catch (net::Error &) {
     }
 }
 
 Client::Current Client::weather(const string& query) {
+@if "%ContentType%" == "network-netcpp-json"
     json::Value root;
+@elsif "%ContentType%" == "network-netcpp-qjson"
+    QJsonDocument root;
+@elsif "%ContentType%" == "network-netcpp-qxml"
+    // Stuff with QXml
+@endif
 
     // Build a URI and get the contents.
     // The fist parameter forms the path part of the URI.
     // The second parameter forms the CGI parameters.
-    get( { "data", "2.5", "weather" },
-            { { "q", query }, { "units", "metric" } }, root);
+    get(
+        { "data", "2.5", "weather" },
+        { { "q", query }, { "units", "metric" }
+@if "%ContentType%" == "network-netcpp-qxml"
+        , { "mode", "xml" }
+@endif
+        },
+        root);
     // e.g. http://api.openweathermap.org/data/2.5/weather?q=QUERY&units=metric
 
     Current result;
 
+@if "%ContentType%" == "network-netcpp-json"
     // Read out the city we found
     json::Value sys = root["sys"];
     result.city.id = sys["id"].asUInt();
@@ -121,22 +156,56 @@ Client::Current Client::weather(const string& query) {
     result.weather.temp.cur = main["temp"].asDouble();
     result.weather.temp.max = main["temp_max"].asDouble();
     result.weather.temp.min = main["temp_min"].asDouble();
+@elsif "%ContentType%" == "network-netcpp-qjson"
+    // Read out the city we found
+    QVariantMap variant = root.toVariant().toMap();
+    QVariantMap sys = variant["sys"].toMap();
+    result.city.id = sys["id"].toUInt();
+    result.city.name = variant["name"].toString().toStdString();
+    result.city.country = sys["country"].toString().toStdString();
 
+    // Read the weather
+    QVariantMap weather = variant["weather"].toList().first().toMap();
+    result.weather.id = weather["id"].toUInt();
+    result.weather.main = weather["main"].toString().toStdString();
+    result.weather.description = weather["description"].toString().toStdString();
+    result.weather.icon = "http://openweathermap.org/img/w/"
+            + weather["icon"].toString().toStdString() + ".png";
+
+    // Read the temps
+    QVariantMap main = variant["main"].toMap();
+    result.weather.temp.cur = main["temp"].toDouble();
+    result.weather.temp.max = main["temp_max"].toDouble();
+    result.weather.temp.min = main["temp_min"].toDouble();
+@elsif "%ContentType%" == "network-netcpp-qxml"
+    // Stuff with QXml
+@endif
     return result;
 }
 
 Client::Forecast Client::forecast_daily(const string& query, unsigned int cnt) {
+@if "%ContentType%" == "network-netcpp-json"
     json::Value root;
+@elsif "%ContentType%" == "network-netcpp-qjson"
+    QJsonDocument root;
+@elsif "%ContentType%" == "network-netcpp-qxml"
+    // Stuff with QXml
+@endif
 
     // Build a URI and get the contents
     // The fist parameter forms the path part of the URI.
     // The second parameter forms the CGI parameters.
     get( { "data", "2.5", "forecast", "daily" }, { { "q", query }, { "units",
-            "metric" }, { "cnt", to_string(cnt) } }, root);
+            "metric" }, { "cnt", to_string(cnt) } },
+@if "%ContentType%" == "network-netcpp-qxml"
+            , { "mode", "xml" }
+@endif
+            root);
     // e.g. http://api.openweathermap.org/data/2.5/forecast/daily/?q=QUERY&units=metric&cnt=7
 
     Forecast result;
 
+@if "%ContentType%" == "network-netcpp-json"
     // Read out the city we found
     json::Value city = root["city"];
     result.city.id = city["id"].asUInt();
@@ -165,6 +234,38 @@ Client::Forecast Client::forecast_daily(const string& query, unsigned int cnt) {
                                 temp["max"].asDouble(), temp["min"].asDouble(),
                                 0.0 } });
     }
+@elsif "%ContentType%" == "network-netcpp-qjson"
+    QVariantMap variant = root.toVariant().toMap();
+
+    // Read out the city we found
+    QVariantMap city = variant["city"].toMap();
+    result.city.id = city["id"].toUInt();
+    result.city.name = city["name"].toString().toStdString();
+    result.city.country = city["country"].toString().toStdString();
+
+    // Iterate through the weather data
+    for (const QVariant &i : variant["list"].toList()) {
+        QVariantMap item = i.toMap();
+
+        // Extract the first weather item
+        QVariantList weather_list = item["weather"].toList();
+        QVariantMap weather = weather_list.first().toMap();
+
+        // Extract the temperature data
+        QVariantMap temp = item["temp"].toMap();
+
+        // Add a result to the weather list
+        result.weather.emplace_back(
+                Weather { weather["id"].toUInt(), weather["main"].toString().toStdString(),
+                        weather["description"].toString().toStdString(),
+                        "http://openweathermap.org/img/w/"
+                                + weather["icon"].toString().toStdString() + ".png", Temp {
+                                temp["max"].toDouble(), temp["min"].toDouble(),
+                                0.0 } });
+    }
+@elsif "%ContentType%" == "network-netcpp-qxml"
+    // Stuff with QXml
+@endif
 
     return result;
 }

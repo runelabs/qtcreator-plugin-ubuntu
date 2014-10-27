@@ -1,5 +1,5 @@
 {
-@if "%ScopeType%" == "network"
+@if "%ContentType%".substring(0, "network".length) === "network"
   "description": "A simple Unity scope that accesses the network",
 @else
   "description": "A simple Unity scope that accesses local content",
