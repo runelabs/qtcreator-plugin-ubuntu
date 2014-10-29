@@ -17,7 +17,7 @@ target_link_libraries(
   ${Boost_LIBRARIES}
 )
 
-@if "%ContentType%" == "network-netcpp-qjson"
+@if "%ContentType%".substring(0, "network-netcpp-q".length) === "network-netcpp-q"
 qt5_use_modules(
   scope-unit-tests
   Core

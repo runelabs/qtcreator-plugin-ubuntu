@@ -43,7 +43,7 @@ pkg_check_modules(
   REQUIRED
 )
 
-@if "%ContentType%" == "network-netcpp-qjson"
+@if "%ContentType%".substring(0, "network-netcpp-q".length) === "network-netcpp-q"
 find_package(Qt5Core REQUIRED)
 include_directories(${Qt5Core_INCLUDE_DIRS})
 @endif

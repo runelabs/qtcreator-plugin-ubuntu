@@ -17,6 +17,8 @@ class Value;
 }
 @elsif "%ContentType%" == "network-netcpp-qjson"
 #include <QJsonDocument>
+@elsif "%ContentType%" == "network-netcpp-qxml"
+#include <QXmlStreamReader>
 @endif
 @endif
 
@@ -137,6 +139,10 @@ protected:
     void get(const core::net::Uri::Path &path,
                 const core::net::Uri::QueryParameters &parameters,
                 QJsonDocument &root);
+@elsif "%ContentType%" == "network-netcpp-qxml"
+    void get(const core::net::Uri::Path &path,
+                const core::net::Uri::QueryParameters &parameters,
+                QXmlStreamReader &reader);
 @endif
 @if "%ContentType%".substring(0, "network".length) === "network"
     /**

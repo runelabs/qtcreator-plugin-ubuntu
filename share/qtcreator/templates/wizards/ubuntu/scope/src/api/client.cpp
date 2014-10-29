@@ -25,6 +25,150 @@ Client::Client(Config::Ptr config) :
         config_(config), cancelled_(false) {
 }
 
+@if "%ContentType%" == "network-netcpp-qxml"
+namespace {
+static QString readText(QXmlStreamReader& xml)
+{
+    xml.readNext();
+
+    if (xml.tokenType() != QXmlStreamReader::Characters) {
+        return QString();
+    }
+
+    return xml.text().toString();
+}
+
+static void parseCity(Client::City& city, QXmlStreamReader& xml)
+{
+    QXmlStreamAttributes attributes = xml.attributes();
+    if (attributes.hasAttribute("id")) {
+        city.id = attributes.value("id").toUInt();
+    }
+    if (attributes.hasAttribute("name")) {
+        city.name = attributes.value("name").toString().toStdString();
+    }
+
+    xml.readNext();
+
+    while (!xml.atEnd() && !(xml.isEndElement() && xml.name() == "city")) {
+        if (xml.isStartElement()) {
+            if (xml.name() == "country") {
+                city.country = readText(xml).toStdString();
+            }
+        }
+        xml.readNext();
+    }
+}
+
+static void parseWeather(Client::Weather& weather, QXmlStreamReader& xml)
+{
+    QXmlStreamAttributes attributes = xml.attributes();
+    if (attributes.hasAttribute("id")) {
+        weather.id = attributes.value("id").toUInt();
+    }
+    if (attributes.hasAttribute("value")) {
+        weather.description = attributes.value("value").toString().toStdString();
+    }
+    if (attributes.hasAttribute("icon")) {
+        weather.icon = "http://openweathermap.org/img/w/"
+                    + attributes.value("icon").toString().toStdString() + ".png";
+    }
+
+    xml.readNext();
+
+    while (!xml.atEnd() && !(xml.isEndElement() && xml.name() == "weather")) {
+        xml.readNext();
+    }
+}
+
+static void parseTemperature(Client::Temp& temp, QXmlStreamReader& xml)
+{
+    QXmlStreamAttributes attributes = xml.attributes();
+    if (attributes.hasAttribute("value")) {
+        temp.cur = attributes.value("value").toDouble();
+    }
+    if (attributes.hasAttribute("max")) {
+        temp.max = attributes.value("max").toDouble();
+    }
+    if (attributes.hasAttribute("min")) {
+        temp.min = attributes.value("min").toDouble();
+    }
+
+    xml.readNext();
+
+    while (!xml.atEnd() && !(xml.isEndElement() && xml.name() == "temperature")) {
+        xml.readNext();
+    }
+}
+
+static void parseLocation(Client::City& city, QXmlStreamReader& xml)
+{
+    xml.readNext();
+
+    while (!xml.atEnd() && !(xml.isEndElement() && xml.name() == "location")) {
+        if (xml.name() == "name") {
+            city.name = readText(xml).toStdString();
+        } else if (xml.name() == "country") {
+            city.country = readText(xml).toStdString();
+        }
+
+        xml.readNext();
+    }
+}
+
+static void parseTime(Client::Weather& weather, QXmlStreamReader& xml)
+{
+    xml.readNext();
+
+    while (!xml.atEnd() && !(xml.isEndElement() && xml.name() == "time"))
+    {
+        if (xml.name() == "symbol") {
+            QXmlStreamAttributes attributes = xml.attributes();
+            if (attributes.hasAttribute("name")) {
+                weather.description = attributes.value("name").toString().toStdString();
+            }
+            if (attributes.hasAttribute("var")) {
+                weather.icon = "http://openweathermap.org/img/w/"
+                        + attributes.value("var").toString().toStdString() + ".png";
+            }
+        } else if (xml.name() == "temperature") {
+            QXmlStreamAttributes attributes = xml.attributes();
+            if (attributes.hasAttribute("max")) {
+                weather.temp.max = attributes.value("max").toDouble();
+            }
+            if (attributes.hasAttribute("min")) {
+                weather.temp.min = attributes.value("min").toDouble();
+            }
+            if (attributes.hasAttribute("day")) {
+                weather.temp.cur = attributes.value("day").toDouble();
+            }
+        }
+
+        xml.readNext();
+    }
+}
+
+static void parseForecast(Client::WeatherList& weather_list, QXmlStreamReader& xml)
+{
+    xml.readNext();
+
+    unsigned int weather_id = 1000000;
+
+    while (!xml.atEnd() && !(xml.isEndElement() && xml.name() == "forecast"))
+    {
+        if (xml.name() == "time") {
+            Client::Weather weather;
+            weather.id = weather_id++;
+            parseTime(weather, xml);
+            weather_list.emplace_back(weather);
+        }
+        xml.readNext();
+    }
+}
+
+}
+@endif
+
 @if "%ContentType%" == "empty"
 Client::ResultList Client::search(const string &query) {
     ResultList results;
@@ -58,6 +202,9 @@ void Client::get(const net::Uri::Path &path,
 @elsif "%ContentType%" == "network-netcpp-qjson"
 void Client::get(const net::Uri::Path &path,
         const net::Uri::QueryParameters &parameters, QJsonDocument &root) {
+@elsif "%ContentType%" == "network-netcpp-qxml"
+void Client::get(const net::Uri::Path &path,
+        const net::Uri::QueryParameters &parameters, QXmlStreamReader &reader) {
 @endif
     // Create a new HTTP client
     auto client = http::make_client();
@@ -106,6 +253,9 @@ void Client::get(const net::Uri::Path &path,
                 || (cod.isUInt() && cod.asUInt() != 200)) {
             throw domain_error(root["message"].asString());
         }
+@elsif "%ContentType%" == "network-netcpp-qxml"
+        // Parse the Xml from the response
+        reader.addData(response.body.c_str());
 @endif
     } catch (net::Error &) {
     }
@@ -117,7 +267,7 @@ Client::Current Client::weather(const string& query) {
 @elsif "%ContentType%" == "network-netcpp-qjson"
     QJsonDocument root;
 @elsif "%ContentType%" == "network-netcpp-qxml"
-    // Stuff with QXml
+    QXmlStreamReader root;
 @endif
 
     // Build a URI and get the contents.
@@ -178,7 +328,31 @@ Client::Current Client::weather(const string& query) {
     result.weather.temp.max = main["temp_max"].toDouble();
     result.weather.temp.min = main["temp_min"].toDouble();
 @elsif "%ContentType%" == "network-netcpp-qxml"
-    // Stuff with QXml
+    while (!root.atEnd() && !root.hasError()) {
+        QXmlStreamReader::TokenType token = root.readNext();
+
+        /* If token is just StartDocument, we'll go to next.*/
+        if (token == QXmlStreamReader::StartDocument) {
+            continue;
+        }
+
+        /* If token is StartElement, we'll see if we can read it.*/
+        if (token == QXmlStreamReader::StartElement) {
+            if (root.name() == "current") {
+                root.readNext();
+            } else if (root.name() == "city") {
+                parseCity(result.city, root);
+            } else if (root.name() == "weather") {
+                parseWeather(result.weather, root);
+            } else if (root.name() == "temperature") {
+                parseTemperature(result.weather.temp, root);
+            }
+        }
+    }
+
+    if (root.hasError()) {
+        throw domain_error(root.errorString().toStdString());
+    }
 @endif
     return result;
 }
@@ -189,18 +363,18 @@ Client::Forecast Client::forecast_daily(const string& query, unsigned int cnt) {
 @elsif "%ContentType%" == "network-netcpp-qjson"
     QJsonDocument root;
 @elsif "%ContentType%" == "network-netcpp-qxml"
-    // Stuff with QXml
+    QXmlStreamReader root;
 @endif
 
     // Build a URI and get the contents
     // The fist parameter forms the path part of the URI.
     // The second parameter forms the CGI parameters.
     get( { "data", "2.5", "forecast", "daily" }, { { "q", query }, { "units",
-            "metric" }, { "cnt", to_string(cnt) } },
+            "metric" }, { "cnt", to_string(cnt) }
 @if "%ContentType%" == "network-netcpp-qxml"
             , { "mode", "xml" }
 @endif
-            root);
+        }, root);
     // e.g. http://api.openweathermap.org/data/2.5/forecast/daily/?q=QUERY&units=metric&cnt=7
 
     Forecast result;
@@ -264,7 +438,29 @@ Client::Forecast Client::forecast_daily(const string& query, unsigned int cnt) {
                                 0.0 } });
     }
 @elsif "%ContentType%" == "network-netcpp-qxml"
-    // Stuff with QXml
+    while (!root.atEnd() && !root.hasError()) {
+        QXmlStreamReader::TokenType token = root.readNext();
+
+        /* If token is just StartDocument, we'll go to next.*/
+        if (token == QXmlStreamReader::StartDocument) {
+            continue;
+        }
+
+        /* If token is StartElement, we'll see if we can read it.*/
+        if (token == QXmlStreamReader::StartElement) {
+            if (root.name() == "weatherdata") {
+                root.readNext();
+            } else if (root.name() == "location") {
+                parseLocation(result.city, root);
+            } else if (root.name() == "forecast") {
+                parseForecast(result.weather, root);
+            }
+        }
+    }
+
+    if (root.hasError()) {
+        throw domain_error(root.errorString().toStdString());
+    }
 @endif
 
     return result;
