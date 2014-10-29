@@ -29,12 +29,22 @@ class MyRequestHandler(http.server.BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
-            self.wfile.write(bytes(read_file('weather/%s.json' % query['q'][0]), 'UTF-8'))
+
+            mode = 'json'
+            if 'mode' in query:
+                mode = query['mode'][0]
+
+            self.wfile.write(bytes(read_file('weather/%s.%s' % (query['q'][0], mode)), 'UTF-8'))
         elif path == '/data/2.5/forecast/daily':
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
-            self.wfile.write(bytes(read_file('forecast/daily/%s.json' % query['q'][0]), 'UTF-8'))
+
+            mode = 'json'
+            if 'mode' in query:
+                mode = query['mode'][0]
+
+            self.wfile.write(bytes(read_file('forecast/daily/%s.%s' % (query['q'][0], mode)), 'UTF-8'))
         else:
             self.send_response(404)
             self.send_header("Content-type", "text/html")
@@ -49,3 +59,4 @@ if __name__ == "__main__":
     sys.stdout.flush()
 
     httpd.serve_forever()
+
