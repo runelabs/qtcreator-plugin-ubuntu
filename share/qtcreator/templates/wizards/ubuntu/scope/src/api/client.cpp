@@ -249,9 +249,9 @@ void Client::get(const net::Uri::Path &path,
 
         // Open weather map API error code can either be a string or int
         QVariant cod = root.toVariant().toMap()["cod"];
-        if ((cod.isString() && cod.asString() != "200")
-                || (cod.isUInt() && cod.asUInt() != 200)) {
-            throw domain_error(root["message"].asString());
+        if ((cod.canConvert<QString>() && cod.toString() != "200")
+                || (cod.canConvert<unsigned int>() && cod.toUInt() != 200)) {
+            throw domain_error(root.toVariant().toMap()["message"].toString().toStdString());
         }
 @elsif "%ContentType%" == "network-netcpp-qxml"
         // Parse the Xml from the response
