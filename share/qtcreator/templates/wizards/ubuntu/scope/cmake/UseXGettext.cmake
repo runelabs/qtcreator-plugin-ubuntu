@@ -63,7 +63,6 @@ macro(add_translations_catalog)
     )
 
     add_custom_target (pot
-        ALL
         COMMENT “Building translation catalog.”
         DEPENDS ${_POT_FILE}
     )
@@ -86,6 +85,7 @@ macro(add_translations_catalog)
 
     xgettext_create_pot_file(
         ${_POT_FILE}
+        ALL
         CPP
         QT
         INPUT ${_SOURCES}
