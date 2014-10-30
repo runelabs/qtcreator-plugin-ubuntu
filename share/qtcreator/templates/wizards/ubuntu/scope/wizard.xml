@@ -10,6 +10,8 @@
     <displaycategory>Ubuntu</displaycategory>
     <files>
         <file source="cmake/FindGMock.cmake"/>
+        <file source="cmake/FindXGettext.cmake"/>
+        <file source="cmake/UseXGettext.cmake"/>
 
         <file source="data/CMakeLists.txt"/>
         <file source="data/displayName.ini" target="data/%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini"/>
