@@ -33,6 +33,9 @@ class QDialogButtonBox;
 class QPlainTextEdit;
 class QLabel;
 class QAction;
+class QTimer;
+class QNetworkAccessManager;
+class QNetworkReply;
 
 namespace ProjectExplorer {
     class Project;
@@ -71,8 +74,6 @@ public:
 
     static QString targetBasePath (const Target& target);
     static bool getTargetFromUser (Target* target, const QString &framework=QString());
-    static QStringList getSupportedFrameworks (const Target *target);
-    static QString getMostRecentFramework ( const QString &subFramework, const Target *target );
 
     static bool          targetExists (const Target& target);
     static QList<Target> listAvailableTargets (const QString &framework=QString());
@@ -84,6 +85,44 @@ public:
 };
 
 QDebug operator<<(QDebug dbg, const UbuntuClickTool::Target& t);
+
+class UbuntuClickFrameworkProvider : public QObject
+{
+    Q_OBJECT
+
+public:
+    UbuntuClickFrameworkProvider();
+    static UbuntuClickFrameworkProvider *instance();
+
+    QStringList supportedFrameworks() const;
+    QString mostRecentFramework ( const QString &subFramework);
+    QString frameworkPolicy (const QString &fw) const;
+
+    static QStringList getSupportedFrameworks ();
+    static QString getMostRecentFramework ( const QString &subFramework);
+    static QString getBaseFramework (const QString &framework, QStringList *extensions = 0);
+
+signals:
+    void frameworksUpdated();
+
+private slots:
+    void requestFinished  ();
+    void requestError     ();
+    void updateFrameworks ();
+
+private:
+    void readCache ();
+
+private:
+    QStringList            m_frameworkCache;
+    QString                m_cacheFilePath;
+    QMap<QString,QString>  m_policyCache;
+
+    QNetworkAccessManager *m_manager;
+    QNetworkReply         *m_currentRequest;
+    QTimer                *m_cacheUpdateTimer;
+    static UbuntuClickFrameworkProvider *m_instance;
+};
 
 } // namespace Internal
 } // namespace Ubuntu
