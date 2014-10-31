@@ -36,9 +36,12 @@ Dialog {
 
     ListItem.ItemSelector {
         id: channel
-        model: [i18n.tr("devel"), 
-                i18n.tr("devel-proposed"), 
-                i18n.tr("stable")]
+        model: ["devel",
+                "devel-proposed",
+                "stable",
+                "rtm-14.09",
+                "rtm-14.09-proposed",
+                "custom channel"]
     }
 
     Button {
