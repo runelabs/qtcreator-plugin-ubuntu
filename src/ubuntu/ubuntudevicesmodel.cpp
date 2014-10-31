@@ -17,7 +17,6 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QTimer>
-#include <QInputDialog>
 
 namespace Ubuntu {
 namespace Internal {
@@ -784,27 +783,23 @@ void UbuntuDevicesModel::doCreateEmulatorImage(UbuntuProcess *process, const QSt
 void UbuntuDevicesModel::createEmulatorImage(const QString &name, const QString &arch, const QString &channel)
 {
     QString ch = channel;
-    if(ch == QStringLiteral("custom channel")) {
-        //The user can select "custom channel" if he wants to type in the channel name himself
-        ch = QInputDialog::getText(Core::ICore::mainWindow(),
-                                   tr("Choose emulator channel"),
-                                   tr("Please type in the name of the emulator channel you want to use."));
-        if(ch.isEmpty())
-            return;
-    } else {
-        //to work around a problem in the UITK that clips long text in dropdown menus we use short aliases in the UI
-        //for some channels. Here they are resolved to the correct channel names.
-        QMap<QString,QString> channelAliasMap = {
-            {QStringLiteral("rtm-14.09"),QStringLiteral("ubuntu-touch/ubuntu-rtm/14.09")},
-            {QStringLiteral("rtm-14.09-proposed"),QStringLiteral("ubuntu-touch/ubuntu-rtm/14.09-proposed")}
-        };
 
-        if(channelAliasMap.contains(ch))
-            ch = channelAliasMap[ch];
-    }
+    //to work around a problem in the UITK that clips long text in dropdown menus we use short aliases in the UI
+    //for some channels. Here they are resolved to the correct channel names.
+    QMap<QString,QString> channelAliasMap = {
+        {QStringLiteral("rtm-14.09"),QStringLiteral("ubuntu-touch/ubuntu-rtm/14.09")},
+        {QStringLiteral("rtm-14.09-proposed"),QStringLiteral("ubuntu-touch/ubuntu-rtm/14.09-proposed")}
+    };
+
+    if(channelAliasMap.contains(ch))
+        ch = channelAliasMap[ch];
 
     setState(CreateEmulatorImage);
-    setCancellable(true);
+
+    //@BUG this should be cancellable but the QProcess::kill call just blocks for a long time, and then returns
+    //     with the process still running. Most likely because the subprocess is executed with pkexec and has
+    //     elevated priviledges
+    setCancellable(false);
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
     doCreateEmulatorImage(m_process,name,arch,ch);
 }
