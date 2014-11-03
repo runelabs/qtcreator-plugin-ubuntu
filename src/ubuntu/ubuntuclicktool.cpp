@@ -464,15 +464,10 @@ static bool caseInsensitiveFWLessThan(const QString &s1, const QString &s2)
             return true;
         else if(!fwDesc1.sub.isEmpty() && fwDesc2.sub.isEmpty())
             return false;
-        else if(fwDesc1.sub.isEmpty() && fwDesc2.sub.isEmpty())
+        else if(fwDesc1.sub == fwDesc2.sub)
             return fwDesc1.develVersion > fwDesc2.develVersion;
-        else {
-            if(fwDesc1.sub != fwDesc2.sub)
-                return fwDesc1.sub > fwDesc2.sub;
-            else {
-                return fwDesc1.develVersion > fwDesc2.develVersion;
-            }
-        }
+        else
+            return fwDesc1.sub > fwDesc2.sub;
     }
 
     //this should never be reached
