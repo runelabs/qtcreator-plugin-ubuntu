@@ -472,7 +472,7 @@ Page {
                                     }
                                 }
                                 ListItem.Standard {
-                                    text:"Reboot"
+                                    text:"Restart"
                                     control: Button{
                                         text: "Execute"
                                         enabled: !deviceItemView.deviceBusy && !deviceItemView.detectionError
@@ -480,7 +480,7 @@ Page {
                                     }
                                 }
                                 ListItem.Standard {
-                                    text:"Reboot to bootloader"
+                                    text:"Restart to bootloader"
                                     control: Button{
                                         text: "Execute"
                                         enabled: !deviceItemView.deviceBusy && !deviceItemView.detectionError
@@ -488,7 +488,7 @@ Page {
                                     }
                                 }
                                 ListItem.Standard {
-                                    text:"Reboot to recovery"
+                                    text:"Restart to recovery"
                                     control: Button{
                                         text: "Execute"
                                         enabled: !deviceItemView.deviceBusy && !deviceItemView.detectionError
@@ -496,7 +496,7 @@ Page {
                                     }
                                 }
                                 ListItem.Standard {
-                                    text:"Shutdown"
+                                    text:"Shut down"
                                     control: Button{
                                         text: "Execute"
                                         enabled: !deviceItemView.deviceBusy && !deviceItemView.detectionError
