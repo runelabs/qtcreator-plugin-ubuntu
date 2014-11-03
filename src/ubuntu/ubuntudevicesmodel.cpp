@@ -365,6 +365,17 @@ void UbuntuDevicesModel::triggerRedetect(const int devId)
     m_knownDevices[row]->device()->helper()->refresh();
 }
 
+void UbuntuDevicesModel::deleteDevice(const int devId)
+{
+    int index = findDevice(devId);
+    if(index < 0) {
+        QMessageBox::critical(Core::ICore::mainWindow(),tr("Could not delete device"),tr("The device ID is unknown, please press the refresh button and try again."));
+        return;
+    }
+
+    ProjectExplorer::DeviceManager::instance()->removeDevice(m_knownDevices[index]->device()->id());
+}
+
 void UbuntuDevicesModel::refresh()
 {
     readDevicesFromSettings();

@@ -187,7 +187,6 @@ Page {
                         anchors.left: parent.left
                         anchors.right: parent.right
                         anchors.top: parent.top
-                        visible: machineType === DeviceMachineType.Emulator
                         Row{
                             anchors.fill: parent
                             spacing: units.gu(2)
@@ -196,20 +195,26 @@ Page {
                                 tooltip: text
                                 iconSource: "qrc:/projectexplorer/images/run.png"
                                 onClicked: devicesModel.startEmulator(emulatorImageName)
-                                visible: connectionState === DeviceConnectionState.Disconnected
+                                visible: connectionState === DeviceConnectionState.Disconnected && machineType === DeviceMachineType.Emulator
                             }
                             Controls.ToolButton {
                                 text: i18n.tr("Stop Emulator")
                                 tooltip: text
                                 iconSource: "qrc:/projectexplorer/images/stop.png"
                                 onClicked: devicesModel.stopEmulator(emulatorImageName)
-                                visible: connectionState !== DeviceConnectionState.Disconnected
+                                visible: connectionState !== DeviceConnectionState.Disconnected && machineType === DeviceMachineType.Emulator
                             }
                             Controls.ToolButton {
-                                text: i18n.tr("Delete Emulator")
+                                text: i18n.tr("Delete")
                                 tooltip: text
                                 iconSource: "qrc:/core/images/clear.png"
-                                onClicked: PopupUtils.open(resourceRoot+"/DeleteEmulatorDialog.qml",devicePage, {"emulatorImageName": emulatorImageName})
+                                onClicked: {
+                                    if(machineType === DeviceMachineType.Emulator)
+                                        PopupUtils.open(resourceRoot+"/DeleteDeviceDialog.qml",devicePage, {"emulatorImageName": emulatorImageName,"deviceId": -1 });
+                                    else
+                                        PopupUtils.open(resourceRoot+"/DeleteDeviceDialog.qml",devicePage, {"deviceId": deviceId});
+                                }
+                                enabled: connectionState === DeviceConnectionState.Disconnected
                             }
                         }
                     }

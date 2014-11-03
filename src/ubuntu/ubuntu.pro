@@ -42,7 +42,7 @@ QML_FILES += \
     $$QML_ROOT/devicespage/DeviceStatusTab.qml  \
     $$QML_ROOT/devicespage/FeatureStateItem.qml  \
     $$QML_ROOT/devicespage/NewEmulatorDialog.qml \
-    $$QML_ROOT/devicespage/DeleteEmulatorDialog.qml \
+    $$QML_ROOT/devicespage/DeleteDeviceDialog.qml \
     $$QML_ROOT/devicespage/ScrollableView.qml \
     $$QML_ROOT/devicespage/SectionItem.qml \
     $$QML_ROOT/devicespage/EmulatorNotInstalled.qml
