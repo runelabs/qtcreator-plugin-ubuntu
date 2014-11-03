@@ -108,10 +108,12 @@ signals:
 private slots:
     void requestFinished  ();
     void requestError     ();
-    void updateFrameworks ();
+    void updateFrameworks (bool force = false);
 
 private:
     void readCache ();
+    void readDefaultValues ();
+    QStringList parseData  ( const QByteArray &data) const;
 
 private:
     QStringList            m_frameworkCache;

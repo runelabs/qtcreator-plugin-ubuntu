@@ -511,7 +511,7 @@ UbuntuClickFrameworkProvider::UbuntuClickFrameworkProvider()
     readCache();
 
     //fire a update
-    updateFrameworks();
+    updateFrameworks(true);
 }
 
 UbuntuClickFrameworkProvider *UbuntuClickFrameworkProvider::instance()
@@ -614,23 +614,22 @@ void UbuntuClickFrameworkProvider::requestFinished()
     if(data.isEmpty())
         return;
 
-    bool cacheIsUp2Date = false;
-    QFile cache(m_cacheFilePath);
-    if(cache.open(QIODevice::ReadOnly)) {
-        cacheIsUp2Date = data == cache.readAll();
-        cache.close();
-    }
+    //make sure we got valid data
+    QStringList newData = parseData(data);
+    if(newData.isEmpty())
+        return;
 
+    bool cacheIsUp2Date = (newData == m_frameworkCache);
     if(!cacheIsUp2Date) {
+        QFile cache(m_cacheFilePath);
         if(cache.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
             cache.write(data);
             cache.close();
-            readCache();
         } else {
             qWarning()<<"Could not create framework cache file, falling back to default values";
-            return;
         }
-
+        m_frameworkCache = newData;
+        emit frameworksUpdated();
     }
 }
 
@@ -646,15 +645,17 @@ void UbuntuClickFrameworkProvider::requestError()
     m_currentRequest = nullptr;
 }
 
-void UbuntuClickFrameworkProvider::updateFrameworks()
+void UbuntuClickFrameworkProvider::updateFrameworks(bool force)
 {
     if(m_currentRequest)
         return;
 
-    //update every 12 hours
-    QFileInfo info(m_cacheFilePath);
-    if(info.exists() && info.lastModified().secsTo(QDateTime::currentDateTime()) < (12*60*60))
-        return;
+    if(!force) {
+        //update every 12 hours
+        QFileInfo info(m_cacheFilePath);
+        if(info.exists() && info.lastModified().secsTo(QDateTime::currentDateTime()) < (12*60*60))
+            return;
+    }
 
     //fire the request
     m_currentRequest = m_manager->get(QNetworkRequest(QUrl(QStringLiteral("https://myapps.developer.ubuntu.com/dev/api/click-framework/"))));
@@ -666,31 +667,54 @@ void UbuntuClickFrameworkProvider::readCache()
 {
     QFile cache(m_cacheFilePath);
     if(!cache.exists() || !cache.open(QIODevice::ReadOnly)) {
-        cache.setFileName(QStringLiteral(":/ubuntu/click-framework.json"));
-        if(Q_UNLIKELY(cache.open(QIODevice::ReadOnly) == false)) {
-            //This codepath is very unlikely, but lets still make sure there is a message to the user
-            qWarning()<<"Could not read cache file OR default values. No frameworks are available to select from";
-            return;
-        }
+        readDefaultValues();
+        return;
     }
 
-    QByteArray data = cache.readAll();
+    QStringList data = parseData(cache.readAll());
+    if(!data.isEmpty()) {
+        m_frameworkCache = data;
+        emit frameworksUpdated();
+    } else {
+        //if the cache is empty fall back to the default values
+        if(m_frameworkCache.isEmpty())
+            readDefaultValues();
+    }
+}
+
+void UbuntuClickFrameworkProvider::readDefaultValues()
+{
+    QFile cache(QStringLiteral(":/ubuntu/click-framework.json"));
+    if(Q_UNLIKELY(cache.open(QIODevice::ReadOnly) == false)) {
+        //This codepath is very unlikely, but lets still make sure there is a message to the user
+        qWarning()<<"Could not read cache file OR default values. No frameworks are available to select from";
+        return;
+    }
+
+    QStringList data = parseData(cache.readAll());
+    if(!data.isEmpty()) {
+        m_frameworkCache = data;
+        emit frameworksUpdated();
+    }
+}
+
+QStringList UbuntuClickFrameworkProvider::parseData(const QByteArray &data) const
+{
     QJsonParseError parseError;
     parseError.error = QJsonParseError::NoError;
 
     QJsonDocument doc = QJsonDocument::fromJson(data,&parseError);
     if(parseError.error != QJsonParseError::NoError) {
-        qWarning()<< "Could not parse the framework cache file: "
-                  << cache.fileName()
+        qWarning()<< "Could not parse the framework cache: "
                   << parseError.errorString();
-        return;
+        return QStringList();
     }
 
-    QJsonObject obj = doc.object();
-    m_frameworkCache = obj.keys();
-    qSort(m_frameworkCache.begin(),m_frameworkCache.end(),caseInsensitiveFWLessThan);
+    QJsonObject obj   = doc.object();
+    QStringList result  = obj.keys();
+    qSort(result.begin(),result.end(),caseInsensitiveFWLessThan);
 
-    emit frameworksUpdated();
+    return result;
 }
 
 } // namespace Internal
