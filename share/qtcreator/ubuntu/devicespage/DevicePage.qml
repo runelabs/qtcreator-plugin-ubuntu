@@ -362,7 +362,7 @@ Page {
                                     visible: deviceItemView.deviceConnected
                                 }
                                 FeatureStateItem {
-                                    text: "Has devloper mode enabled"
+                                    text: "Has developer mode enabled"
                                     input: developerModeEnabled
                                     inputRole: "developerModeEnabled"
                                     checkable: !deviceItemView.deviceBusy && !deviceItemView.detectionError
