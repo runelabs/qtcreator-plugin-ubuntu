@@ -422,6 +422,7 @@ QDebug operator<<(QDebug dbg, const UbuntuClickTool::Target& t)
 struct FrameworkDesc{
     FrameworkDesc() : develVersion(INT_MAX) {}
     QString base;
+    QString baseVersion;
     QString sub;
     int develVersion;
 };
@@ -433,6 +434,12 @@ static FrameworkDesc fwDescFromString (const QString &fw)
 
     QStringList ext;
     fwDesc.base = UbuntuClickFrameworkProvider::getBaseFramework(fw,&ext);
+
+    int lastDash = fwDesc.base.lastIndexOf(QStringLiteral("-"));
+    if(lastDash > 0) {
+        fwDesc.baseVersion = fwDesc.base.mid(lastDash+1);
+        fwDesc.base        = fwDesc.base.mid(0,lastDash);
+    }
 
     QString sub;
     while(ext.size()) {
@@ -453,7 +460,7 @@ static bool caseInsensitiveFWLessThan(const QString &s1, const QString &s2)
     FrameworkDesc fwDesc1 = fwDescFromString(s1);
     FrameworkDesc fwDesc2 = fwDescFromString(s2);
 
-    int comp = QString::compare(fwDesc1.base,fwDesc2.base,Qt::CaseInsensitive);
+    int comp = QString::compare(fwDesc1.baseVersion,fwDesc2.baseVersion,Qt::CaseInsensitive);
     if(comp < 0)
         return false;
     else if(comp > 0)
