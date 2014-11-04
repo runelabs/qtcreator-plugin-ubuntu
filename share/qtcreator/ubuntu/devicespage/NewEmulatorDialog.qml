@@ -36,9 +36,26 @@ Dialog {
 
     ListItem.ItemSelector {
         id: channel
-        model: [i18n.tr("devel"), 
-                i18n.tr("devel-proposed"), 
-                i18n.tr("stable")]
+        model: ["devel",
+                "devel-proposed",
+                "stable",
+                "rtm-14.09",
+                "rtm-14.09-proposed",
+                "custom channel"]
+    }
+
+    TextField {
+        id: inputChannelName
+        placeholderText: i18n.tr("Emulator channel")
+        visible: channel.model[channel.selectedIndex] === "custom channel"
+    }
+
+    Label {
+        id: inputChannelNameError
+        horizontalAlignment: Text.AlignHCenter
+        text: "Channel name can not be empty"
+        color: "red"
+        visible: inputChannelName.visible && inputChannelName.text.length == 0
     }
 
     Button {
@@ -49,11 +66,14 @@ Dialog {
     Button {
         text: "Create"
         color: UbuntuColors.orange
-        enabled: !inputName.hasError
+        enabled: !inputName.hasError && !inputChannelNameError.visible
         onClicked: {
-            if(inputName.hasError)
+            if(inputName.hasError || inputChannelNameError.visible)
                 return;
-            devicesModel.createEmulatorImage(inputName.text,arch.model[arch.selectedIndex],channel.model[channel.selectedIndex]);
+            devicesModel.createEmulatorImage(inputName.text,
+                                             arch.model[arch.selectedIndex],
+                                             (inputChannelName.visible ? inputChannelName.text : channel.model[channel.selectedIndex])
+                                             );
             PopupUtils.close(dialogue);
         }
     }
