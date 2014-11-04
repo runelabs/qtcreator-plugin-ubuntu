@@ -24,24 +24,19 @@
 
 #include <QRegularExpression>
 #include <QDir>
-#include <QPlainTextEdit>
-#include <QTextCursor>
-#include <QFont>
-#include <QFormLayout>
-#include <QLabel>
-#include <QDialogButtonBox>
-#include <QComboBox>
 #include <QMessageBox>
-#include <QAction>
 #include <QInputDialog>
-#include <QPushButton>
 #include <QProcess>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QTimer>
+#include <QFile>
+#include <QStandardPaths>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonParseError>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/progressmanager/futureprogress.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
@@ -209,133 +204,6 @@ QString UbuntuClickTool::targetBasePath(const UbuntuClickTool::Target &target)
 }
 
 /*!
- * \brief UbuntuClickTool::getSupportedFrameworks
- * returns all available frameworks on the host system
- */
-QStringList UbuntuClickTool::getSupportedFrameworks(const UbuntuClickTool::Target *target)
-{
-#if 0
-    QProcess proc;
-    proc.setProgram(QStringLiteral("click"));
-
-    QStringList args;
-    if (target) {
-        args << QStringLiteral("chroot")
-             << QStringLiteral("-a")
-             << target->architecture
-             << QStringLiteral("-f")
-             << target->framework
-             << QStringLiteral("run")
-             << QStringLiteral("click");
-    }
-    args << QStringLiteral("framework")
-         << QStringLiteral("list");
-
-    if(debug) qDebug()<<"click"<<Utils::QtcProcess::joinArgs(args);
-    proc.setArguments(args);
-    proc.start();
-    if (!proc.waitForFinished()) {
-        proc.kill();
-        return QStringList();
-    }
-
-    if(proc.exitCode() != 0 || proc.exitStatus() != QProcess::NormalExit)
-        return QStringList();
-
-    QStringList allFws = QString::fromLocal8Bit(proc.readAllStandardOutput()).split(QStringLiteral("\n"),QString::SkipEmptyParts);
-
-    //reverse the list
-    QStringList result;
-    result.reserve( allFws.size() );
-    std::reverse_copy( allFws.begin(), allFws.end(), std::back_inserter( result ) );
-
-    return result;
-#endif
-
-#if 0
-    if (!target) {
-        QStringList items;
-        QDir frameworksDir(QLatin1String(Constants::UBUNTU_CLICK_FRAMEWORKS_BASEPATH));
-
-        if(!frameworksDir.exists())
-            return items;
-
-        QStringList availableFrameworkFiles = frameworksDir.entryList(QStringList()<<QLatin1String("*.framework"),
-                                                                      QDir::Files | QDir::NoDotAndDotDot,
-                                                                      QDir::Name | QDir::Reversed);
-
-        QStringList availableFrameworks;
-        foreach(QString fw, availableFrameworkFiles) {
-            fw.replace(QLatin1String(".framework"),QString());
-            availableFrameworks.append(fw);
-        }
-
-        if(debug) qDebug()<<"Available Frameworks on the host"<<availableFrameworks;
-        return availableFrameworks;
-    } else {
-        //hardcode for now, click chroots are broken, click is not installed and even if its installed
-        //it does not show any valid informations
-        if(target->majorVersion == 14 && target->minorVersion == 10) {
-            return QStringList() << QStringLiteral("ubuntu-sdk-14.10-qml-dev3")
-                                 << QStringLiteral("ubuntu-sdk-14.10-qml-dev2")
-                                 << QStringLiteral("ubuntu-sdk-14.10-qml-dev1")
-                                 << QStringLiteral("ubuntu-sdk-14.10-papi-dev2")
-                                 << QStringLiteral("ubuntu-sdk-14.10-papi-dev1")
-                                 << QStringLiteral("ubuntu-sdk-14.10-html-dev2")
-                                 << QStringLiteral("ubuntu-sdk-14.10-html-dev1")
-                                 << QStringLiteral("ubuntu-sdk-14.10-dev2")
-                                 << QStringLiteral("ubuntu-sdk-14.10-dev1")
-                                 << QStringLiteral("ubuntu-sdk-14.04")
-                                 << QStringLiteral("ubuntu-sdk-14.04-qml")
-                                 << QStringLiteral("ubuntu-sdk-14.04-qml-dev1")
-                                 << QStringLiteral("ubuntu-sdk-14.04-papi")
-                                 << QStringLiteral("ubuntu-sdk-14.04-papi-dev1")
-                                 << QStringLiteral("ubuntu-sdk-14.04-html")
-                                 << QStringLiteral("ubuntu-sdk-14.04-html-dev1")
-                                 << QStringLiteral("ubuntu-sdk-14.04-dev1")
-                                 << QStringLiteral("ubuntu-sdk-13.10");
-        } else if (target->majorVersion == 14 && target->minorVersion == 4){
-            return QStringList() << QStringLiteral("ubuntu-sdk-14.04")
-                                 << QStringLiteral("ubuntu-sdk-14.04-qml")
-                                 << QStringLiteral("ubuntu-sdk-14.04-qml-dev1")
-                                 << QStringLiteral("ubuntu-sdk-14.04-papi")
-                                 << QStringLiteral("ubuntu-sdk-14.04-papi-dev1")
-                                 << QStringLiteral("ubuntu-sdk-14.04-html")
-                                 << QStringLiteral("ubuntu-sdk-14.04-html-dev1")
-                                 << QStringLiteral("ubuntu-sdk-14.04-dev1")
-                                 << QStringLiteral("ubuntu-sdk-13.10");
-        } else {
-            return QStringList() << QStringLiteral("ubuntu-sdk-13.10");
-        }
-    }
-#endif
-
-    //quick and dirty fix for trusty dev env
-    Q_UNUSED(target);
-    static QStringList frameworks {
-        QStringLiteral("ubuntu-sdk-14.10-qml-dev3"),
-        QStringLiteral("ubuntu-sdk-14.10-qml-dev2"),
-        QStringLiteral("ubuntu-sdk-14.10-qml-dev1"),
-        QStringLiteral("ubuntu-sdk-14.10-papi-dev2"),
-        QStringLiteral("ubuntu-sdk-14.10-papi-dev1"),
-        QStringLiteral("ubuntu-sdk-14.10-html-dev2"),
-        QStringLiteral("ubuntu-sdk-14.10-html-dev1"),
-        QStringLiteral("ubuntu-sdk-14.10-dev2"),
-        QStringLiteral("ubuntu-sdk-14.10-dev1"),
-        QStringLiteral("ubuntu-sdk-14.04"),
-        QStringLiteral("ubuntu-sdk-14.04-qml"),
-        QStringLiteral("ubuntu-sdk-14.04-qml-dev1"),
-        QStringLiteral("ubuntu-sdk-14.04-papi"),
-        QStringLiteral("ubuntu-sdk-14.04-papi-dev1"),
-        QStringLiteral("ubuntu-sdk-14.04-html"),
-        QStringLiteral("ubuntu-sdk-14.04-html-dev1"),
-        QStringLiteral("ubuntu-sdk-14.04-dev1"),
-        QStringLiteral("ubuntu-sdk-13.10")
-    };
-    return frameworks;
-}
-
-/*!
  * \brief UbuntuClickTool::targetExists
  * checks if the target is still available
  */
@@ -346,48 +214,6 @@ bool UbuntuClickTool::targetExists(const UbuntuClickTool::Target &target)
         return false;
 
     return true;
-}
-
-/*!
- * \brief UbuntuClickTool::getMostRecentFramework
- * returns the framework with the highest number supporting the subFramework
- * or a empty string of no framework with the given \a subFramework was found
- */
-QString UbuntuClickTool::getMostRecentFramework(const QString &subFramework, const Target *target)
-{
-    //returned list is ordered from newest -> oldest framework
-    QStringList allFws = getSupportedFrameworks(target);
-    QString currFw;
-    foreach(const QString &framework, allFws) {
-        QString basename;
-        QStringList extensions;
-        QRegularExpression expr(QLatin1String(Constants::UBUNTU_CLICK_BASE_FRAMEWORK_REGEX));
-        QRegularExpressionMatch match = expr.match(framework);
-        if(match.hasMatch()) {
-            basename = match.captured(1);
-            extensions = QString(framework).replace(basename,
-                                                    QString()).split(QChar::fromLatin1('-'),
-                                                                     QString::SkipEmptyParts);
-        } else {
-            continue;
-        }
-        //this is a multi purpose framework
-        if (extensions.size() == 0
-                || (extensions.size() == 1 && extensions[0].startsWith(QLatin1String("dev")) )) {
-            if (currFw.isEmpty()) {
-                currFw = framework;
-            }
-            //if the subframework is empty we return
-            //the first baseframework we can find
-            if(subFramework.isEmpty())
-                return currFw;
-            continue;
-        }
-
-        if(extensions.contains(subFramework))
-            return framework;
-    }
-    return currFw;
 }
 
 /**
@@ -575,6 +401,320 @@ QDebug operator<<(QDebug dbg, const UbuntuClickTool::Target& t)
                         <<")";
 
     return dbg.space();
+}
+
+
+/*!
+ * \class UbuntuClickFrameworkProvider::UbuntuClickFrameworkProvider
+ *
+ * The UbuntuClickFrameworkProvider makes sure the IDE knows the most recent
+ * framework list. It queries the Ubuntu servers for the list and fires frameworksUpdated()
+ * if a new list is available. Widgets showing the frameworks should update accordingly
+ *
+ * The framework -> policy mapping is still hardcoded because there is no current API to query
+ * it
+ *
+ * \note If no network connection is available the cache falls back to the last successful query or
+ *       the shipped framework list in the resource file
+ */
+
+
+struct FrameworkDesc{
+    FrameworkDesc() : develVersion(INT_MAX) {}
+    QString base;
+    QString baseVersion;
+    QString sub;
+    int develVersion;
+};
+
+//this is a horrible complicated sorting function, it should be replaced with something more trivial
+static FrameworkDesc fwDescFromString (const QString &fw)
+{
+    FrameworkDesc fwDesc;
+
+    QStringList ext;
+    fwDesc.base = UbuntuClickFrameworkProvider::getBaseFramework(fw,&ext);
+
+    int lastDash = fwDesc.base.lastIndexOf(QStringLiteral("-"));
+    if(lastDash > 0) {
+        fwDesc.baseVersion = fwDesc.base.mid(lastDash+1);
+        fwDesc.base        = fwDesc.base.mid(0,lastDash);
+    }
+
+    QString sub;
+    while(ext.size()) {
+        sub = ext.takeFirst();
+        if(sub.startsWith(QStringLiteral("dev"))) {
+            fwDesc.develVersion = sub.remove(QStringLiteral("dev")).toInt();
+        } else {
+            fwDesc.sub = sub;
+        }
+    }
+    return fwDesc;
+}
+
+
+static bool caseInsensitiveFWLessThan(const QString &s1, const QString &s2)
+{
+
+    FrameworkDesc fwDesc1 = fwDescFromString(s1);
+    FrameworkDesc fwDesc2 = fwDescFromString(s2);
+
+    int comp = QString::compare(fwDesc1.baseVersion,fwDesc2.baseVersion,Qt::CaseInsensitive);
+    if(comp < 0)
+        return false;
+    else if(comp > 0)
+        return true;
+    else {
+        //from here on we deal only with the same base framework
+        if(fwDesc1.sub.isEmpty() && !fwDesc2.sub.isEmpty())
+            return true;
+        else if(!fwDesc1.sub.isEmpty() && fwDesc2.sub.isEmpty())
+            return false;
+        else if(fwDesc1.sub == fwDesc2.sub)
+            return fwDesc1.develVersion > fwDesc2.develVersion;
+        else
+            return fwDesc1.sub > fwDesc2.sub;
+    }
+
+    //this should never be reached
+    return s1 > s2;
+}
+
+UbuntuClickFrameworkProvider *UbuntuClickFrameworkProvider::m_instance = nullptr;
+
+UbuntuClickFrameworkProvider::UbuntuClickFrameworkProvider()
+    : QObject(0),
+      m_policyCache {
+        {QStringLiteral("ubuntu-sdk-13.10"),QStringLiteral("1.0")},
+        {QStringLiteral("ubuntu-sdk-14.04"),QStringLiteral("1.1")},
+        {QStringLiteral("ubuntu-sdk-14.10"),QStringLiteral("1.2")}
+      },
+      m_manager(nullptr),
+      m_currentRequest(nullptr),
+      m_cacheUpdateTimer(nullptr)
+{
+    Q_ASSERT_X(m_instance == nullptr,Q_FUNC_INFO,"UbuntuClickFrameworkProvider can only be instantiated once");
+    m_instance = this;
+
+    m_cacheFilePath = QStringLiteral("%1/ubuntu-sdk/framework-cache.json")
+            .arg(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation));
+
+    m_manager = new QNetworkAccessManager(this);
+    m_cacheUpdateTimer = new QTimer(this);
+    m_cacheUpdateTimer->setInterval( 60 * 60 * 1000); //fire every hour
+    m_cacheUpdateTimer->start();
+
+    connect(m_cacheUpdateTimer,SIGNAL(timeout()),this,SLOT(updateFrameworks()));
+
+    //read the current state
+    readCache();
+
+    //fire a update
+    updateFrameworks(true);
+}
+
+UbuntuClickFrameworkProvider *UbuntuClickFrameworkProvider::instance()
+{
+    return m_instance;
+}
+
+QStringList UbuntuClickFrameworkProvider::supportedFrameworks() const
+{
+    return m_frameworkCache;
+}
+
+/*!
+ * \brief UbuntuClickTool::getMostRecentFramework
+ * returns the framework with the highest number supporting the subFramework
+ * or a empty string of no framework with the given \a subFramework was found
+ */
+QString UbuntuClickFrameworkProvider::mostRecentFramework(const QString &subFramework)
+{
+    //cache is ordered from newest -> oldest framework
+    QString currFw;
+    foreach(const QString &framework, m_frameworkCache) {
+        QString basename;
+        QStringList extensions;
+
+        basename = getBaseFramework(framework,&extensions);
+        if(basename.isEmpty())
+            continue;
+
+        //this is a multi purpose framework
+        if (extensions.size() == 0
+                || (extensions.size() == 1 && extensions[0].startsWith(QLatin1String("dev")) )) {
+            if (currFw.isEmpty()) {
+                currFw = framework;
+            }
+            //if the subframework is empty we return
+            //the first baseframework we can find
+            if(subFramework.isEmpty())
+                return currFw;
+            continue;
+        }
+
+        if(extensions.contains(subFramework))
+            return framework;
+    }
+    return currFw;
+}
+
+QString UbuntuClickFrameworkProvider::frameworkPolicy(const QString &fw) const
+{
+    QString base = getBaseFramework(fw);
+    if(m_policyCache.contains(base))
+        return m_policyCache[base];
+    return QString();
+}
+
+QStringList UbuntuClickFrameworkProvider::getSupportedFrameworks()
+{
+    return instance()->supportedFrameworks();
+}
+
+/*!
+ * \brief UbuntuClickTool::getMostRecentFramework
+ * \sa UbuntuClickFrameworkProvider::mostRecentFramework
+ */
+QString UbuntuClickFrameworkProvider::getMostRecentFramework(const QString &subFramework)
+{
+    return instance()->mostRecentFramework(subFramework);
+}
+
+QString UbuntuClickFrameworkProvider::getBaseFramework(const QString &framework, QStringList *extensions)
+{
+    QRegularExpression expr(QLatin1String(Constants::UBUNTU_CLICK_BASE_FRAMEWORK_REGEX));
+    QRegularExpressionMatch match = expr.match(framework);
+    if(match.hasMatch()) {
+        QString basename = match.captured(1);
+        if(extensions) {
+            *extensions = QString(framework).replace(basename,
+                                                     QString()).split(QChar::fromLatin1('-'),
+                                                                      QString::SkipEmptyParts);
+        }
+        return basename;
+    }
+    return QString();
+}
+
+void UbuntuClickFrameworkProvider::requestFinished()
+{
+    //if the current request is not set anymore we already called deleteLater
+    if(!m_currentRequest)
+        return;
+
+    QByteArray data = m_currentRequest->readAll();
+
+    //make sure everything is cleaned up
+    m_currentRequest->deleteLater();
+    m_currentRequest = nullptr;
+
+    //if we received nothing, stop
+    if(data.isEmpty())
+        return;
+
+    //make sure we got valid data
+    QStringList newData = parseData(data);
+    if(newData.isEmpty())
+        return;
+
+    bool cacheIsUp2Date = (newData == m_frameworkCache);
+    if(!cacheIsUp2Date) {
+        QFile cache(m_cacheFilePath);
+        if(cache.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            cache.write(data);
+            cache.close();
+        } else {
+            qWarning()<<"Could not create framework cache file, falling back to default values";
+        }
+        m_frameworkCache = newData;
+        emit frameworksUpdated();
+    }
+}
+
+void UbuntuClickFrameworkProvider::requestError()
+{
+    //if the current request is not set anymore we already called deleteLater
+    if(!m_currentRequest)
+        return;
+
+    qWarning()<<"Could not update the framework cache file. Probably there is no network connection.";
+
+    m_currentRequest->deleteLater();
+    m_currentRequest = nullptr;
+}
+
+void UbuntuClickFrameworkProvider::updateFrameworks(bool force)
+{
+    if(m_currentRequest)
+        return;
+
+    if(!force) {
+        //update every 12 hours
+        QFileInfo info(m_cacheFilePath);
+        if(info.exists() && info.lastModified().secsTo(QDateTime::currentDateTime()) < (12*60*60))
+            return;
+    }
+
+    //fire the request
+    m_currentRequest = m_manager->get(QNetworkRequest(QUrl(QStringLiteral("https://myapps.developer.ubuntu.com/dev/api/click-framework/"))));
+    connect(m_currentRequest,SIGNAL(finished()),this,SLOT(requestFinished()));
+    connect(m_currentRequest,SIGNAL(error(QNetworkReply::NetworkError)),this,SLOT(requestError()));
+}
+
+void UbuntuClickFrameworkProvider::readCache()
+{
+    QFile cache(m_cacheFilePath);
+    if(!cache.exists() || !cache.open(QIODevice::ReadOnly)) {
+        readDefaultValues();
+        return;
+    }
+
+    QStringList data = parseData(cache.readAll());
+    if(!data.isEmpty()) {
+        m_frameworkCache = data;
+        emit frameworksUpdated();
+    } else {
+        //if the cache is empty fall back to the default values
+        if(m_frameworkCache.isEmpty())
+            readDefaultValues();
+    }
+}
+
+void UbuntuClickFrameworkProvider::readDefaultValues()
+{
+    QFile cache(QStringLiteral(":/ubuntu/click-framework.json"));
+    if(Q_UNLIKELY(cache.open(QIODevice::ReadOnly) == false)) {
+        //This codepath is very unlikely, but lets still make sure there is a message to the user
+        qWarning()<<"Could not read cache file OR default values. No frameworks are available to select from";
+        return;
+    }
+
+    QStringList data = parseData(cache.readAll());
+    if(!data.isEmpty()) {
+        m_frameworkCache = data;
+        emit frameworksUpdated();
+    }
+}
+
+QStringList UbuntuClickFrameworkProvider::parseData(const QByteArray &data) const
+{
+    QJsonParseError parseError;
+    parseError.error = QJsonParseError::NoError;
+
+    QJsonDocument doc = QJsonDocument::fromJson(data,&parseError);
+    if(parseError.error != QJsonParseError::NoError) {
+        qWarning()<< "Could not parse the framework cache: "
+                  << parseError.errorString();
+        return QStringList();
+    }
+
+    QJsonObject obj   = doc.object();
+    QStringList result  = obj.keys();
+    qSort(result.begin(),result.end(),caseInsensitiveFWLessThan);
+
+    return result;
 }
 
 } // namespace Internal
