@@ -2,7 +2,7 @@
 # Google Mock unfortunately has to be compiled from source
 include(FindGMock)
 
-@if "%ContentType%" == "network"
+@if "%ContentType%".substring(0, "network".length) === "network"
 # We need process-cpp to launch the python test server
 pkg_check_modules(
   TEST
@@ -23,7 +23,7 @@ add_definitions(
   -DTEST_SCOPE_DIRECTORY="${CMAKE_BINARY_DIR}/src"
 )
 
-@if "%ContentType%" == "network"
+@if "%ContentType%".substring(0, "network".length) === "network"
 file(GLOB_RECURSE
   TEST_FIXTURES
   "server/*" 

@@ -7,13 +7,19 @@
 #include <deque>
 #include <map>
 #include <string>
-@if "%ContentType%" == "network"
+@if "%ContentType%".substring(0, "network".length) === "network"
 #include <core/net/http/request.h>
 #include <core/net/uri.h>
 
+@if "%ContentType%" == "network-netcpp-json"
 namespace Json {
 class Value;
 }
+@elsif "%ContentType%" == "network-netcpp-qjson"
+#include <QJsonDocument>
+@elsif "%ContentType%" == "network-netcpp-qxml"
+#include <QXmlStreamReader>
+@endif
 @endif
 
 namespace api {
@@ -43,7 +49,7 @@ public:
      */
     typedef std::deque<Result> ResultList;
 @endif
-@if "%ContentType%" == "network"
+@if "%ContentType%".substring(0, "network".length) === "network"
     /**
      * Information about a City
      */
@@ -105,7 +111,7 @@ public:
      */
     virtual ResultList search(const std::string &query);
 @endif
-@if "%ContentType%" == "network"
+@if "%ContentType%".substring(0, "network".length) === "network"
     /**
      * Get the current weather for the specified location
      */
@@ -125,11 +131,20 @@ public:
     virtual Config::Ptr config();
 
 protected:
-@if "%ContentType%" == "network"
+@if "%ContentType%" == "network-netcpp-json"
     void get(const core::net::Uri::Path &path,
             const core::net::Uri::QueryParameters &parameters,
             Json::Value &root);
-
+@elsif "%ContentType%" == "network-netcpp-qjson"
+    void get(const core::net::Uri::Path &path,
+                const core::net::Uri::QueryParameters &parameters,
+                QJsonDocument &root);
+@elsif "%ContentType%" == "network-netcpp-qxml"
+    void get(const core::net::Uri::Path &path,
+                const core::net::Uri::QueryParameters &parameters,
+                QXmlStreamReader &reader);
+@endif
+@if "%ContentType%".substring(0, "network".length) === "network"
     /**
      * Progress callback that allows the query to cancel pending HTTP requests.
      */

@@ -47,7 +47,7 @@ const static string CATEGORY_TEMPLATE =
 )";
 @endif
 
-@if "%ContentType%" == "network"
+@if "%ContentType%".substring(0, "network".length) === "network"
 /**
  * Define the layout for the forecast results
  *
@@ -158,7 +158,7 @@ void Query::run(sc::SearchReplyProxy const& reply) {
 }
 @endif
 
-@if "%ContentType%" == "network"
+@if "%ContentType%".substring(0, "network".length) === "network"
 void Query::run(sc::SearchReplyProxy const& reply) {
     try {
         // Start by getting information about the query

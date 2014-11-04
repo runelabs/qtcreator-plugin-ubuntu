@@ -10,6 +10,8 @@
     <displaycategory>Ubuntu</displaycategory>
     <files>
         <file source="cmake/FindGMock.cmake"/>
+        <file source="cmake/FindXGettext.cmake"/>
+        <file source="cmake/UseXGettext.cmake"/>
 
         <file source="data/CMakeLists.txt"/>
         <file source="data/displayName.ini" target="data/%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini"/>
@@ -33,9 +35,13 @@
         <file source="po/CMakeLists.txt"/>
 
         <file source="tests/server/forecast/daily/Manchester,uk.json"/>
+        <file source="tests/server/forecast/daily/Manchester,uk.xml"/>
         <file source="tests/server/forecast/daily/London,uk.json"/>
+        <file source="tests/server/forecast/daily/London,uk.xml"/>
         <file source="tests/server/weather/Manchester,uk.json"/>
+        <file source="tests/server/weather/Manchester,uk.xml"/>
         <file source="tests/server/weather/London,uk.json"/>
+        <file source="tests/server/weather/London,uk.xml"/>
         <file source="tests/server/server.py"/>
         <file source="tests/CMakeLists.txt"/>
         <file source="tests/unit/CMakeLists.txt"/>
@@ -83,8 +89,14 @@
         <field name="ContentType">
             <fieldcontrol class="QComboBox" defaultindex="0">
                 <comboentries>
-                    <comboentry value="network">
-                        <comboentrytext>Scope using HTTP+JSON API</comboentrytext>
+                    <comboentry value="network-netcpp-qjson">
+                        <comboentrytext>Qt scope using HTTP+JSON API</comboentrytext>
+                    </comboentry>
+                    <comboentry value="network-netcpp-qxml">
+                        <comboentrytext>Qt scope using HTTP+XML API</comboentrytext>
+                    </comboentry>
+                    <comboentry value="network-netcpp-json">
+                        <comboentrytext>Pure C++ scope using HTTP+JSON API</comboentrytext>
                     </comboentry>
                     <comboentry value="empty">
                         <comboentrytext>Empty scope</comboentrytext>

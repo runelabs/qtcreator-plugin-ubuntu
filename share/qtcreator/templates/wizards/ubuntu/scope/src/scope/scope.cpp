@@ -20,7 +20,7 @@ void Scope::start(string const&) {
             + "/../share/locale/";
     bindtextdomain(GETTEXT_PACKAGE, translation_directory.c_str());
 
-@if "%ContentType%" == "network"
+@if "%ContentType%".substring(0, "network".length) === "network"
     // Under test we set a different API root
     char *apiroot = getenv("NETWORK_SCOPE_APIROOT");
     if (apiroot) {

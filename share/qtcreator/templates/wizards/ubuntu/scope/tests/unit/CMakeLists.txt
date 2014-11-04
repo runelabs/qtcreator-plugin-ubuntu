@@ -17,6 +17,13 @@ target_link_libraries(
   ${Boost_LIBRARIES}
 )
 
+@if "%ContentType%".substring(0, "network-netcpp-q".length) === "network-netcpp-q"
+qt5_use_modules(
+  scope-unit-tests
+  Core
+)
+@endif
+
 # Register the test with CTest
 add_test(
   scope-unit-tests
