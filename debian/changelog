@@ -1,3 +1,30 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20141104.2-0ubuntu1) vivid; urgency=low
+
+  [ Pete Woods ]
+  * Add two new sub-templates for scopes using Qt (LP: #1386151)
+
+  [ Benjamin Zeller ]
+  * Fix bug lp:1387299 "Need to be able to create emulators for other
+    image channels". Make the create emulator state not cancellable, it
+    blocks the UI and does nothing (LP: #1387299)
+  * Fix bug lp:1387302 . "Support selection of the 14.10 final framework
+    version" Dynamically query frameworks from the server to make sure
+    the list. is up2date. Fall back to resource files or last query if
+    no network is available. Fix update problem in the manifest editor
+    (LP: #1387302)
+  * Fix Bug lp:1384853 "No way to remove a physical device from the
+    devices page". Fix bug lp:1388656 ""Reboot" should be "Restart" and
+    "Shutdown" should be "Shut Down" in Devices pane". Fix bug
+    lp:1388173 "Devices > (devicename) > "Has devloper mode enabled" has
+    typo". Fix bug lp:1357739 "Frequently fails to connect to emulator":
+    this bug results from missing phablet-tools as a dependency. (LP:
+    #1388656, #1357739, #1384853, #1388173)
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 04 Nov 2014 15:04:39 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+14.10.20141020-0ubuntu1) utopic; urgency=low
 
   [ Benjamin Zeller ]
