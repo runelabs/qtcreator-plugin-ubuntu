@@ -45,7 +45,7 @@
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <ssh/sshconnection.h>
 #include <qmlprojectmanager/qmlprojectconstants.h>
-
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <QFileDialog>
 #include <QJsonDocument>
@@ -259,7 +259,8 @@ void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {
     QString mimeType = project->projectManager()->mimeType();
     if(mimeType == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE)
             || mimeType == QLatin1String(Ubuntu::Constants::UBUNTUPROJECT_MIMETYPE)
-            || mimeType == QLatin1String(QmlProjectManager::Constants::QMLPROJECT_MIMETYPE)) {
+            || mimeType == QLatin1String(QmlProjectManager::Constants::QMLPROJECT_MIMETYPE)
+            || mimeType == QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE)) {
         if(m_reviewToolsInstalled)
             m_postPackageTask = Verify;
         else
@@ -385,8 +386,9 @@ void UbuntuPackagingWidget::buildClickPackage()
     bool isCMake = mimeType == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE);
     bool isHtml  = mimeType == QLatin1String(Ubuntu::Constants::UBUNTUPROJECT_MIMETYPE);
     bool isQml   = mimeType == QLatin1String(QmlProjectManager::Constants::QMLPROJECT_MIMETYPE);
+    bool isQmake = mimeType == QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
 
-    if(isCMake || isHtml || isQml) {
+    if(isCMake || isHtml || isQml || isQmake) {
         ProjectExplorer::Target* target = project->activeTarget();
         if(!target)
             return;
@@ -420,7 +422,7 @@ void UbuntuPackagingWidget::buildClickPackage()
         clearPackageBuildList();
 
         m_packageBuildSteps = QSharedPointer<ProjectExplorer::BuildStepList> (new ProjectExplorer::BuildStepList(bc,ProjectExplorer::Constants::BUILDSTEPS_BUILD));
-        if (isCMake) {
+        if (isCMake || isQmake) {
             //add the normal buildsteps
             m_packageBuildSteps->cloneSteps(bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
         }

@@ -26,6 +26,9 @@
 
 #include <cmakeprojectmanager/cmakeproject.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakenodes.h>
 
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/kitinformation.h>
@@ -53,8 +56,9 @@ QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(Project
     bool isCMake  = parent->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID;
     bool isHTML   = parent->project()->id() == Ubuntu::Constants::UBUNTUPROJECT_ID;
     bool isQML    = parent->project()->id() == "QmlProjectManager.QmlProject";
+    bool isQMake  = parent->project()->id() == QmakeProjectManager::Constants::QMAKEPROJECT_ID;
 
-    if (!isCMake && !isHTML &&!isQML)
+    if (!isCMake && !isHTML &&!isQML &&!isQMake)
         return types;
 
     if (isRemote) {
@@ -64,11 +68,38 @@ QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(Project
             return types;
     }
 
-    QString manifestPath = QDir::cleanPath(parent->project()->projectDirectory()
+    QString manifestPath;
+
+    if(isCMake) {
+        manifestPath = QDir::cleanPath(parent->project()->projectDirectory()
+                                       +QDir::separator()
+                                       +UbuntuCMakeCache::getValue(QStringLiteral("UBUNTU_MANIFEST_PATH"),
+                                                                   parent->activeBuildConfiguration(),
+                                                                   QStringLiteral("manifest.json")).toString());
+    } else if (isQMake) {
+        QmakeProjectManager::QmakeProFileNode * node = static_cast<QmakeProjectManager::QmakeProject *>(parent->project())->rootQmakeProjectNode();
+        if(!node)
+            return types;
+
+        QString manifestFilePath = node->singleVariableValue(QmakeProjectManager::UbuntuManifestFile);
+        if(manifestFilePath.isEmpty()) {
+            manifestPath = QDir::cleanPath(parent->project()->projectDirectory()
                                            +QDir::separator()
-                                           +UbuntuCMakeCache::getValue(QStringLiteral("UBUNTU_MANIFEST_PATH"),
-                                                                       parent->activeBuildConfiguration(),
-                                                                       QStringLiteral("manifest.json")).toString());
+                                           +QStringLiteral("manifest.json.in"));
+        }
+        else if(QDir::isRelativePath(manifestFilePath)) {
+            manifestPath = QDir::cleanPath(node->sourceDir()
+                                           +QDir::separator()
+                                           +manifestFilePath);
+        } else
+            manifestPath = QDir::cleanPath(manifestFilePath);
+
+    } else {
+        manifestPath = QDir::cleanPath(parent->project()->projectDirectory()
+                                       +QDir::separator()
+                                       +QStringLiteral("manifest.json"));
+    }
+
     UbuntuClickManifest manifest;
 
     //if we have no manifest, we can not query the app id's
@@ -85,7 +116,7 @@ QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(Project
         }
     }
     else if (isRemote) {
-        if (isCMake || isHTML || isQML) {
+        if (isCMake || isHTML || isQML || isQMake) {
             foreach (const UbuntuClickManifest::Hook &hook, hooks) {
                 if(hook.type() == UbuntuClickManifest::Hook::Application)
                     types << Core::Id(Constants::UBUNTUPROJECT_REMOTE_RUNCONTROL_APP_ID).withSuffix(hook.appId);

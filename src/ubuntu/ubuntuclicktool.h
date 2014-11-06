@@ -73,6 +73,10 @@ public:
     static bool getTargetFromUser (Target* target, const QString &framework=QString());
     static QStringList getSupportedFrameworks (const Target *target);
     static QString getMostRecentFramework ( const QString &subFramework, const Target *target );
+    static QString findOrCreateGccWrapper(const UbuntuClickTool::Target &target);
+    static QString findOrCreateToolWrapper(const QString &tool, const UbuntuClickTool::Target &target);
+    static QString findOrCreateQMakeWrapper(const UbuntuClickTool::Target &target);
+    static QString findOrCreateMakeWrapper(const UbuntuClickTool::Target &target);
 
     static bool          targetExists (const Target& target);
     static QList<Target> listAvailableTargets (const QString &framework=QString());

@@ -34,6 +34,9 @@
 #include <utils/qtcprocess.h>
 #include <cmakeprojectmanager/cmakeproject.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakenodes.h>
 
 #include <QFile>
 #include <QTextStream>
@@ -115,7 +118,23 @@ QStringList UbuntuRemoteRunConfiguration::soLibSearchPaths() const
                 paths << binary.absolutePath();
             }
         }
+    } else {
+        QmakeProjectManager::QmakeProject* qmakeProj =
+                qobject_cast<QmakeProjectManager::QmakeProject *>(target()->project());
+        if(qmakeProj) {
+            foreach (const QmakeProjectManager::QmakeProFileNode* pro, qmakeProj->allProFiles()) {
+                if(pro->projectType() == QmakeProjectManager::ApplicationTemplate
+                         || pro->projectType() == QmakeProjectManager::LibraryTemplate) {
+                    QmakeProjectManager::TargetInformation info = pro->targetInformation();
+                    if(!info.valid)
+                        continue;
+                    if(debug) qDebug()<<"Adding path "<<info.buildDir<<" to solib-search-paths";
+                    paths << info.buildDir;
+                }
+            }
+        }
     }
+
     return paths;
 }
 
@@ -236,15 +255,28 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
             m_arguments = args;
         } else {
             //looks like a application without a launcher
-            CMakeProjectManager::CMakeProject* pro = static_cast<CMakeProjectManager::CMakeProject*> (target()->project());
-            foreach(const CMakeProjectManager::CMakeBuildTarget &t, pro->buildTargets()) {
-                if(t.library || t.executable.isEmpty())
-                    continue;
+            if(target()->project()->id() == QmakeProjectManager::Constants::QMAKEPROJECT_ID) {
+                QmakeProjectManager::QmakeProject* pro = static_cast<QmakeProjectManager::QmakeProject*> (target()->project());
+                foreach(const QmakeProjectManager::QmakeProFileNode* applPro, pro->applicationProFiles()) {
+                    QmakeProjectManager::TargetInformation info = applPro->targetInformation();
+                    if(applPro->targetInformation().valid) {
+                        if(info.target == commInfo.fileName()) {
+                            m_localExecutable = info.buildDir + QDir::separator() + info.target;
+                            break;
+                        }
+                    }
+                }
+            } else {
+                CMakeProjectManager::CMakeProject* pro = static_cast<CMakeProjectManager::CMakeProject*> (target()->project());
+                foreach(const CMakeProjectManager::CMakeBuildTarget &t, pro->buildTargets()) {
+                    if(t.library || t.executable.isEmpty())
+                        continue;
 
-                QFileInfo execInfo(t.executable);
+                    QFileInfo execInfo(t.executable);
 
-                if(execInfo.fileName() == commInfo.fileName())
-                    m_localExecutable = t.executable;
+                    if(execInfo.fileName() == commInfo.fileName())
+                        m_localExecutable = t.executable;
+                }
             }
 
             if (m_localExecutable.isEmpty()) {
@@ -252,7 +284,6 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
                     *errorMessage = tr("Could not find %1 in the project targets").arg(command);
                 return false;
             }
-
             m_remoteExecutable = command;
         }
         return true;
@@ -390,7 +421,7 @@ void UbuntuRemoteRunConfiguration::setArguments(const QStringList &args)
 QString UbuntuRemoteRunConfiguration::packageDir() const
 {
     ProjectExplorer::Project *p = target()->project();
-    if (p->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID)
+    if (p->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID || p->id() == QmakeProjectManager::Constants::QMAKEPROJECT_ID)
         return target()->activeBuildConfiguration()->buildDirectory().toString()+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR);
     else if (p->id() == Ubuntu::Constants::UBUNTUPROJECT_ID || p->id() == "QmlProjectManager.QmlProject") {
         if (!target()->activeBuildConfiguration()) {

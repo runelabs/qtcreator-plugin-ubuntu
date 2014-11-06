@@ -22,6 +22,7 @@
 #include <QMessageBox>
 #include <QRegularExpression>
 #include <QTextStream>
+#include <QStandardPaths>
 
 namespace Ubuntu {
 namespace Internal {
@@ -72,43 +73,17 @@ QList<ClickToolChain *> UbuntuKitManager::clickToolChains()
 UbuntuQtVersion *UbuntuKitManager::createOrFindQtVersion(ClickToolChain *tc)
 {
 
-    QString qmakePath = QStringLiteral("%1/.config/ubuntu-sdk/qmake-%2-%3-%4")
-            .arg(QDir::homePath())
-            .arg(tc->clickTarget().framework)
-            .arg(tc->clickTarget().architecture)
-            .arg(UbuntuClickTool::clickChrootSuffix());
-
+    QString qmakePath = UbuntuClickTool::findOrCreateQMakeWrapper(tc->clickTarget());
     if(!QFile::exists(qmakePath)) {
-        QFile qmakeTemplate(Constants::UBUNTU_RESOURCE_PATH+QStringLiteral("/ubuntu/scripts/qtc_chroot_qmake"));
-        if(qmakeTemplate.open(QIODevice::ReadOnly)) {
-
-            QTextStream in(&qmakeTemplate);
-            QString templ = in.readAll();
-
-            templ = templ
-                    .arg(tc->clickTarget().architecture)
-                    .arg(tc->clickTarget().framework)
-                    .arg(UbuntuClickTool::clickChrootSuffix());
-
-
-            QFile qmakeScript(qmakePath);
-
-            qmakeScript.open(QIODevice::WriteOnly);
-            qmakeScript.setPermissions(QFile::ExeUser | QFile::ReadUser | QFile::ReadGroup);
-
-            {
-                QTextStream out(&qmakeScript);
-                out << templ;
-            }
-
-            qmakeScript.close();
-        }
+        return 0;
     } else {
         //try to find a already existing Qt Version for this chroot
         foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::versions()) {
             if (qtVersion->type() != QLatin1String(Constants::UBUNTU_QTVERSION_TYPE))
                 continue;
-            if (qtVersion->qmakeCommand().toFileInfo() == QFileInfo(qmakePath))
+
+            qDebug()<<qtVersion->qmakeCommand().toFileInfo().absoluteFilePath();
+            if (qtVersion->qmakeCommand().toFileInfo().absoluteFilePath() == QFileInfo(qmakePath).absoluteFilePath())
                 return static_cast<UbuntuQtVersion*> (qtVersion);
         }
     }

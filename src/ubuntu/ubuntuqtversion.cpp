@@ -5,6 +5,7 @@
 
 #include <QCoreApplication>
 #include <QFileInfo>
+#include <QDebug>
 
 namespace Ubuntu {
 namespace Internal {
@@ -16,7 +17,7 @@ const char SCRIPT_VERSION_KEY[] = "UbuntuQtVersion.ScriptVersion";
  * Increment this version if all qmake scripts in ~/.config/ubuntu-sdk
  * need to be recreated
  */
-const int  MIN_SCRIPT_VERSION   = 1;
+const int  MIN_SCRIPT_VERSION   = 2;
 
 UbuntuQtVersion::UbuntuQtVersion()
     : BaseQtVersion(),
@@ -31,7 +32,7 @@ UbuntuQtVersion::UbuntuQtVersion(const Utils::FileName &path, bool isAutodetecte
 }
 
 UbuntuQtVersion::~UbuntuQtVersion()
-{ }
+{}
 
 void UbuntuQtVersion::fromMap(const QVariantMap &map)
 {
@@ -115,7 +116,7 @@ QtSupport::BaseQtVersion *UbuntuQtVersionFactory::create(const Utils::FileName &
 {
     Q_UNUSED(evaluator);
     //we only care about our qmakes
-    if(!qmakePath.toFileInfo().absolutePath().endsWith(QStringLiteral(".config/ubuntu-sdk")))
+    if(!qmakePath.toFileInfo().absolutePath().contains(QStringLiteral(".config/ubuntu-sdk")))
         return 0;
 
     return new UbuntuQtVersion(qmakePath,isAutoDetected,autoDetectionSource);

@@ -36,6 +36,9 @@
 #include <QInputDialog>
 #include <QPushButton>
 #include <QProcess>
+#include <QStandardPaths>
+#include <QDir>
+#include <QFile>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -563,6 +566,67 @@ const UbuntuClickTool::Target *UbuntuClickTool::clickTargetFromTarget(ProjectExp
     Q_UNUSED(t);
     return 0;
 #endif
+}
+
+QString UbuntuClickTool::findOrCreateGccWrapper (const UbuntuClickTool::Target &target)
+{
+    QString compiler;
+
+    if(target.architecture == QStringLiteral("armhf"))
+        compiler = QStringLiteral("arm-linux-gnueabihf-gcc");
+    else if(target.architecture == QStringLiteral("i386"))
+        compiler = QStringLiteral("i686-linux-gnu-gcc");
+    else if(target.architecture == QStringLiteral("amd64"))
+        compiler = QStringLiteral("x86_64-linux-gnu-gcc");
+    else {
+        qWarning()<<"Invalid architecture, can not create gcc wrapper link";
+        return QString();
+    }
+
+    return UbuntuClickTool::findOrCreateToolWrapper(compiler,target);
+}
+
+QString UbuntuClickTool::findOrCreateQMakeWrapper (const UbuntuClickTool::Target &target)
+{
+    QString qmake;
+
+    if(target.architecture == QStringLiteral("armhf"))
+        qmake = QStringLiteral("qmake-ubuntu-sdk-14.10-armhf");
+    else
+        qmake = QStringLiteral("qmake");
+
+    return UbuntuClickTool::findOrCreateToolWrapper(qmake,target);
+}
+
+QString UbuntuClickTool::findOrCreateMakeWrapper (const UbuntuClickTool::Target &target)
+{
+    return UbuntuClickTool::findOrCreateToolWrapper(QStringLiteral("make"),target);
+}
+
+QString UbuntuClickTool::findOrCreateToolWrapper (const QString &tool, const UbuntuClickTool::Target &target)
+{
+    QString baseDir = QStringLiteral("%1/ubuntu-sdk/%2-%3").arg(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation))
+            .arg(target.framework)
+            .arg(target.architecture);
+
+    QDir d(baseDir);
+    if(!d.exists()) {
+        if(!d.mkpath(baseDir)){
+            qWarning()<<"Could not create config directory.";
+            return QString();
+        }
+    }
+
+    QString toolWrapper = (Utils::FileName::fromString(baseDir).appendPath(tool).toString());
+    if(!QFile::exists(toolWrapper)) {
+        if(!QFile::link(QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_WRAPPER)
+                        .arg(Constants::UBUNTU_SCRIPTPATH),toolWrapper)) {
+            qWarning()<<"Unable to create link for the tool wrapper: "<<toolWrapper;
+            return QString();
+        }
+
+    }
+    return toolWrapper;
 }
 
 QDebug operator<<(QDebug dbg, const UbuntuClickTool::Target& t)

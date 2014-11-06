@@ -68,7 +68,8 @@ QMap <QString,ProjectExplorer::Abi> clickArchitectures = init_architectures();
 
 QList<Utils::FileName> ClickToolChain::suggestedMkspecList() const
 {
-    return QList<Utils::FileName>()<< Utils::FileName::fromString(QLatin1String("linux-g++"));
+    return ProjectExplorer::GccToolChain::suggestedMkspecList();
+    //return QList<Utils::FileName>()<< Utils::FileName::fromString(QLatin1String("linux-g++"));
 }
 
 Utils::FileName ClickToolChain::suggestedDebugger() const
@@ -101,8 +102,7 @@ void ClickToolChain::addToEnvironment(Utils::Environment &env) const
 
 QString ClickToolChain::makeCommand(const Utils::Environment &) const
 {
-    QString command = QString::fromLatin1(Constants::UBUNTU_CLICK_MAKE_WRAPPER).arg(Constants::UBUNTU_SCRIPTPATH);
-    return command;
+    return UbuntuClickTool::findOrCreateMakeWrapper(clickTarget());
 }
 
 bool ClickToolChain::operator ==(const ProjectExplorer::ToolChain &tc) const
@@ -199,8 +199,8 @@ ClickToolChain::ClickToolChain(const UbuntuClickTool::Target &target, Detection 
     , m_clickTarget(target)
 {
     setCompilerCommand(Utils::FileName::fromString(
-                           QString::fromLatin1(Constants::UBUNTU_CLICK_GCC_WRAPPER)
-                           .arg(Constants::UBUNTU_SCRIPTPATH)));
+                           UbuntuClickTool::findOrCreateGccWrapper(target)
+                           ));
 
     setDisplayName(QString::fromLatin1("Ubuntu GCC (%1-%2-%3)")
                    .arg(ProjectExplorer::Abi::toString(targetAbi().architecture()))
@@ -238,8 +238,22 @@ bool ClickToolChainFactory::canRestore(const QVariantMap &data)
 ProjectExplorer::ToolChain *ClickToolChainFactory::restore(const QVariantMap &data)
 {
     ClickToolChain *tc = new ClickToolChain();
-    if (tc->fromMap(data))
+    if (tc->fromMap(data)) {
+        //deprecated wrapper script, update to use the new one
+        if(tc->compilerCommand() == Utils::FileName::fromString(
+                    QString::fromLatin1(Constants::UBUNTU_CLICK_GCC_WRAPPER)
+                    .arg(Constants::UBUNTU_SCRIPTPATH))) {
+            QString wrapper = UbuntuClickTool::findOrCreateGccWrapper(tc->clickTarget());
+
+            //if we cannot create a good wrapper its better to drop the ToolChain
+            if(wrapper.isNull()) {
+                delete tc;
+                return 0;
+            }
+            tc->setCompilerCommand(Utils::FileName::fromString(wrapper));
+        }
         return tc;
+    }
 
     delete tc;
     return 0;
@@ -255,6 +269,9 @@ QList<ProjectExplorer::ToolChain *> ClickToolChainFactory::createToolChainsForCl
 
         if(!clickArchitectures.contains(target.architecture)
                 || target.maybeBroken)
+            continue;
+
+        if(UbuntuClickTool::findOrCreateGccWrapper(target).isEmpty())
             continue;
 
         ClickToolChain* tc = new ClickToolChain(target, ProjectExplorer::ToolChain::AutoDetection);

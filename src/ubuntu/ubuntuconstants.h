@@ -519,8 +519,9 @@ const char UBUNTU_CLICK_CMAKE_TOOL_ID[]  = "UbuntuProjectManager.UbuntuCMake";
 const char UBUNTU_CLICK_CMAKE_BC_ID[]       = "UbuntuProjectManager.UbuntuCMake.BuildConfiguration";
 const char UBUNTU_CLICK_CMAKE_MAKESTEP_ID[] = "UbuntuProjectManager.UbuntuCMake.MakeStep";
 const char UBUNTU_CLICK_CMAKE_WRAPPER[]  = "%0/qtc_chroot_cmake2";
-const char UBUNTU_CLICK_MAKE_WRAPPER[]   = "%0/qtc_chroot_make2";
-const char UBUNTU_CLICK_GCC_WRAPPER[]    = "%0/qtc_chroot_gcc";
+const char UBUNTU_CLICK_MAKE_WRAPPER[]   = "%0/qtc_chroot_make2";  //deprecated
+const char UBUNTU_CLICK_GCC_WRAPPER[]    = "%0/qtc_chroot_gcc";    //deprecated
+const char UBUNTU_CLICK_CHROOT_WRAPPER[] = "%0/qtc_chroot_wrapper.py";
 const char UBUNTU_CLICK_HTML_BC_ID[]     = "UbuntuProjectManager.UbuntuHTML5.BuildConfiguration";
 const char UBUNTU_CLICK_QML_BC_ID[]      = "UbuntuProjectManager.UbuntuQml.BuildConfiguration";
 //Devicesupport

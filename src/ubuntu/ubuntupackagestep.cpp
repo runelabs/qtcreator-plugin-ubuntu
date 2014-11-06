@@ -15,6 +15,7 @@
 #include <projectexplorer/ioutputparser.h>
 #include <utils/qtcprocess.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <QDir>
 #include <QTimer>
@@ -75,6 +76,9 @@ bool UbuntuPackageStep::init()
     Utils::Environment env = Utils::Environment::systemEnvironment();
     Utils::AbstractMacroExpander *mExp = 0;
 
+    bool isCMake  = target()->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID;
+    bool isQMake  = target()->project()->id() == QmakeProjectManager::Constants::QMAKEPROJECT_ID;
+
     {
         ProjectExplorer::BuildConfiguration *bc = target()->activeBuildConfiguration();
         if(bc) {
@@ -85,8 +89,8 @@ bool UbuntuPackageStep::init()
             env = bc->environment();
             mExp = bc->macroExpander();
         } else {
-            //cmake projects NEED a buildconfiguration
-            if (target()->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID) {
+            //cmake and qmake projects NEED a buildconfiguration
+            if (isCMake || isQMake) {
                 ProjectExplorer::Task t(ProjectExplorer::Task::Error
                                         ,tr("No valid BuildConfiguration set for step: %1").arg(displayName())
                                         ,Utils::FileName(),-1
@@ -116,10 +120,16 @@ bool UbuntuPackageStep::init()
 
     //build the make process arguments
     {
-        if (target()->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID) {
+        if (isCMake || isQMake) {
             QStringList arguments;
-            arguments << QStringLiteral("DESTDIR=%1").arg(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
-                      << QStringLiteral("install");
+
+            if(isCMake) {
+                arguments << QStringLiteral("DESTDIR=%1").arg(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                          << QStringLiteral("install");
+            } else {
+                arguments << QStringLiteral("INSTALL_ROOT=%1").arg(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                          << QStringLiteral("install");
+            }
 
             ProjectExplorer::ProcessParameters* params = &m_MakeParam;
             params->setMacroExpander(mExp);
@@ -487,7 +497,7 @@ QString UbuntuPackageStep::makeCommand(ProjectExplorer::ToolChain *tc, const Uti
 {
     if (tc)
         return tc->makeCommand(env);
-    return QString::fromLatin1(Constants::UBUNTU_CLICK_MAKE_WRAPPER).arg(Constants::UBUNTU_SCRIPTPATH);
+    return QString();
 }
 
 /*!
