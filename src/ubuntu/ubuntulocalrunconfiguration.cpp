@@ -341,7 +341,12 @@ bool UbuntuLocalRunConfiguration::ensureClickAppConfigured(QString *errorMessage
         }
 
         m_args = QStringList()<<mainFileInfo.absoluteFilePath();
-    } else if(commInfo.completeBaseName().startsWith(QLatin1String(Ubuntu::Constants::UBUNTUHTML_PROJECT_LAUNCHER_EXE))) {
+    } else if(commInfo.completeBaseName().startsWith(
+                  QLatin1String(
+                      Ubuntu::Constants::UBUNTUHTML_PROJECT_LAUNCHER_EXE))
+	      || commInfo.completeBaseName().startsWith(
+                  QLatin1String(
+                      Ubuntu::Constants::UBUNTUHTML_PROJECT_DEPRECATED_LAUNCHER_EXE))) {
         if(errorMessage)
             *errorMessage = tr("There is no local run support for html click apps using cmake yet.");
         return false;
@@ -408,8 +413,8 @@ bool UbuntuLocalRunConfiguration::ensureUbuntuProjectConfigured(QString *errorMe
         if (ubuntuProject->mainFile().compare(QString::fromLatin1("www/index.html"), Qt::CaseInsensitive) == 0) {
             Utils::Environment env = Utils::Environment::systemEnvironment();
             m_executable = env.searchInPath(QString::fromLatin1(Ubuntu::Constants::UBUNTUHTML_PROJECT_LAUNCHER_EXE));
-            m_args = QStringList()<<QString::fromLatin1("--www=%0/www").arg(ubuntuProject->projectDirectory())
-                                 <<QString::fromLatin1("--inspector");
+            m_args = QStringList() << QString::fromLatin1("%0/www").arg(ubuntuProject->projectDirectory())
+                                   << QString::fromLatin1("--inspector");
         } else if (ubuntuProject->mainFile().endsWith(QStringLiteral(".desktop"), Qt::CaseInsensitive)) {
             Utils::Environment env = Utils::Environment::systemEnvironment();
 
