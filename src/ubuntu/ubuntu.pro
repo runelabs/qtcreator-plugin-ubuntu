@@ -217,5 +217,6 @@ HEADERS += \
     ubuntueditorfactory.h \
     ubuntucmakecache.h \
     ubuntutestcontrol.h \
-    ubuntupackageoutputparser.h
+    ubuntupackageoutputparser.h \
+    ubuntuscopefinalizer.h
 

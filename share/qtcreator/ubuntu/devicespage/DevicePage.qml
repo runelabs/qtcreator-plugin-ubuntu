@@ -13,27 +13,62 @@ Page {
 
     Item {
         anchors.fill: parent
+        anchors.topMargin: units.gu(2)
+        anchors.bottomMargin: units.gu(2)
+        anchors.leftMargin: units.gu(2)
+        anchors.rightMargin: units.gu(4)
         visible: devicesModel.busy
+        RowLayout {
+            //anchors.centerIn: parent
+            id: busyIndicator
+            anchors.left: parent.left
+            anchors.top:  parent.top
+            anchors.right: parent.right
 
-        Column {
-            anchors.centerIn: parent
             spacing: units.gu(1)
+            height: childrenRect.height * 2
 
             ActivityIndicator{
-                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
                 running: devicesModel.busy
             }
             Label {
+                Layout.fillWidth: true
+                anchors.verticalCenter: parent.verticalCenter
                 text: i18n.tr("There is currently a process running in the background, please check the logs for details")
                 fontSize: "large"
-                anchors.left: parent.left
             }
             Button {
                 visible: devicesModel.cancellable
-                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
                 color: UbuntuColors.warmGrey
                 text: "Cancel"
                 onClicked: devicesModel.cancel()
+            }
+        }
+        Controls.TextArea {
+            id: logArea
+            anchors.left: parent.left
+            anchors.top:  busyIndicator.bottom
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+
+            readOnly: true
+            textFormat: TextEdit.AutoText
+            Component.onCompleted: {
+                deviceMode.appendText.connect(appendToLog);
+            }
+
+            function appendToLog (txt) {
+                append(txt);
+            }
+
+            Connections{
+                target: devicesModel
+                onBusyChanged: {
+                    if(!devicesModel.busy)
+                        logArea.text = ""
+                }
             }
         }
     }
