@@ -80,15 +80,15 @@ function ubuntu_stamp {
 }
 
 function device_hardware {
-	adb_devices |grep -o device:.*|sed "s/device://"
+    adb_devices |grep -o device:.*|sed "s/device://"
 }
 
 function device_image_hardware {
-	adb_shell getprop "ro.build.product"
+    adb_shell getprop "ro.build.product"|tr -d '\r'
 }
 
 function does_device_hw_match_image_hw {
-	if [[ device_hardware == device_image_hardware ]]; then
+	if [[ `device_hardware` == `device_image_hardware` ]]; then
         	echo 1
 	else
         	echo 0
