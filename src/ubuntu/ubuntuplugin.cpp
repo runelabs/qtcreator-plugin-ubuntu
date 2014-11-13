@@ -57,6 +57,7 @@
 #include <QtQml>
 #include <QFile>
 #include <coreplugin/icore.h>
+#include <stdint.h>
 
 using namespace Ubuntu;
 using namespace Ubuntu::Internal;
@@ -94,6 +95,8 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     const QLatin1String mimetypesXml(Constants::UBUNTU_MIMETYPE_XML);
     if (!Core::MimeDatabase::addMimeTypes(mimetypesXml, errorString))
         return false;
+
+    addAutoReleasedObject(new UbuntuClickFrameworkProvider);
 
     m_ubuntuDeviceMode = new UbuntuDeviceMode();
     addAutoReleasedObject(m_ubuntuDeviceMode);

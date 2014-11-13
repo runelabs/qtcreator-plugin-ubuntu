@@ -22,5 +22,6 @@
         <file>images/security-alert.svg</file>
         <file>images/view-expand.svg</file>
         <file>images/view-collapse.svg</file>
+        <file>click-framework.json</file>
     </qresource>
 </RCC>

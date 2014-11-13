@@ -76,6 +76,9 @@ QWidget *UbuntuManifestEditorWidget::createMainWidget()
     connect(m_ui->lineEdit_name,SIGNAL(textChanged(QString)),this,SLOT(setDirty()));
     connect(m_ui->lineEdit_title,SIGNAL(textChanged(QString)),this,SLOT(setDirty()));
     connect(m_ui->lineEdit_version,SIGNAL(textChanged(QString)),this,SLOT(setDirty()));
+    connect(UbuntuClickFrameworkProvider::instance(),SIGNAL(frameworksUpdated()),this,SLOT(updateFrameworkList()));
+
+    updateFrameworkList();
 
     return w;
 }
@@ -148,31 +151,17 @@ bool UbuntuManifestEditorWidget::syncToWidgets(UbuntuClickManifest *source)
     if(data != m_ui->lineEdit_description->text())
         m_ui->lineEdit_description->setText(data);
 
-    updateFrameworkList();
-    int idx = m_ui->comboBoxFramework->findText(m_manifest->frameworkName());
-
     //disable the currentIndexChanged signal, we need to check outselves if
     //the data has changed
     m_ui->comboBoxFramework->blockSignals(true);
-    QVariant fwData = m_ui->comboBoxFramework->currentData();
 
-    //if the framework name is not valid set to empty item
-    //just some data to easily find the unknown framework item without
-    //using string compare
-    if(idx < 0) {
-        if(m_ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA) < 0)
-            m_ui->comboBoxFramework->addItem(tr(Constants::UBUNTU_UNKNOWN_FRAMEWORK_NAME),Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA);
-
-        m_ui->comboBoxFramework->setCurrentIndex(m_ui->comboBoxFramework->count()-1);
-    } else {
-        m_ui->comboBoxFramework->setCurrentIndex(idx);
-        m_ui->comboBoxFramework->removeItem(m_ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA));
-    }
+    QString fwText = m_ui->comboBoxFramework->currentText();
+    selectFramework(source->frameworkName());
 
     m_ui->comboBoxFramework->blockSignals(false);
 
     //set the dirty flag manually in case something has changed
-    if(m_ui->comboBoxFramework->currentData() != fwData)
+    if(m_ui->comboBoxFramework->currentText() != fwText)
         setDirty();
 
     QSet<int> idxToKeep;
@@ -241,7 +230,7 @@ void UbuntuManifestEditorWidget::syncToSource()
     m_manifest->setTitle(m_ui->lineEdit_title->text());
     m_manifest->setDescription(m_ui->lineEdit_description->text());
 
-    if(m_ui->comboBoxFramework->currentText() != tr(Constants::UBUNTU_UNKNOWN_FRAMEWORK_NAME))
+    if(m_ui->comboBoxFramework->currentData() != Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA)
         m_manifest->setFrameworkName(m_ui->comboBoxFramework->currentText());
 
     for(int idx = 0; idx < m_ui->comboBoxHook->count(); idx++) {
@@ -266,7 +255,6 @@ void UbuntuManifestEditorWidget::syncToSource()
         m_manifest->setHook(hook);
     }
 
-
     QString result = m_manifest->raw()+QStringLiteral("\n");
     QString src    = m_sourceEditor->toPlainText();
     if (result == src)
@@ -281,17 +269,34 @@ void UbuntuManifestEditorWidget::syncToSource()
 
 void UbuntuManifestEditorWidget::updateFrameworkList()
 {
-    const QString docPath(m_sourceEditor->baseTextDocument()->filePath());
-
-    const UbuntuClickTool::Target *t = 0;
-    ProjectExplorer::Project* myProject = ubuntuProject(docPath);
-    if (myProject)
-        t = UbuntuClickTool::clickTargetFromTarget(myProject->activeTarget());
-
     m_ui->comboBoxFramework->blockSignals(true);
+
+    //the current selected fw
+    QString fwText = m_ui->comboBoxFramework->currentText();
+
     m_ui->comboBoxFramework->clear();
-    m_ui->comboBoxFramework->addItems(UbuntuClickTool::getSupportedFrameworks(t));
+    m_ui->comboBoxFramework->addItems(UbuntuClickFrameworkProvider::getSupportedFrameworks());
+    selectFramework(fwText);
     m_ui->comboBoxFramework->blockSignals(false);
+}
+
+void UbuntuManifestEditorWidget::selectFramework (const QString &fw)
+{
+    // get the new Index for our new fw
+    int idx = m_ui->comboBoxFramework->findText(fw);
+
+    //if the framework name is not valid set to empty item
+    //just some data to easily find the unknown framework item without
+    //using string compare
+    if(idx < 0) {
+        if(m_ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA) < 0)
+            m_ui->comboBoxFramework->addItem(tr(Constants::UBUNTU_UNKNOWN_FRAMEWORK_NAME),Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA);
+
+        m_ui->comboBoxFramework->setCurrentIndex(m_ui->comboBoxFramework->count()-1);
+    } else {
+        m_ui->comboBoxFramework->setCurrentIndex(idx);
+        m_ui->comboBoxFramework->removeItem(m_ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA));
+    }
 }
 
 void UbuntuManifestEditorWidget::bzrChanged()
@@ -314,12 +319,18 @@ void UbuntuManifestEditorWidget::onFrameworkChanged()
 {
     Core::DocumentModel *model = Core::EditorManager::documentModel();
 
+    //make sure all changes are in the manifest instance
+    syncToSource();
+
+    if(m_ui->comboBoxFramework->currentData() != Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA) {
+        int idx = m_ui->comboBoxFramework->findData(Constants::UBUNTU_UNKNOWN_FRAMEWORK_DATA);
+        if(idx >= 0)
+            m_ui->comboBoxFramework->removeItem(idx);
+    }
+
     QString v = policyForFramework(m_ui->comboBoxFramework->currentText());
     if(v.isEmpty())
         return;
-
-    //make sure all changes are in the manifest instance
-    syncToSource();
 
     QList<UbuntuClickManifest::Hook> hooks = m_manifest->hooks();
     foreach(const UbuntuClickManifest::Hook &hook, hooks){
@@ -474,12 +485,7 @@ void UbuntuManifestEditorWidget::addMissingFieldsToManifest (QString fileName)
 
                 if(debug) qDebug()<<"Setting to "<<bzr->whoami();
             } else if (i.key() == QStringLiteral("framework")) {
-                const UbuntuClickTool::Target *t = 0;
-                ProjectExplorer::Project *p = ProjectExplorer::SessionManager::startupProject();
-                if (p)
-                    t = UbuntuClickTool::clickTargetFromTarget(p->activeTarget());
-
-                targetObject.insert(i.key(),UbuntuClickTool::getMostRecentFramework( QString(), t));
+                targetObject.insert(i.key(),UbuntuClickFrameworkProvider::getMostRecentFramework( QString()));
             } else {
                 targetObject.insert(i.key(),i.value());
 

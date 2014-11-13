@@ -460,7 +460,7 @@ const char UBUNTU_CLICK_BUILD_CONTEXTMENU_TEXT[] = "Build in chroot";
 const char UBUNTU_CLICK_OPEN_TERMINAL_ERROR[] = "Error when starting terminal";
 const char UBUNTU_CLICK_TARGETS_REGEX[] = "^%1-(.*)-([A-Za-z0-9]+)$";
 const char UBUNTU_CLICK_TARGETS_FRAMEWORK_REGEX[] = "^%1-(%2)-([A-Za-z0-9]+)$";
-const char UBUNTU_CLICK_BASE_FRAMEWORK_REGEX[] = "(ubuntu-sdk-[0-9]{1,2}.[0-9]{1,2})";
+const char UBUNTU_CLICK_BASE_FRAMEWORK_REGEX[] = "(ubuntu-(.*)-[0-9]{1,2}.[0-9]{1,2})";
 const char UBUNTU_CLICK_VERSION_REGEX[] = "^DISTRIB_RELEASE=([0-9]+)\\.([0-9]+)$";
 const char UBUNTU_CLICK_SERIES_REGEX[]  = "^DISTRIB_CODENAME=([A-Za-z]+)$";
 
@@ -541,8 +541,8 @@ const char UBUNTU_CLICK_SUCCESS_PACKAGE_REGEX[] = "^.*'(.*)'.$";
 const char UBUNTU_FRAMEWORK_14_10_BASENAME[] = "ubuntu-sdk-14.10";
 const char UBUNTU_FRAMEWORK_14_04_BASENAME[] = "ubuntu-sdk-14.04";
 const char UBUNTU_FRAMEWORK_13_10_BASENAME[] = "ubuntu-sdk-13.10";
-const char UBUNTU_DEFAULT_QML_FRAMEWORK[]    = "ubuntu-sdk-14.04-qml-dev1";
-const char UBUNTU_DEFAULT_HTML_FRAMEWORK[]   = "ubuntu-sdk-14.04-html";
+const char UBUNTU_DEFAULT_QML_FRAMEWORK[]    = "ubuntu-sdk-14.10-qml";
+const char UBUNTU_DEFAULT_HTML_FRAMEWORK[]   = "ubuntu-sdk-14.10-html";
 const char UBUNTU_UNKNOWN_FRAMEWORK_NAME[]   = "Unknown framework";
 const int  UBUNTU_UNKNOWN_FRAMEWORK_DATA     = 0xdeadbeef;
 

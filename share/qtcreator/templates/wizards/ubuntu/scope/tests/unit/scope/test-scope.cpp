@@ -47,7 +47,7 @@ typedef sct::TypedScopeFixture<Scope> TypedScopeFixtureScope;
 
 class TestScope: public TypedScopeFixtureScope {
 protected:
-@if "%ContentType%" == "network"
+@if "%ContentType%".substring(0, "network".length) === "network"
     void SetUp() override
     {
         // Start up Python-based fake OpenWeatherMap server
@@ -80,7 +80,7 @@ protected:
 };
 
 TEST_F(TestScope, empty_search_string) {
-@if "%ContentType%" == "network"
+@if "%ContentType%".substring(0, "network".length) === "network"
     const sc::CategoryRenderer renderer;
     NiceMock<sct::MockSearchReply> reply;
 
@@ -155,7 +155,7 @@ TEST_F(TestScope, empty_search_string) {
 }
 
 TEST_F(TestScope, search) {
-@if "%ContentType%" == "network"
+@if "%ContentType%".substring(0, "network".length) === "network"
     const sc::CategoryRenderer renderer;
     NiceMock<sct::MockSearchReply> reply;
 

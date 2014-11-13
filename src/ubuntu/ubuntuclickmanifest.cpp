@@ -315,12 +315,12 @@ bool UbuntuClickManifest::load(const QString &fileName,ProjectExplorer::Project 
 
         QString defFramework;
         if(isUbuntuProject && isUbuntuHtmlProject) {
-            defFramework = UbuntuClickTool::getMostRecentFramework(QLatin1String("html"),UbuntuClickTool::clickTargetFromTarget(proj->activeTarget()));
+            defFramework = UbuntuClickFrameworkProvider::getMostRecentFramework(QLatin1String("html"));
 
             if(defFramework.isEmpty())
                 defFramework = QLatin1String(Constants::UBUNTU_DEFAULT_HTML_FRAMEWORK);
         } else {
-            defFramework = UbuntuClickTool::getMostRecentFramework(QLatin1String("qml"),UbuntuClickTool::clickTargetFromTarget(proj->activeTarget()));
+            defFramework = UbuntuClickFrameworkProvider::getMostRecentFramework(QLatin1String("qml"));
 
             if(defFramework.isEmpty())
                 defFramework = QLatin1String(Constants::UBUNTU_DEFAULT_QML_FRAMEWORK);

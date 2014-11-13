@@ -55,16 +55,17 @@ protected:
     bool syncToWidgets (UbuntuClickManifest *source);
     void syncToSource  ();
     QWidget *createMainWidget();
-    void updateFrameworkList ();    
     void addMissingFieldsToManifest(QString fileName);    
     QString policyForFramework(const QString &fw);
 
 protected slots:
     void bzrChanged ();
     void onFrameworkChanged ();
+    void updateFrameworkList ();
 
 private:
     QWidget *createHookWidget (const UbuntuClickManifest::Hook &hook);
+    void selectFramework(const QString &fw);
 
 private:
     Ui::UbuntuManifestEditor *m_ui;

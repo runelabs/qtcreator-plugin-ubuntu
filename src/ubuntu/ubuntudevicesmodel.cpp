@@ -365,6 +365,17 @@ void UbuntuDevicesModel::triggerRedetect(const int devId)
     m_knownDevices[row]->device()->helper()->refresh();
 }
 
+void UbuntuDevicesModel::deleteDevice(const int devId)
+{
+    int index = findDevice(devId);
+    if(index < 0) {
+        QMessageBox::critical(Core::ICore::mainWindow(),tr("Could not delete device"),tr("The device ID is unknown, please press the refresh button and try again."));
+        return;
+    }
+
+    ProjectExplorer::DeviceManager::instance()->removeDevice(m_knownDevices[index]->device()->id());
+}
+
 void UbuntuDevicesModel::refresh()
 {
     readDevicesFromSettings();
@@ -766,26 +777,42 @@ void UbuntuDevicesModel::doCreateEmulatorImage(UbuntuProcess *process, const QSt
     strEmulatorPath += QLatin1String(Constants::DEFAULT_EMULATOR_PATH);
     strEmulatorPath += QDir::separator();
     QString strUserName = QProcessEnvironment::systemEnvironment().value(QLatin1String("USER"));
-    QString strUserHome = QProcessEnvironment::systemEnvironment().value(QLatin1String("HOME")); 
+    QString strUserHome = QProcessEnvironment::systemEnvironment().value(QLatin1String("HOME"));
     process->append(QStringList() << QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR_SCRIPT)
-                      .arg(QString::fromLatin1(Ubuntu::Constants::UBUNTU_SUDO_BINARY))
-                      .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                      .arg(strEmulatorPath)
-                      .arg(strEmulatorName)
-                      .arg(arch)
-                      .arg(channel)
-                      .arg(strUserName)
-                      .arg(strUserHome)
-                      << QCoreApplication::applicationDirPath());
+                    .arg(QString::fromLatin1(Ubuntu::Constants::UBUNTU_SUDO_BINARY))
+                    .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
+                    .arg(strEmulatorPath)
+                    .arg(strEmulatorName)
+                    .arg(arch)
+                    .arg(channel)
+                    .arg(strUserName)
+                    .arg(strUserHome)
+                    << QCoreApplication::applicationDirPath());
     process->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
 }
 
 void UbuntuDevicesModel::createEmulatorImage(const QString &name, const QString &arch, const QString &channel)
 {
+    QString ch = channel;
+
+    //to work around a problem in the UITK that clips long text in dropdown menus we use short aliases in the UI
+    //for some channels. Here they are resolved to the correct channel names.
+    QMap<QString,QString> channelAliasMap = {
+        {QStringLiteral("rtm-14.09"),QStringLiteral("ubuntu-touch/ubuntu-rtm/14.09")},
+        {QStringLiteral("rtm-14.09-proposed"),QStringLiteral("ubuntu-touch/ubuntu-rtm/14.09-proposed")}
+    };
+
+    if(channelAliasMap.contains(ch))
+        ch = channelAliasMap[ch];
+
     setState(CreateEmulatorImage);
-    setCancellable(true);
+
+    //@BUG this should be cancellable but the QProcess::kill call just blocks for a long time, and then returns
+    //     with the process still running. Most likely because the subprocess is executed with pkexec and has
+    //     elevated priviledges
+    setCancellable(false);
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
-    doCreateEmulatorImage(m_process,name,arch,channel);
+    doCreateEmulatorImage(m_process,name,arch,ch);
 }
 
 void UbuntuDevicesModel::queryAdb()
@@ -827,8 +854,8 @@ void UbuntuDevicesModel::stopEmulator(const QString &name)
 
     QStringList args = QStringList() << name;
     if(QProcess::startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_STOP_EMULATOR_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                            ,args
-                            ,QCoreApplication::applicationDirPath())) {
+                               ,args
+                               ,QCoreApplication::applicationDirPath())) {
     }
 }
 
