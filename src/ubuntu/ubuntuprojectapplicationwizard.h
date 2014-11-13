@@ -44,7 +44,8 @@ public:
         UbuntuHTMLProject,
         UbuntuQMLProject,
         CMakeProject,
-        GoProject
+        GoProject,
+        QMakeProject
     };
 
     UbuntuProjectApplicationWizard(ProjectType type);

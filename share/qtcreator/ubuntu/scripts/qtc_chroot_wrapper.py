@@ -49,7 +49,7 @@ session_id   = str(uuid.uuid4())
 args    = sys.argv[1:]
 command = os.path.basename(sys.argv[0])
 
-if (command.startswith("qmake") and framework < "ubuntu-sdk-14.10" and architecture == "armhf"):
+if (command.startswith("qt5-qmake") and framework < "ubuntu-sdk-14.10" and architecture == "armhf"):
     #ok old armhf chroots do not support qmake, we need to forward to the old script
     old_script = "/usr/share/qtcreator/ubuntu/scripts/qtc_chroot_qmake_legacy"
     success = subprocess.call(["/bin/bash",old_script,framework,architecture,"click",args],stdout=sys.stdout,stderr=sys.stderr)

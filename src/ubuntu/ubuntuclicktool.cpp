@@ -591,7 +591,7 @@ QString UbuntuClickTool::findOrCreateQMakeWrapper (const UbuntuClickTool::Target
     QString qmake;
 
     if(target.architecture == QStringLiteral("armhf"))
-        qmake = QStringLiteral("qmake-ubuntu-sdk-14.10-armhf");
+        qmake = QStringLiteral("qmake-ubuntu-sdk-14.10-armhf"); //QStringLiteral("qt5-qmake-cross-armhf");
     else
         qmake = QStringLiteral("qmake");
 

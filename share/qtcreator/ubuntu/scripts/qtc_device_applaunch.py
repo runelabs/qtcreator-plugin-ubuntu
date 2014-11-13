@@ -375,7 +375,7 @@ else:
 print("Sdk-Launcher> Installing application .....",flush=True)
 #we have all informations, now install the click package
 success = subprocess.call(
-    ["pkcon","--allow-untrusted","install-local",options.clickPck,"-p"],stdout=subprocess.DEVNULL)
+    ["pkcon","--allow-untrusted","install-local",options.clickPck,"-p"])
 if success != 0:
     print("Sdk-Launcher> Installing the application failed",flush=True)
     sys.exit(1)

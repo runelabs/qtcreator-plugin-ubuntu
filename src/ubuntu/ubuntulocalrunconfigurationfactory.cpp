@@ -77,28 +77,40 @@ QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(Project
                                                                    parent->activeBuildConfiguration(),
                                                                    QStringLiteral("manifest.json")).toString());
     } else if (isQMake) {
-        QmakeProjectManager::QmakeProFileNode * node = static_cast<QmakeProjectManager::QmakeProject *>(parent->project())->rootQmakeProjectNode();
-        if(!node)
-            return types;
+        QmakeProjectManager::QmakeProject *qmakeProj = static_cast<QmakeProjectManager::QmakeProject *>(parent->project());
+        QList<QmakeProjectManager::QmakeProFileNode *> nodes = qmakeProj->allProFiles();
 
-        QString manifestFilePath = node->singleVariableValue(QmakeProjectManager::UbuntuManifestFile);
+        QString manifestFilePath; //empty
+        foreach (QmakeProjectManager::QmakeProFileNode *node, nodes) {
+            if(!node)
+                continue;
+
+            manifestFilePath = node->singleVariableValue(QmakeProjectManager::UbuntuManifestFile);
+            if(manifestFilePath.isEmpty())
+                continue;
+
+            else if(QDir::isRelativePath(manifestFilePath)) {
+                manifestPath = QDir::cleanPath(node->sourceDir()
+                                               +QDir::separator()
+                                               +manifestFilePath);
+                break;
+            } else {
+                manifestPath = QDir::cleanPath(manifestFilePath);
+                break;
+            }
+        }
         if(manifestFilePath.isEmpty()) {
             manifestPath = QDir::cleanPath(parent->project()->projectDirectory()
                                            +QDir::separator()
                                            +QStringLiteral("manifest.json.in"));
         }
-        else if(QDir::isRelativePath(manifestFilePath)) {
-            manifestPath = QDir::cleanPath(node->sourceDir()
-                                           +QDir::separator()
-                                           +manifestFilePath);
-        } else
-            manifestPath = QDir::cleanPath(manifestFilePath);
-
     } else {
         manifestPath = QDir::cleanPath(parent->project()->projectDirectory()
                                        +QDir::separator()
                                        +QStringLiteral("manifest.json"));
     }
+
+    qDebug()<<"Using the manifest path: "<<manifestPath;
 
     UbuntuClickManifest manifest;
 

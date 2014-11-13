@@ -127,7 +127,7 @@ bool UbuntuPackageStep::init()
                 arguments << QStringLiteral("DESTDIR=%1").arg(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
                           << QStringLiteral("install");
             } else {
-                arguments << QStringLiteral("INSTALL_ROOT=%1").arg(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                arguments << QStringLiteral("INSTALL_ROOT=%1").arg(m_buildDir + QDir::separator() + QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
                           << QStringLiteral("install");
             }
 

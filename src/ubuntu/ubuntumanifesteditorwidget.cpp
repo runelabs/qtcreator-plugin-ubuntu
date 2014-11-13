@@ -325,8 +325,18 @@ void UbuntuManifestEditorWidget::onFrameworkChanged()
     foreach(const UbuntuClickManifest::Hook &hook, hooks){
         QFileInfo mFile(textEditorWidget()->baseTextDocument()->filePath());
         QString aaFile = mFile.absolutePath()+QDir::separator()+hook.appArmorFile;
-        if(!QFile::exists(aaFile))
-            continue;
+        if(!QFile::exists(aaFile)) {
+
+            ProjectExplorer::Project *p = ubuntuProject(mFile.absolutePath());
+            if(!p)
+                continue;
+
+            //the aa file does not live in the same directory as the manifest file
+            //try if we can use the project root directory to find the file
+            aaFile = p->projectDirectory()+QDir::separator()+hook.appArmorFile;
+            if(!QFile::exists(aaFile))
+                continue;
+        }
 
         QList<Core::IEditor*> editors = model->editorsForFilePath(aaFile);
         if(editors.size()) {

@@ -231,6 +231,7 @@ void UbuntuProjectApplicationWizardDialog::addTargetSetupPage(int id)
                 m_targetSetupPage->setRequiredKitMatcher(new QtSupport::QtVersionKitMatcher(features));
             break;
         }
+        case UbuntuProjectApplicationWizard::QMakeProject:
         case UbuntuProjectApplicationWizard::UbuntuQMLProject:
         case UbuntuProjectApplicationWizard::UbuntuHTMLProject: {
             m_targetSetupPage->setRequiredKitMatcher(new UbuntuKitMatcher());
@@ -261,22 +262,37 @@ void UbuntuProjectApplicationWizardDialog::generateProfileName(const QString &pr
     if(!m_targetSetupPage)
         return;
 
-    if(m_type == UbuntuProjectApplicationWizard::GoProject) {
-        m_targetSetupPage->setProjectPath(path+QDir::separator()
-                                          +projectName
-                                          +QDir::separator()
-                                          +QString::fromLatin1("%1.goproject").arg(projectName));
-    } else if (m_type == UbuntuProjectApplicationWizard::UbuntuHTMLProject) {
-        m_targetSetupPage->setProjectPath(path+QDir::separator()
-                                          +projectName
-                                          +QDir::separator()
-                                          +QString::fromLatin1("%1.ubuntuhtmlproject").arg(projectName));
-    } else if (m_type == UbuntuProjectApplicationWizard::UbuntuQMLProject) {
-        m_targetSetupPage->setProjectPath(path+QDir::separator()
-                                          +projectName
-                                          +QDir::separator()
-                                          +QString::fromLatin1("%1.qmlproject").arg(projectName));
-    } else {
-        m_targetSetupPage->setProjectPath(path+QDir::separator()+projectName+QDir::separator()+QLatin1String("CMakeLists.txt"));
+    switch(m_type) {
+        case UbuntuProjectApplicationWizard::QMakeProject: {
+            m_targetSetupPage->setProjectPath(path+QDir::separator()
+                                              +projectName
+                                              +QDir::separator()
+                                              +QString::fromLatin1("%1.pro").arg(projectName));
+            break;
+        }
+        case UbuntuProjectApplicationWizard::GoProject: {
+            m_targetSetupPage->setProjectPath(path+QDir::separator()
+                                              +projectName
+                                              +QDir::separator()
+                                              +QString::fromLatin1("%1.goproject").arg(projectName));
+            break;
+        }
+        case UbuntuProjectApplicationWizard::UbuntuHTMLProject: {
+            m_targetSetupPage->setProjectPath(path+QDir::separator()
+                                              +projectName
+                                              +QDir::separator()
+                                              +QString::fromLatin1("%1.ubuntuhtmlproject").arg(projectName));
+            break;
+        }
+        case UbuntuProjectApplicationWizard::UbuntuQMLProject: {
+            m_targetSetupPage->setProjectPath(path+QDir::separator()
+                                              +projectName
+                                              +QDir::separator()
+                                              +QString::fromLatin1("%1.qmlproject").arg(projectName));
+            break;
+        }
+        default: {
+            m_targetSetupPage->setProjectPath(path+QDir::separator()+projectName+QDir::separator()+QLatin1String("CMakeLists.txt"));
+        }
     }
 }

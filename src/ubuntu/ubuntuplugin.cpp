@@ -172,6 +172,10 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
                     QStringLiteral("ubuntu-project-cmake"),
                     Core::IWizard::ProjectWizard));
     addAutoReleasedObject(
+                new UbuntuWizardFactory<UbuntuProjectApplicationWizard,UbuntuProjectApplicationWizard::QMakeProject>(
+                    QStringLiteral("ubuntu-project-qmake"),
+                    Core::IWizard::ProjectWizard));
+    addAutoReleasedObject(
                 new UbuntuWizardFactory<UbuntuProjectApplicationWizard,UbuntuProjectApplicationWizard::UbuntuHTMLProject>(
                     QStringLiteral("ubuntu-project-plain-html"),
                     Core::IWizard::ProjectWizard));
