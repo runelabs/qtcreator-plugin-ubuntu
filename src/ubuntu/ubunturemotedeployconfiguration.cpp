@@ -19,7 +19,7 @@
 #include "ubuntucmakebuildconfiguration.h"
 #include "ubuntucmakemakestep.h"
 #include "ubuntudirectuploadstep.h"
-#include "ubuntuprojectguesser.h"
+#include "ubuntuprojecthelper.h"
 #include "ubuntuconstants.h"
 #include "ubuntupackagestep.h"
 

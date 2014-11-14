@@ -17,7 +17,7 @@
  */
 #include "ubuntucmakemakestep.h"
 #include "ubuntuconstants.h"
-#include "ubuntuprojectguesser.h"
+#include "ubuntuprojecthelper.h"
 #include "clicktoolchain.h"
 #include "ubuntupackagestep.h"
 

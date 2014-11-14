@@ -28,6 +28,7 @@
 #include "ubuntupackagestep.h"
 #include "ubuntushared.h"
 #include "ubuntucmakecache.h"
+#include "ubuntuprojecthelper.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
@@ -117,11 +118,25 @@ void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd)
 
     ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
 
-    QVariant manifestPath = UbuntuCMakeCache::getValue(QStringLiteral("UBUNTU_MANIFEST_PATH"),
-                                                       startupProject->activeTarget()->activeBuildConfiguration(),
-                                                       QStringLiteral("manifest.json"));
+    //first try to use the version in the deploy directory. It is always in the root of the click package
+    QString manifestPath;
+
+    if(startupProject->activeTarget() && startupProject->activeTarget()->activeBuildConfiguration()) {
+        manifestPath = startupProject->activeTarget()->activeBuildConfiguration()->buildDirectory()
+                .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                .appendPath(QStringLiteral("manifest.json"))
+                .toString();
+    }
+
+    if(!QFile::exists(manifestPath)) {
+        //fall back to the project directory
+        manifestPath = UbuntuProjectHelper::getManifestPath(startupProject->activeTarget(),
+                                                            Utils::FileName::fromString(startupProject->projectDirectory())
+                                                            .appendPath(QStringLiteral("manifest.json")).toString());
+    }
+
     UbuntuClickManifest manifest;
-    if(!manifest.load(startupProject->projectDirectory()+QDir::separator()+manifestPath.toString()))
+    if(!manifest.load(manifestPath))
         return;
 
     QString sClickPackageName;

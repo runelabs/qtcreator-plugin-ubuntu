@@ -18,7 +18,7 @@
 
 #include "ubuntulocalrunconfigurationfactory.h"
 #include "ubunturemoterunconfiguration.h"
-#include "ubuntuprojectguesser.h"
+#include "ubuntuprojecthelper.h"
 #include "ubuntudevice.h"
 #include "clicktoolchain.h"
 #include "ubuntuclickmanifest.h"
@@ -27,8 +27,6 @@
 #include <cmakeprojectmanager/cmakeproject.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
-#include <qmakeprojectmanager/qmakeproject.h>
-#include <qmakeprojectmanager/qmakenodes.h>
 
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/kitinformation.h>
@@ -68,47 +66,11 @@ QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(Project
             return types;
     }
 
-    QString manifestPath;
+    QString defaultPath = QDir::cleanPath(parent->project()->projectDirectory()
+                                          +QDir::separator()
+                                          +QStringLiteral("manifest.json"));
 
-    if(isCMake) {
-        manifestPath = QDir::cleanPath(parent->project()->projectDirectory()
-                                       +QDir::separator()
-                                       +UbuntuCMakeCache::getValue(QStringLiteral("UBUNTU_MANIFEST_PATH"),
-                                                                   parent->activeBuildConfiguration(),
-                                                                   QStringLiteral("manifest.json")).toString());
-    } else if (isQMake) {
-        QmakeProjectManager::QmakeProject *qmakeProj = static_cast<QmakeProjectManager::QmakeProject *>(parent->project());
-        QList<QmakeProjectManager::QmakeProFileNode *> nodes = qmakeProj->allProFiles();
-
-        QString manifestFilePath; //empty
-        foreach (QmakeProjectManager::QmakeProFileNode *node, nodes) {
-            if(!node)
-                continue;
-
-            manifestFilePath = node->singleVariableValue(QmakeProjectManager::UbuntuManifestFile);
-            if(manifestFilePath.isEmpty())
-                continue;
-
-            else if(QDir::isRelativePath(manifestFilePath)) {
-                manifestPath = QDir::cleanPath(node->sourceDir()
-                                               +QDir::separator()
-                                               +manifestFilePath);
-                break;
-            } else {
-                manifestPath = QDir::cleanPath(manifestFilePath);
-                break;
-            }
-        }
-        if(manifestFilePath.isEmpty()) {
-            manifestPath = QDir::cleanPath(parent->project()->projectDirectory()
-                                           +QDir::separator()
-                                           +QStringLiteral("manifest.json.in"));
-        }
-    } else {
-        manifestPath = QDir::cleanPath(parent->project()->projectDirectory()
-                                       +QDir::separator()
-                                       +QStringLiteral("manifest.json"));
-    }
+    QString manifestPath = UbuntuProjectHelper::getManifestPath(parent,defaultPath);
 
     qDebug()<<"Using the manifest path: "<<manifestPath;
 

@@ -37,7 +37,7 @@ UbuntuCMakeCache::UbuntuCMakeCache(QObject *parent) :
 QVariant UbuntuCMakeCache::getValue(const QString &key, ProjectExplorer::BuildConfiguration *bc, const QVariant defaultValue)
 {
     UbuntuCMakeCache *inst = instance();
-    if(!inst)
+    if(!inst || !bc)
         return defaultValue;
 
     Utils::FileName cacheFile = bc->buildDirectory().appendPath(QStringLiteral("CMakeCache.txt"));

@@ -444,6 +444,10 @@ QString UbuntuClickTool::findOrCreateToolWrapper (const QString &tool, const Ubu
 
     QString toolWrapper = (Utils::FileName::fromString(baseDir).appendPath(tool).toString());
     if(!QFile::exists(toolWrapper)) {
+        //in case of a broken link QFile::exists also will return false
+        //lets try to delete it and ignore the error in case the file
+        //simply does not exist
+        QFile::remove(toolWrapper);
         if(!QFile::link(QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_WRAPPER)
                         .arg(Constants::UBUNTU_SCRIPTPATH),toolWrapper)) {
             qWarning()<<"Unable to create link for the tool wrapper: "<<toolWrapper;

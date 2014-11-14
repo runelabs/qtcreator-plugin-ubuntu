@@ -1,5 +1,5 @@
 #include "ubuntudeploystepfactory.h"
-#include "ubuntuprojectguesser.h"
+#include "ubuntuprojecthelper.h"
 #include "ubuntuconstants.h"
 #include "ubuntudirectuploadstep.h"
 #include "ubuntupackagestep.h"

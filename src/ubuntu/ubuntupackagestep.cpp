@@ -2,7 +2,7 @@
 #include "ui_ubuntupackagestepconfigwidget.h"
 #include "ubuntuconstants.h"
 #include "clicktoolchain.h"
-#include "ubuntuprojectguesser.h"
+#include "ubuntuprojecthelper.h"
 #include "ubuntuclickmanifest.h"
 #include "ubuntupackageoutputparser.h"
 
