@@ -42,6 +42,12 @@ if(idx is -1):
     print("The parent directory must contain the click chroot name (e.g ubuntu-sdk-14.10-armhf)")
     sys.exit(1)
 
+#find out the path this script is in, required for local plugin installation
+scriptpath = os.path.dirname(os.path.realpath(__file__))
+
+#@BUG get this dynamically
+chroot_name_prefix = "click"
+
 architecture = dirname[idx+1:]
 framework    = dirname[0:idx]
 session_id   = str(uuid.uuid4())
@@ -49,11 +55,12 @@ session_id   = str(uuid.uuid4())
 args    = sys.argv[1:]
 command = os.path.basename(sys.argv[0])
 
-if (command.startswith("qt5-qmake") and framework < "ubuntu-sdk-14.10" and architecture == "armhf"):
-    #ok old armhf chroots do not support qmake, we need to forward to the old script
-    old_script = "/usr/share/qtcreator/ubuntu/scripts/qtc_chroot_qmake_legacy"
-    success = subprocess.call(["/bin/bash",old_script,framework,architecture,"click",args],stdout=sys.stdout,stderr=sys.stderr)
-    sys.exit(success)
+if (command.startswith("qt5-qmake-cross")):
+    command_path="/var/lib/schroot/chroots/"+chroot_name_prefix+"-"+dirname+"/usr/bin/"+command
+    if (not os.path.isfile(command_path)):
+        legacy_script = scriptpath+"/qtc_chroot_qmake_legacy"
+        success = subprocess.call(["/bin/bash",legacy_script,framework,architecture,chroot_name_prefix]+args,stdout=sys.stdout,stderr=sys.stderr)
+        sys.exit(success)
 
 subproc = None
 
@@ -64,7 +71,7 @@ if( click is None ):
     sys.exit(1)
 
 def _doMapAllPaths (matchobj):
-    return matchobj.group(1)+"/var/lib/schroot/chroots/click-"+framework+"-"+architecture+"/"+matchobj.group(2)
+    return matchobj.group(1)+"/var/lib/schroot/chroots/"+chroot_name_prefix+"-"+dirname+"/"+matchobj.group(2)
 
 def mapPaths (text):
     paths = ["var","bin","boot","dev","etc","lib","lib64","media","mnt","opt","proc","root","run","sbin","srv","sys","usr"]
@@ -75,20 +82,20 @@ def mapPaths (text):
 def exit_gracefully(arg1,arg2):
     if(subproc is not None):
         subproc.kill()
-    subprocess.call([click, "chroot","-a",architecture,"-f",framework,"end-session",session_id],stdout=subprocess.DEVNULL)
+    subprocess.call([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"end-session",session_id],stdout=subprocess.DEVNULL)
     sys.exit(1)
 
 signal.signal(signal.SIGTERM, exit_gracefully)
 signal.signal(signal.SIGINT , exit_gracefully)
 signal.signal(signal.SIGHUP , exit_gracefully)
 
-success = subprocess.call([click, "chroot","-a",architecture,"-f",framework,"begin-session",session_id],stdout=subprocess.DEVNULL)
-subproc = subprocess.Popen([click, "chroot","-a",architecture,"-f",framework,"run","-n",session_id]+[command]+args,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+success = subprocess.call([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"begin-session",session_id],stdout=subprocess.DEVNULL)
+subproc = subprocess.Popen([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"run","-n",session_id]+[command]+args,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 stdout = ""
 stderr = ""
 
-#even though after select a read should never block, but can happen sometimes
+#even though after select a read should never block, it can happen sometimes
 #so better make them nonblocking
 stdoutfd = subproc.stdout.fileno()
 fl = fcntl.fcntl(stdoutfd, fcntl.F_GETFL)
@@ -135,5 +142,5 @@ if(len(stdout) != 0):
 if(len(stderr) != 0):
     sys.stderr.write(mapPaths(stderr))
 
-subprocess.call([click, "chroot","-a",architecture,"-f",framework,"end-session",session_id],stdout=subprocess.DEVNULL)
+subprocess.call([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"end-session",session_id],stdout=subprocess.DEVNULL)
 sys.exit(subproc.returncode)
