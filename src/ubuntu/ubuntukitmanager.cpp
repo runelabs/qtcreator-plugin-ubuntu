@@ -172,7 +172,6 @@ void UbuntuKitManager::autoDetectKits()
             //we need to remove that QtVersion
             QFile::remove(ver->qmakeCommand().toString());
             QtSupport::QtVersionManager::removeVersion(ver);
-
         }
     }
 

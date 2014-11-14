@@ -24,6 +24,8 @@
 #include <QDebug>
 #include <QVariant>
 #include <QVariantMap>
+#include <QFile>
+#include <QFileInfo>
 
 namespace Ubuntu {
 namespace Internal {
@@ -239,10 +241,9 @@ ProjectExplorer::ToolChain *ClickToolChainFactory::restore(const QVariantMap &da
 {
     ClickToolChain *tc = new ClickToolChain();
     if (tc->fromMap(data)) {
+        QFileInfo compilerCommand(tc->compilerCommand().toString());
         //deprecated wrapper script, update to use the new one
-        if(tc->compilerCommand() == Utils::FileName::fromString(
-                    QString::fromLatin1(Constants::UBUNTU_CLICK_GCC_WRAPPER)
-                    .arg(Constants::UBUNTU_SCRIPTPATH))) {
+        if(compilerCommand.fileName() == QString::fromLatin1(Constants::UBUNTU_CLICK_GCC_WRAPPER)) {
             QString wrapper = UbuntuClickTool::findOrCreateGccWrapper(tc->clickTarget());
 
             //if we cannot create a good wrapper its better to drop the ToolChain
