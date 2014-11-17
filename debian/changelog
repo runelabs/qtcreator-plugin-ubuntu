@@ -1,3 +1,16 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20141117.2-0ubuntu1) vivid; urgency=low
+
+  [ Benjamin Zeller ]
+  * Fix bug lp:1390838 "Invalid framework "ubuntu-core15.04-dev1"" by
+    providing a combobox in the "New project wizard". Fix Bug lp:1390837
+    "Invalid format for maintainer error". Fix problem with the
+    translation files (LP: #1390837, #1390838)
+  * Fix bug lp:1366822 "When creating the emulator it does not tell me
+    what logs to check ". Add a scope finalizer implementation (LP:
+    #1366822)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 17 Nov 2014 20:09:18 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20141104.2-0ubuntu1) vivid; urgency=low
 
   [ Pete Woods ]
