@@ -1,8 +1,8 @@
 {
-    "name": "%ClickDomain:l%.%ProjectName:l%",
+    "name": "@APP_ID@",
     "description": "description of %ProjectName%",
     "architecture": "@CLICK_ARCH@",
-    "title": "%ProjectName%",
+    "title": "@APP_NAME@",
     "hooks": {
         "%ClickHookName%": {
             "apparmor": "%ClickHookName%.apparmor",
@@ -10,6 +10,7 @@
         }
     },
     "version": "0.1",
-    "maintainer": "%ClickMaintainer%"
+    "maintainer": "%ClickMaintainer%",
+    "framework" : "%ClickFrameworkVersion%"
 }
 

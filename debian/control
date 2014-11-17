@@ -19,6 +19,8 @@ Build-Depends: debhelper (>= 9),
                qtxmlpatterns5-dev-tools,
                libudev-dev,
                libicu-dev,
+               libglib2.0-dev,
+               pkg-config,
                qtcreator-plugin-cmake-dev (>= 3.1.1~),
                qtcreator-plugin-remotelinux-dev (>= 3.1.1~),
 Standards-Version: 3.9.4

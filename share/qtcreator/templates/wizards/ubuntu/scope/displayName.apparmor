@@ -1,6 +1,6 @@
 {
     "template": "%ConfinementType%",
     "policy_groups": [],
-    "policy_version": 1.2
+    "policy_version": %ClickAAPolicyVersion%
 }
 

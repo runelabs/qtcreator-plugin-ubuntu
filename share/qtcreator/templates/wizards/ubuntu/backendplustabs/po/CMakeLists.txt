@@ -11,9 +11,13 @@ if(NOT INTLTOOL_EXTRACT)
  message(FATAL_ERROR "Could not find intltool-extract, please install the intltool package")
 endif()
 
+if(NOT CMAKE_INSTALL_LOCALEDIR)
+ set(CMAKE_INSTALL_LOCALEDIR "share/locale")
+endif()
+
 find_program(GETTEXT_XGETTEXT_EXECUTABLE xgettext)
 
-set(DOMAIN ${PROJECT_NAME})
+set(DOMAIN ${APP_ID})
 set(POT_FILE ${DOMAIN}.pot)
 file(GLOB PO_FILES *.po)
 
