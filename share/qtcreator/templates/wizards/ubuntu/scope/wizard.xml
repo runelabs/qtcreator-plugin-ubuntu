@@ -117,4 +117,9 @@
             <fielddescription>Template type:</fielddescription>
         </field>
     </fields>
+    <validationrules>
+        <validationrule condition='/^(.*)\s+&lt;(.*@.*)&gt;$/.test("%ClickMaintainer%")'>
+            <message>Invalid format for maintainer (should be like "Joe Bloggs &lt;joe.bloggs@isp.com&gt;")</message>
+        </validationrule>
+    </validationrules>
 </wizard>
