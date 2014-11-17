@@ -8,6 +8,7 @@
   "architecture": "@CLICK_ARCH@",
   "name": "%ClickDomain:l%.%ProjectName:l%",
   "title": "%ProjectName:l%",
+  "framework" : "%ClickFrameworkVersion%",
   "hooks": {
     "%ClickHookName:l%": {
       "scope": "%ClickHookName:l%",

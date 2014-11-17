@@ -49,7 +49,9 @@ public:
 
     UbuntuProjectApplicationWizard(ProjectType type);
 
-private:
+protected:
+    // BaseFileWizard interface
+    virtual Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const override;
     QWizard *createWizardDialog(QWidget *parent,
                                 const Core::WizardDialogParameters &wizardDialogParameters) const override;
     bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage) override;
