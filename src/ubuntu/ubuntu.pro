@@ -217,5 +217,6 @@ HEADERS += \
     ubuntucmakecache.h \
     ubuntutestcontrol.h \
     ubuntupackageoutputparser.h \
-    ubuntuprojecthelper.h
+    ubuntuprojecthelper.h \
+    ubuntuscopefinalizer.h
 

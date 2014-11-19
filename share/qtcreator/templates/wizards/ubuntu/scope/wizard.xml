@@ -71,6 +71,17 @@
                             defaulttext="myscope" placeholdertext="scope hook name"/>
             <fielddescription>Scope name:</fielddescription>
         </field>
+				<field name="ClickFrameworkVersion">
+				    <fieldcontrol class="QComboBox" defaultindex="0">
+				        <comboentries>
+									<!-- Do not add any other frameworks here, they are populated at runtime, this is just a dummy framework to make sure we can find the combobox -->
+									<comboentry value="ubuntu-sdk-dummy-framework">
+				              <comboentrytext>Dummy Framework</comboentrytext>
+				          </comboentry>
+				        </comboentries>
+				    </fieldcontrol>
+				    <fielddescription>Framework:</fielddescription>
+				</field>
         <field name="ConfinementType">
             <fieldcontrol class="QComboBox" defaultindex="0">
                 <comboentries>
@@ -106,4 +117,9 @@
             <fielddescription>Template type:</fielddescription>
         </field>
     </fields>
+    <validationrules>
+        <validationrule condition='/^(.*)\s+&lt;(.*@.*)&gt;$/.test("%ClickMaintainer%")'>
+            <message>Invalid format for maintainer (should be like "Joe Bloggs &lt;joe.bloggs@isp.com&gt;")</message>
+        </validationrule>
+    </validationrules>
 </wizard>

@@ -22,6 +22,7 @@
 #include "ubuntuproject.h"
 #include "ubuntubzr.h"
 #include "ubuntufirstrunwizard.h"
+#include "ubuntuclicktool.h"
 
 #include <coreplugin/mimedatabase.h>
 
@@ -35,8 +36,10 @@
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/customwizard/customwizardparameters.h>
 
 #include <QDir>
+#include <QComboBox>
 
 
 using namespace Ubuntu::Internal;
@@ -81,6 +84,33 @@ QWizard *UbuntuProjectApplicationWizard::createWizardDialog (QWidget *parent, co
 
     projectDialog->setField(QStringLiteral("ClickMaintainer"),whoami);
     projectDialog->setField(QStringLiteral("ClickDomain"),QString(QStringLiteral("com.ubuntu.developer.")+maintainer));
+
+    QList<QComboBox*> boxes = projectDialog->findChildren<QComboBox*>();
+    foreach(QComboBox* box, boxes){
+        if(box->currentData().toString() == QStringLiteral("ubuntu-sdk-dummy-framework")) {
+            QStringList allFrameworks = UbuntuClickFrameworkProvider::getSupportedFrameworks();
+            box->clear();
+
+            int running    = -1;
+            int defaultIdx = -1;
+            foreach(const QString &fw, allFrameworks) {
+                if(defaultIdx == -1) {
+                    running++;
+                    if(!fw.contains(QStringLiteral("-dev")))
+                        defaultIdx = running;
+                }
+
+                box->addItem(fw,fw);
+            }
+
+            if(defaultIdx >= 0)
+                box->setCurrentIndex(defaultIdx);
+
+            break;
+        }
+    }
+
+
     return projectDialog;
 }
 
@@ -97,6 +127,16 @@ bool UbuntuProjectApplicationWizard::postGenerateFiles(const QWizard *w, const C
 
     // Post-Generate: Open the projects/editors
     return ProjectExplorer::CustomProjectWizard::postGenerateOpen(l ,errorMessage);
+}
+
+Core::GeneratedFiles UbuntuProjectApplicationWizard::generateFiles(const QWizard *w, QString *errorMessage) const
+{
+    QString requiredPolicy = UbuntuClickFrameworkProvider::instance()->frameworkPolicy(w->field(QStringLiteral("ClickFrameworkVersion")).toString());
+    if(requiredPolicy.isEmpty())
+        requiredPolicy = QStringLiteral("1.2"); //some sane default value
+
+    context()->baseReplacements.insert(QStringLiteral("ClickAAPolicyVersion"),requiredPolicy);
+    return ProjectExplorer::CustomProjectWizard::generateFiles(w,errorMessage);
 }
 
 
