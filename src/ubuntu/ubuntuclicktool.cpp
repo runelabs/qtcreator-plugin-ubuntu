@@ -640,7 +640,7 @@ QString UbuntuClickFrameworkProvider::frameworkPolicy(const QString &fw) const
     if(proc.exitCode() == 0 && proc.exitStatus() == QProcess::NormalExit) {
         return QString::fromUtf8(proc.readAllStandardOutput();
     }
-#else
+#endif
     QString base = getBaseFramework(fw);
     if(m_policyCache.contains(base))
         return m_policyCache[base];
