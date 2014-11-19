@@ -328,7 +328,7 @@ void UbuntuManifestEditorWidget::onFrameworkChanged()
             m_ui->comboBoxFramework->removeItem(idx);
     }
 
-    QString v = policyForFramework(m_ui->comboBoxFramework->currentText());
+    QString v = UbuntuClickFrameworkProvider::instance()->frameworkPolicy(m_ui->comboBoxFramework->currentText());
     if(v.isEmpty())
         return;
 
@@ -503,54 +503,6 @@ void UbuntuManifestEditorWidget::addMissingFieldsToManifest (QString fileName)
         in.close();
     }
 }
-
-
-QString UbuntuManifestEditorWidget::policyForFramework(const QString &fw)
-{
-    if(fw.isEmpty())
-        return QString();
-
-#if 0
-    QProcess proc;
-    proc.setProgram(QStringLiteral("aa-clickquery"));
-    proc.setArguments(QStringList{
-                      QStringLiteral("--click-framework=%1").arg(fw),
-                      QStringLiteral("--query=policy_version")});
-    proc.start();
-    proc.waitForFinished();
-    if(proc.exitCode() == 0 && proc.exitStatus() == QProcess::NormalExit) {
-        m_apparmor.setPolicyVersion(QString::fromUtf8(proc.readAllStandardOutput()));
-        m_apparmor.save();
-    }
-#else
-    static const QMap<QString,QString> policy {
-        {QStringLiteral("ubuntu-sdk-13.10"),QStringLiteral("1.0")},
-        {QStringLiteral("ubuntu-sdk-14.04-dev1"),QStringLiteral("1.1")},
-        {QStringLiteral("ubuntu-sdk-14.04-html-dev1"),QStringLiteral("1.1")},
-        {QStringLiteral("ubuntu-sdk-14.04-html"),QStringLiteral("1.1")},
-        {QStringLiteral("ubuntu-sdk-14.04-papi-dev1"),QStringLiteral("1.1")},
-        {QStringLiteral("ubuntu-sdk-14.04-papi"),QStringLiteral("1.1")},
-        {QStringLiteral("ubuntu-sdk-14.04-qml-dev1"),QStringLiteral("1.1")},
-        {QStringLiteral("ubuntu-sdk-14.04-qml"),QStringLiteral("1.1")},
-        {QStringLiteral("ubuntu-sdk-14.04"),QStringLiteral("1.1")},
-        {QStringLiteral("ubuntu-sdk-14.10-dev1"),QStringLiteral("1.2")},
-        {QStringLiteral("ubuntu-sdk-14.10-dev2"),QStringLiteral("1.2")},
-        {QStringLiteral("ubuntu-sdk-14.10-html-dev1"),QStringLiteral("1.2")},
-        {QStringLiteral("ubuntu-sdk-14.10-html-dev2"),QStringLiteral("1.2")},
-        {QStringLiteral("ubuntu-sdk-14.10-papi-dev1"),QStringLiteral("1.2")},
-        {QStringLiteral("ubuntu-sdk-14.10-papi-dev2"),QStringLiteral("1.2")},
-        {QStringLiteral("ubuntu-sdk-14.10-qml-dev1"),QStringLiteral("1.2")},
-        {QStringLiteral("ubuntu-sdk-14.10-qml-dev2"),QStringLiteral("1.2")},
-        {QStringLiteral("ubuntu-sdk-14.10-qml-dev3"),QStringLiteral("1.2")}
-    };
-
-    if(policy.contains(fw)) {
-        return policy[fw];
-    }
-    return QString();
-#endif
-}
-
 
 } // namespace Internal
 } // namespace Ubuntu

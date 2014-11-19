@@ -353,6 +353,7 @@ for installAppManifest in arr:
 app_id   = None
 debug_file_name = None
 app_mode  = None
+powerd    = None
 
 loop = GLib.MainLoop()
 runner = None
@@ -406,7 +407,7 @@ try:
     debug_file_name = tmp_dir+app_id+"_debug.json"
 
     if(not os.path.exists(tmp_dir)):
-        os.mkdir(tmp_dir)
+        os.mkdirs(tmp_dir)
 
     print("Sdk-Launcher> AppId:                   "+app_id,flush=True)
     print("Sdk-Launcher> Architecture:            "+package_arch,flush=True,end="")

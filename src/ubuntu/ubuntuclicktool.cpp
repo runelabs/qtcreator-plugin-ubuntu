@@ -416,7 +416,7 @@ QString UbuntuClickTool::findOrCreateQMakeWrapper (const UbuntuClickTool::Target
     QString qmake;
 
     if(target.architecture == QStringLiteral("armhf"))
-        qmake = QStringLiteral("qmake-ubuntu-sdk-14.10-armhf"); //QStringLiteral("qt5-qmake-cross-armhf");
+        qmake = QStringLiteral("qt5-qmake-arm-linux-gnueabihf");
     else
         qmake = QStringLiteral("qmake");
 
@@ -629,6 +629,18 @@ QString UbuntuClickFrameworkProvider::mostRecentFramework(const QString &subFram
 
 QString UbuntuClickFrameworkProvider::frameworkPolicy(const QString &fw) const
 {
+#if 0
+    QProcess proc;
+    proc.setProgram(QStringLiteral("aa-clickquery"));
+    proc.setArguments(QStringList{
+                      QStringLiteral("--click-framework=%1").arg(fw),
+                      QStringLiteral("--query=policy_version")});
+    proc.start();
+    proc.waitForFinished();
+    if(proc.exitCode() == 0 && proc.exitStatus() == QProcess::NormalExit) {
+        return QString::fromUtf8(proc.readAllStandardOutput();
+    }
+#else
     QString base = getBaseFramework(fw);
     if(m_policyCache.contains(base))
         return m_policyCache[base];

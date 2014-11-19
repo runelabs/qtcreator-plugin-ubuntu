@@ -55,8 +55,7 @@ protected:
     bool syncToWidgets (UbuntuClickManifest *source);
     void syncToSource  ();
     QWidget *createMainWidget();
-    void addMissingFieldsToManifest(QString fileName);    
-    QString policyForFramework(const QString &fw);
+    void addMissingFieldsToManifest(QString fileName);
 
 protected slots:
     void bzrChanged ();
