@@ -8,4 +8,5 @@ usr/share/qtcreator/templates/wizards/ubuntu/tabs
 usr/share/qtcreator/templates/wizards/ubuntu/goproject
 usr/share/qtcreator/templates/wizards/ubuntu/share
 usr/share/qtcreator/templates/wizards/ubuntu/simplei18n
+usr/share/qtcreator/templates/wizards/ubuntu/bin_app-qmake
 usr/share/qtcreator/ubuntu
