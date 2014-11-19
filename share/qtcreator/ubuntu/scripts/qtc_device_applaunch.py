@@ -407,7 +407,7 @@ try:
     debug_file_name = tmp_dir+app_id+"_debug.json"
 
     if(not os.path.exists(tmp_dir)):
-        os.mkdirs(tmp_dir)
+        os.makedirs(tmp_dir)
 
     print("Sdk-Launcher> AppId:                   "+app_id,flush=True)
     print("Sdk-Launcher> Architecture:            "+package_arch,flush=True,end="")
