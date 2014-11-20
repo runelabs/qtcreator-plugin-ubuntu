@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wizard version="1" kind="project" firstpage="10" id="UbuntuAppSimpleQmake'" category="A.UbuntuProject (QMake)"
+<wizard version="1" kind="project" firstpage="10" id="UbuntuAppSimpleQmake'" category="A.UbuntuProject"
         platformIndependent="true" 
         class="ubuntu-project-qmake"
 				featuresRequired=""
         >
     <icon>../share/ubuntu.png</icon>
     <description>Creates a C++ Ubuntu application project with a sample UI containing a Label and a Button.
+
+This templates is built using qmake.
 </description>
-    <displayname>App with Simple UI</displayname>
-    <displaycategory>Ubuntu (QMake)</displaycategory>
+    <displayname>App with Simple UI (QMake)</displayname>
+    <displaycategory>Ubuntu</displaycategory>
     <files>
      	<file source="projectName.pro" 	         target="%ProjectName%.pro" openproject="true"/>
      	<file source="deployment.pri"/>
