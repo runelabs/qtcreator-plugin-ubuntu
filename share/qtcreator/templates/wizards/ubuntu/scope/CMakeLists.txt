@@ -23,6 +23,7 @@ add_definitions(
 
 include(GNUInstallDirs)
 find_package(PkgConfig)
+find_package(Intltool)
 
 # We depend on Boost for string trimming
 find_package(
@@ -63,10 +64,13 @@ set(UBUNTU_PROJECT_TYPE "Scope" CACHE INTERNAL "Tells QtCreator this is a Scope 
 set(CMAKE_INSTALL_PREFIX /)
 set(SCOPE_INSTALL_DIR "/%ClickHookName:l%")
 set(GETTEXT_PACKAGE "%ProjectName:l%")
+set(PACKAGE_NAME "%ClickDomain:l%.%ProjectName:l%")
+set(SCOPE_NAME "${PACKAGE_NAME}_%ClickHookName:l%")
 
 # If we need to refer to the scope's name or package in code, these definitions will help
-add_definitions(-DPACKAGE_NAME="%ClickDomain:l%.%ProjectName:l%")
-add_definitions(-DSCOPE_NAME="%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%")
+
+add_definitions(-DPACKAGE_NAME="${PACKAGE_NAME}")
+add_definitions(-DSCOPE_NAME="${SCOPE_NAME}")
 add_definitions(-DGETTEXT_PACKAGE="${GETTEXT_PACKAGE}")
 
 #This command figures out the target architecture and puts it into the manifest file
@@ -88,6 +92,9 @@ add_custom_target(hidden_files
   SOURCES
     manifest.json.in
     "%ClickHookName:l%.apparmor"
+    data/${SCOPE_NAME}.ini.in
+    po/POTFILES.in
+    po/${GETTEXT_PACKAGE}.pot
 )
 
 # Add our main directories
