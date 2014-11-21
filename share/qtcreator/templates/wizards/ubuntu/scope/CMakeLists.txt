@@ -86,15 +86,20 @@ configure_file(manifest.json.in ${CMAKE_CURRENT_BINARY_DIR}/manifest.json)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/manifest.json DESTINATION "/")
 install(FILES "%ClickHookName:l%.apparmor" DESTINATION "/")
 
-# Make this file show up in QtCreator
+# Make these files show up in QtCreator
+file(GLOB_RECURSE
+  _PO_FILES
+  "po/*.po" 
+)
 add_custom_target(hidden_files
   ALL
   SOURCES
     manifest.json.in
-    "%ClickHookName:l%.apparmor"
+    %ClickHookName:l%.apparmor
     data/${SCOPE_NAME}.ini.in
     po/POTFILES.in
     po/${GETTEXT_PACKAGE}.pot
+    ${_PO_FILES}
 )
 
 # Add our main directories
