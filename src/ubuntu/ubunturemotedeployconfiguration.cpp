@@ -19,7 +19,7 @@
 #include "ubuntucmakebuildconfiguration.h"
 #include "ubuntucmakemakestep.h"
 #include "ubuntudirectuploadstep.h"
-#include "ubuntuprojectguesser.h"
+#include "ubuntuprojecthelper.h"
 #include "ubuntuconstants.h"
 #include "ubuntupackagestep.h"
 
@@ -35,6 +35,7 @@
 #include <projectexplorer/buildsteplist.h>
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <QDir>
 #include <QObject>
@@ -82,11 +83,13 @@ QList<Core::Id> UbuntuRemoteDeployConfigurationFactory::availableCreationIds(Pro
         return ids;
 
     Core::Id projectTypeId = parent->project()->id();
+    qDebug()<<"Project ID: "<<projectTypeId.toString();
 
-    //for now only support cmake and ubuntu projects
+    //for now only support cmake, qmake and ubuntu projects
     if(projectTypeId != CMakeProjectManager::Constants::CMAKEPROJECT_ID
             && projectTypeId != Ubuntu::Constants::UBUNTUPROJECT_ID
-            && projectTypeId != "QmlProjectManager.QmlProject")
+            && projectTypeId != "QmlProjectManager.QmlProject"
+            && projectTypeId != QmakeProjectManager::Constants::QMAKEPROJECT_ID)
         return ids;
 
     const Core::Id devType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(parent->kit());

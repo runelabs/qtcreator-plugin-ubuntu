@@ -18,7 +18,7 @@
 
 #include "ubuntulocalrunconfiguration.h"
 #include "ubuntuproject.h"
-#include "ubuntuprojectguesser.h"
+#include "ubuntuprojecthelper.h"
 #include "ubuntuclickmanifest.h"
 #include "ubunturemoterunconfiguration.h"
 #include "ubuntucmakecache.h"
@@ -32,6 +32,9 @@
 #include <utils/qtcprocess.h>
 #include <cmakeprojectmanager/cmakeproject.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakenodes.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 using namespace Ubuntu::Internal;
 
 enum {
@@ -143,12 +146,12 @@ QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfigur
             QRegularExpression desktopFinder = QRegularExpression(QString::fromLatin1("^%1$")
                                                                   .arg(desktopFileName));
 
-            QFileInfo desktopInfo = UbuntuProjectGuesser::findFileRecursive(config->target()->activeBuildConfiguration()->buildDirectory(),
+            QFileInfo desktopInfo = UbuntuProjectHelper::findFileRecursive(config->target()->activeBuildConfiguration()->buildDirectory(),
                                                                             desktopFinder).toFileInfo();
             if (!desktopInfo.exists()) {
 
                 //search again in the project directory
-                desktopInfo = UbuntuProjectGuesser::findFileRecursive(Utils::FileName::fromString(config->target()->project()->projectDirectory()),
+                desktopInfo = UbuntuProjectHelper::findFileRecursive(Utils::FileName::fromString(config->target()->project()->projectDirectory()),
                                                                       desktopFinder).toFileInfo();
 
                 if(!desktopInfo.exists())
@@ -158,16 +161,17 @@ QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfigur
         };
 
         //first lets check if the informations in the manifest file are helpful
-        QVariant manifestPath = UbuntuCMakeCache::getValue(QStringLiteral("UBUNTU_MANIFEST_PATH"),
-                                                           config->target()->activeBuildConfiguration(),
-                                                           QStringLiteral("manifest.json"));
+        QString manifestPath = UbuntuProjectHelper::getManifestPath(config->target(),QStringLiteral("manifest.json"));
 
+        //make the path relative to the project dir
+        QDir projectDirDir(projectDir.toString());
+        manifestPath = projectDirDir.relativeFilePath(manifestPath);
 
         //search for the manifest file in the project dir AND in the builddir
         QList<Utils::FileName> searchPaths{
-            projectDir.appendPath(manifestPath.toString()),
+            projectDir.appendPath(manifestPath),
             config->target()->activeBuildConfiguration()->buildDirectory()
-                    .appendPath(QFileInfo(manifestPath.toString()).path())
+                    .appendPath(QFileInfo(manifestPath).path())
                     .appendPath(QStringLiteral("manifest.json"))
         };
 
@@ -331,7 +335,7 @@ bool UbuntuLocalRunConfiguration::ensureClickAppConfigured(QString *errorMessage
             return false;
         }
 
-        QFileInfo mainFileInfo = UbuntuProjectGuesser::findFileRecursive(Utils::FileName::fromString(target()->project()->projectDirectory()),
+        QFileInfo mainFileInfo = UbuntuProjectHelper::findFileRecursive(Utils::FileName::fromString(target()->project()->projectDirectory()),
                                                                          QString::fromLatin1("^%1$").arg(mainQml)).toFileInfo();
 
         if(!mainFileInfo.exists()) {
@@ -352,25 +356,38 @@ bool UbuntuLocalRunConfiguration::ensureClickAppConfigured(QString *errorMessage
         */
     } else {
         //looks like a application without a launcher
-        CMakeProjectManager::CMakeProject* proj = static_cast<CMakeProjectManager::CMakeProject*> (target()->project());
-        QList<CMakeProjectManager::CMakeBuildTarget> targets = proj->buildTargets();
-        foreach (const CMakeProjectManager::CMakeBuildTarget& t, targets) {
-            if(t.library)
-                continue;
+        if(target()->project()->id() == QmakeProjectManager::Constants::QMAKEPROJECT_ID) {
+            QmakeProjectManager::QmakeProject* pro = static_cast<QmakeProjectManager::QmakeProject*> (target()->project());
+            foreach(const QmakeProjectManager::QmakeProFileNode* applPro, pro->applicationProFiles()) {
+                QmakeProjectManager::TargetInformation info = applPro->targetInformation();
+                if(applPro->targetInformation().valid) {
+                    if(info.target == commInfo.fileName()) {
+                        m_executable = info.buildDir + QDir::separator() + info.target;
+                        break;
+                    }
+                }
+            }
+        } else {
+            CMakeProjectManager::CMakeProject* proj = static_cast<CMakeProjectManager::CMakeProject*> (target()->project());
+            QList<CMakeProjectManager::CMakeBuildTarget> targets = proj->buildTargets();
+            foreach (const CMakeProjectManager::CMakeBuildTarget& t, targets) {
+                if(t.library)
+                    continue;
 
-            QFileInfo targetInfo(t.executable);
-            if(!targetInfo.exists())
-                continue;
+                QFileInfo targetInfo(t.executable);
+                if(!targetInfo.exists())
+                    continue;
 
-            if(targetInfo.fileName() == commInfo.fileName()) {
-                m_executable = targetInfo.absoluteFilePath();
-                break;
+                if(targetInfo.fileName() == commInfo.fileName()) {
+                    m_executable = targetInfo.absoluteFilePath();
+                    break;
+                }
             }
         }
 
         if (m_executable.isEmpty()) {
             if(errorMessage)
-                tr("Could not find executable specified in the desktop file");
+                *errorMessage = tr("Could not find executable specified in the desktop file");
             return false;
         }
         m_args = args;
@@ -393,7 +410,7 @@ bool UbuntuLocalRunConfiguration::ensureScopesAppConfigured(QString *errorMessag
         return false;
     }
 
-    Utils::FileName iniFile = UbuntuProjectGuesser::findScopesIniRecursive(target()->activeBuildConfiguration()->buildDirectory(),appId());
+    Utils::FileName iniFile = UbuntuProjectHelper::findScopesIniRecursive(target()->activeBuildConfiguration()->buildDirectory(),appId());
     if(iniFile.toFileInfo().exists())
         m_args = QStringList()<<QString(iniFile.toFileInfo().absoluteFilePath());
 
@@ -438,27 +455,41 @@ bool UbuntuLocalRunConfiguration::ensureUbuntuProjectConfigured(QString *errorMe
 
 void UbuntuLocalRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
 {
-    if(id().toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_APP_ID))
-            && target()->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID) {
-        CMakeProjectManager::CMakeProject* proj = static_cast<CMakeProjectManager::CMakeProject*> (target()->project());
-        QList<CMakeProjectManager::CMakeBuildTarget> targets = proj->buildTargets();
-        QSet<QString> usedPaths;
-        foreach (const CMakeProjectManager::CMakeBuildTarget& t, targets) {
-            if(t.library) {
-                if(debug) qDebug()<<"Looking at executable "<<t.executable;
-                QFileInfo inf(t.executable);
-                if(inf.exists()) {
-                    QDir d = inf.absoluteDir();
-                    if(debug) qDebug()<<"Looking in the dir: "<<d.absolutePath();
-                    if(d.exists(QLatin1String("qmldir"))) {
-                        QString path = QDir::cleanPath(d.absolutePath()+QDir::separator()+QLatin1String(".."));
-                        if(usedPaths.contains(path))
-                            continue;
+    QSet<QString> usedPaths;
 
-                        env.appendOrSet(QStringLiteral("QML2_IMPORT_PATH"),path,QStringLiteral(":"));
-                        usedPaths.insert(path);
-                    }
-                }
+    //lambda checks if the executable is in a qmldir and add its to QML2_IMPORT_PATH if
+    //required
+    auto loc_addToImportPath = [&usedPaths,&env] (const QString &executable) {
+        if(debug) qDebug()<<"Looking at executable "<<executable;
+        QFileInfo inf(executable);
+        if(inf.exists()) {
+            QDir d = inf.absoluteDir();
+            if(debug) qDebug()<<"Looking in the dir: "<<d.absolutePath();
+            if(d.exists(QLatin1String("qmldir"))) {
+                QString path = QDir::cleanPath(d.absolutePath()+QDir::separator()+QLatin1String(".."));
+                if(usedPaths.contains(path))
+                    return;
+
+                env.appendOrSet(QStringLiteral("QML2_IMPORT_PATH"),path,QStringLiteral(":"));
+                usedPaths.insert(path);
+            }
+        }
+    };
+
+    if(id().toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_APP_ID))) {
+        if(target()->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID) {
+            CMakeProjectManager::CMakeProject* proj = static_cast<CMakeProjectManager::CMakeProject*> (target()->project());
+            QList<CMakeProjectManager::CMakeBuildTarget> targets = proj->buildTargets();
+            foreach (const CMakeProjectManager::CMakeBuildTarget& t, targets) {
+                if(t.library)
+                    loc_addToImportPath(t.executable);
+            }
+        } else if (target()->project()->id() == QmakeProjectManager::Constants::QMAKEPROJECT_ID) {
+            QmakeProjectManager::QmakeProject* pro = static_cast<QmakeProjectManager::QmakeProject*> (target()->project());
+            foreach(const QmakeProjectManager::QmakeProFileNode* applPro, pro->applicationProFiles()) {
+                QmakeProjectManager::TargetInformation info = applPro->targetInformation();
+                if(applPro->targetInformation().valid)
+                    loc_addToImportPath(info.buildDir + QDir::separator() + info.target);
             }
         }
     }

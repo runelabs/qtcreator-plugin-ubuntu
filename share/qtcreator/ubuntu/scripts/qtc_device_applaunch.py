@@ -353,6 +353,7 @@ for installAppManifest in arr:
 app_id   = None
 debug_file_name = None
 app_mode  = None
+powerd    = None
 
 loop = GLib.MainLoop()
 runner = None
@@ -375,7 +376,7 @@ else:
 print("Sdk-Launcher> Installing application .....",flush=True)
 #we have all informations, now install the click package
 success = subprocess.call(
-    ["pkcon","--allow-untrusted","install-local",options.clickPck,"-p"],stdout=subprocess.DEVNULL)
+    ["pkcon","--allow-untrusted","install-local",options.clickPck,"-p"])
 if success != 0:
     print("Sdk-Launcher> Installing the application failed",flush=True)
     sys.exit(1)
@@ -406,7 +407,7 @@ try:
     debug_file_name = tmp_dir+app_id+"_debug.json"
 
     if(not os.path.exists(tmp_dir)):
-        os.mkdir(tmp_dir)
+        os.makedirs(tmp_dir)
 
     print("Sdk-Launcher> AppId:                   "+app_id,flush=True)
     print("Sdk-Launcher> Architecture:            "+package_arch,flush=True,end="")

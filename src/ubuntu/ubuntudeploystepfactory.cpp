@@ -1,5 +1,5 @@
 #include "ubuntudeploystepfactory.h"
-#include "ubuntuprojectguesser.h"
+#include "ubuntuprojecthelper.h"
 #include "ubuntuconstants.h"
 #include "ubuntudirectuploadstep.h"
 #include "ubuntupackagestep.h"
@@ -17,6 +17,7 @@
 #include <qmlprojectmanager/qmlprojectconstants.h>
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 namespace Ubuntu {
 namespace Internal {
@@ -36,6 +37,7 @@ QList<Core::Id> UbuntuDeployStepFactory::availableCreationIds(ProjectExplorer::B
     bool isCMake  = parent->target()->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID;
     bool isHTML   = parent->target()->project()->id() == Ubuntu::Constants::UBUNTUPROJECT_ID;
     bool isQML    = parent->target()->project()->id() == "QmlProjectManager.QmlProject";
+    bool isQMake  = parent->target()->project()->id() == QmakeProjectManager::Constants::QMAKEPROJECT_ID;
 
     if (isRemote) {
         //IF we have a remote device we just support a ubuntu toolchain
@@ -44,7 +46,7 @@ QList<Core::Id> UbuntuDeployStepFactory::availableCreationIds(ProjectExplorer::B
             return types;
     }
 
-    if(isRemote && ( isHTML || isQML || isCMake) )
+    if(isRemote && ( isHTML || isQML || isCMake || isQMake ) )
         types << Constants::UBUNTU_DEPLOY_UPLOADSTEP_ID
               << Constants::UBUNTU_CLICK_PACKAGESTEP_ID;
 

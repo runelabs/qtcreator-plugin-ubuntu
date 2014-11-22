@@ -16,7 +16,7 @@
  * Author: Benjamin Zeller <benjamin.zeller@canonical.com>
  */
 #include "ubuntulocaldeployconfiguration.h"
-#include "ubuntuprojectguesser.h"
+#include "ubuntuprojecthelper.h"
 #include "ubuntuconstants.h"
 #include "ubuntucmakemakestep.h"
 #include "ubuntupackagestep.h"

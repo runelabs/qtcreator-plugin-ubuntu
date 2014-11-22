@@ -25,21 +25,22 @@
 
 namespace ProjectExplorer {
     class Project;
+    class Target;
 }
 
 namespace Ubuntu {
 namespace Internal {
 
-class UbuntuProjectGuesser
+class UbuntuProjectHelper
 {
 public:
-    UbuntuProjectGuesser();
+    UbuntuProjectHelper();
     static Utils::FileName findScopesIniRecursive (const Utils::FileName &searchdir, const QString &appid);
     static Utils::FileName findFileRecursive (const Utils::FileName &searchdir, const QString &regexp);
     static Utils::FileName findFileRecursive (const Utils::FileName &searchdir, const QRegularExpression &regexp);
     static QList<Utils::FileName> findFilesRecursive(const Utils::FileName &searchdir, const QRegularExpression &regexp);
-    static QString projectTypeFromCacheOrProject (ProjectExplorer::Project* project);
-
+    static QString getManifestPath (ProjectExplorer::Project * p, const QString &defaultValue);
+    static QString getManifestPath(ProjectExplorer::Target *target, const QString &defaultValue);
 };
 
 } // namespace Internal

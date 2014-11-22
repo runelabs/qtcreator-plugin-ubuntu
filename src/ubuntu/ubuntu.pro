@@ -103,7 +103,6 @@ SOURCES += \
     ubuntucmakemakestep.cpp \
     ubuntuemulatornotifier.cpp \
     localportsmanager.cpp \
-    ubuntuprojectguesser.cpp \
     ubuntulocaldeployconfiguration.cpp \
     ubunturemotedeployconfiguration.cpp \
     ubuntulocalrunconfigurationfactory.cpp \
@@ -134,7 +133,8 @@ SOURCES += \
     ubuntueditorfactory.cpp \
     ubuntucmakecache.cpp \
     ubuntutestcontrol.cpp \
-    ubuntupackageoutputparser.cpp
+    ubuntupackageoutputparser.cpp \
+    ubuntuprojecthelper.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -187,7 +187,6 @@ HEADERS += \
     ubuntucmakemakestep.h \
     ubuntuemulatornotifier.h \
     localportsmanager.h \
-    ubuntuprojectguesser.h \
     ubuntulocaldeployconfiguration.h \
     ubunturemotedeployconfiguration.h \
     ubuntulocalrunconfigurationfactory.h \
@@ -218,5 +217,6 @@ HEADERS += \
     ubuntucmakecache.h \
     ubuntutestcontrol.h \
     ubuntupackageoutputparser.h \
+    ubuntuprojecthelper.h \
     ubuntuscopefinalizer.h
 
