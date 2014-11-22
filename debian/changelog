@@ -1,3 +1,11 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20141122-0ubuntu1) vivid; urgency=low
+
+  [ Benjamin Zeller ]
+  * Make use of the new qmake-cross-armhf binary and add support for
+    qmake projects
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Sat, 22 Nov 2014 02:46:50 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20141117.2-0ubuntu1) vivid; urgency=low
 
   [ Benjamin Zeller ]
