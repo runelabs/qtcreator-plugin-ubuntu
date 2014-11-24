@@ -1,3 +1,18 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20141124-0ubuntu1) vivid; urgency=low
+
+  [ Pete Woods ]
+  * Update scope template to use intltool to perform translations
+
+  [ Benjamin Zeller ]
+  * Fix fallback in chroot wrapper script
+
+  [ Rex Tsai (蔡志展) ]
+  * Fix does_device_hw_match_image_hw functions, it takes string not
+    return value. Remove carriage return in device_image_hardware. Fix
+    manual command same with the device_flashdaily .
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 24 Nov 2014 19:08:22 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20141122-0ubuntu1) vivid; urgency=low
 
   [ Benjamin Zeller ]
