@@ -55,7 +55,7 @@ session_id   = str(uuid.uuid4())
 args    = sys.argv[1:]
 command = os.path.basename(sys.argv[0])
 
-if (command.startswith("qt5-qmake-cross")):
+if (command.startswith("qt5-qmake")):
     command_path="/var/lib/schroot/chroots/"+chroot_name_prefix+"-"+dirname+"/usr/bin/"+command
     if (not os.path.isfile(command_path)):
         legacy_script = scriptpath+"/qtc_chroot_qmake_legacy"
