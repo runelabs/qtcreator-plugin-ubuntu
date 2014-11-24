@@ -1,10 +1,4 @@
 
-# Install the scope ini file
-install(
-  FILES "%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini"
-  DESTINATION ${SCOPE_INSTALL_DIR}
-)
-
 # Install the scope images
 install(
   FILES
