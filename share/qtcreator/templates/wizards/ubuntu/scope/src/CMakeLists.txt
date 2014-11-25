@@ -1,10 +1,17 @@
 
 # Put the ini file in the build directory next to the scope
 # .so file so test tools can find both easily.
-configure_file(
-  "${CMAKE_SOURCE_DIR}/data/%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini"
-  "${CMAKE_CURRENT_BINARY_DIR}/%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini"
-  @ONLY
+intltool_merge_translations(
+  "${CMAKE_SOURCE_DIR}/data/${SCOPE_NAME}.ini.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}.ini"
+  ALL
+  UTF8
+)
+
+# Install the scope ini file
+install(
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}.ini"
+  DESTINATION ${SCOPE_INSTALL_DIR}
 )
 
 configure_file(
@@ -67,7 +74,7 @@ qt5_use_modules(
 set_target_properties(
   scope
   PROPERTIES
-    OUTPUT_NAME "%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%"
+    OUTPUT_NAME "${SCOPE_NAME}"
 )
 
 # Install the scope shared library

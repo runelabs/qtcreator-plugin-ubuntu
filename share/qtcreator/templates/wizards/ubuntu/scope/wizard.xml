@@ -10,11 +10,10 @@
     <displaycategory>Ubuntu</displaycategory>
     <files>
         <file source="cmake/FindGMock.cmake"/>
-        <file source="cmake/FindXGettext.cmake"/>
-        <file source="cmake/UseXGettext.cmake"/>
+        <file source="cmake/FindIntltool.cmake"/>
 
         <file source="data/CMakeLists.txt"/>
-        <file source="data/displayName.ini" target="data/%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini"/>
+        <file source="data/displayName.ini.in" target="data/%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini.in"/>
         <file source="data/icon.png" binary="true"/>
         <file source="data/logo.png" binary="true"/>
         <file source="data/screenshot.png" binary="true"/>
@@ -33,6 +32,9 @@
         <file source="src/scope/preview.cpp"/>
 
         <file source="po/CMakeLists.txt"/>
+        <file source="po/displayName.pot" target="po/%ProjectName:l%.pot"/>
+        <file source="po/Makefile.in.in"/>
+        <file source="po/POTFILES.in"/>
 
         <file source="tests/server/forecast/daily/Manchester,uk.json"/>
         <file source="tests/server/forecast/daily/Manchester,uk.xml"/>
