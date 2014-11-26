@@ -790,9 +790,15 @@ QStringList UbuntuClickFrameworkProvider::parseData(const QByteArray &data) cons
     }
 
     QJsonObject obj   = doc.object();
-    QStringList result  = obj.keys();
-    qSort(result.begin(),result.end(),caseInsensitiveFWLessThan);
+    QStringList result;
 
+    for(auto i = obj.constBegin(); i != obj.constEnd(); i++ ) {
+        if(i.value().toString() == QStringLiteral("available")) {
+            result += i.key();
+        }
+    }
+
+    qSort(result.begin(),result.end(),caseInsensitiveFWLessThan);
     return result;
 }
 
