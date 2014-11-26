@@ -1,3 +1,13 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20141126.1-0ubuntu1) vivid; urgency=low
+
+  [ Benjamin Zeller ]
+  * Fix Bugs lp:1396406 and lp:1322581 weird behaviour when multiple
+    devices are attached Only use 10 ports per device, everything > 30
+    ports breaks adb,. UbuntuLocalPortsManager will only return max 30
+    ports now (LP: #1322581, #1396406)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 26 Nov 2014 21:00:59 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20141126-0ubuntu1) vivid; urgency=low
 
   [ Benjamin Zeller ]
