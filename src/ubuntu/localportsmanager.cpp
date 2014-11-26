@@ -33,7 +33,7 @@ UbuntuLocalPortsManager* UbuntuLocalPortsManager::m_instance = 0;
 UbuntuLocalPortsManager::UbuntuLocalPortsManager( ) :
     QObject(0),
     m_first(10000),
-    m_last (12000)
+    m_last (10029) //there are max 30 ports available, more would break adb
 {
     Q_ASSERT_X(m_instance == 0, Q_FUNC_INFO,"There can be only one instance of UbuntuLocalPortsManager");
     m_instance = this;

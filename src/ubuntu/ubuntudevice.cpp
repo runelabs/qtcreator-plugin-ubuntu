@@ -693,16 +693,20 @@ void UbuntuDeviceHelper::enablePortForward()
 
     stopProcess();
 
+    /* always query for a free range! When detaching and reattaching device1
+     * while plugging in device2 inbetween, it could happen that we reuse
+     * ports that were assigned to device2 in the meantime
+     * See bug LP:1396406
+     */
+    m_dev->m_localForwardedPorts = UbuntuLocalPortsManager::getFreeRange(m_dev->serialNumber(),10);
     if(!m_dev->m_localForwardedPorts.hasMore()) {
-        m_dev->m_localForwardedPorts = UbuntuLocalPortsManager::getFreeRange(m_dev->serialNumber(),20);
-        if(!m_dev->m_localForwardedPorts.hasMore()) {
-            //Oh noes , no ports available
+        //Oh noes , no ports available
 
-            endAction(tr("No ports available on the host, please detach some devices"));
-            setProcessState(UbuntuDevice::Done);
-            return;
-        }
+        endAction(tr("No ports available on the host, please detach some devices"));
+        setProcessState(UbuntuDevice::Done);
+        return;
     }
+
 
     Utils::PortList copy = m_dev->m_localForwardedPorts;
 
@@ -1236,8 +1240,12 @@ QString UbuntuDevice::detectionStateString( ) const
             return tr("Installing development tools");
         case RemoveDevTools:
             return tr("Removing development tools");
-        case Done:
-            return tr("Ready");
+        case Done: {
+            if(deviceState() == ProjectExplorer::IDevice::DeviceReadyToUse)
+                return tr("Ready to use");
+            else
+                return tr("Connected but not ready");
+        }
         case Failed:
             return tr("Detection failed");
     }
