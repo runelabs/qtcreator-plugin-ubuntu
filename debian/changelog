@@ -1,3 +1,10 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20141126-0ubuntu1) vivid; urgency=low
+
+  [ Benjamin Zeller ]
+  * Fix lp:1396143 "Remove obsolete framework references" (LP: #1396143)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 26 Nov 2014 08:31:04 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20141124-0ubuntu1) vivid; urgency=low
 
   [ Pete Woods ]
