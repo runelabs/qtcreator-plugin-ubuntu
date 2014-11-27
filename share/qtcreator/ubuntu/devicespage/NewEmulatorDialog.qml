@@ -87,7 +87,7 @@ Dialog {
             devicesModel.createEmulatorImage(inputName.text,
                                              arch.model[arch.selectedIndex],
                                              (inputChannelName.visible ? inputChannelName.text : channel.model[channel.selectedIndex]),
-					     (inputCustomPassword.visible ? inputCustomPassword.text : "0000")
+                                             (inputCustomPassword.visible ? inputCustomPassword.text : "0000")
                                              );
             PopupUtils.close(dialogue);
         }
