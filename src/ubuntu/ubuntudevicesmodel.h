@@ -102,7 +102,7 @@ public:
     bool busy() const;
     bool emulatorInstalled() const;
 
-    static void doCreateEmulatorImage ( UbuntuProcess *process, const QString &name, const QString &arch, const QString &channel );
+    static void doCreateEmulatorImage ( UbuntuProcess *process, const QString &name, const QString &arch, const QString &channel, const QString &passwd );
 signals:
     void logMessage (const QString &str);
     void stdOutMessage (const QString &str);
