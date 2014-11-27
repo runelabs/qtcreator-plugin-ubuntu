@@ -804,7 +804,7 @@ void UbuntuDevicesModel::doCreateEmulatorImage(UbuntuProcess *process, const QSt
                     .arg(strEmulatorName)
                     .arg(arch)
                     .arg(channel)
-		    .arg(passwd)
+                    .arg(passwd)
                     .arg(strUserName)
                     .arg(strUserHome)
                     << QCoreApplication::applicationDirPath());
