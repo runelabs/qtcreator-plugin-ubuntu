@@ -1,7 +1,7 @@
 #ifndef UBUNTU_INTERNAL_UBUNTUFIRSTRUNWIZARD_H
 #define UBUNTU_INTERNAL_UBUNTUFIRSTRUNWIZARD_H
 
-#include <QWizard>
+#include <utils/wizard.h>
 #include <QList>
 
 class QLabel;
@@ -18,7 +18,7 @@ namespace Internal {
 
 class UbuntuProcess;
 
-class UbuntuFirstRunWizard : public QWizard
+class UbuntuFirstRunWizard : public Utils::Wizard
 {
     Q_OBJECT
 public:

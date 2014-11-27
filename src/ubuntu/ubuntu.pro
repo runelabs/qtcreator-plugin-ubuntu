@@ -58,7 +58,7 @@ OTHER_FILES += \
 SOURCES += \
     ubuntuplugin.cpp \
     ubuntuwelcomemode.cpp \
-    ubuntuprojectapplicationwizard.cpp \
+    wizards/ubuntuprojectapplicationwizard.cpp \
     ubuntumenu.cpp \
     ubuntuprojectmanager.cpp \
     ubuntuproject.cpp \
@@ -122,7 +122,7 @@ SOURCES += \
     ubuntudirectuploadstep.cpp \
     ubuntuhtmlbuildconfiguration.cpp \
     ubuntuqmlbuildconfiguration.cpp \
-    ubuntufirstrunwizard.cpp \
+    wizards/ubuntufirstrunwizard.cpp \
     ubuntuwaitfordevicedialog.cpp \
     ubuntumanifesteditor.cpp \
     ubuntumanifesteditorwidget.cpp \
@@ -134,14 +134,15 @@ SOURCES += \
     ubuntucmakecache.cpp \
     ubuntutestcontrol.cpp \
     ubuntupackageoutputparser.cpp \
-    ubuntuprojecthelper.cpp
+    ubuntuprojecthelper.cpp \
+    wizards/ubuntuprojectmigrationwizard.cpp
 
 HEADERS += \
     ubuntuplugin.h \
     ubuntu_global.h \
     ubuntuconstants.h \
     ubuntuwelcomemode.h \
-    ubuntuprojectapplicationwizard.h \
+    wizards/ubuntuprojectapplicationwizard.h \
     ubuntumenu.h \
     ubuntushared.h \
     ubuntuprojectmanager.h \
@@ -205,7 +206,7 @@ HEADERS += \
     ubuntudirectuploadstep.h \
     ubuntuhtmlbuildconfiguration.h \
     ubuntuqmlbuildconfiguration.h \
-    ubuntufirstrunwizard.h \
+    wizards/ubuntufirstrunwizard.h \
     ubuntuwaitfordevicedialog.h \
     ubuntumanifesteditor.h \
     ubuntumanifesteditorwidget.h \
@@ -218,5 +219,6 @@ HEADERS += \
     ubuntutestcontrol.h \
     ubuntupackageoutputparser.h \
     ubuntuprojecthelper.h \
-    ubuntuscopefinalizer.h
+    ubuntuscopefinalizer.h \
+    wizards/ubuntuprojectmigrationwizard.h
 
