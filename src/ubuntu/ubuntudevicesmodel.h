@@ -126,7 +126,7 @@ public slots:
     void triggerKitRemove       ( const int devId, const QVariant &kitid );
     void triggerRedetect        ( const int devId );
     void deleteDevice           ( const int devId );
-    void createEmulatorImage    ( const QString &name, const QString &arch, const QString &channel );
+    void createEmulatorImage    ( const QString &name, const QString &arch, const QString &channel, const QString &passwd );
     void startEmulator          ( const QString &name );
     void stopEmulator           ( const QString &name );
     void deleteEmulator         ( const QString &name );
