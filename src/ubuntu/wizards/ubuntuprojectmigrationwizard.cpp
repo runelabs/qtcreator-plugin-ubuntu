@@ -153,6 +153,15 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
             }
 
             if(canRead) {
+
+                QMap<QString,QStringList> variablesToSetAtEnd;
+                auto setVarAtEnd = [&] (const QString &name, const QStringList &list) {
+                    if(variablesToSetAtEnd.contains(name))
+                        variablesToSetAtEnd[name].append(list);
+                    else
+                        variablesToSetAtEnd.insert(name,list);
+                };
+
                 QString targetInstallPath;
 
                 node->setProVariable(QStringLiteral("CONFIG"),
@@ -220,13 +229,8 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
                                      QStringList()<<targetInstallPath,
                                      QStringLiteral("ubuntu-click"));
 
-                if(!hasInstallTarget) {
-                    node->setProVariable(QStringLiteral("INSTALLS"),
-                                         QStringList()<<QStringLiteral("target"),
-                                         QStringLiteral("ubuntu-click"),
-                                         QmakeProjectManager::Internal::ProWriter::AppendValues
-                                         | QmakeProjectManager::Internal::ProWriter::AppendOperator);
-                }
+                if(!hasInstallTarget)
+                    setVarAtEnd(QStringLiteral("INSTALLS"),QStringList()<<QStringLiteral("target"));
 
 
                 //now fix all the other installs
@@ -294,17 +298,6 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
                             node->setProVariable(QStringLiteral("manifest.commands"),QStringList()<<QStringLiteral("sed s/@CLICK_ARCH@/$$CLICK_ARCH/g $$PWD/manifest.json.in > $$manifest.target"),QStringLiteral("ubuntu-click"));
                             node->setProVariable(QStringLiteral("manifest.path"),QStringList()<<QStringLiteral("/"),QStringLiteral("ubuntu-click"));
 
-                            node->setProVariable(QStringLiteral("QMAKE_EXTRA_TARGETS"),
-                                                 QStringList()<<QStringLiteral("manifest"),
-                                                 QStringLiteral("ubuntu-click"),
-                                                 QmakeProjectManager::Internal::ProWriter::AppendValues
-                                                 | QmakeProjectManager::Internal::ProWriter::AppendOperator);
-
-                            node->setProVariable(QStringLiteral("PRE_TARGETDEPS"),
-                                                 QStringList()<<QStringLiteral("$$manifest.target"),
-                                                 QStringLiteral("ubuntu-click"),
-                                                 QmakeProjectManager::Internal::ProWriter::AppendValues
-                                                 | QmakeProjectManager::Internal::ProWriter::AppendOperator);
 
                             node->setProVariable(QStringLiteral("manifest_install.path"),
                                                  QStringList() << QStringLiteral("/"),
@@ -314,13 +307,11 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
                                                  QStringList()<<QStringLiteral("manifest.json"),
                                                  QStringLiteral("ubuntu-click"));
 
-                            node->setProVariable(QStringLiteral("INSTALLS"),
-                                                 QStringList()<<QStringLiteral("manifest_install"),
-                                                 QStringLiteral("ubuntu-click"),
-                                                 QmakeProjectManager::Internal::ProWriter::AppendValues
-                                                 | QmakeProjectManager::Internal::ProWriter::AppendOperator);
-
                             node->addFiles(QStringList()<<QStringLiteral("manifest.json.in"));
+
+                            setVarAtEnd(QStringLiteral("QMAKE_EXTRA_TARGETS"),QStringList()<<QStringLiteral("manifest"));
+                            setVarAtEnd(QStringLiteral("PRE_TARGETDEPS"),QStringList()<<QStringLiteral("$$manifest.target"));
+                            setVarAtEnd(QStringLiteral("INSTALLS"),QStringList()<<QStringLiteral("manifest_install"));
                         }
 
                         QString aaFileName   = QString::fromLatin1("%1.apparmor").arg(targetInfo.target);
@@ -354,13 +345,20 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
                         node->setProVariable(QStringLiteral("appDeps.files"),
                                              QStringList()<<aaFileName<<deskFileName<<iconName,
                                              QStringLiteral("ubuntu-click"),
-                                             QmakeProjectManager::Internal::ProWriter::AppendValues);
+                                             QmakeProjectManager::Internal::ProWriter::AppendValues
+                                             | QmakeProjectManager::Internal::ProWriter::MultiLine);
 
-                        node->setProVariable(QStringLiteral("INSTALLS"),
-                                             QStringList()<<QStringLiteral("appDeps"),
-                                             QStringLiteral("ubuntu-click"),
-                                             QmakeProjectManager::Internal::ProWriter::AppendValues);
+                        setVarAtEnd(QStringLiteral("INSTALLS"),QStringList()<<QStringLiteral("appDeps"));
                     }
+                }
+
+                for(auto i = variablesToSetAtEnd.constBegin(); i != variablesToSetAtEnd.constEnd(); i++) {
+                    node->setProVariable(i.key(),
+                                         i.value(),
+                                         QStringLiteral("ubuntu-click"),
+                                         QmakeProjectManager::Internal::ProWriter::AppendValues
+                                         | QmakeProjectManager::Internal::ProWriter::AppendOperator
+                                         | QmakeProjectManager::Internal::ProWriter::MultiLine);
                 }
             }
         }
