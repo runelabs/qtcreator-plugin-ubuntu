@@ -50,6 +50,7 @@
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
 #include <coreplugin/featureprovider.h>
+#include <coreplugin/coreplugin.h>
 
 #include <qmakeprojectmanager/qmakenodes.h>
 #include <qmakeprojectmanager/qmakeproject.h>
@@ -338,8 +339,7 @@ void UbuntuPlugin::migrateProject()
     if(!p)
         return;
 
-    UbuntuProjectMigrationWizard wiz(p);
-    wiz.exec();
+    UbuntuProjectMigrationWizard::doMigrateProject(p,Core::ICore::mainWindow());
 }
 
 Q_EXPORT_PLUGIN2(Ubuntu, UbuntuPlugin)

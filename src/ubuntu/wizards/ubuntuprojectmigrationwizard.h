@@ -20,6 +20,13 @@ public:
     QmakeProjectManager::QmakeProject *project() const;
     QStringList relevantTargets () const;
 
+    QStringList selectedTargets () const;
+    QString maintainer () const;
+    QString domain     () const;
+    QString framework  () const;
+
+    static void doMigrateProject (QmakeProjectManager::QmakeProject *project, QWidget *parent = 0);
+
 signals:
 
 public slots:
