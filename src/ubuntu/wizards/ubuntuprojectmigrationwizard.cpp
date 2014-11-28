@@ -134,9 +134,7 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
                 continue;
 
             QtSupport::ProFileReader *reader = project->createProFileReader(node);
-
             OnScopeExit {
-                qDebug()<<"Destroying reader";
                 project->destroyProFileReader(reader);
             };
 
@@ -277,10 +275,10 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
                         QMap<QString,QString> replacements;
                         replacements.insert(QStringLiteral("ProjectName"),project->displayName());
                         replacements.insert(QStringLiteral("ClickHookName"),targetInfo.target);
-                        replacements.insert(QStringLiteral("ClickDomain"),wiz.field(QStringLiteral("domain")).toString());
-                        replacements.insert(QStringLiteral("ClickMaintainer"),wiz.field(QStringLiteral("maintainer")).toString());
+                        replacements.insert(QStringLiteral("ClickDomain"),wiz.domain());
+                        replacements.insert(QStringLiteral("ClickMaintainer"),wiz.maintainer());
 
-                        QString framework = wiz.field(QStringLiteral("framework")).toString();
+                        QString framework = wiz.framework();
                         QString aaPolicy  = UbuntuClickFrameworkProvider::instance()->frameworkPolicy(framework);
                         replacements.insert(QStringLiteral("ClickFrameworkVersion"),framework);
                         replacements.insert(QStringLiteral("ClickAAPolicyVersion"),aaPolicy.isEmpty() ? QStringLiteral("1.2") : aaPolicy);
