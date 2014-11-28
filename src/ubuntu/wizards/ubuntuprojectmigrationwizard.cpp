@@ -161,17 +161,6 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
                 };
 
                 QString targetInstallPath;
-
-                node->setProVariable(QStringLiteral("CONFIG"),
-                                     QStringList()<<QStringLiteral("ubuntu-click"),
-                                     QString(),
-                                     QmakeProjectManager::Internal::ProWriter::AppendValues
-                                     | QmakeProjectManager::Internal::ProWriter::AppendOperator);
-
-                node->setProVariable(QStringLiteral("qt_install_libs"),
-                                     QStringList()<<QStringLiteral("$$[QT_INSTALL_LIBS]"),
-                                     QStringLiteral("ubuntu-click"));
-
                 const auto projectType = node->projectType();
 
                 //inspect installs
@@ -192,6 +181,7 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
                             if(install == QStringLiteral("target"))
                                 continue;
 
+                            bool found = false;
                             QStringList files = reader->values(install+QStringLiteral(".files"));
                             foreach(const QString &file,files) {
                                 QFileInfo info(file);
@@ -202,17 +192,25 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
                                     isLikelyQmlPlugin = true;
 
                                     QString inst_path = reader->value(install+QStringLiteral(".path"));
-                                    QString prefix = inst_path.split(QStringLiteral("/")).last();
+                                    QString suffix = inst_path.split(QStringLiteral("/")).last();
 
-                                    targetInstallPath = QStringLiteral("/lib/$$basename(qt_install_libs)/qt5/qml/")+prefix;
+                                    targetInstallPath = QStringLiteral("/lib/$$basename(qt_install_libs)/qt5/qml/")+suffix;
+
+                                    //make sure this install targets contents go there as well
+                                    mapPaths.insert(QDir::cleanPath(inst_path),QDir::cleanPath(targetInstallPath));
+
+                                    found = true;
                                     break;
                                 }
                             }
+
+                            if(found)
+                                break;
                         }
                     }
 
                     //make sure all files targeted to that path go into the same direction
-                    mapPaths.insert(path,targetInstallPath);
+                    mapPaths.insert(QDir::cleanPath(path),targetInstallPath);
                 }
 
                 if(!hasInstallTarget || !isLikelyQmlPlugin) {
@@ -222,6 +220,17 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
                         targetInstallPath = QStringLiteral("/lib/$$basename(qt_install_libs)/bin");
                     }
                 }
+
+                //BEGIN WRITE
+                node->setProVariable(QStringLiteral("CONFIG"),
+                                     QStringList()<<QStringLiteral("ubuntu-click"),
+                                     QString(),
+                                     QmakeProjectManager::Internal::ProWriter::AppendValues
+                                     | QmakeProjectManager::Internal::ProWriter::AppendOperator);
+
+                node->setProVariable(QStringLiteral("qt_install_libs"),
+                                     QStringList()<<QStringLiteral("$$[QT_INSTALL_LIBS]"),
+                                     QStringLiteral("ubuntu-click"));
 
                 node->setProVariable(QStringLiteral("target.path"),
                                      QStringList()<<targetInstallPath,
@@ -233,7 +242,7 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
 
                 //now fix all the other installs
                 foreach(const QString &install, installs) {
-                    const QString path = reader->value(install+QStringLiteral(".path"));
+                    const QString path = QDir::cleanPath(reader->value(install+QStringLiteral(".path")));
                     QString mappedPath = path;
 
                     if(mapPaths.contains(path)) {
