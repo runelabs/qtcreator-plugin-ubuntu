@@ -15,8 +15,6 @@ class UbuntuProjectMigrationWizard : public Utils::Wizard
 {
     Q_OBJECT
 public:
-    explicit UbuntuProjectMigrationWizard(QmakeProjectManager::QmakeProject *project, QWidget *parent = 0);
-
     QmakeProjectManager::QmakeProject *project() const;
     QStringList relevantTargets () const;
 
@@ -32,8 +30,16 @@ signals:
 public slots:
 
 private:
+    explicit UbuntuProjectMigrationWizard(QmakeProjectManager::QmakeProject *project, QWidget *parent = 0);
     QmakeProjectManager::QmakeProject *m_project;
 
+};
+
+class UbuntuProjectMigrationIntroPage : public QWizardPage
+{
+    Q_OBJECT
+public:
+    explicit UbuntuProjectMigrationIntroPage(QWidget *parent = 0);
 };
 
 class UbuntuSelectSubProjectsPage : public QWizardPage

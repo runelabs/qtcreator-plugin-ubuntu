@@ -4,6 +4,7 @@
 #include "../ubuntubzr.h"
 #include "../ubuntuscopefinalizer.h"
 #include "../ubuntuconstants.h"
+#include "../ubuntushared.h"
 
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakenodes.h>
@@ -18,6 +19,10 @@
 #include <QLineEdit>
 #include <QRegularExpression>
 #include <QTextStream>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonValue>
+#include <QCoreApplication>
 
 namespace Ubuntu {
 namespace Internal {
@@ -26,18 +31,27 @@ static bool createFileFromTemplate (const QString &templateFile, const QString &
 {
     QString templateText;
     QFile inFile(templateFile);
-    if(!inFile.open(QIODevice::ReadOnly))
+    if(Q_UNLIKELY(!inFile.open(QIODevice::ReadOnly))) {
+        printToOutputPane(QCoreApplication::translate("UbuntuProjectMigrationWizard","Could not open template file %1. The project will miss this file.")
+                          .arg(templateFile));
         return false;
+    }
 
     QFile outFile(targetFile);
     QFileInfo outFileInfo(targetFile);
 
     QDir d;
-    if(!d.mkpath(outFileInfo.absolutePath()))
+    if(Q_UNLIKELY(!d.mkpath(outFileInfo.absolutePath()))) {
+        printToOutputPane(QCoreApplication::translate("UbuntuProjectMigrationWizard","Could not create the path %1. The project will miss files.")
+                          .arg(outFileInfo.absolutePath()));
         return false;
+    }
 
-    if(!outFile.open(QIODevice::WriteOnly | QIODevice::Truncate))
+    if(!outFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        printToOutputPane(QCoreApplication::translate("UbuntuProjectMigrationWizard","Could not create %1. The project will miss files.")
+                          .arg(targetFile));
         return false;
+    }
 
     QTextStream in(&inFile);
     templateText = in.readAll();
@@ -61,11 +75,13 @@ UbuntuProjectMigrationWizard::UbuntuProjectMigrationWizard(QmakeProjectManager::
     Utils::Wizard(parent),
     m_project(project)
 {
+    const int introPageId        = addPage(new UbuntuProjectMigrationIntroPage);
     const int selectTargetPageId = addPage(new UbuntuSelectSubProjectsPage);
     const int projectsInfoPageId = addPage(new UbuntuProjectDetailsPage);
 
     Utils::WizardProgress *progress = wizardProgress();
 
+    progress->item(introPageId)->setTitle(tr("Intro"));
     progress->item(selectTargetPageId)->setTitle(tr("Targets"));
     progress->item(projectsInfoPageId)->setTitle(tr("Details"));
 
@@ -121,6 +137,17 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
     if(wiz.exec() == QDialog::Accepted) {
         bool multiTargetProject = project->rootQmakeProjectNode()->projectType() == QmakeProjectManager::SubDirsTemplate;
 
+
+        QMap<QString,QString> base_replacements;
+        base_replacements.insert(QStringLiteral("ProjectName"),project->displayName());
+        base_replacements.insert(QStringLiteral("ClickDomain"),wiz.domain());
+        base_replacements.insert(QStringLiteral("ClickMaintainer"),wiz.maintainer());
+
+        QString framework = wiz.framework();
+        QString aaPolicy  = UbuntuClickFrameworkProvider::instance()->frameworkPolicy(framework);
+        base_replacements.insert(QStringLiteral("ClickFrameworkVersion"),framework);
+        base_replacements.insert(QStringLiteral("ClickAAPolicyVersion"),aaPolicy.isEmpty() ? QStringLiteral("1.2") : aaPolicy);
+
         QStringList hookTargets = wiz.selectedTargets();
 
         //contains all old paths mapped to the path they should have inthe click package
@@ -150,235 +177,292 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
                 canRead = false;
             }
 
-            if(canRead) {
 
-                QMap<QString,QStringList> variablesToSetAtEnd;
-                auto setVarAtEnd = [&] (const QString &name, const QStringList &list) {
-                    if(variablesToSetAtEnd.contains(name))
-                        variablesToSetAtEnd[name].append(list);
-                    else
-                        variablesToSetAtEnd.insert(name,list);
-                };
+            if(!canRead) {
+                printToOutputPane(tr("Can not parse %1, skipping migration.").arg(node->path()));
+                continue;
+            }
 
-                QString targetInstallPath;
-                const auto projectType = node->projectType();
+            QMap<QString,QStringList> variablesToSetAtEnd;
+            auto setVarAtEnd = [&] (const QString &name, const QStringList &list) {
+                if(variablesToSetAtEnd.contains(name))
+                    variablesToSetAtEnd[name].append(list);
+                else
+                    variablesToSetAtEnd.insert(name,list);
+            };
 
-                //inspect installs
-                QStringList installs = reader->values(QStringLiteral("INSTALLS"));
-                bool hasInstallTarget = installs.contains(QStringLiteral("target"));
-                bool isLikelyQmlPlugin = false;
+            QString targetInstallPath;
+            const auto projectType = node->projectType();
 
-                //we don't want to iterate over the install target again
-                installs.removeAll(QStringLiteral("target"));
+            //inspect installs
+            QStringList installs = reader->values(QStringLiteral("INSTALLS"));
+            bool hasInstallTarget = installs.contains(QStringLiteral("target"));
+            bool isLikelyQmlPlugin = false;
 
-                if(hasInstallTarget) {
-                    // try to map to the click way
-                    const QString path = reader->value(QStringLiteral("target.path"));
+            //we don't want to iterate over the install target again
+            installs.removeAll(QStringLiteral("target"));
 
-                    if(projectType == QmakeProjectManager::LibraryTemplate) {
-                        //this is probably a qml plugin, need to analyze more
-                        foreach(const QString &install, installs) {
-                            if(install == QStringLiteral("target"))
-                                continue;
+            if(hasInstallTarget) {
+                // try to map to the click way
+                const QString path = reader->value(QStringLiteral("target.path"));
 
-                            bool found = false;
-                            QStringList files = reader->values(install+QStringLiteral(".files"));
-                            foreach(const QString &file,files) {
-                                QFileInfo info(file);
-                                if(info.completeBaseName() == QStringLiteral("qmldir")) {
-                                    //-> we have a qml plugin
-                                    //use the last directory of the path
+                if(projectType == QmakeProjectManager::LibraryTemplate) {
+                    //this is probably a qml plugin, need to analyze more
+                    foreach(const QString &install, installs) {
+                        if(install == QStringLiteral("target"))
+                            continue;
 
-                                    isLikelyQmlPlugin = true;
-
-                                    QString inst_path = reader->value(install+QStringLiteral(".path"));
-                                    QString suffix = inst_path.split(QStringLiteral("/")).last();
-
-                                    targetInstallPath = QStringLiteral("/lib/$$basename(qt_install_libs)/qt5/qml/")+suffix;
-
-                                    //make sure this install targets contents go there as well
-                                    mapPaths.insert(QDir::cleanPath(inst_path),QDir::cleanPath(targetInstallPath));
-
-                                    found = true;
-                                    break;
-                                }
-                            }
-
-                            if(found)
-                                break;
-                        }
-                    }
-
-                    //make sure all files targeted to that path go into the same direction
-                    mapPaths.insert(QDir::cleanPath(path),targetInstallPath);
-                }
-
-                if(!hasInstallTarget || !isLikelyQmlPlugin) {
-                    if(projectType == QmakeProjectManager::LibraryTemplate) {
-                        targetInstallPath = QStringLiteral("/lib/$$basename(qt_install_libs)");
-                    } else if(projectType == QmakeProjectManager::ApplicationTemplate) {
-                        targetInstallPath = QStringLiteral("/lib/$$basename(qt_install_libs)/bin");
-                    }
-                }
-
-                //BEGIN WRITE
-                node->setProVariable(QStringLiteral("CONFIG"),
-                                     QStringList()<<QStringLiteral("ubuntu-click"),
-                                     QString(),
-                                     QmakeProjectManager::Internal::ProWriter::AppendValues
-                                     | QmakeProjectManager::Internal::ProWriter::AppendOperator);
-
-                node->setProVariable(QStringLiteral("qt_install_libs"),
-                                     QStringList()<<QStringLiteral("$$[QT_INSTALL_LIBS]"),
-                                     QStringLiteral("ubuntu-click"));
-
-                node->setProVariable(QStringLiteral("target.path"),
-                                     QStringList()<<targetInstallPath,
-                                     QStringLiteral("ubuntu-click"));
-
-                if(!hasInstallTarget)
-                    setVarAtEnd(QStringLiteral("INSTALLS"),QStringList()<<QStringLiteral("target"));
-
-
-                //now fix all the other installs
-                foreach(const QString &install, installs) {
-                    const QString path = QDir::cleanPath(reader->value(install+QStringLiteral(".path")));
-                    QString mappedPath = path;
-
-                    if(mapPaths.contains(path)) {
-                        mappedPath = mapPaths[path];
-                    } else {
-                        //check if this installs into a subdirectory of a already changed path
                         bool found = false;
-                        foreach(const QString &key,mapPaths.keys()) {
-                            if(path.startsWith(key)) {
-                                QString suffix = path;
-                                suffix.remove(key);
+                        QStringList files = reader->values(install+QStringLiteral(".files"));
+                        foreach(const QString &file,files) {
+                            QFileInfo info(file);
+                            if(info.completeBaseName() == QStringLiteral("qmldir")) {
+                                //-> we have a qml plugin
+                                //use the last directory of the path
 
-                                mappedPath = mapPaths[key] + QStringLiteral("/") + suffix;
-                                mapPaths.insert(path,mappedPath);
+                                isLikelyQmlPlugin = true;
+
+                                QString inst_path = reader->value(install+QStringLiteral(".path"));
+                                QString suffix = inst_path.split(QStringLiteral("/")).last();
+
+                                targetInstallPath = QStringLiteral("/lib/$$basename(qt_install_libs)/qt5/qml/")+suffix;
+
+                                //make sure this install targets contents go there as well
+                                mapPaths.insert(QDir::cleanPath(inst_path),QDir::cleanPath(targetInstallPath));
 
                                 found = true;
                                 break;
                             }
                         }
 
-                        if(!found) {
-                            mappedPath.remove(QStringLiteral("/usr"));
-                        }
-                    }
-
-
-                    node->setProVariable(install+QStringLiteral(".path"),
-                                         QStringList()<<mappedPath,
-                                         QStringLiteral("ubuntu-click"));
-                }
-
-                //now add required files
-                if(projectType == QmakeProjectManager::ApplicationTemplate) {
-
-                    QFileInfo proFilePath(node->path());
-
-                    QmakeProjectManager::TargetInformation targetInfo = node->targetInformation();
-                    if(hookTargets.contains(targetInfo.target)) {
-                        QMap<QString,QString> replacements;
-                        replacements.insert(QStringLiteral("ProjectName"),project->displayName());
-                        replacements.insert(QStringLiteral("ClickHookName"),targetInfo.target);
-                        replacements.insert(QStringLiteral("ClickDomain"),wiz.domain());
-                        replacements.insert(QStringLiteral("ClickMaintainer"),wiz.maintainer());
-
-                        QString framework = wiz.framework();
-                        QString aaPolicy  = UbuntuClickFrameworkProvider::instance()->frameworkPolicy(framework);
-                        replacements.insert(QStringLiteral("ClickFrameworkVersion"),framework);
-                        replacements.insert(QStringLiteral("ClickAAPolicyVersion"),aaPolicy.isEmpty() ? QStringLiteral("1.2") : aaPolicy);
-
-                        if(!multiTargetProject) {
-                            createFileFromTemplate(
-                                        QString::fromLatin1("%1/templates/wizards/ubuntu/bin_app-qmake/manifest/manifest.json.in").arg(Constants::UBUNTU_RESOURCE_PATH),
-                                        QString::fromLatin1("%1/manifest.json.in").arg(proFilePath.absolutePath()),
-                                        replacements
-                                        );
-
-                            node->setProVariable(QStringLiteral("UBUNTU_MANIFEST_FILE"),QStringList()<<QStringLiteral("manifest.json.in"),QStringLiteral("ubuntu-click"));
-                            node->setProVariable(QStringLiteral("CLICK_ARCH"),QStringList()<<QStringLiteral("$$system(dpkg-architecture -qDEB_HOST_ARCH)"),QStringLiteral("ubuntu-click"));
-                            node->setProVariable(QStringLiteral("manifest.target"),QStringList()<<QStringLiteral("manifest.json"),QStringLiteral("ubuntu-click"));
-                            node->setProVariable(QStringLiteral("manifest.commands"),QStringList()<<QStringLiteral("sed s/@CLICK_ARCH@/$$CLICK_ARCH/g $$PWD/manifest.json.in > $$manifest.target"),QStringLiteral("ubuntu-click"));
-                            node->setProVariable(QStringLiteral("manifest.path"),QStringList()<<QStringLiteral("/"),QStringLiteral("ubuntu-click"));
-
-
-                            node->setProVariable(QStringLiteral("manifest_install.path"),
-                                                 QStringList() << QStringLiteral("/"),
-                                                 QStringLiteral("ubuntu-click"));
-
-                            node->setProVariable(QStringLiteral("manifest_install.files"),
-                                                 QStringList()<<QStringLiteral("manifest.json"),
-                                                 QStringLiteral("ubuntu-click"));
-
-                            node->addFiles(QStringList()<<QStringLiteral("manifest.json.in"));
-
-                            setVarAtEnd(QStringLiteral("QMAKE_EXTRA_TARGETS"),QStringList()<<QStringLiteral("manifest"));
-                            setVarAtEnd(QStringLiteral("PRE_TARGETDEPS"),QStringList()<<QStringLiteral("$$manifest.target"));
-                            setVarAtEnd(QStringLiteral("INSTALLS"),QStringList()<<QStringLiteral("manifest_install"));
-                        }
-
-                        QString aaFileName   = QString::fromLatin1("%1.apparmor").arg(targetInfo.target);
-                        QString deskFileName = QString::fromLatin1("%1.desktop").arg(targetInfo.target);
-                        QString iconName     = QString::fromLatin1("%1.png").arg(targetInfo.target);
-
-                        //add desktop and apparmor files
-                        createFileFromTemplate(
-                                    QString::fromLatin1("%1/templates/wizards/ubuntu/bin_app-qmake/appName/appName.apparmor").arg(Constants::UBUNTU_RESOURCE_PATH),
-                                    QString::fromLatin1("%1/%2").arg(proFilePath.absolutePath()).arg(aaFileName),
-                                    replacements
-                                    );
-
-                        createFileFromTemplate(
-                                    QString::fromLatin1("%1/templates/wizards/ubuntu/bin_app-qmake/appName/appName.desktop").arg(Constants::UBUNTU_RESOURCE_PATH),
-                                    QString::fromLatin1("%1/%2").arg(proFilePath.absolutePath()).arg(deskFileName),
-                                    replacements
-                                    );
-
-                        QFile::copy(QString::fromLatin1("%1/templates/wizards/ubuntu/bin_app-qmake/appName/appName.png").arg(Constants::UBUNTU_RESOURCE_PATH),
-                                    QString::fromLatin1("%1/%2").arg(proFilePath.absolutePath()).arg(iconName));
-
-                        //make teh files visible
-                        node->addFiles(QStringList()<< aaFileName << deskFileName << iconName);
-
-                        node->setProVariable(QStringLiteral("appDeps.path"),
-                                             QStringList() << QString::fromLatin1("/%1").arg(targetInfo.target),
-                                             QStringLiteral("ubuntu-click"),
-                                             QmakeProjectManager::Internal::ProWriter::AppendValues);
-
-                        node->setProVariable(QStringLiteral("appDeps.files"),
-                                             QStringList()<<aaFileName<<deskFileName<<iconName,
-                                             QStringLiteral("ubuntu-click"),
-                                             QmakeProjectManager::Internal::ProWriter::AppendValues
-                                             | QmakeProjectManager::Internal::ProWriter::MultiLine);
-
-                        setVarAtEnd(QStringLiteral("INSTALLS"),QStringList()<<QStringLiteral("appDeps"));
+                        if(found)
+                            break;
                     }
                 }
 
-                for(auto i = variablesToSetAtEnd.constBegin(); i != variablesToSetAtEnd.constEnd(); i++) {
-                    node->setProVariable(i.key(),
-                                         i.value(),
+                //make sure all files targeted to that path go into the same direction
+                mapPaths.insert(QDir::cleanPath(path),targetInstallPath);
+            }
+
+            if(!hasInstallTarget || !isLikelyQmlPlugin) {
+                if(projectType == QmakeProjectManager::LibraryTemplate) {
+                    targetInstallPath = QStringLiteral("/lib/$$basename(qt_install_libs)");
+                } else if(projectType == QmakeProjectManager::ApplicationTemplate) {
+                    targetInstallPath = QStringLiteral("/lib/$$basename(qt_install_libs)/bin");
+                }
+            }
+
+            //BEGIN WRITE
+            node->setProVariable(QStringLiteral("CONFIG"),
+                                 QStringList()<<QStringLiteral("ubuntu-click"),
+                                 QString(),
+                                 QmakeProjectManager::Internal::ProWriter::AppendValues
+                                 | QmakeProjectManager::Internal::ProWriter::AppendOperator);
+
+            node->setProVariable(QStringLiteral("qt_install_libs"),
+                                 QStringList()<<QStringLiteral("$$[QT_INSTALL_LIBS]"),
+                                 QStringLiteral("ubuntu-click"));
+
+            node->setProVariable(QStringLiteral("target.path"),
+                                 QStringList()<<targetInstallPath,
+                                 QStringLiteral("ubuntu-click"));
+
+            if(!hasInstallTarget)
+                setVarAtEnd(QStringLiteral("INSTALLS"),QStringList()<<QStringLiteral("target"));
+
+
+            //now fix all the other installs
+            foreach(const QString &install, installs) {
+                const QString path = QDir::cleanPath(reader->value(install+QStringLiteral(".path")));
+                QString mappedPath = path;
+
+                if(mapPaths.contains(path)) {
+                    mappedPath = mapPaths[path];
+                } else {
+                    //check if this installs into a subdirectory of a already changed path
+                    bool found = false;
+                    foreach(const QString &key,mapPaths.keys()) {
+                        if(path.startsWith(key)) {
+                            QString suffix = path;
+                            suffix.remove(key);
+
+                            mappedPath = mapPaths[key] + QStringLiteral("/") + suffix;
+                            mapPaths.insert(path,mappedPath);
+
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if(!found) {
+                        mappedPath.remove(QStringLiteral("/usr"));
+                    }
+                }
+
+
+                node->setProVariable(install+QStringLiteral(".path"),
+                                     QStringList()<<mappedPath,
+                                     QStringLiteral("ubuntu-click"));
+            }
+
+            //now add required files
+            if(projectType == QmakeProjectManager::ApplicationTemplate) {
+
+                QFileInfo proFilePath(node->path());
+
+                QmakeProjectManager::TargetInformation targetInfo = node->targetInformation();
+                if(hookTargets.contains(targetInfo.target)) {
+                    QMap<QString,QString> replacements = base_replacements;
+                    replacements.insert(QStringLiteral("ClickHookName"),targetInfo.target);
+
+                    if(!multiTargetProject) {
+                        createFileFromTemplate(
+                                    QString::fromLatin1("%1/templates/wizards/ubuntu/bin_app-qmake/manifest/manifest.json.in").arg(Constants::UBUNTU_RESOURCE_PATH),
+                                    QString::fromLatin1("%1/manifest.json.in").arg(proFilePath.absolutePath()),
+                                    replacements
+                                    );
+
+                        node->setProVariable(QStringLiteral("UBUNTU_MANIFEST_FILE"),QStringList()<<QStringLiteral("manifest.json.in"),QStringLiteral("ubuntu-click"));
+                        node->setProVariable(QStringLiteral("CLICK_ARCH"),QStringList()<<QStringLiteral("$$system(dpkg-architecture -qDEB_HOST_ARCH)"),QStringLiteral("ubuntu-click"));
+                        node->setProVariable(QStringLiteral("manifest.target"),QStringList()<<QStringLiteral("manifest.json"),QStringLiteral("ubuntu-click"));
+                        node->setProVariable(QStringLiteral("manifest.commands"),QStringList()<<QStringLiteral("sed s/@CLICK_ARCH@/$$CLICK_ARCH/g $$PWD/manifest.json.in > $$manifest.target"),QStringLiteral("ubuntu-click"));
+                        node->setProVariable(QStringLiteral("manifest.path"),QStringList()<<QStringLiteral("/"),QStringLiteral("ubuntu-click"));
+
+
+                        node->setProVariable(QStringLiteral("manifest_install.path"),
+                                             QStringList() << QStringLiteral("/"),
+                                             QStringLiteral("ubuntu-click"));
+
+                        node->setProVariable(QStringLiteral("manifest_install.files"),
+                                             QStringList()<<QStringLiteral("manifest.json"),
+                                             QStringLiteral("ubuntu-click"));
+
+                        node->addFiles(QStringList()<<QStringLiteral("manifest.json.in"));
+
+                        setVarAtEnd(QStringLiteral("QMAKE_EXTRA_TARGETS"),QStringList()<<QStringLiteral("manifest"));
+                        setVarAtEnd(QStringLiteral("PRE_TARGETDEPS"),QStringList()<<QStringLiteral("$$manifest.target"));
+                        setVarAtEnd(QStringLiteral("INSTALLS"),QStringList()<<QStringLiteral("manifest_install"));
+                    }
+
+                    QString aaFileName   = QString::fromLatin1("%1.apparmor").arg(targetInfo.target);
+                    QString deskFileName = QString::fromLatin1("%1.desktop").arg(targetInfo.target);
+                    QString iconName     = QString::fromLatin1("%1.png").arg(targetInfo.target);
+
+                    //add desktop and apparmor files
+                    createFileFromTemplate(
+                                QString::fromLatin1("%1/templates/wizards/ubuntu/bin_app-qmake/appName/appName.apparmor").arg(Constants::UBUNTU_RESOURCE_PATH),
+                                QString::fromLatin1("%1/%2").arg(proFilePath.absolutePath()).arg(aaFileName),
+                                replacements
+                                );
+
+                    createFileFromTemplate(
+                                QString::fromLatin1("%1/templates/wizards/ubuntu/bin_app-qmake/appName/appName.desktop").arg(Constants::UBUNTU_RESOURCE_PATH),
+                                QString::fromLatin1("%1/%2").arg(proFilePath.absolutePath()).arg(deskFileName),
+                                replacements
+                                );
+
+                    QFile::copy(QString::fromLatin1("%1/templates/wizards/ubuntu/bin_app-qmake/appName/appName.png").arg(Constants::UBUNTU_RESOURCE_PATH),
+                                QString::fromLatin1("%1/%2").arg(proFilePath.absolutePath()).arg(iconName));
+
+                    //make teh files visible
+                    node->addFiles(QStringList()<< aaFileName << deskFileName << iconName);
+
+                    node->setProVariable(QStringLiteral("appDeps.path"),
+                                         QStringList() << QString::fromLatin1("/%1").arg(targetInfo.target),
+                                         QStringLiteral("ubuntu-click"),
+                                         QmakeProjectManager::Internal::ProWriter::AppendValues);
+
+                    node->setProVariable(QStringLiteral("appDeps.files"),
+                                         QStringList()<<aaFileName<<deskFileName<<iconName,
                                          QStringLiteral("ubuntu-click"),
                                          QmakeProjectManager::Internal::ProWriter::AppendValues
-                                         | QmakeProjectManager::Internal::ProWriter::AppendOperator
                                          | QmakeProjectManager::Internal::ProWriter::MultiLine);
+
+                    setVarAtEnd(QStringLiteral("INSTALLS"),QStringList()<<QStringLiteral("appDeps"));
                 }
+            }
+
+            for(auto i = variablesToSetAtEnd.constBegin(); i != variablesToSetAtEnd.constEnd(); i++) {
+                node->setProVariable(i.key(),
+                                     i.value(),
+                                     QStringLiteral("ubuntu-click"),
+                                     QmakeProjectManager::Internal::ProWriter::AppendValues
+                                     | QmakeProjectManager::Internal::ProWriter::AppendOperator
+                                     | QmakeProjectManager::Internal::ProWriter::MultiLine);
             }
         }
 
         if(multiTargetProject) {
+
+            QString manifestFilePath = QString::fromLatin1("%1/%2").arg(project->projectDirectory()).arg(QStringLiteral("/manifest.json.in"));
+
             //add manifest pro file
+            createFileFromTemplate(
+                        QString::fromLatin1("%1/templates/wizards/ubuntu/bin_app-qmake/manifest/manifest.pro").arg(Constants::UBUNTU_RESOURCE_PATH),
+                        QString::fromLatin1("%1/%2").arg(project->projectDirectory()).arg(QStringLiteral("/manifest.pro")),
+                        base_replacements
+                        );
+            createFileFromTemplate(
+                        QString::fromLatin1("%1/templates/wizards/ubuntu/bin_app-qmake/manifest/manifest.json.in").arg(Constants::UBUNTU_RESOURCE_PATH),
+                        manifestFilePath,
+                        base_replacements
+                        );
+
+            //replacements.insert(QStringLiteral("ClickHookName"),targetInfo.target);
+            //now we need to add all the selected hooks
+            QFile manifestFile(manifestFilePath);
+            if(Q_UNLIKELY(!manifestFile.open(QIODevice::ReadOnly))) {
+                printToOutputPane(tr("Can not open manifest file for reading. Hooks need to be added manually."));
+                return;
+            }
+
+            QJsonDocument doc = QJsonDocument::fromJson(manifestFile.readAll());
+            QJsonObject rootObj = doc.object();
+
+            manifestFile.close();
+
+            QJsonObject hooksObj;
+            foreach (const QString &hookName, hookTargets) {
+                QJsonObject hook;
+                hook.insert(QStringLiteral("apparmor"),QString::fromLatin1("%1/%2.apparmor").arg(hookName).arg(hookName));
+                hook.insert(QStringLiteral("desktop"),QString::fromLatin1("%1/%2.desktop").arg(hookName).arg(hookName));
+                hooksObj.insert(hookName,hook);
+            }
+
+            rootObj[QStringLiteral("hooks")] = hooksObj;
+
+            doc.setObject(rootObj);
+
+            if(!manifestFile.open(QIODevice::WriteOnly | QIODevice::Truncate)){
+                printToOutputPane(tr("Can not open manifest file for writing. Hooks need to be added manually."));
+                return;
+            }
+
+            manifestFile.write(doc.toJson());
+            manifestFile.close();
+
+            project->rootQmakeProjectNode()->addSubProjects(QStringList()<<QString::fromLatin1("%1/%2").arg(project->projectDirectory()).arg(QStringLiteral("/manifest.pro")));
         }
     }
 }
 
+
+UbuntuProjectMigrationIntroPage::UbuntuProjectMigrationIntroPage(QWidget *parent) : QWizardPage(parent)
+{
+    QLabel *label = new QLabel(tr("<h2 style=\"text-align: center;\">Ubuntu Project migration wizard</h2>"
+                                  "<p>This wizard rewrites a qmake based project to generate a click package compatible install target.</br>"
+                                  "Please make sure to backup your project before running this wizard!</p>"
+                                  "<p>Note: This wizard may produce a faulty configurations in case of complex projects.</p>"));
+    label->setWordWrap(true);
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(label);
+    setLayout(layout);
+}
+
 UbuntuSelectSubProjectsPage::UbuntuSelectSubProjectsPage(QWidget *parent) : QWizardPage(parent)
 {
-    QLabel *label = new QLabel(tr("<h2 style=\"text-align: center;\">Please select the applications you want to add to the manifest file</h2>"));
+    QLabel *label = new QLabel(tr("<p style=\"text-align: center;\">Please select the applications you want to add to the manifest file</p>"));
     label->setWordWrap(true);
 
     QVBoxLayout *layout = new QVBoxLayout;

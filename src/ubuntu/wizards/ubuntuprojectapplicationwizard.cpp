@@ -69,7 +69,7 @@ QWizard *UbuntuProjectApplicationWizard::createWizardDialog (QWidget *parent, co
                             wizardDialogParameters.extensionPages());
 
     QString maintainer = QStringLiteral("username");
-    QString whoami     = QStringLiteral("maintainerName");
+    QString whoami     = QStringLiteral("Firstname Surname <your@mail.com>");
     UbuntuBzr *bzr = UbuntuBzr::instance();
 
     if(!bzr->isInitialized()) {
