@@ -450,9 +450,18 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
 UbuntuProjectMigrationIntroPage::UbuntuProjectMigrationIntroPage(QWidget *parent) : QWizardPage(parent)
 {
     QLabel *label = new QLabel(tr("<h2 style=\"text-align: center;\">Ubuntu Project migration wizard</h2>"
-                                  "<p>This wizard rewrites a qmake based project to generate a click package compatible install target.</br>"
-                                  "Please make sure to backup your project before running this wizard!</p>"
-                                  "<p>Note: This wizard may produce a faulty configurations in case of complex projects.</p>"));
+                                  "<p>This wizard rewrites a qmake based project to generate a click package compatible install target.<br>"
+                                  "Where possible, changes will be put into the <i>ubuntu-click</i> scope."
+                                  "</p>"
+                                  "<p>"
+                                  "Please make sure your project adds all required files for your project to the INSTALL target."
+                                  "</p>"
+                                  "<p></p>"
+                                  "<p>"
+                                  "<span style=\"font-weight:bold\">Note:</span> This wizard may produce a faulty configuration in case of complex projects.<br>"
+                                  "<span style=\"font-weight:bold;color:red;\">Warning:</span> Please make sure to backup your project before running this wizard!"
+                                  "</p>"
+                                  ));
     label->setWordWrap(true);
 
     QVBoxLayout *layout = new QVBoxLayout;
