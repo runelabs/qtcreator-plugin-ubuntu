@@ -137,7 +137,7 @@ if os.path.isfile(debug_file_name):
 
     if "env" in debug_settings:
         for key in debug_settings["env"]:
-            env[key] = debug_settings["env"][key]
+            os.environ[key] = debug_settings["env"][key]
 
     f.close()
     os.remove(debug_file_name)
