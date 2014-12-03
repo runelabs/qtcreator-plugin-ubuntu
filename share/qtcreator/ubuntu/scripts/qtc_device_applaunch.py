@@ -270,6 +270,14 @@ if options.environmentList is not None:
 
 if options.gdbPort is not None:
     needs_debug_conf=True
+
+    print("Sdk-Launcher> Checking if gdbserver is installed...")
+    gdbserver_path = shutil.which("gdbserver")
+    if gdbserver_path is None:
+        print("Sdk-Launcher> gdbserver was not found in the PATH.")
+        print("Sdk-Launcher> Please install the gdbserver package on the phone.")
+        sys.exit(1)
+
     conf_obj['gdbPort'] = options.gdbPort
     print("Sdk-Launcher> GDB Port"+options.gdbPort,flush=True)
 
