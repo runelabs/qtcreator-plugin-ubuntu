@@ -9,12 +9,14 @@
 #
 # Notes for translations:
 # ---------------------------------------------------------------
-# In order to create translation files:
+# In order to create translation files manually:
 # 1) run make once to create and update the po/template.pot
-# 2) copy the template file and name it the language you want to
-#    translate to:   cp po/template.pot /po/de.po
+# 2) copy the template file and set the name to the language you want to
+#    translate to:   cp po/template.pot po/de.po
 # 3) edit the po file
 # 4) run make build-translations to build the translation files
+#
+# Steps 1) and 4) are automatically executed by QtCreator
 #################################################################
 
 #APP_ID needs to match the "name" field of the click manifest
