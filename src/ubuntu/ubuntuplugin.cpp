@@ -170,6 +170,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     addAutoReleasedObject(new UbuntuCMakeBuildConfigurationFactory);
     addAutoReleasedObject(new UbuntuHtmlBuildConfigurationFactory);
     addAutoReleasedObject(new UbuntuQmlBuildConfigurationFactory);
+    addAutoReleasedObject(new UbuntuQmlBuildStepFactory);
 
     //ubuntu device support
     addAutoReleasedObject(new UbuntuDeviceFactory);
