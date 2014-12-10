@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=%ClickHookName%
-Exec=ubuntu-html5-app-launcher $@ --www=www --inspector
+Exec=ubuntu-html5-app-launcher $@ --www=www --inspector --oxide
 Icon=%ProjectName%.png
 Terminal=false
 Type=Application
