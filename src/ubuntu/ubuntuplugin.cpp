@@ -18,7 +18,6 @@
 
 #include "ubuntuplugin.h"
 #include "ubuntuconstants.h"
-#include "ubuntuprojectapplicationwizard.h"
 #include "ubuntuprojectmanager.h"
 #include "ubuntulocalrunconfiguration.h"
 #include "ubuntulocalrunconfigurationfactory.h"
@@ -38,15 +37,24 @@
 #include "ubuntuqtversion.h"
 #include "ubuntudeploystepfactory.h"
 #include "ubuntuqmlbuildconfiguration.h"
-#include "ubuntufirstrunwizard.h"
 #include "ubuntueditorfactory.h"
 #include "ubuntucmakecache.h"
 #include "ubuntutestcontrol.h"
 #include "ubuntupackageoutputparser.h"
+#include "ubuntuprojecthelper.h"
+
+#include "wizards/ubuntuprojectapplicationwizard.h"
+#include "wizards/ubuntufirstrunwizard.h"
+#include "wizards/ubuntuprojectmigrationwizard.h"
 
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
 #include <coreplugin/featureprovider.h>
+#include <coreplugin/coreplugin.h>
+
+#include <qmakeprojectmanager/qmakenodes.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -56,6 +64,8 @@
 #include <QGuiApplication>
 #include <QtQml>
 #include <QFile>
+#include <QAction>
+
 #include <coreplugin/icore.h>
 #include <stdint.h>
 
@@ -219,6 +229,26 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     connect(ProjectExplorer::KitManager::instance(),SIGNAL(kitsLoaded())
             ,this,SLOT(onKitsLoaded()));
 
+
+    const Core::Context qmakeProjectContext(QmakeProjectManager::Constants::PROJECT_ID);
+
+    Core::ActionContainer *mproject =
+            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
+    Core::ActionContainer *msubproject =
+            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
+
+    //support for the UbuntuProjectMigrateWizard
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)),
+            this, SLOT(updateContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)));
+
+    m_migrateProjectAction = new QAction(tr("Migrate to Ubuntu project"), this);
+    Core::Command *command = Core::ActionManager::registerAction(m_migrateProjectAction, Constants::UBUNTU_MIGRATE_QMAKE_PROJECT, qmakeProjectContext);
+    command->setAttribute(Core::Command::CA_Hide);
+    mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_FILES);
+    msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_FILES);
+
+    connect(m_migrateProjectAction, SIGNAL(triggered()), this, SLOT(migrateProject()));
+
     return true;
 }
 
@@ -282,6 +312,34 @@ void UbuntuPlugin::showFirstStartWizard()
             }
         }
     }
+}
+
+void UbuntuPlugin::updateContextMenu(ProjectExplorer::Project *project, ProjectExplorer::Node *node)
+{
+    m_currentContextMenuProject = project;
+    m_migrateProjectAction->setVisible(false);
+
+    QmakeProjectManager::QmakeProject *qProject = qobject_cast<QmakeProjectManager::QmakeProject *>(project);
+    QmakeProjectManager::QmakeProFileNode *qNode = qobject_cast<QmakeProjectManager::QmakeProFileNode *>(node);
+    if(qProject && qNode) {
+        if(qProject->rootProjectNode() == qNode &&
+                UbuntuProjectHelper::getManifestPath(project,QString()).isEmpty()) {
+            auto projectType = qNode->projectType();
+            if(projectType == QmakeProjectManager::ApplicationTemplate
+                    || projectType == QmakeProjectManager::SubDirsTemplate) {
+                m_migrateProjectAction->setVisible(true);
+            }
+        }
+    }
+}
+
+void UbuntuPlugin::migrateProject()
+{
+    QmakeProjectManager::QmakeProject *p = qobject_cast<QmakeProjectManager::QmakeProject *>(m_currentContextMenuProject);
+    if(!p)
+        return;
+
+    UbuntuProjectMigrationWizard::doMigrateProject(p,Core::ICore::mainWindow());
 }
 
 Q_EXPORT_PLUGIN2(Ubuntu, UbuntuPlugin)

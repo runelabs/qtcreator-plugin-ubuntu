@@ -16,13 +16,13 @@
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-#include "ubuntushared.h"
 #include "ubuntuprojectapplicationwizard.h"
-#include "ubuntuconstants.h"
-#include "ubuntuproject.h"
-#include "ubuntubzr.h"
 #include "ubuntufirstrunwizard.h"
-#include "ubuntuclicktool.h"
+#include "../ubuntushared.h"
+#include "../ubuntuconstants.h"
+#include "../ubuntuproject.h"
+#include "../ubuntubzr.h"
+#include "../ubuntuclicktool.h"
 
 #include <coreplugin/mimedatabase.h>
 
@@ -69,7 +69,7 @@ QWizard *UbuntuProjectApplicationWizard::createWizardDialog (QWidget *parent, co
                             wizardDialogParameters.extensionPages());
 
     QString maintainer = QStringLiteral("username");
-    QString whoami     = QStringLiteral("maintainerName");
+    QString whoami     = QStringLiteral("Firstname Surname <your@mail.com>");
     UbuntuBzr *bzr = UbuntuBzr::instance();
 
     if(!bzr->isInitialized()) {

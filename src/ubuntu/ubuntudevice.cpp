@@ -703,7 +703,7 @@ void UbuntuDeviceHelper::enablePortForward()
         //Oh noes , no ports available
 
         endAction(tr("No ports available on the host, please detach some devices"));
-        setProcessState(UbuntuDevice::Done);
+        setProcessState(UbuntuDevice::Failed);
         return;
     }
 

@@ -58,16 +58,21 @@ public:
 private slots:
     void onKitsLoaded ();
     void showFirstStartWizard ();
+    void updateContextMenu(ProjectExplorer::Project *project,ProjectExplorer::Node *node);
+    void migrateProject ();
 
 protected:
-    UbuntuDeviceMode*       m_ubuntuDeviceMode;
-    UbuntuMenu*             m_ubuntuMenu;
-    UbuntuIRCMode*          m_ubuntuIRCMode;
-    UbuntuAPIMode*          m_ubuntuAPIMode;
-    UbuntuCoreAppsMode*     m_ubuntuCoreAppsMode;
-    UbuntuWikiMode*         m_ubuntuWikiMode;
-    UbuntuPackagingMode*    m_ubuntuPackagingMode;
-    UbuntuPastebinMode*     m_ubuntuPastebinMode;
+    UbuntuDeviceMode       *m_ubuntuDeviceMode;
+    UbuntuMenu             *m_ubuntuMenu;
+    UbuntuIRCMode          *m_ubuntuIRCMode;
+    UbuntuAPIMode          *m_ubuntuAPIMode;
+    UbuntuCoreAppsMode     *m_ubuntuCoreAppsMode;
+    UbuntuWikiMode         *m_ubuntuWikiMode;
+    UbuntuPackagingMode    *m_ubuntuPackagingMode;
+    UbuntuPastebinMode     *m_ubuntuPastebinMode;
+    QAction                *m_migrateProjectAction;
+
+    ProjectExplorer::Project *m_currentContextMenuProject;
 };
 
 

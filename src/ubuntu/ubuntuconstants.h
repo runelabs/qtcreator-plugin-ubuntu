@@ -578,6 +578,9 @@ const char UBUNTU_MANIFEST_EDITOR_CONTEXT[] = "UbuntuProjectManager.UbuntuManife
 const char UBUNTU_APPARMOR_EDITOR_ID[]      = "UbuntuProjectManager.UbuntuApparmorEditor.Id";
 const char UBUNTU_APPARMOR_EDITOR_CONTEXT[] = "UbuntuProjectManager.UbuntuApparmorEditor.Context.Id";
 
+//Actions
+const char UBUNTU_MIGRATE_QMAKE_PROJECT[] = "UbuntuProjectManager.MigrateQMakeProject";
+
 } // namespace Ubuntu
 } // namespace Constants
 

@@ -1,11 +1,11 @@
 #include "ubuntufirstrunwizard.h"
-#include "ubuntuconstants.h"
-#include "ubuntukitmanager.h"
-#include "ubuntuclickdialog.h"
-#include "clicktoolchain.h"
-#include "ubuntudevicesmodel.h"
-#include "ubuntuprocess.h"
-#include "ubuntudevice.h"
+#include "../ubuntuconstants.h"
+#include "../ubuntukitmanager.h"
+#include "../ubuntuclickdialog.h"
+#include "../clicktoolchain.h"
+#include "../ubuntudevicesmodel.h"
+#include "../ubuntuprocess.h"
+#include "../ubuntudevice.h"
 
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitinformation.h>
@@ -30,11 +30,17 @@ enum {
 };
 
 UbuntuFirstRunWizard::UbuntuFirstRunWizard(QWidget *parent) :
-    QWizard(parent)
+    Utils::Wizard(parent)
 {
-    addPage(new UbuntuIntroductionWizardPage);
-    addPage(new UbuntuSetupChrootWizardPage);
-    addPage(new UbuntuSetupEmulatorWizardPage);
+    const int introPageId    = addPage(new UbuntuIntroductionWizardPage);
+    const int chrootsPageId  = addPage(new UbuntuSetupChrootWizardPage);
+    const int emulatorPageId = addPage(new UbuntuSetupEmulatorWizardPage);
+
+    Utils::WizardProgress *progress = wizardProgress();
+
+    progress->item(introPageId)->setTitle(tr("Intro"));
+    progress->item(chrootsPageId)->setTitle(tr("Kits and Toolchains"));
+    progress->item(emulatorPageId)->setTitle(tr("Devices and Emulators"));
 
     setMinimumSize(800,600);
 }

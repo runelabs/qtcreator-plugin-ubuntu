@@ -100,6 +100,14 @@ Utils::Environment UbuntuRemoteRunConfiguration::environment() const
     QTC_ASSERT(aspect, return Utils::Environment());
     Utils::Environment env(Utils::OsTypeLinux);
     env.modify(aspect->userEnvironmentChanges());
+
+    //work around a problem with loading OPENSSL triggering a SIGILL, injecting that
+    //environment variable disables the check that causes the problem
+    if(ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(target()->kit())
+            == Core::Id(Constants::UBUNTU_DEVICE_TYPE_ID).withSuffix(QStringLiteral("armhf"))) {
+        env.set(QStringLiteral("OPENSSL_armcap"),QStringLiteral("0"));
+    }
+
     return env;
 }
 
