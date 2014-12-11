@@ -1,3 +1,12 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20141211-0ubuntu1) vivid; urgency=low
+
+  [ Benjamin Zeller ]
+  * Migration wizard for automatic migration of qmake projects to run on
+    a Ubuntu device. Fix Bug lp:1398003 "Cannot run scope any more after
+    launching. it in debug mode" (LP: #1398003)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 11 Dec 2014 15:45:38 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20141127-0ubuntu1) vivid; urgency=low
 
   [ Zoltán Balogh ]
