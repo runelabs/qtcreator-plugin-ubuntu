@@ -1,6 +1,6 @@
 /**
   *
-  * fork code taken from http://www.enderunix.org/docs/eng/daemon.php
+  * based on code taken from http://www.enderunix.org/docs/eng/daemon.php
   */
 
 #include <stdio.h>
@@ -89,8 +89,10 @@ void daemonize()
 
     /* handle standart I/O */
     i=open("/dev/null",O_RDWR);
-    dup(i);
-    dup(i);
+    if(dup(i) < 0)
+        log_message("Could not redirect std filedescriptor",LOG_ERR);
+    if(dup(i) < 0)
+        log_message("Could not redirect std filedescriptor",LOG_ERR);
 
     umask(027); /* set newly created file permissions */
 
@@ -100,7 +102,7 @@ void daemonize()
 
     int lfp=open(qPrintable(lockFile),O_RDWR|O_CREAT,0640);
     if (lfp<0) {
-        log_message("Can not open lockfile");
+        log_message("Can not open lockfile",LOG_ERR);
         exit(1); /* can not open */
     }
 
@@ -111,7 +113,9 @@ void daemonize()
 
     /* first instance continues */
     QByteArray arr = QByteArray::number(getpid());
-    write(lfp,arr.constData(),strlen(arr.constData())); /* record pid to lockfile */
+    if(write(lfp,arr.constData(),strlen(arr.constData())) < 0) /* record pid to lockfile */
+        log_message("Could not write pid to the lockfile");
+
     signal(SIGCHLD,SIG_IGN); /* ignore child */
     signal(SIGTSTP,SIG_IGN); /* ignore tty signals */
     signal(SIGTTOU,SIG_IGN);
