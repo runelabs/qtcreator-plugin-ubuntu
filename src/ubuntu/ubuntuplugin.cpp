@@ -80,18 +80,18 @@ UbuntuPlugin::UbuntuPlugin()
 #ifdef UBUNTU_BUILD_ROOT
         Utils::FileName chrootAgent = Utils::FileName::fromString(QStringLiteral(UBUNTU_BUILD_ROOT));
         chrootAgent.appendPath(QStringLiteral("chroot-agent"))  //append dir
-                .appendPath(QStringLiteral("chroot-agent")); //append binary
+                .appendPath(QStringLiteral("click-chroot-agent")); //append binary
 
         bool started = false;
         if(chrootAgent.toFileInfo().isExecutable()) {
             started = QProcess::startDetached(chrootAgent.toFileInfo().absoluteFilePath());
         }
         if(!started) {
-            QProcess::startDetached(QStringLiteral("chroot-agent"));
+            QProcess::startDetached(QStringLiteral("click-chroot-agent"));
         }
 #else
         //start the chroot-agent
-        QProcess::startDetached(QStringLiteral("chroot-agent"));
+        QProcess::startDetached(QStringLiteral("click-chroot-agent"));
 #endif
     }
 }

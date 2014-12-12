@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <unistd.h>
+#include <pwd.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -20,8 +21,7 @@
 
 #include "chrootagent.h"
 
-#define RUNNING_DIR	"/tmp"
-#define LOCK_FILE	"/home/zbenjamin/.cache/ubuntu-sdk-chroot-agent.pid"
+#define LOCK_FILE	"/tmp/click-chroot-agent.pid"
 
 void syslogMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {

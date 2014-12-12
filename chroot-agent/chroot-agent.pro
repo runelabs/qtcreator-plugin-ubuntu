@@ -8,7 +8,7 @@ QT       += core dbus
 
 QT       -= gui
 
-TARGET = chroot-agent
+TARGET    = click-chroot-agent
 CONFIG   += console
 CONFIG   -= app_bundle
 
@@ -31,3 +31,6 @@ xml_desc.depends=$$PWD/chrootagent.h
 QMAKE_EXTRA_TARGETS+=xml_desc
 
 DBUS_ADAPTORS += $$xml_desc.target
+
+target.path=/bin
+INSTALLS+=target
