@@ -52,6 +52,7 @@ private:
 private:
     QMap<QString,Chroot> m_knownChroots;
     QFileSystemWatcher *m_chrootDirWatcher;
+    QString             m_sessionPrefix;
     static ChrootAgent *m_instance;
 
 

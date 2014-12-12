@@ -18,10 +18,9 @@
 #include <QDBusConnection>
 #include <QDebug>
 #include <QDBusError>
+#include <QStandardPaths>
 
 #include "chrootagent.h"
-
-#define LOCK_FILE	"/tmp/click-chroot-agent.pid"
 
 void syslogMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
@@ -80,7 +79,7 @@ void daemonize()
         exit(1); /* fork error */
     }
     if (i>0) {
-        exit(0); /* parent exits */
+        _exit(0); /* parent exits */
     }
 
     /* child (daemon) continues */
@@ -95,7 +94,11 @@ void daemonize()
 
     umask(027); /* set newly created file permissions */
 
-    int lfp=open(LOCK_FILE,O_RDWR|O_CREAT,0640);
+    QString lockFile = QStandardPaths::writableLocation(QStandardPaths::GenericCacheLocation)+
+            QDir::separator()+
+            QStringLiteral("click-chroot-agent.pid");
+
+    int lfp=open(qPrintable(lockFile),O_RDWR|O_CREAT,0640);
     if (lfp<0) {
         log_message("Can not open lockfile");
         exit(1); /* can not open */
@@ -107,9 +110,8 @@ void daemonize()
     }
 
     /* first instance continues */
-    char str[10];
-    sprintf(str,"%d\n",getpid());
-    write(lfp,str,strlen(str)); /* record pid to lockfile */
+    QByteArray arr = QByteArray::number(getpid());
+    write(lfp,arr.constData(),strlen(arr.constData())); /* record pid to lockfile */
     signal(SIGCHLD,SIG_IGN); /* ignore child */
     signal(SIGTSTP,SIG_IGN); /* ignore tty signals */
     signal(SIGTTOU,SIG_IGN);
@@ -120,12 +122,12 @@ int main(int argc, char *argv[])
 {
     daemonize();
 
+    qInstallMessageHandler(syslogMessageHandler);
+    QCoreApplication a(argc, argv);
+
     //the control signals
     signal(SIGHUP,signal_handler); /* catch hangup signal */
     signal(SIGTERM,signal_handler); /* catch term signal */
-
-    qInstallMessageHandler(syslogMessageHandler);
-    QCoreApplication a(argc, argv);
 
     ChrootAgent agent;
 

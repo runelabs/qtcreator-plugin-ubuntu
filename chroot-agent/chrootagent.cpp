@@ -9,11 +9,13 @@
 #include <QDir>
 #include <QUuid>
 
+#include <unistd.h>
+#include <sys/types.h>
+
 ChrootAgent *ChrootAgent::m_instance = nullptr;
 
 const char UBUNTU_CLICK_CHROOT_BASEPATH[] = "/var/lib/schroot/chroots";
 const char UBUNTU_CLICK_TARGETS_REGEX[]   = "^click-(.*)-([A-Za-z0-9]+)$";
-const char UBUNTU_CLICK_SESSION_PREFIX[]  = "ucca";
 
 ChrootAgent::ChrootAgent(QObject *parent) :
     QObject(parent),
@@ -21,6 +23,8 @@ ChrootAgent::ChrootAgent(QObject *parent) :
 {
     m_instance = this;
     new ClickChrootAgentAdaptor(this);
+
+    m_sessionPrefix = QString(QStringLiteral("ucca-%1")).arg(getuid());
 
     //invoke the initialize once we enter the event loop
     QMetaObject::invokeMethod(this,"initialize",Qt::QueuedConnection);
@@ -192,7 +196,7 @@ void ChrootAgent::findExistingChrootSessions()
 
     //session string format
     //session:click-ubuntu-sdk-15.04-armhf-13e7f626-a933-47f1-a501-329749612445
-    QRegularExpression exp(QString::fromLatin1("session:click-(ubuntu-sdk-[0-9.]*)-([\\w]*)-(%1-.*)").arg(UBUNTU_CLICK_SESSION_PREFIX));
+    QRegularExpression exp(QString::fromLatin1("session:click-(ubuntu-sdk-[0-9.]*)-([\\w]*)-(%1-.*)").arg(m_sessionPrefix));
     while(proc.canReadLine()) {
         QString line = QString::fromLocal8Bit(proc.readLine());
         QRegularExpressionMatch match = exp.match(line);
@@ -266,7 +270,7 @@ QString ChrootAgent::toInternalName(const QString &framework, const QString &arc
 
 QString ChrootAgent::createClickSession(const ChrootAgent::Chroot &ch)
 {
-    QString name = QString::fromLatin1("%1-%2").arg(UBUNTU_CLICK_SESSION_PREFIX).arg(QUuid::createUuid().toString());
+    QString name = QString::fromLatin1("%1-%2").arg(m_sessionPrefix).arg(QUuid::createUuid().toString());
     QStringList args = {
         QStringLiteral("chroot"),
         QStringLiteral("-a"),
