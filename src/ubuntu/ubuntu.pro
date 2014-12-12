@@ -1,9 +1,9 @@
-QT += network qml quick webkitwidgets script scripttools
+QT += network qml quick webkitwidgets script scripttools dbus
 
 include(../plugin.pri)
 
 QMAKE_CXXFLAGS += -Werror
-CONFIG += c++11
+CONFIG += c++11 dbusinterfaces
 
 #####################################
 # required for Ubuntu Device Notifier
@@ -221,4 +221,13 @@ HEADERS += \
     ubuntuprojecthelper.h \
     ubuntuscopefinalizer.h \
     wizards/ubuntuprojectmigrationwizard.h
+
+INCLUDEPATH+=$$OUT_PWD
+
+xml_desc.target=com.ubuntu.sdk.ClickChrootAgent.xml
+xml_desc.commands=qdbuscpp2xml -o $$xml_desc.target $$PWD/../../chroot-agent/chrootagent.h
+xml_desc.depends=$$PWD/../../chroot-agent/chrootagent.h
+QMAKE_EXTRA_TARGETS+=xml_desc
+
+DBUS_INTERFACES += $$xml_desc.target
 

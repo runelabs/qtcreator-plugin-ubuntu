@@ -380,7 +380,7 @@ const char  UBUNTU_MODE_WIKI[] = "UbuntuWiki";
 const char  UBUNTU_MODE_WIKI_DISPLAYNAME[] = "Wiki";
 
 const char  UBUNTU_IRC[] = "http://webchat.freenode.net/?channels=ubuntu-app-devel";
-const char  UBUNTU_API_ONLINE[] = "http://developer.ubuntu.com/api/devel/ubuntu-13.10/qml/ui-toolkit/overview-ubuntu-sdk.html";
+const char  UBUNTU_API_ONLINE[] = "http://developer.ubuntu.com/api/qml/current";
 const char  UBUNTU_API_OFFLINE[] = "%1/share/ubuntu-ui-toolkit/doc/html/overview-ubuntu-sdk.html";
 const char  UBUNTU_COREAPPS[] = "https://launchpad.net/ubuntu-phone-coreapps/";
 const char  UBUNTU_WIKI[] = "https://wiki.ubuntu.com/Touch";

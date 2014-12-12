@@ -34,6 +34,7 @@ import re
 import fcntl
 import uuid
 import signal
+import dbus
 
 #find out the directory holding the link
 dirname = os.path.basename(os.path.dirname(os.path.abspath(sys.argv[0])))
@@ -45,12 +46,11 @@ if(idx is -1):
 #find out the path this script is in, required for local plugin installation
 scriptpath = os.path.dirname(os.path.realpath(__file__))
 
-#@BUG get this dynamically
-chroot_name_prefix = "click"
+#get the click prefix from env, or use click if the var is not set
+chroot_name_prefix = os.getenv('CLICK_CHROOT_SUFFIX', "click")
 
 architecture = dirname[idx+1:]
 framework    = dirname[0:idx]
-session_id   = str(uuid.uuid4())
 
 args    = sys.argv[1:]
 command = os.path.basename(sys.argv[0])
@@ -89,8 +89,25 @@ signal.signal(signal.SIGTERM, exit_gracefully)
 signal.signal(signal.SIGINT , exit_gracefully)
 signal.signal(signal.SIGHUP , exit_gracefully)
 
-success = subprocess.call([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"begin-session",session_id],stdout=subprocess.DEVNULL)
-subproc = subprocess.Popen([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"run","-n",session_id]+[command]+args,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+try:
+    sessionBus = dbus.SessionBus()
+    clickChrootAgent = sessionBus.get_object('com.ubuntu.sdk.ClickChrootAgent','/com/ubuntu/sdk/ClickChrootAgent')
+    clickChrootAgentIFace = dbus.Interface(clickChrootAgent,dbus_interface='com.ubuntu.sdk.ClickChrootAgent')
+    session_id = clickChrootAgentIFace.spawnSession(framework,architecture)
+except dbus.exceptions.DBusException:
+    session_id = ""
+
+if (len(session_id) == 0):
+    session_id   = str(uuid.uuid4())
+    pre_spawned_session = False
+else:
+    pre_spawned_session = True
+
+if( pre_spawned_session ):
+    subproc = subprocess.Popen([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"run","-n",session_id]+[command]+args,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+else:
+    success = subprocess.call([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"begin-session",session_id],stdout=subprocess.DEVNULL)
+    subproc = subprocess.Popen([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"run","-n",session_id]+[command]+args,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 stdout = ""
 stderr = ""
@@ -142,5 +159,7 @@ if(len(stdout) != 0):
 if(len(stderr) != 0):
     sys.stderr.write(mapPaths(stderr))
 
-subprocess.call([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"end-session",session_id],stdout=subprocess.DEVNULL)
+if (not pre_spawned_session):
+    subprocess.call([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"end-session",session_id],stdout=subprocess.DEVNULL)
+
 sys.exit(subproc.returncode)
