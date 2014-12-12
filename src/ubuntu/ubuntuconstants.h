@@ -524,6 +524,8 @@ const char UBUNTU_CLICK_GCC_WRAPPER[]    = "qtc_chroot_gcc";    //deprecated
 const char UBUNTU_CLICK_CHROOT_WRAPPER[] = "%0/qtc_chroot_wrapper.py";
 const char UBUNTU_CLICK_HTML_BC_ID[]     = "UbuntuProjectManager.UbuntuHTML5.BuildConfiguration";
 const char UBUNTU_CLICK_QML_BC_ID[]      = "UbuntuProjectManager.UbuntuQml.BuildConfiguration";
+const char UBUNTU_CLICK_QML_UPDATE_TRANSL_MAKESTEP[]      = "UbuntuProjectManager.UbuntuQml.UpdateTranslationTemplateMakeStep";
+const char UBUNTU_CLICK_QML_BUILD_TRANSL_MAKESTEP[]      = "UbuntuProjectManager.UbuntuQml.BuildTranslationMakeStep";
 //Devicesupport
 const char UBUNTU_DEVICE_TYPE_ID[] = "UbuntuProjectManager.DeviceTypeId";
 const char UBUNTU_DEVICE_SSHIDENTITY[] = "%0/.config/ubuntu-sdk/ubuntudevice_id_rsa";

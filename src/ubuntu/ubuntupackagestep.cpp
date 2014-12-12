@@ -152,7 +152,7 @@ bool UbuntuPackageStep::init()
             //QML and HTML projects are just rsynced for now
             QStringList arguments;
             arguments << QStringLiteral("-avh")
-                      << QStringLiteral("--delete")
+                      //<< QStringLiteral("--delete")
                       << QStringLiteral("--exclude")<<QStringLiteral(".bzr")
                       << QStringLiteral("--exclude")<<QStringLiteral(".git")
                       << QStringLiteral("--exclude")<<QStringLiteral(".hg")
@@ -162,15 +162,8 @@ bool UbuntuPackageStep::init()
                       << QStringLiteral("--exclude")<<QStringLiteral("tests")
                       << QStringLiteral("--exclude")<<QStringLiteral("Makefile")
                       << QStringLiteral("--exclude")<<QStringLiteral(".excludes")
-                      << QStringLiteral("--exclude")<<QStringLiteral("*.ubuntuhtmlproject");
-
-            QFile excludes (projectDir+QDir::separator()+QStringLiteral(".excludes"));
-            if (excludes.open(QIODevice::ReadOnly)) {
-                while (excludes.canReadLine()) {
-                    arguments << QStringLiteral("--exclude") << QString::fromUtf8(excludes.readLine());
-                }
-                excludes.close();
-            }
+                      << QStringLiteral("--exclude")<<QStringLiteral("*.ubuntuhtmlproject")
+                      << QString(QStringLiteral("--exclude-from=%1")).arg(projectDir+QDir::separator()+QStringLiteral(".excludes"));
 
             arguments << projectDir+QDir::separator()
                       << deployDir;
@@ -356,7 +349,8 @@ void UbuntuPackageStep::setupAndStartProcess(const ProjectExplorer::ProcessParam
     m_process->setEnvironment(params.environment());
     m_process->setWorkingDirectory(wd.absolutePath());
 
-    if(debug) qDebug()<<"Starting process "<<params.effectiveCommand()<<params.effectiveArguments();
+    emit addOutput(tr("Starting: \"%1 %2\"").arg(params.effectiveCommand(),params.effectiveArguments()),
+                   BuildStep::MessageOutput);
 
     ProjectExplorer::IOutputParser *parser = target()->kit()->createOutputParser();
 

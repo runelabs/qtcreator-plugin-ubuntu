@@ -8,6 +8,10 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/buildstep.h>
+#include <projectexplorer/toolchain.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/buildsteplist.h>
 #include <utils/fancylineedit.h>
 #include <qmlprojectmanager/qmlprojectconstants.h>
 
@@ -22,7 +26,7 @@ namespace Internal {
  * Even though QML projects don't need to be built, we need
  * that BuildConfiguration to store the Builddirectory (where the click
  * package goes) and to enable the Target page to show us some actual
- * targets
+ * targets as well as to build the translations for click packaging
  */
 
 UbuntuQmlBuildConfiguration::UbuntuQmlBuildConfiguration(ProjectExplorer::Target *target)
@@ -107,6 +111,23 @@ UbuntuQmlBuildConfiguration *UbuntuQmlBuildConfigurationFactory::create(ProjectE
     conf->setDefaultDisplayName(info->displayName);
     conf->setDisplayName(info->displayName);
 
+    //is this a ubuntu project?
+    Utils::FileName manifestFilePath = Utils::FileName::fromString(parent->project()->projectDirectory()).appendPath(QStringLiteral("manifest.json"));
+    Utils::FileName makeFilePath = Utils::FileName::fromString(parent->project()->projectDirectory()).appendPath(QStringLiteral("Makefile"));
+    if(manifestFilePath.toFileInfo().exists()
+            && makeFilePath.toFileInfo().exists()) {
+
+        //make sure the "build-translations" target is available in the Makefile
+        QFile makefile(makeFilePath.toString());
+        if(makefile.open(QIODevice::ReadOnly)) {
+            QByteArray data = makefile.readAll();
+            if(data.contains("build-translations:")) {
+                ProjectExplorer::BuildStepList *bs = conf->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+                bs->insertStep(0, new UbuntuQmlUpdateTranslationTemplateStep(bs));
+                bs->insertStep(1, new UbuntuQmlBuildTranslationStep(bs));
+            }
+        }
+    }
     return conf;
 }
 
@@ -198,6 +219,163 @@ void UbuntuQmlBuildSettingsWidget::updateBuildDirectory() const
     m_pathChooser->blockSignals(false);
 }
 
+UbuntuQmlUpdateTranslationTemplateStep::UbuntuQmlUpdateTranslationTemplateStep(ProjectExplorer::BuildStepList *bsl)
+    : UbuntuQmlUpdateTranslationTemplateStep(bsl,Constants::UBUNTU_CLICK_QML_UPDATE_TRANSL_MAKESTEP)
+{
+    setDefaultDisplayName(tr("Update translations template"));
+}
+
+UbuntuQmlUpdateTranslationTemplateStep::UbuntuQmlUpdateTranslationTemplateStep(ProjectExplorer::BuildStepList *bsl,Core::Id typeId)
+    : AbstractProcessStep(bsl,typeId)
+{}
+
+UbuntuQmlUpdateTranslationTemplateStep::UbuntuQmlUpdateTranslationTemplateStep(ProjectExplorer::BuildStepList *bsl, UbuntuQmlUpdateTranslationTemplateStep *bs)
+    : AbstractProcessStep(bsl,bs)
+{}
+
+bool UbuntuQmlUpdateTranslationTemplateStep::init()
+{
+    QString projectDir = target()->project()->projectDirectory();
+
+    ProjectExplorer::BuildConfiguration *bc = target()->activeBuildConfiguration();
+    if(!bc)
+        return false;
+
+    ProjectExplorer::ProcessParameters *param = processParameters();
+    param->setWorkingDirectory(projectDir);
+    param->setCommand(makeCommand(ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit()), bc->environment()));
+    param->setMacroExpander(bc->macroExpander());
+    param->setEnvironment(bc->environment());
+    return true;
+}
+
+QString UbuntuQmlUpdateTranslationTemplateStep::makeCommand(ProjectExplorer::ToolChain *tc, const Utils::Environment &env) const
+{
+    if (tc)
+        return tc->makeCommand(env);
+    return QStringLiteral("make");
+}
+
+ProjectExplorer::BuildStepConfigWidget *UbuntuQmlUpdateTranslationTemplateStep::createConfigWidget()
+{
+    return new ProjectExplorer::SimpleBuildStepConfigWidget(this);
+}
+
+UbuntuQmlBuildTranslationStep::UbuntuQmlBuildTranslationStep(ProjectExplorer::BuildStepList *bsl)
+    : UbuntuQmlUpdateTranslationTemplateStep(bsl,Constants::UBUNTU_CLICK_QML_BUILD_TRANSL_MAKESTEP)
+{
+    setDefaultDisplayName(tr("Build translations"));
+}
+
+UbuntuQmlBuildTranslationStep::UbuntuQmlBuildTranslationStep(ProjectExplorer::BuildStepList *bsl, UbuntuQmlBuildTranslationStep *bs)
+    : UbuntuQmlUpdateTranslationTemplateStep(bsl,bs)
+{}
+
+bool UbuntuQmlBuildTranslationStep::init()
+{
+    if(!UbuntuQmlUpdateTranslationTemplateStep::init())
+        return false;
+
+    ProjectExplorer::BuildConfiguration *bc = target()->activeBuildConfiguration();
+    if(!bc)
+        return false;
+
+    QString deployDir = bc->buildDirectory().toString()
+            + QDir::separator()
+            + QString::fromLatin1(Constants::UBUNTU_DEPLOY_DESTDIR);
+
+    processParameters()->setArguments(QString::fromLatin1("TRANSLATION_ROOT=%1 build-translations").arg(deployDir));
+    return true;
+}
+
+ProjectExplorer::BuildStepConfigWidget *UbuntuQmlBuildTranslationStep::createConfigWidget()
+{
+    return new ProjectExplorer::SimpleBuildStepConfigWidget(this);
+}
+
+QList<Core::Id> UbuntuQmlBuildStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
+{
+    if(parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
+        return QList<Core::Id>();
+
+    UbuntuKitMatcher m;
+    if(!m.matches(parent->target()->kit())
+            || parent->target()->project()->id() != "QmlProjectManager.QmlProject")
+        return QList<Core::Id>();
+
+    return QList<Core::Id>()<<Constants::UBUNTU_CLICK_QML_BUILD_TRANSL_MAKESTEP<<Constants::UBUNTU_CLICK_QML_UPDATE_TRANSL_MAKESTEP;
+}
+
+QString UbuntuQmlBuildStepFactory::displayNameForId(const Core::Id id) const
+{
+    if(id == Constants::UBUNTU_CLICK_QML_BUILD_TRANSL_MAKESTEP)
+        return tr("Build translations");
+    else if(id == Constants::UBUNTU_CLICK_QML_UPDATE_TRANSL_MAKESTEP)
+        return tr("Update translations template");
+    return QString();
+}
+
+bool UbuntuQmlBuildStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
+{
+    return availableCreationIds(parent).contains(id);
+}
+
+ProjectExplorer::BuildStep *UbuntuQmlBuildStepFactory::create(ProjectExplorer::BuildStepList *parent, const Core::Id id)
+{
+    QTC_ASSERT(canCreate(parent,id),return 0);
+
+    if(id == Constants::UBUNTU_CLICK_QML_BUILD_TRANSL_MAKESTEP)
+        return new UbuntuQmlBuildTranslationStep(parent);
+    else if(id == Constants::UBUNTU_CLICK_QML_UPDATE_TRANSL_MAKESTEP)
+        return new UbuntuQmlUpdateTranslationTemplateStep(parent);
+
+    return nullptr;
+}
+
+bool UbuntuQmlBuildStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
+{
+    return availableCreationIds(parent).contains(ProjectExplorer::idFromMap(map));
+}
+
+ProjectExplorer::BuildStep *UbuntuQmlBuildStepFactory::restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map)
+{
+    QTC_ASSERT(canRestore(parent,map),return 0);
+
+    ProjectExplorer::AbstractProcessStep *step = 0;
+    Core::Id id = ProjectExplorer::idFromMap(map);
+
+    if(id == Constants::UBUNTU_CLICK_QML_BUILD_TRANSL_MAKESTEP)
+        step = new UbuntuQmlBuildTranslationStep(parent);
+    else if(id == Constants::UBUNTU_CLICK_QML_UPDATE_TRANSL_MAKESTEP)
+        step = new UbuntuQmlUpdateTranslationTemplateStep(parent);
+
+    if(!step)
+        return nullptr;
+
+    if(!step->fromMap(map)) {
+        delete step;
+        return nullptr;
+    }
+    return step;
+}
+
+bool UbuntuQmlBuildStepFactory::canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) const
+{
+    return availableCreationIds(parent).contains(product->id());
+}
+
+ProjectExplorer::BuildStep *UbuntuQmlBuildStepFactory::clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product)
+{
+    QTC_ASSERT(canClone(parent,product),return 0);
+
+    const Core::Id id = product->id();
+    if(id == Constants::UBUNTU_CLICK_QML_BUILD_TRANSL_MAKESTEP)
+        return new UbuntuQmlBuildTranslationStep(parent, static_cast<UbuntuQmlBuildTranslationStep *>(product));
+    else if(id == Core::Id(Constants::UBUNTU_CLICK_QML_UPDATE_TRANSL_MAKESTEP))
+        return new UbuntuQmlUpdateTranslationTemplateStep(parent, static_cast<UbuntuQmlUpdateTranslationTemplateStep *>(product));
+
+    return 0;
+}
 
 } // namespace Internal
 } // namespace Ubuntu

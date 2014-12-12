@@ -4,6 +4,11 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <utils/pathchooser.h>
 #include <projectexplorer/namedwidget.h>
+#include <projectexplorer/abstractprocessstep.h>
+
+namespace ProjectExplorer {
+    class ToolChain;
+}
 
 namespace Ubuntu {
 namespace Internal {
@@ -43,6 +48,33 @@ private:
     UbuntuQmlBuildConfiguration *m_buildConfiguration;
 };
 
+class UbuntuQmlUpdateTranslationTemplateStep : public ProjectExplorer::AbstractProcessStep
+{
+    Q_OBJECT
+public:
+    UbuntuQmlUpdateTranslationTemplateStep(ProjectExplorer::BuildStepList *bsl);
+    UbuntuQmlUpdateTranslationTemplateStep(ProjectExplorer::BuildStepList *bsl, Core::Id typeId);
+    UbuntuQmlUpdateTranslationTemplateStep(ProjectExplorer::BuildStepList *bsl, UbuntuQmlUpdateTranslationTemplateStep *bs);
+
+    // BuildStep interface
+    virtual bool init();
+    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+
+    QString makeCommand(ProjectExplorer::ToolChain *tc, const Utils::Environment &env) const;
+};
+
+class UbuntuQmlBuildTranslationStep : public UbuntuQmlUpdateTranslationTemplateStep
+{
+    Q_OBJECT
+public:
+    UbuntuQmlBuildTranslationStep(ProjectExplorer::BuildStepList *bsl);
+    UbuntuQmlBuildTranslationStep(ProjectExplorer::BuildStepList *bsl, UbuntuQmlBuildTranslationStep *bs);
+
+    // BuildStep interface
+    virtual bool init();
+    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+};
+
 class UbuntuQmlBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
 {
     Q_OBJECT
@@ -63,6 +95,22 @@ public:
 private:
     bool canHandle(const ProjectExplorer::Target *t) const;
     QList<ProjectExplorer::BuildInfo *> createBuildInfos (const ProjectExplorer::Kit *k, const QString &projectDir) const;
+};
+
+class UbuntuQmlBuildStepFactory : public ProjectExplorer::IBuildStepFactory
+{
+    Q_OBJECT
+
+public:
+    // IBuildStepFactory interface
+    virtual QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const override;
+    virtual QString displayNameForId(const Core::Id id) const override;
+    virtual bool canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const override;
+    virtual ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id) override;
+    virtual bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const override;
+    virtual ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) override;
+    virtual bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) const override;
+    virtual ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) override;
 };
 
 } // namespace Internal
