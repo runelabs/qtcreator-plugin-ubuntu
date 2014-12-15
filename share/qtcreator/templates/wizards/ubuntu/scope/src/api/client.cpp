@@ -173,6 +173,13 @@ static void parseForecast(Client::WeatherList& weather_list, QXmlStreamReader& x
 Client::ResultList Client::search(const string &query) {
     ResultList results;
 
+    // This is the method that we will call from the Query class.
+    // It just returns some results.
+    // You can add here your code to get results from an http API, from your local disk
+    // or anywhere.
+
+    // In this case we just create some results withouth accessing any other source of
+    // data
     {
         Result result;
         result.uri = "uri";
@@ -262,11 +269,20 @@ void Client::get(const net::Uri::Path &path,
 }
 
 Client::Current Client::weather(const string& query) {
+    // This is the method that we will call from the Query class.
+    // It connects to an HTTP source and returns the results.
+
 @if "%ContentType%" == "network-netcpp-json"
+
+    // In this case we are going to retrieve JSON data.
     json::Value root;
 @elsif "%ContentType%" == "network-netcpp-qjson"
+
+    // In this case we are going to retrieve JSON data.
     QJsonDocument root;
 @elsif "%ContentType%" == "network-netcpp-qxml"
+
+    // In this case we are going to retrieve XML data.
     QXmlStreamReader root;
 @endif
 

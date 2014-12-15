@@ -24,6 +24,13 @@ void Preview::run(sc::PreviewReplyProxy const& reply) {
     // Support three different column layouts
     sc::ColumnLayout layout1col(1), layout2col(2), layout3col(3);
 
+    // We define 3 different layouts, that will be used depending on the
+    // device. The shell (view) will decide which layout fits best.
+    // If, for instance, we are executing in a tablet probably the view will use
+    // 2 or more columns.
+    // Column layout definitions are optional.
+    // However, we recommend that scopes define layouts for the best visual appearance.
+
     // Single column layout
     layout1col.add_column( { "image", "header", "summary" });
 

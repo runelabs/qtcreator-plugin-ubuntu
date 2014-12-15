@@ -116,6 +116,10 @@ void Query::run(sc::SearchReplyProxy const& reply) {
         // Trim the query string of whitespace
         string query_string = alg::trim_copy(query.query_string());
 
+        // the Client is the helper class that provides the results
+        // without mixing APIs and scopes code.
+        // Add your code to retreive xml, json, or any other kind of result
+        // in the client.
         Client::ResultList results;
         if (query_string.empty()) {
             // If the string is empty, pick a default
@@ -167,6 +171,10 @@ void Query::run(sc::SearchReplyProxy const& reply) {
         // Trim the query string of whitespace
         string query_string = alg::trim_copy(query.query_string());
 
+        // the Client is the helper class that provides the results
+        // without mixing APIs and scopes code.
+        // Add your code to retreive xml, json, or any other kind of result
+        // in the client.
         Client::Current current;
         if (query_string.empty()) {
             // If the string is empty, get the current weather for London
