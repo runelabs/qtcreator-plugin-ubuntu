@@ -1,3 +1,15 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20141217-0ubuntu1) vivid; urgency=low
+
+  [ Alexandre Abreu ]
+  * deprecate the ubuntu-html5-launcher for html5 app in favor of the
+    webapp-conatiner (LP: #1388988)
+  * Add webview to basic template policy
+
+  [ Xavi Garcia ]
+  * Updated debian/control to fix wrong dependency.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 17 Dec 2014 17:27:50 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20141212.1-0ubuntu1) vivid; urgency=low
 
   [ Zoltán Balogh ]
