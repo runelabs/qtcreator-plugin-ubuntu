@@ -155,7 +155,8 @@ const char UBUNTUPROJECT_REMOTE_RUNCONTROL_BASE_ID[] = "UbuntuProjectManager.Rem
 const char UBUNTUPROJECT_REMOTE_RUNCONTROL_SCOPE_ID[] = "UbuntuProjectManager.RemoteRunConfiguration.Scope";
 const char UBUNTUPROJECT_REMOTE_RUNCONTROL_APP_ID[] = "UbuntuProjectManager.RemoteRunConfiguration.App";
 
-const char UBUNTUHTML_PROJECT_LAUNCHER_EXE[] = "ubuntu-html5-app-launcher";
+const char UBUNTUHTML_PROJECT_LAUNCHER_EXE[] = "webapp-container";
+const char UBUNTUHTML_PROJECT_DEPRECATED_LAUNCHER_EXE[] = "ubuntu-html5-app-launcher";
 const char UBUNTUWEBAPP_PROJECT_LAUNCHER_EXE[] = "webapp-container";
 const char UBUNTUSCOPES_PROJECT_LAUNCHER_EXE[] = "unity-scope-tool";
 
