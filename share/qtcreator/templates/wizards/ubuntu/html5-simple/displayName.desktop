@@ -1,9 +1,7 @@
 [Desktop Entry]
 Name=%ClickHookName%
-Exec=webapp-container --inspector ./www/index.html
+Exec=ubuntu-html5-app-launcher $@ --www=www --inspector
 Icon=%ProjectName%.png
 Terminal=false
 Type=Application
 X-Ubuntu-Touch=true
-X-Ubuntu-Single-Instance=true
-X-Ubuntu-Default-Department-ID=accessories
