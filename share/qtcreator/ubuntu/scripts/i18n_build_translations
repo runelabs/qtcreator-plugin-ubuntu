@@ -1,0 +1,33 @@
+#!/bin/bash
+# Copyright 2014 Canonical Ltd.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; version 2.1.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Authors: Niklas Wenzel <nikwen.developer@gmail.com>
+#          Christian Dywan <christian.dywan@canonical.com>
+
+PROJECT_NAME=$1
+PROJECT_DIR=$2
+
+PO_FILES=$(ls $PROJECT_DIR/po/*.po)
+
+for PO_FILE in $PO_FILES; do
+    FILENAME="${PO_FILE##*/}"
+    LOCALE="${FILENAME%.*}"
+    LOCALE_DIR="$PROJECT_DIR/share/locale/$LOCALE/LC_MESSAGES"
+    mkdir -p $LOCALE_DIR
+    MO_FILE="$LOCALE_DIR/$PROJECT_NAME.mo"
+    msgfmt -o $MO_FILE $PO_FILE
+done
+
+echo "Built translations!"

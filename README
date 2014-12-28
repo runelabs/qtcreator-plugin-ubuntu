@@ -10,3 +10,10 @@ To test (if you already have the package "qtcreator-plugin-ubuntu" installed):
 $ sudo cp ./builddir/lib/qtcreator/plugins/Canonical/libUbuntu.so \
     /usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH )/qtcreator/plugins/Canonical/libUbuntu.so
 
+To test changes to the scripts directory (does not require building the plugin):
+
+$ sudo cp share/qtcreator/ubuntu/scripts/* /usr/share/qtcreator/ubuntu/scripts/
+
+To test changes to the menu.json file (does not require building the plugin):
+
+$ sudo cp share/qtcreator/ubuntu/menu.json /usr/share/qtcreator/ubuntu/menu.json

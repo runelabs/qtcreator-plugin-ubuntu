@@ -207,7 +207,7 @@
                         "qmlProjectRequired": true,
                         "saveRequired": true,
                         "actions": [
-                            "msgfmt po/*.po"
+                            "%SCRIPTDIRECTORY%/i18n_build_translations %NAME_FROM_MANIFEST% %PROJECTDIRECTORY%"
                         ]
                     }
                 ]
