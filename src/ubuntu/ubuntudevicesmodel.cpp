@@ -787,7 +787,7 @@ void UbuntuDevicesModel::installEmulator()
     m_process->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_INSTALL_EMULATOR_PACKAGE));
 }
 
-void UbuntuDevicesModel::doCreateEmulatorImage(UbuntuProcess *process, const QString &name, const QString &arch, const QString &channel)
+void UbuntuDevicesModel::doCreateEmulatorImage(UbuntuProcess *process, const QString &name, const QString &arch, const QString &channel, const QString &passwd)
 {
     process->stop();
     QString strEmulatorName = name;
@@ -804,15 +804,17 @@ void UbuntuDevicesModel::doCreateEmulatorImage(UbuntuProcess *process, const QSt
                     .arg(strEmulatorName)
                     .arg(arch)
                     .arg(channel)
+                    .arg(passwd)
                     .arg(strUserName)
                     .arg(strUserHome)
                     << QCoreApplication::applicationDirPath());
     process->start(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
 }
 
-void UbuntuDevicesModel::createEmulatorImage(const QString &name, const QString &arch, const QString &channel)
+void UbuntuDevicesModel::createEmulatorImage(const QString &name, const QString &arch, const QString &channel, const QString &passwd)
 {
     QString ch = channel;
+    QString pwd = passwd;
 
     //to work around a problem in the UITK that clips long text in dropdown menus we use short aliases in the UI
     //for some channels. Here they are resolved to the correct channel names.
@@ -831,7 +833,7 @@ void UbuntuDevicesModel::createEmulatorImage(const QString &name, const QString 
     //     elevated priviledges
     setCancellable(false);
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
-    doCreateEmulatorImage(m_process,name,arch,ch);
+    doCreateEmulatorImage(m_process,name,arch,ch,pwd);
 }
 
 void UbuntuDevicesModel::queryAdb()

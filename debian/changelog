@@ -1,3 +1,54 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20141219-0ubuntu1) vivid; urgency=low
+
+  [ Zoltán Balogh ]
+  * Revert the deprecation of the ubuntu-html5-launcher for html5 apps
+    because it needs to be synced with an apparmor update
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 19 Dec 2014 03:50:35 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20141217-0ubuntu1) vivid; urgency=low
+
+  [ Alexandre Abreu ]
+  * deprecate the ubuntu-html5-launcher for html5 app in favor of the
+    webapp-conatiner (LP: #1388988)
+  * Add webview to basic template policy
+
+  [ Xavi Garcia ]
+  * Updated debian/control to fix wrong dependency.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 17 Dec 2014 17:27:50 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20141212.1-0ubuntu1) vivid; urgency=low
+
+  [ Zoltán Balogh ]
+  * Add Qt 5 examples to the plugin dependencies Fixes LP: #1400710 (LP:
+    #1400710)
+
+  [ Benjamin Zeller ]
+  * Fix Bug lp:1355618 "Adding localization support in the template.
+    application" Add extra steps for QML only based projects, but only
+    automatically. enable them if certain conditions are met (LP:
+    #1355618)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 12 Dec 2014 12:49:11 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20141211-0ubuntu1) vivid; urgency=low
+
+  [ Benjamin Zeller ]
+  * Migration wizard for automatic migration of qmake projects to run on
+    a Ubuntu device. Fix Bug lp:1398003 "Cannot run scope any more after
+    launching. it in debug mode" (LP: #1398003)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 11 Dec 2014 15:45:38 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20141127-0ubuntu1) vivid; urgency=low
+
+  [ Zoltán Balogh ]
+  * Support password setting for new emulators. Fixes LP: #1390476 (LP:
+    #1390476)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 27 Nov 2014 15:42:28 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20141126.1-0ubuntu1) vivid; urgency=low
 
   [ Benjamin Zeller ]

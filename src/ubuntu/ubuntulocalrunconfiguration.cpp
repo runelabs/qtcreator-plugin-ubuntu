@@ -426,7 +426,7 @@ bool UbuntuLocalRunConfiguration::ensureUbuntuProjectConfigured(QString *errorMe
             Utils::Environment env = Utils::Environment::systemEnvironment();
             m_executable = env.searchInPath(QString::fromLatin1(Ubuntu::Constants::UBUNTUHTML_PROJECT_LAUNCHER_EXE));
             m_args = QStringList()<<QString::fromLatin1("--www=%0/www").arg(ubuntuProject->projectDirectory())
-                                 <<QString::fromLatin1("--inspector");
+                                  <<QString::fromLatin1("--inspector");
         } else if (ubuntuProject->mainFile().endsWith(QStringLiteral(".desktop"), Qt::CaseInsensitive)) {
             Utils::Environment env = Utils::Environment::systemEnvironment();
 
