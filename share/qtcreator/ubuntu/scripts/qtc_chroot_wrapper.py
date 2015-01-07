@@ -47,6 +47,7 @@ if(idx is -1):
 scriptpath = os.path.dirname(os.path.realpath(__file__))
 
 #get the click prefix from env, or use click if the var is not set
+#if the variable is set we do not try to reach the click-chroot-agent
 chroot_name_prefix = os.getenv('CLICK_CHROOT_SUFFIX', "click")
 
 architecture = dirname[idx+1:]
@@ -62,9 +63,9 @@ if (command.startswith("qt5-qmake")):
         success = subprocess.call(["/bin/bash",legacy_script,framework,architecture,chroot_name_prefix]+args,stdout=sys.stdout,stderr=sys.stderr)
         sys.exit(success)
 
-subproc = None
-
-click   = shutil.which("click")
+subproc    = None
+session_id = ""
+click      = shutil.which("click")
 
 if( click is None ):
     print("Could not find click in the path, please make sure it is installed")
@@ -89,13 +90,15 @@ signal.signal(signal.SIGTERM, exit_gracefully)
 signal.signal(signal.SIGINT , exit_gracefully)
 signal.signal(signal.SIGHUP , exit_gracefully)
 
-try:
-    sessionBus = dbus.SessionBus()
-    clickChrootAgent = sessionBus.get_object('com.ubuntu.sdk.ClickChrootAgent','/com/ubuntu/sdk/ClickChrootAgent')
-    clickChrootAgentIFace = dbus.Interface(clickChrootAgent,dbus_interface='com.ubuntu.sdk.ClickChrootAgent')
-    session_id = clickChrootAgentIFace.spawnSession(framework,architecture)
-except dbus.exceptions.DBusException:
-    session_id = ""
+#only ask the chroot-agent if we use the default click prefix
+if chroot_name_prefix == "click":
+    try:
+        sessionBus = dbus.SessionBus()
+        clickChrootAgent = sessionBus.get_object('com.ubuntu.sdk.ClickChrootAgent','/com/ubuntu/sdk/ClickChrootAgent')
+        clickChrootAgentIFace = dbus.Interface(clickChrootAgent,dbus_interface='com.ubuntu.sdk.ClickChrootAgent')
+        session_id = clickChrootAgentIFace.spawnSession(framework,architecture)
+    except dbus.exceptions.DBusException:
+        session_id = ""
 
 if (len(session_id) == 0):
     session_id   = str(uuid.uuid4())
@@ -103,11 +106,10 @@ if (len(session_id) == 0):
 else:
     pre_spawned_session = True
 
-if( pre_spawned_session ):
-    subproc = subprocess.Popen([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"run","-n",session_id]+[command]+args,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-else:
+if ( not pre_spawned_session ):
     success = subprocess.call([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"begin-session",session_id],stdout=subprocess.DEVNULL)
-    subproc = subprocess.Popen([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"run","-n",session_id]+[command]+args,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+subproc = subprocess.Popen([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"run","-n",session_id]+[command]+args,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 stdout = ""
 stderr = ""
