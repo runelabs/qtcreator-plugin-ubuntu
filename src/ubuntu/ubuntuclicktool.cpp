@@ -60,11 +60,19 @@ enum {
     debug = 0
 };
 
+static QString getChrootSuffixFromEnv ()
+{
+    QByteArray value = qgetenv(Constants::UBUNTU_CLICK_CHROOT_SUFFIX_ENV_VAR);
+    if(value.isNull())
+        return QLatin1String(Constants::UBUNTU_CLICK_CHROOT_DEFAULT_NAME);
+
+    return QString::fromLatin1(value);
+}
 
 /**
 * Initialize the m_strClickChrootSuffix from the environment variable
 */
-QString UbuntuClickTool::m_strClickChrootSuffix = QProcessEnvironment::systemEnvironment().value(QLatin1String(Constants::UBUNTU_CLICK_CHROOT_SUFFIX_ENV_VAR),QLatin1String(Constants::UBUNTU_CLICK_CHROOT_DEFAULT_NAME));
+QString UbuntuClickTool::m_strClickChrootSuffix = getChrootSuffixFromEnv();
 
 /**
  * @brief UbuntuClickTool::UbuntuClickTool

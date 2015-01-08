@@ -569,7 +569,7 @@ void UbuntuProjectDetailsPage::initializePage()
             whoami     = bzr->whoami();
         }
 
-        wizard()->setField(QStringLiteral("domain"),QString(QStringLiteral("com.ubuntu.developer.")+maintainer));
+        wizard()->setField(QStringLiteral("domain"),maintainer);
         wizard()->setField(QStringLiteral("maintainer"),whoami);
     }
 

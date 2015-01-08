@@ -183,7 +183,7 @@ const char UBUNTUPACKAGINGWIDGET_BUILDPACKAGE_ID[] ="Ubuntu.Build.Package";
 const char UBUNTUPACKAGINGWIDGET_BUILDCMAKEPACKAGE_ID[] ="Ubuntu.Build.PackageCMake";
 const char UBUNTUPACKAGINGWIDGET_DEFAULT_MANIFEST[] =":/ubuntu/manifest.json.template";
 const char UBUNTUPACKAGINGWIDGET_DEFAULT_MYAPP[] =":/ubuntu/myapp.json.template";
-const char UBUNTUPACKAGINGWIDGET_DEFAULT_NAME[] ="com.ubuntu.developer.%0.%1";
+const char UBUNTUPACKAGINGWIDGET_DEFAULT_NAME[] ="%0.%1";
 const char UBUNTUPACKAGINGWIDGET_LOCAL_REVIEWER_INSTALLED[] = "Checking installed click reviewer tools package.";
 const char UBUNTUPACKAGINGWIDGET_ONFINISHED_LOCAL_NO_EMULATOR_INSTALLED[] = "The package is not installed.";
 const char UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE[] = "Click Reviewers tools against %0";
@@ -380,7 +380,7 @@ const char  UBUNTU_MODE_WIKI[] = "UbuntuWiki";
 const char  UBUNTU_MODE_WIKI_DISPLAYNAME[] = "Wiki";
 
 const char  UBUNTU_IRC[] = "http://webchat.freenode.net/?channels=ubuntu-app-devel";
-const char  UBUNTU_API_ONLINE[] = "http://developer.ubuntu.com/api/devel/ubuntu-13.10/qml/ui-toolkit/overview-ubuntu-sdk.html";
+const char  UBUNTU_API_ONLINE[] = "http://developer.ubuntu.com/api/qml/current";
 const char  UBUNTU_API_OFFLINE[] = "%1/share/ubuntu-ui-toolkit/doc/html/overview-ubuntu-sdk.html";
 const char  UBUNTU_COREAPPS[] = "https://launchpad.net/ubuntu-phone-coreapps/";
 const char  UBUNTU_WIKI[] = "https://wiki.ubuntu.com/Touch";

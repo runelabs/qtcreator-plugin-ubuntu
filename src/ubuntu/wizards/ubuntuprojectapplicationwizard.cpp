@@ -83,7 +83,7 @@ QWizard *UbuntuProjectApplicationWizard::createWizardDialog (QWidget *parent, co
     }
 
     projectDialog->setField(QStringLiteral("ClickMaintainer"),whoami);
-    projectDialog->setField(QStringLiteral("ClickDomain"),QString(QStringLiteral("com.ubuntu.developer.")+maintainer));
+    projectDialog->setField(QStringLiteral("ClickDomain"),maintainer);
 
     QList<QComboBox*> boxes = projectDialog->findChildren<QComboBox*>();
     foreach(QComboBox* box, boxes){

@@ -34,7 +34,7 @@ set(QT_IMPORTS_DIR "lib/${ARCH_TRIPLET}")
 option(INSTALL_TESTS "Install the tests on make install" on)
 
 set(APP_NAME          %ProjectName%)
-set(APP_ID            "%ClickDomain:l%.%ProjectName:l%")
+set(APP_ID            "%ProjectName:l%.%ClickDomain:l%")
 set(%ProjectName:u%_DIR "share/qml/%ProjectName%")
 set(MAIN_QML          "%ProjectName%.qml")
 set(ICON              "graphics/%ProjectName%.png")

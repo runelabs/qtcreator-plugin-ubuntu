@@ -64,7 +64,7 @@ set(UBUNTU_PROJECT_TYPE "Scope" CACHE INTERNAL "Tells QtCreator this is a Scope 
 set(CMAKE_INSTALL_PREFIX /)
 set(SCOPE_INSTALL_DIR "/%ClickHookName:l%")
 set(GETTEXT_PACKAGE "%ProjectName:l%")
-set(PACKAGE_NAME "%ClickDomain:l%.%ProjectName:l%")
+set(PACKAGE_NAME "%ProjectName:l%.%ClickDomain:l%")
 set(SCOPE_NAME "${PACKAGE_NAME}_%ClickHookName:l%")
 
 # If we need to refer to the scope's name or package in code, these definitions will help

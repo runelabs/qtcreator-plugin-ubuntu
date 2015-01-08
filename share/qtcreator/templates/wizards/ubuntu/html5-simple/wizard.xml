@@ -29,9 +29,9 @@ Unlike the default Qt HTML5 template, there is no C++ code or compilation necess
 		<fieldpagetitle>Click package parameters</fieldpagetitle>
 		<fields>
 			<field mandatory="true" name="ClickDomain">
-			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
-			                defaulttext="" placeholdertext="Domain"/>
-			  <fielddescription>Domain:</fielddescription>
+			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9-]+$'
+			                defaulttext="" placeholdertext="Nickname"/>
+			  <fielddescription>Nickname:</fielddescription>
 			</field>
 			<field mandatory="true" name="ClickMaintainer">
 			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'

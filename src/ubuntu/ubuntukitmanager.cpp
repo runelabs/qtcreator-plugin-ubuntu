@@ -82,7 +82,6 @@ UbuntuQtVersion *UbuntuKitManager::createOrFindQtVersion(ClickToolChain *tc)
             if (qtVersion->type() != QLatin1String(Constants::UBUNTU_QTVERSION_TYPE))
                 continue;
 
-            qDebug()<<qtVersion->qmakeCommand().toFileInfo().absoluteFilePath();
             if (qtVersion->qmakeCommand().toFileInfo().absoluteFilePath() == QFileInfo(qmakePath).absoluteFilePath())
                 return static_cast<UbuntuQtVersion*> (qtVersion);
         }
@@ -168,14 +167,14 @@ void UbuntuKitManager::autoDetectKits()
             continue;
 
         UbuntuQtVersion* ver = static_cast<UbuntuQtVersion*> (qtVersion);
-        if(ver->scriptVersion() < UbuntuQtVersion::minimalScriptVersion()) {
+        if(ver->scriptVersion() < UbuntuQtVersion::minimalScriptVersion() || !qtVersion->isValid()) {
             //we need to remove that QtVersion
             QFile::remove(ver->qmakeCommand().toString());
             QtSupport::QtVersionManager::removeVersion(ver);
         }
     }
 
-    // having a empty toolchains list will remove all autodetected kits for android
+    // having a empty toolchains list will remove all autodetected kits for ubuntu
     // exactly what we want in that case
     QList<ClickToolChain *> toolchains = clickToolChains();
 
@@ -201,27 +200,6 @@ void UbuntuKitManager::autoDetectKits()
         if(debug) qDebug()<<"Found possible Ubuntu Kit: "<<k->displayName();
         existingKits << k;
     }
-
-#if 0
-    QMap<Abi::Architecture, QList<QtSupport::BaseQtVersion *> > qtVersionsForArch;
-    foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::versions()) {
-        if (qtVersion->type() != QLatin1String(Constants::ANDROIDQT))
-            continue;
-        QList<Abi> qtAbis = qtVersion->qtAbis();
-        if (qtAbis.empty())
-            continue;
-        qtVersionsForArch[qtAbis.first().architecture()].append(qtVersion);
-    }
-
-    DeviceManager *dm = DeviceManager::instance();
-    IDevice::ConstPtr device = dm->find(Core::Id(Constants::ANDROID_DEVICE_ID));
-    if (device.isNull()) {
-        // no device, means no sdk path
-        foreach (Kit *k, existingKits)
-            KitManager::deregisterKit(k);
-        return;
-    }
-#endif
 
     // create new kits
     QList<ProjectExplorer::Kit *> newKits;

@@ -6,7 +6,7 @@
 @endif
   "maintainer": "%ClickMaintainer%",
   "architecture": "@CLICK_ARCH@",
-  "name": "%ClickDomain:l%.%ProjectName:l%",
+  "name": "%ProjectName:l%.%ClickDomain:l%",
   "title": "%ProjectName:l%",
   "framework" : "%ClickFrameworkVersion%",
   "hooks": {

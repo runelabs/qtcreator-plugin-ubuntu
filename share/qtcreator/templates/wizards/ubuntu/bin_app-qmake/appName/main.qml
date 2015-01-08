@@ -10,7 +10,7 @@ MainView {
     objectName: "mainView"
     
     // Note! applicationName needs to match the "name" field of the click manifest
-    applicationName: "%ClickDomain:l%.%ProjectName:l%"
+    applicationName: "%ProjectName:l%.%ClickDomain:l%"
 
     /* 
      This property enables the application to change orientation 

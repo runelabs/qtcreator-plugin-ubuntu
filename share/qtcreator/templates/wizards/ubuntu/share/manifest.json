@@ -1,5 +1,5 @@
 {
-    "name": "%ClickDomain:l%.%ProjectName:l%",
+    "name": "%ProjectName:l%.%ClickDomain:l%",
     "description": "description of %ProjectName%",
     "architecture": "all",
     "title": "%ProjectName%",
