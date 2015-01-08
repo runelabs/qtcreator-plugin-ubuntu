@@ -82,7 +82,6 @@ UbuntuQtVersion *UbuntuKitManager::createOrFindQtVersion(ClickToolChain *tc)
             if (qtVersion->type() != QLatin1String(Constants::UBUNTU_QTVERSION_TYPE))
                 continue;
 
-            qDebug()<<qtVersion->qmakeCommand().toFileInfo().absoluteFilePath();
             if (qtVersion->qmakeCommand().toFileInfo().absoluteFilePath() == QFileInfo(qmakePath).absoluteFilePath())
                 return static_cast<UbuntuQtVersion*> (qtVersion);
         }
@@ -168,7 +167,7 @@ void UbuntuKitManager::autoDetectKits()
             continue;
 
         UbuntuQtVersion* ver = static_cast<UbuntuQtVersion*> (qtVersion);
-        if(ver->scriptVersion() < UbuntuQtVersion::minimalScriptVersion()) {
+        if(ver->scriptVersion() < UbuntuQtVersion::minimalScriptVersion() || !qtVersion->isValid()) {
             //we need to remove that QtVersion
             QFile::remove(ver->qmakeCommand().toString());
             QtSupport::QtVersionManager::removeVersion(ver);
