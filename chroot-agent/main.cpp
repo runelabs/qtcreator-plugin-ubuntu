@@ -8,6 +8,8 @@
 #include <signal.h>
 #include <unistd.h>
 #include <pwd.h>
+#include <stdlib.h>
+#include <getopt.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -21,6 +23,14 @@
 #include <QStandardPaths>
 
 #include "chrootagent.h"
+#include "clickchrootagent_interface.h"
+
+int  cliMode (int argc, char *argv[]);
+int  serviceMode (int argc, char *argv[]);
+void log_message (const char *message, int logType = LOG_INFO);
+void signal_handler(int sig);
+void daemonize();
+void useage ();
 
 void syslogMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
@@ -48,7 +58,7 @@ void syslogMessageHandler(QtMsgType type, const QMessageLogContext &context, con
     if(do_abort) abort();
 }
 
-void log_message (const char *message, int logType = LOG_INFO)
+void log_message (const char *message, int logType)
 {
     openlog ("click-chroot-agent", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
     syslog (logType,  message,0);
@@ -107,7 +117,7 @@ void daemonize()
     }
 
     if (lockf(lfp,F_TLOCK,0)<0) {
-        log_message("Can not lock lockfile");
+        log_message("Can not lock lockfile, click-chroot-agent is probably already running.");
         exit(2); /* can not lock, server already running */
     }
 
@@ -122,10 +132,100 @@ void daemonize()
     signal(SIGTTIN,SIG_IGN);
 }
 
-int main(int argc, char *argv[])
+void useage ()
 {
-    daemonize();
+    puts("Usage: click-chroot-agent [OPTION]");
+    puts("-s, --stop    Stops the currently running instance of the click-chroot-agent");
+    puts("-r, --reload  Recreates sessions for all exising chroots");
+    puts("-i, --info    Shows currently mounted sessions");
+    puts("-h, --help    Shows this text");
+}
 
+/*!
+ * \brief cliMode
+ * Runs the command in CLI mode to allow a more convenient use
+ */
+int cliMode (int argc, char *argv[])
+{
+    if(argc > 2) {
+        puts("Too many arguments.");
+
+        useage();
+        return 0;
+    }
+
+    QCoreApplication a(argc, argv);
+    Q_UNUSED(a);
+
+    static struct option long_options[] = {
+        {"stop",    no_argument,       0, 's'},
+        {"reload",  no_argument,       0, 'r'},
+        {"info",    no_argument,       0, 'i'},
+        {"help",    no_argument,       0, 'h'},
+        {0, 0, 0, 0}
+    };
+
+    ComUbuntuSdkClickChrootAgentInterface clickAgent(QStringLiteral("com.ubuntu.sdk.ClickChrootAgent"),
+                                                     QStringLiteral("/com/ubuntu/sdk/ClickChrootAgent"),
+                                                     QDBusConnection::sessionBus());
+    if(!clickAgent.isValid()) {
+        puts("Could not connect to click-chroot-agent service");
+        return 1;
+    }
+
+    bool cont = true;
+    while(cont) {
+        int option_index = 0;
+        int c = getopt_long (argc, argv, "srih",long_options, &option_index);
+
+        if (c == -1)
+            break;
+
+        switch(c) {
+            case 's': {
+                clickAgent.shutdown();
+                cont = false;
+                break;
+            }
+            case 'r': {
+                QDBusPendingReply<void> ret = clickAgent.hangup();
+                if(ret.isError())
+                    puts(qPrintable(ret.error().message()));
+                else
+                    ret.waitForFinished();
+                cont = false;
+                break;
+            }
+            case 'i': {
+                QDBusPendingReply<QStringList> ret = clickAgent.sessionInfo();
+                if(ret.isError()) {
+                    puts(qPrintable(ret.error().message()));
+                } else {
+                    ret.waitForFinished();
+                    foreach(const QString &desc, ret.value()) {
+                        puts(qPrintable(desc));
+                    }
+                }
+                cont = false;
+                break;
+            }
+            case 'h':
+            case '?': {
+                cont = false;
+                useage();
+                break;
+            }
+        }
+    }
+    return 0;
+}
+
+/*!
+ * \brief serviceMode
+ * starts the click-chroot-agents service and returns only if its shut down
+ */
+int serviceMode (int argc, char *argv[])
+{
     qInstallMessageHandler(syslogMessageHandler);
     QCoreApplication a(argc, argv);
 
@@ -156,4 +256,13 @@ int main(int argc, char *argv[])
     }
 
     return a.exec();
+}
+
+int main(int argc, char *argv[])
+{
+    if(argc > 1)
+        return cliMode(argc,argv);
+
+    daemonize();
+    return serviceMode(argc,argv);
 }
