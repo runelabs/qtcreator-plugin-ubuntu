@@ -1,3 +1,13 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150108-0ubuntu1) vivid; urgency=low
+
+  [ Benjamin Zeller ]
+  * Bug #1400741: API tab links to the wrong version of the API. Add
+    click-chroot-agent, a user session daemon that preloads chroot
+    sessions. Adding support for new package naming scheme (LP:
+    #1400741)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 08 Jan 2015 08:03:05 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20141219-0ubuntu1) vivid; urgency=low
 
   [ Zoltán Balogh ]
