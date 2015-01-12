@@ -1,6 +1,8 @@
 TEMPLATE = app
 TARGET = %ClickHookName%
 
+load(ubuntu-click)
+
 QT += qml quick
 
 SOURCES += main.cpp
@@ -18,4 +20,5 @@ message($$config_files.files)
 INSTALLS+=config_files
 
 # Default rules for deployment.
-include(../deployment.pri)
+target.path = $${UBUNTU_CLICK_BINARY_PATH}
+INSTALLS+=target
