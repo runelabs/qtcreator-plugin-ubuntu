@@ -130,6 +130,23 @@ bool ChrootAgent::releaseSession(const QString &framework, const QString &archit
     return s;
 }
 
+QStringList ChrootAgent::sessionInfo() const
+{
+    QStringList info;
+    for(auto i = m_knownChroots.constBegin(); i != m_knownChroots.constEnd(); i++) {
+        const Chroot &chroot = i.value();
+        if(chroot.session.isEmpty())
+            continue;
+
+        QString desc = QString(QStringLiteral("Architecture: %1, Framework: %2, Session: %3"))
+                .arg(chroot.architecture)
+                .arg(chroot.framework)
+                .arg(chroot.session);
+        info.append(desc);
+    }
+    return info;
+}
+
 void ChrootAgent::shutdown()
 {
     foreach(const QString &key, m_knownChroots.keys())

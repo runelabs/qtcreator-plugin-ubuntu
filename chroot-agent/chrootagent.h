@@ -5,6 +5,7 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QVariantMap>
 
 class QFileSystemWatcher;
 
@@ -32,6 +33,8 @@ signals:
 public slots:
     QString spawnSession   (const QString &framework, const QString &architecture);
     bool releaseSession (const QString &framework, const QString &architecture);
+
+    QStringList sessionInfo () const;
 
     Q_NOREPLY void shutdown ();
     void hangup   ();
