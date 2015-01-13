@@ -31,6 +31,7 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/target.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -490,7 +491,7 @@ void UbuntuManifestEditorWidget::addMissingFieldsToManifest (QString fileName)
                 targetObject.insert(i.key(),i.value());
 
                 if(debug) qDebug() <<"Setting to "<<i.value();
-            }
+            }QFileInfo mFile(textEditorWidget()->baseTextDocument()->filePath());
         }
     }
 
@@ -502,6 +503,20 @@ void UbuntuManifestEditorWidget::addMissingFieldsToManifest (QString fileName)
         in.write(data);
         in.close();
     }
+}
+
+/*!
+ * \brief UbuntuManifestEditorWidget::saved
+ * Runs updateDefaultRunConfigurations for the currently
+ * active target, to make sure all changes in the manifest
+ * file are taken into account
+ */
+void UbuntuManifestEditorWidget::saved()
+{
+    QFileInfo mFile(textEditorWidget()->baseTextDocument()->filePath());
+    ProjectExplorer::Project *p = ubuntuProject(mFile.absolutePath());
+    if(p && p->activeTarget())
+        p->activeTarget()->updateDefaultRunConfigurations();
 }
 
 } // namespace Internal
