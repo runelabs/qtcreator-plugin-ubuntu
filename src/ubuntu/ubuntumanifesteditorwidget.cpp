@@ -489,9 +489,8 @@ void UbuntuManifestEditorWidget::addMissingFieldsToManifest (QString fileName)
                 targetObject.insert(i.key(),UbuntuClickFrameworkProvider::getMostRecentFramework( QString()));
             } else {
                 targetObject.insert(i.key(),i.value());
-
                 if(debug) qDebug() <<"Setting to "<<i.value();
-            }QFileInfo mFile(textEditorWidget()->baseTextDocument()->filePath());
+            }
         }
     }
 
