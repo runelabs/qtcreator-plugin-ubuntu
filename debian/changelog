@@ -1,3 +1,9 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150112-0ubuntu2) UNRELEASED; urgency=medium
+
+  * Skip the incomplete emulator (LP: #1409596)
+
+ -- Bin Li <bin.li@canonical.com>  Tue, 13 Jan 2015 09:53:11 +0800
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150112-0ubuntu1) vivid; urgency=low
 
   [ Benjamin Zeller ]
