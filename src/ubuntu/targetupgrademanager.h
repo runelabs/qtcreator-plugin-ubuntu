@@ -23,7 +23,6 @@ class TargetUpgradeManager : public QObject
 
     enum State {
         Idle,
-        AptGetUpdate,
         CollectPendingUpdates
     };
 
