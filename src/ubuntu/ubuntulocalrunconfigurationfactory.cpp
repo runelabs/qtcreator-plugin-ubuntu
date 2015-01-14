@@ -23,7 +23,9 @@
 #include "clicktoolchain.h"
 #include "ubuntuclickmanifest.h"
 #include "ubuntucmakecache.h"
+#include "ubuntushared.h"
 
+#include <projectexplorer/taskhub.h>
 #include <cmakeprojectmanager/cmakeproject.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
@@ -74,11 +76,17 @@ QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(Project
 
     qDebug()<<"Using the manifest path: "<<manifestPath;
 
-    UbuntuClickManifest manifest;
-
     //if we have no manifest, we can not query the app id's
-    if(!manifest.load(manifestPath))
+    if(!QFile::exists(manifestPath))
         return types;
+
+    QString err;
+    UbuntuClickManifest manifest;
+    if(!manifest.load(manifestPath,nullptr,&err)) {
+        ProjectExplorer::TaskHub::addTask(ProjectExplorer::Task::Warning,tr("Can not read manifest.json file: %1").arg(err),ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM
+                                          ,Utils::FileName::fromString(manifestPath));
+        return types;
+    }
 
     QList<UbuntuClickManifest::Hook> hooks = manifest.hooks();
     if (!isRemote) {

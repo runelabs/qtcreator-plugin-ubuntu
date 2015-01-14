@@ -50,6 +50,7 @@ public:
 
     static QString createPackageName (const QString &userName, const QString &projectName);
 
+    virtual void saved() override;
 protected:
     bool syncToWidgets ();
     bool syncToWidgets (UbuntuClickManifest *source);

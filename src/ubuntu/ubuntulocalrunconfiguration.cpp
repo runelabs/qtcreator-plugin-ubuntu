@@ -231,9 +231,10 @@ QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfigur
 
     //read the manifest
     UbuntuClickManifest manifest;
-    if(!manifest.load(manifestPath)) {
+    QString manifestErrMsg;
+    if(!manifest.load(manifestPath,nullptr,&manifestErrMsg)) {
         if(errorMessage)
-            *errorMessage = tr("Could not open the manifest file in the package directory, make sure its installed into the root of the click package.");
+            *errorMessage = tr("Could not open the manifest file in the package directory: %1.").arg(manifestErrMsg);
 
         return QString();
     }
