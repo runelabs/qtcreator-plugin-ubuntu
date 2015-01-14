@@ -21,6 +21,13 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
+       <widget class="QCheckBox" name="enableUpdateCheckerCheckBox">
+        <property name="text">
+         <string>Automatically check for updates</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QTreeWidget" name="treeWidgetClickTargets">
         <property name="editTriggers">
          <set>QAbstractItemView::NoEditTriggers</set>

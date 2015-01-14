@@ -26,6 +26,9 @@ import os
 import uuid
 import shutil
 
+def splitIgnoreEmptyParts(s, delim=None):
+    return [x for x in s.split(delim) if x]
+
 if (len(sys.argv) < 3):
     print("Useage: qtc_chroot_get_upgrades <framework> <architecture>")
     sys.exit(-1)
@@ -68,9 +71,11 @@ subproc = subprocess.Popen([click, "chroot","-a",architecture,"-f",framework,"-n
 stdout, stderr = subproc.communicate()
 endSession()
 
-packages = stdout.split("\n")
-packages.pop(0)
+packages = splitIgnoreEmptyParts(stdout,"\n")
+if(len(packages) == 0):
+    sys.exit(0)
 
+packages.pop(0)
 sys.exit(len(packages))
 
 

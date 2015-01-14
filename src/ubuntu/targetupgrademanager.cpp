@@ -28,12 +28,11 @@
 #include <QProcess>
 #include <QString>
 #include <QPointer>
+#include <QSettings>
 
 
 namespace Ubuntu {
 namespace Internal {
-
-const char CHROOT_UPDATE_LIST_COMMAND[] = "%1/ubuntu/scripts/qtc_chroot_get_upgrades.py %2 %3";
 
 TargetUpgradeManager::TargetUpgradeManager(QObject *parent) :
     QObject(parent), m_state(Idle)
@@ -42,14 +41,19 @@ TargetUpgradeManager::TargetUpgradeManager(QObject *parent) :
 
 void TargetUpgradeManager::checkForUpgrades()
 {
-    if(m_state == Idle) {
+    QSettings settings (QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
+    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_CLICK));
+    bool set = settings.value(QLatin1String(Constants::SETTINGS_KEY_AUTO_CHECK_CHROOT_UPDATES),true).toBool();
+    settings.endGroup();
+
+    if(set && m_state == Idle) {
         m_state = CollectPendingUpdates;
         m_outdatedChroots.clear();
         foreach(const UbuntuClickTool::Target &chroot, UbuntuClickTool::listAvailableTargets()) {
             QPointer<QProcess> proc(new QProcess(this));
             connect(proc.data(),SIGNAL(finished(int)),this,SLOT(processFinished()));
 
-            proc->start(QString::fromLatin1(CHROOT_UPDATE_LIST_COMMAND)
+            proc->start(QString::fromLatin1(Constants::CHROOT_UPDATE_LIST_SCRIPT)
                         .arg(Constants::UBUNTU_RESOURCE_PATH)
                         .arg(chroot.architecture)
                         .arg(chroot.framework));
@@ -72,7 +76,7 @@ void TargetUpgradeManager::processFinished()
             Task task = m_running.take(id);
             task.proc->deleteLater();
 
-            if(task.proc->exitStatus() == QProcess::NormalExit, task.proc->exitCode() > 0)
+            if(task.proc->exitStatus() == QProcess::NormalExit && task.proc->exitCode() > 0)
                 m_outdatedChroots.append(task.target);
 
             if(m_running.isEmpty()) {
