@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 #
-# QTC device chroot wrapper
+# QTC chroot update check
 # Copyright (C) 2015 Canonical
 #
 # This program is free software: you can redistribute it and/or modify
