@@ -1,3 +1,32 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150114-0ubuntu1) vivid; urgency=low
+
+  [ Benjamin Zeller ]
+  * Fix bug lp:1409815 "Manifest file with invalid syntax reported as
+    missing" -Automatically update default runconfigurations when the
+    manifest file changes (LP: #1409815)
+
+  [ Bin Li ]
+  * Skip the incomplete emulator. Fixes LP: #1409596 (LP: #1409596)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 14 Jan 2015 11:11:03 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150112-0ubuntu1) vivid; urgency=low
+
+  [ Benjamin Zeller ]
+  * Add cli interface to the chroot agent
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 12 Jan 2015 11:55:43 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150108-0ubuntu1) vivid; urgency=low
+
+  [ Benjamin Zeller ]
+  * Bug #1400741: API tab links to the wrong version of the API. Add
+    click-chroot-agent, a user session daemon that preloads chroot
+    sessions. Adding support for new package naming scheme (LP:
+    #1400741)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 08 Jan 2015 08:03:05 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20141219-0ubuntu1) vivid; urgency=low
 
   [ Zoltán Balogh ]

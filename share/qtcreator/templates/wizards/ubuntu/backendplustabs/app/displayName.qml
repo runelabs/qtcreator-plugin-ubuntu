@@ -1,6 +1,6 @@
 import QtQuick 2.0
 import Ubuntu.Components 1.1
-import "ui"
+import Myapp 1.0
 
 /*!
     \brief MainView with Tabs element.
@@ -25,17 +25,43 @@ MainView {
     useDeprecatedToolbar: false
 
     width: units.gu(100)
-    height: units.gu(75)
+    height: units.gu(76)
 
-    Tabs {
-        id: tabs
+    Page {
+         title: i18n.tr("App with backend")
 
-        HelloTab {
-            objectName: "helloTab"
-        }
+         MyType {
+             id: myType
 
-        WorldTab {
-            objectName: "worldTab"
-        }
-    }
+             Component.onCompleted: {
+                 myType.helloWorld = i18n.tr("Hello world..")
+             }
+         }
+
+         Column {
+             spacing: units.gu(1)
+             anchors {
+                 margins: units.gu(2)
+                 fill: parent
+             }
+
+             Label {
+                 id: label
+                 objectName: "label"
+
+                 text: myType.helloWorld
+             }
+
+             Button {
+                 objectName: "button"
+                 width: parent.width
+
+                 text: i18n.tr("Tap me!")
+
+                 onClicked: {
+                     myType.helloWorld = i18n.tr("..from Cpp Backend")
+                 }
+             }
+         }
+     }
 }

@@ -102,7 +102,7 @@ public slots:
 
     void save() { save(m_fileName); }
     void save(QString fileName);
-    bool load(const QString &fileName,ProjectExplorer::Project *proj = 0);
+    bool load(const QString &fileName, ProjectExplorer::Project *proj = 0, QString *errorMessage = 0);
     bool loadFromString(const QString &data);
     void reload();
 

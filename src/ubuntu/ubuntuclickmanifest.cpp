@@ -282,7 +282,7 @@ void UbuntuClickManifest::setRaw(QString data) {
     emit loaded();
 }
 
-bool UbuntuClickManifest::load(const QString &fileName,ProjectExplorer::Project *proj) {
+bool UbuntuClickManifest::load(const QString &fileName,ProjectExplorer::Project *proj, QString *errorMessage) {
 
     setFileName(fileName);
     QFile file(fileName);
@@ -290,13 +290,14 @@ bool UbuntuClickManifest::load(const QString &fileName,ProjectExplorer::Project 
     if (!file.exists()) {
         emit error();
         if(debug) qDebug() << QLatin1String("file does not exist");
+        if(errorMessage) *errorMessage = tr("File does not exist.");
         return false;
     }
 
     if (!file.open(QIODevice::ReadOnly)) {
         emit error();
         if(debug) qDebug() << QLatin1String("unable to open file for reading");
-
+        if(errorMessage) *errorMessage = tr("File can not be opened.");
         return false;
     }
 
@@ -304,8 +305,10 @@ bool UbuntuClickManifest::load(const QString &fileName,ProjectExplorer::Project 
     file.close();
 
     if (fileName == QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_MANIFEST)) {
-        if(!proj)
+        if(!proj) {
+            if(errorMessage) *errorMessage = tr("Loading the template file requires the Project argument, this is a bug.");
             return false;
+        }
 
         QString mimeType = proj->projectManager()->mimeType();
         QString proName  = proj->projectFilePath();
@@ -341,7 +344,11 @@ bool UbuntuClickManifest::load(const QString &fileName,ProjectExplorer::Project 
         }
     }
 
-    return loadFromString(data);
+    if(!loadFromString(data)){
+        if(errorMessage) *errorMessage = tr("Parsing failed, please check if the syntax is correct.");
+        return false;
+    }
+    return true;
 }
 
 bool UbuntuClickManifest::loadFromString(const QString &data)

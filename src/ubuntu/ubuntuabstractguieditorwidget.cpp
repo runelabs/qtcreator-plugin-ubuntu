@@ -147,6 +147,11 @@ void UbuntuAbstractGuiEditorWidget::createUI()
     m_widgetStack->insertWidget(Source,m_sourceEditor);
 }
 
+void UbuntuAbstractGuiEditorWidget::saved()
+{
+    //default impl does nothing
+}
+
 
 void UbuntuAbstractGuiEditorWidget::updateInfoBar(const QString &errorMessage)
 {

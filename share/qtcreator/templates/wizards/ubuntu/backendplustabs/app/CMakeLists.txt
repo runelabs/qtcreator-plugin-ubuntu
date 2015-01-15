@@ -9,5 +9,3 @@ configure_file(${DESKTOP_FILE_NAME}.in ${CMAKE_CURRENT_BINARY_DIR}/${DESKTOP_FIL
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${DESKTOP_FILE_NAME} DESTINATION ${DESKTOP_DIR})
 install(FILES ${QML_JS_FILES} DESTINATION ${%ProjectName:u%_DIR})
 
-add_subdirectory(components)
-add_subdirectory(ui)

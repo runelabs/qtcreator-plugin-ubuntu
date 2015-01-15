@@ -307,10 +307,17 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
         QString manifestPath = package_dir.absoluteFilePath(QStringLiteral("manifest.json"));
 
         //read the manifest
-        UbuntuClickManifest manifest;
-        if(!manifest.load(manifestPath)) {
+        if(!QFile::exists(manifestPath)) {
             if(errorMessage)
-                *errorMessage = tr("Could not open the manifest file in the package directory, make sure its installed into the root of the click package.");
+                *errorMessage = tr("Could not find the manifest file in the package directory, make sure its installed into the root of the click package.");
+            return false;
+        }
+
+        UbuntuClickManifest manifest;
+        QString manifestErrMsg;
+        if(!manifest.load(manifestPath,nullptr,&manifestErrMsg)) {
+            if(errorMessage)
+                *errorMessage = tr("Could not read the manifest file in the package directory: %1").arg(manifestErrMsg);
             return false;
         }
 

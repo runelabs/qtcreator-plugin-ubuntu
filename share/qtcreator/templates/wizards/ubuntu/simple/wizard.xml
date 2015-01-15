@@ -20,7 +20,6 @@ Includes also unit and functional tests.
 			<file source="tests/autopilot/displayName/test_main.py"   target="tests/autopilot/%ProjectName%/test_main.py" openeditor="false"/>
 			<file source="tests/autopilot/displayName/__init__.py"   	target="tests/autopilot/%ProjectName%/__init__.py" openeditor="false"/>
 			<file source="tests/autopilot/run"  										  target="tests/autopilot/run" openeditor="false"/>
-			<file source="tests/unit/tst_hellocomponent.qml"   				target="tests/unit/tst_hellocomponent.qml" openeditor="false"/>
 			<file source="Makefile"   																target="Makefile" openeditor="false"/>
                         <file source="../share/displayName.apparmor"                     target="%ClickHookName%.apparmor" openeditor="false"/>
                         <file source="../share/.excludes"                     target=".excludes" openeditor="false"/>

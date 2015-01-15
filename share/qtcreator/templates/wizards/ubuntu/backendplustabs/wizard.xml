@@ -26,13 +26,6 @@ Includes also
         <file source="app/graphics/toolbarIcon@8.png"          target="app/graphics/toolbarIcon@8.png" openeditor="false" binary="true"/>
 	<file source="app/displayName.desktop.in"              target="app/%ClickHookName%.desktop.in" openeditor="false"/>
         <file source="app/graphics/displayName.png"            target="app/graphics/%ProjectName%.png" openeditor="false" binary="true"/>
-        <file source="app/tests/unit/tst_hellocomponent.qml"   target="app/tests/unit/tst_hellocomponent.qml" openeditor="false"/>
-        <file source="app/components/CMakeLists.txt"           target="app/components/CMakeLists.txt" openeditor="false"/>
-        <file source="app/components/HelloComponent.qml"       target="app/components/HelloComponent.qml" openeditor="false"/>
-        <file source="app/ui/CMakeLists.txt"                   target="app/ui/CMakeLists.txt" openeditor="false"/>
-        <file source="app/ui/WorldTabTools.qml"                target="app/ui/WorldTabTools.qml" openeditor="false"/>
-        <file source="app/ui/WorldTab.qml"                     target="app/ui/WorldTab.qml" openeditor="false"/>
-        <file source="app/ui/HelloTab.qml"                     target="app/ui/HelloTab.qml" openeditor="false"/>
         <file source="app/CMakeLists.txt"                      target="app/CMakeLists.txt" openeditor="false"/>
         <file source="app/tests/autopilot/run"                 target="app/tests/autopilot/run" openeditor="false"/>
         <file source="app/tests/autopilot/displayName/main/test_main.py" target="app/tests/autopilot/%ProjectName%/main/test_main.py" openeditor="false"/>
