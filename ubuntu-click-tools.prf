@@ -28,6 +28,7 @@ defineTest(ubuntuAddPreTargetDep) {
     OTHER_FILES+=$$UBUNTU_MANIFEST_FILE
     manifest_file.target   = $$OUT_PWD/manifest.json
     manifest_file.commands = sed s/@CLICK_ARCH@/$$UBUNTU_CLICK_ARCH/g $$absolute_path($${UBUNTU_MANIFEST_FILE},$$_PRO_FILE_PWD_) > $${manifest_file.target}
+    manifest_file.depends  = $$absolute_path($${UBUNTU_MANIFEST_FILE},$$_PRO_FILE_PWD_)
 
     QMAKE_EXTRA_TARGETS+=manifest_file
     ubuntuAddPreTargetDep($${manifest_file.target})

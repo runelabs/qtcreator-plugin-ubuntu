@@ -9,7 +9,7 @@
 
 Includes also unit and functional tests.
 </description>
-    <displayname>App with Simple UI</displayname>
+    <displayname>App with Simple UI (qmlproject)</displayname>
     <displaycategory>Ubuntu</displaycategory>
     <files>
 			<file source="../share/manifest.json"   						target="manifest.json" openeditor="true"/>
