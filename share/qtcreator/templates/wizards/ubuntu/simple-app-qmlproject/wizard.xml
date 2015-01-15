@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wizard version="1" kind="project" firstpage="10" id="B_UbuntuAppSimpleQmake" category="A.UbuntuProject"
+<wizard version="1" kind="project" firstpage="10" id="A1_UbuntuAppSimple'" category="A.UbuntuProject"
         platformIndependent="true" 
-        class="ubuntu-project-qmake"
+        class="ubuntu-project-plain-qml"
 				featuresRequired=""
         >
     <icon>../share/ubuntu.png</icon>
-    <description>Creates a C++ Ubuntu application project with a sample UI containing a Label and a Button.
+    <description>Creates a Qt Quick 2 application project with a sample UI containing a Label and a Button. This project contains QML code only.
 
-This templates requires at least Ubuntu SDK 15.04
+Includes also unit and functional tests.
 </description>
-    <displayname>QtQuick App with QML UI (qmake)</displayname>
+    <displayname>QML App with Simple UI (qmlproject)</displayname>
     <displaycategory>Ubuntu</displaycategory>
     <files>
-     	<file source="projectName.pro" 	         target="%ProjectName%.pro" openproject="true"/>
-<!-- MANIFEST PARTS -->
-			<file source="manifest.json.in" openeditor="true"/>
-<!-- APP PARTS -->
-			<file source="appName/appName.pro"   		 target="%ClickHookName%/%ClickHookName%.pro" openeditor="false"/>
-			<file source="appName/appName.qrc"   		 target="%ClickHookName%/%ClickHookName%.qrc" openeditor="false"/>
-			<file source="appName/appName.png"   		 target="%ClickHookName%/%ClickHookName%.png" openeditor="false" binary="true"/>
-			<file source="appName/main.qml"          target="%ClickHookName%/main.qml" openeditor="true"/>
-			<file source="appName/main.cpp"          target="%ClickHookName%/main.cpp" openeditor="true"/>
-			<file source="appName/appName.desktop"   target="%ClickHookName%/%ClickHookName%.desktop"  openeditor="false"/>
-      <file source="appName/appName.apparmor"  target="%ClickHookName%/%ClickHookName%.apparmor" openeditor="false"/>
+			<file source="../share/manifest.json"   						target="manifest.json" openeditor="true"/>
+	         	<file source="../share/displayName.qmlproject" 				target="%ProjectName%.qmlproject" openproject="true"/>
+			<file source="main.qml"   										target="main.qml" openeditor="true"/>
+			<file source="displayName.png"   							target="%ProjectName%.png" openeditor="false" binary="true"/>
+			<file source="displayName.desktop"   					target="%ClickHookName%.desktop" openeditor="false"/>
+			<file source="tests/autopilot/displayName/test_main.py"   target="tests/autopilot/%ProjectName%/test_main.py" openeditor="false"/>
+			<file source="tests/autopilot/displayName/__init__.py"   	target="tests/autopilot/%ProjectName%/__init__.py" openeditor="false"/>
+			<file source="tests/autopilot/run"  										  target="tests/autopilot/run" openeditor="false"/>
+			<file source="Makefile"   																target="Makefile" openeditor="false"/>
+                        <file source="../share/displayName.apparmor"                     target="%ClickHookName%.apparmor" openeditor="false"/>
+                        <file source="../share/.excludes"                     target=".excludes" openeditor="false"/>
    </files>
 
 	  <!-- Create a 2nd wizard page with click package parameters -->
