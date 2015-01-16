@@ -1,0 +1,2 @@
+module %ClickHookName:s%
+plugin %ClickHookName:s%backend
