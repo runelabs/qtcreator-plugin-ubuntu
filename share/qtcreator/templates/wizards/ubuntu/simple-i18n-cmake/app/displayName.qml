@@ -1,6 +1,5 @@
 import QtQuick 2.0
 import Ubuntu.Components 1.1
-import "ui"
 
 /*!
     \brief MainView with Tabs element.
@@ -27,15 +26,33 @@ MainView {
     width: units.gu(100)
     height: units.gu(75)
 
-    Tabs {
-        id: tabs
+    Page {
+        title: i18n.tr("Simple")
 
-        HelloTab {
-            objectName: "helloTab"
-        }
+        Column {
+            spacing: units.gu(1)
+            anchors {
+                margins: units.gu(2)
+                fill: parent
+            }
 
-        WorldTab {
-            objectName: "worldTab"
+            Label {
+                id: label
+                objectName: "label"
+
+                text: i18n.tr("Hello..")
+            }
+
+            Button {
+                objectName: "button"
+                width: parent.width
+
+                text: i18n.tr("Tap me!")
+
+                onClicked: {
+                    label.text = i18n.tr("..world!")
+                }
+            }
         }
     }
 }
