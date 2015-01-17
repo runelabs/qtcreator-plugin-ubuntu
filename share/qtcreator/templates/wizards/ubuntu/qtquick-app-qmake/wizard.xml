@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wizard version="1" kind="project" firstpage="10" id="B_UbuntuAppSimpleQmake" category="A.UbuntuProject"
-        platformIndependent="true" 
+        platformIndependent="true"
         class="ubuntu-project-qmake"
 				featuresRequired=""
         >
@@ -19,7 +19,7 @@ This templates requires at least Ubuntu SDK 15.04
 			<file source="appName/appName.pro"   		 target="%ClickHookName%/%ClickHookName%.pro" openeditor="false"/>
 			<file source="appName/appName.qrc"   		 target="%ClickHookName%/%ClickHookName%.qrc" openeditor="false"/>
 			<file source="appName/appName.png"   		 target="%ClickHookName%/%ClickHookName%.png" openeditor="false" binary="true"/>
-			<file source="appName/main.qml"          target="%ClickHookName%/main.qml" openeditor="true"/>
+			<file source="appName/Main.qml"          target="%ClickHookName%/Main.qml" openeditor="true"/>
 			<file source="appName/main.cpp"          target="%ClickHookName%/main.cpp" openeditor="true"/>
 			<file source="appName/appName.desktop"   target="%ClickHookName%/%ClickHookName%.desktop"  openeditor="false"/>
       <file source="appName/appName.apparmor"  target="%ClickHookName%/%ClickHookName%.apparmor" openeditor="false"/>

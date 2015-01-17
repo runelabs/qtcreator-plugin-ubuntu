@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wizard version="1" kind="project" firstpage="10" id="A4_UbuntuAppBackendQmake'" category="A.UbuntuProject"
-        platformIndependent="true" 
+        platformIndependent="true"
         class="ubuntu-project-qmake"
 				featuresRequired=""
         >
@@ -23,7 +23,7 @@ This templates requires at least Ubuntu SDK 15.04
 <!-- APP PARTS -->
       <file source="appName/appName.pro"   		 target="%ClickHookName%/%ClickHookName%.pro" openeditor="false"/>
       <file source="appName/appName.png"   		 target="%ClickHookName%/%ClickHookName%.png" openeditor="false" binary="true"/>
-      <file source="appName/main.qml"                    target="%ClickHookName%/main.qml" openeditor="true"/>
+      <file source="appName/Main.qml"                    target="%ClickHookName%/Main.qml" openeditor="true"/>
       <file source="appName/appName.desktop"             target="%ClickHookName%/%ClickHookName%.desktop"  openeditor="false"/>
       <file source="appName/appName.apparmor"            target="%ClickHookName%/%ClickHookName%.apparmor" openeditor="false"/>
       <file source="backend/displayName/backend.h"       target="backend/%ClickHookName:s%/backend.h" openeditor="false"/>

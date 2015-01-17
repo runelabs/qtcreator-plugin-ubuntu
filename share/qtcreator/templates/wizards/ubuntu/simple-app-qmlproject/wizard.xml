@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wizard version="1" kind="project" firstpage="10" id="A1_UbuntuAppSimple'" category="A.UbuntuProject"
-        platformIndependent="true" 
+        platformIndependent="true"
         class="ubuntu-project-plain-qml"
 				featuresRequired=""
         >
@@ -14,7 +14,7 @@ Includes also unit and functional tests.
     <files>
 			<file source="../share/manifest.json"   						target="manifest.json" openeditor="true"/>
 	         	<file source="../share/displayName.qmlproject" 				target="%ProjectName%.qmlproject" openproject="true"/>
-			<file source="main.qml"   										target="main.qml" openeditor="true"/>
+			<file source="Main.qml"   										target="Main.qml" openeditor="true"/>
 			<file source="displayName.png"   							target="%ProjectName%.png" openeditor="false" binary="true"/>
 			<file source="displayName.desktop"   					target="%ClickHookName%.desktop" openeditor="false"/>
 			<file source="tests/autopilot/displayName/test_main.py"   target="tests/autopilot/%ProjectName%/test_main.py" openeditor="false"/>
