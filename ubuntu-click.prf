@@ -1,0 +1,6 @@
+UBUNTU_CLICK_ARCH=$$system(dpkg-architecture -qDEB_HOST_ARCH)
+qt_install_libs = $$[QT_INSTALL_LIBS]
+UBUNTU_CLICK_PLUGIN_PATH=/lib/$$basename(qt_install_libs)
+UBUNTU_CLICK_BINARY_PATH=/lib/$$basename(qt_install_libs)/bin
+
+!contains(CONFIG,ubuntu-click-tools):CONFIG+=ubuntu-click-tools
