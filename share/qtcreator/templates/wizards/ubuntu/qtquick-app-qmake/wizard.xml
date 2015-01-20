@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wizard version="1" kind="project" firstpage="10" id="B_UbuntuAppSimpleQmake" category="A.UbuntuProject"
-        platformIndependent="true"
+        platformIndependent="true" 
         class="ubuntu-project-qmake"
 				featuresRequired=""
         >
