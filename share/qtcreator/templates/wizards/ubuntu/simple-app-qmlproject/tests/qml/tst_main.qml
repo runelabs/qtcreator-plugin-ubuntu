@@ -22,24 +22,11 @@ Item {
 
         when: windowShown
 
-        function initTestCase() {
-            console.debug(">> initTestCase");
-        }
-
-        function cleanupTestCase() {
-            console.debug(">> cleanupTestCase");
-        }
 
         function init() {
-            console.debug(">> init");
             var label = findChild(main, "label");
             // See the compare method documentation at https://developer.ubuntu.com/api/qml/sdk-14.10/QtTest.TestCase/#compare-method
-            compare("Hello..", label.text, "Text was not the expected.");
-            console.debug("<< init");
-        }
-
-        function cleanup() {
-            console.debug(">> cleanup");
+            compare("Hello..", label.text);
         }
 
         function test_clickButtonMustChangeLabel() {
@@ -48,7 +35,7 @@ Item {
             mouseClick(button, buttonCenter.x, buttonCenter.y);
             var label = findChild(main, "label");
             // See the tryCompare method documentation at https://developer.ubuntu.com/api/qml/sdk-14.10/QtTest.TestCase/#tryCompare-method
-            tryCompare(label, "text", "..world!", 1, "Text was not the expected.");
+            tryCompare(label, "text", "..world!", 1);
         }
     }
 }
