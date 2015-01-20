@@ -1,9 +1,3 @@
-qtcreator-plugin-ubuntu (3.1.1+15.04.20150114bzr329pkg0vivid26-0ubuntu) UNRELEASED; urgency=medium
-
-  * Test.
-
- -- Leo Arias <elopio@tangamandapio76-desktop>  Fri, 16 Jan 2015 16:36:27 -0600
-
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150114-0ubuntu1) vivid; urgency=low
 
   [ Benjamin Zeller ]
@@ -594,7 +588,7 @@ qtcreator-plugin-ubuntu (3.0.1+14.10.20140611.2-0ubuntu1) utopic; urgency=low
 
 qtcreator-plugin-ubuntu (3.0.1+14.10.20140609-0ubuntu2) utopic; urgency=medium
 
-  * test
+  * test 
 
  -- Zoltán Balogh <zoltan@bakter.hu>  Wed, 11 Jun 2014 06:52:33 +0200
 
@@ -868,7 +862,7 @@ qtcreator-plugin-ubuntu (3.0.1+14.04.20140324.1-0ubuntu1) trusty; urgency=medium
   * List only frameworks that are available on the development host
   * Pass user arguments to cmake running in the chroot (LP: #1292892)
 
-
+  
   * Pass user arguments to cmake running in the chroot (LP: #1292892)
     (LP: #1292892)
   * enable menu item to build on device
@@ -984,7 +978,7 @@ qtcreator-plugin-ubuntu (2.8.1.2-0ubuntu1) trusty; urgency=medium
   * Remove forced update of the maintainer in the manifest.json (LP: #1274265)
   * Removed gksu from the dependency list (LP: #1235531)
   * The click package reviewing tool is executed on the click package created in the Packaging tab.
-  * Enable scope templates on Trusty (LP: #1263593)
+  * Enable scope templates on Trusty (LP: #1263593) 
 
  -- Zoltán Balogh <zoltan@bakter.hu>  Thu, 13 Feb 2014 11:50:52 +0200
 
@@ -999,7 +993,7 @@ qtcreator-plugin-ubuntu (2.8.1.1-0ubuntu1) trusty; urgency=low
   * Cordova HTMl5 and HTML5 templates are merged
   * Simple webapp template added
   * References to the "Touch" platform are removed
-
+  
  -- Zoltán Balogh <zoltan@bakter.hu>  Mon, 25 Nov 2013 14:13:21 +0200
 
 qtcreator-plugin-ubuntu (2.8.1bzr56saucy0+testing6+0newqtc1ubuntu1) UNRELEASED; urgency=medium
@@ -1062,15 +1056,15 @@ qtcreator-plugin-ubuntu (2.7.2-0ubuntu3) saucy; urgency=low
   * QtC cuts folder names when building on the device (LP: #1212937)
   * Click packages need to exclude the .bzr dir (LP: #1214628)
   * Force lower case click package name (LP: #1219877)
-  * Packaging resets package name, other attributes to default every
+  * Packaging resets package name, other attributes to default every 
     time it's opened (LP: #1219948)
   * please provide gui for security manifest (LP: #1221407)
   * Cannot enable developer mode on read-only image (LP: #1223301)
   * Cannot launch application through qtcreator (LP: #1225178)
   * Application installation script problems (LP: #1213902)
-  * Comment field in .desktop file should be generated on the fly
+  * Comment field in .desktop file should be generated on the fly 
     (LP: #1223388)
-  * SDK should set applicationName to "name" value in the click manifest
+  * SDK should set applicationName to "name" value in the click manifest 
     (LP: #1227085)
 
  -- Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>  Wed, 18 Sep 2013 15:36:58 +0300
@@ -1102,9 +1096,9 @@ qtcreator-plugin-ubuntu (2.7.2-0ubuntu1) saucy; urgency=low
   * Remove provides/conflicts/replaces for old PPA ubuntu-qtcreator-plugins
   * Clean out packaging with wrap-and-sort -a -t
   * Add recommended cflags and QT_SELECT to debian/rules
-  * Make dependencies stricter. Require Qt Creator >= 2.7.1 and recommend
+  * Make dependencies stricter. Require Qt Creator >= 2.7.1 and recommend 
     the plugins from the -common packages.
-  * A file moved from ubuntu plugin package to cordova plugin package, adding
+  * A file moved from ubuntu plugin package to cordova plugin package, adding 
     Replaces.
 
  -- Timo Jyrinki <timo-jyrinki@ubuntu.com>  Fri, 06 Sep 2013 07:12:02 +0300
@@ -1112,7 +1106,7 @@ qtcreator-plugin-ubuntu (2.7.2-0ubuntu1) saucy; urgency=low
 qtcreator-plugin-ubuntu (0.1-0ubuntu3) saucy; urgency=low
 
   * The Cordova project type in the template definition file had a typo. The
-    fileName was wrongly filename. So the .desktop file was not created.
+    fileName was wrongly filename. So the .desktop file was not created. 
     (LP: #1216046)
 
  -- Zoltán Balogh <zoltan@bakter.hu>  Tue, 27 Aug 2013 22:15:56 +0300
