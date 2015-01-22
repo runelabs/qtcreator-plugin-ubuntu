@@ -7,5 +7,5 @@ fi
 
 SCRIPTPATH=`dirname $0`
 pushd ${SCRIPTPATH}
-autopilot run %ProjectName%
+autopilot3 run %ProjectName%
 popd
