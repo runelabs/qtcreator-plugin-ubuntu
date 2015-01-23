@@ -26,7 +26,8 @@ FORMS += \
     ubuntupackagestepconfigwidget.ui \
     ubuntumanifesteditor.ui \
     ubuntuapparmoreditor.ui \
-    ubunturemoterunconfigurationwidget.ui
+    ubunturemoterunconfigurationwidget.ui \
+    targetupgrademanagerdialog.ui
 
 RESOURCES += \
     resources.qrc
@@ -134,7 +135,8 @@ SOURCES += \
     ubuntutestcontrol.cpp \
     ubuntupackageoutputparser.cpp \
     ubuntuprojecthelper.cpp \
-    wizards/ubuntuprojectmigrationwizard.cpp
+    wizards/ubuntuprojectmigrationwizard.cpp \
+    targetupgrademanager.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -219,7 +221,8 @@ HEADERS += \
     ubuntupackageoutputparser.h \
     ubuntuprojecthelper.h \
     ubuntuscopefinalizer.h \
-    wizards/ubuntuprojectmigrationwizard.h
+    wizards/ubuntuprojectmigrationwizard.h \
+    targetupgrademanager.h
 
 INCLUDEPATH+=$$OUT_PWD
 
