@@ -519,15 +519,30 @@ void UbuntuPackageStep::injectDebugHelperStep()
         QRegularExpression deskExecRegex(QStringLiteral("^(\\s*[Ee][Xx][Ee][cC]=.*)$"),QRegularExpression::MultilineOption);
 
         UbuntuClickManifest manifest;
-        if(!manifest.load(bc->buildDirectory()
-                          .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
-                          .appendPath(QStringLiteral("manifest.json"))
-                          .toString())) {
+        QString err;
+        QString manifestFileName = bc->buildDirectory()
+                .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                .appendPath(QStringLiteral("manifest.json")).toString();
 
+        if(!QFile::exists(manifestFileName)) {
             emit addOutput(tr("Could not find the manifest.json file in %1.\nPlease check if it is added to the install targets in your project file")
                            .arg(bc->buildDirectory()
                                 .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
                                 .toString()),
+                           BuildStep::ErrorMessageOutput);
+
+            m_futureInterface->reportResult(false);
+            cleanup();
+            emit finished();
+            return;
+        }
+
+        if(!manifest.load(manifestFileName,nullptr,&err)) {
+            emit addOutput(tr("Could not open the manifest.json file in %1.\n %2")
+                           .arg(bc->buildDirectory()
+                                .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                                .toString())
+                           .arg(err),
                            BuildStep::ErrorMessageOutput);
 
             m_futureInterface->reportResult(false);

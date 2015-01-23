@@ -24,8 +24,11 @@ do
 	if [[ ${EMULATOR_INFO} =~ ^([A-Za-z0-9._%+-]+)([^ ]*) ]]; then
 		NAME="${BASH_REMATCH[1]}"
 		REST="${BASH_REMATCH[2]}"
-		ARCH=`cat  ${HOME}/.local/share/ubuntu-emulator/${NAME}/.device`
- 		ARCH=${ARCH//[[:blank:]]/}
-		echo "$NAME${REST},arch=$ARCH"
+		DEVICE_FILE="${HOME}/.local/share/ubuntu-emulator/${NAME}/.device"
+		if [ -f ${DEVICE_FILE} ]; then
+			ARCH=`cat  ${DEVICE_FILE}`
+ 			ARCH=${ARCH//[[:blank:]]/}
+			echo "$NAME${REST},arch=$ARCH"
+		fi
 	fi
 done    
