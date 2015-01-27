@@ -126,6 +126,8 @@ public:
     enum ProcessState {
         NotStarted,
         WaitForEmulatorStart,
+        WaitForBootAdbAccess,
+        WaitForBootDeviceLock,
         WaitForBoot,
         DetectDeviceVersion,
         DetectNetworkConnection,
