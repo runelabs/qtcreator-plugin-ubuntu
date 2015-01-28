@@ -12,7 +12,7 @@ Includes also
  - a unit test for C++
  - unit and functional tests for QML
 </description>
-    <displayname>QML App with QML plugin (cmake)</displayname>
+    <displayname>QML App with C++ plugin (cmake)</displayname>
     <displaycategory>Ubuntu</displaycategory>
     <files>
         <file source="CMakeLists.txt"                          target="CMakeLists.txt" openproject="true"/>
