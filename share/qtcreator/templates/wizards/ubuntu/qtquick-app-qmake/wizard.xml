@@ -7,7 +7,7 @@
     <icon>../share/ubuntu.png</icon>
     <description>Creates a C++ Ubuntu application project with a sample UI containing a Label and a Button.
 
-This templates requires at least Ubuntu SDK 15.04
+This templates requires a Kit using at least a 15.04 click chroot.
 </description>
     <displayname>QtQuick App with QML UI (qmake)</displayname>
     <displaycategory>Ubuntu</displaycategory>
