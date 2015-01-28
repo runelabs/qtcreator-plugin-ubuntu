@@ -427,7 +427,8 @@ const bool  SETTINGS_DEFAULT_DEVICES_AUTOTOGGLE = true;
 
 const char  SETTINGS_COMPANY[] = "Canonical";
 const char  SETTINGS_PRODUCT[] = "UbuntuSDK";
-const char  SETTINGS_GROUP_MODE[] = "Mode";
+const char  SETTINGS_GROUP_MODE[]  = "Mode";
+const char  SETTINGS_GROUP_CLICK[] = "Click";
 const char  SETTINGS_GROUP_DEVICE_CONNECTIVITY[] = "DeviceConnectivity";
 const char  SETTINGS_GROUP_DEVICES[] = "Devices";
 
@@ -441,6 +442,7 @@ const char  SETTINGS_KEY_IP[] = "IP";
 const char  SETTINGS_KEY_QML[] = "QML";
 const char  SETTINGS_KEY_SSH[] = "SSH";
 const char  SETTINGS_KEY_AUTOTOGGLE[] = "Auto_Toggle";
+const char  SETTINGS_KEY_AUTO_CHECK_CHROOT_UPDATES[] = "Auto_Check_Chroot_Updates";
 
 //const char  SETTINGS_GROUP_CLICK[] = "Click";
 //const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS[] = "ReviewersToolsEnabled";
@@ -582,6 +584,10 @@ const char UBUNTU_APPARMOR_EDITOR_CONTEXT[] = "UbuntuProjectManager.UbuntuApparm
 
 //Actions
 const char UBUNTU_MIGRATE_QMAKE_PROJECT[] = "UbuntuProjectManager.MigrateQMakeProject";
+
+//TargetUpgradeManager
+const char CHROOT_UPDATE_LIST_SCRIPT[] = "%1/ubuntu/scripts/qtc_chroot_get_upgrades.py %2 %3";
+
 
 } // namespace Ubuntu
 } // namespace Constants
