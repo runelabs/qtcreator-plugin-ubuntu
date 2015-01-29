@@ -142,6 +142,8 @@ MainView {
                 title: "Log"
                 expanded: true
                 TextArea {
+                    autoSize: true
+                    maximumLineCount: 0
                     anchors.left: parent.left
                     anchors.right: parent.right
                     height: units.gu(60)
