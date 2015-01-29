@@ -11,7 +11,13 @@ MainView {
         Rectangle {
             height: descText.height
             width: scrollView.width
-            color: !(index % 2) ? "#FFFFFF" : "#C0C0C0"
+            color: !(index % 2) ? "#FFFFFF" : "#E5E4E2"
+
+            //block mouse events
+            MouseArea {
+                anchors.fill: parent
+            }
+
             Row {
                 id: headerRow
                 height: descText.height
