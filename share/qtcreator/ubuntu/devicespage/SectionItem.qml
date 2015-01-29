@@ -38,7 +38,7 @@ ListItem.Expandable {
         Row{
             id: headerRow
             anchors { left: parent.left; right: parent.right}
-            height: childrenRect.height
+            height: Math.max(24,label.paintedHeight)
             Image {
                 source:  expandingColumnItem.expanded ? "qrc:/ubuntu/images/view-collapse.svg" : "qrc:/ubuntu/images/view-expand.svg"
                 width: 24
