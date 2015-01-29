@@ -82,7 +82,8 @@ public:
     enum Roles {
         TypeRole = Qt::UserRole+1,
         LinkRole,
-        DescriptionRole
+        DescriptionRole,
+        ImageRole
     };
 
     UbuntuValidationResultModel(QObject *parent = 0);

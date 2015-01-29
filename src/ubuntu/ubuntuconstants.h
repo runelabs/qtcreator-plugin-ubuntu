@@ -257,6 +257,7 @@ const QString UBUNTU_RESOURCE_PATH = Core::ICore::resourcePath();
 
 const QString UBUNTU_WELCOMESCREEN_QML = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/welcome/welcome.qml");
 const QString UBUNTU_DEVICESCREEN_QML  = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/devicespage/main.qml");
+const QString UBUNTU_PUBLISHSCREEN_QML  = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/devicespage/publishpage.qml");
 const QString UBUNTU_DEVICESCREEN_ROOT  = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/devicespage");
 const QString UBUNTU_TEMPLATESPATH = UBUNTU_RESOURCE_PATH + QLatin1String("/templates/wizards/ubuntu/");
 const QString UBUNTU_MENUPATH = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/");

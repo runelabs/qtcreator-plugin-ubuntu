@@ -21,7 +21,7 @@ import Ubuntu.Components.ListItems 1.0 as ListItem
 ListItem.Expandable {
     id: expandingColumnItem
     expandedHeight: contentColumn.height + units.gu(1)
-    collapsedHeight: headerRow.childrenRect.height
+    collapsedHeight:  headerRow.height
     divider.visible: false
 
     property string title
@@ -33,7 +33,7 @@ ListItem.Expandable {
 
     Column {
         id: contentColumn
-        anchors { left: parent.left; right: parent.right }
+        anchors { top: parent.top; left: parent.left; right: parent.right }
         Row{
             id: headerRow
             anchors { left: parent.left; right: parent.right}

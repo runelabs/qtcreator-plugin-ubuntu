@@ -46,7 +46,9 @@ QML_FILES += \
     $$QML_ROOT/devicespage/DeleteDeviceDialog.qml \
     $$QML_ROOT/devicespage/ScrollableView.qml \
     $$QML_ROOT/devicespage/SectionItem.qml \
-    $$QML_ROOT/devicespage/EmulatorNotInstalled.qml
+    $$QML_ROOT/devicespage/EmulatorNotInstalled.qml \
+    $$QML_ROOT/devicespage/publishpage.qml \
+    $$QML_ROOT/devicespage/Link.qml
 
 OTHER_FILES += \
     UbuntuProject.mimetypes.xml \
@@ -72,7 +74,6 @@ SOURCES += \
     ubuntucoreappsmode.cpp \
     ubuntuwikimode.cpp \
     ubuntupackagingmode.cpp \
-    ubuntupackagingwidget.cpp \
     ubuntubzr.cpp \
     ubuntuclickmanifest.cpp \
     ubuntuwebmode.cpp \
@@ -136,7 +137,8 @@ SOURCES += \
     ubuntupackageoutputparser.cpp \
     ubuntuprojecthelper.cpp \
     wizards/ubuntuprojectmigrationwizard.cpp \
-    targetupgrademanager.cpp
+    targetupgrademanager.cpp \
+    ubuntupackagingmodel.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -158,7 +160,6 @@ HEADERS += \
     ubuntucoreappsmode.h \
     ubuntuwikimode.h \
     ubuntupackagingmode.h \
-    ubuntupackagingwidget.h \
     ubuntubzr.h \
     ubuntuclickmanifest.h \
     ubuntuwebmode.h \
@@ -222,7 +223,8 @@ HEADERS += \
     ubuntuprojecthelper.h \
     ubuntuscopefinalizer.h \
     wizards/ubuntuprojectmigrationwizard.h \
-    targetupgrademanager.h
+    targetupgrademanager.h \
+    ubuntupackagingmodel.h
 
 INCLUDEPATH+=$$OUT_PWD
 
