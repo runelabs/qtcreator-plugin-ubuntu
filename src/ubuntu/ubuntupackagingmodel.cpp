@@ -443,8 +443,10 @@ void UbuntuPackagingModel::targetChanged()
 void UbuntuPackagingModel::buildClickPackage()
 {
     ProjectExplorer::Project* project = ProjectExplorer::SessionManager::startupProject();
-    if(!project)
+    if(!project) {
+        QMessageBox::warning(Core::ICore::mainWindow(),tr("No Project"),tr("No valid project loaded."));
         return;
+    }
 
     QString mimeType = project->projectManager()->mimeType();
     bool isCMake = mimeType == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE);
