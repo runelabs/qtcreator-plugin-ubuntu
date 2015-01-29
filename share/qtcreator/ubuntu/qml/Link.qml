@@ -26,6 +26,7 @@ Rectangle {
     opacity: 0.8
 
     property alias title : linkTitle.text
+    property alias pixelSize : linkTitle.font.pixelSize
     property url link
     property color defaultColor : "#DD4814"
     property color hoverColor : "#eee"
@@ -59,7 +60,6 @@ Rectangle {
     MouseArea {
         anchors.fill: parent
         hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
 
         onEntered: {
             background.opacity = 1;
