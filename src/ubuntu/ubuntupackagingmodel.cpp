@@ -75,13 +75,12 @@ UbuntuPackagingModel::UbuntuPackagingModel(QObject *parent) :
 
     connect(m_inputParser,&ClickRunChecksParser::parsedNewTopLevelItem
             ,m_validationModel,&UbuntuValidationResultModel::appendItem);
+    connect(m_inputParser,SIGNAL(begin()),this,SIGNAL(beginValidation()));
 
     connect(&m_ubuntuProcess,SIGNAL(started(QString)),this,SLOT(onStarted(QString)));
     connect(&m_ubuntuProcess,SIGNAL(message(QString)),this,SLOT(onMessage(QString)));
     connect(&m_ubuntuProcess,SIGNAL(finished(QString,int)),this,SLOT(onFinished(QString, int)));
     connect(&m_ubuntuProcess,SIGNAL(error(QString)),this,SLOT(onError(QString)));
-
-    connect(m_validationModel,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(onNewValidationData()));
 
     connect(UbuntuMenu::instance(),SIGNAL(requestBuildAndInstallProject()),this,SLOT(buildAndInstallPackageRequested()));
     connect(UbuntuMenu::instance(),SIGNAL(requestBuildAndVerifyProject()),this,SLOT(buildAndVerifyPackageRequested()));
@@ -159,35 +158,6 @@ void UbuntuPackagingModel::onFinishedAction(const QProcess *proc, QString cmd)
     }
 
 }
-
-void UbuntuPackagingModel::onNewValidationData()
-{
-#if 0
-    if(!ui->treeViewValidate->selectionModel()->hasSelection()) {
-        QModelIndex index = m_validationModel->findFirstErrorItem();
-
-        ui->treeViewValidate->setCurrentIndex(index);
-    }
-#endif
-}
-
-#if 0
-void UbuntuPackagingModel::onValidationItemSelected(const QModelIndex &index)
-{
-    if(index.isValid()) {
-        QUrl link = m_validationModel->data(index,UbuntuValidationResultModel::LinkRole).toUrl();
-        if(link.isValid()) {
-            ui->labelErrorLink->setText(
-                        QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_LINK_DISPLAYTEXT)
-                        .arg(link.toString(QUrl::FullyEncoded)));
-        } else {
-            ui->labelErrorLink->setText(QLatin1String(""));
-        }
-        ui->labelErrorType->setText(m_validationModel->data(index,UbuntuValidationResultModel::TypeRole).toString());
-        ui->plainTextEditDescription->setPlainText(m_validationModel->data(index,UbuntuValidationResultModel::DescriptionRole).toString());
-    }
-}
-#endif
 
 void UbuntuPackagingModel::onMessage(QString msg)
 {

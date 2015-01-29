@@ -265,6 +265,8 @@ void ClickRunChecksParser::beginRecieveData(const QString &data)
     m_nextSectionOffset = m_errorCount = m_warnCount = 0;
     m_data.append(data);
 
+    emit begin();
+
     bool canContinue = true;
     while(canContinue) canContinue=tryParseNextSection();
 }

@@ -58,6 +58,14 @@ MainView {
             width: 1
         }
 
+        Connections {
+            target: publishModel
+            onBeginValidation: {
+                validationSection.expanded=true;
+                logSection.expanded=false;
+            }
+        }
+
         Row {
             id: topRow
             anchors.top: spacing.bottom
@@ -68,8 +76,6 @@ MainView {
                 text: "Validate existing click package"
                 onClicked: {
                     publishModel.on_pushButtonReviewersTools_clicked();
-                    validationSection.expanded=true;
-                    logSection.expanded=false;
                 }
             }
             Button {
@@ -78,13 +84,12 @@ MainView {
                 text: "Build and validate click package"
                 onClicked: {
                     publishModel.on_pushButtonClickPackage_clicked();
-                    validationSection.expanded=true;
-                    logSection.expanded=false;
                 }
             }
             Button {
                 text: "Install on device"
                 onClicked: {
+                    publishModel.log = "";
                     publishModel.buildAndInstallPackageRequested();
                     validationSection.expanded=false;
                     logSection.expanded=true;

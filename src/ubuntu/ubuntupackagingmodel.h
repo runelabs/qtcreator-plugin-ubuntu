@@ -79,7 +79,6 @@ protected slots:
     void onError(QString msg);
     void onStarted(QString);
     void onFinishedAction(const QProcess* proc,QString cmd);
-    void onNewValidationData();
 
     void checkClickReviewerTool();
     void buildFinished (const bool success);
@@ -88,14 +87,11 @@ protected slots:
 
 signals:
     void reviewToolsInstalledChanged(const bool& installed);
-
     void showValidationUiChanged(bool arg);
-
     void canBuildChanged(bool arg);
-
     void validationModelChanged(QAbstractItemModel* arg);
-
     void logChanged(QString arg);
+    void beginValidation();
 
 private:
     void buildClickPackage ();
