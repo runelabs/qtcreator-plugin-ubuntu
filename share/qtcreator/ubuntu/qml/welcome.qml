@@ -17,7 +17,7 @@
  */
 
 import QtQuick 2.0
-
+import "Components"
 
 Rectangle {
     color: "#F7F6F5"

@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import Ubuntu.Components 1.0
 import Ubuntu.Components.ListItems 1.0
+import "Components"
 
 MainView {
     width: units.gu(48)

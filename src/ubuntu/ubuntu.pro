@@ -32,30 +32,11 @@ FORMS += \
 RESOURCES += \
     resources.qrc
 
-#QML files
-QML_ROOT="$${PWD}/../../share/qtcreator/ubuntu"
-QML_FILES += \
-    $$QML_ROOT/qml/welcome.qml \
-    $$QML_ROOT/qml/Link.qml \
-    $$QML_ROOT/qml/NewsBox.qml\
-    $$QML_ROOT/qml/devicespage.qml \
-    $$QML_ROOT/qml/DevicePage.qml  \
-    $$QML_ROOT/qml/DeviceStatusTab.qml  \
-    $$QML_ROOT/qml/FeatureStateItem.qml  \
-    $$QML_ROOT/qml/NewEmulatorDialog.qml \
-    $$QML_ROOT/qml/DeleteDeviceDialog.qml \
-    $$QML_ROOT/qml/ScrollableView.qml \
-    $$QML_ROOT/qml/SectionItem.qml \
-    $$QML_ROOT/qml/EmulatorNotInstalled.qml \
-    $$QML_ROOT/qml/publishpage.qml \
-    $$QML_ROOT/qml/Link.qml
-
 OTHER_FILES += \
     UbuntuProject.mimetypes.xml \
     manifest.json.template \
     myapp.json.template \
-    manifestlib.js \
-    $$QML_FILES
+    manifestlib.js
 
 SOURCES += \
     ubuntuplugin.cpp \
