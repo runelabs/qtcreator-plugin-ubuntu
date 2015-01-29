@@ -110,7 +110,8 @@ MainView {
                         model: publishModel.validationModel
                         delegate: SectionItem{
                             title: TypeRole
-                            expanded: true
+                            imageSource: ImageRole
+                            expanded: ShouldExpandRole
                             Column {
                                 Repeater{
                                     model: VisualDataModel{

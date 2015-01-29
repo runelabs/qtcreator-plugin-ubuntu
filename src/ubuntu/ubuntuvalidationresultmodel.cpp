@@ -45,6 +45,7 @@ UbuntuValidationResultModel::UbuntuValidationResultModel(QObject *parent)
     roleNames[LinkRole] = "LinkRole";
     roleNames[DescriptionRole] = "DescriptionRole";
     roleNames[ImageRole] = "ImageRole";
+    roleNames[ShouldExpandRole] = "ShouldExpandRole";
 
     setRoleNames(roleNames);
 }
@@ -140,7 +141,6 @@ QVariant UbuntuValidationResultModel::data(const QModelIndex &index, int role) c
             break;
         }
         case LinkRole: {
-            qDebug()<<"Link Role: "<<item->link.toString();
             return item->link.toString();
             break;
         }
@@ -167,6 +167,11 @@ QVariant UbuntuValidationResultModel::data(const QModelIndex &index, int role) c
             }
 
             break;
+        }
+        case ShouldExpandRole: {
+            if(item->icon == ClickRunChecksParser::Error || item->icon == ClickRunChecksParser::Warning)
+                return true;
+            return false;
         }
     }
     return QVariant();

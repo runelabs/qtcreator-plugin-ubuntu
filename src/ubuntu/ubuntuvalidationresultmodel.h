@@ -83,7 +83,8 @@ public:
         TypeRole = Qt::UserRole+1,
         LinkRole,
         DescriptionRole,
-        ImageRole
+        ImageRole,
+        ShouldExpandRole
     };
 
     UbuntuValidationResultModel(QObject *parent = 0);

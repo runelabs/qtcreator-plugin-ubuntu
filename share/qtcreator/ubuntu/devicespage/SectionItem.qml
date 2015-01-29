@@ -25,6 +25,7 @@ ListItem.Expandable {
     divider.visible: false
 
     property string title
+    property string imageSource
     default property alias data: contentColumn.data
 
     onClicked: {
@@ -45,7 +46,19 @@ ListItem.Expandable {
             }
             Item{
                 width: units.gu(1)
-                height: parent.height
+                height: 1
+            }
+            Image {
+                source: imageSource
+                width: 16
+                height: 16
+                visible: imageSource.length > 0
+                anchors.verticalCenter: parent.verticalCenter
+            }
+            Item{
+                visible: imageSource.length > 0
+                width: units.gu(1)
+                height: 1
             }
             Label {
                 id: label
