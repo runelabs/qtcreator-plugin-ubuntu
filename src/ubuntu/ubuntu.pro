@@ -32,28 +32,11 @@ FORMS += \
 RESOURCES += \
     resources.qrc
 
-#QML files
-QML_ROOT="$${PWD}/../../share/qtcreator/ubuntu"
-QML_FILES += \
-    $$QML_ROOT/welcome/welcome.qml \
-    $$QML_ROOT/welcome/Link.qml \
-    $$QML_ROOT/welcome/NewsBox.qml\
-    $$QML_ROOT/devicespage/main.qml \
-    $$QML_ROOT/devicespage/DevicePage.qml  \
-    $$QML_ROOT/devicespage/DeviceStatusTab.qml  \
-    $$QML_ROOT/devicespage/FeatureStateItem.qml  \
-    $$QML_ROOT/devicespage/NewEmulatorDialog.qml \
-    $$QML_ROOT/devicespage/DeleteDeviceDialog.qml \
-    $$QML_ROOT/devicespage/ScrollableView.qml \
-    $$QML_ROOT/devicespage/SectionItem.qml \
-    $$QML_ROOT/devicespage/EmulatorNotInstalled.qml
-
 OTHER_FILES += \
     UbuntuProject.mimetypes.xml \
     manifest.json.template \
     myapp.json.template \
-    manifestlib.js \
-    $$QML_FILES
+    manifestlib.js
 
 SOURCES += \
     ubuntuplugin.cpp \
@@ -72,7 +55,6 @@ SOURCES += \
     ubuntucoreappsmode.cpp \
     ubuntuwikimode.cpp \
     ubuntupackagingmode.cpp \
-    ubuntupackagingwidget.cpp \
     ubuntubzr.cpp \
     ubuntuclickmanifest.cpp \
     ubuntuwebmode.cpp \
@@ -136,7 +118,8 @@ SOURCES += \
     ubuntupackageoutputparser.cpp \
     ubuntuprojecthelper.cpp \
     wizards/ubuntuprojectmigrationwizard.cpp \
-    targetupgrademanager.cpp
+    targetupgrademanager.cpp \
+    ubuntupackagingmodel.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -158,7 +141,6 @@ HEADERS += \
     ubuntucoreappsmode.h \
     ubuntuwikimode.h \
     ubuntupackagingmode.h \
-    ubuntupackagingwidget.h \
     ubuntubzr.h \
     ubuntuclickmanifest.h \
     ubuntuwebmode.h \
@@ -222,7 +204,8 @@ HEADERS += \
     ubuntuprojecthelper.h \
     ubuntuscopefinalizer.h \
     wizards/ubuntuprojectmigrationwizard.h \
-    targetupgrademanager.h
+    targetupgrademanager.h \
+    ubuntupackagingmodel.h
 
 INCLUDEPATH+=$$OUT_PWD
 

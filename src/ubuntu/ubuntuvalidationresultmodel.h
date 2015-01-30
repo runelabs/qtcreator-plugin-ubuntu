@@ -66,6 +66,7 @@ protected:
 
 signals:
     void parsedNewTopLevelItem (DataItem* item);
+    void begin ();
     void finished ();
 private:
     QString m_data;
@@ -82,7 +83,9 @@ public:
     enum Roles {
         TypeRole = Qt::UserRole+1,
         LinkRole,
-        DescriptionRole
+        DescriptionRole,
+        ImageRole,
+        ShouldExpandRole
     };
 
     UbuntuValidationResultModel(QObject *parent = 0);

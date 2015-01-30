@@ -40,10 +40,12 @@ UbuntuValidationResultModel::UbuntuValidationResultModel(QObject *parent)
     , m_nextSectionOffset(0)
 {
     m_rootItem->type = QLatin1String("RootItem");
-    QHash<int,QByteArray> roleNames;
+    QHash<int,QByteArray> roleNames = QAbstractItemModel::roleNames();
     roleNames[TypeRole] = "TypeRole";
     roleNames[LinkRole] = "LinkRole";
     roleNames[DescriptionRole] = "DescriptionRole";
+    roleNames[ImageRole] = "ImageRole";
+    roleNames[ShouldExpandRole] = "ShouldExpandRole";
 
     setRoleNames(roleNames);
 }
@@ -124,38 +126,54 @@ QVariant UbuntuValidationResultModel::data(const QModelIndex &index, int role) c
         return QVariant();
 
     switch(role) {
-    case Qt::DisplayRole:
-    case Qt::EditRole: {
-        QString text = item->type;
-        return text;
-        break;
-    }
-    case TypeRole: {
-        return item->type;
-        break;
-    }
-    case DescriptionRole: {
-        return item->text;
-        break;
-    }
-    case LinkRole: {
-        return item->link;
-        break;
-    }
-    case Qt::DecorationRole:
-        switch(item->icon){
-        case ClickRunChecksParser::Warning:
-        return QIcon(QLatin1String(":/projectexplorer/images/compile_warning.png"));
-        case ClickRunChecksParser::Error:
-        return QIcon(QLatin1String(":/projectexplorer/images/compile_error.png"));
-        case ClickRunChecksParser::Check:
-        return QIcon(QLatin1String(":/projectexplorer/images/run.png"));
-        default:
+        case Qt::DisplayRole:
+        case Qt::EditRole: {
+            QString text = item->type;
+            return text;
             break;
         }
-        break;
-    }
+        case TypeRole: {
+            return item->type;
+            break;
+        }
+        case DescriptionRole: {
+            return item->text;
+            break;
+        }
+        case LinkRole: {
+            return item->link.toString();
+            break;
+        }
+        case ImageRole:
+        case Qt::DecorationRole: {
+            QString iconUrl;
+            switch(item->icon){
+                case ClickRunChecksParser::Warning:
+                    iconUrl = QStringLiteral(":/projectexplorer/images/compile_warning.png");
+                    break;
+                case ClickRunChecksParser::Error:
+                    iconUrl = QStringLiteral(":/projectexplorer/images/compile_error.png");
+                    break;
+                case ClickRunChecksParser::Check:
+                    iconUrl = QStringLiteral(":/projectexplorer/images/run.png");
+                    break;
+                default:
+                    break;
+            }
 
+            if(!iconUrl.isEmpty()) {
+                if(role == ImageRole) return QString::fromLatin1("qrc%1").arg(iconUrl);
+                else return QIcon(iconUrl);
+            }
+
+            break;
+        }
+        case ShouldExpandRole: {
+            if(item->icon == ClickRunChecksParser::Error || item->icon == ClickRunChecksParser::Warning)
+                return true;
+            return false;
+        }
+    }
     return QVariant();
 }
 
@@ -246,6 +264,8 @@ void ClickRunChecksParser::beginRecieveData(const QString &data)
     m_data.clear();
     m_nextSectionOffset = m_errorCount = m_warnCount = 0;
     m_data.append(data);
+
+    emit begin();
 
     bool canContinue = true;
     while(canContinue) canContinue=tryParseNextSection();
@@ -442,6 +462,11 @@ void ClickRunChecksParser::parseJsonSection(const QString &sectionName, int offs
                 subItem->type = key;
                 subItem->text = text;
                 subItem->icon = Check;
+
+                if(messageObject.keys().contains(QLatin1String("link"))) {
+                    subItem->link = QUrl::fromUserInput(messageObject.value(QLatin1String("link")).toString());
+                }
+
                 item->children.append(subItem);
             }
         }

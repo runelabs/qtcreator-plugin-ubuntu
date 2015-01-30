@@ -3,6 +3,8 @@ import Ubuntu.Components 1.0
 import Ubuntu.Components.ListItems 1.0 as ListItem
 import Ubuntu.Components.Popups 1.0
 
+import "../Components"
+
 Popover {
     id: popover
     height: containerLayout.childrenRect.height

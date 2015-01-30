@@ -83,7 +83,7 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
         """ Change to the Devices mode and click on the add new emulator button """
         kbd = Keyboard.create("X11")
         kbd.press_and_release('Ctrl+9')
-        devices_quickview = self.ide.wait_select_single('QQuickView', source='file:///usr/share/qtcreator/ubuntu/devicespage/main.qml')
+        devices_quickview = self.ide.wait_select_single('QQuickView', source='file:///usr/share/qtcreator/ubuntu/qml/devicespage.qml')
         add_emulator_button = devices_quickview.select_single('Button', text='Add Emulator')
         add_emulator_button.visible.wait_for(True)
         """ The simple click_object() moves the pointer to the center of the button, but in some environment the responsive area of the button is smaller """
@@ -107,7 +107,7 @@ class QtCreatorPluginTestPlan(QtCreatorTestCase):
         """ Change to the Devices mode, select the TestX86Emulator and deploy it """
         kbd = Keyboard.create("X11")
         kbd.press_and_release('Ctrl+9')
-        devices_quickview = self.ide.wait_select_single('QQuickView', source='file:///usr/share/qtcreator/ubuntu/devicespage/main.qml')
+        devices_quickview = self.ide.wait_select_single('QQuickView', source='file:///usr/share/qtcreator/ubuntu/qml/devicespage.qml')
         devices_ubuntulistview = devices_quickview.wait_select_single('UbuntuListView', objectName = 'devicesList')
         while True:
             if(devices_ubuntulistview.visible): break;

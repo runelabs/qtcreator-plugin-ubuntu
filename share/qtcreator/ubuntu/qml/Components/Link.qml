@@ -26,6 +26,7 @@ Rectangle {
     opacity: 0.8
 
     property alias title : linkTitle.text
+    property alias pixelSize : linkTitle.font.pixelSize
     property url link
     property color defaultColor : "#DD4814"
     property color hoverColor : "#eee"
@@ -49,7 +50,6 @@ Rectangle {
         wrapMode: Text.WordWrap
         width: parent.width - 20
         font.family: "Ubuntu"
-        font.pixelSize: 20
         font.letterSpacing: 1.5
         color: defaultColor
         font.weight: Font.Light
