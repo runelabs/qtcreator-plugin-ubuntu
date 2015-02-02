@@ -92,11 +92,17 @@ QString ChrootAgent::spawnSession(const QString &framework, const QString &archi
     bool createSession = false;
     if(m_knownChroots.contains(intName)) {
         if(!m_knownChroots[intName].session.isEmpty()) {
-            return m_knownChroots[intName].session;
-        } else {
-            createSession = true;
-            ch = &m_knownChroots[intName];
+            if(validateClickSession(framework,architecture,m_knownChroots[intName].session))
+                return m_knownChroots[intName].session;
+            else {
+                endClickSession(framework,architecture,m_knownChroots[intName].session);
+                m_knownChroots[intName].session.clear();
+            }
         }
+
+        createSession = true;
+        ch = &m_knownChroots[intName];
+
     } else {
         createSession = true;
         Chroot newChroot;
@@ -339,3 +345,30 @@ bool ChrootAgent::endClickSession(const QString &framework, const QString &archi
     qDebug()<<"Could not remove session for "<<architecture<<framework<<sessionName;
     return false;
 }
+
+bool ChrootAgent::validateClickSession(const QString &framework, const QString &architecture, const QString &sessionName)
+{
+    if(sessionName.isEmpty())
+        return false;
+
+    QStringList args = {
+        QStringLiteral("chroot"),
+        QStringLiteral("-a"),
+        architecture,
+        QStringLiteral("-f"),
+        framework,
+        QStringLiteral("run"),
+        QStringLiteral("-n"),
+        sessionName,
+        QStringLiteral("echo 'ok'"),
+    };
+
+    if(QProcess::execute(QStringLiteral("click"),args) == 0) {
+        qDebug()<<"Chroot session is valid";
+        return true;
+    }
+
+    qDebug()<<"Chroot session is broken";
+    return false;
+}
+
