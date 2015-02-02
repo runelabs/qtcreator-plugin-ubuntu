@@ -1,3 +1,11 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150202-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Make sure we do not return broken sessions from the click-chroot-
+    agent
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 02 Feb 2015 12:49:44 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150130-0ubuntu1) vivid; urgency=low
 
   [ Benjamin Zeller ]
