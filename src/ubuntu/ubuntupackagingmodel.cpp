@@ -16,9 +16,7 @@
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-#include "ubuntupackagingwidget.h"
-#include "ubuntusecuritypolicypickerdialog.h"
-#include "ui_ubuntupackagingwidget.h"
+#include "ubuntupackagingmodel.h"
 #include "ubuntuconstants.h"
 #include "ubuntumenu.h"
 #include "ubuntuclicktool.h"
@@ -57,56 +55,50 @@
 #include <QMessageBox>
 #include <QScriptEngine>
 #include <QRegularExpression>
+#include <QApplication>
 
-using namespace Ubuntu;
-using namespace Ubuntu::Internal;
+namespace Ubuntu {
+namespace Internal {
 
 enum {
     debug = 0
 };
 
-UbuntuPackagingWidget::UbuntuPackagingWidget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::UbuntuPackagingWidget),
+UbuntuPackagingModel::UbuntuPackagingModel(QObject *parent) :
+    QObject(parent),
     m_postPackageTask(Verify)
 {
-    ui->setupUi(this);
-    ui->groupBoxValidate->hide();
+    setShowValidationUi(false);
 
     m_inputParser = new ClickRunChecksParser(this);
     m_validationModel = new UbuntuValidationResultModel(this);
 
     connect(m_inputParser,&ClickRunChecksParser::parsedNewTopLevelItem
             ,m_validationModel,&UbuntuValidationResultModel::appendItem);
-
-    ui->treeViewValidate->setModel(m_validationModel);
+    connect(m_inputParser,SIGNAL(begin()),this,SIGNAL(beginValidation()));
 
     connect(&m_ubuntuProcess,SIGNAL(started(QString)),this,SLOT(onStarted(QString)));
     connect(&m_ubuntuProcess,SIGNAL(message(QString)),this,SLOT(onMessage(QString)));
     connect(&m_ubuntuProcess,SIGNAL(finished(QString,int)),this,SLOT(onFinished(QString, int)));
     connect(&m_ubuntuProcess,SIGNAL(error(QString)),this,SLOT(onError(QString)));
 
-    connect(ui->treeViewValidate->selectionModel(),SIGNAL(currentChanged(QModelIndex,QModelIndex)),this,SLOT(onValidationItemSelected(QModelIndex)));
-    connect(m_validationModel,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(onNewValidationData()));
-
     connect(UbuntuMenu::instance(),SIGNAL(requestBuildAndInstallProject()),this,SLOT(buildAndInstallPackageRequested()));
     connect(UbuntuMenu::instance(),SIGNAL(requestBuildAndVerifyProject()),this,SLOT(buildAndVerifyPackageRequested()));
     connect(UbuntuMenu::instance(),SIGNAL(requestBuildProject()),this,SLOT(buildPackageRequested()));
 
-    connect(ui->pushButtonCreateAndInstall,SIGNAL(clicked()),this,SLOT(buildAndInstallPackageRequested()));
+    //connect(ui->pushButtonCreateAndInstall,SIGNAL(clicked()),this,SLOT(buildAndInstallPackageRequested()));
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(),SIGNAL(updateRunActions()),this,SLOT(targetChanged()));
 
     m_reviewToolsInstalled = false;
     checkClickReviewerTool();
 }
 
-UbuntuPackagingWidget::~UbuntuPackagingWidget()
+UbuntuPackagingModel::~UbuntuPackagingModel()
 {
-    delete ui;
     clearPackageBuildList();
 }
 
-void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd)
+void UbuntuPackagingModel::onFinishedAction(const QProcess *proc, QString cmd)
 {
     Q_UNUSED(proc);
     Q_UNUSED(cmd);
@@ -167,44 +159,22 @@ void UbuntuPackagingWidget::onFinishedAction(const QProcess *proc, QString cmd)
 
 }
 
-void UbuntuPackagingWidget::onNewValidationData()
+void UbuntuPackagingModel::onMessage(QString msg)
 {
-    if(!ui->treeViewValidate->selectionModel()->hasSelection()) {
-        QModelIndex index = m_validationModel->findFirstErrorItem();
-
-        ui->treeViewValidate->setCurrentIndex(index);
-    }
-}
-
-void UbuntuPackagingWidget::onValidationItemSelected(const QModelIndex &index)
-{
-    if(index.isValid()) {
-        QUrl link = m_validationModel->data(index,UbuntuValidationResultModel::LinkRole).toUrl();
-        if(link.isValid()) {
-            ui->labelErrorLink->setText(
-                        QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_LINK_DISPLAYTEXT)
-                        .arg(link.toString(QUrl::FullyEncoded)));
-        } else {
-            ui->labelErrorLink->setText(QLatin1String(""));
-        }
-        ui->labelErrorType->setText(m_validationModel->data(index,UbuntuValidationResultModel::TypeRole).toString());
-        ui->plainTextEditDescription->setPlainText(m_validationModel->data(index,UbuntuValidationResultModel::DescriptionRole).toString());
-    }
-}
-
-void UbuntuPackagingWidget::onMessage(QString msg)
-{
+    appendLog(msg);
     printToOutputPane(msg);
     m_reply.append(msg);
     m_inputParser->addRecievedData(msg);
 }
 
-void UbuntuPackagingWidget::onFinished(QString cmd, int code) {
+void UbuntuPackagingModel::onFinished(QString cmd, int code) {
     m_inputParser->endRecieveData();
+
     if(code == 0)
-       m_inputParser->emitTextItem(QLatin1String("Command finished successfully"),cmd,ClickRunChecksParser::NoIcon);
+       appendLog(tr("Command finished successfully\n"));
     else
-       m_inputParser->emitTextItem(QLatin1String("Command failed"),cmd,ClickRunChecksParser::Error);
+       appendLog(tr("Command failed\n"));
+
     if (cmd == QString::fromLatin1(Constants::UBUNTUWIDGETS_ONFINISHED_SCRIPT_LOCAL_PACKAGE_INSTALLED).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)) {
         resetValidationResult();
         QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
@@ -216,7 +186,7 @@ void UbuntuPackagingWidget::onFinished(QString cmd, int code) {
             if (line.startsWith(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_LOCAL_NO_EMULATOR_INSTALLED))) {
                 // There is no click reviewer tool installed
                 m_reviewToolsInstalled = false;
-                ui->groupBoxValidate->hide();
+                setShowValidationUi(false);
                 emit reviewToolsInstalledChanged(m_reviewToolsInstalled);
             } else {
                 QStringList lineData = line.split(QLatin1String(Constants::SPACE));
@@ -225,7 +195,7 @@ void UbuntuPackagingWidget::onFinished(QString cmd, int code) {
                 //QString sReviewerToolPackageVersion = lineData.takeFirst();
                 if (sReviewerToolPackageStatus.startsWith(QLatin1String(Constants::INSTALLED))) {
                     // There is click reviewer tool installed
-                    ui->groupBoxValidate->show();
+                    setShowValidationUi(true);
                     m_reviewToolsInstalled = true;
                     emit reviewToolsInstalledChanged(m_reviewToolsInstalled);
                 }
@@ -235,38 +205,88 @@ void UbuntuPackagingWidget::onFinished(QString cmd, int code) {
     m_reply.clear();
 }
 
-void UbuntuPackagingWidget::onError(QString msg) {
+void UbuntuPackagingModel::onError(QString msg) {
     if(msg.isEmpty())
         return;
 
-    m_inputParser->emitTextItem(QLatin1String("Error"),msg,ClickRunChecksParser::Error);
+    appendLog(tr("Error: %1\n").arg(msg));
 }
 
-void UbuntuPackagingWidget::onStarted(QString cmd) {
+void UbuntuPackagingModel::onStarted(QString ) {
     resetValidationResult();
-    m_inputParser->emitTextItem(QLatin1String("Start Command"),cmd,ClickRunChecksParser::NoIcon);
+    setLog(tr("Start Command\n"));
 }
 
-bool UbuntuPackagingWidget::reviewToolsInstalled()
+bool UbuntuPackagingModel::reviewToolsInstalled()
 {
     return m_reviewToolsInstalled;
 }
 
-void UbuntuPackagingWidget::on_pushButtonReviewersTools_clicked() {
+bool UbuntuPackagingModel::showValidationUi() const
+{
+    return m_showValidationUi;
+}
+
+bool UbuntuPackagingModel::canBuild() const
+{
+    return m_canBuild;
+}
+
+QAbstractItemModel *UbuntuPackagingModel::validationModel() const
+{
+    return m_validationModel;
+}
+
+QString UbuntuPackagingModel::log() const
+{
+    return m_log;
+}
+
+void UbuntuPackagingModel::setShowValidationUi(bool arg)
+{
+    if (m_showValidationUi != arg) {
+        m_showValidationUi = arg;
+        emit showValidationUiChanged(arg);
+    }
+}
+
+void UbuntuPackagingModel::setCanBuild(bool arg)
+{
+    if (m_canBuild != arg) {
+        m_canBuild = arg;
+        emit canBuildChanged(arg);
+    }
+}
+
+void UbuntuPackagingModel::on_pushButtonReviewersTools_clicked() {
     ProjectExplorer::Project* startupProject = ProjectExplorer::SessionManager::startupProject();
     m_ubuntuProcess.stop();
 
     QString directory = QDir::homePath();
     if(startupProject) directory = startupProject->projectDirectory();
 
-    QString clickPackage = QFileDialog::getOpenFileName(this,QString(QLatin1String(Constants::UBUNTU_CLICK_PACKAGE_SELECTOR_TEXT)),QString(QLatin1String("%0/..")).arg(directory),QLatin1String(Constants::UBUNTU_CLICK_PACKAGE_MASK));
+    QString clickPackage = QFileDialog::getOpenFileName(Core::ICore::mainWindow(),QString(QLatin1String(Constants::UBUNTU_CLICK_PACKAGE_SELECTOR_TEXT)),QString(QLatin1String("%0/..")).arg(directory),QLatin1String(Constants::UBUNTU_CLICK_PACKAGE_MASK));
     if (clickPackage.isEmpty()) return;
     m_inputParser->beginRecieveData();
     m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::CLICK_REVIEWERSTOOLS_LOCATION).arg(clickPackage));
     m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(clickPackage));
 }
 
-void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {
+void UbuntuPackagingModel::setLog(QString arg)
+{
+    if (m_log != arg) {
+        m_log = arg;
+        emit logChanged(arg);
+    }
+}
+
+void UbuntuPackagingModel::appendLog(QString arg)
+{
+    m_log.append(arg);
+    emit logChanged(m_log);
+}
+
+void UbuntuPackagingModel::on_pushButtonClickPackage_clicked() {
     ProjectExplorer::Project* project = ProjectExplorer::SessionManager::startupProject();
     if(!project)
         return;
@@ -294,14 +314,14 @@ void UbuntuPackagingWidget::on_pushButtonClickPackage_clicked() {
     }
 }
 
-void UbuntuPackagingWidget::checkClickReviewerTool() {
+void UbuntuPackagingModel::checkClickReviewerTool() {
     m_ubuntuProcess.stop();
     QString sReviewerPackageName = QLatin1String(Ubuntu::Constants::REVIEWER_PACKAGE_NAME);
     m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::UBUNTUWIDGETS_LOCAL_PACKAGE_INSTALLED_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH).arg(sReviewerPackageName) << QApplication::applicationDirPath());
     m_ubuntuProcess.start(QString::fromLatin1(Constants::UBUNTUPACKAGINGWIDGET_LOCAL_REVIEWER_INSTALLED));
 }
 
-void UbuntuPackagingWidget::buildFinished(const bool success)
+void UbuntuPackagingModel::buildFinished(const bool success)
 {
     disconnect(m_buildManagerConnection);
     if (success) {
@@ -354,25 +374,25 @@ void UbuntuPackagingWidget::buildFinished(const bool success)
     clearPackageBuildList();
 }
 
-void UbuntuPackagingWidget::buildAndInstallPackageRequested()
+void UbuntuPackagingModel::buildAndInstallPackageRequested()
 {
     m_postPackageTask = Install;
     buildClickPackage();
 }
 
-void UbuntuPackagingWidget::buildAndVerifyPackageRequested()
+void UbuntuPackagingModel::buildAndVerifyPackageRequested()
 {
     m_postPackageTask = Verify;
     buildClickPackage();
 }
 
-void UbuntuPackagingWidget::buildPackageRequested()
+void UbuntuPackagingModel::buildPackageRequested()
 {
     m_postPackageTask = None;
     buildClickPackage();
 }
 
-void UbuntuPackagingWidget::targetChanged()
+void UbuntuPackagingModel::targetChanged()
 {
     ProjectExplorer::Project *p = ProjectExplorer::SessionManager::startupProject();
     bool buildButtonsEnabled = p &&
@@ -381,8 +401,7 @@ void UbuntuPackagingWidget::targetChanged()
             ProjectExplorer::ToolChainKitInformation::toolChain(p->activeTarget()->kit()) &&
             ProjectExplorer::ToolChainKitInformation::toolChain(p->activeTarget()->kit())->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID);
 
-    ui->pushButtonClickPackage->setEnabled(buildButtonsEnabled);
-    ui->pushButtonCreateAndInstall->setEnabled(buildButtonsEnabled);
+    setCanBuild(buildButtonsEnabled);
 }
 
 
@@ -391,11 +410,13 @@ void UbuntuPackagingWidget::targetChanged()
  * Starts the build of a cmake project. Make sure to set
  * m_postPackageTask correctly before calling this function
  */
-void UbuntuPackagingWidget::buildClickPackage()
+void UbuntuPackagingModel::buildClickPackage()
 {
     ProjectExplorer::Project* project = ProjectExplorer::SessionManager::startupProject();
-    if(!project)
+    if(!project) {
+        QMessageBox::warning(Core::ICore::mainWindow(),tr("No Project"),tr("No valid project loaded."));
         return;
+    }
 
     QString mimeType = project->projectManager()->mimeType();
     bool isCMake = mimeType == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE);
@@ -413,24 +434,24 @@ void UbuntuPackagingWidget::buildClickPackage()
             return;
 
         if(!ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k).toString().startsWith(QLatin1String(Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID))) {
-            QMessageBox::warning(this,tr("Wrong kit type"),tr("It is not supported to create click packages for a non UbuntuSDK target"));
+            QMessageBox::warning(Core::ICore::mainWindow(),tr("Wrong kit type"),tr("It is not supported to create click packages for a non UbuntuSDK target"));
             return;
         }
 
         if(ProjectExplorer::BuildManager::isBuilding()) {
-            QMessageBox::information(this,tr("Build running"),tr("There is currently a build running, please wait for it to be finished"));
+            QMessageBox::information(Core::ICore::mainWindow(),tr("Build running"),tr("There is currently a build running, please wait for it to be finished"));
             return;
         }
 
         ProjectExplorer::BuildConfiguration* bc = target->activeBuildConfiguration();
         if(!bc) {
-            QMessageBox::information(this,tr("Error"),tr("Please add a valid buildconfiguration to your project"));
+            QMessageBox::information(Core::ICore::mainWindow(),tr("Error"),tr("Please add a valid buildconfiguration to your project"));
             return;
         }
 
         if(!bc->isEnabled()) {
             QString disabledReason = bc->disabledReason();
-            QMessageBox::information(this,tr("Disabled"),tr("The currently selected Buildconfiguration is disabled. %1").arg(disabledReason));
+            QMessageBox::information(Core::ICore::mainWindow(),tr("Disabled"),tr("The currently selected Buildconfiguration is disabled. %1").arg(disabledReason));
             return;
         }
 
@@ -459,7 +480,7 @@ void UbuntuPackagingWidget::buildClickPackage()
  * \note This will cancel a current build if its building the ProjectConfiguration
  *       the BuildSteps belong to!
  */
-void UbuntuPackagingWidget::clearPackageBuildList()
+void UbuntuPackagingModel::clearPackageBuildList()
 {
     if (!m_packageBuildSteps)
         return;
@@ -471,9 +492,9 @@ void UbuntuPackagingWidget::clearPackageBuildList()
     m_packageBuildSteps.clear();
 }
 
-void UbuntuPackagingWidget::resetValidationResult()
+void UbuntuPackagingModel::resetValidationResult()
 {
     m_validationModel->clear();
-    ui->plainTextEditDescription->clear();
-    ui->labelErrorType->clear();
 }
+
+}}

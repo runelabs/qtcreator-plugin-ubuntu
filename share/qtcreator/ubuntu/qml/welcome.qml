@@ -17,7 +17,7 @@
  */
 
 import QtQuick 2.0
-
+import "Components"
 
 Rectangle {
     color: "#F7F6F5"
@@ -105,29 +105,34 @@ Rectangle {
                     width: parent.width
                     title: "Create a New Project &gt;"
                     onClicked: ubuntuWelcomeMode.newProject()
+                    pixelSize: 20
                 }
                 
                 Link {
                     width: parent.width
                     title: "See Ubuntu Touch core apps @ Launchpad &gt;"
                     link: "https://launchpad.net/ubuntu-phone-coreapps/"
+                    pixelSize: 20
                 }
 
                 Link {
                     width: parent.width
                     title: "Design something beautiful &gt;"
                     link: "http://design.ubuntu.com/apps"
+                    pixelSize: 20
                 }
 
                 Link {
                     width: parent.width
                     title: "Build something solid in QML &gt;"
                     link: "http://developer.ubuntu.com/api/qml/current/"
+                    pixelSize: 20
                 }
                 Link {
                     width: parent.width
                     title: "Build something solid in HTML5 &gt;"
                     link: "http://developer.ubuntu.com/api/html5/current/"
+                    pixelSize: 20
                 }
             }
             Column {

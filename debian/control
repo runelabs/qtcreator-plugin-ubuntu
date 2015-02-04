@@ -91,7 +91,7 @@ Recommends: qtcreator-plugin-ubuntu
 Replaces: qtcreator-plugin-ubuntu (<= 2.7.1-0ubuntu4),
 Conflicts: qtcreator-plugin-ubuntu (<= 2.7.1-0ubuntu4),
 Description: Common data files for the Ubuntu plugin for Qt Creator IDE
- Qt Creator is lightweight, cross-platform integrated development
+ Qt Creator is a lightweight, cross-platform integrated development
  environment (IDE) designed to make development with the Qt application
  framework even faster and easier.
  .
@@ -99,7 +99,7 @@ Description: Common data files for the Ubuntu plugin for Qt Creator IDE
  Qt Creator IDE.
 
 Package: ubuntu-sdk-qmake-extras
-Architecture: all
+Architecture: any
 Depends: ${misc:Depends},
 Description: Extra qmake features required by the Ubuntu-SDK templates,
  extends qmake projects with Ubuntu specific variables and tools

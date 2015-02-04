@@ -17,6 +17,7 @@
  */
 
 #include "ubuntupackagingmode.h"
+#include "ubuntupackagingmodel.h"
 #include "ubuntuconstants.h"
 
 #include <coreplugin/modemanager.h>
@@ -34,6 +35,12 @@
 #include <QScrollArea>
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
+
+#include <QScrollArea>
+#include <QQuickView>
+#include <QQmlContext>
+#include <QQmlEngine>
+#include <QDebug>
 
 using namespace Ubuntu::Internal;
 
@@ -57,14 +64,22 @@ UbuntuPackagingMode::UbuntuPackagingMode(QObject *parent) :
     layout->setSpacing(0);
     m_modeWidget->setLayout(layout);
 
-
     Utils::StyledBar* styledBar = new Utils::StyledBar(m_modeWidget);
     layout->addWidget(styledBar);
-    QScrollArea *scrollArea = new QScrollArea(m_modeWidget);
-    scrollArea->setFrameShape(QFrame::NoFrame);
-    layout->addWidget(scrollArea);
-    scrollArea->setWidget(&m_ubuntuPackagingWidget);
-    scrollArea->setWidgetResizable(true);
+
+    m_modeView = new QQuickView;
+    m_modeView->setResizeMode(QQuickView::SizeRootObjectToView);
+    m_viewModel = new UbuntuPackagingModel(m_modeView);
+
+    QWidget* container = QWidget::createWindowContainer(m_modeView);
+    container->setMinimumWidth(860);
+    container->setMinimumHeight(548);
+    container->setFocusPolicy(Qt::TabFocus);
+    layout->addWidget(container);
+
+    m_modeView->rootContext()->setContextProperty(QLatin1String("publishModel") ,m_viewModel);
+    m_modeView->rootContext()->setContextProperty(QLatin1String("resourceRoot") ,Constants::UBUNTU_DEVICESCREEN_ROOT);
+    m_modeView->setSource(QUrl::fromLocalFile(Constants::UBUNTU_PUBLISHSCREEN_QML));
 
     connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)), SLOT(modeChanged(Core::IMode*)));
 
@@ -72,8 +87,7 @@ UbuntuPackagingMode::UbuntuPackagingMode(QObject *parent) :
     connect(sessionManager,SIGNAL(projectAdded(ProjectExplorer::Project*)),SLOT(on_projectAdded(ProjectExplorer::Project*)));
     connect(sessionManager,SIGNAL(projectRemoved(ProjectExplorer::Project*)),SLOT(on_projectRemoved(ProjectExplorer::Project*)));
     connect(sessionManager,SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),SLOT(on_projectAdded(ProjectExplorer::Project*)));
-    connect(&m_ubuntuPackagingWidget,SIGNAL(reviewToolsInstalledChanged(bool)),this,SLOT(updateModeState()));
-
+    connect(m_viewModel,SIGNAL(reviewToolsInstalledChanged(bool)),this,SLOT(updateModeState()));
     setWidget(m_modeWidget);
     setEnabled(false);
 }
@@ -94,7 +108,7 @@ void UbuntuPackagingMode::updateModeState() {
     bool isUbuntuProject = false;
     bool isCMakeProject = false;
     bool isGoProject = false;
-    bool reviewToolsInstalled = m_ubuntuPackagingWidget.reviewToolsInstalled();
+    bool reviewToolsInstalled = m_viewModel->reviewToolsInstalled();
 
     if (startupProject) {
         isQmlProject = (startupProject->projectManager()->mimeType() == QLatin1String(Constants::QMLPROJECT_MIMETYPE));

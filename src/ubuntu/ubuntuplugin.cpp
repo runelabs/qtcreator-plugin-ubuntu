@@ -43,6 +43,7 @@
 #include "ubuntupackageoutputparser.h"
 #include "ubuntuprojecthelper.h"
 #include "ubuntuscopefinalizer.h"
+#include "targetupgrademanager.h"
 
 #include "wizards/ubuntuprojectapplicationwizard.h"
 #include "wizards/ubuntufirstrunwizard.h"
@@ -305,6 +306,10 @@ void UbuntuPlugin::onKitsLoaded()
                ,this,SLOT(onKitsLoaded()));
 
     showFirstStartWizard();
+
+    TargetUpgradeManager *mgr = new TargetUpgradeManager();
+    addAutoReleasedObject(mgr);
+    mgr->checkForUpgrades();
 }
 
 void UbuntuPlugin::showFirstStartWizard()

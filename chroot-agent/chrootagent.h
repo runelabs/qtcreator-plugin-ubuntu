@@ -51,6 +51,7 @@ private:
     QString createClickSession(const Chroot &ch);
     bool endClickSession(Chroot &ch);
     bool endClickSession(const QString &framework, const QString &architecture, const QString &sessionName);
+    bool validateClickSession (const QString &framework, const QString &architecture, const QString &sessionName);
 
 private:
     QMap<QString,Chroot> m_knownChroots;
@@ -63,3 +64,4 @@ private:
 };
 
 #endif // CHROOTAGENT_H
+

@@ -1,3 +1,49 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150202-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Make sure we do not return broken sessions from the click-chroot-
+    agent
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 02 Feb 2015 12:49:44 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150130-0ubuntu1) vivid; urgency=low
+
+  [ Benjamin Zeller ]
+  * Refactoring of the publish Tab
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 30 Jan 2015 06:05:59 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150128.2-0ubuntu1) vivid; urgency=low
+
+  [ Benjamin Zeller ]
+  * Improve qmake templates by refactoring complicated parts into qmake
+    feature files distributed by a package from the archive
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 28 Jan 2015 13:14:58 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150127-0ubuntu1) vivid; urgency=low
+
+  [ Benjamin Zeller ]
+  * More descriptive messages when waiting for the device to be ready
+    LP:#1400843 (LP: #1400843)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 27 Jan 2015 12:51:55 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150123-0ubuntu1) vivid; urgency=low
+
+  [ Benjamin Zeller ]
+  * Automatically check if upgrades for chroots are available when
+    QtCreator is started
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 23 Jan 2015 11:19:31 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150119-0ubuntu1) vivid; urgency=low
+
+  [ Benjamin Zeller ]
+  * Introduce ubuntu-sdk-qmake-extras package
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 19 Jan 2015 09:07:10 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150114-0ubuntu1) vivid; urgency=low
 
   [ Benjamin Zeller ]

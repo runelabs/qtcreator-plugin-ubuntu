@@ -21,10 +21,11 @@ import Ubuntu.Components.ListItems 1.0 as ListItem
 ListItem.Expandable {
     id: expandingColumnItem
     expandedHeight: contentColumn.height + units.gu(1)
-    collapsedHeight: headerRow.childrenRect.height
+    collapsedHeight:  headerRow.height
     divider.visible: false
 
     property string title
+    property string imageSource
     default property alias data: contentColumn.data
 
     onClicked: {
@@ -33,11 +34,11 @@ ListItem.Expandable {
 
     Column {
         id: contentColumn
-        anchors { left: parent.left; right: parent.right }
+        anchors { top: parent.top; left: parent.left; right: parent.right }
         Row{
             id: headerRow
             anchors { left: parent.left; right: parent.right}
-            height: childrenRect.height
+            height: Math.max(24,label.paintedHeight)
             Image {
                 source:  expandingColumnItem.expanded ? "qrc:/ubuntu/images/view-collapse.svg" : "qrc:/ubuntu/images/view-expand.svg"
                 width: 24
@@ -45,7 +46,19 @@ ListItem.Expandable {
             }
             Item{
                 width: units.gu(1)
-                height: parent.height
+                height: 1
+            }
+            Image {
+                source: imageSource
+                width: 16
+                height: 16
+                visible: imageSource.length > 0
+                anchors.verticalCenter: parent.verticalCenter
+            }
+            Item{
+                visible: imageSource.length > 0
+                width: units.gu(1)
+                height: 1
             }
             Label {
                 id: label
