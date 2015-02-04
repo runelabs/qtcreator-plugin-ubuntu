@@ -255,9 +255,10 @@ const QString UBUNTU_RESOURCE_PATH = QLatin1String(UBUNTU_RESOURCE_PATH_LOCAL);
 const QString UBUNTU_RESOURCE_PATH = Core::ICore::resourcePath();
 #endif
 
-const QString UBUNTU_WELCOMESCREEN_QML = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/welcome/welcome.qml");
-const QString UBUNTU_DEVICESCREEN_QML  = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/devicespage/main.qml");
-const QString UBUNTU_DEVICESCREEN_ROOT  = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/devicespage");
+const QString UBUNTU_WELCOMESCREEN_QML = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/qml/welcome.qml");
+const QString UBUNTU_DEVICESCREEN_QML  = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/qml/devicespage.qml");
+const QString UBUNTU_PUBLISHSCREEN_QML  = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/qml/publishpage.qml");
+const QString UBUNTU_DEVICESCREEN_ROOT  = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/qml");
 const QString UBUNTU_TEMPLATESPATH = UBUNTU_RESOURCE_PATH + QLatin1String("/templates/wizards/ubuntu/");
 const QString UBUNTU_MENUPATH = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/");
 const QString UBUNTU_SHAREPATH = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/");
@@ -427,7 +428,8 @@ const bool  SETTINGS_DEFAULT_DEVICES_AUTOTOGGLE = true;
 
 const char  SETTINGS_COMPANY[] = "Canonical";
 const char  SETTINGS_PRODUCT[] = "UbuntuSDK";
-const char  SETTINGS_GROUP_MODE[] = "Mode";
+const char  SETTINGS_GROUP_MODE[]  = "Mode";
+const char  SETTINGS_GROUP_CLICK[] = "Click";
 const char  SETTINGS_GROUP_DEVICE_CONNECTIVITY[] = "DeviceConnectivity";
 const char  SETTINGS_GROUP_DEVICES[] = "Devices";
 
@@ -441,6 +443,7 @@ const char  SETTINGS_KEY_IP[] = "IP";
 const char  SETTINGS_KEY_QML[] = "QML";
 const char  SETTINGS_KEY_SSH[] = "SSH";
 const char  SETTINGS_KEY_AUTOTOGGLE[] = "Auto_Toggle";
+const char  SETTINGS_KEY_AUTO_CHECK_CHROOT_UPDATES[] = "Auto_Check_Chroot_Updates";
 
 //const char  SETTINGS_GROUP_CLICK[] = "Click";
 //const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS[] = "ReviewersToolsEnabled";
@@ -582,6 +585,10 @@ const char UBUNTU_APPARMOR_EDITOR_CONTEXT[] = "UbuntuProjectManager.UbuntuApparm
 
 //Actions
 const char UBUNTU_MIGRATE_QMAKE_PROJECT[] = "UbuntuProjectManager.MigrateQMakeProject";
+
+//TargetUpgradeManager
+const char CHROOT_UPDATE_LIST_SCRIPT[] = "%1/ubuntu/scripts/qtc_chroot_get_upgrades.py %2 %3";
+
 
 } // namespace Ubuntu
 } // namespace Constants

@@ -7,7 +7,7 @@
     <icon>../share/ubuntu.png</icon>
     <description>Creates a Qt Quick 2 application project with a sample UI containing a Label and a Button. This project contains QML code only.
 
-This templates requires at least Ubuntu SDK 15.04
+This templates requires a Kit using at least a 15.04 click chroot.
 </description>
     <displayname>QML App with Simple UI (qmake)</displayname>
     <displaycategory>Ubuntu</displaycategory>

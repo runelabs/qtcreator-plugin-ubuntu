@@ -146,7 +146,7 @@ void UbuntuDeviceHelper::waitForBoot()
     //at this point the serial ID should be known
     m_dev->setupPrivateKey();
 
-    setProcessState(UbuntuDevice::WaitForBoot);
+    setProcessState(UbuntuDevice::WaitForBootAdbAccess);
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_WAIT_FOR_BOOT_MESSAGE));
 
     stopProcess();
@@ -184,7 +184,9 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
             waitForBoot();
             break;
         }
-        case UbuntuDevice::WaitForBoot: {
+        case UbuntuDevice::WaitForBoot:
+        case UbuntuDevice::WaitForBootAdbAccess:
+        case UbuntuDevice::WaitForBootDeviceLock: {
             if(code != 0) {
                 m_errorCount++;
                 waitForBoot();
@@ -397,6 +399,15 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
 
 void UbuntuDeviceHelper::onMessage(const QString &msg) {
     m_reply.append(msg);
+
+    if(m_dev->m_processState == UbuntuDevice::WaitForBootAdbAccess) {
+        if(m_reply.contains(QStringLiteral("DevLocked"))) {
+            setProcessState(UbuntuDevice::WaitForBootDeviceLock);
+        }
+        else if(m_reply.contains(QStringLiteral("DevUnLocked"))) {
+            setProcessState(UbuntuDevice::WaitForBoot);
+        }
+    }
 }
 
 void UbuntuDeviceHelper::onError(const QString &error)
@@ -1206,6 +1217,10 @@ QString UbuntuDevice::detectionStateString( ) const
             return tr("Waiting for the emulator to start up");
         case WaitForBoot:
             return tr("Waiting for the device to finish booting");
+        case WaitForBootAdbAccess:
+            return tr("Waiting for adb access, make sure the developer mode is enabled");
+        case WaitForBootDeviceLock:
+            return tr("Waiting for the device, make sure it is unlocked");
         case DetectDeviceVersion:
             return tr("Detecting device version");
         case DetectNetworkConnection:

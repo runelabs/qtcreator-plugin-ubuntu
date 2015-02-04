@@ -3,6 +3,8 @@ import Ubuntu.Components 1.0
 import Ubuntu.Components.ListItems 1.0 as ListItem
 import Ubuntu.Components.Popups 1.0
 
+import "../Components"
+
 Dialog {
     id: dialogue
     title: i18n.tr("Create emulator")

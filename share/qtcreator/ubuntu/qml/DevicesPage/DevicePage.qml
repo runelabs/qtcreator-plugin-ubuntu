@@ -7,6 +7,8 @@ import Ubuntu.Components.ListItems 1.0 as ListItem
 import Ubuntu.DevicesModel 0.1
 import Ubuntu.Components.Popups 1.0
 
+import "../Components"
+
 Page {
     id: devicePage
     flickable: null
@@ -552,6 +554,8 @@ Page {
                                 anchors.left: parent.left
                                 anchors.right: parent.right
                                 TextArea {
+                                    autoSize: true
+                                    maximumLineCount: 0
                                     anchors.left: parent.left
                                     anchors.right: parent.right
                                     height: units.gu(60)

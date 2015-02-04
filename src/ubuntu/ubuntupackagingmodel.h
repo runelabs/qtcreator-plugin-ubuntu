@@ -37,15 +37,15 @@ namespace Ubuntu{
 namespace Internal{
 class UbuntuValidationResultModel;
 class ClickRunChecksParser;
-}
-}
 
-using namespace Ubuntu::Internal;
-
-class UbuntuPackagingWidget : public QWidget
+class UbuntuPackagingModel : public QObject
 {
     Q_OBJECT
-    
+    Q_PROPERTY(bool showValidationUi READ showValidationUi WRITE setShowValidationUi NOTIFY showValidationUiChanged)
+    Q_PROPERTY(bool canBuild READ canBuild WRITE setCanBuild NOTIFY canBuildChanged)
+    Q_PROPERTY(QAbstractItemModel* validationModel READ validationModel NOTIFY validationModelChanged)
+    Q_PROPERTY(QString log READ log WRITE setLog NOTIFY logChanged)
+
 public:
 
     enum ClickPackageTask {
@@ -54,32 +54,44 @@ public:
         Install  //after the project has packaged install it on the device
     };
 
-    explicit UbuntuPackagingWidget(QWidget *parent = 0);
-    ~UbuntuPackagingWidget();
+    explicit UbuntuPackagingModel(QObject *parent = 0);
+    ~UbuntuPackagingModel();
 
     bool reviewToolsInstalled ();
+    bool showValidationUi() const;
+    bool canBuild() const;
+    QAbstractItemModel* validationModel() const;
+    QString log() const;
+
+public slots:
+    void setShowValidationUi(bool arg);
+    void setCanBuild(bool arg);
+    void buildAndInstallPackageRequested ();
+    void buildAndVerifyPackageRequested();
+    void on_pushButtonClickPackage_clicked();
+    void on_pushButtonReviewersTools_clicked();
+    void setLog(QString arg);
+    void appendLog(QString arg);
 
 protected slots:
     void onMessage(QString msg);
     void onFinished(QString cmd, int code);
     void onError(QString msg);
-    void onStarted(QString cmd);
+    void onStarted(QString);
     void onFinishedAction(const QProcess* proc,QString cmd);
-    void onNewValidationData();
-    void onValidationItemSelected(const QModelIndex &index );
-
-    void on_pushButtonClickPackage_clicked();
-    void on_pushButtonReviewersTools_clicked();
 
     void checkClickReviewerTool();
     void buildFinished (const bool success);
-    void buildAndInstallPackageRequested ();    
-    void buildAndVerifyPackageRequested();
     void buildPackageRequested();
     void targetChanged();
 
 signals:
     void reviewToolsInstalledChanged(const bool& installed);
+    void showValidationUiChanged(bool arg);
+    void canBuildChanged(bool arg);
+    void validationModelChanged(QAbstractItemModel* arg);
+    void logChanged(QString arg);
+    void beginValidation();
 
 private:
     void buildClickPackage ();
@@ -96,7 +108,6 @@ private:
     QString m_reply;
     QString m_reviewesToolsLocation;
     UbuntuProcess m_ubuntuProcess;
-    Ui::UbuntuPackagingWidget *ui;
     UbuntuValidationResultModel *m_validationModel;
     ClickRunChecksParser* m_inputParser;
 
@@ -104,5 +115,14 @@ private:
     QSharedPointer<ProjectExplorer::BuildStepList> m_packageBuildSteps;
     QMetaObject::Connection m_buildManagerConnection;
     ClickPackageTask m_postPackageTask;
+    bool m_showValidationUi;
+    bool m_canBuild;
+    QString m_log;
 };
+
+
+}
+}
+
+
 #endif // UBUNTUPACKAGINGWIDGET_H

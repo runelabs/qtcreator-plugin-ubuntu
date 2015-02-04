@@ -12,9 +12,9 @@ Includes also
  - a unit test for C++
  - unit and functional tests for QML
 
-This templates requires at least Ubuntu SDK 15.04
+This templates requires a Kit using at least a 15.04 click chroot.
 </description>
-    <displayname>QML App with QML plugin (qmake)</displayname>
+    <displayname>QML App with C++ plugin (qmake)</displayname>
     <displaycategory>Ubuntu</displaycategory>
     <files>
       <file source="projectName.pro" target="%ProjectName%.pro" openproject="true"/>
