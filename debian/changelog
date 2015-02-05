@@ -1,3 +1,14 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150205-0ubuntu1) vivid; urgency=medium
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+  [ Leo Arias ]
+  * Added a qttest to simpel-app-qmlproject template.
+  * Updated the autopilot test template.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 05 Feb 2015 04:36:05 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150202-0ubuntu1) vivid; urgency=medium
 
   [ Benjamin Zeller ]
