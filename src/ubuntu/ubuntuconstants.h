@@ -444,6 +444,7 @@ const char  SETTINGS_KEY_QML[] = "QML";
 const char  SETTINGS_KEY_SSH[] = "SSH";
 const char  SETTINGS_KEY_AUTOTOGGLE[] = "Auto_Toggle";
 const char  SETTINGS_KEY_AUTO_CHECK_CHROOT_UPDATES[] = "Auto_Check_Chroot_Updates";
+const char  SETTINGS_KEY_CHROOT_USE_LOCAL_MIRROR[] = "Chroot_Use_Local_Mirror";
 
 //const char  SETTINGS_GROUP_CLICK[] = "Click";
 //const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS[] = "ReviewersToolsEnabled";
