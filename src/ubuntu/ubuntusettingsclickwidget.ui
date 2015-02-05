@@ -28,6 +28,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="checkBoxLocalMirror">
+        <property name="text">
+         <string>Use local mirror for new chroots</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QTreeWidget" name="treeWidgetClickTargets">
         <property name="editTriggers">
          <set>QAbstractItemView::NoEditTriggers</set>

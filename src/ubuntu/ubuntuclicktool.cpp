@@ -105,8 +105,19 @@ void UbuntuClickTool::parametersForCreateChroot(const Target &target, ProjectExp
             .arg(target.framework)
             .arg(target.series)
             .arg(clickChrootSuffix());
+
+
+    QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
+    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_CLICK));
+    bool useLocalMirror = settings.value(QLatin1String(Constants::SETTINGS_KEY_CHROOT_USE_LOCAL_MIRROR),false).toBool();
+    settings.endGroup();
+
+    Utils::Environment env = Utils::Environment::systemEnvironment();
+    if(!useLocalMirror)
+        env.set(QStringLiteral("CLICK_NO_LOCAL_MIRROR"),QStringLiteral("1"));
+
     params->setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
-    params->setEnvironment(Utils::Environment::systemEnvironment());
+    params->setEnvironment(env);
     params->setArguments(command);
 }
 

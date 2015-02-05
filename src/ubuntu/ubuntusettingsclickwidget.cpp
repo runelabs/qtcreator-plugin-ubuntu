@@ -42,6 +42,7 @@ UbuntuSettingsClickWidget::UbuntuSettingsClickWidget(QWidget *parent) :
     m_settings = new QSettings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
     m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_CLICK));
     ui->enableUpdateCheckerCheckBox->setChecked(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_AUTO_CHECK_CHROOT_UPDATES),true).toBool());
+    ui->checkBoxLocalMirror->setChecked(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_CHROOT_USE_LOCAL_MIRROR),false).toBool());
     m_settings->endGroup();
 
     m_deleteMapper = new QSignalMapper(this);
@@ -61,6 +62,7 @@ void UbuntuSettingsClickWidget::apply() {
 
     m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_CLICK));
     m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_AUTO_CHECK_CHROOT_UPDATES),ui->enableUpdateCheckerCheckBox->checkState() == Qt::Checked);
+    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_CHROOT_USE_LOCAL_MIRROR),ui->checkBoxLocalMirror->checkState() == Qt::Checked);
     m_settings->endGroup();
 
     m_settings->sync();
