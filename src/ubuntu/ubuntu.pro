@@ -2,6 +2,9 @@ QT += network qml quick webkitwidgets script scripttools dbus
 
 include(../plugin.pri)
 
+QMAKE_CXXFLAGS_RELEASE -= -O2
+QMAKE_CXXFLAGS_RELEASE += -O1
+
 QMAKE_CXXFLAGS += -Werror
 CONFIG += c++11 dbusinterfaces
 
@@ -215,4 +218,3 @@ xml_desc.depends=$$PWD/../../chroot-agent/chrootagent.h
 QMAKE_EXTRA_TARGETS+=xml_desc
 
 DBUS_INTERFACES += $$xml_desc.target
-
