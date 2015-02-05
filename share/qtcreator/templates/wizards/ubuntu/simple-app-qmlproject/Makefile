@@ -35,7 +35,7 @@ autopilot:
 	tests/autopilot/run
 
 check:
-	qmltestrunner -input tests/unit
+	qmltestrunner -input tests/qml
 
 #translation targets
 

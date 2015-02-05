@@ -9,7 +9,7 @@
     <displayname>Go app with QML UI</displayname>
     <displaycategory>Ubuntu</displaycategory>
     <files>
-			<file source="share/displayName/main.qml"   target="share/%ProjectName%/main.qml" openeditor="false"/>
+			<file source="share/displayName/Main.qml"   target="share/%ProjectName%/Main.qml" openeditor="false"/>
 			<file source="displayName.goproject"  			target="%ProjectName%.goproject" openeditor="false" openproject="true"/>
 			<file source="displayName.png"   						target="%ProjectName%.png" openeditor="false" binary="true"/>
 			<file source="displayName.desktop"   				target="%ClickHookName%.desktop" openeditor="false"/>

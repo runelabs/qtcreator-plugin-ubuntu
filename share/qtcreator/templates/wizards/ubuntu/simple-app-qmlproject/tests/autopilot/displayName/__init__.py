@@ -55,7 +55,7 @@ class ClickAppTestCase(base.UbuntuUIToolkitAppTestCase):
                 "only run from source.")
 
     def _get_app_qml_source_path(self):
-        qml_file_name = 'main.qml'
+        qml_file_name = 'Main.qml'
         return os.path.join(self._get_path_to_app_source(), qml_file_name)
 
     def _get_path_to_app_source(self):
