@@ -1,3 +1,11 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150205.1-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Fix devicespage dialogs. Add a switch to enable/disable the useage
+    of local mirrors .
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 05 Feb 2015 11:20:08 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150205-0ubuntu1) vivid; urgency=medium
 
   [ Ubuntu daily release ]
