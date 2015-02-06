@@ -60,8 +60,10 @@ void UbuntuDeviceSignalOperation::sendSignal(int pid, int signal)
 
 void UbuntuDeviceSignalOperation::processFinished(int exitCode ,QProcess::ExitStatus exitState)
 {
-    if(exitCode == 0 && exitState == QProcess::NormalExit)
+    if(exitCode == 0 && exitState == QProcess::NormalExit) {
         emit finished(QString());
+        return;
+    }
 
     QString error = QStringLiteral("Can not kill the process. Exit Code: %1").arg(exitCode);
     QProcess *proc = qobject_cast<QProcess*>(sender());

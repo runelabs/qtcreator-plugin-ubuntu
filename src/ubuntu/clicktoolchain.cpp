@@ -135,6 +135,11 @@ ProjectExplorer::Abi ClickToolChain::architectureNameToAbi(const QString &arch)
     return clickArchitectures[arch];
 }
 
+QList<QString> ClickToolChain::supportedArchitectures()
+{
+    return clickArchitectures.keys();
+}
+
 QVariantMap ClickToolChain::toMap() const
 {
     QVariantMap map = GccToolChain::toMap();
