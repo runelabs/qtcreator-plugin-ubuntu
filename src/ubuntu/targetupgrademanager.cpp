@@ -109,7 +109,6 @@ TargetUpgradeManagerDialog::~TargetUpgradeManagerDialog()
 
 void TargetUpgradeManagerDialog::selectAndUpgradeTargets(QList<UbuntuClickTool::Target> targets,QWidget *parent)
 {
-
     TargetUpgradeManagerDialog dlg(parent);
     for(int i = 0; i < targets.size(); i++) {
         QTreeWidgetItem *item = new QTreeWidgetItem;
@@ -119,11 +118,14 @@ void TargetUpgradeManagerDialog::selectAndUpgradeTargets(QList<UbuntuClickTool::
     }
 
     if( dlg.exec() == QDialog::Accepted ) {
+        QList<UbuntuClickTool::Target> selectedTargets;
         for(int i = 0; i < targets.size(); i++) {
             if(dlg.m_ui->treeWidget->topLevelItem(i)->checkState(0) == Qt::Checked) {
-                UbuntuClickDialog::maintainClickModal(targets.at(i),UbuntuClickTool::Upgrade);
+                selectedTargets << targets.at(i);
             }
         }
+        if(selectedTargets.size() > 0)
+            UbuntuClickDialog::maintainClickModal(selectedTargets,UbuntuClickTool::Upgrade);
     }
 }
 
