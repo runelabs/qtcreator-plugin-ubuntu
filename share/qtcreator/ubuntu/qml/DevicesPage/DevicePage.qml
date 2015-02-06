@@ -182,16 +182,16 @@ Page {
                         iconSource: "qrc:/ubuntu/images/list-add.svg"
                         onClicked: {
                             if(!devicesModel.emulatorInstalled){
-                                PopupUtils.open(resourceRoot+"/EmulatorNotInstalled.qml",devicePage);
+                                PopupUtils.open(resourceRoot+"/DevicesPage/EmulatorNotInstalled.qml",devicePage);
                                 return;
                             }
-                            PopupUtils.open(resourceRoot+"/NewEmulatorDialog.qml",devicePage);
+                            PopupUtils.open(resourceRoot+"/DevicesPage/NewEmulatorDialog.qml",devicePage);
                         }
                     }
 
                     Connections{
                         target: deviceMode
-                        onOpenAddEmulatorDialog: PopupUtils.open(resourceRoot+"/NewEmulatorDialog.qml",devicePage);
+                        onOpenAddEmulatorDialog: PopupUtils.open(resourceRoot+"/DevicesPage/NewEmulatorDialog.qml",devicePage);
                     }
                 }
             }
@@ -247,9 +247,9 @@ Page {
                                 iconSource: "qrc:/core/images/clear.png"
                                 onClicked: {
                                     if(machineType === DeviceMachineType.Emulator)
-                                        PopupUtils.open(resourceRoot+"/DeleteDeviceDialog.qml",devicePage, {"emulatorImageName": emulatorImageName,"deviceId": -1 });
+                                        PopupUtils.open(resourceRoot+"/DevicesPage/DeleteDeviceDialog.qml",devicePage, {"emulatorImageName": emulatorImageName,"deviceId": -1 });
                                     else
-                                        PopupUtils.open(resourceRoot+"/DeleteDeviceDialog.qml",devicePage, {"deviceId": deviceId});
+                                        PopupUtils.open(resourceRoot+"/DevicesPage/DeleteDeviceDialog.qml",devicePage, {"deviceId": deviceId});
                                 }
                                 enabled: connectionState === DeviceConnectionState.Disconnected
                             }

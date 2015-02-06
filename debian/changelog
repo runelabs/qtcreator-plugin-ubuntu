@@ -1,3 +1,30 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150205.1-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Fix devicespage dialogs. Add a switch to enable/disable the useage
+    of local mirrors .
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 05 Feb 2015 11:20:08 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150205-0ubuntu1) vivid; urgency=medium
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+  [ Leo Arias ]
+  * Added a qttest to simpel-app-qmlproject template.
+  * Updated the autopilot test template.
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 05 Feb 2015 04:36:05 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150202-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Make sure we do not return broken sessions from the click-chroot-
+    agent
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 02 Feb 2015 12:49:44 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150130-0ubuntu1) vivid; urgency=low
 
   [ Benjamin Zeller ]

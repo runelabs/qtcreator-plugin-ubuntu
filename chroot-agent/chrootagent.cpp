@@ -371,3 +371,4 @@ bool ChrootAgent::validateClickSession(const QString &framework, const QString &
     qDebug()<<"Chroot session is broken";
     return false;
 }
+
