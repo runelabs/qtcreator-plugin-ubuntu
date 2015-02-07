@@ -50,6 +50,7 @@ public:
     const UbuntuClickTool::Target &clickTarget () const;
 
     static ProjectExplorer::Abi architectureNameToAbi ( const QString &arch );
+    static QList<QString> supportedArchitectures ();
 
 protected:
     virtual bool fromMap(const QVariantMap &data) override;

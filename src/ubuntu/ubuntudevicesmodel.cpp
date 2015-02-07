@@ -637,6 +637,13 @@ void UbuntuDevicesModel::registerNewDevice(const QString &serial, const QString 
     if(findDevice(Core::Id::fromSetting(serial).uniqueIdentifier()) >= 0)
         return;
 
+    if(!ClickToolChain::supportedArchitectures().contains(arch)) {
+        emit logMessage(tr("Error: Can not register device %1. Architecture %2 is not supported.")
+                        .arg(serial)
+                        .arg(arch));
+        return;
+    }
+
     Ubuntu::Internal::UbuntuDevice::Ptr dev = Ubuntu::Internal::UbuntuDevice::create(
                 tr("Ubuntu Device")
                 , serial
