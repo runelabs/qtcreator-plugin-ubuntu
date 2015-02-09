@@ -1,3 +1,12 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150209-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Make use of the backend in the qmake+backend app template. Fix
+    passing of the "CLICK_NO_LOCAL_MIRROR" env var to the chroot
+    creation script .
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 09 Feb 2015 12:39:40 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150207-0ubuntu1) vivid; urgency=medium
 
   [ Benjamin Zeller ]
