@@ -1,6 +1,6 @@
 import QtQuick 2.0
 import Ubuntu.Components 1.1
-
+import %ClickHookName:s% 1.0
 /*!
     \brief MainView with a Label and Button elements.
 */
@@ -25,7 +25,15 @@ MainView {
     height: units.gu(75)
 
     Page {
-        title: i18n.tr("Simple")
+        title: i18n.tr("App with backend")
+
+        MyType {
+            id: myType
+
+            Component.onCompleted: {
+                myType.helloWorld = i18n.tr("Hello world..")
+            }
+        }
 
         Column {
             spacing: units.gu(1)
@@ -38,7 +46,7 @@ MainView {
                 id: label
                 objectName: "label"
 
-                text: i18n.tr("Hello..")
+                text: myType.helloWorld
             }
 
             Button {
@@ -48,7 +56,7 @@ MainView {
                 text: i18n.tr("Tap me!")
 
                 onClicked: {
-                    label.text = i18n.tr("..world!")
+                    myType.helloWorld = i18n.tr("..from Cpp Backend")
                 }
             }
         }
