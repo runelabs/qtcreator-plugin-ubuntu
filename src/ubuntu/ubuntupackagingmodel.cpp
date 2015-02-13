@@ -27,6 +27,9 @@
 #include "ubuntushared.h"
 #include "ubuntucmakecache.h"
 #include "ubuntuprojecthelper.h"
+#include "ubuntufixmanifeststep.h"
+#include "ubuntufatpackagingwizard.h"
+#include "clicktoolchain.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
@@ -325,7 +328,8 @@ void UbuntuPackagingModel::buildFinished(const bool success)
 {
     disconnect(m_buildManagerConnection);
     if (success) {
-        UbuntuPackageStep *pckStep = qobject_cast<UbuntuPackageStep*>(m_packageBuildSteps->steps().last());
+        //the step that created the click package is always in the last list and always the last step
+        UbuntuPackageStep *pckStep = qobject_cast<UbuntuPackageStep*>(m_packageBuildSteps.last()->steps().last());
         if (pckStep && !pckStep->packagePath().isEmpty()) {
             m_ubuntuProcess.stop();
 
@@ -424,7 +428,102 @@ void UbuntuPackagingModel::buildClickPackage()
     bool isQml   = mimeType == QLatin1String(QmlProjectManager::Constants::QMLPROJECT_MIMETYPE);
     bool isQmake = mimeType == QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
 
-    if(isCMake || isHtml || isQml || isQmake) {
+    if (isQmake) {
+        QList<ProjectExplorer::BuildConfiguration *> suspects;
+        foreach(ProjectExplorer::Target *t , project->targets()) {
+
+            ProjectExplorer::Kit* k = t->kit();
+            if(!k)
+                continue;
+
+            if(!ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k).toString().startsWith(QLatin1String(Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID)))
+                continue;
+
+            foreach(ProjectExplorer::BuildConfiguration *b, t->buildConfigurations()) {
+                if(b->buildType() == ProjectExplorer::BuildConfiguration::Debug)
+                    continue;
+                //if(!b->isEnabled()) {
+                //    qDebug()<<b->disabledReason();
+                //    continue;
+                //}
+                suspects << b;
+            }
+        }
+
+        if (!suspects.isEmpty()) {
+
+            UbuntuFatPackagingWizard wiz(suspects);
+            if (wiz.exec() != QDialog::Accepted)
+                return;
+
+            QString workingDir = wiz.field(QStringLiteral("targetDirectory")).toString();
+            QString deployDir  = QStringLiteral("%1/deploy").arg(workingDir);
+            QList<int> selectedSuspectsIdx = wiz.field(QStringLiteral("selectedSuspects")).value<QList<int> >();
+
+            if (selectedSuspectsIdx.isEmpty())
+                return;
+
+            QList<ProjectExplorer::BuildConfiguration *> selectedSuspects;
+            foreach(int selected, selectedSuspectsIdx)
+                selectedSuspects << suspects[selected];
+
+
+            //make sure we have a clean deploy dir
+            QDir deployDr(deployDir);
+            if (deployDr.exists())
+                deployDr.removeRecursively();
+
+            QStringList usedArchitectures;
+            clearPackageBuildList();
+            //@TODO check if different frameworks have been used
+            foreach (ProjectExplorer::BuildConfiguration *b, selectedSuspects) {
+                m_packageBuildSteps.append(QSharedPointer<ProjectExplorer::BuildStepList> (new ProjectExplorer::BuildStepList(b,ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
+                qDebug()<<b->target()->displayName()<<b->displayName();
+
+                ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(b->target()->kit());
+                if(tc && tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)){
+                    ClickToolChain *cTc = static_cast<ClickToolChain *>(tc);
+                    usedArchitectures << cTc->clickTarget().architecture;
+                }
+
+                //add the normal buildsteps
+                m_packageBuildSteps.last()->cloneSteps(b->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
+
+                //append the make install step
+                UbuntuPackageStep* package = new UbuntuPackageStep(m_packageBuildSteps.last().data());
+                package->setDebugMode(UbuntuPackageStep::DisableDebugScript);
+                package->setOverrideDeployDir(deployDir);
+                package->setPackageMode(UbuntuPackageStep::OnlyMakeInstall);
+                package->setReferenceBuildConfig(b);
+                m_packageBuildSteps.last()->appendStep(package);
+            }
+
+            UbuntuFixManifestStep *fixManifest = new UbuntuFixManifestStep(m_packageBuildSteps.last().data());
+            fixManifest->setArchitectures(usedArchitectures);
+            fixManifest->setPackageDir(deployDir);
+            m_packageBuildSteps.last()->appendStep(fixManifest);
+
+            //append the click package step
+            UbuntuPackageStep* package = new UbuntuPackageStep(m_packageBuildSteps.last().data());
+            package->setDebugMode(UbuntuPackageStep::DisableDebugScript);
+            package->setOverrideDeployDir(deployDir);
+            package->setOverrideClickWorkingDir(workingDir);
+            package->setPackageMode(UbuntuPackageStep::OnlyClickBuild);
+            m_packageBuildSteps.last()->appendStep(package);
+
+            m_buildManagerConnection = connect(ProjectExplorer::BuildManager::instance(),SIGNAL(buildQueueFinished(bool)),this,SLOT(buildFinished(bool)));
+
+            QList<ProjectExplorer::BuildStepList *> rawSteps;
+            QStringList rawStepMessages;
+            foreach (QSharedPointer<ProjectExplorer::BuildStepList> l, m_packageBuildSteps) {
+                rawSteps << l.data();
+                rawStepMessages << tr("Build %1").arg(l->target()->displayName());
+            }
+
+            ProjectExplorer::BuildManager::buildLists(rawSteps,rawStepMessages);
+        }
+
+    } else if(isCMake || isHtml || isQml) {
         ProjectExplorer::Target* target = project->activeTarget();
         if(!target)
             return;
@@ -457,20 +556,20 @@ void UbuntuPackagingModel::buildClickPackage()
 
         clearPackageBuildList();
 
-        m_packageBuildSteps = QSharedPointer<ProjectExplorer::BuildStepList> (new ProjectExplorer::BuildStepList(bc,ProjectExplorer::Constants::BUILDSTEPS_BUILD));
+        m_packageBuildSteps.append(QSharedPointer<ProjectExplorer::BuildStepList> (new ProjectExplorer::BuildStepList(bc,ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
         if (isCMake || isQmake) {
             //add the normal buildsteps
-            m_packageBuildSteps->cloneSteps(bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
+            m_packageBuildSteps.last()->cloneSteps(bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
         }
 
         //append the click packaging step
-        UbuntuPackageStep* package = new UbuntuPackageStep(m_packageBuildSteps.data());
-        package->setPackageMode(UbuntuPackageStep::DisableDebugScript);
-        m_packageBuildSteps->appendStep(package);
+        UbuntuPackageStep* package = new UbuntuPackageStep(m_packageBuildSteps.last().data());
+        package->setDebugMode(UbuntuPackageStep::DisableDebugScript);
+        m_packageBuildSteps.last()->appendStep(package);
 
         m_buildManagerConnection = connect(ProjectExplorer::BuildManager::instance(),SIGNAL(buildQueueFinished(bool)),this,SLOT(buildFinished(bool)));
 
-        ProjectExplorer::BuildManager::buildList(m_packageBuildSteps.data(),tr("Build Project"));
+        ProjectExplorer::BuildManager::buildList(m_packageBuildSteps.last().data(),tr("Build Project"));
     }
 }
 
@@ -482,13 +581,17 @@ void UbuntuPackagingModel::buildClickPackage()
  */
 void UbuntuPackagingModel::clearPackageBuildList()
 {
-    if (!m_packageBuildSteps)
+    if (m_packageBuildSteps.isEmpty())
         return;
 
-    if(ProjectExplorer::BuildManager::isBuilding( static_cast<ProjectExplorer::ProjectConfiguration *>(m_packageBuildSteps->parent())))
-        ProjectExplorer::BuildManager::cancel();
+    foreach(QSharedPointer<ProjectExplorer::BuildStepList> list, m_packageBuildSteps) {
+        if(ProjectExplorer::BuildManager::isBuilding( static_cast<ProjectExplorer::ProjectConfiguration *>(list->parent())))
+            ProjectExplorer::BuildManager::cancel();
 
-    m_packageBuildSteps->deleteLater();
+        list->deleteLater();
+        list.clear();
+    }
+
     m_packageBuildSteps.clear();
 }
 

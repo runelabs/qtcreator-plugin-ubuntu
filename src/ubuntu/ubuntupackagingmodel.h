@@ -112,7 +112,7 @@ private:
     ClickRunChecksParser* m_inputParser;
 
     //packaging support with buildsteps
-    QSharedPointer<ProjectExplorer::BuildStepList> m_packageBuildSteps;
+    QList<QSharedPointer<ProjectExplorer::BuildStepList> > m_packageBuildSteps;
     QMetaObject::Connection m_buildManagerConnection;
     ClickPackageTask m_postPackageTask;
     bool m_showValidationUi;
