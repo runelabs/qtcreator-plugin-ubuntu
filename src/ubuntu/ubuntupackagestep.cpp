@@ -728,6 +728,12 @@ void UbuntuPackageStep::doNextStep()
                 case Default:
                 case OnlyMakeInstall:
                     m_state = MakeInstall;
+
+                    //make sure we always use a clean deploy dir
+                    QDir deplDir(m_deployDir);
+                    if(deplDir.exists())
+                        deplDir.removeRecursively();
+
                     setupAndStartProcess(m_MakeParam);
                     break;
             }

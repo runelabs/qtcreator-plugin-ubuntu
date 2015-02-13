@@ -467,12 +467,6 @@ void UbuntuPackagingModel::buildClickPackage()
             foreach(int selected, selectedSuspectsIdx)
                 selectedSuspects << suspects[selected];
 
-
-            //make sure we have a clean deploy dir
-            QDir deployDr(deployDir);
-            if (deployDr.exists())
-                deployDr.removeRecursively();
-
             QStringList usedArchitectures;
             clearPackageBuildList();
             //@TODO check if different frameworks have been used

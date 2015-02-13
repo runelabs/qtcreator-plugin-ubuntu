@@ -5,6 +5,7 @@
 
 #include <QList>
 
+class QLabel;
 class QTreeWidget;
 class QTreeWidgetItem;
 namespace ProjectExplorer{ class BuildConfiguration; }
@@ -45,6 +46,7 @@ public:
     // QWizardPage interface
     virtual void initializePage();
     virtual bool isComplete() const;
+    virtual bool validatePage();
 
     QList<int> selectedSuspects() const;
 
@@ -52,9 +54,11 @@ signals:
     void selectedSuspectsChanged(const QList<int> &arg);
 
 private:
+    bool isValid () const;
     void itemChanged (QTreeWidgetItem * item, int column);
 
 private:
+    mutable QLabel *m_errorLabel;
     QTreeWidget *m_targetView;
     QList<int> m_selectedSuspects;
     QList<ProjectExplorer::BuildConfiguration *> m_suspects;
