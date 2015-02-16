@@ -61,12 +61,21 @@ void UbuntuFixManifestStep::run(QFutureInterface<bool> &fi)
             return;
         }
 
+        if (m_architectures.isEmpty()) {
+            emit addOutput(tr("Can not fix manifest file, no architectures are given."),ProjectExplorer::BuildStep::ErrorOutput);
+            fi.reportFinished(&result);
+            return;
+        }
+
         QJsonDocument doc = QJsonDocument::fromJson(manifestFile.readAll());
         QJsonObject rootObj = doc.object();
 
         manifestFile.close();
 
-        rootObj[QStringLiteral("architecture")] = QJsonArray::fromStringList(m_architectures);
+        if (m_architectures.size() > 1)
+            rootObj[QStringLiteral("architecture")] = QJsonArray::fromStringList(m_architectures);
+        else
+            rootObj[QStringLiteral("architecture")] = QJsonValue(m_architectures.first());
 
         doc.setObject(rootObj);
 

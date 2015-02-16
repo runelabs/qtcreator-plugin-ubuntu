@@ -28,7 +28,7 @@
 #include "ubuntucmakecache.h"
 #include "ubuntuprojecthelper.h"
 #include "ubuntufixmanifeststep.h"
-#include "ubuntufatpackagingwizard.h"
+#include "wizards/ubuntufatpackagingwizard.h"
 #include "clicktoolchain.h"
 
 #include <projectexplorer/projectexplorer.h>
@@ -48,6 +48,7 @@
 #include <ssh/sshconnection.h>
 #include <qmlprojectmanager/qmlprojectconstants.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
+#include <qmakeprojectmanager/qmakeproject.h>
 
 #include <QFileDialog>
 #include <QJsonDocument>
@@ -403,7 +404,8 @@ void UbuntuPackagingModel::targetChanged()
             p->activeTarget() &&
             p->activeTarget()->kit() &&
             ProjectExplorer::ToolChainKitInformation::toolChain(p->activeTarget()->kit()) &&
-            ProjectExplorer::ToolChainKitInformation::toolChain(p->activeTarget()->kit())->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID);
+            (ProjectExplorer::ToolChainKitInformation::toolChain(p->activeTarget()->kit())->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
+             ||  p->projectManager()->mimeType() == QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE));
 
     setCanBuild(buildButtonsEnabled);
 }
@@ -429,48 +431,30 @@ void UbuntuPackagingModel::buildClickPackage()
     bool isQmake = mimeType == QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
 
     if (isQmake) {
+        QmakeProjectManager::QmakeProject *qmakePro = static_cast<QmakeProjectManager::QmakeProject *>(project);
+        UbuntuFatPackagingWizard wiz(qmakePro);
+        if (wiz.exec() != QDialog::Accepted)
+            return;
+
+        int mode = wiz.field(QStringLiteral("mode")).toInt();
+        QString workingDir = wiz.field(QStringLiteral("targetDirectory")).toString();
+        QString deployDir  = QStringLiteral("%1/deploy").arg(workingDir);
         QList<ProjectExplorer::BuildConfiguration *> suspects;
-        foreach(ProjectExplorer::Target *t , project->targets()) {
 
-            ProjectExplorer::Kit* k = t->kit();
-            if(!k)
-                continue;
-
-            if(!ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k).toString().startsWith(QLatin1String(Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID)))
-                continue;
-
-            foreach(ProjectExplorer::BuildConfiguration *b, t->buildConfigurations()) {
-                if(b->buildType() == ProjectExplorer::BuildConfiguration::Debug)
-                    continue;
-                //if(!b->isEnabled()) {
-                //    qDebug()<<b->disabledReason();
-                //    continue;
-                //}
-                suspects << b;
+        if(wiz.field(QStringLiteral("mode")).toInt() == 1)  {
+            suspects = wiz.selectedTargets();
+        } else {
+            if(project->activeTarget()) {
+                suspects.append(project->activeTarget()->activeBuildConfiguration());
             }
         }
 
         if (!suspects.isEmpty()) {
 
-            UbuntuFatPackagingWizard wiz(suspects);
-            if (wiz.exec() != QDialog::Accepted)
-                return;
-
-            QString workingDir = wiz.field(QStringLiteral("targetDirectory")).toString();
-            QString deployDir  = QStringLiteral("%1/deploy").arg(workingDir);
-            QList<int> selectedSuspectsIdx = wiz.field(QStringLiteral("selectedSuspects")).value<QList<int> >();
-
-            if (selectedSuspectsIdx.isEmpty())
-                return;
-
-            QList<ProjectExplorer::BuildConfiguration *> selectedSuspects;
-            foreach(int selected, selectedSuspectsIdx)
-                selectedSuspects << suspects[selected];
-
             QStringList usedArchitectures;
             clearPackageBuildList();
             //@TODO check if different frameworks have been used
-            foreach (ProjectExplorer::BuildConfiguration *b, selectedSuspects) {
+            foreach (ProjectExplorer::BuildConfiguration *b, suspects) {
                 m_packageBuildSteps.append(QSharedPointer<ProjectExplorer::BuildStepList> (new ProjectExplorer::BuildStepList(b,ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
                 qDebug()<<b->target()->displayName()<<b->displayName();
 
@@ -493,7 +477,10 @@ void UbuntuPackagingModel::buildClickPackage()
             }
 
             UbuntuFixManifestStep *fixManifest = new UbuntuFixManifestStep(m_packageBuildSteps.last().data());
-            fixManifest->setArchitectures(usedArchitectures);
+            if (mode == 0)
+                fixManifest->setArchitectures(QStringList()<<QStringLiteral("all"));
+            else
+                fixManifest->setArchitectures(usedArchitectures);
             fixManifest->setPackageDir(deployDir);
             m_packageBuildSteps.last()->appendStep(fixManifest);
 
