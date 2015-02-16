@@ -83,6 +83,9 @@ public:
     ProjectExplorer::BuildConfiguration *referenceBuildConfig() const;
     void setReferenceBuildConfig(ProjectExplorer::BuildConfiguration *referenceBuildConfig);
 
+    bool cleanDeployDirectory() const;
+    void setCleanDeployDirectory(bool cleanDeployDirectory);
+
 signals:
     void packageModeChanged(DebugMode arg);
     void currentSubStepFinished();
@@ -127,6 +130,7 @@ private:
     QString m_overrideDeployDir;
     QString m_overrideClickWorkingDir;
     QPointer<ProjectExplorer::BuildConfiguration> m_referenceBuildConfig;
+    bool m_cleanDeployDirectory;
 };
 
 class UbuntuPackageStepConfigWidget : public ProjectExplorer::SimpleBuildStepConfigWidget

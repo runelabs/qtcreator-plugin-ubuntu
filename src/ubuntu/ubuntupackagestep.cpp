@@ -47,7 +47,8 @@ UbuntuPackageStep::UbuntuPackageStep(ProjectExplorer::BuildStepList *bsl) :
     m_process(0),
     m_outputParserChain(0),
     m_debugMode(EnableDebugScript),
-    m_packageMode(Default)
+    m_packageMode(Default),
+    m_cleanDeployDirectory(true)
 {
     setDefaultDisplayName(tr("UbuntuSDK Click build"));
 }
@@ -59,7 +60,8 @@ UbuntuPackageStep::UbuntuPackageStep(ProjectExplorer::BuildStepList *bsl, Ubuntu
     m_process(0),
     m_outputParserChain(0),
     m_debugMode(other->m_debugMode),
-    m_packageMode(Default)
+    m_packageMode(other->m_packageMode),
+    m_cleanDeployDirectory(other->m_cleanDeployDirectory)
 {
 
 }
@@ -729,10 +731,12 @@ void UbuntuPackageStep::doNextStep()
                 case OnlyMakeInstall:
                     m_state = MakeInstall;
 
-                    //make sure we always use a clean deploy dir
-                    QDir deplDir(m_deployDir);
-                    if(deplDir.exists())
-                        deplDir.removeRecursively();
+                    if (m_cleanDeployDirectory) {
+                        //make sure we always use a clean deploy dir
+                        QDir deplDir(m_deployDir);
+                        if(deplDir.exists())
+                            deplDir.removeRecursively();
+                    }
 
                     setupAndStartProcess(m_MakeParam);
                     break;
@@ -851,6 +855,16 @@ void UbuntuPackageStep::taskAdded(const ProjectExplorer::Task &task)
 {
     emit addTask(task);
 }
+bool UbuntuPackageStep::cleanDeployDirectory() const
+{
+    return m_cleanDeployDirectory;
+}
+
+void UbuntuPackageStep::setCleanDeployDirectory(bool cleanDeployDirectory)
+{
+    m_cleanDeployDirectory = cleanDeployDirectory;
+}
+
 ProjectExplorer::BuildConfiguration *UbuntuPackageStep::referenceBuildConfig() const
 {
     if(m_referenceBuildConfig)

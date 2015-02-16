@@ -454,9 +454,9 @@ void UbuntuPackagingModel::buildClickPackage()
             QStringList usedArchitectures;
             clearPackageBuildList();
             //@TODO check if different frameworks have been used
+            bool firstStep=true;
             foreach (ProjectExplorer::BuildConfiguration *b, suspects) {
                 m_packageBuildSteps.append(QSharedPointer<ProjectExplorer::BuildStepList> (new ProjectExplorer::BuildStepList(b,ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
-                qDebug()<<b->target()->displayName()<<b->displayName();
 
                 ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(b->target()->kit());
                 if(tc && tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)){
@@ -473,7 +473,10 @@ void UbuntuPackagingModel::buildClickPackage()
                 package->setOverrideDeployDir(deployDir);
                 package->setPackageMode(UbuntuPackageStep::OnlyMakeInstall);
                 package->setReferenceBuildConfig(b);
+                package->setCleanDeployDirectory(firstStep);
                 m_packageBuildSteps.last()->appendStep(package);
+
+                firstStep=false;
             }
 
             UbuntuFixManifestStep *fixManifest = new UbuntuFixManifestStep(m_packageBuildSteps.last().data());
