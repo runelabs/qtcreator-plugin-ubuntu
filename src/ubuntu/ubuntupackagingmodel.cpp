@@ -424,6 +424,11 @@ void UbuntuPackagingModel::buildClickPackage()
         return;
     }
 
+    if(ProjectExplorer::BuildManager::isBuilding()) {
+        QMessageBox::information(Core::ICore::mainWindow(),tr("Build running"),tr("There is currently a build running, please wait for it to be finished"));
+        return;
+    }
+
     QString mimeType = project->projectManager()->mimeType();
     bool isCMake = mimeType == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE);
     bool isHtml  = mimeType == QLatin1String(Ubuntu::Constants::UBUNTUPROJECT_MIMETYPE);
@@ -518,11 +523,6 @@ void UbuntuPackagingModel::buildClickPackage()
 
         if(!ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k).toString().startsWith(QLatin1String(Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID))) {
             QMessageBox::warning(Core::ICore::mainWindow(),tr("Wrong kit type"),tr("It is not supported to create click packages for a non UbuntuSDK target"));
-            return;
-        }
-
-        if(ProjectExplorer::BuildManager::isBuilding()) {
-            QMessageBox::information(Core::ICore::mainWindow(),tr("Build running"),tr("There is currently a build running, please wait for it to be finished"));
             return;
         }
 
