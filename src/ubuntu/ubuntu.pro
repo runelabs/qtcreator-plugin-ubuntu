@@ -122,7 +122,9 @@ SOURCES += \
     ubuntuprojecthelper.cpp \
     wizards/ubuntuprojectmigrationwizard.cpp \
     targetupgrademanager.cpp \
-    ubuntupackagingmodel.cpp
+    ubuntupackagingmodel.cpp \
+    ubuntufixmanifeststep.cpp \
+    wizards/ubuntufatpackagingwizard.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -208,7 +210,9 @@ HEADERS += \
     ubuntuscopefinalizer.h \
     wizards/ubuntuprojectmigrationwizard.h \
     targetupgrademanager.h \
-    ubuntupackagingmodel.h
+    ubuntupackagingmodel.h \
+    ubuntufixmanifeststep.h \
+    wizards/ubuntufatpackagingwizard.h
 
 INCLUDEPATH+=$$OUT_PWD
 

@@ -321,7 +321,7 @@ bool ClickRunChecksParser::tryParseNextSection(bool dataComplete)
     int endOffset   = -1;
     if(matchIter.hasNext()) {
         QRegularExpressionMatch match = matchIter.next();
-        endOffset = match.capturedStart();
+        endOffset = match.capturedStart(1);
     }
 
     if(endOffset < 0 && dataComplete)
@@ -337,17 +337,12 @@ bool ClickRunChecksParser::tryParseNextSection(bool dataComplete)
     type.remove(QLatin1String("="));
     type = type.trimmed();
 
+    //prior to 5.4.0 we had to add +1 to fix the offset
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
+    parseJsonSection(type,startOffset,(endOffset-startOffset));
+#else
     parseJsonSection(type,startOffset,(endOffset-startOffset)+1);
-    /*
-    static const QRegularExpression regExp(QStringLiteral("^(click-check-.*)"));
-    if(regExp.match(type).hasMatch()) {
-        parseJsonSection(type,startOffset,(endOffset-startOffset)+1);
-    } else {
-        //ignore unknown sections
-        return true;
-    }
-    */
-
+#endif
     return true;
 }
 

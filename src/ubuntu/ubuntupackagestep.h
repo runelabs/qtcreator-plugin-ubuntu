@@ -4,6 +4,8 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/abstractprocessstep.h>
 
+#include <QPointer>
+
 namespace ProjectExplorer{
 class ToolChain;
 }
@@ -18,7 +20,7 @@ namespace Internal {
 class UbuntuPackageStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
-    Q_PROPERTY(PackageMode packageMode READ packageMode WRITE setPackageMode NOTIFY packageModeChanged)
+    Q_PROPERTY(DebugMode debugMode READ debugMode WRITE setDebugMode NOTIFY packageModeChanged)
 public:
 
     enum State {
@@ -34,10 +36,16 @@ public:
         IgnoreReturnCode
     };
 
-    enum PackageMode {
+    enum DebugMode {
         AutoEnableDebugScript, //Deprecated
         EnableDebugScript,
         DisableDebugScript
+    };
+
+    enum PackageMode {
+        Default,
+        OnlyMakeInstall,
+        OnlyClickBuild
     };
 
     UbuntuPackageStep(ProjectExplorer::BuildStepList *bsl);
@@ -58,11 +66,28 @@ public:
 
     QString packagePath () const;
 
+    DebugMode debugMode() const;
+    void setDebugMode(DebugMode arg);
+
     PackageMode packageMode() const;
-    void setPackageMode(PackageMode arg);
+    void setPackageMode(const PackageMode &packageMode);
+
+    QString overrideInstallDir() const;
+    void setOverrideDeployDir(const QString &overrideInstallDir);
+
+    QString overrideClickWorkingDir() const;
+    void setOverrideClickWorkingDir(const QString &overrideClickWorkingDir);
+
+    QString clickWorkingDir() const;
+
+    ProjectExplorer::BuildConfiguration *referenceBuildConfig() const;
+    void setReferenceBuildConfig(ProjectExplorer::BuildConfiguration *referenceBuildConfig);
+
+    bool cleanDeployDirectory() const;
+    void setCleanDeployDirectory(bool cleanDeployDirectory);
 
 signals:
-    void packageModeChanged(PackageMode arg);
+    void packageModeChanged(DebugMode arg);
     void currentSubStepFinished();
 
 protected:
@@ -89,6 +114,7 @@ private:
     QString m_lastLine;
     QString m_clickPackageName;
     QString m_buildDir;
+    QString m_deployDir;
     QList<ProjectExplorer::Task> m_tasks;
     QFutureInterface<bool> *m_futureInterface;
 
@@ -98,7 +124,13 @@ private:
 
     Utils::QtcProcess *m_process;
     ProjectExplorer::IOutputParser *m_outputParserChain;
+
+    DebugMode m_debugMode;
     PackageMode m_packageMode;
+    QString m_overrideDeployDir;
+    QString m_overrideClickWorkingDir;
+    QPointer<ProjectExplorer::BuildConfiguration> m_referenceBuildConfig;
+    bool m_cleanDeployDirectory;
 };
 
 class UbuntuPackageStepConfigWidget : public ProjectExplorer::SimpleBuildStepConfigWidget
