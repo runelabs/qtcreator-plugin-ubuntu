@@ -218,35 +218,28 @@ void UbuntuClickDialog::on_clickFinished(int exitCode)
 
 void UbuntuClickDialog::on_clickReadyReadStandardOutput(const QString txt)
 {
-    QTextCursor cursor(m_ui->output->document());
-    cursor.movePosition(QTextCursor::End);
-    QTextCharFormat tf;
-
-    QFont font = m_ui->output->font();
-    tf.setFont(font);
-    tf.setForeground(m_ui->output->palette().color(QPalette::Text));
+    QString outText = QString::fromLocal8Bit("<div>");
 
     if(txt.isEmpty())
-        cursor.insertText(QString::fromLocal8Bit(m_process->readAllStandardOutput()), tf);
+        outText.append(QString::fromLocal8Bit(m_process->readAllStandardOutput()));
     else
-        cursor.insertText(txt, tf);
+        outText.append(txt);
+
+    outText.append(QString::fromLocal8Bit("</div>"));
+    m_ui->output->append(outText);
 }
 
 void UbuntuClickDialog::on_clickReadyReadStandardError(const QString txt)
 {
-    QTextCursor cursor(m_ui->output->document());
-    QTextCharFormat tf;
-
-    QFont font = m_ui->output->font();
-    QFont boldFont = font;
-    boldFont.setBold(true);
-    tf.setFont(boldFont);
-    tf.setForeground(QColor(Qt::red));
+    QString outText = QString::fromLocal8Bit("<div style=\"color:red; font-weight: bold;\">");
 
     if(txt.isEmpty())
-        cursor.insertText(QString::fromLocal8Bit(m_process->readAllStandardError()), tf);
+        outText.append(QString::fromLocal8Bit(m_process->readAllStandardError()));
     else
-        cursor.insertText(txt, tf);
+        outText.append(txt);
+
+    outText.append(QString::fromLocal8Bit("</div>"));
+    m_ui->output->append(outText);
 }
 
 } // namespace Internal
