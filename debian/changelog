@@ -1,3 +1,19 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150220-0ubuntu1) vivid; urgency=medium
+
+  [ Michael Zanetti ]
+  * dynamically adjust columns sizes in click target table
+  * make the click output scroll to bottom automatically
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Fri, 20 Feb 2015 10:50:20 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150218-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Clean up the deploy dir lp:1420526. Support fat packaging for qmake
+    based projects (LP: #1420526)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Wed, 18 Feb 2015 17:27:18 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150209-0ubuntu1) vivid; urgency=medium
 
   [ Benjamin Zeller ]
