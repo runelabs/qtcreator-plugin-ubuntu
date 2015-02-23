@@ -138,6 +138,8 @@ UbuntuChooseTargetPage::UbuntuChooseTargetPage(QmakeProjectManager::QmakeProject
     sizePolicy.setVerticalStretch(1);
     m_targetView->setSizePolicy(sizePolicy);
 
+    m_targetView->setHeaderLabel(tr("Architectures"));
+
     connect(m_targetView, &QTreeWidget::itemChanged, this, &UbuntuChooseTargetPage::completeChanged);
 
     m_errorLabel = new QLabel(this);
@@ -152,7 +154,7 @@ UbuntuChooseTargetPage::UbuntuChooseTargetPage(QmakeProjectManager::QmakeProject
     m_noTargetsLabel->hide();
 
     QFormLayout *layout = new QFormLayout;
-    layout->addRow(new QLabel(tr("Architectures"),this),m_targetView);
+    layout->addRow(m_targetView);
     layout->addRow(m_noTargetsLabel);
     layout->addRow(m_errorLabel);
     setLayout(layout);
