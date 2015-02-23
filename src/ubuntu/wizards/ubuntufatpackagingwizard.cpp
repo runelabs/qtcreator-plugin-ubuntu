@@ -16,8 +16,9 @@
 #include <QVBoxLayout>
 #include <QFormLayout>
 #include <QTreeWidget>
-#include <QComboBox>
+#include <QRadioButton>
 #include <QDebug>
+#include <QButtonGroup>
 
 namespace Ubuntu {
 namespace Internal {
@@ -26,10 +27,11 @@ UbuntuFatPackagingWizard::UbuntuFatPackagingWizard(QmakeProjectManager::QmakePro
     Utils::Wizard(parent),
     m_targetPage(0)
 {
-    const int introPageId    = addPage(new UbuntuFatPackagingIntroPage(project));
+    m_introPage = new UbuntuFatPackagingIntroPage(project);
+    const int introPageId = addPage(m_introPage);
 
     m_targetPage = new UbuntuChooseTargetPage(project);
-    const int targetPageId  = addPage(m_targetPage);
+    const int targetPageId = addPage(m_targetPage);
 
     Utils::WizardProgress *progress = wizardProgress();
 
@@ -44,24 +46,30 @@ QList<ProjectExplorer::BuildConfiguration *> UbuntuFatPackagingWizard::selectedT
     return m_targetPage->selectedSuspects();
 }
 
+UbuntuFatPackagingWizard::BuildMode UbuntuFatPackagingWizard::mode() const
+{
+    return m_introPage->mode();
+}
+
 UbuntuFatPackagingIntroPage::UbuntuFatPackagingIntroPage(QmakeProjectManager::QmakeProject *project, QWidget *parent)
     : QWizardPage(parent) ,
       m_project(project)
 {
-    QLabel *label = new QLabel(tr("<h1 style=\"text-align: center;\">Click packaging</h1>"
-                               "<p>This Wizard will help to build a click package for uploading into the store.</p>"
-                               "<p>If the project has native parts, select the \"Architecture dependent\" mode,<br>otherwise "
-                               "\"Architecture independent\" should be selected.<br>Also choose the output directory where the final click "
-                               "package will be created."
-                               "<br></p>"),this);
+    QLabel *label = new QLabel(tr("<h1><em>Click packaging</em></h1>"
+                                  "<p>This Wizard will help to build a click package for uploading into the store.</p>"
+                                  "<p>If the project has native compiled parts like executables and libraries, select the<br />"
+                                  "&quot;<em>Project with binary executables and libraries</em>&quot; mode,&nbsp;<br />"
+                                  "otherwise &quot;<em>Project without binary executables and libraries (pure qml/html projects)</em>&quot;<br />"
+                                  "should be selected.&nbsp;<br/></p>"),this);
     label->setWordWrap(true);
 
-    m_modeBox = new QComboBox(this);
-    m_modeBox->addItem(tr("Architecture independent"));
-    m_modeBox->addItem(tr("Architecture dependent"));
-    registerField(QStringLiteral("mode"),m_modeBox);
+    QRadioButton *compiledPartsButton = new QRadioButton(tr("Project with binary executables and libraries."), this);
+    QRadioButton *noCompiledPartsButton = new QRadioButton(tr("Project without binary executables and libraries (pure qml/html projects)"), this);
 
-    connect(m_modeBox,SIGNAL(currentIndexChanged(int)),this,SLOT(buildModeChanged(int)));
+    m_modeGroup = new QButtonGroup(this);
+    m_modeGroup->addButton(compiledPartsButton, UbuntuFatPackagingWizard::CompiledPartsMode);
+    m_modeGroup->addButton(noCompiledPartsButton, UbuntuFatPackagingWizard::NoCompiledPartsMode);
+    connect(m_modeGroup, SIGNAL(buttonClicked(int)), this, SLOT(buildModeChanged(int)));
 
     QString path = QString::fromLatin1("/tmp/click-build-%1").arg(m_project->displayName());
 
@@ -73,9 +81,15 @@ UbuntuFatPackagingIntroPage::UbuntuFatPackagingIntroPage(QmakeProjectManager::Qm
 
     QFormLayout *layout = new QFormLayout;
     layout->addRow(label);
-    layout->addRow(tr("Mode"),m_modeBox);
     layout->addRow(tr("Destination directory"),m_clickPackagePath);
+    layout->addRow(compiledPartsButton);
+    layout->addRow(noCompiledPartsButton);
     setLayout(layout);
+}
+
+UbuntuFatPackagingWizard::BuildMode UbuntuFatPackagingIntroPage::mode() const
+{
+    return static_cast<UbuntuFatPackagingWizard::BuildMode>(m_modeGroup->checkedId());
 }
 
 void UbuntuFatPackagingIntroPage::initializePage()
@@ -91,9 +105,9 @@ void UbuntuFatPackagingIntroPage::initializePage()
     }
 
     if (likelyHasBinaryParts)
-        m_modeBox->setCurrentIndex(1);
+        m_modeGroup->button(UbuntuFatPackagingWizard::CompiledPartsMode)->setChecked(true);
     else
-        m_modeBox->setCurrentIndex(0);
+        m_modeGroup->button(UbuntuFatPackagingWizard::NoCompiledPartsMode)->setChecked(true);
 }
 
 bool UbuntuFatPackagingIntroPage::isComplete() const
@@ -103,7 +117,7 @@ bool UbuntuFatPackagingIntroPage::isComplete() const
 
 int UbuntuFatPackagingIntroPage::nextId() const
 {
-    if (m_modeBox->currentIndex() == 0)
+    if (m_modeGroup->checkedId() == UbuntuFatPackagingWizard::NoCompiledPartsMode)
         return -1;
 
     return QWizardPage::nextId();
@@ -111,7 +125,7 @@ int UbuntuFatPackagingIntroPage::nextId() const
 
 void UbuntuFatPackagingIntroPage::buildModeChanged(const int mode)
 {
-    setFinalPage( mode == 0 );
+    setFinalPage( mode == UbuntuFatPackagingWizard::NoCompiledPartsMode );
 }
 
 UbuntuChooseTargetPage::UbuntuChooseTargetPage(QmakeProjectManager::QmakeProject *project, QWidget *parent)
