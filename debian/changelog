@@ -1,3 +1,16 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150224-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Use more verbose strings to explain the fat packaging wizard. Fix a
+    uncatched exception in click_chroot_wrapper.py lp:1424043. Do not
+    close prespawned sessions in click_chroot_wrapper when the. script
+    receives a SIGTERM (LP: #1424043)
+
+  [ Michael Zanetti ]
+  * fix some issues with high-res in DevicePage (LP: #1418062)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Tue, 24 Feb 2015 08:49:39 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150220-0ubuntu1) vivid; urgency=medium
 
   [ Michael Zanetti ]
