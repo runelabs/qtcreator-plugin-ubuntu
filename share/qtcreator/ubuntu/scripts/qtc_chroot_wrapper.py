@@ -66,6 +66,7 @@ if (command.startswith("qt5-qmake")):
 subproc    = None
 session_id = ""
 click      = shutil.which("click")
+pre_spawned_session = False
 
 if( click is None ):
     print("Could not find click in the path, please make sure it is installed")
@@ -82,8 +83,15 @@ def mapPaths (text):
 
 def exit_gracefully(arg1,arg2):
     if(subproc is not None):
-        subproc.kill()
-    subprocess.call([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"end-session",session_id],stdout=subprocess.DEVNULL)
+        try:
+            subproc.kill()
+        except ProcessLookupError:
+            #process is already gone
+            pass
+
+    if (not pre_spawned_session):
+        subprocess.call([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"end-session",session_id],stdout=subprocess.DEVNULL)
+
     sys.exit(1)
 
 signal.signal(signal.SIGTERM, exit_gracefully)

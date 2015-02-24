@@ -6,7 +6,7 @@
 #include <QList>
 
 class QLabel;
-class QComboBox;
+class QButtonGroup;
 class QTreeWidget;
 class QTreeWidgetItem;
 namespace ProjectExplorer{ class Project; class BuildConfiguration; }
@@ -16,20 +16,30 @@ namespace Utils { class PathChooser; }
 namespace Ubuntu {
 namespace Internal {
 
+class UbuntuFatPackagingIntroPage;
 class UbuntuChooseTargetPage;
 
 class UbuntuFatPackagingWizard : public Utils::Wizard
 {
     Q_OBJECT
 public:
+
+    enum BuildMode{
+        NoCompiledPartsMode = 0,
+        CompiledPartsMode
+
+    };
+
     explicit UbuntuFatPackagingWizard(QmakeProjectManager::QmakeProject *project, QWidget *parent = 0);
     QList<ProjectExplorer::BuildConfiguration *> selectedTargets();
+    BuildMode mode () const;
 
 signals:
 
 public slots:
 
 private:
+    UbuntuFatPackagingIntroPage *m_introPage;
     UbuntuChooseTargetPage *m_targetPage;
 };
 
@@ -38,6 +48,8 @@ class UbuntuFatPackagingIntroPage : public QWizardPage
     Q_OBJECT
 public:
     UbuntuFatPackagingIntroPage (QmakeProjectManager::QmakeProject *project, QWidget *parent = 0);
+
+    UbuntuFatPackagingWizard::BuildMode mode () const;
 
     // QWizardPage interface
     virtual void initializePage() override;
@@ -49,7 +61,7 @@ protected slots:
 
 private:
     QmakeProjectManager::QmakeProject *m_project;
-    QComboBox *m_modeBox;
+    QButtonGroup *m_modeGroup;
     Utils::PathChooser *m_clickPackagePath;
 };
 

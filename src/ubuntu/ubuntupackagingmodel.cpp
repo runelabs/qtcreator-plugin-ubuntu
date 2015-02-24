@@ -441,12 +441,12 @@ void UbuntuPackagingModel::buildClickPackage()
         if (wiz.exec() != QDialog::Accepted)
             return;
 
-        int mode = wiz.field(QStringLiteral("mode")).toInt();
+        UbuntuFatPackagingWizard::BuildMode mode = wiz.mode();
         QString workingDir = wiz.field(QStringLiteral("targetDirectory")).toString();
         QString deployDir  = QStringLiteral("%1/deploy").arg(workingDir);
         QList<ProjectExplorer::BuildConfiguration *> suspects;
 
-        if(wiz.field(QStringLiteral("mode")).toInt() == 1)  {
+        if(mode == UbuntuFatPackagingWizard::CompiledPartsMode)  {
             suspects = wiz.selectedTargets();
         } else {
             if(project->activeTarget()) {
@@ -485,7 +485,7 @@ void UbuntuPackagingModel::buildClickPackage()
             }
 
             UbuntuFixManifestStep *fixManifest = new UbuntuFixManifestStep(m_packageBuildSteps.last().data());
-            if (mode == 0)
+            if (mode == UbuntuFatPackagingWizard::NoCompiledPartsMode)
                 fixManifest->setArchitectures(QStringList()<<QStringLiteral("all"));
             else
                 fixManifest->setArchitectures(usedArchitectures);
