@@ -81,9 +81,9 @@ Page {
         visible: !devicesModel.busy
         Controls.SplitView {
             orientation: Qt.Vertical
-            width: 200
-            Layout.minimumWidth: 200
-            Layout.maximumWidth: 400
+            width: units.gu(25)
+            Layout.minimumWidth: units.gu(25)
+            Layout.maximumWidth: units.gu(50)
 
             Controls.ScrollView {
                 Layout.fillHeight: true
@@ -101,7 +101,12 @@ Page {
 
                         TextField{
                             id: editor
-                            anchors.fill: parent
+                            anchors {
+                                left: parent.left
+                                right: parent.right
+                                verticalCenter: parent.verticalCenter
+                                margins: units.gu(1)
+                            }
                             visible: false
 
                             property bool changed: false
@@ -169,10 +174,13 @@ Page {
                 Layout.maximumHeight: units.gu(5)
                 Row{
                     anchors.fill: parent
-                    spacing: units.gu(2)
+                    spacing: units.gu(1)
                     Controls.ToolButton {
                         text: i18n.tr("Refresh devices")
                         tooltip: text
+                        height: parent.height - units.gu(1)
+                        width: height
+                        anchors.verticalCenter: parent.verticalCenter
                         iconSource: "qrc:/ubuntu/images/reload.svg"
                         onClicked: devicesModel.refresh()
                     }
@@ -180,6 +188,9 @@ Page {
                         text: i18n.tr("Add Emulator")
                         tooltip: text
                         iconSource: "qrc:/ubuntu/images/list-add.svg"
+                        height: parent.height - units.gu(1)
+                        width: height
+                        anchors.verticalCenter: parent.verticalCenter
                         onClicked: {
                             if(!devicesModel.emulatorInstalled){
                                 PopupUtils.open(resourceRoot+"/DevicesPage/EmulatorNotInstalled.qml",devicePage);
@@ -199,7 +210,7 @@ Page {
 
         Item {
             id: centerItem
-            Layout.minimumWidth: 400
+            Layout.minimumWidth: units.gu(50)
             Layout.fillWidth: true
 
             Repeater {
@@ -226,11 +237,14 @@ Page {
                         anchors.top: parent.top
                         Row{
                             anchors.fill: parent
-                            spacing: units.gu(2)
+                            spacing: units.gu(1)
                             Controls.ToolButton {
                                 text: i18n.tr("Run Emulator")
                                 tooltip: text
                                 iconSource: "qrc:/projectexplorer/images/run.png"
+                                height: parent.height - units.gu(1)
+                                width: height
+                                anchors.verticalCenter: parent.verticalCenter
                                 onClicked: devicesModel.startEmulator(emulatorImageName)
                                 visible: connectionState === DeviceConnectionState.Disconnected && machineType === DeviceMachineType.Emulator
                             }
@@ -238,6 +252,9 @@ Page {
                                 text: i18n.tr("Stop Emulator")
                                 tooltip: text
                                 iconSource: "qrc:/projectexplorer/images/stop.png"
+                                height: parent.height - units.gu(1)
+                                width: height
+                                anchors.verticalCenter: parent.verticalCenter
                                 onClicked: devicesModel.stopEmulator(emulatorImageName)
                                 visible: connectionState !== DeviceConnectionState.Disconnected && machineType === DeviceMachineType.Emulator
                             }
@@ -245,6 +262,9 @@ Page {
                                 text: i18n.tr("Delete")
                                 tooltip: text
                                 iconSource: "qrc:/core/images/clear.png"
+                                height: parent.height - units.gu(1)
+                                width: height
+                                anchors.verticalCenter: parent.verticalCenter
                                 onClicked: {
                                     if(machineType === DeviceMachineType.Emulator)
                                         PopupUtils.open(resourceRoot+"/DevicesPage/DeleteDeviceDialog.qml",devicePage, {"emulatorImageName": emulatorImageName,"deviceId": -1 });
