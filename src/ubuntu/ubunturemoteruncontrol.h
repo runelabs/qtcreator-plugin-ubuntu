@@ -46,7 +46,6 @@ public:
     virtual void start() override;
     virtual StopResult stop() override;
     virtual bool isRunning() const override;
-    virtual QIcon icon() const override;
 
 private slots:
     void handleErrorMessage(const QString &error);

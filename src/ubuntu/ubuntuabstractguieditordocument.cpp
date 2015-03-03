@@ -36,7 +36,7 @@ namespace Internal {
  *  we need to hook into save() and isModified()
  */
 UbuntuAbstractGuiEditorDocument::UbuntuAbstractGuiEditorDocument(const QString &mimeType, UbuntuAbstractGuiEditorWidget *editorWidget)
-    : TextEditor::PlainTextDocument(),
+    : TextEditor::TextDocument(),
       m_editorWidget(editorWidget)
 {
     setMimeType(mimeType);
@@ -50,7 +50,7 @@ bool UbuntuAbstractGuiEditorDocument::save(QString *errorString, const QString &
         return false;
     }
 
-    if(BaseTextDocument::save(errorString, fileName, autoSave)) {
+    if(TextDocument::save(errorString, fileName, autoSave)) {
         m_editorWidget->saved();
         return true;
     }
@@ -59,19 +59,17 @@ bool UbuntuAbstractGuiEditorDocument::save(QString *errorString, const QString &
 
 QString UbuntuAbstractGuiEditorDocument::defaultPath() const
 {
-    QFileInfo fi(filePath());
-    return fi.absolutePath();
+    return filePath().toFileInfo().absolutePath();
 }
 
 QString UbuntuAbstractGuiEditorDocument::suggestedFileName() const
 {
-    QFileInfo fi(filePath());
-    return fi.fileName();
+    return filePath().toFileInfo().fileName();
 }
 
 bool UbuntuAbstractGuiEditorDocument::isModified() const
 {
-    return BaseTextDocument::isModified() ||  m_editorWidget->isModified();
+    return TextDocument::isModified() ||  m_editorWidget->isModified();
 }
 
 bool UbuntuAbstractGuiEditorDocument::isSaveAsAllowed() const

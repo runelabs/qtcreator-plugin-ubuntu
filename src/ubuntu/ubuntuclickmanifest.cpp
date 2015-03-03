@@ -311,7 +311,7 @@ bool UbuntuClickManifest::load(const QString &fileName,ProjectExplorer::Project 
         }
 
         QString mimeType = proj->projectManager()->mimeType();
-        QString proName  = proj->projectFilePath();
+        QString proName  = proj->projectFilePath().toString();
 
         bool isUbuntuProject = (mimeType == QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
         bool isUbuntuHtmlProject = proName.endsWith(QLatin1String(Constants::UBUNTUHTMLPROJECT_SUFFIX));

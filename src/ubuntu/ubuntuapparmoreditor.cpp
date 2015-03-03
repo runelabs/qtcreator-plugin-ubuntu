@@ -25,8 +25,7 @@ namespace Ubuntu {
 namespace Internal {
 
 UbuntuApparmorEditor::UbuntuApparmorEditor()
-    : UbuntuAbstractGuiEditor(Constants::UBUNTU_APPARMOR_EDITOR_ID,
-                              Core::Context(Constants::UBUNTU_APPARMOR_EDITOR_CONTEXT)),
+    : UbuntuAbstractGuiEditor(Core::Context(Constants::UBUNTU_APPARMOR_EDITOR_CONTEXT)),
       m_editorWidget(0)
 {
     createUi();
@@ -94,9 +93,9 @@ void UbuntuApparmorEditorWidget::setVersion(const QString &version)
         syncToSource();
 
     UbuntuClickManifest aa;
-    if(aa.loadFromString(textEditorWidget()->baseTextDocument()->plainText())) {
+    if(aa.loadFromString(textEditorWidget()->textDocument()->plainText())) {
         aa.setPolicyVersion(version);
-        textEditorWidget()->baseTextDocument()->setPlainText(aa.raw()+QStringLiteral("\n"));
+        textEditorWidget()->textDocument()->setPlainText(aa.raw()+QStringLiteral("\n"));
         textEditorWidget()->document()->setModified(true);
 
         if(activePage() == General)

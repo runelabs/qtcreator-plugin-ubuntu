@@ -38,6 +38,7 @@
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
+#include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
@@ -56,8 +57,8 @@ class UbuntuRemoteDebugSupportPrivate
 {
 public:
     UbuntuRemoteDebugSupportPrivate(const UbuntuRemoteRunConfiguration *runConfig,
-            Debugger::DebuggerEngine *engine)
-        : engine(engine),
+            Debugger::DebuggerRunControl *engine)
+        : runControl(engine),
           qmlDebugging(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useQmlDebugger()),
           cppDebugging(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useCppDebugger()),
           gdbServerPort(-1), qmlPort(-1)
@@ -65,7 +66,7 @@ public:
 
     }
 
-    const QPointer<Debugger::DebuggerEngine> engine;
+    const QPointer<Debugger::DebuggerRunControl> runControl;
     bool qmlDebugging;
     bool cppDebugging;
     QByteArray gdbserverOutput;
@@ -74,11 +75,11 @@ public:
 };
 
 UbuntuRemoteDebugSupport::UbuntuRemoteDebugSupport(UbuntuRemoteRunConfiguration* runConfig,
-        Debugger::DebuggerEngine *engine)
-    : AbstractRemoteRunSupport(runConfig,engine),
-      d(new UbuntuRemoteDebugSupportPrivate(static_cast<UbuntuRemoteRunConfiguration*>(runConfig), engine))
+        Debugger::DebuggerRunControl *runControl)
+    : AbstractRemoteRunSupport(runConfig,runControl),
+      d(new UbuntuRemoteDebugSupportPrivate(runConfig, runControl))
 {
-    connect(d->engine, SIGNAL(requestRemoteSetup()), this, SLOT(handleRemoteSetupRequested()));
+    connect(d->runControl, SIGNAL(requestRemoteSetup()), this, SLOT(handleRemoteSetupRequested()));
 }
 
 UbuntuRemoteDebugSupport::~UbuntuRemoteDebugSupport()
@@ -88,8 +89,8 @@ UbuntuRemoteDebugSupport::~UbuntuRemoteDebugSupport()
 
 void UbuntuRemoteDebugSupport::showMessage(const QString &msg, int channel)
 {
-    if (state() != Idle && d->engine)
-        d->engine->showMessage(msg, channel);
+    if (state() != Idle && d->runControl)
+        d->runControl->showMessage(msg, channel);
 }
 
 void UbuntuRemoteDebugSupport::handleRemoteSetupRequested()
@@ -136,8 +137,8 @@ void UbuntuRemoteDebugSupport::handleAppRunnerError(const QString &error)
 {
     if (state() == Running) {
         showMessage(error, Debugger::AppError);
-        if (d->engine)
-            d->engine->notifyInferiorIll();
+        if (d->runControl)
+            d->runControl->notifyInferiorIll();
     } else if (state() != Idle) {
         handleAdapterSetupFailed(error);
     }
@@ -145,18 +146,21 @@ void UbuntuRemoteDebugSupport::handleAppRunnerError(const QString &error)
 
 void UbuntuRemoteDebugSupport::handleAppRunnerFinished(bool success)
 {
-    if (!d->engine || state() == Idle)
+    if (!d->runControl || state() == Idle)
         return;
 
     if (state() == Running) {
         // The QML engine does not realize on its own that the application has finished.
         if (d->qmlDebugging && !d->cppDebugging)
-            d->engine->quitDebugger();
+            d->runControl->quitDebugger();
         else if (!success)
-            d->engine->notifyInferiorIll();
+            d->runControl->notifyInferiorIll();
 
     } else if (state() == Starting){
-        d->engine->notifyEngineRemoteSetupFailed(tr("Debugging failed."));
+        Debugger::RemoteSetupResult res;
+        res.success = false;
+        res.reason = tr("Debugging failed");
+        d->runControl->notifyEngineRemoteSetupFinished(res);
     }
 
     reset();
@@ -177,7 +181,7 @@ void UbuntuRemoteDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
 {
     if( state() != ScanningPorts ) {
 
-        if (!d->engine)
+        if (!d->runControl)
             return;
 
         if (state() == Starting && d->cppDebugging) {
@@ -201,14 +205,23 @@ void UbuntuRemoteDebugSupport::handleProgressReport(const QString &progressOutpu
 
 void UbuntuRemoteDebugSupport::handleAdapterSetupFailed(const QString &error)
 {
-    d->engine->notifyEngineRemoteSetupFailed(tr("Initial setup failed: %1").arg(error));
     AbstractRemoteRunSupport::handleAdapterSetupFailed(error);
+
+    Debugger::RemoteSetupResult result;
+    result.success = false;
+    result.reason = tr("Initial setup failed: %1").arg(error);
+    d->runControl->notifyEngineRemoteSetupFinished(result);
 }
 
 void UbuntuRemoteDebugSupport::handleAdapterSetupDone()
 {
     AbstractRemoteRunSupport::handleAdapterSetupDone();
-    d->engine->notifyEngineRemoteSetupDone(d->gdbServerPort, d->qmlPort);
+
+    Debugger::RemoteSetupResult result;
+    result.success = true;
+    result.gdbServerPort = d->gdbServerPort;
+    result.qmlServerPort = d->qmlPort;
+    d->runControl->notifyEngineRemoteSetupFinished(result);
 }
 
 void UbuntuRemoteDebugSupport::handleRemoteProcessStarted()

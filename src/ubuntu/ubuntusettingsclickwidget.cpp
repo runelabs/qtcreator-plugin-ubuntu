@@ -55,12 +55,12 @@ UbuntuSettingsClickWidget::UbuntuSettingsClickWidget(QWidget *parent) :
     QStringList headers;
     headers << tr("Series")<< tr("Framework") << tr("Architecture")<<QLatin1String("")<<QLatin1String("")<<QLatin1String("");
     ui->treeWidgetClickTargets->setHeaderLabels(headers);
-    ui->treeWidgetClickTargets->header()->setResizeMode(0, QHeaderView::ResizeToContents);
-    ui->treeWidgetClickTargets->header()->setResizeMode(1, QHeaderView::Stretch);
-    ui->treeWidgetClickTargets->header()->setResizeMode(2, QHeaderView::ResizeToContents);
-    ui->treeWidgetClickTargets->header()->setResizeMode(3, QHeaderView::ResizeToContents);
-    ui->treeWidgetClickTargets->header()->setResizeMode(4, QHeaderView::ResizeToContents);
-    ui->treeWidgetClickTargets->header()->setResizeMode(5, QHeaderView::ResizeToContents);
+    ui->treeWidgetClickTargets->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    ui->treeWidgetClickTargets->header()->setSectionResizeMode(1, QHeaderView::Stretch);
+    ui->treeWidgetClickTargets->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    ui->treeWidgetClickTargets->header()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
+    ui->treeWidgetClickTargets->header()->setSectionResizeMode(4, QHeaderView::ResizeToContents);
+    ui->treeWidgetClickTargets->header()->setSectionResizeMode(5, QHeaderView::ResizeToContents);
     listExistingClickTargets();
 }
 

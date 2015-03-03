@@ -21,9 +21,6 @@
 
 #include "ubuntuclickmanifest.h"
 
-#include <texteditor/basetexteditor.h>
-#include <texteditor/plaintexteditor.h>
-
 #include <QScrollArea>
 #include <QPointer>
 #include "ubuntuabstractguieditorwidget.h"

@@ -35,7 +35,7 @@
 #include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/itexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <QStackedWidget>
 #include <QDebug>
@@ -318,8 +318,6 @@ void UbuntuManifestEditorWidget::bzrChanged()
 
 void UbuntuManifestEditorWidget::onFrameworkChanged()
 {
-    Core::DocumentModel *model = Core::EditorManager::documentModel();
-
     //make sure all changes are in the manifest instance
     syncToSource();
 
@@ -335,7 +333,7 @@ void UbuntuManifestEditorWidget::onFrameworkChanged()
 
     QList<UbuntuClickManifest::Hook> hooks = m_manifest->hooks();
     foreach(const UbuntuClickManifest::Hook &hook, hooks){
-        QFileInfo mFile(textEditorWidget()->baseTextDocument()->filePath());
+        QFileInfo mFile = textEditorWidget()->textDocument()->filePath().toFileInfo();
         QString aaFile = mFile.absolutePath()+QDir::separator()+hook.appArmorFile;
         if(!QFile::exists(aaFile)) {
 
@@ -345,12 +343,12 @@ void UbuntuManifestEditorWidget::onFrameworkChanged()
 
             //the aa file does not live in the same directory as the manifest file
             //try if we can use the project root directory to find the file
-            aaFile = p->projectDirectory()+QDir::separator()+hook.appArmorFile;
+            aaFile = p->projectDirectory().appendPath(hook.appArmorFile).toString();
             if(!QFile::exists(aaFile))
                 continue;
         }
 
-        QList<Core::IEditor*> editors = model->editorsForFilePath(aaFile);
+        QList<Core::IEditor*> editors = Core::DocumentModel::editorsForFilePath(aaFile);
         if(editors.size()) {
             if(debug) qDebug()<<"Write into editor contents";
 
@@ -368,10 +366,10 @@ void UbuntuManifestEditorWidget::onFrameworkChanged()
                 if(txtEd) {
                     //ok this is more complicated, first lets get the contents
                     UbuntuClickManifest aa;
-                    if(aa.loadFromString(txtEd->baseTextDocument()->plainText())){
+                    if(aa.loadFromString(txtEd->textDocument()->plainText())){
                         aa.setPolicyVersion(v);
-                        txtEd->baseTextDocument()->setPlainText(aa.raw());
-                        txtEd->baseTextDocument()->document()->setModified(true);
+                        txtEd->textDocument()->setPlainText(aa.raw());
+                        txtEd->textDocument()->document()->setModified(true);
                         break;
                     }
                 }
@@ -512,7 +510,7 @@ void UbuntuManifestEditorWidget::addMissingFieldsToManifest (QString fileName)
  */
 void UbuntuManifestEditorWidget::saved()
 {
-    QFileInfo mFile(textEditorWidget()->baseTextDocument()->filePath());
+    QFileInfo mFile = textEditorWidget()->textDocument()->filePath().toFileInfo();
     ProjectExplorer::Project *p = ubuntuProject(mFile.absolutePath());
     if(p && p->activeTarget())
         p->activeTarget()->updateDefaultRunConfigurations();

@@ -6,6 +6,7 @@
 #include <coreplugin/id.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
+#include <texteditor/texteditor.h>
 
 namespace Ubuntu {
 namespace Internal {
@@ -17,7 +18,7 @@ public:
         : TextEditorActionHandler(parent,editorContext)
     {}
 private:
-    TextEditor::BaseTextEditorWidget *resolveTextEditorWidget(Core::IEditor *editor) const
+    TextEditor::TextEditorWidget *resolveTextEditorWidget(Core::IEditor *editor) const
     {
         UbuntuAbstractGuiEditor *ubuntuManifestEditor = static_cast<UbuntuAbstractGuiEditor *>(editor);
         return ubuntuManifestEditor->textEditor();

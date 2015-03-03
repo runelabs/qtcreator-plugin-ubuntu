@@ -53,7 +53,7 @@ public:
     virtual bool isEnabled() const override;
     virtual QString disabledReason() const override;
     virtual bool isConfigured() const override;
-    virtual bool ensureConfigured(QString *errorMessage) override;
+    virtual ConfigurationState ensureConfigured(QString *errorMessage) override;
 
     // ProjectConfiguration interface
     virtual bool fromMap(const QVariantMap &map) override;

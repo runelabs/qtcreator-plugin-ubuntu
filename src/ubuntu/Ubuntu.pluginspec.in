@@ -14,7 +14,6 @@
         <dependency name=\"CppTools\" version=\"$$QTCREATOR_VERSION\"/>
         <dependency name=\"QmlJSTools\" version=\"$$QTCREATOR_VERSION\"/>
         <dependency name=\"Designer\" version=\"$$QTCREATOR_VERSION\" type=\"optional\"/>
-
     </dependencyList>
 </plugin>
 

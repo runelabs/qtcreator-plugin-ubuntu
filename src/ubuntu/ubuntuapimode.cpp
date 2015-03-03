@@ -29,6 +29,8 @@
 #include <QFile>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
+#include <QUrl>
+#include <QUrlQuery>
 
 using namespace Ubuntu::Internal;
 
@@ -129,8 +131,12 @@ void UbuntuAPIMode::activeTargetChanged()
     else {
         QUrl newUrl = QUrl::fromUserInput(loc);
         if(current.hasQuery()) {
-            foreach(auto item, current.queryItems())
-                newUrl.addQueryItem(item.first,item.second);
+            QUrlQuery query(current);
+            QUrlQuery newQuery;
+            foreach(auto item, query.queryItems())
+                newQuery.addQueryItem(item.first,item.second);
+
+            newUrl.setQuery(newQuery.toString());
         }
 
         if(current.hasFragment())

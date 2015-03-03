@@ -21,7 +21,6 @@
 
 #include <coreplugin/modemanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/dialogs/iwizard.h>
 #include <coreplugin/coreconstants.h>
 #include <projectexplorer/projectexplorer.h>
 #include <coreplugin/icore.h>

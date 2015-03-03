@@ -205,7 +205,7 @@ ClickToolChain::ClickToolChain(const UbuntuClickTool::Target &target, Detection 
     : GccToolChain(QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID), d)
     , m_clickTarget(target)
 {
-    setCompilerCommand(Utils::FileName::fromString(
+    resetToolChain(Utils::FileName::fromString(
                            UbuntuClickTool::findOrCreateGccWrapper(target)
                            ));
 

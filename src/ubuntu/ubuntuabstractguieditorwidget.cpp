@@ -46,6 +46,7 @@ const char infoBarId[] = "UbuntuProjectManager.UbuntuManifestEditor.InfoBar";
 //try to find the project by the file path
 ProjectExplorer::Project *ubuntuProject(const QString &file)
 {
+    //Project *SessionManager::projectForFile(const Utils::FileName &fileName)
     Utils::FileName fileName = Utils::FileName::fromString(file);
     foreach (ProjectExplorer::Project *project, ProjectExplorer::SessionManager::projects()) {
         if (!project->activeTarget())
@@ -56,7 +57,7 @@ ProjectExplorer::Project *ubuntuProject(const QString &file)
         if (tc && tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
                 && fileName.isChildOf(Utils::FileName::fromString(project->projectDirectory())))
 #endif
-        if(fileName.isChildOf(Utils::FileName::fromString(project->projectDirectory())))
+        if(fileName.isChildOf(project->projectDirectory()))
             return project;
     }
     return 0;
@@ -130,7 +131,7 @@ bool UbuntuAbstractGuiEditorWidget::preSave()
     return true;
 }
 
-TextEditor::PlainTextEditorWidget *UbuntuAbstractGuiEditorWidget::textEditorWidget() const
+TextEditor::TextEditorWidget *UbuntuAbstractGuiEditorWidget::textEditorWidget() const
 {
     return m_sourceEditor;
 }
@@ -155,7 +156,7 @@ void UbuntuAbstractGuiEditorWidget::saved()
 
 void UbuntuAbstractGuiEditorWidget::updateInfoBar(const QString &errorMessage)
 {
-    Core::InfoBar *infoBar = m_sourceEditor->baseTextDocument()->infoBar();
+    Core::InfoBar *infoBar = m_sourceEditor->textDocument()->infoBar();
     infoBar->removeInfo(infoBarId);
 
     if(!errorMessage.isEmpty()){
@@ -165,10 +166,13 @@ void UbuntuAbstractGuiEditorWidget::updateInfoBar(const QString &errorMessage)
 }
 
 UbuntuManifestTextEditorWidget::UbuntuManifestTextEditorWidget(QString mimeType, UbuntuAbstractGuiEditorWidget *parent)
-    : TextEditor::PlainTextEditorWidget(new UbuntuAbstractGuiEditorDocument(mimeType,parent), parent),
-      m_parent(parent)
+    : TextEditor::TextEditorWidget(parent),
+      m_parent(parent),
+      m_mimeType(mimeType)
 {
-    baseTextDocument()->setMimeType(mimeType);
+    setTextDocument(TextEditor::TextDocumentPtr(new UbuntuAbstractGuiEditorDocument(mimeType,parent)));
+    textDocument()->setMimeType(mimeType);
+    setupGenericHighlighter();
 }
 
 

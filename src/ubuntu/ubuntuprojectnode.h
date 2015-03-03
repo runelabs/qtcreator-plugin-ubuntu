@@ -29,7 +29,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -51,32 +50,30 @@ namespace Internal {
 class UbuntuProject;
 class UbuntuProjectNode : public ProjectExplorer::ProjectNode
 {
-    Q_OBJECT
-
 public:
     UbuntuProjectNode(UbuntuProject *project, Core::IDocument *projectFile);
 
     Core::IDocument *projectFile() const;
     QString projectFilePath() const;
 
-    virtual QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
+    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
 
-    virtual bool canAddSubProject(const QString &proFilePath) const override;
+    bool canAddSubProject(const QString &proFilePath) const override;
 
-    virtual bool addSubProjects(const QStringList &proFilePaths) override;
-    virtual bool removeSubProjects(const QStringList &proFilePaths) override;
+    bool addSubProjects(const QStringList &proFilePaths) override;
+    bool removeSubProjects(const QStringList &proFilePaths) override;
 
-    virtual bool addFiles(const QStringList &filePaths,
+    bool addFiles(const QStringList &filePaths,
                           QStringList *notAdded = 0) override;
 
-    virtual bool removeFiles(const QStringList &filePaths,
+    bool removeFiles(const QStringList &filePaths,
                              QStringList *notRemoved = 0) override;
 
-    virtual bool deleteFiles(const QStringList &filePaths) override;
+    bool deleteFiles(const QStringList &filePaths) override;
 
-    virtual bool renameFile(const QString &filePath,
+    bool renameFile(const QString &filePath,
                             const QString &newFilePath) override;
-    virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node) override;
+    QList<ProjectExplorer::RunConfiguration *> runConfigurations( ) const override;
 
 
     void refresh();

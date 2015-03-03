@@ -24,9 +24,9 @@
 
 #include <projectexplorer/kitinformation.h>
 #include <debugger/debuggerstartparameters.h>
-#include <debugger/debuggerrunner.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
+#include <debugger/debuggerruncontrol.h>
 #include <remotelinux/remotelinuxdebugsupport.h>
 #include <remotelinux/remotelinuxruncontrol.h>
 #include <remotelinux/remotelinuxanalyzesupport.h>
@@ -94,14 +94,16 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
                 params.breakOnMain = true;
 
             params.solibSearchPath.append(rc->soLibSearchPaths());
+            params.runConfiguration = rc;
+
             if(debug) qDebug()<<"Solib search path : "<<params.solibSearchPath;
 
             Debugger::DebuggerRunControl * const runControl
-                    = Debugger::DebuggerPlugin::createDebugger(params, rc, errorMessage);
+                    = Debugger::DebuggerRunControlFactory::doCreate(params, errorMessage);
             if (!runControl)
                 return 0;
             UbuntuRemoteDebugSupport * const debugSupport =
-                    new UbuntuRemoteDebugSupport(rc, runControl->engine());
+                    new UbuntuRemoteDebugSupport(rc, runControl);
             connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
             return runControl;
         }
@@ -116,6 +118,9 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
         case ProjectExplorer::NoRunMode:
         case ProjectExplorer::CallgrindRunMode:
         case ProjectExplorer::MemcheckRunMode:
+        case ProjectExplorer::MemcheckWithGdbRunMode:
+        case ProjectExplorer::ClangStaticAnalyzerMode:
+        case ProjectExplorer::PerfProfilerRunMode:
             QTC_ASSERT(false, return 0);
         }
 

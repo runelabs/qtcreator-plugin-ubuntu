@@ -1,7 +1,6 @@
 #include "ubuntukitmanager.h"
 #include "clicktoolchain.h"
 #include "ubuntuconstants.h"
-#include "ubuntucmaketool.h"
 #include "ubuntudevice.h"
 #include "ubuntuclickdialog.h"
 #include "ubuntuqtversion.h"
@@ -15,14 +14,16 @@
 #include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggerkitinformation.h>
 #include <qtsupport/qtkitinformation.h>
-#include <cmakeprojectmanager/cmakekitinformation.h>
+
 #include <cmakeprojectmanager/cmaketoolmanager.h>
+#include <cmakeprojectmanager/cmakekitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <QMessageBox>
 #include <QRegularExpression>
 #include <QTextStream>
 #include <QStandardPaths>
+#include <QFileInfo>
 
 namespace Ubuntu {
 namespace Internal {
@@ -70,6 +71,8 @@ QList<ClickToolChain *> UbuntuKitManager::clickToolChains()
     return toolchains;
 }
 
+
+
 UbuntuQtVersion *UbuntuKitManager::createOrFindQtVersion(ClickToolChain *tc)
 {
 
@@ -90,6 +93,28 @@ UbuntuQtVersion *UbuntuKitManager::createOrFindQtVersion(ClickToolChain *tc)
     UbuntuQtVersion *qtVersion = new UbuntuQtVersion(Utils::FileName::fromString(qmakePath),false);
     QtSupport::QtVersionManager::addVersion(qtVersion);
     return qtVersion;
+}
+
+CMakeProjectManager::CMakeTool *UbuntuKitManager::createOrFindCMakeTool(ClickToolChain *tc)
+{
+    QString cmakePathStr = UbuntuClickTool::findOrCreateToolWrapper(QStringLiteral("cmake"), tc->clickTarget());
+    Utils::FileName cmakePath = Utils::FileName::fromString(cmakePathStr);
+
+    CMakeProjectManager::CMakeTool *cmake = CMakeProjectManager::CMakeToolManager::findByCommand(cmakePath);
+    if (!cmake){
+        cmake = new CMakeProjectManager::CMakeTool(CMakeProjectManager::CMakeTool::AutoDetection);
+        cmake->setCMakeExecutable(cmakePath);
+        cmake->setDisplayName(tr("Ubuntu SDK cmake (%1-%2-%3)")
+                              .arg(tc->clickTarget().architecture)
+                              .arg(tc->clickTarget().framework)
+                              .arg(tc->clickTarget().series));
+        if (!CMakeProjectManager::CMakeToolManager::registerCMakeTool(cmake)) {
+            delete cmake;
+            return 0;
+        }
+    }
+
+    return cmake;
 }
 
 void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
@@ -148,11 +173,11 @@ void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
     if(newKit) {
         fixKit(newKit);
 
-        newKit->setDisplayName(tr("%1 (GCC %2-%3-%4)")
-                            .arg(device->displayName())
-                            .arg(match->clickTarget().architecture)
-                            .arg(match->clickTarget().framework)
-                            .arg(match->clickTarget().series));
+        newKit->setUnexpandedDisplayName(tr("%1 (GCC %2-%3-%4)")
+                                        .arg(device->displayName())
+                                        .arg(match->clickTarget().architecture)
+                                        .arg(match->clickTarget().framework)
+                                        .arg(match->clickTarget().series));
 
         ProjectExplorer::DeviceKitInformation::setDevice(newKit,device);
         ProjectExplorer::KitManager::registerKit(newKit);
@@ -186,15 +211,6 @@ void UbuntuKitManager::autoDetectKits()
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
         if (tc && tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
             continue;
-
-        CMakeProjectManager::ICMakeTool* icmake = CMakeProjectManager::CMakeKitInformation::cmakeTool(k);
-        UbuntuCMakeTool* cmake = qobject_cast<UbuntuCMakeTool*>(icmake);
-        //if the kit has no valid UbuntuCMakeTool, let it be removed from the code later
-        if(cmake) {
-            Utils::Environment env = Utils::Environment::systemEnvironment();
-            k->addToEnvironment(env);
-            cmake->setEnvironment(env);
-        }
 
         //@TODO check for ubuntu device information
         if(debug) qDebug()<<"Found possible Ubuntu Kit: "<<k->displayName();
@@ -232,10 +248,10 @@ void UbuntuKitManager::autoDetectKits()
     //all kits remaining need to be removed if they don't have all informations
     foreach (ProjectExplorer::Kit *k, existingKits) {
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
-        CMakeProjectManager::ICMakeTool* icmake = CMakeProjectManager::CMakeKitInformation::cmakeTool(k);
+        CMakeProjectManager::CMakeTool* cmake = CMakeProjectManager::CMakeKitInformation::cmakeTool(k);
         if (tc && tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
-                && icmake && icmake->id().toString().startsWith(QLatin1String(Constants::UBUNTU_CLICK_CMAKE_TOOL_ID))
-                && icmake->isValid()) {
+                && cmake //&& icmake->id().toString().startsWith(QLatin1String(Constants::UBUNTU_CLICK_CMAKE_TOOL_ID))
+                && cmake->isValid()) {
             fixKit(k);
 
             //existing targets are not autodetected anymore
@@ -250,10 +266,10 @@ void UbuntuKitManager::autoDetectKits()
     foreach (ProjectExplorer::Kit *kit, newKits) {
         ClickToolChain *tc = static_cast<ClickToolChain *>(ProjectExplorer::ToolChainKitInformation::toolChain(kit));
         //AndroidQtVersion *qt = static_cast<AndroidQtVersion *>(QtSupport::QtKitInformation::qtVersion(kit));
-        kit->setDisplayName(tr("UbuntuSDK for %1 (GCC %2-%3)")
-                            .arg(tc->clickTarget().architecture)
-                            .arg(tc->clickTarget().framework)
-                            .arg(tc->clickTarget().series));
+        kit->setUnexpandedDisplayName(tr("UbuntuSDK for %1 (GCC %2-%3)")
+                                      .arg(tc->clickTarget().architecture)
+                                      .arg(tc->clickTarget().framework)
+                                      .arg(tc->clickTarget().series));
         ProjectExplorer::KitManager::registerKit(kit);
         fixKit(kit);
     }
@@ -272,15 +288,9 @@ ProjectExplorer::Kit *UbuntuKitManager::createKit(ClickToolChain *tc)
     newKit->setIconPath(Utils::FileName::fromString(QLatin1String(Constants::UBUNTU_MODE_WEB_ICON)));
     ProjectExplorer::ToolChainKitInformation::setToolChain(newKit, tc);
 
-    //every kit gets its own instance of CMakeTool
-    UbuntuCMakeTool* cmake = new UbuntuCMakeTool;
-    Utils::Environment env = Utils::Environment::systemEnvironment();
-    newKit->addToEnvironment(env);
-    cmake->setEnvironment(env);
-
-    CMakeProjectManager::CMakeToolManager::registerCMakeTool(cmake);
-    CMakeProjectManager::CMakeKitInformation::setCMakeTool(newKit,cmake->id());
-
+    CMakeProjectManager::CMakeTool *cmake = createOrFindCMakeTool(tc);
+    if (cmake)
+        CMakeProjectManager::CMakeKitInformation::setCMakeTool(newKit, cmake->id());
 
     ProjectExplorer::SysRootKitInformation::setSysRoot(newKit,Utils::FileName::fromString(UbuntuClickTool::targetBasePath(tc->clickTarget())));
 
@@ -407,6 +417,11 @@ void UbuntuKitManager::fixKit(ProjectExplorer::Kit *k)
 
     //make sure we use a ubuntu Qt version
     QtSupport::QtKitInformation::setQtVersion(k, createOrFindQtVersion(tc));
+
+    //make sure we use a ubuntu cmake
+    CMakeProjectManager::CMakeTool *cmake = createOrFindCMakeTool(tc);
+    if(cmake)
+        CMakeProjectManager::CMakeKitInformation::setCMakeTool(k, cmake->id());
 
 }
 

@@ -21,14 +21,14 @@
 #define UBUNTU_INTERNAL_UBUNTUMANIFESTDOCUMENT_H
 
 #include <coreplugin/textdocument.h>
-#include <texteditor/plaintexteditor.h>
+#include <texteditor/texteditor.h>
 
 namespace Ubuntu {
 namespace Internal {
 
 class UbuntuAbstractGuiEditorWidget;
 
-class UbuntuAbstractGuiEditorDocument : public TextEditor::PlainTextDocument
+class UbuntuAbstractGuiEditorDocument : public TextEditor::TextDocument
 {
 public:
     UbuntuAbstractGuiEditorDocument(const QString &mimeType, UbuntuAbstractGuiEditorWidget *editorWidget);

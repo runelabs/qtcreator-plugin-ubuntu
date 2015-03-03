@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
 SUBDIRS = src/ubuntu \
-          tests \
+          #tests \
           chroot-agent
 
 #QML files

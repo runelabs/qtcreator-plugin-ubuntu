@@ -170,7 +170,9 @@ void UbuntuMenu::createManifestFile()
 
     bool changed = false;
 
-    QString manifestFilePath = m_ctxMenuProject->projectDirectory()+QDir::separator()+QLatin1String("manifest.json");
+    QString manifestFilePath = m_ctxMenuProject->projectDirectory().toString()
+            + QDir::separator()
+            + QLatin1String("manifest.json");
 
     UbuntuClickManifest manifest;
     if(QFile::exists(manifestFilePath)) {
@@ -195,7 +197,9 @@ void UbuntuMenu::createManifestFile()
     foreach(const UbuntuClickManifest::Hook &hook, hooks) {
         if(!hook.appArmorFile.isEmpty()) {
             UbuntuClickManifest aaFile;
-            QString aaFilePath = QDir::cleanPath(m_ctxMenuProject->projectDirectory()+QDir::separator()+hook.appArmorFile);
+            QString aaFilePath = QDir::cleanPath(m_ctxMenuProject->projectDirectory().toString()
+                                                 + QDir::separator()
+                                                 + hook.appArmorFile);
             if(QFile::exists(aaFilePath))
                 continue;
 
@@ -634,7 +638,7 @@ void UbuntuMenu::menuItemTriggered() {
 
                     if (project) {
 
-                        QString projectDirectory = project->projectDirectory();
+                        QString projectDirectory = project->projectDirectory().toString();
                         QString displayName = project->displayName();
 
                         QString folderName = projectDirectory;

@@ -72,6 +72,8 @@ UbuntuRemoteRunControl::UbuntuRemoteRunControl(RunConfiguration *rc)
     d->runConfig = QPointer<UbuntuRemoteRunConfiguration>(static_cast<UbuntuRemoteRunConfiguration *>(rc));
     d->environment = d->runConfig->environment();
     d->clickPackage = d->runConfig->clickPackage();
+
+    setIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 }
 
 UbuntuRemoteRunControl::~UbuntuRemoteRunControl()
@@ -164,11 +166,6 @@ void UbuntuRemoteRunControl::handleWaitDialogCanceled()
 bool UbuntuRemoteRunControl::isRunning() const
 {
     return d->running;
-}
-
-QIcon UbuntuRemoteRunControl::icon() const
-{
-    return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 }
 
 void UbuntuRemoteRunControl::setFinished()

@@ -18,7 +18,6 @@
 #include "ubuntulocaldeployconfiguration.h"
 #include "ubuntuprojecthelper.h"
 #include "ubuntuconstants.h"
-#include "ubuntucmakemakestep.h"
 #include "ubuntupackagestep.h"
 
 #include <projectexplorer/projectexplorerconstants.h>

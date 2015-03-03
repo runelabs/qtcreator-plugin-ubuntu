@@ -51,11 +51,11 @@ public:
     virtual QString executable() const override;
     virtual QString workingDirectory() const override;
     virtual QString commandLineArguments() const override;
-    virtual RunMode runMode() const override;
+    virtual ProjectExplorer::ApplicationLauncher::Mode runMode() const override;
     virtual void addToBaseEnvironment(Utils::Environment &env) const override;
 
     // RunConfiguration interface
-    virtual bool ensureConfigured(QString *errorMessage) override;
+    virtual ConfigurationState ensureConfigured(QString *errorMessage) override;
 
     //static helpers
     static QString getDesktopFile (RunConfiguration *config, QString appId, QString *errorMessage = 0);
@@ -68,7 +68,7 @@ private:
 
 private:
     QString m_executable;
-    QString m_workingDir;
+    Utils::FileName m_workingDir;
     QStringList m_args;
 };
 

@@ -20,7 +20,7 @@
 #define UBUNTU_INTERNAL_UBUNTUABSTRACTGUIEDITOR_H
 
 #include <coreplugin/editormanager/ieditor.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 class QToolBar;
 
@@ -33,13 +33,13 @@ class UbuntuAbstractGuiEditor : public Core::IEditor
 {
     Q_OBJECT
 public:
-    UbuntuAbstractGuiEditor(const Core::Id &id, const Core::Context &context);
+    UbuntuAbstractGuiEditor(const Core::Context &context);
 
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     QWidget *toolBar();
     UbuntuAbstractGuiEditorWidget *editorWidget() const;
     Core::IDocument *document();
-    TextEditor::BaseTextEditorWidget *textEditor() const;
+    TextEditor::TextEditorWidget *textEditor() const;
 
     int currentLine() const;
     int currentColumn() const;

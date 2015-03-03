@@ -23,9 +23,8 @@
 #include <QQmlEngine>
 #include <QQmlContext>
 
-#include <utils/iwelcomepage.h>
 #include <utils/fileutils.h>
-#include <coreplugin/dialogs/iwizard.h>
+#include <coreplugin/iwizardfactory.h>
 #include <projectexplorer/projectexplorer.h>
 
 #include <QVBoxLayout>
@@ -62,14 +61,14 @@ void UbuntuWelcomePage::facilitateQml(QQmlEngine *engine)
     context->setContextProperty(QLatin1String("ubuntuWelcomeMode"), this);
 }
 
-Utils::IWelcomePage::Id UbuntuWelcomePage::id() const
+Core::Id UbuntuWelcomePage::id() const
 {
-    return static_cast<Utils::IWelcomePage::Id>(UbuntuSdkPage);
+    return "UbuntuSdkPage";
 }
 
 void UbuntuWelcomePage::newProject()
 {
-    Core::ICore::showNewItemDialog(tr("New Project"), Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard));
+    Core::ICore::showNewItemDialog(tr("New Project"), Core::IWizardFactory::wizardFactoriesOfKind(Core::IWizardFactory::ProjectWizard));
 }
 
 void UbuntuWelcomePage::openProject()

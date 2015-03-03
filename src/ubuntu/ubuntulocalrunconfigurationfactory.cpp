@@ -26,7 +26,6 @@
 #include "ubuntushared.h"
 
 #include <projectexplorer/taskhub.h>
-#include <cmakeprojectmanager/cmakeproject.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
@@ -42,8 +41,10 @@ enum {
     debug = 0
 };
 
-QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
+QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const
 {
+    Q_UNUSED(mode);
+
     QList<Core::Id> types;
 
     Core::Id targetDevice = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(parent->kit());
@@ -69,8 +70,8 @@ QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(Project
     }
 
     QString defaultPath = QDir::cleanPath(parent->project()->projectDirectory()
-                                          +QDir::separator()
-                                          +QStringLiteral("manifest.json"));
+                                          .appendPath(QStringLiteral("manifest.json"))
+                                          .toString());
 
     QString manifestPath = UbuntuProjectHelper::getManifestPath(parent,defaultPath);
 

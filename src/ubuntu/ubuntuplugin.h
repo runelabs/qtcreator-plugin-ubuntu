@@ -37,7 +37,6 @@
 #include "ubuntusettingsclickpage.h"
 
 #include <extensionsystem/iplugin.h>
-#include <coreplugin/mimedatabase.h>
 
 namespace Ubuntu {
 namespace Internal {

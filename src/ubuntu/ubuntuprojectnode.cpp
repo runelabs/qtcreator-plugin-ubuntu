@@ -21,10 +21,10 @@
 using namespace Ubuntu::Internal;
 
 UbuntuProjectNode::UbuntuProjectNode(UbuntuProject *project, Core::IDocument *projectFile)
-    : ProjectExplorer::ProjectNode(QFileInfo(projectFile->filePath()).absoluteFilePath()),
+    : ProjectExplorer::ProjectNode(projectFile->filePath()),
       m_project(project),
       m_projectFile(projectFile) {
-    setDisplayName(QFileInfo(projectFile->filePath()).completeBaseName());
+    setDisplayName(projectFile->filePath().toFileInfo().completeBaseName());
     refresh();
 }
 
@@ -33,7 +33,7 @@ Core::IDocument *UbuntuProjectNode::projectFile() const {
 }
 
 QString UbuntuProjectNode::projectFilePath() const {
-    return m_projectFile->filePath();
+    return m_projectFile->filePath().toString();
 }
 
 void UbuntuProjectNode::refresh() {
@@ -73,7 +73,7 @@ void UbuntuProjectNode::refresh() {
         QList<FileNode *> fileNodes;
         foreach (const QString &file, it.value()) {
             FileType fileType = SourceType; // ### FIXME
-            FileNode *fileNode = new FileNode(file, fileType, false);
+            FileNode *fileNode = new FileNode(Utils::FileName::fromString(file), fileType, false);
             fileNodes.append(fileNode);
         }
 
@@ -87,7 +87,7 @@ ProjectExplorer::FolderNode *UbuntuProjectNode::findOrCreateFolderByName(const Q
     if (! end)
         return 0;
 
-    QString baseDir = QFileInfo(path()).path();
+    QString baseDir = path().toFileInfo().path();
 
     QString folderName;
     for (int i = 0; i < end; ++i) {
@@ -103,7 +103,7 @@ ProjectExplorer::FolderNode *UbuntuProjectNode::findOrCreateFolderByName(const Q
     else if (FolderNode *folder = m_folderByName.value(folderName))
         return folder;
 
-    FolderNode *folder = new FolderNode(baseDir + QLatin1Char('/') + folderName);
+    FolderNode *folder = new FolderNode(Utils::FileName::fromString(baseDir + QLatin1Char('/') + folderName));
     folder->setDisplayName(component);
 
     m_folderByName.insert(folderName, folder);
@@ -162,7 +162,6 @@ bool UbuntuProjectNode::renameFile(const QString &, const QString &) {
     return true;
 }
 
-QList<ProjectExplorer::RunConfiguration *> UbuntuProjectNode::runConfigurationsFor(Node *node) {
-    Q_UNUSED(node)
+QList<ProjectExplorer::RunConfiguration *> UbuntuProjectNode::runConfigurations( ) const {
     return QList<ProjectExplorer::RunConfiguration *>();
 }

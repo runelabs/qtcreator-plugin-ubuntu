@@ -31,10 +31,9 @@
 namespace Ubuntu {
 namespace Internal {
 
-UbuntuAbstractGuiEditor::UbuntuAbstractGuiEditor(const Core::Id &id, const Core::Context &context)
+UbuntuAbstractGuiEditor::UbuntuAbstractGuiEditor(const Core::Context &context)
     : Core::IEditor(), m_toolBar(0), m_actionGroup(0)
 {
-    setId(id);
     setContext(context);
 }
 
@@ -59,10 +58,10 @@ UbuntuAbstractGuiEditorWidget *UbuntuAbstractGuiEditor::editorWidget() const
 
 Core::IDocument *UbuntuAbstractGuiEditor::document()
 {
-    return editorWidget()->textEditorWidget()->baseTextDocument();
+    return editorWidget()->textEditorWidget()->textDocument();
 }
 
-TextEditor::BaseTextEditorWidget *UbuntuAbstractGuiEditor::textEditor() const
+TextEditor::TextEditorWidget *UbuntuAbstractGuiEditor::textEditor() const
 {
     return editorWidget()->textEditorWidget();
 }

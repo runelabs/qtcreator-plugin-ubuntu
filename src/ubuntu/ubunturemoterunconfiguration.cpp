@@ -18,7 +18,6 @@
 #include "ubunturemoterunconfiguration.h"
 #include "clicktoolchain.h"
 #include "ubuntuclicktool.h"
-#include "ubuntucmakebuildconfiguration.h"
 #include "ubuntuconstants.h"
 #include "ubuntulocalrunconfiguration.h"
 #include "ubunturemotedeployconfiguration.h"
@@ -175,7 +174,7 @@ bool UbuntuRemoteRunConfiguration::isConfigured() const
  * was build and all files are in <builddir>/package. That means we can not cache that
  * information, because it could change anytime
  */
-bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
+ProjectExplorer::RunConfiguration::ConfigurationState UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
 {
     if(debug) qDebug()<<"--------------------- Reconfiguring RunConfiguration ----------------------------";
     m_arguments.clear();
@@ -186,7 +185,7 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
         if(errorMessage)
             *errorMessage = tr("No packaging directory available, please check if the deploy configuration is correct.");
 
-        return false;
+        return ProjectExplorer::RunConfiguration::UnConfigured;
     }
 
     ProjectExplorer::DeployConfiguration *deplConf = qobject_cast<ProjectExplorer::DeployConfiguration*>(target()->activeDeployConfiguration());
@@ -194,7 +193,7 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
         if(errorMessage)
             *errorMessage = tr("No valid deploy configuration is set.");
 
-        return false;
+        return ProjectExplorer::RunConfiguration::UnConfigured;
     }
 
     ProjectExplorer::BuildStepList *bsList = deplConf->stepList();
@@ -213,14 +212,14 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
     if(m_clickPackage.isEmpty()) {
         if (errorMessage)
             *errorMessage = tr("Could not find a click package to run, please check if the deploy configuration has a click package step");
-        return false;
+        return ProjectExplorer::RunConfiguration::UnConfigured;
     }
 
     ProjectExplorer::ToolChain* tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
     if(tc->type() != QString::fromLatin1(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
         if(errorMessage)
             *errorMessage = tr("Wrong toolchain type. Please check your build configuration.");
-        return false;
+        return ProjectExplorer::RunConfiguration::UnConfigured;
     }
 
     ClickToolChain* clickTc = static_cast<ClickToolChain*>(tc);
@@ -229,14 +228,14 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
     if(!bc) {
         if(errorMessage)
             *errorMessage = tr("Invalid buildconfiguration");
-        return false;
+        return ProjectExplorer::RunConfiguration::UnConfigured;
     }
 
     if(id().toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_REMOTE_RUNCONTROL_APP_ID))) {
 
         QString desktopFile = UbuntuLocalRunConfiguration::getDesktopFile(this,appId(),errorMessage);
         if(desktopFile.isEmpty())
-            return false;
+            return ProjectExplorer::RunConfiguration::UnConfigured;
         /*
          * Tries to read the Exec line from the desktop file, to
          * extract arguments and to know which "executor" is used on
@@ -246,7 +245,7 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
         QString command;
 
         if(!UbuntuLocalRunConfiguration::readDesktopFile(desktopFile,&command,&args,errorMessage))
-            return false;
+            return ProjectExplorer::RunConfiguration::UnConfigured;
 
         QFileInfo commInfo(command);
         QString executor = commInfo.completeBaseName();
@@ -277,7 +276,7 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
             } else {
                 CMakeProjectManager::CMakeProject* pro = static_cast<CMakeProjectManager::CMakeProject*> (target()->project());
                 foreach(const CMakeProjectManager::CMakeBuildTarget &t, pro->buildTargets()) {
-                    if(t.library || t.executable.isEmpty())
+                    if(!t.targetType != CMakeProjectManager::ExecutableType|| t.executable.isEmpty())
                         continue;
 
                     QFileInfo execInfo(t.executable);
@@ -290,18 +289,18 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
             if (m_localExecutable.isEmpty()) {
                 if(errorMessage)
                     *errorMessage = tr("Could not find %1 in the project targets").arg(command);
-                return false;
+                return ProjectExplorer::RunConfiguration::UnConfigured;
             }
             m_remoteExecutable = command;
         }
-        return true;
+        return ProjectExplorer::RunConfiguration::Configured;
     } else if (id().toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_REMOTE_RUNCONTROL_SCOPE_ID))) {
 
         QDir package_dir(packageDir());
         if(!package_dir.exists()) {
             if(errorMessage)
                 *errorMessage = tr("No packaging directory available, please check if the deploy configuration is correct.");
-            return false;
+            return ProjectExplorer::RunConfiguration::UnConfigured;
         }
 
         QString manifestPath = package_dir.absoluteFilePath(QStringLiteral("manifest.json"));
@@ -310,7 +309,7 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
         if(!QFile::exists(manifestPath)) {
             if(errorMessage)
                 *errorMessage = tr("Could not find the manifest file in the package directory, make sure its installed into the root of the click package.");
-            return false;
+            return ProjectExplorer::RunConfiguration::UnConfigured;
         }
 
         UbuntuClickManifest manifest;
@@ -318,7 +317,7 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
         if(!manifest.load(manifestPath,nullptr,&manifestErrMsg)) {
             if(errorMessage)
                 *errorMessage = tr("Could not read the manifest file in the package directory: %1").arg(manifestErrMsg);
-            return false;
+            return ProjectExplorer::RunConfiguration::UnConfigured;
         }
 
         QString iniFilePath;
@@ -335,20 +334,20 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
         if(iniFilePath.isEmpty()) {
             if(errorMessage)
                 *errorMessage = tr("Could not find a hook with id %1 in the manifest file.").arg(appId());
-            return false;
+            return ProjectExplorer::RunConfiguration::UnConfigured;
         }
 
         if(!QFile::exists(iniFilePath)){
             if(errorMessage)
                 *errorMessage = tr("Ini file for scope: %1 does not exist.").arg(appId());
-            return false;
+            return ProjectExplorer::RunConfiguration::UnConfigured;
         }
 
         QSettings iniFile(iniFilePath,QSettings::IniFormat);
         if(iniFile.status() != QSettings::NoError) {
             if(errorMessage)
                 *errorMessage = tr("Could not read the ini file for scope: .").arg(appId());
-            return false;
+            return ProjectExplorer::RunConfiguration::UnConfigured;
         }
 
         iniFile.beginGroup(QStringLiteral("ScopeConfig"));
@@ -381,17 +380,17 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
 
             m_remoteExecutable = QStringLiteral("/usr/lib/%1/unity-scopes/scoperunner").arg(clickTc->gnutriplet());
             m_arguments = args;
-            return true;
+            return ProjectExplorer::RunConfiguration::Configured;
         } else {
             if(errorMessage)
                 *errorMessage = tr("Using a custom scopelauncher is not yet supported");
-            return false;
+            return ProjectExplorer::RunConfiguration::UnConfigured;
         }
     }
 
     if(errorMessage)
         *errorMessage = tr("Incompatible runconfiguration type id");
-    return false;
+    return ProjectExplorer::RunConfiguration::UnConfigured;
 }
 
 bool UbuntuRemoteRunConfiguration::fromMap(const QVariantMap &map)
@@ -442,12 +441,14 @@ QString UbuntuRemoteRunConfiguration::packageDir() const
         if (!target()->activeBuildConfiguration()) {
             //backwards compatibility, try to not crash QtC for old projects
             //they did not create a buildconfiguration back then
-            QDir pDir(p->projectDirectory());
-            return p->projectDirectory()+QDir::separator()+
-                    QStringLiteral("..")+QDir::separator()+
-                    pDir.dirName()+QStringLiteral("_build")+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR);
+            QDir pDir(p->projectDirectory().toString());
+            return p->projectDirectory()
+                    .appendPath(QStringLiteral(".."))
+                    .appendPath(pDir.dirName()+QStringLiteral("_build"))
+                    .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR)).toString();
         } else
-            return target()->activeBuildConfiguration()->buildDirectory().toString()+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR);
+            return target()->activeBuildConfiguration()->buildDirectory()
+                    .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR)).toString();
     }
     return QString();
 }

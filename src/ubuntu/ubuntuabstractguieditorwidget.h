@@ -22,8 +22,7 @@
 
 #include "ubuntuclickmanifest.h"
 
-#include <texteditor/basetexteditor.h>
-#include <texteditor/plaintexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <QScrollArea>
 #include "ui_ubuntumanifesteditor.h"
@@ -39,12 +38,13 @@ class UbuntuAbstractGuiEditor;
 class UbuntuAbstractGuiEditorWidget;
 class UbuntuClickManifest;
 
-class UbuntuManifestTextEditorWidget : public TextEditor::PlainTextEditorWidget
+class UbuntuManifestTextEditorWidget : public TextEditor::TextEditorWidget
 {
 public:
     UbuntuManifestTextEditorWidget(QString mimeType, UbuntuAbstractGuiEditorWidget *parent = 0);
 protected:
     UbuntuAbstractGuiEditorWidget *m_parent;
+    QString m_mimeType;
 };
 
 class UbuntuAbstractGuiEditorWidget : public QScrollArea
@@ -67,7 +67,7 @@ public:
 
     bool preSave();
 
-    TextEditor::PlainTextEditorWidget *textEditorWidget() const;
+    TextEditor::TextEditorWidget *textEditorWidget() const;
 
     virtual void saved ();
 
@@ -87,7 +87,7 @@ signals:
 
 protected:
     QStackedWidget *m_widgetStack;
-    TextEditor::PlainTextEditorWidget *m_sourceEditor;
+    TextEditor::TextEditorWidget *m_sourceEditor;
 
     bool m_dirty;
 };

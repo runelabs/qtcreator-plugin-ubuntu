@@ -16,7 +16,7 @@ class UbuntuRemoteDebugSupport : public AbstractRemoteRunSupport
     Q_OBJECT
 public:
     UbuntuRemoteDebugSupport(UbuntuRemoteRunConfiguration *runConfig,
-            Debugger::DebuggerEngine *engine);
+            Debugger::DebuggerRunControl *runControl);
     ~UbuntuRemoteDebugSupport();
 
 protected:

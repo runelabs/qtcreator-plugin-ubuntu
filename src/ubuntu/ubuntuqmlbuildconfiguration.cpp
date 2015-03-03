@@ -2,8 +2,6 @@
 #include "ubuntuconstants.h"
 #include "ubuntuproject.h"
 
-#include <coreplugin/mimedatabase.h>
-
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildinfo.h>
@@ -13,6 +11,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/buildsteplist.h>
 #include <utils/fancylineedit.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <qmlprojectmanager/qmlprojectconstants.h>
 
 #include <QFormLayout>
@@ -82,13 +81,13 @@ QList<ProjectExplorer::BuildInfo *> UbuntuQmlBuildConfigurationFactory::availabl
 {
     if(!canHandle(parent))
         return QList<ProjectExplorer::BuildInfo *>();
-    return createBuildInfos(parent->kit(),parent->project()->projectFilePath());
+    return createBuildInfos(parent->kit(),parent->project()->projectFilePath().toString());
 }
 
 int UbuntuQmlBuildConfigurationFactory::priority(const ProjectExplorer::Kit *k, const QString &projectPath) const
 {
-    return (k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
-            .matchesType(QLatin1String(QmlProjectManager::Constants::QMLPROJECT_MIMETYPE))) ? 100 : -1;
+    return (k && Utils::MimeDatabase().mimeTypeForFile(projectPath)
+            .matchesName(QLatin1String(QmlProjectManager::Constants::QMLPROJECT_MIMETYPE))) ? 100 : -1;
 }
 
 QList<ProjectExplorer::BuildInfo *> UbuntuQmlBuildConfigurationFactory::availableSetups(const ProjectExplorer::Kit *k, const QString &projectPath) const
@@ -112,8 +111,8 @@ UbuntuQmlBuildConfiguration *UbuntuQmlBuildConfigurationFactory::create(ProjectE
     conf->setDisplayName(info->displayName);
 
     //is this a ubuntu project?
-    Utils::FileName manifestFilePath = Utils::FileName::fromString(parent->project()->projectDirectory()).appendPath(QStringLiteral("manifest.json"));
-    Utils::FileName makeFilePath = Utils::FileName::fromString(parent->project()->projectDirectory()).appendPath(QStringLiteral("Makefile"));
+    Utils::FileName manifestFilePath = parent->project()->projectDirectory().appendPath(QStringLiteral("manifest.json"));
+    Utils::FileName makeFilePath = parent->project()->projectDirectory().appendPath(QStringLiteral("Makefile"));
     if(manifestFilePath.toFileInfo().exists()
             && makeFilePath.toFileInfo().exists()) {
 
@@ -235,7 +234,7 @@ UbuntuQmlUpdateTranslationTemplateStep::UbuntuQmlUpdateTranslationTemplateStep(P
 
 bool UbuntuQmlUpdateTranslationTemplateStep::init()
 {
-    QString projectDir = target()->project()->projectDirectory();
+    QString projectDir = target()->project()->projectDirectory().toString();
 
     ProjectExplorer::BuildConfiguration *bc = target()->activeBuildConfiguration();
     if(!bc)

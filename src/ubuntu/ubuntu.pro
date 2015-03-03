@@ -80,12 +80,9 @@ SOURCES += \
     ubuntuvalidationresultmodel.cpp \
     clicktoolchain.cpp \
     ubuntukitmanager.cpp \
-    ubuntucmaketool.cpp \
-    ubuntucmakebuildconfiguration.cpp \
     ubuntudevicefactory.cpp \
     ubuntudevice.cpp \
     ubunturemoterunconfiguration.cpp \
-    ubuntucmakemakestep.cpp \
     ubuntuemulatornotifier.cpp \
     localportsmanager.cpp \
     ubuntulocaldeployconfiguration.cpp \
@@ -168,12 +165,9 @@ HEADERS += \
     ubuntuvalidationresultmodel.h \
     clicktoolchain.h \
     ubuntukitmanager.h \
-    ubuntucmaketool.h \
-    ubuntucmakebuildconfiguration.h \
     ubuntudevicefactory.h \
     ubuntudevice.h \
     ubunturemoterunconfiguration.h \
-    ubuntucmakemakestep.h \
     ubuntuemulatornotifier.h \
     localportsmanager.h \
     ubuntulocaldeployconfiguration.h \

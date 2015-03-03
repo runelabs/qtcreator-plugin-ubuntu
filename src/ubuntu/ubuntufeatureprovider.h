@@ -26,8 +26,6 @@ namespace Ubuntu {
 namespace Internal {
 class UbuntuFeatureProvider : public Core::IFeatureProvider
 {
-    Q_OBJECT
-
 public:
     UbuntuFeatureProvider() {}
 

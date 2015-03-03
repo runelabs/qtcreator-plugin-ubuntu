@@ -126,7 +126,7 @@ QString UbuntuProjectHelper::getManifestPath(ProjectExplorer::Target *target, co
                                                            target->activeBuildConfiguration(),
                                                            defaultValue);
 
-        Utils::FileName projectDir = Utils::FileName::fromString(target->project()->projectDirectory());
+        Utils::FileName projectDir = target->project()->projectDirectory();
         return projectDir.appendPath(manifestPath.toString()).toString();
     } else if (target && target->project()->id() == QmakeProjectManager::Constants::QMAKEPROJECT_ID ) {
         QmakeProjectManager::QmakeProject *qmakeProj = static_cast<QmakeProjectManager::QmakeProject *>(target->project());

@@ -35,6 +35,8 @@ UbuntuProject::UbuntuProject(UbuntuProjectManager *manager, const QString &fileN
       m_fileName(fileName) {
 
     setId(Constants::UBUNTUPROJECT_ID);
+    setRequiredKitMatcher(UbuntuKitMatcher());
+    setPreferredKitMatcher(QtSupport::QtKitInformation::qtVersionMatcher(Core::FeatureSet(QtSupport::Constants::FEATURE_DESKTOP)));
 
     setProjectContext(Core::Context(Constants::UBUNTUPROJECT_PROJECTCONTEXT));
 
@@ -130,19 +132,9 @@ bool UbuntuProject::needsConfiguration() const
     return targets().size() == 0;
 }
 
-bool UbuntuProject::supportsNoTargetPanel() const
+bool UbuntuProject::requiresTargetPanel() const
 {
     return true;
-}
-
-ProjectExplorer::KitMatcher *UbuntuProject::createRequiredKitMatcher() const
-{
-    return new UbuntuKitMatcher();
-}
-
-ProjectExplorer::KitMatcher *UbuntuProject::createPreferredKitMatcher() const
-{
-    return new QtSupport::QtVersionKitMatcher(Core::FeatureSet(QtSupport::Constants::FEATURE_DESKTOP));
 }
 
 QString UbuntuProject::shadowBuildDirectory(const QString &proFilePath, const ProjectExplorer::Kit *k, const QString &suffix)
@@ -157,14 +149,19 @@ QString UbuntuProject::shadowBuildDirectory(const QString &proFilePath, const Pr
         return info.absolutePath();
 
     const QString projectName = QFileInfo(proFilePath).completeBaseName();
-    ProjectExplorer::ProjectMacroExpander expander(proFilePath, projectName, k, suffix);
-    QDir projectDir = QDir(projectDirectory(proFilePath));
-    QString buildPath = Utils::expandMacros(Core::DocumentManager::buildDirectory(), &expander);
+    ProjectExplorer::ProjectMacroExpander expander(projectName, k, suffix);
+    QDir projectDir = QDir(projectDirectory(Utils::FileName::fromString(proFilePath)).toString());
+    QString buildPath = expander.expand(Core::DocumentManager::buildDirectory());
     return QDir::cleanPath(projectDir.absoluteFilePath(buildPath));
 }
 
 
-bool UbuntuKitMatcher::matches(const ProjectExplorer::Kit *k) const
+UbuntuKitMatcher::UbuntuKitMatcher()
+    : KitMatcher(&UbuntuKitMatcher::matches)
+{
+}
+
+bool UbuntuKitMatcher::matches(const ProjectExplorer::Kit *k)
 {
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
     if (tc->type() == QLatin1String(Ubuntu::Constants::UBUNTU_CLICK_TOOLCHAIN_ID))

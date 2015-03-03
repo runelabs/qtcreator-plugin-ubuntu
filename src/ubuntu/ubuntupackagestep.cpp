@@ -75,11 +75,11 @@ bool UbuntuPackageStep::init()
 {
     m_tasks.clear();
 
-    QString projectDir = target()->project()->projectDirectory();
+    QString projectDir = target()->project()->projectDirectory().toString();
     m_buildDir.clear();
     m_deployDir.clear();
     Utils::Environment env = Utils::Environment::systemEnvironment();
-    Utils::AbstractMacroExpander *mExp = 0;
+    Utils::MacroExpander *mExp = 0;
 
     bool isCMake  = target()->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID;
     bool isQMake  = target()->project()->id() == QmakeProjectManager::Constants::QMAKEPROJECT_ID;
@@ -111,8 +111,9 @@ bool UbuntuPackageStep::init()
                 //ubuntu + qml project types
                 QDir pDir(projectDir);
                 m_buildDir = QDir::cleanPath(target()->project()->projectDirectory()
-                                             +QDir::separator()+QStringLiteral("..")
-                                             +QDir::separator()+pDir.dirName()+QStringLiteral("_build"));
+                                             .appendPath(QStringLiteral(".."))
+                                             .appendPath(pDir.dirName()+QStringLiteral("_build"))
+                                             .toString());
                 m_deployDir = m_buildDir+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR);
 
                 //clean up the old "build"

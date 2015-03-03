@@ -168,7 +168,7 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
             bool canRead = true;
             //setup the file reader correctly
 
-            if (ProFile *pro = reader->parsedProFile(node->path())) {
+            if (ProFile *pro = reader->parsedProFile(node->path().toString())) {
                 if(!reader->accept(pro, QMakeEvaluator::LoadAll)) {
                     canRead = false;
                 }
@@ -179,7 +179,7 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
 
 
             if(!canRead) {
-                printToOutputPane(tr("Can not parse %1, skipping migration.").arg(node->path()));
+                printToOutputPane(tr("Can not parse %1, skipping migration.").arg(node->path().toString()));
                 continue;
             }
 
@@ -308,7 +308,7 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
             //now add required files
             if(projectType == QmakeProjectManager::ApplicationTemplate) {
 
-                QFileInfo proFilePath(node->path());
+                QFileInfo proFilePath(node->path().toString());
 
                 QmakeProjectManager::TargetInformation targetInfo = node->targetInformation();
                 if(hookTargets.contains(targetInfo.target)) {
@@ -394,12 +394,12 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
 
         if(multiTargetProject) {
 
-            QString manifestFilePath = QString::fromLatin1("%1/%2").arg(project->projectDirectory()).arg(QStringLiteral("/manifest.json.in"));
+            QString manifestFilePath = QString::fromLatin1("%1/%2").arg(project->projectDirectory().toString()).arg(QStringLiteral("/manifest.json.in"));
 
             //add manifest pro file
             createFileFromTemplate(
                         QString::fromLatin1("%1/templates/wizards/ubuntu/bin_app-qmake/manifest/manifest.pro").arg(Constants::UBUNTU_RESOURCE_PATH),
-                        QString::fromLatin1("%1/%2").arg(project->projectDirectory()).arg(QStringLiteral("/manifest.pro")),
+                        QString::fromLatin1("%1/%2").arg(project->projectDirectory().toString()).arg(QStringLiteral("/manifest.pro")),
                         base_replacements
                         );
             createFileFromTemplate(
@@ -441,7 +441,7 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
             manifestFile.write(doc.toJson());
             manifestFile.close();
 
-            project->rootQmakeProjectNode()->addSubProjects(QStringList()<<QString::fromLatin1("%1/%2").arg(project->projectDirectory()).arg(QStringLiteral("/manifest.pro")));
+            project->rootQmakeProjectNode()->addSubProjects(QStringList()<<QString::fromLatin1("%1/%2").arg(project->projectDirectory().toString()).arg(QStringLiteral("/manifest.pro")));
         }
     }
 }

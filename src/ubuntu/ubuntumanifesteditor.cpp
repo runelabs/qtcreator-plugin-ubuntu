@@ -30,8 +30,7 @@ namespace Ubuntu {
 namespace Internal {
 
 UbuntuManifestEditor::UbuntuManifestEditor()
-    : UbuntuAbstractGuiEditor(Constants::UBUNTU_MANIFEST_EDITOR_ID,
-                              Core::Context(Constants::UBUNTU_MANIFEST_EDITOR_CONTEXT)),
+    : UbuntuAbstractGuiEditor(Core::Context(Constants::UBUNTU_MANIFEST_EDITOR_CONTEXT)),
       m_editorWidget(0)
 {
     createUi();
