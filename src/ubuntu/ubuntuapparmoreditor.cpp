@@ -21,6 +21,10 @@
 #include "ubuntuclickmanifest.h"
 #include "ubuntusecuritypolicypickerdialog.h"
 
+#include <texteditor/textdocument.h>
+
+#include <QMenu>
+
 namespace Ubuntu {
 namespace Internal {
 

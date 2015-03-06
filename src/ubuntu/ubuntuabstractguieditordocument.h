@@ -20,7 +20,7 @@
 #ifndef UBUNTU_INTERNAL_UBUNTUMANIFESTDOCUMENT_H
 #define UBUNTU_INTERNAL_UBUNTUMANIFESTDOCUMENT_H
 
-#include <coreplugin/textdocument.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
 namespace Ubuntu {

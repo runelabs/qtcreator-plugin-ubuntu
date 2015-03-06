@@ -28,6 +28,7 @@ UbuntuQtVersion::UbuntuQtVersion(const Utils::FileName &path, bool isAutodetecte
     : BaseQtVersion(path, isAutodetected, autodetectionSource),
       m_scriptVersion(MIN_SCRIPT_VERSION)
 {
+    setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
 }
 
 UbuntuQtVersion::~UbuntuQtVersion()

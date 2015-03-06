@@ -117,7 +117,7 @@ void UbuntuRemoteDebugSupport::startExecution()
     connect(launcher, SIGNAL(launcherStdout(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
 
     if (d->qmlDebugging && !d->cppDebugging)
-        connect(launcher, SIGNAL(clickApplicationStarted(quint16)), SLOT(handleRemoteProcessStarted()));
+        connect(launcher, SIGNAL(clickApplicationStarted(quint16)), SLOT(handleRemoteProcessStarted(quint16)));
 
     if(d->cppDebugging)
         launcher->setCppDebugPort(d->gdbServerPort);
@@ -215,19 +215,25 @@ void UbuntuRemoteDebugSupport::handleAdapterSetupFailed(const QString &error)
 
 void UbuntuRemoteDebugSupport::handleAdapterSetupDone()
 {
+    if (state() == AbstractRemoteRunSupport::Running)
+        return;
+
     AbstractRemoteRunSupport::handleAdapterSetupDone();
 
     Debugger::RemoteSetupResult result;
     result.success = true;
+    result.inferiorPid = d->runControl->startParameters().attachPID;
     result.gdbServerPort = d->gdbServerPort;
     result.qmlServerPort = d->qmlPort;
     d->runControl->notifyEngineRemoteSetupFinished(result);
 }
 
-void UbuntuRemoteDebugSupport::handleRemoteProcessStarted()
+void UbuntuRemoteDebugSupport::handleRemoteProcessStarted(quint16 pid)
 {
     QTC_ASSERT(state() == Starting, return);
     QTC_ASSERT(d->qmlDebugging && !d->cppDebugging, return);
+
+    d->runControl->startParameters().attachPID = pid;
     handleAdapterSetupDone();
 }
 

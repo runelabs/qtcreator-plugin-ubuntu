@@ -12,6 +12,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <debugger/debuggeritemmanager.h>
+#include <debugger/debuggeritem.h>
 #include <debugger/debuggerkitinformation.h>
 #include <qtsupport/qtkitinformation.h>
 
@@ -24,6 +25,7 @@
 #include <QTextStream>
 #include <QStandardPaths>
 #include <QFileInfo>
+#include <QDebug>
 
 namespace Ubuntu {
 namespace Internal {
@@ -101,19 +103,29 @@ CMakeProjectManager::CMakeTool *UbuntuKitManager::createOrFindCMakeTool(ClickToo
     Utils::FileName cmakePath = Utils::FileName::fromString(cmakePathStr);
 
     CMakeProjectManager::CMakeTool *cmake = CMakeProjectManager::CMakeToolManager::findByCommand(cmakePath);
-    if (!cmake){
-        cmake = new CMakeProjectManager::CMakeTool(CMakeProjectManager::CMakeTool::AutoDetection);
-        cmake->setCMakeExecutable(cmakePath);
-        cmake->setDisplayName(tr("Ubuntu SDK cmake (%1-%2-%3)")
-                              .arg(tc->clickTarget().architecture)
-                              .arg(tc->clickTarget().framework)
-                              .arg(tc->clickTarget().series));
-        if (!CMakeProjectManager::CMakeToolManager::registerCMakeTool(cmake)) {
-            delete cmake;
-            return 0;
-        }
+    if (cmake)
+        return cmake;
+
+    cmake = createCMakeTool(tc);
+    if (!CMakeProjectManager::CMakeToolManager::registerCMakeTool(cmake)) {
+        delete cmake;
+        return 0;
     }
 
+    return cmake;
+}
+
+CMakeProjectManager::CMakeTool *UbuntuKitManager::createCMakeTool(ClickToolChain *tc)
+{
+    QString cmakePathStr = UbuntuClickTool::findOrCreateToolWrapper(QStringLiteral("cmake"), tc->clickTarget());
+    Utils::FileName cmakePath = Utils::FileName::fromString(cmakePathStr);
+    CMakeProjectManager::CMakeTool *cmake = new CMakeProjectManager::CMakeTool(CMakeProjectManager::CMakeTool::AutoDetection);
+
+    cmake->setCMakeExecutable(cmakePath);
+    cmake->setDisplayName(tr("Ubuntu SDK cmake (%1-%2-%3)")
+                          .arg(tc->clickTarget().architecture)
+                          .arg(tc->clickTarget().framework)
+                          .arg(tc->clickTarget().series));
     return cmake;
 }
 
@@ -265,7 +277,6 @@ void UbuntuKitManager::autoDetectKits()
 
     foreach (ProjectExplorer::Kit *kit, newKits) {
         ClickToolChain *tc = static_cast<ClickToolChain *>(ProjectExplorer::ToolChainKitInformation::toolChain(kit));
-        //AndroidQtVersion *qt = static_cast<AndroidQtVersion *>(QtSupport::QtKitInformation::qtVersion(kit));
         kit->setUnexpandedDisplayName(tr("UbuntuSDK for %1 (GCC %2-%3)")
                                       .arg(tc->clickTarget().architecture)
                                       .arg(tc->clickTarget().framework)
@@ -273,6 +284,26 @@ void UbuntuKitManager::autoDetectKits()
         ProjectExplorer::KitManager::registerKit(kit);
         fixKit(kit);
     }
+
+    auto cmakeUpdater = [](const Core::Id &id){
+        CMakeProjectManager::CMakeTool *tool = CMakeProjectManager::CMakeToolManager::findById(id);
+        if (!tool)
+            return;
+
+        QString basePath = QStringLiteral("%1/ubuntu-sdk").arg(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation));
+        if (tool->cmakeExecutable().toString().startsWith(basePath)) {
+            qDebug()<<"Setting mapper to "<<tool->displayName();
+            tool->setIncludePathMapper(&UbuntuClickTool::mapIncludePathsForCMake);
+        } else {
+            qDebug()<<"Unsetting mapper from "<<tool->displayName();
+            tool->setIncludePathMapper(CMakeProjectManager::CMakeTool::IncludePathMapper());
+        }
+    };
+
+    connect(CMakeProjectManager::CMakeToolManager::instance(), &CMakeProjectManager::CMakeToolManager::cmakeAdded,
+            cmakeUpdater);
+    connect(CMakeProjectManager::CMakeToolManager::instance(), &CMakeProjectManager::CMakeToolManager::cmakeRemoved,
+            cmakeUpdater);
 }
 
 /*!
@@ -289,8 +320,10 @@ ProjectExplorer::Kit *UbuntuKitManager::createKit(ClickToolChain *tc)
     ProjectExplorer::ToolChainKitInformation::setToolChain(newKit, tc);
 
     CMakeProjectManager::CMakeTool *cmake = createOrFindCMakeTool(tc);
-    if (cmake)
+    if (cmake) {
+        cmake->setIncludePathMapper(&UbuntuClickTool::mapIncludePathsForCMake);
         CMakeProjectManager::CMakeKitInformation::setCMakeTool(newKit, cmake->id());
+    }
 
     ProjectExplorer::SysRootKitInformation::setSysRoot(newKit,Utils::FileName::fromString(UbuntuClickTool::targetBasePath(tc->clickTarget())));
 
@@ -324,7 +357,7 @@ QVariant UbuntuKitManager::createOrFindDebugger(const Utils::FileName &path)
     Debugger::DebuggerItem debugger;
     debugger.setCommand(path);
     debugger.setEngineType(Debugger::GdbEngineType);
-    debugger.setDisplayName(tr("Ubuntu SDK Debugger"));
+    debugger.setUnexpandedDisplayName(tr("Ubuntu SDK Debugger"));
     debugger.setAutoDetected(true);
     //multiarch debugger
     ProjectExplorer::Abi abi(ProjectExplorer::Abi::UnknownArchitecture
@@ -350,8 +383,12 @@ void UbuntuKitManager::fixKit(ProjectExplorer::Kit *k)
     }
 
     //make sure we have the multiarch debugger
-    if(!Debugger::DebuggerKitInformation::debugger(k)) {
-        QVariant dId = createOrFindDebugger(tc->suggestedDebugger());
+    QVariant dId = createOrFindDebugger(tc->suggestedDebugger());
+    const Debugger::DebuggerItem *debugger = Debugger::DebuggerKitInformation::debugger(k);
+    if(!debugger) {
+        if(dId.isValid())
+            Debugger::DebuggerKitInformation::setDebugger(k,dId);
+    } else if (debugger->id() != dId){
         if(dId.isValid())
             Debugger::DebuggerKitInformation::setDebugger(k,dId);
     }
@@ -420,8 +457,10 @@ void UbuntuKitManager::fixKit(ProjectExplorer::Kit *k)
 
     //make sure we use a ubuntu cmake
     CMakeProjectManager::CMakeTool *cmake = createOrFindCMakeTool(tc);
-    if(cmake)
+    if(cmake) {
+        cmake->setIncludePathMapper(&UbuntuClickTool::mapIncludePathsForCMake);
         CMakeProjectManager::CMakeKitInformation::setCMakeTool(k, cmake->id());
+    }
 
 }
 

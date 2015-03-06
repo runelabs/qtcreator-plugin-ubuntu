@@ -95,6 +95,8 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
 
             params.solibSearchPath.append(rc->soLibSearchPaths());
             params.runConfiguration = rc;
+            params.multiProcess = false;
+            params.remoteExecutable = QString();
 
             if(debug) qDebug()<<"Solib search path : "<<params.solibSearchPath;
 

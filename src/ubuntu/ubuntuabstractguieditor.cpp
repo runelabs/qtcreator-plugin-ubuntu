@@ -23,6 +23,7 @@
 #include "ubuntuconstants.h"
 
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/textdocument.h>
 
 #include <QActionGroup>
 #include <QToolBar>

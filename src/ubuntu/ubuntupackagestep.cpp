@@ -926,7 +926,7 @@ UbuntuPackageStepConfigWidget::UbuntuPackageStepConfigWidget(UbuntuPackageStep *
     ui->setupUi(this);
     ui->comboBoxMode->addItem(tr("Yes") ,static_cast<int>(UbuntuPackageStep::EnableDebugScript));
     ui->comboBoxMode->addItem(tr("No")  ,static_cast<int>(UbuntuPackageStep::DisableDebugScript));
-    connect(step,SIGNAL(packageModeChanged(PackageMode)),this,SLOT(updateMode()));
+    connect(step,SIGNAL(packageModeChanged(DebugMode)),this,SLOT(updateMode()));
     connect(ui->comboBoxMode,SIGNAL(activated(int)),this,SLOT(onModeSelected(int)));
 
     updateMode();

@@ -12,4 +12,9 @@
     <comment>Ubuntu Apparmor description file</comment>
     <glob pattern="*.apparmor"/>
   </mime-type>
+  <mime-type type="application/vnd.canonical.click.manifest">
+      <comment>Ubuntu Manifest file</comment>
+      <sub-class-of type="application/json"/>
+      <glob pattern="manifest.json*"/>
+  </mime-type>
 </mime-info>

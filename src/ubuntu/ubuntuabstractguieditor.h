@@ -23,6 +23,7 @@
 #include <texteditor/texteditor.h>
 
 class QToolBar;
+class QActionGroup;
 
 namespace Ubuntu {
 namespace Internal {

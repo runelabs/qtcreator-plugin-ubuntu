@@ -44,6 +44,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kit.h>
 #include <utils/qtcprocess.h>
 #include <utils/environment.h>
 #include <utils/consoleprocess.h>
@@ -444,6 +445,29 @@ QString UbuntuClickTool::findOrCreateQMakeWrapper (const UbuntuClickTool::Target
 QString UbuntuClickTool::findOrCreateMakeWrapper (const UbuntuClickTool::Target &target)
 {
     return UbuntuClickTool::findOrCreateToolWrapper(QStringLiteral("make"),target);
+}
+
+QStringList UbuntuClickTool::mapIncludePathsForCMake(ProjectExplorer::Kit *k, const QStringList &in)
+{
+    bool canMap = ProjectExplorer::ToolChainKitInformation::toolChain(k)
+            && ProjectExplorer::ToolChainKitInformation::toolChain(k)->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
+            && !ProjectExplorer::SysRootKitInformation::sysRoot(k).isEmpty();
+
+    if (!canMap)
+        return in;
+
+    QStringList fixedIncPaths;
+    foreach(QString path, in) {
+        if(!path.startsWith(QStringLiteral("/tmp"))
+                && !path.startsWith(QStringLiteral("/home"))) {
+            Utils::FileName sRoot = ProjectExplorer::SysRootKitInformation::sysRoot(k);
+            fixedIncPaths += QDir::cleanPath(sRoot.appendPath(path).toString());
+        } else {
+            fixedIncPaths += path;
+        }
+    }
+
+    return fixedIncPaths;
 }
 
 QString UbuntuClickTool::findOrCreateToolWrapper (const QString &tool, const UbuntuClickTool::Target &target)

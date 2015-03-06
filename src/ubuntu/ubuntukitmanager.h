@@ -49,6 +49,7 @@ public:
     static QList<ClickToolChain *> clickToolChains();
     static UbuntuQtVersion *createOrFindQtVersion(ClickToolChain* tc);
     static CMakeProjectManager::CMakeTool *createOrFindCMakeTool(ClickToolChain* tc);
+    static CMakeProjectManager::CMakeTool *createCMakeTool(ClickToolChain *tc);
 };
 
 } // namespace Internal

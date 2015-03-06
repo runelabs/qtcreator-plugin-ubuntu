@@ -41,6 +41,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/projecttree.h>
 #include <utils/qtcprocess.h>
 #include <ssh/sshconnection.h>
 
@@ -92,8 +93,8 @@ UbuntuMenu::UbuntuMenu(QObject *parent) :
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(),SIGNAL(updateRunActions()),this,SLOT(slotUpdateActions()));
     connect(UbuntuDeviceMode::instance(),SIGNAL(updateDeviceActions()),this,SLOT(slotUpdateActions()));
 
-    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
-    connect(projectExplorer, SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)),
+    ProjectExplorer::ProjectTree *ptree = ProjectExplorer::ProjectTree::instance();
+    connect(ptree, SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)),
             this, SLOT(setContextMenuProject(ProjectExplorer::Project*)));
 }
 

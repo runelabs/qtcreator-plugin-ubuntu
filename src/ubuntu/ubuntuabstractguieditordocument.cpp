@@ -23,6 +23,7 @@
 #include "ubuntuconstants.h"
 
 #include <coreplugin/editormanager/ieditor.h>
+#include <utils/fileutils.h>
 
 #include <QDir>
 
@@ -39,6 +40,7 @@ UbuntuAbstractGuiEditorDocument::UbuntuAbstractGuiEditorDocument(const QString &
     : TextEditor::TextDocument(),
       m_editorWidget(editorWidget)
 {
+    setId("UbuntuAbstractGuiEditorDocument");
     setMimeType(mimeType);
     connect(editorWidget, SIGNAL(uiEditorChanged()),this,SIGNAL(changed()));
 }

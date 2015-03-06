@@ -34,7 +34,7 @@ private slots:
     void handleAppRunnerFinished(bool success) override;
     void handleProgressReport(const QString &progressOutput) override;
 
-    void handleRemoteProcessStarted();
+    void handleRemoteProcessStarted(quint16 pid);
     void handleDebuggingFinished();
 
 private:

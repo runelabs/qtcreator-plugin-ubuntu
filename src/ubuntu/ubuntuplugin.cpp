@@ -49,10 +49,12 @@
 
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projecttree.h>
 #include <coreplugin/featureprovider.h>
 #include <coreplugin/coreplugin.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/mimetypes/mimeglobpattern_p.h>
+#include <cmakeprojectmanager/cmaketoolmanager.h>
 
 #include <qmakeprojectmanager/qmakenodes.h>
 #include <qmakeprojectmanager/qmakeproject.h>
@@ -186,6 +188,18 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     addAutoReleasedObject(new UbuntuQmlBuildConfigurationFactory);
     addAutoReleasedObject(new UbuntuQmlBuildStepFactory);
 
+    CMakeProjectManager::CMakeToolManager::registerAutodetectionHelper([](){
+        QList<CMakeProjectManager::CMakeTool *> found;
+
+        QList<ClickToolChain *> uTcs = UbuntuKitManager::clickToolChains();
+        foreach(ClickToolChain *tc, uTcs) {
+            CMakeProjectManager::CMakeTool *tool = UbuntuKitManager::createCMakeTool(tc);
+            if (tool)
+                found.append(tool);
+        }
+        return found;
+    });
+
     //ubuntu device support
     addAutoReleasedObject(new UbuntuDeviceFactory);
     addAutoReleasedObject(new UbuntuLocalPortsManager);
@@ -224,21 +238,6 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     //addAutoReleasedObject(new UbuntuLocalDeployConfigurationFactory);
     addAutoReleasedObject(new UbuntuDeployStepFactory);
 
-#if 0
-    //add support for the manifest editor
-    Core::MimeGlobPattern ubuntuManifestGlobPattern(QStringLiteral("manifest.json*"), Core::MimeGlobPattern::MaxWeight);
-    Core::MimeType ubuntuManifestMimeType;
-    ubuntuManifestMimeType.setType(QLatin1String(Constants::UBUNTU_MANIFEST_MIME_TYPE));
-    ubuntuManifestMimeType.setComment(tr("Ubuntu Manifest file"));
-    ubuntuManifestMimeType.setGlobPatterns(QList<Core::MimeGlobPattern>() << ubuntuManifestGlobPattern);
-    ubuntuManifestMimeType.setSubClassesOf(QStringList() << QLatin1String("application/json"));
-
-    if (!Core::MimeDatabase::addMimeType(ubuntuManifestMimeType)) {
-        *errorString = tr("Could not add mime-type for manifest.json editor.");
-        return false;
-    }
-#endif
-
     addAutoReleasedObject(new Internal::UbuntuManifestEditorFactory);
     addAutoReleasedObject(new Internal::UbuntuApparmorEditorFactory);
 
@@ -255,7 +254,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
 
     //support for the UbuntuProjectMigrateWizard
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)),
+    connect(ProjectExplorer::ProjectTree::instance(), SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)),
             this, SLOT(updateContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)));
 
     m_migrateProjectAction = new QAction(tr("Migrate to Ubuntu project"), this);
