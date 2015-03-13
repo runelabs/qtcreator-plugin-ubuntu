@@ -191,12 +191,13 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     CMakeProjectManager::CMakeToolManager::registerAutodetectionHelper([](){
         QList<CMakeProjectManager::CMakeTool *> found;
 
-        QList<ClickToolChain *> uTcs = UbuntuKitManager::clickToolChains();
-        foreach(ClickToolChain *tc, uTcs) {
-            CMakeProjectManager::CMakeTool *tool = UbuntuKitManager::createCMakeTool(tc);
+        QList<UbuntuClickTool::Target> targets = UbuntuClickTool::listAvailableTargets();
+        foreach (const UbuntuClickTool::Target &t, targets) {
+            CMakeProjectManager::CMakeTool *tool = UbuntuKitManager::createCMakeTool(t);
             if (tool)
                 found.append(tool);
         }
+
         return found;
     });
 

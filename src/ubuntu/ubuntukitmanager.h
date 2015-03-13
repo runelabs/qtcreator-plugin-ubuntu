@@ -50,6 +50,7 @@ public:
     static UbuntuQtVersion *createOrFindQtVersion(ClickToolChain* tc);
     static CMakeProjectManager::CMakeTool *createOrFindCMakeTool(ClickToolChain* tc);
     static CMakeProjectManager::CMakeTool *createCMakeTool(ClickToolChain *tc);
+    static CMakeProjectManager::CMakeTool *createCMakeTool(const UbuntuClickTool::Target &target);
 };
 
 } // namespace Internal

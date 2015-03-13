@@ -95,7 +95,10 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
 
             params.solibSearchPath.append(rc->soLibSearchPaths());
             params.runConfiguration = rc;
-            params.multiProcess = false;
+
+            //Always leave this empty or the debugger backend tries to execute
+            //the binary on the phone instead of attaching and continuing the already
+            //running app
             params.remoteExecutable = QString();
 
             if(debug) qDebug()<<"Solib search path : "<<params.solibSearchPath;

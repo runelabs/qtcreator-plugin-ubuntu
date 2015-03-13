@@ -117,15 +117,20 @@ CMakeProjectManager::CMakeTool *UbuntuKitManager::createOrFindCMakeTool(ClickToo
 
 CMakeProjectManager::CMakeTool *UbuntuKitManager::createCMakeTool(ClickToolChain *tc)
 {
-    QString cmakePathStr = UbuntuClickTool::findOrCreateToolWrapper(QStringLiteral("cmake"), tc->clickTarget());
+    return createCMakeTool(tc->clickTarget());
+}
+
+CMakeProjectManager::CMakeTool *UbuntuKitManager::createCMakeTool(const UbuntuClickTool::Target &target)
+{
+    QString cmakePathStr = UbuntuClickTool::findOrCreateToolWrapper(QStringLiteral("cmake"), target);
     Utils::FileName cmakePath = Utils::FileName::fromString(cmakePathStr);
     CMakeProjectManager::CMakeTool *cmake = new CMakeProjectManager::CMakeTool(CMakeProjectManager::CMakeTool::AutoDetection);
 
     cmake->setCMakeExecutable(cmakePath);
     cmake->setDisplayName(tr("Ubuntu SDK cmake (%1-%2-%3)")
-                          .arg(tc->clickTarget().architecture)
-                          .arg(tc->clickTarget().framework)
-                          .arg(tc->clickTarget().series));
+                          .arg(target.architecture)
+                          .arg(target.framework)
+                          .arg(target.series));
     return cmake;
 }
 
