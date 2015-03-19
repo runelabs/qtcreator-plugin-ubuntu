@@ -1,3 +1,13 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150319.1-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Fix Bug lp:1426315 "Found unusual policy group" (LP: #1426315)
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Thu, 19 Mar 2015 10:15:53 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150224-0ubuntu1) vivid; urgency=medium
 
   [ Benjamin Zeller ]
