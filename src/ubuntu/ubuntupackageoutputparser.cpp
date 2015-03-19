@@ -10,7 +10,8 @@ namespace Internal {
 
 const QRegularExpression DEBUG_POLICY_REGEX(QStringLiteral("security_policy_groups_safe_\\S+\\s+\\((\\S+)\\)"));
 const QRegularExpression DEBUG_SCOPE_POLICY_REGEX(QStringLiteral("security_policy_groups_scopes"));
-const QRegularExpression DEBUG_SCOPE_TEXT_REGEX(QStringLiteral("found inappropriate policy groups:\\s+(.*)"));
+const QRegularExpression DEBUG_INAPPROPRIATE_GROUP_TEXT_REGEX(QStringLiteral("found inappropriate policy groups:\\s+(.*)"));
+const QRegularExpression DEBUG_UNUSUAL_GROUP_TEXT_REGEX(QStringLiteral("found unusual policy groups:\\s+(.*)"));
 const QRegularExpression ARCHITECTURE_ERROR_REGEX(QStringLiteral("lint_(control|manifest)_architecture_valid"));
 const QString DEBUG_POLICY_NAME(QStringLiteral("debug"));
 
@@ -112,13 +113,15 @@ bool UbuntuPackageOutputParser::isError(const ClickRunChecksParser::DataItem *it
             if(match.captured(1) == DEBUG_POLICY_NAME)
                 return false;
         }
-        match = DEBUG_SCOPE_POLICY_REGEX.match(item->type);
+        match = DEBUG_INAPPROPRIATE_GROUP_TEXT_REGEX.match(item->text);
         if(match.hasMatch()) {
-            match = DEBUG_SCOPE_TEXT_REGEX.match(item->text);
-            if(match.hasMatch()) {
-                if(match.captured(1).contains(DEBUG_POLICY_NAME))
-                    return false;
-            }
+            if(match.captured(1).contains(DEBUG_POLICY_NAME))
+                return false;
+        }
+        match = DEBUG_UNUSUAL_GROUP_TEXT_REGEX.match(item->text);
+        if(match.hasMatch()) {
+            if(match.captured(1).contains(DEBUG_POLICY_NAME))
+                return false;
         }
         match = ARCHITECTURE_ERROR_REGEX.match(item->type);
         if(match.hasMatch()) {
