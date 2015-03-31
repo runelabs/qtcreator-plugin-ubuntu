@@ -1,6 +1,6 @@
 import QtQuick 2.0
 import Ubuntu.Components 1.1
-import Myapp 1.0
+import %ClickHookName:s% 1.0
 
 /*!
     \brief MainView with Tabs element.
