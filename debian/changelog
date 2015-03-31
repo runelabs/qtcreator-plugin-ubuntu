@@ -1,3 +1,10 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150331-0ubuntu1) vivid; urgency=medium
+
+  [ Zoltán Balogh ]
+  * Use the hook name in the import. Fixes LP: #1437682 (LP: #1437682)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Tue, 31 Mar 2015 16:49:26 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150319.1-0ubuntu1) vivid; urgency=medium
 
   [ Benjamin Zeller ]
