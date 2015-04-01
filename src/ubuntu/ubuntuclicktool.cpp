@@ -814,6 +814,9 @@ QStringList UbuntuClickFrameworkProvider::parseData(const QByteArray &data) cons
     QStringList result;
 
     for(auto i = obj.constBegin(); i != obj.constEnd(); i++ ) {
+        if(!i.key().startsWith(QStringLiteral("ubuntu-sdk")))
+            continue;
+
         if(i.value().toString() == QStringLiteral("available")) {
             result += i.key();
         }
