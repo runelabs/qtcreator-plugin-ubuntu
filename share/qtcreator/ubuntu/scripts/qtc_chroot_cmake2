@@ -80,9 +80,6 @@ if chroot_name_prefix == "click":
         clickChrootAgentIFace = dbus.Interface(clickChrootAgent,dbus_interface='com.ubuntu.sdk.ClickChrootAgent')
         session_id = clickChrootAgentIFace.spawnSession(framework,architecture)
     except dbus.exceptions.DBusException:
-        f=open("/tmp/exception","a")
-        f.write("Zonk")
-        f.close()
         session_id = ""
 
 if (len(session_id) == 0):
