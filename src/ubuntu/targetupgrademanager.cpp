@@ -29,6 +29,7 @@
 #include <QString>
 #include <QPointer>
 #include <QSettings>
+#include <QProgressDialog>
 
 
 namespace Ubuntu {
@@ -37,6 +38,7 @@ namespace Internal {
 TargetUpgradeManager::TargetUpgradeManager(QObject *parent) :
     QObject(parent), m_state(Idle)
 {
+    connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()), this, SLOT(coreAboutToClose()));
 }
 
 void TargetUpgradeManager::checkForUpgrades()
@@ -94,6 +96,45 @@ void TargetUpgradeManager::processFinished()
         default:
             break;
     }
+}
+
+void TargetUpgradeManager::coreAboutToClose()
+{
+    QProgressDialog dlg;
+    dlg.setCancelButton(0);
+    dlg.setRange(0,0);
+    dlg.setLabelText(tr("Waiting for background processes to terminate."));
+    dlg.open();
+
+    for(auto i = m_running.begin(); i != m_running.end(); i++) {
+        Task &t = i.value();
+        if (t.proc) {
+            t.proc->disconnect(this);
+            t.proc->terminate();
+
+            //polling is ugly, but in this case there is no clean way of handling this
+            //since we need to block in this function until all things are sorted out
+            int msecs = 30000;
+            int timeframe = 10;
+            while(!t.proc->waitForFinished(timeframe)) {
+
+                msecs -= timeframe;
+                if (msecs <= 0) {
+                    t.proc->kill();
+                    break;
+                }
+
+                QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+                if (t.proc->error() != QProcess::Timedout)
+                    break;
+            }
+
+            delete t.proc;
+        }
+    }
+
+    m_state = Idle;
+    m_running.clear();
 }
 
 TargetUpgradeManagerDialog::TargetUpgradeManagerDialog(QWidget *parent) : QDialog(parent)

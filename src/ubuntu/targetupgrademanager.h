@@ -57,6 +57,7 @@ public slots:
 
 private slots:
     void processFinished ();
+    void coreAboutToClose ();
 
 private:
     QMap<qintptr,Task> m_running;
