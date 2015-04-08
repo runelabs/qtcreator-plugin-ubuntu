@@ -30,7 +30,7 @@ def splitIgnoreEmptyParts(s, delim=None):
     return [x for x in s.split(delim) if x]
 
 if (len(sys.argv) < 3):
-    print("Useage: qtc_chroot_get_upgrades <architecture> <framework>")
+    print("Useage: qtc_chroot_get_upgrades <framework> <architecture>")
     sys.exit(-1)
 
 click      = shutil.which("click")
@@ -47,11 +47,8 @@ if (len(session_id) == 0):
 else:
     pre_spawned_session = True
 
-f=open("/tmp/debug_"+session_id,"w")
-
 def endSession():
-    subprocess.call([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"end-session",session_id],stdout=f,stderr=f)
-    f.close()
+    subprocess.call([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"end-session",session_id],stdout=subprocess.DEVNULL)
 
 def exit_gracefully(arg1,arg2):
     if(subproc is not None):
@@ -64,13 +61,13 @@ signal.signal(signal.SIGINT , exit_gracefully)
 signal.signal(signal.SIGHUP , exit_gracefully)
 
 if ( not pre_spawned_session ):
-    success = subprocess.call([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"begin-session",session_id],stdout=f,stderr=f)
+    success = subprocess.call([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"begin-session",session_id],stdout=subprocess.DEVNULL)
 
 subproc = subprocess.Popen([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"maint","-n",session_id
-                           ,"env","LC_ALL=C","apt-get","update"],stdout=f,stderr=f)
+                           ,"env","LC_ALL=C","apt-get","update"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 subproc.wait()
 subproc = subprocess.Popen([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"maint","-n",session_id
-                           ,"env","LC_ALL=C","apt","list","--upgradable"],stdout=subprocess.PIPE,stderr=f, universal_newlines=True)
+                           ,"env","LC_ALL=C","apt","list","--upgradable"],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL, universal_newlines=True)
 stdout, stderr = subproc.communicate()
 endSession()
 
