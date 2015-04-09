@@ -9,6 +9,8 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 import ubuntuuitoolkit as uitk
+from ubuntuuitoolkit import fixture_setup
+
 from autopilot import platform
 
 from testtools.matchers import NotEquals, EndsWith
@@ -29,7 +31,13 @@ class HTML5TestCaseBase(AutopilotTestCase):
     def setUp(self):
         self.driver = None
         self.app_proxy = None
-        super(HTML5TestCaseBase, self).setUp()
+        super().setUp()
+        self.useFixture(fixture_setup.InitctlEnvironmentVariable(
+            global_=True,
+            UBUNTU_WEBVIEW_DEVTOOLS_HOST=DEFAULT_WEBVIEW_INSPECTOR_IP,
+            UBUNTU_WEBVIEW_DEVTOOLS_PORT=str(
+                DEFAULT_WEBVIEW_INSPECTOR_PORT)
+        ))
 
     def tearDown(self):
         print ('tearDown')
@@ -48,11 +56,14 @@ class HTML5TestCaseBase(AutopilotTestCase):
     def get_webview(self):
         return self.app_proxy.select_single("UbuntuWebView02")
 
-    def launch_webdriver(self, ip, port):
+    def launch_webdriver(self):
         options = Options()
         options.binary_location = ''
-        options.debugger_address = '{}:{}'.format(ip, port)
+        options.debugger_address = '{}:{}'.format(
+            DEFAULT_WEBVIEW_INSPECTOR_IP,
+            DEFAULT_WEBVIEW_INSPECTOR_PORT)
 
+        print(options.debugger_address)
         self.driver = webdriver.Chrome(
             executable_path=CHROMEDRIVER_EXEC_PATH,
             chrome_options=options)
@@ -68,24 +79,7 @@ class HTML5TestCaseBase(AutopilotTestCase):
             *args,
             emulator_base=uitk.UbuntuUIToolkitCustomProxyObjectBase)
 
-    def launch_html5_app(
-            self,
-            envvars={},
-            ip=DEFAULT_WEBVIEW_INSPECTOR_IP,
-            port=DEFAULT_WEBVIEW_INSPECTOR_PORT):
-
-        # setup devtools environment
-        self.patch_environment(
-            'UBUNTU_WEBVIEW_DEVTOOLS_HOST',
-            ip)
-        self.patch_environment(
-            'UBUNTU_WEBVIEW_DEVTOOLS_PORT',
-            str(port))
-
-        if envvars:
-            for envvar_key in envvars:
-                self.patch_environment(envvar_key, envvars[envvar_key])
-
+    def launch_html5_app(self):
         self.app_proxy = self.launch_html5_app_inline(
             ['--www={}/{}'.format(
                 os.path.dirname(
@@ -93,7 +87,7 @@ class HTML5TestCaseBase(AutopilotTestCase):
                 '../../../../www'), '--inspector'])
         self.wait_for_app()
 
-        self.launch_webdriver(ip, port)
+        self.launch_webdriver()
 
     def wait_for_app(self):
         self.assertThat(self.app_proxy, NotEquals(None))
