@@ -1,3 +1,13 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150409-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Prevent leaking mounts with click chroot as much as possible
+
+  [ CI Train Bot ]
+  * Use the hook name in the import. Fixes LP: #1437682 (LP: #1437682)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Thu, 09 Apr 2015 09:19:49 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150401-0ubuntu1) vivid; urgency=medium
 
   [ Benjamin Zeller ]
