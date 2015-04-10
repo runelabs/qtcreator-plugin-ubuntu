@@ -240,6 +240,8 @@ QVariant UbuntuDevicesModel::data(const QModelIndex &index, int role) const
             return m_knownDevices[index.row()]->device()->productInfo();
         case MachineTypeRole:
             return m_knownDevices[index.row()]->device()->machineType();
+        case FrameworkRole:
+            return m_knownDevices[index.row()]->device()->framework();
         case EmulatorImageRole:
             return m_knownDevices[index.row()]->device()->imageName();
         case EmulatorDeviceVersionRole:
@@ -277,6 +279,7 @@ QHash<int, QByteArray> UbuntuDevicesModel::roleNames() const
     roles.insert(DeviceInfoRole,"deviceInfo");
     roles.insert(ProductInfoRole,"productInfo");
     roles.insert(MachineTypeRole,"machineType");
+    roles.insert(FrameworkRole,"frameworkVersion");
     roles.insert(EmulatorImageRole,"emulatorImageName");
     roles.insert(EmulatorDeviceVersionRole,"emuDeviceVersion");
     roles.insert(EmulatorUbuntuVersionRole,"emuUbuntuVersion");
@@ -524,7 +527,7 @@ void UbuntuDevicesModel::deviceInfoUpdated()
             << DeviceInfoRole << ProductInfoRole
             << EmulatorDeviceVersionRole << EmulatorUbuntuVersionRole
             << EmulatorImageVersionRole << EmulatorScaleFactorRole
-            << EmulatorMemorySettingRole;
+            << EmulatorMemorySettingRole << FrameworkRole;
 
     deviceChanged(sender(),relatedRoles);
 }

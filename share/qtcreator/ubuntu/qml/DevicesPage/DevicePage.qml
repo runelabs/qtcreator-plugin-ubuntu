@@ -366,6 +366,10 @@ Page {
                                     value: emuImageVersion
                                     visible: machineType === DeviceMachineType.Emulator
                                 }
+                                ListItem.SingleValue {
+                                    text: i18n.tr("Framework version")
+                                    value: frameworkVersion
+                                }
                                 ListItem.Standard {
                                     //show this listitem only when device is not connected
                                     visible: machineType === DeviceMachineType.Emulator && !deviceItemView.deviceConnected
