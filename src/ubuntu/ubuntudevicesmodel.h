@@ -58,6 +58,7 @@ public:
         DeviceInfoRole,
         ProductInfoRole,
         MachineTypeRole,
+        FrameworkRole,
         EmulatorImageRole,
         EmulatorDeviceVersionRole,
         EmulatorUbuntuVersionRole,
