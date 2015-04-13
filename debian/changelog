@@ -1,3 +1,23 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150413.1-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Fix bug lp:1391527 Adding UI to show the supported frameworks for
+    the emulator and the phone Autocreate Kits for the devices depending
+    on the framework they support (LP: #1391527)
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+  [ Pete Woods ]
+  * Use absolute path to refer to POT file - fixes dependency chain.
+    Fixes LP: #1443308 (LP: #1443308)
+
+  [ Zoltán Balogh ]
+  * Change the order of the parameters in thge usage hint. Fixes LP:
+    #1441475 (LP: #1441475)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Mon, 13 Apr 2015 11:42:04 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150409-0ubuntu1) vivid; urgency=medium
 
   [ Benjamin Zeller ]
