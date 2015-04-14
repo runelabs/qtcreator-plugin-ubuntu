@@ -14,7 +14,8 @@ Unlike the default Qt HTML5 template, there is no C++ code or compilation necess
     <displaycategory>Ubuntu</displaycategory>
     <files>
 	<file source="displayName.ubuntuhtmlproject" target="%ProjectName%.ubuntuhtmlproject" openproject="true"/>
-	<file source="www/js/app.js"  			   target="www/js/app.js" openeditor="false"/>
+	<file source="www/js/ui.js"  			   target="www/js/ui.js" openeditor="false"/>
+	<file source="www/js/application.js"  			   target="www/js/application.js" openeditor="false"/>
 	<file source="www/css/app.css"  			   target="www/css/app.css" openeditor="false"/>
 	<file source="www/img/cordova.png"  			   target="www/img/cordova.png" openeditor="false" binary="true"/>
 
@@ -25,14 +26,15 @@ Unlike the default Qt HTML5 template, there is no C++ code or compilation necess
         <file source="../share/displayName.apparmor"                     target="%ClickHookName%.apparmor" openeditor="false"/>
         <file source="../share/.excludes"                     target=".excludes" openeditor="false"/>
 
-	<file source="tests/autopilot/README"  			   target="tests/autopilot/README" openeditor="false"/>
+    	<file source="README"  			   target="README" openeditor="false"/>
+    	<file source="Gruntfile.js"                target="Gruntfile.js" openeditor="false"/>
+    	<file source="package.json"  			   target="package.json" openeditor="false"/>
+
 	<file source="tests/autopilot/application_tests/__init__.py"  			   target="tests/autopilot/application_tests/__init__.py" openeditor="false"/>
 	<file source="tests/autopilot/application_tests/tests/__init__.py"  			   target="tests/autopilot/application_tests/tests/__init__.py" openeditor="false"/>
 	<file source="tests/autopilot/application_tests/tests/test_app_launch.py"  			   target="tests/autopilot/application_tests/tests/test_app_launch.py" openeditor="false"/>
 
-	<file source="tests/unit/runner.html"  			   target="tests/unit/runner.html" openeditor="false"/>
-	<file source="tests/unit/tests/app-tests.js"  		   target="tests/unit/tests/app-tests.js" openeditor="false"/>
-	<file source="tests/unit/third_party/jasmine/MIT.LICENSE"  			   target="tests/unit/third_party/jasmine/MIT.LICENSE" openeditor="false"/>
+	<file source="tests/unit/specs/app-specs.js"  		   target="tests/unit/specs/app-specs.js" openeditor="false"/>
 	<file source="tests/unit/third_party/jasmine/lib/jasmine-2.2.0/boot.js"  			   target="tests/unit/third_party/jasmine/lib/jasmine-2.2.0/boot.js" openeditor="false"/>
 	<file source="tests/unit/third_party/jasmine/lib/jasmine-2.2.0/console.js"  			   target="tests/unit/third_party/jasmine/lib/jasmine-2.2.0/console.js" openeditor="false"/>
 	<file source="tests/unit/third_party/jasmine/lib/jasmine-2.2.0/jasmine.js"  			   target="tests/unit/third_party/jasmine/lib/jasmine-2.2.0/jasmine.js" openeditor="false"/>
