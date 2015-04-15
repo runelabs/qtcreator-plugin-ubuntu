@@ -576,7 +576,8 @@ UbuntuClickFrameworkProvider::UbuntuClickFrameworkProvider()
       m_policyCache {
         {QStringLiteral("ubuntu-sdk-13.10"),QStringLiteral("1.0")},
         {QStringLiteral("ubuntu-sdk-14.04"),QStringLiteral("1.1")},
-        {QStringLiteral("ubuntu-sdk-14.10"),QStringLiteral("1.2")}
+        {QStringLiteral("ubuntu-sdk-14.10"),QStringLiteral("1.2")},
+        {QStringLiteral("ubuntu-sdk-15.04"),QStringLiteral("1.3")}
       },
       m_manager(nullptr),
       m_currentRequest(nullptr),
