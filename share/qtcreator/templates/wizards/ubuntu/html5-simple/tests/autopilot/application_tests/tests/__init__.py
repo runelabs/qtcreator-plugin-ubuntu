@@ -40,7 +40,6 @@ class HTML5TestCaseBase(AutopilotTestCase):
         ))
 
     def tearDown(self):
-        print ('tearDown')
         if self.driver:
             self.page.close()
             self.page.quit()
@@ -54,7 +53,7 @@ class HTML5TestCaseBase(AutopilotTestCase):
         super(HTML5TestCaseBase, self).tearDown()
 
     def get_webview(self):
-        return self.app_proxy.select_single("UbuntuWebView02")
+        return self.app_proxy.select_single('UbuntuWebView02')
 
     def launch_webdriver(self):
         options = Options()
@@ -63,7 +62,6 @@ class HTML5TestCaseBase(AutopilotTestCase):
             DEFAULT_WEBVIEW_INSPECTOR_IP,
             DEFAULT_WEBVIEW_INSPECTOR_PORT)
 
-        print(options.debugger_address)
         self.driver = webdriver.Chrome(
             executable_path=CHROMEDRIVER_EXEC_PATH,
             chrome_options=options)
