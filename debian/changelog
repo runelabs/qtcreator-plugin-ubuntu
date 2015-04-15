@@ -1,3 +1,10 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150415-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Support framework 15.04 Fix small issue in the templates
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Wed, 15 Apr 2015 15:12:10 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150413.1-0ubuntu1) vivid; urgency=medium
 
   [ Benjamin Zeller ]
