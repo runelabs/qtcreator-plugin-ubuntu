@@ -133,7 +133,7 @@ Core::GeneratedFiles UbuntuProjectApplicationWizard::generateFiles(const QWizard
 {
     QString requiredPolicy = UbuntuClickFrameworkProvider::instance()->frameworkPolicy(w->field(QStringLiteral("ClickFrameworkVersion")).toString());
     if(requiredPolicy.isEmpty())
-        requiredPolicy = QStringLiteral("1.2"); //some sane default value
+        requiredPolicy = QStringLiteral("1.3"); //some sane default value
 
     context()->baseReplacements.insert(QStringLiteral("ClickAAPolicyVersion"),requiredPolicy);
     return ProjectExplorer::CustomProjectWizard::generateFiles(w,errorMessage);
