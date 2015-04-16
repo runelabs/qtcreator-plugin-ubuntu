@@ -1,3 +1,13 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150416-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Rename the template.pot file to <projectname>.pot lp:1444911 Make
+    sure qml projects run buildsteps when creating a click package from
+    the publish page lp:1444908 Disable the translations menu for qml
+    projects lp:1444913 (LP: #1444913, #1444908, #1444911)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Thu, 16 Apr 2015 11:30:36 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150415-0ubuntu1) vivid; urgency=medium
 
   [ Benjamin Zeller ]
