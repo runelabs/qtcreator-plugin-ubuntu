@@ -541,9 +541,10 @@ void UbuntuPackagingModel::buildClickPackage()
         clearPackageBuildList();
 
         m_packageBuildSteps.append(QSharedPointer<ProjectExplorer::BuildStepList> (new ProjectExplorer::BuildStepList(bc,ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
-        if (isCMake || isQmake) {
+        ProjectExplorer::BuildStepList *buildSteps = bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
+        if (buildSteps && buildSteps->count() > 0) {
             //add the normal buildsteps
-            m_packageBuildSteps.last()->cloneSteps(bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
+            m_packageBuildSteps.last()->cloneSteps(buildSteps);
         }
 
         //append the click packaging step
