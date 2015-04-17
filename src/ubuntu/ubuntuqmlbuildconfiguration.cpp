@@ -280,17 +280,26 @@ bool UbuntuQmlBuildTranslationStep::init()
     if(!bc)
         return false;
 
-    QString translationsDir = bc->buildDirectory().toString()
+    m_translationDir = bc->buildDirectory().toString()
             + QDir::separator()
             + QString::fromLatin1(Constants::UBUNTU_CLICK_QML_BUILD_TRANSL_DIR);
 
-    processParameters()->setArguments(QString::fromLatin1("TRANSLATION_ROOT=%1 build-translations").arg(translationsDir));
+    processParameters()->setArguments(QString::fromLatin1("TRANSLATION_ROOT=%1 build-translations").arg(m_translationDir));
     return true;
 }
 
 ProjectExplorer::BuildStepConfigWidget *UbuntuQmlBuildTranslationStep::createConfigWidget()
 {
     return new ProjectExplorer::SimpleBuildStepConfigWidget(this);
+}
+
+void UbuntuQmlBuildTranslationStep::run(QFutureInterface<bool> &fi)
+{
+    QDir translDir(m_translationDir);
+    if(translDir.exists())
+        translDir.removeRecursively();
+
+    return UbuntuQmlUpdateTranslationTemplateStep::run(fi);
 }
 
 QList<Core::Id> UbuntuQmlBuildStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
