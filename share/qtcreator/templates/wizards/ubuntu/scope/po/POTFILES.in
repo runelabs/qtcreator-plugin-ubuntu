@@ -1,4 +1,4 @@
-[type: gettext/ini] data/%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini.in
+[type: gettext/ini] data/%ProjectName:l%.%ClickDomain:l%_%ClickHookName:l%.ini.in
 include/api/config.h
 include/api/client.h
 include/scope/preview.h

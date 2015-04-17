@@ -22,13 +22,24 @@ set -e
 
 adb -s ${SERIALNUMBER} wait-for-device
 
-# The device is accesibale on ADB"
+# The device is accessible on ADB"
+set +e
+
+error=$(adb -s ${SERIALNUMBER} shell echo ok 2>&1)
+
+if [[ ${error} =~ "closed" ]]; then
+        echo "DevLocked"
+else
+        echo "DevUnLocked"
+fi
+
+set -e
 
 # Start waiting for Unity8"
 
-until pids=$(adb -s ${SERIALNUMBER} shell pidof unity8|egrep -v "^$"); 
+until pids=$(adb -s ${SERIALNUMBER} shell pidof unity8 2>/dev/null|egrep -v "^$"); 
 do
-	sleep 0.1;
+        sleep 0.1;
 done;
 
 echo "Unity8 is up with PID: ${pids}"

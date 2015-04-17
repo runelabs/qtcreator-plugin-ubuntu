@@ -42,6 +42,8 @@
 #include "ubuntutestcontrol.h"
 #include "ubuntupackageoutputparser.h"
 #include "ubuntuprojecthelper.h"
+#include "ubuntuscopefinalizer.h"
+#include "targetupgrademanager.h"
 
 #include "wizards/ubuntuprojectapplicationwizard.h"
 #include "wizards/ubuntufirstrunwizard.h"
@@ -65,6 +67,7 @@
 #include <QtQml>
 #include <QFile>
 #include <QAction>
+#include <QProcess>
 
 #include <coreplugin/icore.h>
 #include <stdint.h>
@@ -74,12 +77,28 @@ using namespace Ubuntu::Internal;
 
 UbuntuPlugin::UbuntuPlugin()
 {
+    if(UbuntuClickTool::clickChrootSuffix() == QLatin1String(Constants::UBUNTU_CLICK_CHROOT_DEFAULT_NAME)) {
+#ifdef UBUNTU_BUILD_ROOT
+        Utils::FileName chrootAgent = Utils::FileName::fromString(QStringLiteral(UBUNTU_BUILD_ROOT));
+        chrootAgent.appendPath(QStringLiteral("chroot-agent"))  //append dir
+                .appendPath(QStringLiteral("click-chroot-agent")); //append binary
 
+        bool started = false;
+        if(chrootAgent.toFileInfo().isExecutable()) {
+            started = QProcess::startDetached(chrootAgent.toFileInfo().absoluteFilePath());
+        }
+        if(!started) {
+            QProcess::startDetached(QStringLiteral("click-chroot-agent"));
+        }
+#else
+        //start the chroot-agent
+        QProcess::startDetached(QStringLiteral("click-chroot-agent"));
+#endif
+    }
 }
 
 UbuntuPlugin::~UbuntuPlugin()
 {
-
 }
 
 bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString)
@@ -272,8 +291,8 @@ void UbuntuPlugin::extensionsInitialized()
             mproject->addAction(comm, ProjectExplorer::Constants::G_PROJECT_BUILD);
 
         comm = Core::ActionManager::command("Ubuntu.Build.CreateManifest");
-                if(comm)
-                    mproject->addAction(comm, ProjectExplorer::Constants::G_PROJECT_BUILD);
+        if(comm)
+            mproject->addAction(comm, ProjectExplorer::Constants::G_PROJECT_BUILD);
     }
 
     //add ubuntu testcontrol to the object tree
@@ -287,6 +306,10 @@ void UbuntuPlugin::onKitsLoaded()
                ,this,SLOT(onKitsLoaded()));
 
     showFirstStartWizard();
+
+    TargetUpgradeManager *mgr = new TargetUpgradeManager();
+    addAutoReleasedObject(mgr);
+    mgr->checkForUpgrades();
 }
 
 void UbuntuPlugin::showFirstStartWizard()

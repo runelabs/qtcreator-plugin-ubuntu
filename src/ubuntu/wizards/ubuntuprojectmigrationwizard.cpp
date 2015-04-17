@@ -146,7 +146,7 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
         QString framework = wiz.framework();
         QString aaPolicy  = UbuntuClickFrameworkProvider::instance()->frameworkPolicy(framework);
         base_replacements.insert(QStringLiteral("ClickFrameworkVersion"),framework);
-        base_replacements.insert(QStringLiteral("ClickAAPolicyVersion"),aaPolicy.isEmpty() ? QStringLiteral("1.2") : aaPolicy);
+        base_replacements.insert(QStringLiteral("ClickAAPolicyVersion"),aaPolicy.isEmpty() ? QStringLiteral("1.3") : aaPolicy);
 
         QStringList hookTargets = wiz.selectedTargets();
 
@@ -569,7 +569,7 @@ void UbuntuProjectDetailsPage::initializePage()
             whoami     = bzr->whoami();
         }
 
-        wizard()->setField(QStringLiteral("domain"),QString(QStringLiteral("com.ubuntu.developer.")+maintainer));
+        wizard()->setField(QStringLiteral("domain"),maintainer);
         wizard()->setField(QStringLiteral("maintainer"),whoami);
     }
 

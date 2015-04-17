@@ -31,6 +31,7 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/target.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -308,7 +309,7 @@ void UbuntuManifestEditorWidget::bzrChanged()
     /* Commented out for bug #1219948  - https://bugs.launchpad.net/qtcreator-plugin-ubuntu/+bug/1219948
     QString userName = bzr->launchpadId();
     if (userName.isEmpty()) userName = QLatin1String(Constants::USERNAME);
-    m_ui->lineEdit_maintainer->setText(QString(QLatin1String("com.ubuntu.developer.%0.%1")).arg(userName).arg(m_projectName));
+    m_ui->lineEdit_maintainer->setText(QString(QLatin1String("%0.%1")).arg(m_projectName).arg(userName));
     */
 
     if(activePage() != General)
@@ -432,7 +433,7 @@ QWidget *UbuntuManifestEditorWidget::createHookWidget(const UbuntuClickManifest:
 
 QString UbuntuManifestEditorWidget::createPackageName(const QString &userName, const QString &projectName)
 {
-    return QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_NAME)).arg(userName).arg(projectName);
+    return QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_DEFAULT_NAME)).arg(projectName).arg(userName);
 }
 
 void UbuntuManifestEditorWidget::addMissingFieldsToManifest (QString fileName)
@@ -488,7 +489,6 @@ void UbuntuManifestEditorWidget::addMissingFieldsToManifest (QString fileName)
                 targetObject.insert(i.key(),UbuntuClickFrameworkProvider::getMostRecentFramework( QString()));
             } else {
                 targetObject.insert(i.key(),i.value());
-
                 if(debug) qDebug() <<"Setting to "<<i.value();
             }
         }
@@ -502,6 +502,20 @@ void UbuntuManifestEditorWidget::addMissingFieldsToManifest (QString fileName)
         in.write(data);
         in.close();
     }
+}
+
+/*!
+ * \brief UbuntuManifestEditorWidget::saved
+ * Runs updateDefaultRunConfigurations for the currently
+ * active target, to make sure all changes in the manifest
+ * file are taken into account
+ */
+void UbuntuManifestEditorWidget::saved()
+{
+    QFileInfo mFile(textEditorWidget()->baseTextDocument()->filePath());
+    ProjectExplorer::Project *p = ubuntuProject(mFile.absolutePath());
+    if(p && p->activeTarget())
+        p->activeTarget()->updateDefaultRunConfigurations();
 }
 
 } // namespace Internal

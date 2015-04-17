@@ -21,7 +21,9 @@
 #include "ubuntuprocess.h"
 #include "ubuntuconstants.h"
 #include "ubuntudevicesignaloperation.h"
+#include "ubuntuclicktool.h"
 #include "localportsmanager.h"
+#include "clicktoolchain.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <remotelinux/genericlinuxdeviceconfigurationwidget.h>
@@ -43,11 +45,9 @@ enum {
     debug = 0
 };
 
-const QString DEVICE_SETTINGS_VERSION(QStringLiteral("UbuntuDevice.Version"));
-const QString DEVICE_INFO_KEY(QStringLiteral("UbuntuDevice.InfoString"));
-const QString DEVICE_SERIAL_ARCHITECTURE(QStringLiteral("UbuntuDevice.Arch"));
 const QString DEVICE_SCALE_FACTOR(QStringLiteral("UbuntuDevice.EmulatorScaleFactor"));
 const QString DEVICE_MEMORY_SETTING(QStringLiteral("UbuntuDevice.EmulatorMemory"));
+const QString DEVICE_FRAMEWORK(QStringLiteral("UbuntuDevice.Framework"));
 const QSet<QString> supportedScaleFactors {QStringLiteral("1.0"), QStringLiteral("0.9"), QStringLiteral("0.8"), QStringLiteral("0.7"),
             QStringLiteral("0.6"),QStringLiteral("0.5"), QStringLiteral("0.4"), QStringLiteral("0.3"), QStringLiteral("0.2"),
             QStringLiteral("0.1")};
@@ -146,7 +146,7 @@ void UbuntuDeviceHelper::waitForBoot()
     //at this point the serial ID should be known
     m_dev->setupPrivateKey();
 
-    setProcessState(UbuntuDevice::WaitForBoot);
+    setProcessState(UbuntuDevice::WaitForBootAdbAccess);
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_WAIT_FOR_BOOT_MESSAGE));
 
     stopProcess();
@@ -184,7 +184,9 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
             waitForBoot();
             break;
         }
-        case UbuntuDevice::WaitForBoot: {
+        case UbuntuDevice::WaitForBoot:
+        case UbuntuDevice::WaitForBootAdbAccess:
+        case UbuntuDevice::WaitForBootDeviceLock: {
             if(code != 0) {
                 m_errorCount++;
                 waitForBoot();
@@ -203,13 +205,27 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
 
             QStringList options = m_reply.split(QStringLiteral("\n"),QString::SkipEmptyParts);
             if(debug) qDebug()<<options;
-            if(options.length() == 5) {
-                m_dev->setDeviceInfo(options[1].trimmed(),
-                        options[0].trimmed(),
-                        options[2].trimmed());
 
-                m_dev->m_architecture = options[4].trimmed();
+            if(options.length() < 6) {
+                m_errorCount++;
+                detect();
+                break;
             }
+
+            QString framework    = options[5].trimmed();
+            if(!UbuntuClickFrameworkProvider::getSupportedFrameworks().contains(framework)) {
+                addToLog(tr("Device detection reported unknown framework %1").arg(framework));
+                m_errorCount++;
+                detect();
+                break;
+            }
+
+            m_dev->m_framework = framework;
+
+            //will trigger the device updated signal
+            m_dev->setDeviceInfo(options[1].trimmed(),
+                    options[0].trimmed(),
+                    options[2].trimmed());
 
             detectHasNetworkConnection();
             break;
@@ -397,6 +413,15 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
 
 void UbuntuDeviceHelper::onMessage(const QString &msg) {
     m_reply.append(msg);
+
+    if(m_dev->m_processState == UbuntuDevice::WaitForBootAdbAccess) {
+        if(m_reply.contains(QStringLiteral("DevLocked"))) {
+            setProcessState(UbuntuDevice::WaitForBootDeviceLock);
+        }
+        else if(m_reply.contains(QStringLiteral("DevUnLocked"))) {
+            setProcessState(UbuntuDevice::WaitForBoot);
+        }
+    }
 }
 
 void UbuntuDeviceHelper::onError(const QString &error)
@@ -1177,6 +1202,11 @@ QString UbuntuDevice::architecture() const
     return arch;
 }
 
+QString UbuntuDevice::framework() const
+{
+    return m_framework;
+}
+
 UbuntuDevice::FeatureState UbuntuDevice::hasNetworkConnection() const
 {
     return m_hasNetworkConnection;
@@ -1206,6 +1236,10 @@ QString UbuntuDevice::detectionStateString( ) const
             return tr("Waiting for the emulator to start up");
         case WaitForBoot:
             return tr("Waiting for the device to finish booting");
+        case WaitForBootAdbAccess:
+            return tr("Waiting for adb access, make sure the developer mode is enabled");
+        case WaitForBootDeviceLock:
+            return tr("Waiting for the device, make sure it is unlocked");
         case DetectDeviceVersion:
             return tr("Detecting device version");
         case DetectNetworkConnection:
@@ -1307,16 +1341,25 @@ void UbuntuDevice::fromMap(const QVariantMap &map)
 {
     LinuxDevice::fromMap(map);
 
-    if(map.contains(DEVICE_SCALE_FACTOR)) {
+    if (map.contains(DEVICE_SCALE_FACTOR)) {
         m_scaleFactor = map[DEVICE_SCALE_FACTOR].toString();
         if(!supportedScaleFactors.contains(m_scaleFactor))
             m_scaleFactor = QStringLiteral("1.0");
     }
-    if(map.contains(DEVICE_MEMORY_SETTING)) {
+
+    if (map.contains(DEVICE_MEMORY_SETTING)) {
         m_memory = map[DEVICE_MEMORY_SETTING].toString();
 
         if(!supportedMemorySettings.contains(m_memory))
             m_memory = QStringLiteral("512");
+    }
+
+    if (map.contains(DEVICE_FRAMEWORK)) {
+        m_framework = map[DEVICE_FRAMEWORK].toString();
+
+        //if a invalid framework is in the device, let it redetect
+        if(!UbuntuClickFrameworkProvider::getSupportedFrameworks().contains(m_framework))
+            m_framework.clear();
     }
 
     m_helper->init();
@@ -1325,8 +1368,9 @@ void UbuntuDevice::fromMap(const QVariantMap &map)
 QVariantMap UbuntuDevice::toMap() const
 {
     QVariantMap map = LinuxDevice::toMap();
-    map.insert(DEVICE_SCALE_FACTOR,m_scaleFactor);
-    map.insert(DEVICE_MEMORY_SETTING,m_memory);
+    map.insert(DEVICE_SCALE_FACTOR, m_scaleFactor);
+    map.insert(DEVICE_MEMORY_SETTING, m_memory);
+    map.insert(DEVICE_FRAMEWORK, m_framework);
     return map;
 }
 

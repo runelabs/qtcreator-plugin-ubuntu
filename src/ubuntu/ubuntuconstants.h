@@ -183,7 +183,7 @@ const char UBUNTUPACKAGINGWIDGET_BUILDPACKAGE_ID[] ="Ubuntu.Build.Package";
 const char UBUNTUPACKAGINGWIDGET_BUILDCMAKEPACKAGE_ID[] ="Ubuntu.Build.PackageCMake";
 const char UBUNTUPACKAGINGWIDGET_DEFAULT_MANIFEST[] =":/ubuntu/manifest.json.template";
 const char UBUNTUPACKAGINGWIDGET_DEFAULT_MYAPP[] =":/ubuntu/myapp.json.template";
-const char UBUNTUPACKAGINGWIDGET_DEFAULT_NAME[] ="com.ubuntu.developer.%0.%1";
+const char UBUNTUPACKAGINGWIDGET_DEFAULT_NAME[] ="%0.%1";
 const char UBUNTUPACKAGINGWIDGET_LOCAL_REVIEWER_INSTALLED[] = "Checking installed click reviewer tools package.";
 const char UBUNTUPACKAGINGWIDGET_ONFINISHED_LOCAL_NO_EMULATOR_INSTALLED[] = "The package is not installed.";
 const char UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE[] = "Click Reviewers tools against %0";
@@ -255,9 +255,10 @@ const QString UBUNTU_RESOURCE_PATH = QLatin1String(UBUNTU_RESOURCE_PATH_LOCAL);
 const QString UBUNTU_RESOURCE_PATH = Core::ICore::resourcePath();
 #endif
 
-const QString UBUNTU_WELCOMESCREEN_QML = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/welcome/welcome.qml");
-const QString UBUNTU_DEVICESCREEN_QML  = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/devicespage/main.qml");
-const QString UBUNTU_DEVICESCREEN_ROOT  = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/devicespage");
+const QString UBUNTU_WELCOMESCREEN_QML = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/qml/welcome.qml");
+const QString UBUNTU_DEVICESCREEN_QML  = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/qml/devicespage.qml");
+const QString UBUNTU_PUBLISHSCREEN_QML  = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/qml/publishpage.qml");
+const QString UBUNTU_DEVICESCREEN_ROOT  = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/qml");
 const QString UBUNTU_TEMPLATESPATH = UBUNTU_RESOURCE_PATH + QLatin1String("/templates/wizards/ubuntu/");
 const QString UBUNTU_MENUPATH = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/");
 const QString UBUNTU_SHAREPATH = UBUNTU_RESOURCE_PATH + QLatin1String("/ubuntu/");
@@ -381,7 +382,7 @@ const char  UBUNTU_MODE_WIKI[] = "UbuntuWiki";
 const char  UBUNTU_MODE_WIKI_DISPLAYNAME[] = "Wiki";
 
 const char  UBUNTU_IRC[] = "http://webchat.freenode.net/?channels=ubuntu-app-devel";
-const char  UBUNTU_API_ONLINE[] = "http://developer.ubuntu.com/api/devel/ubuntu-13.10/qml/ui-toolkit/overview-ubuntu-sdk.html";
+const char  UBUNTU_API_ONLINE[] = "http://developer.ubuntu.com/api/qml/current";
 const char  UBUNTU_API_OFFLINE[] = "%1/share/ubuntu-ui-toolkit/doc/html/overview-ubuntu-sdk.html";
 const char  UBUNTU_COREAPPS[] = "https://launchpad.net/ubuntu-phone-coreapps/";
 const char  UBUNTU_WIKI[] = "https://wiki.ubuntu.com/Touch";
@@ -428,7 +429,8 @@ const bool  SETTINGS_DEFAULT_DEVICES_AUTOTOGGLE = true;
 
 const char  SETTINGS_COMPANY[] = "Canonical";
 const char  SETTINGS_PRODUCT[] = "UbuntuSDK";
-const char  SETTINGS_GROUP_MODE[] = "Mode";
+const char  SETTINGS_GROUP_MODE[]  = "Mode";
+const char  SETTINGS_GROUP_CLICK[] = "Click";
 const char  SETTINGS_GROUP_DEVICE_CONNECTIVITY[] = "DeviceConnectivity";
 const char  SETTINGS_GROUP_DEVICES[] = "Devices";
 
@@ -442,6 +444,8 @@ const char  SETTINGS_KEY_IP[] = "IP";
 const char  SETTINGS_KEY_QML[] = "QML";
 const char  SETTINGS_KEY_SSH[] = "SSH";
 const char  SETTINGS_KEY_AUTOTOGGLE[] = "Auto_Toggle";
+const char  SETTINGS_KEY_AUTO_CHECK_CHROOT_UPDATES[] = "Auto_Check_Chroot_Updates";
+const char  SETTINGS_KEY_CHROOT_USE_LOCAL_MIRROR[] = "Chroot_Use_Local_Mirror";
 
 //const char  SETTINGS_GROUP_CLICK[] = "Click";
 //const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS[] = "ReviewersToolsEnabled";
@@ -527,6 +531,7 @@ const char UBUNTU_CLICK_HTML_BC_ID[]     = "UbuntuProjectManager.UbuntuHTML5.Bui
 const char UBUNTU_CLICK_QML_BC_ID[]      = "UbuntuProjectManager.UbuntuQml.BuildConfiguration";
 const char UBUNTU_CLICK_QML_UPDATE_TRANSL_MAKESTEP[]      = "UbuntuProjectManager.UbuntuQml.UpdateTranslationTemplateMakeStep";
 const char UBUNTU_CLICK_QML_BUILD_TRANSL_MAKESTEP[]      = "UbuntuProjectManager.UbuntuQml.BuildTranslationMakeStep";
+const char UBUNTU_CLICK_QML_BUILD_TRANSL_DIR[]      = "mo";
 //Devicesupport
 const char UBUNTU_DEVICE_TYPE_ID[] = "UbuntuProjectManager.DeviceTypeId";
 const char UBUNTU_DEVICE_SSHIDENTITY[] = "%0/.config/ubuntu-sdk/ubuntudevice_id_rsa";
@@ -583,6 +588,10 @@ const char UBUNTU_APPARMOR_EDITOR_CONTEXT[] = "UbuntuProjectManager.UbuntuApparm
 
 //Actions
 const char UBUNTU_MIGRATE_QMAKE_PROJECT[] = "UbuntuProjectManager.MigrateQMakeProject";
+
+//TargetUpgradeManager
+const char CHROOT_UPDATE_LIST_SCRIPT[] = "%1/ubuntu/scripts/qtc_chroot_get_upgrades.py %2 %3";
+
 
 } // namespace Ubuntu
 } // namespace Constants

@@ -25,11 +25,11 @@
 #include <QPushButton>
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/processparameters.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <texteditor/fontsettings.h>
 
 #include "ubuntucreatenewchrootdialog.h"
+#include "clickchrootagent_interface.h"
 
 namespace Ubuntu {
 namespace Internal {
@@ -56,12 +56,9 @@ UbuntuClickDialog::~UbuntuClickDialog()
     delete m_ui;
 }
 
-void UbuntuClickDialog::setParameters(ProjectExplorer::ProcessParameters *params)
+void UbuntuClickDialog::setParameters(const QList<ProjectExplorer::ProcessParameters> &params)
 {
-    params->resolveAll();
-    m_process->setCommand(params->command(),params->arguments());
-    m_process->setEnvironment(params->environment());
-    m_process->setWorkingDirectory(params->workingDirectory());
+    m_tasks = params;
 }
 
 int UbuntuClickDialog::lastExitCode() const
@@ -77,10 +74,15 @@ void UbuntuClickDialog::runClick( )
     m_buttonBox->addButton(QDialogButtonBox::Cancel);
 #endif
     disableCloseButton(true);
-    m_process->start();
+    nextTask();
 }
 
-int UbuntuClickDialog::runClickModal(ProjectExplorer::ProcessParameters *params, QWidget *parent)
+int UbuntuClickDialog::runClickModal(const ProjectExplorer::ProcessParameters &params, QWidget *parent)
+{
+    return runClickModal(QList<ProjectExplorer::ProcessParameters>()<<params,parent);
+}
+
+int UbuntuClickDialog::runClickModal(const QList<ProjectExplorer::ProcessParameters> &params, QWidget *parent)
 {
     UbuntuClickDialog dlg( parent ? parent : Core::ICore::mainWindow());
     dlg.setParameters(params);
@@ -100,7 +102,7 @@ bool UbuntuClickDialog::createClickChrootModal(bool redetectKits, const QString 
     ProjectExplorer::ProcessParameters params;
     UbuntuClickTool::parametersForCreateChroot(t,&params);
 
-    bool success = (runClickModal(&params,parent) == 0);
+    bool success = (runClickModal(params,parent) == 0);
 
     if(success) {
         ClickToolChain* tc = new ClickToolChain(t, ProjectExplorer::ToolChain::AutoDetection);
@@ -115,16 +117,39 @@ bool UbuntuClickDialog::createClickChrootModal(bool redetectKits, const QString 
 
 int UbuntuClickDialog::maintainClickModal(const UbuntuClickTool::Target &target, const UbuntuClickTool::MaintainMode &mode)
 {
-    if(mode == UbuntuClickTool::Delete) {
-        QString title = tr(Constants::UBUNTU_CLICK_DELETE_TITLE);
-        QString text  = tr(Constants::UBUNTU_CLICK_DELETE_MESSAGE);
-        if( QMessageBox::question(Core::ICore::mainWindow(),title,text) != QMessageBox::Yes )
-            return 0;
+    return maintainClickModal(QList<UbuntuClickTool::Target>()<<target,mode);
+}
+
+int UbuntuClickDialog::maintainClickModal(const QList<UbuntuClickTool::Target> &targetList, const UbuntuClickTool::MaintainMode &mode)
+{
+    QList<ProjectExplorer::ProcessParameters> paramList;
+    foreach(const UbuntuClickTool::Target &target, targetList) {
+        if(mode == UbuntuClickTool::Delete) {
+            QString title = tr(Constants::UBUNTU_CLICK_DELETE_TITLE);
+            QString text  = tr(Constants::UBUNTU_CLICK_DELETE_MESSAGE);
+            if( QMessageBox::question(Core::ICore::mainWindow(),title,text) != QMessageBox::Yes )
+                return 0;
+
+            if(UbuntuClickTool::clickChrootSuffix() == QLatin1String(Constants::UBUNTU_CLICK_CHROOT_DEFAULT_NAME)) {
+                ComUbuntuSdkClickChrootAgentInterface clickAgent(QStringLiteral("com.ubuntu.sdk.ClickChrootAgent"),
+                                                                 QStringLiteral("/com/ubuntu/sdk/ClickChrootAgent"),
+                                                                 QDBusConnection::sessionBus());
+                if(clickAgent.isValid()) {
+                    QDBusPendingReply<bool> ret = clickAgent.releaseSession(target.framework,target.architecture);
+                    if(ret.isError())
+                        qDebug()<<ret.error();
+
+                    ret.waitForFinished();
+                }
+            }
+        }
+
+        ProjectExplorer::ProcessParameters params;
+        UbuntuClickTool::parametersForMaintainChroot(mode,target,&params);
+        paramList<<params;
     }
 
-    ProjectExplorer::ProcessParameters params;
-    UbuntuClickTool::parametersForMaintainChroot(mode,target,&params);
-    return runClickModal(&params);
+    return runClickModal(paramList);
 }
 
 void UbuntuClickDialog::done(int code)
@@ -155,8 +180,32 @@ void UbuntuClickDialog::disableCloseButton(const bool &disabled)
     if(bt) bt->setDisabled(disabled);
 }
 
+void UbuntuClickDialog::nextTask()
+{
+    if(m_tasks.length() <= 0)
+        return;
+
+    ProjectExplorer::ProcessParameters params = m_tasks.takeFirst();
+    params.resolveAll();
+    m_process->setCommand(params.command(),params.arguments());
+    m_process->setEnvironment(params.environment());
+    m_process->setWorkingDirectory(params.workingDirectory());
+    m_process->start();
+}
+
 void UbuntuClickDialog::on_clickFinished(int exitCode)
 {
+    if (exitCode != 0) {
+        on_clickReadyReadStandardError(tr("---%0---").arg(QLatin1String(Constants::UBUNTU_CLICK_ERROR_EXIT_MESSAGE)));
+    } else {
+        on_clickReadyReadStandardOutput(tr("---%0---").arg(QLatin1String(Constants::UBUNTU_CLICK_SUCCESS_EXIT_MESSAGE)));
+    }
+
+    if(m_tasks.length() > 0) {
+        nextTask();
+        return;
+    }
+
     disableCloseButton(false);
 #if 0
     //set the button to close again
@@ -164,46 +213,33 @@ void UbuntuClickDialog::on_clickFinished(int exitCode)
     m_buttonBox->addButton(QDialogButtonBox::Close);
 #endif
 
-    if (exitCode != 0) {
-        on_clickReadyReadStandardError(tr("---%0---").arg(QLatin1String(Constants::UBUNTU_CLICK_ERROR_EXIT_MESSAGE)));
-    } else {
-        on_clickReadyReadStandardOutput(tr("---%0---").arg(QLatin1String(Constants::UBUNTU_CLICK_SUCCESS_EXIT_MESSAGE)));
-    }
-
     m_exitCode = exitCode;
 }
 
 void UbuntuClickDialog::on_clickReadyReadStandardOutput(const QString txt)
 {
-    QTextCursor cursor(m_ui->output->document());
-    cursor.movePosition(QTextCursor::End);
-    QTextCharFormat tf;
-
-    QFont font = m_ui->output->font();
-    tf.setFont(font);
-    tf.setForeground(m_ui->output->palette().color(QPalette::Text));
+    QString outText = QString::fromLocal8Bit("<div>");
 
     if(txt.isEmpty())
-        cursor.insertText(QString::fromLocal8Bit(m_process->readAllStandardOutput()), tf);
+        outText.append(QString::fromLocal8Bit(m_process->readAllStandardOutput()));
     else
-        cursor.insertText(txt, tf);
+        outText.append(txt);
+
+    outText.append(QString::fromLocal8Bit("</div>"));
+    m_ui->output->append(outText);
 }
 
 void UbuntuClickDialog::on_clickReadyReadStandardError(const QString txt)
 {
-    QTextCursor cursor(m_ui->output->document());
-    QTextCharFormat tf;
-
-    QFont font = m_ui->output->font();
-    QFont boldFont = font;
-    boldFont.setBold(true);
-    tf.setFont(boldFont);
-    tf.setForeground(QColor(Qt::red));
+    QString outText = QString::fromLocal8Bit("<div style=\"color:red; font-weight: bold;\">");
 
     if(txt.isEmpty())
-        cursor.insertText(QString::fromLocal8Bit(m_process->readAllStandardError()), tf);
+        outText.append(QString::fromLocal8Bit(m_process->readAllStandardError()));
     else
-        cursor.insertText(txt, tf);
+        outText.append(txt);
+
+    outText.append(QString::fromLocal8Bit("</div>"));
+    m_ui->output->append(outText);
 }
 
 } // namespace Internal

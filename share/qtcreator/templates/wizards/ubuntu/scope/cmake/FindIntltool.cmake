@@ -130,7 +130,8 @@ function(INTLTOOL_UPDATE_POTFILE)
     )
 
     add_custom_command(
-        OUTPUT "${_POT_FILE}"
+        OUTPUT
+          "${_PO_DIRECTORY}/${_POT_FILE}"
         COMMAND ${INTLTOOL_UPDATE_EXECUTABLE} --pot ${_OUTPUT_FILE} ${_GETTEXT_PACKAGE}
         DEPENDS
           "${_PO_DIRECTORY}/POTFILES.in"
@@ -145,13 +146,13 @@ function(INTLTOOL_UPDATE_POTFILE)
           ${_UNIQUE_TARGET_NAME}
           ALL
           DEPENDS
-            ${_POT_FILE}
+            "${_PO_DIRECTORY}/${_POT_FILE}"
         )
     else()
         add_custom_target(
           ${_UNIQUE_TARGET_NAME}
           DEPENDS
-            ${_POT_FILE}
+            "${_PO_DIRECTORY}/${_POT_FILE}"
         )
     endif()
 endfunction()

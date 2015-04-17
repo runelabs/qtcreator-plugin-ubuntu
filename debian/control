@@ -7,6 +7,7 @@ Build-Depends: debhelper (>= 9),
                libqt5scripttools5 (>= 5.3),
                libqt5webkit5-dev,
                libqt5widgets5 (>= 5.3),
+               libqt5dbus5 (>= 5.3),
                libsqlite3-dev,
                qt5-qmake (>= 5.3),
                qtcreator-dev (>= 3.1.1-0ubuntu7),
@@ -51,6 +52,7 @@ Depends: android-tools-adb,
          gdb-multiarch,
          click-reviewers-tools,
          phablet-tools,
+         python-dbus,
          ${shlibs:Depends},
          ${misc:Depends},
 Recommends: ubuntu-sdk,
@@ -72,7 +74,7 @@ Recommends: ubuntu-sdk,
             qtcreator-plugin-go,
             ubuntu-emulator
 Description: Ubuntu plugin for Qt Creator IDE
- Qt Creator is a new, lightweight, cross-platform integrated development
+ Qt Creator is a lightweight, cross-platform integrated development
  environment (IDE) designed to make development with the Qt application
  framework even faster and easier.
  .
@@ -83,17 +85,26 @@ Description: Ubuntu plugin for Qt Creator IDE
 
 Package: qtcreator-plugin-ubuntu-common
 Architecture: all
-Depends: ${misc:Depends},
+Depends: ubuntu-sdk-qmake-extras,
+         ${misc:Depends},
 Recommends: qtcreator-plugin-ubuntu
 Replaces: qtcreator-plugin-ubuntu (<= 2.7.1-0ubuntu4),
 Conflicts: qtcreator-plugin-ubuntu (<= 2.7.1-0ubuntu4),
 Description: Common data files for the Ubuntu plugin for Qt Creator IDE
- Qt Creator is a new, lightweight, cross-platform integrated development
+ Qt Creator is a lightweight, cross-platform integrated development
  environment (IDE) designed to make development with the Qt application
  framework even faster and easier.
  .
  This package contains the runtime data files for the Ubuntu plugin for
  Qt Creator IDE.
+
+Package: ubuntu-sdk-qmake-extras
+Architecture: any
+Depends: ${misc:Depends},
+Description: Extra qmake features required by the Ubuntu-SDK templates,
+ extends qmake projects with Ubuntu specific variables and tools
+ .
+ This package contains qmake feature files for the Ubuntu-SDK
 
 Package: qtcreator-plugin-ubuntu-autopilot
 Architecture: any

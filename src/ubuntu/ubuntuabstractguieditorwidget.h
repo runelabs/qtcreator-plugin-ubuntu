@@ -69,6 +69,8 @@ public:
 
     TextEditor::PlainTextEditorWidget *textEditorWidget() const;
 
+    virtual void saved ();
+
 protected slots:
     void setDirty ();
     void createUI ();

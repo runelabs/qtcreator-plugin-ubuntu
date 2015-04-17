@@ -40,6 +40,10 @@ UbuntuSettingsClickWidget::UbuntuSettingsClickWidget(QWidget *parent) :
     ui->setupUi(this);
 
     m_settings = new QSettings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
+    m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_CLICK));
+    ui->enableUpdateCheckerCheckBox->setChecked(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_AUTO_CHECK_CHROOT_UPDATES),true).toBool());
+    ui->checkBoxLocalMirror->setChecked(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_CHROOT_USE_LOCAL_MIRROR),false).toBool());
+    m_settings->endGroup();
 
     m_deleteMapper = new QSignalMapper(this);
     connect(m_deleteMapper, SIGNAL(mapped(int)),this, SLOT(on_deleteClickChroot(int)));
@@ -51,10 +55,22 @@ UbuntuSettingsClickWidget::UbuntuSettingsClickWidget(QWidget *parent) :
     QStringList headers;
     headers << tr("Series")<< tr("Framework") << tr("Architecture")<<QLatin1String("")<<QLatin1String("")<<QLatin1String("");
     ui->treeWidgetClickTargets->setHeaderLabels(headers);
+    ui->treeWidgetClickTargets->header()->setResizeMode(0, QHeaderView::ResizeToContents);
+    ui->treeWidgetClickTargets->header()->setResizeMode(1, QHeaderView::Stretch);
+    ui->treeWidgetClickTargets->header()->setResizeMode(2, QHeaderView::ResizeToContents);
+    ui->treeWidgetClickTargets->header()->setResizeMode(3, QHeaderView::ResizeToContents);
+    ui->treeWidgetClickTargets->header()->setResizeMode(4, QHeaderView::ResizeToContents);
+    ui->treeWidgetClickTargets->header()->setResizeMode(5, QHeaderView::ResizeToContents);
     listExistingClickTargets();
 }
 
 void UbuntuSettingsClickWidget::apply() {
+
+    m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_CLICK));
+    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_AUTO_CHECK_CHROOT_UPDATES),ui->enableUpdateCheckerCheckBox->checkState() == Qt::Checked);
+    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_CHROOT_USE_LOCAL_MIRROR),ui->checkBoxLocalMirror->checkState() == Qt::Checked);
+    m_settings->endGroup();
+
     m_settings->sync();
 }
 
@@ -65,8 +81,11 @@ UbuntuSettingsClickWidget::~UbuntuSettingsClickWidget()
 
 void UbuntuSettingsClickWidget::on_pushButtonCreateClickTarget_clicked()
 {
-   QString dummy;
-   Internal::UbuntuClickDialog::createClickChrootModal(true, dummy, this);
+    //make sure the current settings are stored
+    apply();
+
+    QString dummy;
+    Internal::UbuntuClickDialog::createClickChrootModal(true, dummy, this);
     listExistingClickTargets();
 }
 

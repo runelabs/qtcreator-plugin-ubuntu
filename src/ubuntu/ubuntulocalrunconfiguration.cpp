@@ -38,7 +38,7 @@
 using namespace Ubuntu::Internal;
 
 enum {
-    debug = 0
+    debug = 1
 };
 
 UbuntuLocalRunConfiguration::UbuntuLocalRunConfiguration(ProjectExplorer::Target *parent, Core::Id id)
@@ -231,9 +231,10 @@ QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfigur
 
     //read the manifest
     UbuntuClickManifest manifest;
-    if(!manifest.load(manifestPath)) {
+    QString manifestErrMsg;
+    if(!manifest.load(manifestPath,nullptr,&manifestErrMsg)) {
         if(errorMessage)
-            *errorMessage = tr("Could not open the manifest file in the package directory, make sure its installed into the root of the click package.");
+            *errorMessage = tr("Could not open the manifest file in the package directory: %1.").arg(manifestErrMsg);
 
         return QString();
     }
@@ -459,20 +460,17 @@ void UbuntuLocalRunConfiguration::addToBaseEnvironment(Utils::Environment &env) 
 
     //lambda checks if the executable is in a qmldir and add its to QML2_IMPORT_PATH if
     //required
-    auto loc_addToImportPath = [&usedPaths,&env] (const QString &executable) {
-        if(debug) qDebug()<<"Looking at executable "<<executable;
-        QFileInfo inf(executable);
-        if(inf.exists()) {
-            QDir d = inf.absoluteDir();
-            if(debug) qDebug()<<"Looking in the dir: "<<d.absolutePath();
-            if(d.exists(QLatin1String("qmldir"))) {
-                QString path = QDir::cleanPath(d.absolutePath()+QDir::separator()+QLatin1String(".."));
-                if(usedPaths.contains(path))
-                    return;
+    auto loc_addToImportPath = [&usedPaths,&env] (const QString &loc_executable) {
+        QDir d = QFileInfo(loc_executable).absoluteDir();
+        if(debug) qDebug()<<"Looking in the dir: "<<d.absolutePath()<<loc_executable;
+        if(d.exists(QLatin1String("qmldir"))) {
+            QString path = QDir::cleanPath(d.absolutePath()+QDir::separator()+QLatin1String(".."));
+            if(usedPaths.contains(path))
+                return;
 
-                env.appendOrSet(QStringLiteral("QML2_IMPORT_PATH"),path,QStringLiteral(":"));
-                usedPaths.insert(path);
-            }
+            if(debug) qDebug()<<"Adding"<<path<<"to QML2_IMPORT_PATH";
+            env.appendOrSet(QStringLiteral("QML2_IMPORT_PATH"),path,QStringLiteral(":"));
+            usedPaths.insert(path);
         }
     };
 
@@ -486,7 +484,12 @@ void UbuntuLocalRunConfiguration::addToBaseEnvironment(Utils::Environment &env) 
             }
         } else if (target()->project()->id() == QmakeProjectManager::Constants::QMAKEPROJECT_ID) {
             QmakeProjectManager::QmakeProject* pro = static_cast<QmakeProjectManager::QmakeProject*> (target()->project());
-            foreach(const QmakeProjectManager::QmakeProFileNode* applPro, pro->applicationProFiles()) {
+            foreach(const QmakeProjectManager::QmakeProFileNode* applPro, pro->allProFiles()) {
+                if(applPro->projectType() != QmakeProjectManager::ApplicationTemplate &&
+                        applPro->projectType() != QmakeProjectManager::LibraryTemplate) {
+                    continue;
+                }
+
                 QmakeProjectManager::TargetInformation info = applPro->targetInformation();
                 if(applPro->targetInformation().valid)
                     loc_addToImportPath(info.buildDir + QDir::separator() + info.target);

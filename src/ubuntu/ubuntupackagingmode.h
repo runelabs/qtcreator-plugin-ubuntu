@@ -20,14 +20,17 @@
 #define UBUNTUPACKAGINGMODE_H
 
 #include <coreplugin/imode.h>
-#include "ubuntupackagingwidget.h"
+#include "ubuntupackagingmodel.h"
 #include <QObject>
 #include <projectexplorer/project.h>
+
+class QQuickView;
 
 namespace Ubuntu {
 namespace Internal {
 
 class UbuntuClickManifest;
+class UbuntuPackagingModel;
 
 class UbuntuPackagingMode : public Core::IMode
 {
@@ -45,12 +48,12 @@ protected slots:
 
 protected:
     QWidget* m_modeWidget;
-    UbuntuPackagingWidget m_ubuntuPackagingWidget;
-
     Core::Id previousMode;
 
 private:
     static UbuntuPackagingMode* m_instance;
+    QQuickView *m_modeView;
+    UbuntuPackagingModel *m_viewModel;
 };
 
 }

@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wizard version="1" kind="project" firstpage="10" id="UbuntuUnityScope" category="A.UbuntuProject"
+<wizard version="1" kind="project" firstpage="10" id="C_UbuntuUnityScope" category="A.UbuntuProject"
         platformIndependent="true" 
         class="ubuntu-project-cmake"
         featuresRequired=""
         >
     <icon>../share/ubuntu.png</icon>
     <description>A simple C++ based Unity Scope</description>
-    <displayname>Unity Scope</displayname>
+    <displayname>Unity Scope (cmake)</displayname>
     <displaycategory>Ubuntu</displaycategory>
     <files>
         <file source="cmake/FindGMock.cmake"/>
         <file source="cmake/FindIntltool.cmake"/>
 
         <file source="data/CMakeLists.txt"/>
-        <file source="data/displayName.ini.in" target="data/%ClickDomain:l%.%ProjectName:l%_%ClickHookName:l%.ini.in"/>
+        <file source="data/displayName.ini.in" target="data/%ProjectName:l%.%ClickDomain:l%_%ClickHookName:l%.ini.in"/>
         <file source="data/icon.png" binary="true"/>
         <file source="data/logo.png" binary="true"/>
         <file source="data/screenshot.png" binary="true"/>
@@ -58,11 +58,11 @@
     <!-- Create a 2nd wizard page with click package parameters -->
     <fieldpagetitle>Click package parameters</fieldpagetitle>
     <fields>
-        <field mandatory="true" name="ClickDomain">
-            <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
-                            defaulttext="" placeholdertext="Domain"/>
-            <fielddescription>Domain:</fielddescription>
-        </field>
+			<field mandatory="true" name="ClickDomain">
+			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9-]+$'
+			                defaulttext="" placeholdertext="Nickname"/>
+			  <fielddescription>Nickname:</fielddescription>
+			</field>
         <field mandatory="true" name="ClickMaintainer">
             <fieldcontrol class="QLineEdit" validator='^[^"]+$'
                             defaulttext="" placeholdertext="Maintainer"/>

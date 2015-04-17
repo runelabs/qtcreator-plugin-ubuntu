@@ -23,3 +23,4 @@ device_image_hardware
 device_image_version
 #adb_shell uname -p|sed 's/v7l/hf/'
 adb_shell 'dpkg --print-architecture 2>/dev/null '
+adb_shell click framework list|sort -n|egrep "^ubuntu-sdk-[0-9]{2}\.[0-9]{2}[[:space:]]$"|tail -1

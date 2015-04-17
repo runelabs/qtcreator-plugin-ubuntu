@@ -1,9 +1,12 @@
-QT += network qml quick webkitwidgets script scripttools
+QT += network qml quick webkitwidgets script scripttools dbus
 
 include(../plugin.pri)
 
+QMAKE_CXXFLAGS_RELEASE -= -O2
+QMAKE_CXXFLAGS_RELEASE += -O1
+
 QMAKE_CXXFLAGS += -Werror
-CONFIG += c++11
+CONFIG += c++11 dbusinterfaces
 
 #####################################
 # required for Ubuntu Device Notifier
@@ -26,34 +29,17 @@ FORMS += \
     ubuntupackagestepconfigwidget.ui \
     ubuntumanifesteditor.ui \
     ubuntuapparmoreditor.ui \
-    ubunturemoterunconfigurationwidget.ui
+    ubunturemoterunconfigurationwidget.ui \
+    targetupgrademanagerdialog.ui
 
 RESOURCES += \
     resources.qrc
-
-#QML files
-QML_ROOT="$${PWD}/../../share/qtcreator/ubuntu"
-QML_FILES += \
-    $$QML_ROOT/welcome/welcome.qml \
-    $$QML_ROOT/welcome/Link.qml \
-    $$QML_ROOT/welcome/NewsBox.qml\
-    $$QML_ROOT/devicespage/main.qml \
-    $$QML_ROOT/devicespage/DevicePage.qml  \
-    $$QML_ROOT/devicespage/DeviceStatusTab.qml  \
-    $$QML_ROOT/devicespage/FeatureStateItem.qml  \
-    $$QML_ROOT/devicespage/NewEmulatorDialog.qml \
-    $$QML_ROOT/devicespage/DeleteDeviceDialog.qml \
-    $$QML_ROOT/devicespage/ScrollableView.qml \
-    $$QML_ROOT/devicespage/SectionItem.qml \
-    $$QML_ROOT/devicespage/EmulatorNotInstalled.qml
 
 OTHER_FILES += \
     UbuntuProject.mimetypes.xml \
     manifest.json.template \
     myapp.json.template \
-    manifestlib.js \
-    $${PWD}/../../share/qtcreator/ubuntu/scripts/*.py \
-    $$QML_FILES
+    manifestlib.js
 
 SOURCES += \
     ubuntuplugin.cpp \
@@ -72,7 +58,6 @@ SOURCES += \
     ubuntucoreappsmode.cpp \
     ubuntuwikimode.cpp \
     ubuntupackagingmode.cpp \
-    ubuntupackagingwidget.cpp \
     ubuntubzr.cpp \
     ubuntuclickmanifest.cpp \
     ubuntuwebmode.cpp \
@@ -135,7 +120,11 @@ SOURCES += \
     ubuntutestcontrol.cpp \
     ubuntupackageoutputparser.cpp \
     ubuntuprojecthelper.cpp \
-    wizards/ubuntuprojectmigrationwizard.cpp
+    wizards/ubuntuprojectmigrationwizard.cpp \
+    targetupgrademanager.cpp \
+    ubuntupackagingmodel.cpp \
+    ubuntufixmanifeststep.cpp \
+    wizards/ubuntufatpackagingwizard.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -157,7 +146,6 @@ HEADERS += \
     ubuntucoreappsmode.h \
     ubuntuwikimode.h \
     ubuntupackagingmode.h \
-    ubuntupackagingwidget.h \
     ubuntubzr.h \
     ubuntuclickmanifest.h \
     ubuntuwebmode.h \
@@ -220,5 +208,17 @@ HEADERS += \
     ubuntupackageoutputparser.h \
     ubuntuprojecthelper.h \
     ubuntuscopefinalizer.h \
-    wizards/ubuntuprojectmigrationwizard.h
+    wizards/ubuntuprojectmigrationwizard.h \
+    targetupgrademanager.h \
+    ubuntupackagingmodel.h \
+    ubuntufixmanifeststep.h \
+    wizards/ubuntufatpackagingwizard.h
 
+INCLUDEPATH+=$$OUT_PWD
+
+xml_desc.target=com.ubuntu.sdk.ClickChrootAgent.xml
+xml_desc.commands=qdbuscpp2xml -o $$xml_desc.target $$PWD/../../chroot-agent/chrootagent.h
+xml_desc.depends=$$PWD/../../chroot-agent/chrootagent.h
+QMAKE_EXTRA_TARGETS+=xml_desc
+
+DBUS_INTERFACES += $$xml_desc.target

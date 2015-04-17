@@ -1,5 +1,5 @@
 {
-    "name": "com.ubuntu.developer.username.myapp",
+    "name": "myapp.username",
     "description": "description of myapp",
     "framework": "myFramework",
     "architecture": "all",

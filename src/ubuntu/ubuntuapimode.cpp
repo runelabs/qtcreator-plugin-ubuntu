@@ -149,5 +149,4 @@ QUrl UbuntuAPIMode::defaultUrl() const
     }
 
     return QUrl::fromUserInput(QLatin1String(Ubuntu::Constants::UBUNTU_API_ONLINE));
-
 }

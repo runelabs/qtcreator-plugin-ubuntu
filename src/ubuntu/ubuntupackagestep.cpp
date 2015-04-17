@@ -46,7 +46,9 @@ UbuntuPackageStep::UbuntuPackageStep(ProjectExplorer::BuildStepList *bsl) :
     m_futureInterface(0),
     m_process(0),
     m_outputParserChain(0),
-    m_packageMode(EnableDebugScript)
+    m_debugMode(EnableDebugScript),
+    m_packageMode(Default),
+    m_cleanDeployDirectory(true)
 {
     setDefaultDisplayName(tr("UbuntuSDK Click build"));
 }
@@ -57,7 +59,9 @@ UbuntuPackageStep::UbuntuPackageStep(ProjectExplorer::BuildStepList *bsl, Ubuntu
     m_futureInterface(0),
     m_process(0),
     m_outputParserChain(0),
-    m_packageMode(other->m_packageMode)
+    m_debugMode(other->m_debugMode),
+    m_packageMode(other->m_packageMode),
+    m_cleanDeployDirectory(other->m_cleanDeployDirectory)
 {
 
 }
@@ -72,7 +76,8 @@ bool UbuntuPackageStep::init()
     m_tasks.clear();
 
     QString projectDir = target()->project()->projectDirectory();
-    QString deployDir;
+    m_buildDir.clear();
+    m_deployDir.clear();
     Utils::Environment env = Utils::Environment::systemEnvironment();
     Utils::AbstractMacroExpander *mExp = 0;
 
@@ -80,10 +85,10 @@ bool UbuntuPackageStep::init()
     bool isQMake  = target()->project()->id() == QmakeProjectManager::Constants::QMAKEPROJECT_ID;
 
     {
-        ProjectExplorer::BuildConfiguration *bc = target()->activeBuildConfiguration();
+        ProjectExplorer::BuildConfiguration *bc = referenceBuildConfig();
         if(bc) {
             m_buildDir  = bc->buildDirectory().toString();
-            deployDir = bc->buildDirectory().toString()
+            m_deployDir = bc->buildDirectory().toString()
                     + QDir::separator()
                     + QString::fromLatin1(Constants::UBUNTU_DEPLOY_DESTDIR);
             env = bc->environment();
@@ -108,7 +113,7 @@ bool UbuntuPackageStep::init()
                 m_buildDir = QDir::cleanPath(target()->project()->projectDirectory()
                                              +QDir::separator()+QStringLiteral("..")
                                              +QDir::separator()+pDir.dirName()+QStringLiteral("_build"));
-                deployDir = m_buildDir+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR);
+                m_deployDir = m_buildDir+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR);
 
                 //clean up the old "build"
                 QDir bd(m_buildDir);
@@ -116,6 +121,10 @@ bool UbuntuPackageStep::init()
                     bd.mkdir(m_buildDir);
             }
         }
+
+        if (!m_overrideDeployDir.isEmpty())
+            m_deployDir = m_overrideDeployDir;
+
     }
 
     //build the make process arguments
@@ -124,10 +133,10 @@ bool UbuntuPackageStep::init()
             QStringList arguments;
 
             if(isCMake) {
-                arguments << QStringLiteral("DESTDIR=%1").arg(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                arguments << QStringLiteral("DESTDIR=%1").arg(m_deployDir)
                           << QStringLiteral("install");
             } else {
-                arguments << QStringLiteral("INSTALL_ROOT=%1").arg(m_buildDir + QDir::separator() + QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                arguments << QStringLiteral("INSTALL_ROOT=%1").arg(m_deployDir)
                           << QStringLiteral("install");
             }
 
@@ -166,7 +175,11 @@ bool UbuntuPackageStep::init()
                       << QString(QStringLiteral("--exclude-from=%1")).arg(projectDir+QDir::separator()+QStringLiteral(".excludes"));
 
             arguments << projectDir+QDir::separator()
-                      << deployDir;
+                      << m_buildDir
+                         + QDir::separator()
+                         + QString::fromLatin1(Constants::UBUNTU_CLICK_QML_BUILD_TRANSL_DIR)
+                         + QDir::separator()
+                      << m_deployDir;
 
             ProjectExplorer::ProcessParameters* params = &m_MakeParam;
             params->setMacroExpander(mExp);
@@ -192,13 +205,13 @@ bool UbuntuPackageStep::init()
         QStringList arguments;
         arguments << QStringLiteral("build")
                   << QStringLiteral("--no-validate")
-                  << deployDir;
+                  << m_deployDir;
 
         ProjectExplorer::ProcessParameters* params = &m_ClickParam;
         params->setMacroExpander(mExp);
 
         //setup process parameters
-        params->setWorkingDirectory(m_buildDir);
+        params->setWorkingDirectory(clickWorkingDir());
         params->setCommand(QLatin1String("click"));
         params->setArguments(Utils::QtcProcess::joinArgs(arguments));
 
@@ -217,7 +230,7 @@ bool UbuntuPackageStep::init()
         params->setMacroExpander(mExp);
 
         //setup process parameters
-        params->setWorkingDirectory(m_buildDir);
+        params->setWorkingDirectory(clickWorkingDir());
         params->setCommand(QLatin1String(Constants::CLICK_REVIEWERSTOOLS_BINARY));
 
         Utils::Environment tmpEnv = env;
@@ -271,7 +284,7 @@ bool UbuntuPackageStep::fromMap(const QVariantMap &map)
         return false;
 
 
-    setPackageMode(AutoEnableDebugScript);
+    setDebugMode(AutoEnableDebugScript);
     if (map.contains(QLatin1String(PACKAGE_MODE_KEY))) {
         int mode = map[QLatin1String(PACKAGE_MODE_KEY)].toInt();
 
@@ -280,7 +293,7 @@ bool UbuntuPackageStep::fromMap(const QVariantMap &map)
             mode = EnableDebugScript;
 
         if(mode >= AutoEnableDebugScript && mode <= DisableDebugScript)
-            setPackageMode(static_cast<PackageMode>(mode));
+            setDebugMode(static_cast<DebugMode>(mode));
     }
     return true;
 }
@@ -291,7 +304,7 @@ QVariantMap UbuntuPackageStep::toMap() const
     if(map.isEmpty())
         return map;
 
-    map.insert(QLatin1String(PACKAGE_MODE_KEY),static_cast<int>(m_packageMode));
+    map.insert(QLatin1String(PACKAGE_MODE_KEY),static_cast<int>(m_debugMode));
     return map;
 }
 
@@ -299,20 +312,20 @@ QString UbuntuPackageStep::packagePath() const
 {
     if(m_clickPackageName.isEmpty())
         return QString();
-    return m_buildDir
+    return clickWorkingDir()
             + QDir::separator()
             + m_clickPackageName;
 }
 
-UbuntuPackageStep::PackageMode UbuntuPackageStep::packageMode() const
+UbuntuPackageStep::DebugMode UbuntuPackageStep::debugMode() const
 {
-    return m_packageMode;
+    return m_debugMode;
 }
 
-void UbuntuPackageStep::setPackageMode(UbuntuPackageStep::PackageMode arg)
+void UbuntuPackageStep::setDebugMode(UbuntuPackageStep::DebugMode arg)
 {
-    if (m_packageMode != arg) {
-        m_packageMode = arg;
+    if (m_debugMode != arg) {
+        m_debugMode = arg;
         emit packageModeChanged(arg);
     }
 }
@@ -501,7 +514,7 @@ QString UbuntuPackageStep::makeCommand(ProjectExplorer::ToolChain *tc, const Uti
  */
 void UbuntuPackageStep::injectDebugHelperStep()
 {
-    ProjectExplorer::BuildConfiguration *bc = target()->activeBuildConfiguration();
+    ProjectExplorer::BuildConfiguration *bc = referenceBuildConfig();
 
     if(!bc) {
         QTimer::singleShot(0,this,SLOT(doNextStep()));
@@ -509,7 +522,7 @@ void UbuntuPackageStep::injectDebugHelperStep()
     }
 
     bool ubuntuDevice = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(bc->target()->kit()).toString().startsWith(QLatin1String(Constants::UBUNTU_DEVICE_TYPE_ID));
-    bool injectDebugScript = (m_packageMode == EnableDebugScript || m_packageMode == AutoEnableDebugScript);
+    bool injectDebugScript = (m_debugMode == EnableDebugScript || m_debugMode == AutoEnableDebugScript);
 
     //debughelper script name, source and destination path
     const QString debScript = QStringLiteral("qtc_device_debughelper.py");
@@ -519,15 +532,25 @@ void UbuntuPackageStep::injectDebugHelperStep()
         QRegularExpression deskExecRegex(QStringLiteral("^(\\s*[Ee][Xx][Ee][cC]=.*)$"),QRegularExpression::MultilineOption);
 
         UbuntuClickManifest manifest;
-        if(!manifest.load(bc->buildDirectory()
-                          .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
-                          .appendPath(QStringLiteral("manifest.json"))
-                          .toString())) {
+        QString err;
+        QString manifestFileName = Utils::FileName::fromString(m_deployDir)
+                .appendPath(QStringLiteral("manifest.json")).toString();
 
+        if(!QFile::exists(manifestFileName)) {
             emit addOutput(tr("Could not find the manifest.json file in %1.\nPlease check if it is added to the install targets in your project file")
-                           .arg(bc->buildDirectory()
-                                .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
-                                .toString()),
+                           .arg(m_deployDir),
+                           BuildStep::ErrorMessageOutput);
+
+            m_futureInterface->reportResult(false);
+            cleanup();
+            emit finished();
+            return;
+        }
+
+        if(!manifest.load(manifestFileName,nullptr,&err)) {
+            emit addOutput(tr("Could not open the manifest.json file in %1.\n %2")
+                           .arg(m_deployDir)
+                           .arg(err),
                            BuildStep::ErrorMessageOutput);
 
             m_futureInterface->reportResult(false);
@@ -540,8 +563,7 @@ void UbuntuPackageStep::injectDebugHelperStep()
         foreach ( const UbuntuClickManifest::Hook &hook, hooks) {
 
             UbuntuClickManifest appArmor;
-            if (!appArmor.load(bc->buildDirectory()
-                               .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+            if (!appArmor.load(Utils::FileName::fromString(m_deployDir)
                                .appendPath(hook.appArmorFile)
                                .toString())) {
                 qWarning()<<"Could not open the apparmor file for: "<<hook.appId;
@@ -550,14 +572,12 @@ void UbuntuPackageStep::injectDebugHelperStep()
 
             if (hook.desktopFile.isEmpty() && !hook.scope.isEmpty()) {
                 //this is a scope hook
-                const QString iniFilePath(bc->buildDirectory()
-                                          .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                const QString iniFilePath(Utils::FileName::fromString(m_deployDir)
                                           .appendPath(hook.scope)
                                           .appendPath(manifest.name()+QStringLiteral("_")+hook.appId+QStringLiteral(".ini"))
                                           .toString());
 
-                const QString debTargetPath = bc->buildDirectory()
-                        .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                const QString debTargetPath = Utils::FileName::fromString(m_deployDir)
                         .appendPath(hook.scope)
                         .appendPath(debScript).toString();
 
@@ -631,8 +651,7 @@ void UbuntuPackageStep::injectDebugHelperStep()
 
             } else if(!hook.desktopFile.isEmpty() && hook.scope.isEmpty()){
 
-                const QString debTargetPath = bc->buildDirectory()
-                        .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                const QString debTargetPath = Utils::FileName::fromString(m_deployDir)
                         .appendPath(debScript).toString();
 
                 //make sure there is no old script in case we don't want to package it
@@ -649,8 +668,7 @@ void UbuntuPackageStep::injectDebugHelperStep()
                 //inject the debug helper into the Exec line in the desktop file
                 //@BUG if there are env vars set in the Exec line (Var=something command) this will fail
 
-                QFile deskFileFd(bc->buildDirectory()
-                                 .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))
+                QFile deskFileFd(Utils::FileName::fromString(m_deployDir)
                                  .appendPath(hook.desktopFile)
                                  .toString());
 
@@ -689,7 +707,7 @@ void UbuntuPackageStep::injectDebugHelperStep()
                 continue;
             }
 
-            //if(target()->activeBuildConfiguration()->buildType() == ProjectExplorer::BuildConfiguration::Debug) {
+            //if(buildConfiguration()->buildType() == ProjectExplorer::BuildConfiguration::Debug) {
                 //enable debugging in the apparmor file, this will inject the debug policy
                 if (!appArmor.enableDebugging())
                     qWarning() <<"Could not inject debug policy, debugging with gdb will not work";
@@ -708,13 +726,41 @@ void UbuntuPackageStep::doNextStep()
         case Idle: {
             m_futureInterface->setProgressValueAndText(0,tr("Make install"));
 
-            m_state = MakeInstall;
-            setupAndStartProcess(m_MakeParam);
+            switch (m_packageMode) {
+                case OnlyClickBuild:
+                    m_state = PreparePackage;
+                    doNextStep();
+                    return;
+                case Default:
+                case OnlyMakeInstall:
+                    m_state = MakeInstall;
+
+                    if (m_cleanDeployDirectory &&
+                            //paranoid double check
+                            m_deployDir.endsWith(QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))) {
+                        //make sure we always use a clean deploy dir
+                        QDir deplDir(m_deployDir);
+                        if(deplDir.exists())
+                            deplDir.removeRecursively();
+                    }
+
+                    setupAndStartProcess(m_MakeParam);
+                    break;
+            }
             break;
         }
         case MakeInstall: {
             if (!processFinished())
                 return;
+
+            if (m_packageMode == OnlyMakeInstall) {
+
+                m_futureInterface->reportResult(true);
+                cleanup();
+                emit finished();
+
+                return;
+            }
 
             m_futureInterface->setProgressValueAndText(1,tr("Preparing click package tree"));
             m_state = PreparePackage;
@@ -740,7 +786,7 @@ void UbuntuPackageStep::doNextStep()
             QRegularExpressionMatch m = exp.match(m_lastLine);
             if(m.hasMatch()) {
                 m_clickPackageName = m.captured(1);
-                emit addOutput(tr("The click package has been created in %1").arg(m_buildDir) ,
+                emit addOutput(tr("The click package has been created in %1").arg(clickWorkingDir()) ,
                                ProjectExplorer::BuildStep::MessageOutput);
             }
 
@@ -815,6 +861,67 @@ void UbuntuPackageStep::taskAdded(const ProjectExplorer::Task &task)
 {
     emit addTask(task);
 }
+bool UbuntuPackageStep::cleanDeployDirectory() const
+{
+    return m_cleanDeployDirectory;
+}
+
+void UbuntuPackageStep::setCleanDeployDirectory(bool cleanDeployDirectory)
+{
+    m_cleanDeployDirectory = cleanDeployDirectory;
+}
+
+ProjectExplorer::BuildConfiguration *UbuntuPackageStep::referenceBuildConfig() const
+{
+    if(m_referenceBuildConfig)
+        return m_referenceBuildConfig.data();
+
+    return target()->activeBuildConfiguration();
+}
+
+void UbuntuPackageStep::setReferenceBuildConfig(ProjectExplorer::BuildConfiguration *referenceBuildConfig)
+{
+    m_referenceBuildConfig = referenceBuildConfig;
+}
+
+QString UbuntuPackageStep::overrideClickWorkingDir() const
+{
+    return m_overrideClickWorkingDir;
+}
+
+void UbuntuPackageStep::setOverrideClickWorkingDir(const QString &overrideClickWorkingDir)
+{
+    m_overrideClickWorkingDir = overrideClickWorkingDir;
+}
+
+QString UbuntuPackageStep::clickWorkingDir() const
+{
+    if (!m_overrideClickWorkingDir.isEmpty())
+        return m_overrideClickWorkingDir;
+    return m_buildDir;
+}
+
+QString UbuntuPackageStep::overrideInstallDir() const
+{
+    return m_overrideDeployDir;
+}
+
+void UbuntuPackageStep::setOverrideDeployDir(const QString &overrideInstallDir)
+{
+    m_overrideDeployDir = overrideInstallDir;
+}
+
+
+UbuntuPackageStep::PackageMode UbuntuPackageStep::packageMode() const
+{
+    return m_packageMode;
+}
+
+void UbuntuPackageStep::setPackageMode(const UbuntuPackageStep::PackageMode &packageMode)
+{
+    m_packageMode = packageMode;
+}
+
 
 UbuntuPackageStepConfigWidget::UbuntuPackageStepConfigWidget(UbuntuPackageStep *step) :
     SimpleBuildStepConfigWidget(step),
@@ -845,7 +952,7 @@ void UbuntuPackageStepConfigWidget::updateMode()
     if (m_isUpdating)
         return;
 
-    int mode = static_cast<UbuntuPackageStep*>(step())->packageMode();
+    int mode = static_cast<UbuntuPackageStep*>(step())->debugMode();
     int idx = ui->comboBoxMode->findData(mode);
 
     if(idx >= 0) {
@@ -863,7 +970,7 @@ void UbuntuPackageStepConfigWidget::onModeSelected(const int index)
     int mode = ui->comboBoxMode->itemData(index).toInt();
     if ( mode >= UbuntuPackageStep::AutoEnableDebugScript && mode <= UbuntuPackageStep::DisableDebugScript ) {
         m_isUpdating = true;
-        static_cast<UbuntuPackageStep*>(step())->setPackageMode(static_cast<UbuntuPackageStep::PackageMode>(mode));
+        static_cast<UbuntuPackageStep*>(step())->setDebugMode(static_cast<UbuntuPackageStep::DebugMode>(mode));
         m_isUpdating = false;
     }
 

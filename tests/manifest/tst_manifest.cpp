@@ -68,7 +68,7 @@ void UbuntuManifestTest::testWriteAppArmorName()
 void UbuntuManifestTest::testWriteName()
 {
     testWriteStringValue(
-                QString("com.ubuntu.developer.name"),
+                QString("name"),
                 &UbuntuClickManifest::setName,
                 &UbuntuClickManifest::name);
 }

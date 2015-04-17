@@ -126,6 +126,8 @@ public:
     enum ProcessState {
         NotStarted,
         WaitForEmulatorStart,
+        WaitForBootAdbAccess,
+        WaitForBootDeviceLock,
         WaitForBoot,
         DetectDeviceVersion,
         DetectNetworkConnection,
@@ -179,6 +181,7 @@ public:
     QString productInfo() const;
     QString imageName() const;
     QString architecture() const;
+    QString framework() const;
 
     void setEmulatorInfo (const QString &ubuntuVersion, const QString &deviceVersion, const QString &imageVersion);
     QString ubuntuVersion() const;
@@ -229,13 +232,13 @@ private:
     QString         m_deviceInfo;
     QString         m_modelInfo;
     QString         m_productInfo;
-    QString         m_architecture;
     QString         m_emulatorSerial;
     QString         m_ubuntuVersion;
     QString         m_deviceVersion;
     QString         m_imageVersion;
     QString         m_scaleFactor;
     QString         m_memory;
+    QString         m_framework;
     Utils::PortList m_localForwardedPorts;
 
 private:

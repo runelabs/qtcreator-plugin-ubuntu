@@ -19,14 +19,15 @@
 #define UBUNTU_INTERNAL_UBUNTUCLICKDIALOG_H
 
 #include <QDialog>
+#include <QList>
 
+#include <projectexplorer/processparameters.h>
 #include <utils/qtcprocess.h>
 #include "ubuntuclicktool.h"
 
 namespace ProjectExplorer {
     class Project;
     class Target;
-    class ProcessParameters;
 }
 
 namespace Ubuntu {
@@ -43,21 +44,26 @@ public:
     UbuntuClickDialog (QWidget* parent = 0);
     ~UbuntuClickDialog ();
 
-    void setParameters (ProjectExplorer::ProcessParameters* params);
+    void setParameters (const QList<ProjectExplorer::ProcessParameters> &params);
     int lastExitCode () const;
+
 
 public slots:
     void runClick ();
 
-    static int runClickModal (ProjectExplorer::ProcessParameters* params, QWidget *parent = 0);
+    static int runClickModal(const ProjectExplorer::ProcessParameters &params, QWidget *parent = 0);
+    static int runClickModal (const QList<ProjectExplorer::ProcessParameters> &params, QWidget *parent = 0);
     static bool createClickChrootModal (bool redetectKits = true , const QString &arch = QString(),QWidget *parent = 0);
+
     static int maintainClickModal (const UbuntuClickTool::Target &target, const UbuntuClickTool::MaintainMode &mode);
+    static int maintainClickModal (const QList<UbuntuClickTool::Target> &targetList, const UbuntuClickTool::MaintainMode &mode);
 
     // QDialog interface
     virtual void done(int code);
 
 protected:
     void disableCloseButton (const bool &disabled = true);
+    void nextTask ();
 
 protected slots:
     void on_clickFinished(int exitCode);
@@ -66,6 +72,7 @@ protected slots:
 private:
     Utils::QtcProcess *m_process;
     Ui::UbuntuClickDialog *m_ui;
+    QList<ProjectExplorer::ProcessParameters> m_tasks;
     int m_exitCode;
 };
 

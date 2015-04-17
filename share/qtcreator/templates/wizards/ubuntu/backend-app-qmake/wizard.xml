@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wizard version="1" kind="project" firstpage="10" id="A4_UbuntuAppBackendQmake'" category="A.UbuntuProject"
+        platformIndependent="true" 
+        class="ubuntu-project-qmake"
+				featuresRequired=""
+        >
+    <icon>../share/ubuntu.png</icon>
+    <description>A simple C++ based QtQuick2 Extension Library with
+simple UI written in QML.
+
+Includes also
+ - a unit test for C++
+ - unit and functional tests for QML
+
+This templates requires a Kit using at least a 15.04 click chroot.
+</description>
+    <displayname>QML App with C++ plugin (qmake)</displayname>
+    <displaycategory>Ubuntu</displaycategory>
+    <files>
+      <file source="projectName.pro" target="%ProjectName%.pro" openproject="true"/>
+<!-- MANIFEST PARTS -->
+      <file source="manifest.json.in" openeditor="true"/>
+<!-- APP PARTS -->
+      <file source="appName/appName.pro"   		 target="%ClickHookName%/%ClickHookName%.pro" openeditor="false"/>
+      <file source="appName/appName.png"   		 target="%ClickHookName%/%ClickHookName%.png" openeditor="false" binary="true"/>
+      <file source="appName/Main.qml"                    target="%ClickHookName%/Main.qml" openeditor="true"/>
+      <file source="appName/appName.desktop"             target="%ClickHookName%/%ClickHookName%.desktop"  openeditor="false"/>
+      <file source="appName/appName.apparmor"            target="%ClickHookName%/%ClickHookName%.apparmor" openeditor="false"/>
+      <file source="backend/displayName/backend.h"       target="backend/%ClickHookName:s%/backend.h" openeditor="false"/>
+      <file source="backend/displayName/backend.cpp"     target="backend/%ClickHookName:s%/backend.cpp" openeditor="false"/>
+      <file source="backend/displayName/mytype.h"        target="backend/%ClickHookName:s%/mytype.h" openeditor="false"/>
+      <file source="backend/displayName/mytype.cpp"      target="backend/%ClickHookName:s%/mytype.cpp" openeditor="false"/>
+      <file source="backend/displayName/qmldir"          target="backend/%ClickHookName:s%/qmldir" openeditor="false"/>
+      <file source="backend/displayName/displayName.pro" target="backend/%ClickHookName:s%/%ClickHookName:s%.pro" openeditor="false"/>
+      <file source="backend/tests/unit/tst_mytype.qml"   target="backend/tests/unit/tst_mytype.qml" openeditor="false"/>
+   </files>
+
+	  <!-- Create a 2nd wizard page with click package parameters -->
+		<fieldpagetitle>Click package parameters</fieldpagetitle>
+		<fields>
+			<field mandatory="true" name="ClickDomain">
+			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9-]+$'
+			                defaulttext="" placeholdertext="Nickname"/>
+			  <fielddescription>Nickname:</fielddescription>
+			</field>
+			<field mandatory="true" name="ClickMaintainer">
+			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
+			                defaulttext="" placeholdertext="Maintainer"/>
+			  <fielddescription>Maintainer:</fielddescription>
+			</field>
+			<field mandatory="true" name="ClickHookName">
+			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
+			                defaulttext="app" placeholdertext="app hook name"/>
+			  <fielddescription>App name:</fielddescription>
+			</field>
+		  <field name="ClickFrameworkVersion">
+		      <fieldcontrol class="QComboBox" defaultindex="0">
+		          <comboentries>
+								<!-- Do not add any other frameworks here, they are populated at runtime, this is just a dummy framework to make sure we can find the combobox -->
+								<comboentry value="ubuntu-sdk-dummy-framework">
+		                <comboentrytext>Dummy Framework</comboentrytext>
+		            </comboentry>
+		          </comboentries>
+		      </fieldcontrol>
+		      <fielddescription>Framework:</fielddescription>
+		  </field>
+		</fields>
+    <validationrules>
+        <validationrule condition='/^(.*)\s+&lt;(.*@.*)&gt;$/.test("%ClickMaintainer%")'>
+            <message>Invalid format for maintainer (should be like "Joe Bloggs &lt;joe.bloggs@isp.com&gt;")</message>
+        </validationrule>
+    </validationrules>
+</wizard>

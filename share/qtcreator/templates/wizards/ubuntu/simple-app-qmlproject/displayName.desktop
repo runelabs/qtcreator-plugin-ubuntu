@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=%ClickHookName%
+Exec=qmlscene $@ Main.qml
+Icon=%ProjectName%.png
+Terminal=false
+Type=Application
+X-Ubuntu-Touch=true

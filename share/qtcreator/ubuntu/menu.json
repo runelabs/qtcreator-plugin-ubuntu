@@ -196,6 +196,7 @@
                         "projectRequired": true,
                         "qmlProjectRequired": true,
                         "saveRequired": true,
+			"context": ["UbuntuProject.ProjectContext"],
                         "actions": [
                             "%SCRIPTDIRECTORY%/i18n_update_template %DISPLAYNAME% %PROJECTFILES%"
                         ]
@@ -206,6 +207,7 @@
                         "projectRequired": true,
                         "qmlProjectRequired": true,
                         "saveRequired": true,
+			"context": ["UbuntuProject.ProjectContext"],
                         "actions": [
                             "%SCRIPTDIRECTORY%/i18n_build_translations %NAME_FROM_MANIFEST% %PROJECTDIRECTORY%"
                         ]

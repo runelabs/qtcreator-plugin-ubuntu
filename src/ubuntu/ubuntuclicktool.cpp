@@ -60,11 +60,19 @@ enum {
     debug = 0
 };
 
+static QString getChrootSuffixFromEnv ()
+{
+    QByteArray value = qgetenv(Constants::UBUNTU_CLICK_CHROOT_SUFFIX_ENV_VAR);
+    if(value.isNull())
+        return QLatin1String(Constants::UBUNTU_CLICK_CHROOT_DEFAULT_NAME);
+
+    return QString::fromLatin1(value);
+}
 
 /**
 * Initialize the m_strClickChrootSuffix from the environment variable
 */
-QString UbuntuClickTool::m_strClickChrootSuffix = QProcessEnvironment::systemEnvironment().value(QLatin1String(Constants::UBUNTU_CLICK_CHROOT_SUFFIX_ENV_VAR),QLatin1String(Constants::UBUNTU_CLICK_CHROOT_DEFAULT_NAME));
+QString UbuntuClickTool::m_strClickChrootSuffix = getChrootSuffixFromEnv();
 
 /**
  * @brief UbuntuClickTool::UbuntuClickTool
@@ -97,6 +105,16 @@ void UbuntuClickTool::parametersForCreateChroot(const Target &target, ProjectExp
             .arg(target.framework)
             .arg(target.series)
             .arg(clickChrootSuffix());
+
+
+    QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
+    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_CLICK));
+    bool useLocalMirror = settings.value(QLatin1String(Constants::SETTINGS_KEY_CHROOT_USE_LOCAL_MIRROR),false).toBool();
+    settings.endGroup();
+
+    if(!useLocalMirror)
+        command.prepend(QStringLiteral("env CLICK_NO_LOCAL_MIRROR=1 "));
+
     params->setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
     params->setEnvironment(Utils::Environment::systemEnvironment());
     params->setArguments(command);
@@ -558,7 +576,8 @@ UbuntuClickFrameworkProvider::UbuntuClickFrameworkProvider()
       m_policyCache {
         {QStringLiteral("ubuntu-sdk-13.10"),QStringLiteral("1.0")},
         {QStringLiteral("ubuntu-sdk-14.04"),QStringLiteral("1.1")},
-        {QStringLiteral("ubuntu-sdk-14.10"),QStringLiteral("1.2")}
+        {QStringLiteral("ubuntu-sdk-14.10"),QStringLiteral("1.2")},
+        {QStringLiteral("ubuntu-sdk-15.04"),QStringLiteral("1.3")}
       },
       m_manager(nullptr),
       m_currentRequest(nullptr),
@@ -796,6 +815,9 @@ QStringList UbuntuClickFrameworkProvider::parseData(const QByteArray &data) cons
     QStringList result;
 
     for(auto i = obj.constBegin(); i != obj.constEnd(); i++ ) {
+        if(!i.key().startsWith(QStringLiteral("ubuntu-sdk")))
+            continue;
+
         if(i.value().toString() == QStringLiteral("available")) {
             result += i.key();
         }

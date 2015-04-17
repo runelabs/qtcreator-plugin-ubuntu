@@ -50,7 +50,11 @@ bool UbuntuAbstractGuiEditorDocument::save(QString *errorString, const QString &
         return false;
     }
 
-    return BaseTextDocument::save(errorString, fileName, autoSave);
+    if(BaseTextDocument::save(errorString, fileName, autoSave)) {
+        m_editorWidget->saved();
+        return true;
+    }
+    return false;
 }
 
 QString UbuntuAbstractGuiEditorDocument::defaultPath() const
