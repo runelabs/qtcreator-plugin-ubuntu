@@ -280,11 +280,11 @@ bool UbuntuQmlBuildTranslationStep::init()
     if(!bc)
         return false;
 
-    QString deployDir = bc->buildDirectory().toString()
+    QString translationsDir = bc->buildDirectory().toString()
             + QDir::separator()
-            + QString::fromLatin1(Constants::UBUNTU_DEPLOY_DESTDIR);
+            + QString::fromLatin1(Constants::UBUNTU_CLICK_QML_BUILD_TRANSL_DIR);
 
-    processParameters()->setArguments(QString::fromLatin1("TRANSLATION_ROOT=%1 build-translations").arg(deployDir));
+    processParameters()->setArguments(QString::fromLatin1("TRANSLATION_ROOT=%1 build-translations").arg(translationsDir));
     return true;
 }
 
