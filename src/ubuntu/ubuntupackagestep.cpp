@@ -175,6 +175,10 @@ bool UbuntuPackageStep::init()
                       << QString(QStringLiteral("--exclude-from=%1")).arg(projectDir+QDir::separator()+QStringLiteral(".excludes"));
 
             arguments << projectDir+QDir::separator()
+                      << m_buildDir
+                         + QDir::separator()
+                         + QString::fromLatin1(Constants::UBUNTU_CLICK_QML_BUILD_TRANSL_DIR)
+                         + QDir::separator()
                       << m_deployDir;
 
             ProjectExplorer::ProcessParameters* params = &m_MakeParam;
@@ -731,7 +735,9 @@ void UbuntuPackageStep::doNextStep()
                 case OnlyMakeInstall:
                     m_state = MakeInstall;
 
-                    if (m_cleanDeployDirectory) {
+                    if (m_cleanDeployDirectory &&
+                            //paranoid double check
+                            m_deployDir.endsWith(QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))) {
                         //make sure we always use a clean deploy dir
                         QDir deplDir(m_deployDir);
                         if(deplDir.exists())
