@@ -735,7 +735,9 @@ void UbuntuPackageStep::doNextStep()
                 case OnlyMakeInstall:
                     m_state = MakeInstall;
 
-                    if (m_cleanDeployDirectory) {
+                    if (m_cleanDeployDirectory &&
+                            //paranoid double check
+                            m_deployDir.endsWith(QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))) {
                         //make sure we always use a clean deploy dir
                         QDir deplDir(m_deployDir);
                         if(deplDir.exists())

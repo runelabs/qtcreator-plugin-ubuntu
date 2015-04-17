@@ -295,9 +295,12 @@ ProjectExplorer::BuildStepConfigWidget *UbuntuQmlBuildTranslationStep::createCon
 
 void UbuntuQmlBuildTranslationStep::run(QFutureInterface<bool> &fi)
 {
-    QDir translDir(m_translationDir);
-    if(translDir.exists())
-        translDir.removeRecursively();
+    //paranoid double check
+    if(m_translationDir.endsWith(QDir::separator()+QLatin1String(Constants::UBUNTU_CLICK_QML_BUILD_TRANSL_DIR))) {
+        QDir translDir(m_translationDir);
+        if(translDir.exists())
+            translDir.removeRecursively();
+    }
 
     return UbuntuQmlUpdateTranslationTemplateStep::run(fi);
 }
