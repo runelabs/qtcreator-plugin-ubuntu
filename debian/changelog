@@ -1,3 +1,14 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150420.1-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Fix bug lp:1446062, RSync failes if translation dir is not created
+    (LP: #1446062)
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Mon, 20 Apr 2015 21:31:37 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150417-0ubuntu1) vivid; urgency=medium
 
   [ Benjamin Zeller ]
