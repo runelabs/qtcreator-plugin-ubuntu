@@ -39,7 +39,10 @@ check:
 
 #translation targets
 
-build-translations: $(MO_FILES)
+build-translations: translation-dir $(MO_FILES)
+
+translation-dir:
+	mkdir -p $(TRANSLATION_ROOT)
 
 po/%ProjectName:l%.pot: $(QMLJS_FILES)
 	mkdir -p $(CURDIR)/po && xgettext -o po/%ProjectName:l%.pot --qt --c++ --add-comments=TRANSLATORS --keyword=tr --keyword=tr:1,2 $(QMLJS_FILES) --from-code=UTF-8
