@@ -32,12 +32,20 @@ class HTML5TestCaseBase(AutopilotTestCase):
         self.driver = None
         self.app_proxy = None
         super().setUp()
-        self.useFixture(fixture_setup.InitctlEnvironmentVariable(
-            global_=True,
-            UBUNTU_WEBVIEW_DEVTOOLS_HOST=DEFAULT_WEBVIEW_INSPECTOR_IP,
-            UBUNTU_WEBVIEW_DEVTOOLS_PORT=str(
-                DEFAULT_WEBVIEW_INSPECTOR_PORT)
-        ))
+        if platform.model() == 'Desktop':
+            self.patch_environment(
+                'UBUNTU_WEBVIEW_DEVTOOLS_HOST',
+                DEFAULT_WEBVIEW_INSPECTOR_IP)
+            self.patch_environment(
+                'UBUNTU_WEBVIEW_DEVTOOLS_PORT',
+                str(DEFAULT_WEBVIEW_INSPECTOR_PORT))
+        else:
+            self.useFixture(fixture_setup.InitctlEnvironmentVariable(
+                global_=True,
+                UBUNTU_WEBVIEW_DEVTOOLS_HOST=DEFAULT_WEBVIEW_INSPECTOR_IP,
+                UBUNTU_WEBVIEW_DEVTOOLS_PORT=str(
+                    DEFAULT_WEBVIEW_INSPECTOR_PORT)
+            ))
 
     def tearDown(self):
         if self.driver:
@@ -65,6 +73,7 @@ class HTML5TestCaseBase(AutopilotTestCase):
         self.driver = webdriver.Chrome(
             executable_path=CHROMEDRIVER_EXEC_PATH,
             chrome_options=options)
+
         self.assertThat(self.driver, NotEquals(None))
 
     @property
@@ -82,7 +91,7 @@ class HTML5TestCaseBase(AutopilotTestCase):
             ['--www={}/{}'.format(
                 os.path.dirname(
                     os.path.realpath(__file__)),
-                '../../../../www'), '--inspector'])
+                '../../../../www')])
         self.wait_for_app()
 
         self.launch_webdriver()
