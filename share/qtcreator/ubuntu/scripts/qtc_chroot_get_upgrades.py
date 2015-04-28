@@ -30,7 +30,7 @@ def splitIgnoreEmptyParts(s, delim=None):
     return [x for x in s.split(delim) if x]
 
 if (len(sys.argv) < 3):
-    print("Useage: qtc_chroot_get_upgrades <framework> <architecture>")
+    print("Useage: qtc_chroot_get_upgrades <architecture> <framework>")
     sys.exit(-1)
 
 click      = shutil.which("click")

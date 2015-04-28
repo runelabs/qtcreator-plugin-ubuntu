@@ -73,6 +73,15 @@ UbuntuPackageStep::~UbuntuPackageStep()
 
 bool UbuntuPackageStep::init()
 {
+    //initialization happens in internalInit,
+    //because it requires informations that are only available at this
+    //time
+    //@TODO refactor into single buildsteps per projecttype
+    return true;
+}
+
+void UbuntuPackageStep::internalInit()
+{
     m_tasks.clear();
 
     QString projectDir = target()->project()->projectDirectory().toString();
@@ -80,6 +89,9 @@ bool UbuntuPackageStep::init()
     m_deployDir.clear();
     Utils::Environment env = Utils::Environment::systemEnvironment();
     Utils::MacroExpander *mExp = 0;
+
+    m_MakeParam = m_ClickParam = m_ReviewParam = ProjectExplorer::ProcessParameters();
+    m_clickPackageName.clear();
 
     bool isCMake  = target()->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID;
     bool isQMake  = target()->project()->id() == QmakeProjectManager::Constants::QMAKEPROJECT_ID;
@@ -103,7 +115,7 @@ bool UbuntuPackageStep::init()
                 m_tasks.append(t);
 
                 //UbuntuClickPackageStep::run will stop if tasks exist
-                return true;
+                return;
             } else {
                 //backward compatibility, old HTML5 projects did not have a Buildconfiguration
                 //this would crash otherwise
@@ -175,8 +187,17 @@ bool UbuntuPackageStep::init()
                       << QStringLiteral("--exclude")<<QStringLiteral("*.ubuntuhtmlproject")
                       << QString(QStringLiteral("--exclude-from=%1")).arg(projectDir+QDir::separator()+QStringLiteral(".excludes"));
 
-            arguments << projectDir+QDir::separator()
-                      << m_deployDir;
+            arguments << projectDir+QDir::separator();
+
+            QString translationsDir = m_buildDir
+                         + QDir::separator()
+                         + QString::fromLatin1(Constants::UBUNTU_CLICK_QML_BUILD_TRANSL_DIR)
+                         + QDir::separator();
+
+            if (QDir(translationsDir).exists())
+                arguments << translationsDir;
+
+            arguments << m_deployDir;
 
             ProjectExplorer::ProcessParameters* params = &m_MakeParam;
             params->setMacroExpander(mExp);
@@ -237,11 +258,13 @@ bool UbuntuPackageStep::init()
         params->setEnvironment(tmpEnv);
     }
 
-    return true;
+    return;
 }
 
 void UbuntuPackageStep::run(QFutureInterface<bool> &fi)
 {
+    internalInit();
+
     if (m_tasks.size()) {
         foreach (const ProjectExplorer::Task& task, m_tasks) {
             addTask(task);
@@ -732,7 +755,9 @@ void UbuntuPackageStep::doNextStep()
                 case OnlyMakeInstall:
                     m_state = MakeInstall;
 
-                    if (m_cleanDeployDirectory) {
+                    if (m_cleanDeployDirectory &&
+                            //paranoid double check
+                            m_deployDir.endsWith(QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR))) {
                         //make sure we always use a clean deploy dir
                         QDir deplDir(m_deployDir);
                         if(deplDir.exists())

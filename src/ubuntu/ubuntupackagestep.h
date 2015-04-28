@@ -91,6 +91,7 @@ signals:
     void currentSubStepFinished();
 
 protected:
+    void internalInit ();
     void setupAndStartProcess ( const ProjectExplorer::ProcessParameters &params );
     bool processFinished (FinishedCheckMode mode = CheckReturnCode);
     void cleanup ();

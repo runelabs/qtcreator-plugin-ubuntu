@@ -146,7 +146,7 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
         QString framework = wiz.framework();
         QString aaPolicy  = UbuntuClickFrameworkProvider::instance()->frameworkPolicy(framework);
         base_replacements.insert(QStringLiteral("ClickFrameworkVersion"),framework);
-        base_replacements.insert(QStringLiteral("ClickAAPolicyVersion"),aaPolicy.isEmpty() ? QStringLiteral("1.2") : aaPolicy);
+        base_replacements.insert(QStringLiteral("ClickAAPolicyVersion"),aaPolicy.isEmpty() ? QStringLiteral("1.3") : aaPolicy);
 
         QStringList hookTargets = wiz.selectedTargets();
 

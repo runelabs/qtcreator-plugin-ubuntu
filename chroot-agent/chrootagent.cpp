@@ -47,13 +47,13 @@ void ChrootAgent::initialize()
         m_knownChroots[key].session = createClickSession(m_knownChroots[key]);
     }
 
-    emit chrootListChanged();
-    emit sessionListChanged();
-
     if(!m_chrootDirWatcher) {
         m_chrootDirWatcher = new QFileSystemWatcher(QStringList{QStringLiteral("/etc/schroot/chroot.d")},this);
         connect(m_chrootDirWatcher,SIGNAL(directoryChanged(QString)),this,SLOT(directoryChanged()));
     }
+
+    emit chrootListChanged();
+    emit sessionListChanged();
 }
 
 void ChrootAgent::directoryChanged()
@@ -111,12 +111,12 @@ QString ChrootAgent::spawnSession(const QString &framework, const QString &archi
         m_knownChroots.insert(intName,newChroot);
         ch = &m_knownChroots[intName];
 
-        emit chrootListChanged();
+        QTimer::singleShot(0,this,SIGNAL(chrootListChanged()));
     }
 
     if(createSession) {
         ch->session = createClickSession(*ch);
-        emit sessionListChanged();
+        QTimer::singleShot(0,this,SIGNAL(sessionListChanged()));
         return ch->session;
     }
     return QString();
@@ -360,10 +360,20 @@ bool ChrootAgent::validateClickSession(const QString &framework, const QString &
         QStringLiteral("run"),
         QStringLiteral("-n"),
         sessionName,
-        QStringLiteral("echo 'ok'"),
+        QStringLiteral("pwd"),
     };
 
-    if(QProcess::execute(QStringLiteral("click"),args) == 0) {
+    QProcess process;
+    process.setReadChannelMode(QProcess::ForwardedChannels);
+    process.setWorkingDirectory(QStringLiteral("/tmp"));
+    process.start(QStringLiteral("click"), args);
+    if (!process.waitForFinished(-1) || process.error() == QProcess::FailedToStart) {
+        qDebug()<<"Could not verify the click session, assuming its broken.";
+        return false; //should not happen
+    }
+
+    int sucess = process.exitStatus() == QProcess::NormalExit ? process.exitCode() : -1;
+    if(sucess == 0) {
         qDebug()<<"Chroot session is valid";
         return true;
     }

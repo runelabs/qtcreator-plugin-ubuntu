@@ -73,6 +73,10 @@ public:
     // BuildStep interface
     virtual bool init();
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    void run(QFutureInterface<bool> &fi);
+
+private:
+    QString m_translationDir;
 };
 
 class UbuntuQmlBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory

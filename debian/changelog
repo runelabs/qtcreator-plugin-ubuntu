@@ -1,3 +1,94 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150420.1-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Fix bug lp:1446062, RSync failes if translation dir is not created
+    (LP: #1446062)
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Mon, 20 Apr 2015 21:31:37 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150417-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Fix Bug lp:1445372, mo files are wrongly deleted by the packaging
+    step Fix reversed APPID in the Makefile (LP: #1445372)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Fri, 17 Apr 2015 09:46:04 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150416-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Rename the template.pot file to <projectname>.pot lp:1444911 Make
+    sure qml projects run buildsteps when creating a click package from
+    the publish page lp:1444908 Disable the translations menu for qml
+    projects lp:1444913 (LP: #1444913, #1444908, #1444911)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Thu, 16 Apr 2015 11:30:36 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150415-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Support framework 15.04 Fix small issue in the templates
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Wed, 15 Apr 2015 15:12:10 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150413.1-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Fix bug lp:1391527 Adding UI to show the supported frameworks for
+    the emulator and the phone Autocreate Kits for the devices depending
+    on the framework they support (LP: #1391527)
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+  [ Pete Woods ]
+  * Use absolute path to refer to POT file - fixes dependency chain.
+    Fixes LP: #1443308 (LP: #1443308)
+
+  [ Zoltán Balogh ]
+  * Change the order of the parameters in thge usage hint. Fixes LP:
+    #1441475 (LP: #1441475)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Mon, 13 Apr 2015 11:42:04 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150409-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Prevent leaking mounts with click chroot as much as possible
+
+  [ CI Train Bot ]
+  * Use the hook name in the import. Fixes LP: #1437682 (LP: #1437682)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Thu, 09 Apr 2015 09:19:49 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150401-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Workaround to hide non click frameworks returned by the store API as
+    available lp:1436470 (LP: #1436470)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Wed, 01 Apr 2015 15:30:52 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150331-0ubuntu1) vivid; urgency=medium
+
+  [ Zoltán Balogh ]
+  * Use the hook name in the import. Fixes LP: #1437682 (LP: #1437682)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Tue, 31 Mar 2015 16:49:26 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150319.1-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Fix Bug lp:1426315 "Found unusual policy group" (LP: #1426315)
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Thu, 19 Mar 2015 10:15:53 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150224-0ubuntu1) vivid; urgency=medium
 
   [ Benjamin Zeller ]

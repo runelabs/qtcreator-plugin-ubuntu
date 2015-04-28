@@ -145,6 +145,13 @@ void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
         return;
     }
 
+    if(device->framework().isEmpty()) {
+        QMessageBox::warning(Core::ICore::mainWindow(),
+                             tr("Device framework is unknown."),
+                             tr("The supported framework of the device is not known, please make sure to redetect the device features."));
+        return;
+    }
+
     QList<ClickToolChain*> toolchains = clickToolChains();
 
     auto findCompatibleTc = [&](){
@@ -154,6 +161,10 @@ void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
 
             for( int i = toolchains.size() -1; i >= 0; i-- ) {
                 ClickToolChain* tc = toolchains[i];
+
+                if (tc->clickTarget().framework != device->framework())
+                    continue;
+
                 if( tc->targetAbi() == requiredAbi ) {
                     match = tc;
                     break;
