@@ -511,7 +511,7 @@ void UbuntuManifestEditorWidget::addMissingFieldsToManifest (QString fileName)
 void UbuntuManifestEditorWidget::saved()
 {
     QFileInfo mFile = textEditorWidget()->textDocument()->filePath().toFileInfo();
-    ProjectExplorer::Project *p = ubuntuProject(mFile.absolutePath());
+    ProjectExplorer::Project *p = ubuntuProject(mFile.absoluteFilePath());
     if(p && p->activeTarget())
         p->activeTarget()->updateDefaultRunConfigurations();
 }

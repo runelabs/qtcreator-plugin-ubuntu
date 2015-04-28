@@ -145,7 +145,7 @@ QString UbuntuProject::shadowBuildDirectory(const QString &proFilePath, const Pr
     QFileInfo info(proFilePath);
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
-    if (version && !version->supportsShadowBuilds())
+    if (version)
         return info.absolutePath();
 
     const QString projectName = QFileInfo(proFilePath).completeBaseName();

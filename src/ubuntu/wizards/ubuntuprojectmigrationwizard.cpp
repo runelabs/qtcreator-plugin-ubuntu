@@ -206,7 +206,7 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
                 // try to map to the click way
                 const QString path = reader->value(QStringLiteral("target.path"));
 
-                if(projectType == QmakeProjectManager::LibraryTemplate) {
+                if(projectType == QmakeProjectManager::SharedLibraryTemplate) {
                     //this is probably a qml plugin, need to analyze more
                     foreach(const QString &install, installs) {
                         if(install == QStringLiteral("target"))
@@ -245,7 +245,7 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
             }
 
             if(!hasInstallTarget || !isLikelyQmlPlugin) {
-                if(projectType == QmakeProjectManager::LibraryTemplate) {
+                if(projectType == QmakeProjectManager::SharedLibraryTemplate) {
                     targetInstallPath = QStringLiteral("/lib/$$basename(qt_install_libs)");
                 } else if(projectType == QmakeProjectManager::ApplicationTemplate) {
                     targetInstallPath = QStringLiteral("/lib/$$basename(qt_install_libs)/bin");

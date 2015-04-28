@@ -131,7 +131,7 @@ QStringList UbuntuRemoteRunConfiguration::soLibSearchPaths() const
         if(qmakeProj) {
             foreach (const QmakeProjectManager::QmakeProFileNode* pro, qmakeProj->allProFiles()) {
                 if(pro->projectType() == QmakeProjectManager::ApplicationTemplate
-                         || pro->projectType() == QmakeProjectManager::LibraryTemplate) {
+                         || pro->projectType() == QmakeProjectManager::SharedLibraryTemplate) {
                     QmakeProjectManager::TargetInformation info = pro->targetInformation();
                     if(!info.valid)
                         continue;

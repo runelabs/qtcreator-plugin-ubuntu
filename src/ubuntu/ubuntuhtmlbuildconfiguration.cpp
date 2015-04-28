@@ -165,7 +165,6 @@ QList<ProjectExplorer::BuildInfo *> UbuntuHtmlBuildConfigurationFactory::createB
     info->buildDirectory = Utils::FileName::fromString(UbuntuProject::shadowBuildDirectory(projectDir,k,QStringLiteral("default")));
     info->typeName = tr("Html5");
     info->kitId    = k->id();
-    info->supportsShadowBuild = true;
     info->displayName = tr("Default");
 
     builds << info;

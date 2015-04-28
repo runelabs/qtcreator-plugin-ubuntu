@@ -187,7 +187,6 @@ QList<ProjectExplorer::BuildInfo *> UbuntuQmlBuildConfigurationFactory::createBu
     info->buildDirectory = Utils::FileName::fromString(UbuntuProject::shadowBuildDirectory(projectDir,k,QStringLiteral("default")));
     info->typeName = tr("Qml");
     info->kitId    = k->id();
-    info->supportsShadowBuild = true;
     info->displayName = tr("Default");
 
     builds << info;

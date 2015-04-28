@@ -501,7 +501,7 @@ void UbuntuLocalRunConfiguration::addToBaseEnvironment(Utils::Environment &env) 
             QmakeProjectManager::QmakeProject* pro = static_cast<QmakeProjectManager::QmakeProject*> (target()->project());
             foreach(const QmakeProjectManager::QmakeProFileNode* applPro, pro->allProFiles()) {
                 if(applPro->projectType() != QmakeProjectManager::ApplicationTemplate &&
-                        applPro->projectType() != QmakeProjectManager::LibraryTemplate) {
+                        applPro->projectType() != QmakeProjectManager::SharedLibraryTemplate) {
                     continue;
                 }
 

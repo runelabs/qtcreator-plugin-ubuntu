@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2014 Canonical Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -447,7 +447,7 @@ QString UbuntuClickTool::findOrCreateMakeWrapper (const UbuntuClickTool::Target 
     return UbuntuClickTool::findOrCreateToolWrapper(QStringLiteral("make"),target);
 }
 
-QStringList UbuntuClickTool::mapIncludePathsForCMake(ProjectExplorer::Kit *k, const QStringList &in)
+QString UbuntuClickTool::mapIncludePathsForCMake(ProjectExplorer::Kit *k, const QString &in)
 {
     bool canMap = ProjectExplorer::ToolChainKitInformation::toolChain(k)
             && ProjectExplorer::ToolChainKitInformation::toolChain(k)->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
@@ -456,18 +456,22 @@ QStringList UbuntuClickTool::mapIncludePathsForCMake(ProjectExplorer::Kit *k, co
     if (!canMap)
         return in;
 
-    QStringList fixedIncPaths;
-    foreach(QString path, in) {
-        if(!path.startsWith(QStringLiteral("/tmp"))
-                && !path.startsWith(QStringLiteral("/home"))) {
-            Utils::FileName sRoot = ProjectExplorer::SysRootKitInformation::sysRoot(k);
-            fixedIncPaths += QDir::cleanPath(sRoot.appendPath(path).toString());
-        } else {
-            fixedIncPaths += path;
-        }
-    }
 
-    return fixedIncPaths;
+    QString tmp = in;
+    QString replace = QString::fromLatin1("\\1%1/\\2").arg(ProjectExplorer::SysRootKitInformation::sysRoot(k).toUserOutput());
+    QStringList pathsToMap = {
+        QLatin1String("var"),QLatin1String("bin"),QLatin1String("boot"),QLatin1String("dev"),
+        QLatin1String("etc"),QLatin1String("lib"),QLatin1String("lib64"),QLatin1String("media"),
+        QLatin1String("mnt"),QLatin1String("opt"),QLatin1String("proc"),QLatin1String("root"),
+        QLatin1String("run"),QLatin1String("sbin"),QLatin1String("srv"),QLatin1String("sys"),
+        QLatin1String("usr")
+    };
+
+    for (const QString &path : pathsToMap) {
+        QRegularExpression exp(QString::fromLatin1("(^|[^\\w+]|\\s+|[-=]\\w)\\/(%1)").arg(path));
+        tmp.replace(exp,replace);
+    }
+    return tmp;
 }
 
 QString UbuntuClickTool::findOrCreateToolWrapper (const QString &tool, const UbuntuClickTool::Target &target)
@@ -838,6 +842,9 @@ QStringList UbuntuClickFrameworkProvider::parseData(const QByteArray &data) cons
     QStringList result;
 
     for(auto i = obj.constBegin(); i != obj.constEnd(); i++ ) {
+        if(!i.key().startsWith(QStringLiteral("ubuntu-sdk")))
+            continue;
+
         if(i.value().toString() == QStringLiteral("available")) {
             result += i.key();
         }

@@ -298,10 +298,10 @@ void UbuntuKitManager::autoDetectKits()
         QString basePath = QStringLiteral("%1/ubuntu-sdk").arg(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation));
         if (tool->cmakeExecutable().toString().startsWith(basePath)) {
             qDebug()<<"Setting mapper to "<<tool->displayName();
-            tool->setIncludePathMapper(&UbuntuClickTool::mapIncludePathsForCMake);
+            tool->setPathMapper(&UbuntuClickTool::mapIncludePathsForCMake);
         } else {
             qDebug()<<"Unsetting mapper from "<<tool->displayName();
-            tool->setIncludePathMapper(CMakeProjectManager::CMakeTool::IncludePathMapper());
+            tool->setPathMapper(CMakeProjectManager::CMakeTool::PathMapper());
         }
     };
 
@@ -326,7 +326,7 @@ ProjectExplorer::Kit *UbuntuKitManager::createKit(ClickToolChain *tc)
 
     CMakeProjectManager::CMakeTool *cmake = createOrFindCMakeTool(tc);
     if (cmake) {
-        cmake->setIncludePathMapper(&UbuntuClickTool::mapIncludePathsForCMake);
+        cmake->setPathMapper(&UbuntuClickTool::mapIncludePathsForCMake);
         CMakeProjectManager::CMakeKitInformation::setCMakeTool(newKit, cmake->id());
     }
 
@@ -463,7 +463,7 @@ void UbuntuKitManager::fixKit(ProjectExplorer::Kit *k)
     //make sure we use a ubuntu cmake
     CMakeProjectManager::CMakeTool *cmake = createOrFindCMakeTool(tc);
     if(cmake) {
-        cmake->setIncludePathMapper(&UbuntuClickTool::mapIncludePathsForCMake);
+        cmake->setPathMapper(&UbuntuClickTool::mapIncludePathsForCMake);
         CMakeProjectManager::CMakeKitInformation::setCMakeTool(k, cmake->id());
     }
 

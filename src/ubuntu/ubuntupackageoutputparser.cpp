@@ -88,7 +88,7 @@ void UbuntuPackageOutputParser::emitTasks(const ClickRunChecksParser::DataItem *
                                QStringLiteral(""), //empty description for now
                                Utils::FileName(),  //we have no file to show
                                -1,                 //line number
-                               ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+                               ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 
     QString desc = ((QString)QStringLiteral("%1: %2")).arg(item->type).arg(item->text);
     if(item->link.isValid())
