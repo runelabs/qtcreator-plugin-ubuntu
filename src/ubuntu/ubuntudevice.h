@@ -166,10 +166,6 @@ public:
     void openTerminal    ();
     void cloneTimeConfig ();
     void enablePortForward ();
-    void shutdown ();
-    void reboot   ();
-    void rebootToRecovery   ();
-    void rebootToBootloader ();
     void deployPublicKey    ();
     void setDeveloperModeEnabled     ( const bool enabled = true );
     void setWriteableImageEnabled    ( const bool enabled = true );

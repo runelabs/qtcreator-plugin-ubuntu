@@ -537,38 +537,6 @@ Page {
                                         onClicked: devicesModel.triggerSSHConnection(deviceId)
                                     }
                                 }
-                                ListItem.Standard {
-                                    text:"Restart"
-                                    control: Button{
-                                        text: "Execute"
-                                        enabled: !deviceItemView.deviceBusy && !deviceItemView.detectionError
-                                        onClicked: devicesModel.triggerReboot(deviceId)
-                                    }
-                                }
-                                ListItem.Standard {
-                                    text:"Restart to bootloader"
-                                    control: Button{
-                                        text: "Execute"
-                                        enabled: !deviceItemView.deviceBusy && !deviceItemView.detectionError
-                                        onClicked: devicesModel.triggerRebootBootloader(deviceId)
-                                    }
-                                }
-                                ListItem.Standard {
-                                    text:"Restart to recovery"
-                                    control: Button{
-                                        text: "Execute"
-                                        enabled: !deviceItemView.deviceBusy && !deviceItemView.detectionError
-                                        onClicked: devicesModel.triggerRebootRecovery(deviceId)
-                                    }
-                                }
-                                ListItem.Standard {
-                                    text:"Shut down"
-                                    control: Button{
-                                        text: "Execute"
-                                        enabled: !deviceItemView.deviceBusy && !deviceItemView.detectionError
-                                        onClicked: devicesModel.triggerShutdown(deviceId)
-                                    }
-                                }
                             }
                         }
 

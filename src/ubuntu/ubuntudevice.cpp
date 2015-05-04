@@ -1036,62 +1036,6 @@ void UbuntuDevice::enablePortForward()
     m_helper->enablePortForward();
 }
 
-void UbuntuDevice::shutdown()
-{
-    QProcess p;
-    QStringList args = QStringList()
-            << serialNumber();
-
-    //no need to redetect this should happen automagically
-    p.startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SHUTDOWN_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                    , args
-                    , QCoreApplication::applicationDirPath());
-}
-
-void UbuntuDevice::reboot()
-{
-    QProcess p;
-    QStringList args = QStringList()
-            << serialNumber();
-
-    //no need to redetect this should happen automagically
-    bool started = p.startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                                   , args
-                                   , QCoreApplication::applicationDirPath());
-
-    if(!started && debug) {
-        qDebug()<<"Could not start process "
-               <<QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-              <<args
-             <<p.errorString();
-    }
-
-}
-
-void UbuntuDevice::rebootToRecovery()
-{
-    QProcess p;
-    QStringList args = QStringList()
-            << serialNumber();
-
-    //no need to redetect this should happen automagically
-    p.startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_TO_RECOVERY_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                    , args
-                    , QCoreApplication::applicationDirPath());
-}
-
-void UbuntuDevice::rebootToBootloader()
-{
-    QProcess p;
-    QStringList args = QStringList()
-            << serialNumber();
-
-    //no need to redetect this should happen automagically
-    p.startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_TO_BOOTLOADER_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                    , args
-                    , QCoreApplication::applicationDirPath());
-}
-
 void UbuntuDevice::deployPublicKey()
 {
     m_helper->deployPublicKey();
