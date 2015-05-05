@@ -1,0 +1,26 @@
+--- a/share/qtcreator/ubuntu/scripts/device_flashdaily
++++ b/share/qtcreator/ubuntu/scripts/device_flashdaily
+@@ -30,8 +30,8 @@
+ 	echo ${DEVICE_HARDWARE}
+  	echo
+  	echo "          In order to flash your device, you must do it manually:"
+-	echo "             ubuntu-device-flash --channel=devel-proposed --serial=${SERIALNUMBER}"
++	echo "             ubuntu-device-flash touch --channel=devel-proposed --serial=${SERIALNUMBER}"
+   	echo
+ else
+-	x-terminal-emulator -e "bash -ic 'ubuntu-device-flash --channel=devel-proposed --serial=${SERIALNUMBER}'"
++	x-terminal-emulator -e "bash -ic 'ubuntu-device-flash touch --channel=devel-proposed --serial=${SERIALNUMBER}'"
+ fi
+--- a/share/qtcreator/ubuntu/scripts/device_flashdaily_bootstrap
++++ b/share/qtcreator/ubuntu/scripts/device_flashdaily_bootstrap
+@@ -30,8 +30,8 @@
+ 	echo \"${DEVICE_HARDWARE}\"
+  	echo
+  	echo "          In order to flash your device, you must do it manually:"
+- 	echo "             ubuntu-device-flash --channel=devel-proposed --serial=${SERIALNUMBER} --bootstrap"
++ 	echo "             ubuntu-device-flash touch --channel=devel-proposed --serial=${SERIALNUMBER} --bootstrap"
+   	echo
+ else
+-	x-terminal-emulator -e "bash -ic 'ubuntu-device-flash --channel=devel-proposed --serial=${SERIALNUMBER} --bootstrap'"
++	x-terminal-emulator -e "bash -ic 'ubuntu-device-flash touch --channel=devel-proposed --serial=${SERIALNUMBER} --bootstrap'"
+ fi

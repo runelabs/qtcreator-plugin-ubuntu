@@ -1,3 +1,9 @@
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150420.1-0ubuntu2) vivid-proposed; urgency=medium
+
+  * Updating to use new u-d-f syntax (LP: #1447569)
+
+ -- Sergio Schvezov <sergio.schvezov@canonical.com>  Thu, 23 Apr 2015 08:37:13 -0300
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150420.1-0ubuntu1) vivid; urgency=medium
 
   [ Benjamin Zeller ]
