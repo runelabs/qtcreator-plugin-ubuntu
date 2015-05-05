@@ -30,8 +30,8 @@ if [[ `does_device_hw_match_image_hw` != "1" ]]; then
 	echo ${DEVICE_HARDWARE}
  	echo
  	echo "          In order to flash your device, you must do it manually:"
-	echo "             ubuntu-device-flash touch --channel=devel-proposed --serial=${SERIALNUMBER}"
+	echo "             ubuntu-device-flash --channel=devel-proposed --serial=${SERIALNUMBER}"
   	echo
 else
-	x-terminal-emulator -e "bash -ic 'ubuntu-device-flash touch --channel=devel-proposed --serial=${SERIALNUMBER}'"
+	x-terminal-emulator -e "bash -ic 'ubuntu-device-flash --channel=devel-proposed --serial=${SERIALNUMBER}'"
 fi
