@@ -294,14 +294,6 @@ Qt::ItemFlags UbuntuDevicesModel::flags(const QModelIndex &index) const
     return QAbstractListModel::flags(index) | Qt::ItemIsEditable;
 }
 
-void UbuntuDevicesModel::triggerCloneTimeConfig(const int devId)
-{
-    int row = findDevice(devId);
-    if(row < 0)
-        return;
-    m_knownDevices[row]->device()->cloneTimeConfig();
-}
-
 void UbuntuDevicesModel::triggerPortForwarding(const int devId)
 {
     int row = findDevice(devId);

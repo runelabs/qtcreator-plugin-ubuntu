@@ -72,7 +72,6 @@ protected:
     void beginAction(QString msg);
     void endAction(QString msg);
     void resetToDefaults();
-    void cloneTimeConfig ();
     void enableRWImage ();
     void disableRWImage ();
     void enablePortForward ();
@@ -141,7 +140,6 @@ public:
         DetectDeviceWriteableImage,
         DetectDeveloperTools,
         FirstNonCriticalTask,
-        CloneTimeConfig,
         EnableRWImage,
         DisableRWImage,
         InstallDevTools,
@@ -164,7 +162,6 @@ public:
 
     void cloneNetwork    ();
     void openTerminal    ();
-    void cloneTimeConfig ();
     void enablePortForward ();
     void deployPublicKey    ();
     void setDeveloperModeEnabled     ( const bool enabled = true );

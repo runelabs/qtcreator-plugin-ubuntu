@@ -384,10 +384,6 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
             emit featureDetected();
             break;
         }
-        case UbuntuDevice::CloneTimeConfig:
-            endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_TIME_CONF_COPIED));
-            setProcessState(UbuntuDevice::Done);
-            break;
         case UbuntuDevice::EnableRWImage:
             endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_WRITABLE_ENABLED));
             detectDeviceWritableImage();
@@ -655,20 +651,6 @@ void UbuntuDeviceHelper::resetToDefaults()
     setProcessState(UbuntuDevice::NotStarted);
 
     emit featureDetected();
-}
-
-void UbuntuDeviceHelper::cloneTimeConfig()
-{
-    if(m_dev->m_processState < UbuntuDevice::FirstNonCriticalTask && m_dev->m_processState != UbuntuDevice::NotStarted)
-        return;
-
-    setProcessState(UbuntuDevice::CloneTimeConfig);
-    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONETIME));
-    stopProcess();
-
-    startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONETIME_SCRIPT)
-                 .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                 .arg(m_dev->serialNumber()));
 }
 
 void UbuntuDeviceHelper::enableRWImage()
@@ -1026,11 +1008,6 @@ void UbuntuDevice::openTerminal()
 
 }
 
-void UbuntuDevice::cloneTimeConfig()
-{
-    m_helper->cloneTimeConfig();
-}
-
 void UbuntuDevice::enablePortForward()
 {
     m_helper->enablePortForward();
@@ -1208,8 +1185,6 @@ QString UbuntuDevice::detectionStateString( ) const
             return tr("Detecting if developer tools are installed");
         case FirstNonCriticalTask:
             return tr("");
-        case CloneTimeConfig:
-            return tr("Cloning time configuration");
         case EnableRWImage:
             return tr("Enabling writeable image");
         case DisableRWImage:

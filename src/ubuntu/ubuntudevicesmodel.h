@@ -115,7 +115,6 @@ signals:
     void stateChanged(QString arg);
 
 public slots:
-    void triggerCloneTimeConfig ( const int devId );
     void triggerPortForwarding  ( const int devId );
     void triggerSSHSetup        ( const int devId );
     void triggerSSHConnection   ( const int devId );

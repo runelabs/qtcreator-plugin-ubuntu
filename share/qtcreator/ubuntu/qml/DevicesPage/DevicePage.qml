@@ -506,14 +506,6 @@ Page {
                                 anchors.right: parent.right
 
                                 ListItem.Standard {
-                                    text:"Clone time config from Host to Device"
-                                    control: Button{
-                                        text: "Execute"
-                                        enabled: !deviceItemView.deviceBusy && !deviceItemView.detectionError
-                                        onClicked: devicesModel.triggerCloneTimeConfig(deviceId)
-                                    }
-                                }
-                                ListItem.Standard {
                                     text:"Enable port forwarding"
                                     control: Button{
                                         text: "Execute"

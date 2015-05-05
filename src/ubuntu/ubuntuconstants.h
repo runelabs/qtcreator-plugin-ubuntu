@@ -230,8 +230,6 @@ const char UBUNTUDEVICESWIDGET_WAIT_FOR_EMULATOR_SCRIPT[] = "%1/local_wait_for_e
 const char UBUNTUDEVICESWIDGET_DETECTDEVICEVERSION_SCRIPT[] = "%0/device_version %1";
 const char UBUNTUDEVICESWIDGET_SSH_INSTALL[] = "Installing openssh-server..";
 const char UBUNTUDEVICESWIDGET_SSH_INSTALL_SCRIPT[] = "%0/openssh_install %1";
-const char UBUNTUDEVICESWIDGET_CLONETIME[] = "Cloning time configuration from host to device..";
-const char UBUNTUDEVICESWIDGET_CLONETIME_SCRIPT[] = "%0/device_time_clone %1";
 const char UBUNTUDEVICESWIDGET_SSH_REMOVE[] = "Removing openssh-server..";
 const char UBUNTUDEVICESWIDGET_SSH_REMOVE_SCRIPT[] = "%0/openssh_remove %1";
 
