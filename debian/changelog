@@ -1,3 +1,31 @@
+qtcreator-plugin-ubuntu (3.1.1+15.10.20150507-0ubuntu1) wily; urgency=medium
+
+  [ Alexandre Abreu ]
+  * Add autopilot and unit tests templates for HTML5 simple application
+
+  [ Benjamin Zeller ]
+  * Fix Bug lp:1402484 "A typo in the scope template readme file" Fix
+    bug lp:1427138 and lp:1404672, add schroot to the deps Fix Bug
+    lp:1450477 "Typo in initial startup wizard" (LP: #1404672, #1427138,
+    #1402484, #1450477)
+  * Remove either unused or dangerous functions and scripts. (LP:
+    #1324008, #1366785, #1388655)
+  * Show Desktop Kit in chroot setup page ( lp:1366934 lp:1369828) Fix
+    Bug lp:1400842 "devices panel: text says refresh but button is
+    redetect" (LP: #1400842, #1369828, #1366934)
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+  [ Zoltán Balogh ]
+  * Set the title of the tamplate apps to the app name. Fixes LP:
+    #1365309 (LP: #1365309)
+  * removed obsolate patch
+  * removed obsolate patch removed: debian/patches/
+    debian/patches/series debian/patches/u-d-f_syntax.diff
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Thu, 07 May 2015 06:26:00 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150420.1-0ubuntu2) vivid-proposed; urgency=medium
 
   * Updating to use new u-d-f syntax (LP: #1447569)
