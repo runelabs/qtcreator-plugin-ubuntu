@@ -1,18 +1,22 @@
 /**
  * Wait before the DOM has been loaded before initializing the Ubuntu UI layer
  */
+
 window.onload = function () {
     function addClass(elem, className) {
-        elem.className += ' ' + className;
+        if (elem) {
+            elem.className += ' ' + className;
+        }
     };
 
     function removeClass(elem, className) {
-        elem.className = elem.className.replace(className, '');
+        if (elem) {
+            elem.className = elem.className.replace(className, '');
+        }
     };
 
-
-    var UI = new UbuntuUI();
-    UI.init();
+    var app = new Application(UbuntuUI);
+    app.init();
 
     // Detect if Cordova script is uncommented or not and show the appropriate status.
     var hasCordovaScript = false;
