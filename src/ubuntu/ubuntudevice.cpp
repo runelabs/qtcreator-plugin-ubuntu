@@ -384,10 +384,6 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
             emit featureDetected();
             break;
         }
-        case UbuntuDevice::CloneTimeConfig:
-            endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_TIME_CONF_COPIED));
-            setProcessState(UbuntuDevice::Done);
-            break;
         case UbuntuDevice::EnableRWImage:
             endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_WRITABLE_ENABLED));
             detectDeviceWritableImage();
@@ -655,20 +651,6 @@ void UbuntuDeviceHelper::resetToDefaults()
     setProcessState(UbuntuDevice::NotStarted);
 
     emit featureDetected();
-}
-
-void UbuntuDeviceHelper::cloneTimeConfig()
-{
-    if(m_dev->m_processState < UbuntuDevice::FirstNonCriticalTask && m_dev->m_processState != UbuntuDevice::NotStarted)
-        return;
-
-    setProcessState(UbuntuDevice::CloneTimeConfig);
-    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONETIME));
-    stopProcess();
-
-    startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONETIME_SCRIPT)
-                 .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                 .arg(m_dev->serialNumber()));
 }
 
 void UbuntuDeviceHelper::enableRWImage()
@@ -1026,70 +1008,9 @@ void UbuntuDevice::openTerminal()
 
 }
 
-void UbuntuDevice::cloneTimeConfig()
-{
-    m_helper->cloneTimeConfig();
-}
-
 void UbuntuDevice::enablePortForward()
 {
     m_helper->enablePortForward();
-}
-
-void UbuntuDevice::shutdown()
-{
-    QProcess p;
-    QStringList args = QStringList()
-            << serialNumber();
-
-    //no need to redetect this should happen automagically
-    p.startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SHUTDOWN_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                    , args
-                    , QCoreApplication::applicationDirPath());
-}
-
-void UbuntuDevice::reboot()
-{
-    QProcess p;
-    QStringList args = QStringList()
-            << serialNumber();
-
-    //no need to redetect this should happen automagically
-    bool started = p.startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                                   , args
-                                   , QCoreApplication::applicationDirPath());
-
-    if(!started && debug) {
-        qDebug()<<"Could not start process "
-               <<QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-              <<args
-             <<p.errorString();
-    }
-
-}
-
-void UbuntuDevice::rebootToRecovery()
-{
-    QProcess p;
-    QStringList args = QStringList()
-            << serialNumber();
-
-    //no need to redetect this should happen automagically
-    p.startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_TO_RECOVERY_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                    , args
-                    , QCoreApplication::applicationDirPath());
-}
-
-void UbuntuDevice::rebootToBootloader()
-{
-    QProcess p;
-    QStringList args = QStringList()
-            << serialNumber();
-
-    //no need to redetect this should happen automagically
-    p.startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_TO_BOOTLOADER_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                    , args
-                    , QCoreApplication::applicationDirPath());
 }
 
 void UbuntuDevice::deployPublicKey()
@@ -1264,8 +1185,6 @@ QString UbuntuDevice::detectionStateString( ) const
             return tr("Detecting if developer tools are installed");
         case FirstNonCriticalTask:
             return tr("");
-        case CloneTimeConfig:
-            return tr("Cloning time configuration");
         case EnableRWImage:
             return tr("Enabling writeable image");
         case DisableRWImage:

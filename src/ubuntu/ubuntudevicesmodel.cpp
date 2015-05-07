@@ -294,14 +294,6 @@ Qt::ItemFlags UbuntuDevicesModel::flags(const QModelIndex &index) const
     return QAbstractListModel::flags(index) | Qt::ItemIsEditable;
 }
 
-void UbuntuDevicesModel::triggerCloneTimeConfig(const int devId)
-{
-    int row = findDevice(devId);
-    if(row < 0)
-        return;
-    m_knownDevices[row]->device()->cloneTimeConfig();
-}
-
 void UbuntuDevicesModel::triggerPortForwarding(const int devId)
 {
     int row = findDevice(devId);
@@ -324,38 +316,6 @@ void UbuntuDevicesModel::triggerSSHConnection(const int devId)
     if(row < 0)
         return;
     m_knownDevices[row]->device()->openTerminal();
-}
-
-void UbuntuDevicesModel::triggerReboot(const int devId)
-{
-    int row = findDevice(devId);
-    if(row < 0)
-        return;
-    m_knownDevices[row]->device()->reboot();
-}
-
-void UbuntuDevicesModel::triggerRebootBootloader(const int devId)
-{
-    int row = findDevice(devId);
-    if(row < 0)
-        return;
-    m_knownDevices[row]->device()->rebootToBootloader();
-}
-
-void UbuntuDevicesModel::triggerRebootRecovery(const int devId)
-{
-    int row = findDevice(devId);
-    if(row < 0)
-        return;
-    m_knownDevices[row]->device()->rebootToRecovery();
-}
-
-void UbuntuDevicesModel::triggerShutdown(const int devId)
-{
-    int row = findDevice(devId);
-    if(row < 0)
-        return;
-    m_knownDevices[row]->device()->shutdown();
 }
 
 void UbuntuDevicesModel::triggerKitAutocreate(const int devId)
