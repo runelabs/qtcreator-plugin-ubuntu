@@ -307,7 +307,7 @@ Page {
                                 }
                                 Button {
                                     id: deviceRedetectButton
-                                    text: "Redetect"
+                                    text: "Refresh"
                                     onClicked: devicesModel.triggerRedetect(deviceId)
                                 }
                             }
@@ -332,7 +332,7 @@ Page {
                                     Layout.fillWidth: true
                                 }
                                 Button {
-                                    text: "Redetect"
+                                    text: "Refresh"
                                     onClicked: devicesModel.triggerRedetect(deviceId)
                                 }
                             }
