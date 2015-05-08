@@ -1,3 +1,13 @@
+qtcreator-plugin-ubuntu (3.1.1+15.10.20150508-0ubuntu1) wily; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Fix lp:1357237 "Inconsistent QML main files" Fix lp:1280631 "SDK
+    should have same restrictions on version number" Fix lp:1450481
+    "Default password not displayed in emulator creation wizard" (LP:
+    #1450481, #1357237, #1280631)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Fri, 08 May 2015 14:24:04 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.10.20150507-0ubuntu1) wily; urgency=medium
 
   [ Alexandre Abreu ]
