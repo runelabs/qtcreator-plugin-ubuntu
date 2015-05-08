@@ -27,7 +27,7 @@ option(INSTALL_TESTS "Install the tests on make install" on)
 set(APP_NAME          %ProjectName%)
 set(APP_ID            "%ProjectName:l%.%ClickDomain:l%")
 set(%ProjectName:u%_DIR "share/qml/%ProjectName%")
-set(MAIN_QML          "%ProjectName%.qml")
+set(MAIN_QML          "Main.qml")
 set(ICON              "graphics/%ProjectName%.png")
 
 # Set install paths

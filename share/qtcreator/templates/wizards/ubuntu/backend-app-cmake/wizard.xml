@@ -34,7 +34,7 @@ Includes also
         <file source="cmake/Click.cmake"                                 target="cmake/Click.cmake" openeditor="false"/>
         <file source="manifest.json.in"   			               target="manifest.json.in" openeditor="true"/>
         <file source="../share/displayName.apparmor"   			   target="%ClickHookName%.apparmor" openeditor="false"/>
-        <file source="app/displayName.qml"                     target="app/%ProjectName%.qml" openeditor="true"/>
+        <file source="app/Main.qml"                     target="app/Main.qml" openeditor="true"/>
         <file source="po/CMakeLists.txt"                       target="po/CMakeLists.txt"     openeditor="false"/>
    </files>
 

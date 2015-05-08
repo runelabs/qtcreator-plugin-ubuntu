@@ -54,7 +54,7 @@ Dialog {
 
     ListItem.ItemSelector {
         id: custom_pwd
-        model: ["Use default password",
+        model: ["Use default password (0000)",
                 "Set custom password"]
     }
 
