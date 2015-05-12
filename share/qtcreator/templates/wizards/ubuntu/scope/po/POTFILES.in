@@ -1,4 +1,5 @@
 [type: gettext/ini] src/scope.ini.in
+[type: gettext/ini] src/scope-settings.ini.in
 src/api/config.h
 src/api/client.h
 src/scope/preview.h

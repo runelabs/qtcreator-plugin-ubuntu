@@ -24,6 +24,21 @@ install(
   DESTINATION ${SCOPE_INSTALL_DIR}
 )
 
+# Put the ini file in the build directory next to the scope
+# .so file so test tools can find both easily.
+intltool_merge_translations(
+  "${CMAKE_SOURCE_DIR}/src/scope-settings.ini.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}-settings.ini"
+  ALL
+  UTF8
+)
+
+# Install the scope ini file
+install(
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}-settings.ini"
+  DESTINATION ${SCOPE_INSTALL_DIR}
+)
+
 configure_file(
   "${CMAKE_SOURCE_DIR}/src/logo.png"
   "${CMAKE_CURRENT_BINARY_DIR}/logo.png"
