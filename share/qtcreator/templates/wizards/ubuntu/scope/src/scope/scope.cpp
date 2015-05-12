@@ -1,7 +1,7 @@
-#include <scope/localization.h>
 #include <scope/preview.h>
 #include <scope/query.h>
 #include <scope/scope.h>
+#include <utility/localization.h>
 
 #include <iostream>
 #include <sstream>
