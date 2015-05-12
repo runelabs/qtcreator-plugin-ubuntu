@@ -1,4 +1,14 @@
 
+# Install the scope images
+install(
+  FILES
+    "icon.png"
+    "logo.png"
+    "screenshot.png"
+  DESTINATION
+    "${SCOPE_INSTALL_DIR}"
+)
+
 # Put the ini file in the build directory next to the scope
 # .so file so test tools can find both easily.
 intltool_merge_translations(
