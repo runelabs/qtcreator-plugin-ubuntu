@@ -42,13 +42,10 @@ install(
     ${SCOPE_INSTALL_DIR}
 )
 
-# Find all the sources and headers
+# Find all the sources
 file(GLOB_RECURSE
   SCOPE_SOURCES
   "*.cpp"
-)
-file(GLOB_RECURSE
-  SCOPE_HEADERS
   "*.h"
 )
 
@@ -56,7 +53,6 @@ file(GLOB_RECURSE
 add_library(
   scope-static OBJECT
   ${SCOPE_SOURCES}
-  ${SCOPE_HEADERS}
 )
 
 # Ensure we export all the symbols

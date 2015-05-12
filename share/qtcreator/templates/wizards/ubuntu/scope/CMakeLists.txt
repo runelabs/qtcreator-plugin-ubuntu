@@ -1,5 +1,6 @@
 project(%ProjectName:l% CXX)
 cmake_minimum_required(VERSION 2.8.10)
+
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
 
 # We require g++ 4.9, to avoid ABI breakage with earlier version.
@@ -24,6 +25,9 @@ add_definitions(
 include(GNUInstallDirs)
 find_package(PkgConfig)
 find_package(Intltool)
+@if "%ContentType%".substring(0, "network-netcpp-q".length) === "network-netcpp-q"
+find_package(Qt5Core REQUIRED)
+@endif
 
 # We depend on Boost for string trimming
 find_package(
@@ -44,16 +48,14 @@ pkg_check_modules(
   REQUIRED
 )
 
-@if "%ContentType%".substring(0, "network-netcpp-q".length) === "network-netcpp-q"
-find_package(Qt5Core REQUIRED)
-include_directories(${Qt5Core_INCLUDE_DIRS})
-@endif
-
 # Add our dependencies to the include paths
 include_directories(
   "${CMAKE_SOURCE_DIR}/src"
   ${Boost_INCLUDE_DIRS}
   ${SCOPE_INCLUDE_DIRS}
+@if "%ContentType%".substring(0, "network-netcpp-q".length) === "network-netcpp-q"
+  ${Qt5Core_INCLUDE_DIRS}
+@endif
 )
 
 # Do not remove this line, its required for the correct functionality of the Ubuntu-SDK
@@ -68,7 +70,6 @@ set(PACKAGE_NAME "%ProjectName:l%.%ClickDomain:l%")
 set(SCOPE_NAME "${PACKAGE_NAME}_%ClickHookName:l%")
 
 # If we need to refer to the scope's name or package in code, these definitions will help
-
 add_definitions(-DPACKAGE_NAME="${PACKAGE_NAME}")
 add_definitions(-DSCOPE_NAME="${SCOPE_NAME}")
 add_definitions(-DGETTEXT_PACKAGE="${GETTEXT_PACKAGE}")
@@ -80,16 +81,15 @@ execute_process(
   OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
+# Configure and install the click manifest and apparmor files
 configure_file(manifest.json.in ${CMAKE_CURRENT_BINARY_DIR}/manifest.json)
-
-# Install the click manifest
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/manifest.json DESTINATION "/")
 install(FILES "%ClickHookName:l%.apparmor" DESTINATION "/")
 
 # Make these files show up in QtCreator
 file(GLOB_RECURSE
   _PO_FILES
-  "po/*.po" 
+  "po/*.po"
 )
 add_custom_target(hidden_files
   ALL
