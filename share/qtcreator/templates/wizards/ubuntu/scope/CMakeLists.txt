@@ -73,7 +73,7 @@ add_definitions(-DPACKAGE_NAME="${PACKAGE_NAME}")
 add_definitions(-DSCOPE_NAME="${SCOPE_NAME}")
 add_definitions(-DGETTEXT_PACKAGE="${GETTEXT_PACKAGE}")
 
-#This command figures out the target architecture and puts it into the manifest file
+# This command figures out the target architecture and puts it into the manifest file
 execute_process(
   COMMAND dpkg-architecture -qDEB_HOST_ARCH
   OUTPUT_VARIABLE CLICK_ARCH
