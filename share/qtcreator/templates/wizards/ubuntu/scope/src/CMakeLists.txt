@@ -9,7 +9,7 @@ install(
     "${SCOPE_INSTALL_DIR}"
 )
 
-# Put the ini file in the build directory next to the scope
+# Put the ini files in the build directory next to the scope
 # .so file so test tools can find both easily.
 intltool_merge_translations(
   "${CMAKE_SOURCE_DIR}/src/scope.ini.in"
@@ -17,15 +17,6 @@ intltool_merge_translations(
   ALL
   UTF8
 )
-
-# Install the scope ini file
-install(
-  FILES "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}.ini"
-  DESTINATION ${SCOPE_INSTALL_DIR}
-)
-
-# Put the ini file in the build directory next to the scope
-# .so file so test tools can find both easily.
 intltool_merge_translations(
   "${CMAKE_SOURCE_DIR}/src/scope-settings.ini.in"
   "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}-settings.ini"
@@ -33,7 +24,11 @@ intltool_merge_translations(
   UTF8
 )
 
-# Install the scope ini file
+# Install the scope ini files
+install(
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}.ini"
+  DESTINATION ${SCOPE_INSTALL_DIR}
+)
 install(
   FILES "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}-settings.ini"
   DESTINATION ${SCOPE_INSTALL_DIR}
