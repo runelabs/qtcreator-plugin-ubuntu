@@ -1,24 +1,14 @@
 
-# Install the scope images
-install(
-  FILES
-    "icon.png"
-    "logo.png"
-    "screenshot.png"
-  DESTINATION
-    "${SCOPE_INSTALL_DIR}"
-)
-
 # Put the ini files in the build directory next to the scope
-# .so file so test tools can find both easily.
+# .so file so that the test tools can find them easily.
 intltool_merge_translations(
-  "${CMAKE_SOURCE_DIR}/src/scope.ini.in"
+  "scope.ini.in"
   "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}.ini"
   ALL
   UTF8
 )
 intltool_merge_translations(
-  "${CMAKE_SOURCE_DIR}/src/scope-settings.ini.in"
+  "scope-settings.ini.in"
   "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}-settings.ini"
   ALL
   UTF8
@@ -34,25 +24,33 @@ install(
   DESTINATION ${SCOPE_INSTALL_DIR}
 )
 
+# Put the logo file in the build directory next to the scope
+# .ini file so that the test tools can find it easily.
 configure_file(
-  "${CMAKE_SOURCE_DIR}/src/logo.png"
+  "logo.png"
   "${CMAKE_CURRENT_BINARY_DIR}/logo.png"
   @ONLY
   COPYONLY
 )
 
-# The sources to build the scope
-set(SCOPE_SOURCES
-  api/client.cpp
-  scope/preview.cpp
-  scope/query.cpp
-  scope/scope.cpp
+# Install the scope images
+install(
+  FILES
+    "icon.png"
+    "logo.png"
+    "screenshot.png"
+  DESTINATION
+    "${SCOPE_INSTALL_DIR}"
 )
 
-# Find all the headers
+# Find all the sources and headers
+file(GLOB_RECURSE
+  SCOPE_SOURCES
+  "*.cpp"
+)
 file(GLOB_RECURSE
   SCOPE_HEADERS
-  "${CMAKE_SOURCE_DIR}/src/*.h" 
+  "*.h"
 )
 
 # Build an object library for the scope code
