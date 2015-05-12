@@ -51,7 +51,7 @@ include_directories(${Qt5Core_INCLUDE_DIRS})
 
 # Add our dependencies to the include paths
 include_directories(
-  "${CMAKE_SOURCE_DIR}/include"
+  "${CMAKE_SOURCE_DIR}/src"
   ${Boost_INCLUDE_DIRS}
   ${SCOPE_INCLUDE_DIRS}
 )
@@ -96,7 +96,7 @@ add_custom_target(hidden_files
   SOURCES
     manifest.json.in
     %ClickHookName:l%.apparmor
-    data/${SCOPE_NAME}.ini.in
+    src/${SCOPE_NAME}.ini.in
     po/POTFILES.in
     po/${GETTEXT_PACKAGE}.pot
     ${_PO_FILES}
@@ -104,7 +104,6 @@ add_custom_target(hidden_files
 
 # Add our main directories
 add_subdirectory(src)
-add_subdirectory(data)
 add_subdirectory(po)
 
 # Set up the tests
