@@ -16,12 +16,11 @@ intltool_merge_translations(
 
 # Install the scope ini files
 install(
-  FILES "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}.ini"
-  DESTINATION ${SCOPE_INSTALL_DIR}
-)
-install(
-  FILES "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}-settings.ini"
-  DESTINATION ${SCOPE_INSTALL_DIR}
+  FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}.ini"
+    "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}-settings.ini"
+  DESTINATION
+    ${SCOPE_INSTALL_DIR}
 )
 
 # Put the logo file in the build directory next to the scope
@@ -40,7 +39,7 @@ install(
     "logo.png"
     "screenshot.png"
   DESTINATION
-    "${SCOPE_INSTALL_DIR}"
+    ${SCOPE_INSTALL_DIR}
 )
 
 # Find all the sources and headers
