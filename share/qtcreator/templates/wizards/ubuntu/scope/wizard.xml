@@ -13,21 +13,20 @@
         <file source="cmake/FindIntltool.cmake"/>
 
         <file source="src/CMakeLists.txt"/>
-        <file source="src/scope.ini.in"/>
-        <file source="src/scope-settings.ini.in"/>
-        <file source="src/icon.png" binary="true"/>
-        <file source="src/logo.png" binary="true"/>
-        <file source="src/screenshot.png" binary="true"/>
-        <file source="src/api/config.h"/>
-        <file source="src/api/client.cpp"/>
-        <file source="src/api/client.h"/>
-        <file source="src/scope/preview.cpp"/>
-        <file source="src/scope/preview.h"/>
-        <file source="src/scope/query.cpp"/>
-        <file source="src/scope/query.h"/>
-        <file source="src/scope/scope.cpp" openeditor="true"/>
-        <file source="src/scope/scope.h"/>
-        <file source="src/utility/localization.h"/>
+        <file source="src/data/scope.ini.in"/>
+        <file source="src/data/scope-settings.ini.in"/>
+        <file source="src/data/icon.png" binary="true"/>
+        <file source="src/data/logo.png" binary="true"/>
+        <file source="src/data/screenshot.png" binary="true"/>
+        <file source="src/client.cpp"/>
+        <file source="src/client.h"/>
+        <file source="src/localization.h"/>
+        <file source="src/preview.cpp"/>
+        <file source="src/preview.h"/>
+        <file source="src/query.cpp"/>
+        <file source="src/query.h"/>
+        <file source="src/scope.cpp" openeditor="true"/>
+        <file source="src/scope.h"/>
 
         <file source="po/CMakeLists.txt"/>
         <file source="po/displayName.pot" target="po/%ProjectName:l%.pot"/>
