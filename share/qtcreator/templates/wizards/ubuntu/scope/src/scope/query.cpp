@@ -177,8 +177,13 @@ void Query::run(sc::SearchReplyProxy const& reply) {
         // in the client.
         Client::Current current;
         if (query_string.empty()) {
-            // If the string is empty, get the current weather for London
-            current = client_.weather("London,uk");
+            // If the string is empty get weather for default location
+            auto location = settings().at("location").get_string();
+            if (!location.empty()) {
+                current = client_.weather(location);
+            } else {
+                current = client_.weather("London UK");
+            }
         } else {
             // otherwise, get the current weather for the search string
             current = client_.weather(query_string);

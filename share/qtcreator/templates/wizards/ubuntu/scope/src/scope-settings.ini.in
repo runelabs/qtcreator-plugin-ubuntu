@@ -1,0 +1,6 @@
+@if "%ContentType%".substring(0, "network".length) === "network"
+[location]
+type = string
+defaultValue = London UK
+_displayName = Default Location
+@endif
