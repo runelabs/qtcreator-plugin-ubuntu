@@ -188,7 +188,7 @@ void Query::run(sc::SearchReplyProxy const& reply) {
 
         // Register a category for the current weather, with the title we just built
         auto location_cat = reply->register_category("current", ss.str(), "",
-                sc::CategoryRenderer(CURRENT_TEMPLATE));
+                                                     sc::CategoryRenderer(CURRENT_TEMPLATE));
 
         {
             // Create a single result for the current weather category
@@ -228,8 +228,8 @@ void Query::run(sc::SearchReplyProxy const& reply) {
         }
 
         // Register a category for the forecast
-        auto forecast_cat = reply->register_category("forecast",
-                _("7 day forecast"), "", sc::CategoryRenderer(FORECAST_TEMPLATE));
+        auto forecast_cat = reply->register_category("forecast", _("7 day forecast"), "",
+                                                     sc::CategoryRenderer(FORECAST_TEMPLATE));
 
         // For each of the forecast days
         for (const auto &weather : forecast.weather) {
