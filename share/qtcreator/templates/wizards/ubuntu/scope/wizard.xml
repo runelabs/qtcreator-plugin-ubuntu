@@ -44,7 +44,7 @@
         <file source="tests/server/server.py"/>
         <file source="tests/CMakeLists.txt"/>
         <file source="tests/unit/CMakeLists.txt"/>
-        <file source="tests/unit/scope/test-scope.cpp"/>
+        <file source="tests/unit/scope/test-scope.py"/>
 
         <file source="CMakeLists.txt" openproject="true"/>
         <file source="displayName.apparmor" target="%ClickHookName:l%.apparmor"/>
