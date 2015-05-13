@@ -21,17 +21,20 @@ include_directories(
 # Where to find the scope ini file and .so
 set(TEST_SCOPE_DIRECTORY "${CMAKE_BINARY_DIR}/src")
 
-@if "%ContentType%".substring(0, "network".length) === "network"
 file(GLOB_RECURSE
   TEST_FIXTURES
-@if "%ContentType%" == "network-netcpp-json"
+@if "%ContentType%" == "empty"
+  "unit/*.py"
+@elsif "%ContentType%" == "network-netcpp-json"
   "server/*.json"
+  "*.py"
 @elsif "%ContentType%" == "network-netcpp-qjson"
   "server/*.json"
+  "*.py"
 @elsif "%ContentType%" == "network-netcpp-qxml"
   "server/*.xml"
-@endif
   "*.py"
+@endif
 )
 
 # Make this file show up in QtCreator
@@ -39,6 +42,7 @@ add_custom_target(hidden_test_fixtures ALL
   SOURCES ${TEST_FIXTURES}
 )
 
+@if "%ContentType%".substring(0, "network".length) === "network"
 # Where to find the test server binary
 set(FAKE_SERVER "${CMAKE_CURRENT_SOURCE_DIR}/server/server.py")
 @endif
