@@ -1,4 +1,4 @@
-#include <api/client.h>
+#include <client.h>
 
 @if "%ContentType%".substring(0, "network-netcpp".length) === "network-netcpp"
 #include <core/net/error.h>

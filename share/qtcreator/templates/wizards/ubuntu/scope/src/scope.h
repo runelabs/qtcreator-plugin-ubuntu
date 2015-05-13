@@ -1,7 +1,7 @@
 #ifndef SCOPE_SCOPE_H_
 #define SCOPE_SCOPE_H_
 
-#include <api/config.h>
+#include <config.h>
 
 #include <unity/scopes/ScopeBase.h>
 #include <unity/scopes/QueryBase.h>

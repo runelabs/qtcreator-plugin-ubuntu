@@ -1,4 +1,4 @@
-#include <scope/scope.h>
+#include <scope.h>
 
 #include <core/posix/exec.h>
 #include <gtest/gtest.h>

@@ -1,7 +1,7 @@
 #ifndef API_CLIENT_H_
 #define API_CLIENT_H_
 
-#include <api/config.h>
+#include <config.h>
 
 #include <atomic>
 #include <deque>

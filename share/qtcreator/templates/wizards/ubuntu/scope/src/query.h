@@ -1,7 +1,7 @@
 #ifndef SCOPE_QUERY_H_
 #define SCOPE_QUERY_H_
 
-#include <api/client.h>
+#include <client.h>
 
 #include <unity/scopes/SearchQueryBase.h>
 #include <unity/scopes/ReplyProxyFwd.h>

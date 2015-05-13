@@ -2,13 +2,13 @@
 # Put the ini files in the build directory next to the scope
 # .so file so that the test tools can find them.
 intltool_merge_translations(
-  "scope.ini.in"
+  "data/scope.ini.in"
   "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}.ini"
   ALL
   UTF8
 )
 intltool_merge_translations(
-  "scope-settings.ini.in"
+  "data/scope-settings.ini.in"
   "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}-settings.ini"
   ALL
   UTF8
@@ -26,7 +26,7 @@ install(
 # Put the logo file in the build directory next to the scope
 # .ini file so that the test tools can find it.
 configure_file(
-  "logo.png"
+  "data/logo.png"
   "${CMAKE_CURRENT_BINARY_DIR}/logo.png"
   @ONLY
   COPYONLY
@@ -35,9 +35,9 @@ configure_file(
 # Install the scope images
 install(
   FILES
-    "icon.png"
-    "logo.png"
-    "screenshot.png"
+    "data/icon.png"
+    "data/logo.png"
+    "data/screenshot.png"
   DESTINATION
     ${SCOPE_INSTALL_DIR}
 )

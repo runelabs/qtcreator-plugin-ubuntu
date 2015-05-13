@@ -1,4 +1,4 @@
-#include <scope/preview.h>
+#include <preview.h>
 
 #include <unity/scopes/ColumnLayout.h>
 #include <unity/scopes/PreviewWidget.h>

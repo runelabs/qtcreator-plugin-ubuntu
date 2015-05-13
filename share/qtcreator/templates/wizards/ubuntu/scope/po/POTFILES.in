@@ -1,12 +1,12 @@
-src/api/config.h
-src/api/client.cpp
-src/api/client.h
-src/scope/preview.cpp
-src/scope/preview.h
-src/scope/query.cpp
-src/scope/query.h
-src/scope/scope.cpp
-src/scope/scope.h
-src/utility/localization.h
-[type: gettext/ini] src/scope.ini.in
-[type: gettext/ini] src/scope-settings.ini.in
+src/config.h
+src/client.cpp
+src/client.h
+src/preview.cpp
+src/preview.h
+src/query.cpp
+src/query.h
+src/scope.cpp
+src/scope.h
+src/localization.h
+[type: gettext/ini] src/data/scope.ini.in
+[type: gettext/ini] src/data/scope-settings.ini.in

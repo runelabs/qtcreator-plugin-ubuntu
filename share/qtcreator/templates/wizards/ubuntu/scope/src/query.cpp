@@ -1,5 +1,5 @@
-#include <scope/query.h>
-#include <utility/localization.h>
+#include <query.h>
+#include <localization.h>
 
 #include <unity/scopes/Annotation.h>
 #include <unity/scopes/CategorisedResult.h>
