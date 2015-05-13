@@ -1,5 +1,5 @@
-#ifndef API_CLIENT_H_
-#define API_CLIENT_H_
+#ifndef CLIENT_H_
+#define CLIENT_H_
 
 #include <atomic>
 #include <deque>
@@ -19,8 +19,6 @@ class Value;
 #include <QXmlStreamReader>
 @endif
 @endif
-
-namespace api {
 
 /**
  * Provide a nice way to access the HTTP API.
@@ -174,6 +172,4 @@ protected:
     std::atomic<bool> cancelled_;
 };
 
-}
-
-#endif // API_CLIENT_H_
+#endif // CLIENT_H_

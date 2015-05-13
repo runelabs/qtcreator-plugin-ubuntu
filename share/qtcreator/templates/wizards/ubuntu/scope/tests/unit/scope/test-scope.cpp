@@ -13,7 +13,6 @@
 
 using namespace std;
 using namespace testing;
-using namespace scope;
 
 namespace posix = core::posix;
 namespace sc = unity::scopes;

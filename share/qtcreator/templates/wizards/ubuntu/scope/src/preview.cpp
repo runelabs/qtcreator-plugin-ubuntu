@@ -11,7 +11,6 @@
 namespace sc = unity::scopes;
 
 using namespace std;
-using namespace scope;
 
 Preview::Preview(const sc::Result &result, const sc::ActionMetadata &metadata) :
         sc::PreviewQueryBase(result, metadata) {

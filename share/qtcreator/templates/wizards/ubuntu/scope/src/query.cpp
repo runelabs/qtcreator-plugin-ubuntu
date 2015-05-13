@@ -13,8 +13,6 @@
 namespace sc = unity::scopes;
 
 using namespace std;
-using namespace api;
-using namespace scope;
 
 @if "%ContentType%" == "empty"
 /**

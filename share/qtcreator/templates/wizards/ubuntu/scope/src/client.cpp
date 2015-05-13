@@ -18,7 +18,6 @@ namespace json = Json;
 @endif
 @endif
 
-using namespace api;
 using namespace std;
 
 Client::Client(Config::Ptr config) :

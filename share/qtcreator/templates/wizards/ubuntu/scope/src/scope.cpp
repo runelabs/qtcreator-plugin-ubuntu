@@ -9,8 +9,6 @@
 
 namespace sc = unity::scopes;
 using namespace std;
-using namespace api;
-using namespace scope;
 
 void Scope::start(string const&) {
     config_ = make_shared<Client::Config>();
