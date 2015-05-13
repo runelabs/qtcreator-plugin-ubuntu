@@ -4,6 +4,7 @@
 #include <atomic>
 #include <deque>
 #include <map>
+#include <memory>
 #include <string>
 @if "%ContentType%".substring(0, "network".length) === "network"
 #include <core/net/http/request.h>
