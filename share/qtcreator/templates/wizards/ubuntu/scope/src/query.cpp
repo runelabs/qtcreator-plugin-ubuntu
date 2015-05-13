@@ -96,7 +96,7 @@ const static string CITY_TEMPLATE =
 @endif
 
 Query::Query(const sc::CannedQuery &query, const sc::SearchMetadata &metadata,
-        Config::Ptr config) :
+        Client::Config::Ptr config) :
         sc::SearchQueryBase(query, metadata), client_(config) {
 }
 

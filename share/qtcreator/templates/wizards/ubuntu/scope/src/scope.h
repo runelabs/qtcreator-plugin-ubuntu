@@ -1,7 +1,7 @@
 #ifndef SCOPE_SCOPE_H_
 #define SCOPE_SCOPE_H_
 
-#include <config.h>
+#include <client.h>
 
 #include <unity/scopes/ScopeBase.h>
 #include <unity/scopes/QueryBase.h>
@@ -45,7 +45,7 @@ public:
             unity::scopes::SearchMetadata const&) override;
 
 protected:
-    api::Config::Ptr config_;
+    api::Client::Config::Ptr config_;
 };
 
 }

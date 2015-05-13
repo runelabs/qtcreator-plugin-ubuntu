@@ -495,6 +495,6 @@ void Client::cancel() {
     cancelled_ = true;
 }
 
-Config::Ptr Client::config() {
+Client::Config::Ptr Client::config() {
     return config_;
 }

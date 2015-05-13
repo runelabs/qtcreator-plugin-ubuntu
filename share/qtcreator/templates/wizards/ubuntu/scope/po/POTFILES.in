@@ -1,12 +1,11 @@
-src/config.h
+[type: gettext/ini] src/data/scope.ini.in
+[type: gettext/ini] src/data/scope-settings.ini.in
 src/client.cpp
 src/client.h
+src/localization.h
 src/preview.cpp
 src/preview.h
 src/query.cpp
 src/query.h
 src/scope.cpp
 src/scope.h
-src/localization.h
-[type: gettext/ini] src/data/scope.ini.in
-[type: gettext/ini] src/data/scope-settings.ini.in
