@@ -22,6 +22,7 @@ add_definitions(
   -DQT_NO_KEYWORDS
 )
 
+# Search for our dependencies
 include(GNUInstallDirs)
 find_package(PkgConfig)
 find_package(Intltool)
@@ -29,13 +30,6 @@ find_package(Intltool)
 find_package(Qt5Core REQUIRED)
 @endif
 
-# We depend on Boost for string trimming
-find_package(
-  Boost
-  REQUIRED
-)
-
-# Search for our dependencies
 pkg_check_modules(
   SCOPE
   libunity-scopes>=0.6.0
@@ -51,7 +45,6 @@ pkg_check_modules(
 # Add our dependencies to the include paths
 include_directories(
   "${CMAKE_SOURCE_DIR}/src"
-  ${Boost_INCLUDE_DIRS}
   ${SCOPE_INCLUDE_DIRS}
 @if "%ContentType%".substring(0, "network-netcpp-q".length) === "network-netcpp-q"
   ${Qt5Core_INCLUDE_DIRS}
@@ -104,8 +97,8 @@ add_custom_target(hidden_files
 )
 
 # Add our main directories
-add_subdirectory(src)
 add_subdirectory(po)
+add_subdirectory(src)
 
 # Set up the tests
 enable_testing()

@@ -1,5 +1,3 @@
-#include <boost/algorithm/string/trim.hpp>
-
 #include <scope/query.h>
 #include <utility/localization.h>
 
@@ -13,7 +11,6 @@
 #include <sstream>
 
 namespace sc = unity::scopes;
-namespace alg = boost::algorithm;
 
 using namespace std;
 using namespace api;
@@ -113,8 +110,8 @@ void Query::run(sc::SearchReplyProxy const& reply) {
         // Start by getting information about the query
         const sc::CannedQuery &query(sc::SearchQueryBase::query());
 
-        // Trim the query string of whitespace
-        string query_string = alg::trim_copy(query.query_string());
+        // Get the query string
+        string query_string = query.query_string();
 
         // the Client is the helper class that provides the results
         // without mixing APIs and scopes code.
@@ -168,8 +165,8 @@ void Query::run(sc::SearchReplyProxy const& reply) {
         // Start by getting information about the query
         const sc::CannedQuery &query(sc::SearchQueryBase::query());
 
-        // Trim the query string of whitespace
-        string query_string = alg::trim_copy(query.query_string());
+        // Get the query string
+        string query_string = query.query_string();
 
         // the Client is the helper class that provides the results
         // without mixing APIs and scopes code.

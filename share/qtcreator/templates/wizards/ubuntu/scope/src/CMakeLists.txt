@@ -1,6 +1,6 @@
 
 # Put the ini files in the build directory next to the scope
-# .so file so that the test tools can find them easily.
+# .so file so that the test tools can find them.
 intltool_merge_translations(
   "scope.ini.in"
   "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}.ini"
@@ -24,7 +24,7 @@ install(
 )
 
 # Put the logo file in the build directory next to the scope
-# .ini file so that the test tools can find it easily.
+# .ini file so that the test tools can find it.
 configure_file(
   "logo.png"
   "${CMAKE_CURRENT_BINARY_DIR}/logo.png"
@@ -73,7 +73,6 @@ add_library(
 target_link_libraries(
   scope
   ${SCOPE_LDFLAGS}
-  ${Boost_LIBRARIES}
 )
 
 @if "%ContentType%".substring(0, "network-netcpp-q".length) === "network-netcpp-q"
