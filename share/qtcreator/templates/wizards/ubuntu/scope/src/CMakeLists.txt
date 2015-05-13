@@ -49,24 +49,10 @@ file(GLOB_RECURSE
   "*.h"
 )
 
-# Build an object library for the scope code
-add_library(
-  scope-static OBJECT
-  ${SCOPE_SOURCES}
-)
-
-# Ensure we export all the symbols
-set_target_properties(
-  scope-static
-  PROPERTIES
-    LINK_FLAGS "-Wl,--export-all-symbols"
-)
-
 # Build a shared library containing our scope code.
-# This will be the actual plugin that is loaded.
 add_library(
   scope SHARED
-  $<TARGET_OBJECTS:scope-static>
+  ${SCOPE_SOURCES}
 )
 
 # Link against the object library and our external library dependencies
