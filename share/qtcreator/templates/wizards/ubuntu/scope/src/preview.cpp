@@ -57,10 +57,10 @@ void Preview::run(sc::PreviewReplyProxy const& reply) {
     header.add_attribute_mapping("subtitle", "subtitle");
 
     // Define the summary section
-    sc::PreviewWidget description("summary_widget", "text");
+    sc::PreviewWidget summary("summary_widget", "text");
     // It has a "text" property, mapped to the result's "description" property
-    description.add_attribute_mapping("text", "description");
+    summary.add_attribute_mapping("text", "description");
 
     // Push each of the sections
-    reply->push( { image, header, description } );
+    reply->push( { image, header, summary } );
 }
