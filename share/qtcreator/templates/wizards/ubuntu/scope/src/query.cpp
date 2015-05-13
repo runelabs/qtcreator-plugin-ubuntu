@@ -17,7 +17,7 @@ using namespace std;
 
 @if "%ContentType%" == "empty"
 /**
- * Define the layout for theresults
+ * Define the layout for the results.
  *
  * The icon size is medium, and ask for the card layout
  * itself to be horizontal. I.e. the text will be placed
@@ -68,7 +68,7 @@ const static string CURRENT_TEMPLATE =
 )";
 
 /**
- * Define the layout for the forecast results
+ * Define the layout for the forecast results.
  *
  * The icon size is small, and ask for the card layout
  * itself to be horizontal. I.e. the text will be placed
