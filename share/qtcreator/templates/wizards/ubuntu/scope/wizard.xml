@@ -33,10 +33,10 @@
         <file source="po/Makefile.in.in"/>
         <file source="po/POTFILES.in"/>
 
-        <file source="tests/server/forecast/daily/Manchester,uk.json"/>
-        <file source="tests/server/forecast/daily/Manchester,uk.xml"/>
-        <file source="tests/server/forecast/daily/London,uk.json"/>
-        <file source="tests/server/forecast/daily/London,uk.xml"/>
+        <file source="tests/server/forecast/Manchester,uk.json"/>
+        <file source="tests/server/forecast/Manchester,uk.xml"/>
+        <file source="tests/server/forecast/London,uk.json"/>
+        <file source="tests/server/forecast/London,uk.xml"/>
         <file source="tests/server/weather/Manchester,uk.json"/>
         <file source="tests/server/weather/Manchester,uk.xml"/>
         <file source="tests/server/weather/London,uk.json"/>
@@ -44,7 +44,7 @@
         <file source="tests/server/server.py"/>
         <file source="tests/CMakeLists.txt"/>
         <file source="tests/unit/CMakeLists.txt"/>
-        <file source="tests/unit/scope/test-scope.py"/>
+        <file source="tests/unit/test-scope.py"/>
 
         <file source="CMakeLists.txt" openproject="true"/>
         <file source="displayName.apparmor" target="%ClickHookName:l%.apparmor"/>
