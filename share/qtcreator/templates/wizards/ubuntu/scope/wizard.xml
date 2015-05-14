@@ -9,9 +9,6 @@
     <displayname>Unity Scope (cmake)</displayname>
     <displaycategory>Ubuntu</displaycategory>
     <files>
-        <file source="cmake/FindGMock.cmake"/>
-        <file source="cmake/FindIntltool.cmake"/>
-
         <file source="src/CMakeLists.txt"/>
         <file source="src/data/displayName.ini.in" target="src/data/%ClickHookName:l%.ini.in"/>
         <file source="src/data/displayName-settings.ini.in" target="src/data/%ClickHookName:l%-settings.ini.in"/>
