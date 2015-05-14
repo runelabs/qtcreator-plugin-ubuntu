@@ -1,5 +1,5 @@
-[type: gettext/ini] src/data/scope.ini.in
-[type: gettext/ini] src/data/scope-settings.ini.in
+[type: gettext/ini] src/data/%ClickHookName:l%.ini.in
+[type: gettext/ini] src/data/%ClickHookName:l%-settings.ini.in
 src/client.cpp
 src/client.h
 src/localization.h

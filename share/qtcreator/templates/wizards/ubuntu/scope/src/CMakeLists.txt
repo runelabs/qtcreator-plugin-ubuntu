@@ -2,13 +2,13 @@
 # Put the ini files in the build directory next to the scope
 # .so file so that the test tools can find them.
 intltool_merge_translations(
-  "data/scope.ini.in"
+  "data/%ClickHookName:l%.ini.in"
   "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}.ini"
   ALL
   UTF8
 )
 intltool_merge_translations(
-  "data/scope-settings.ini.in"
+  "data/%ClickHookName:l%-settings.ini.in"
   "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}-settings.ini"
   ALL
   UTF8

@@ -89,8 +89,8 @@ add_custom_target(hidden_files
   SOURCES
     manifest.json.in
     %ClickHookName:l%.apparmor
-    src/data/scope.ini.in
-    src/data/scope-settings.ini.in
+    src/data/%ClickHookName:l%.ini.in
+    src/data/%ClickHookName:l%-settings.ini.in
     po/POTFILES.in
     po/${GETTEXT_PACKAGE}.pot
     ${_PO_FILES}

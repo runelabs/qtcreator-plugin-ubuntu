@@ -13,8 +13,8 @@
         <file source="cmake/FindIntltool.cmake"/>
 
         <file source="src/CMakeLists.txt"/>
-        <file source="src/data/scope.ini.in"/>
-        <file source="src/data/scope-settings.ini.in"/>
+        <file source="src/data/displayName.ini.in" target="src/data/%ClickHookName:l%.ini.in"/>
+        <file source="src/data/displayName-settings.ini.in" target="src/data/%ClickHookName:l%-settings.ini.in"/>
         <file source="src/data/icon.png" binary="true"/>
         <file source="src/data/logo.png" binary="true"/>
         <file source="src/data/screenshot.png" binary="true"/>
