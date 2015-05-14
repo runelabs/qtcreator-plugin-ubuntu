@@ -48,6 +48,7 @@ Depends: android-tools-adb,
          qtdeclarative5-controls-plugin,
          webapp-container [i386 amd64 armhf],
 # Only for unity8-supported archs
+         python3-scope-harness [i386 amd64 armhf],
          unity-scope-tool [i386 amd64 armhf],
          gdb-multiarch,
          click-reviewers-tools,
