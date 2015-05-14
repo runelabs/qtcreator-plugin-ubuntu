@@ -29,7 +29,7 @@ class BaseTestCase(AutopilotTestCase):
     def setUp(self):
         super(BaseTestCase, self).setUp()
         self.launcher, self.test_type = self.get_launcher_and_type()
-        self.app = Flash.FlashApp(self.launcher(), self.test_type)
+        self.app = %ProjectName%.TouchApp(self.launcher(), self.test_type)
 
     def get_launcher_and_type(self):
         if os.path.exists(self.local_location_qml):

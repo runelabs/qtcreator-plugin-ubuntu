@@ -36,7 +36,7 @@ class MainView(ubuntuuitoolkit.MainView):
         self.visible.wait_for(True, 30)
 
     def get_button(self):
-        return self.app.main_view.select_single('Button', objectName="button")
+        return self.select_single('Button', objectName="button")
 
     def get_label(self):
-        return self.app.main_view.select_single('Label', objectName="label")
+        return self.select_single('Label', objectName="label")
