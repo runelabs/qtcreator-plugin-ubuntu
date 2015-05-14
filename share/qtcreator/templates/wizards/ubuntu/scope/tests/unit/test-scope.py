@@ -31,9 +31,43 @@ class AppsTest (ScopeHarnessTestCase):
             .has_exactly(2) \
             .mode(CategoryListMatcherMode.BY_ID) \
             .category(CategoryMatcher("current") \
-                    .has_at_least(1) ) \
+                .title("London, GB") \
+                .has_at_least(1) \
+                .result(ResultMatcher("5091") \
+                    .title("21.8°C") \
+                    .art("http://openweathermap.org/img/w/02d.png") \
+                    .subtitle("few clouds") ) ) \
             .category(CategoryMatcher("forecast") \
-                    .has_at_least(7) ) \
+                .title("7 day forecast") \
+                .has_at_least(7) \
+                .result(ResultMatcher("500") \
+                    .title("25.1°C to 18.8°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("light rain") ) \
+                .result(ResultMatcher("501") \
+                    .title("20.9°C to 15.5°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("moderate rain") ) \
+                .result(ResultMatcher("802") \
+                    .title("19.6°C to 13.2°C") \
+                    .art("http://openweathermap.org/img/w/03d.png") \
+                    .subtitle("scattered clouds") ) \
+                .result(ResultMatcher("501") \
+                    .title("18.1°C to 13.5°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("moderate rain") ) \
+                .result(ResultMatcher("502") \
+                    .title("17.4°C to 15.4°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("heavy intensity rain") ) \
+                .result(ResultMatcher("501") \
+                    .title("18.4°C to 16.2°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("moderate rain") ) \
+                .result(ResultMatcher("500") \
+                    .title("19°C to 16.7°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("light rain") ) ) \
             .match(self.view.categories)
         self.assertMatchResult(match)
 
@@ -46,9 +80,43 @@ class AppsTest (ScopeHarnessTestCase):
             .has_exactly(2) \
             .mode(CategoryListMatcherMode.BY_ID) \
             .category(CategoryMatcher("current") \
-                    .has_at_least(1) ) \
+                .title("Manchester, GB") \
+                .has_at_least(1) \
+                .result(ResultMatcher("5060") \
+                    .title("17.4°C") \
+                    .art("http://openweathermap.org/img/w/03d.png") \
+                    .subtitle("scattered clouds") ) ) \
             .category(CategoryMatcher("forecast") \
-                    .has_at_least(7) ) \
+                .title("7 day forecast") \
+                .has_at_least(7) \
+                .result(ResultMatcher("800") \
+                    .title("18.8°C to 12°C") \
+                    .art("http://openweathermap.org/img/w/01d.png") \
+                    .subtitle("sky is clear") ) \
+                .result(ResultMatcher("501") \
+                    .title("18.6°C to 12.3°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("moderate rain") ) \
+                .result(ResultMatcher("803") \
+                    .title("17.1°C to 10.8°C") \
+                    .art("http://openweathermap.org/img/w/04d.png") \
+                    .subtitle("broken clouds") ) \
+                .result(ResultMatcher("501") \
+                    .title("16°C to 12.2°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("moderate rain") ) \
+                .result(ResultMatcher("500") \
+                    .title("15.7°C to 13°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("light rain") ) \
+                .result(ResultMatcher("501") \
+                    .title("17.6°C to 14.1°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("moderate rain") ) \
+                .result(ResultMatcher("501") \
+                    .title("15.5°C to 13.4°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("moderate rain") ) ) \
             .match(self.view.categories)
         self.assertMatchResult(match)
 
