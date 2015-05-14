@@ -1,23 +1,21 @@
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 
-"""Tests for the Hello World"""
-
 from autopilot.matchers import Eventually
-from textwrap import dedent
-from testtools.matchers import Is, Not, Equals
-from testtools import skip
-import os
-from %ProjectName% import UbuntuTouchAppTestCase
+from testtools.matchers import  Equals
+from %ProjectName% import BaseTestCase
 
 
-class MainTests(UbuntuTouchAppTestCase):
-    """Generic tests for the Hello World"""
+class MainViewTestCase(BaseTestCase):
+    """Tests for the mainview"""
 
-    test_qml_file = "%s/%s/Main.qml" % (os.path.dirname(os.path.realpath(__file__)),"../../../..")
+    def setUp(self):
+        super(MainViewTestCase, self).setUp()
 
-    def test_0_can_select_mainView(self):
-        """Must be able to select the mainview."""
+    def test_click_button(self):
+        #Find and click the button
+        button = self.app.main_view.get_button() 
+        self.pointing_device.click_object(button)
 
-        mainView = self.get_mainview()
-        self.assertThat(mainView.visible,Eventually(Equals(True)))
-
+        #Make an assertion about what should happen
+        label = self.app.main_view.get_label()
+        self.assertThat(label.text, Eventually(Equals('..world!'))
