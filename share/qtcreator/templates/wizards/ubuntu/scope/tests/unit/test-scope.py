@@ -23,6 +23,55 @@ class AppsTest (ScopeHarnessTestCase):
         self.view.active_scope = SCOPE_NAME
 
 
+@if "%ContentType%" == "network-netcpp-qxml"
+    def test_surfacing_results(self):
+        self.start_harness()
+        self.view.search_query = ''
+
+        match = CategoryListMatcher() \
+            .has_exactly(2) \
+            .mode(CategoryListMatcherMode.BY_ID) \
+            .category(CategoryMatcher("current") \
+                .title("London, GB") \
+                .has_at_least(1) \
+                .result(ResultMatcher("2643743") \
+                    .title("21.8°C") \
+                    .art("http://openweathermap.org/img/w/02d.png") \
+                    .subtitle("few clouds") ) ) \
+            .category(CategoryMatcher("forecast") \
+                .title("7 day forecast") \
+                .has_at_least(7) \
+                .result(ResultMatcher("1000000") \
+                    .title("25.1°C to 18.8°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("light rain") ) \
+                .result(ResultMatcher("1000001") \
+                    .title("20.9°C to 15.5°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("moderate rain") ) \
+                .result(ResultMatcher("1000002") \
+                    .title("19.6°C to 13.2°C") \
+                    .art("http://openweathermap.org/img/w/03d.png") \
+                    .subtitle("scattered clouds") ) \
+                .result(ResultMatcher("1000003") \
+                    .title("18.1°C to 13.5°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("moderate rain") ) \
+                .result(ResultMatcher("1000004") \
+                    .title("17.4°C to 15.4°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("heavy intensity rain") ) \
+                .result(ResultMatcher("1000005") \
+                    .title("18.4°C to 16.2°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("moderate rain") ) \
+                .result(ResultMatcher("1000006") \
+                    .title("19°C to 16.7°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("light rain") ) ) \
+            .match(self.view.categories)
+        self.assertMatchResult(match)
+@else
     def test_surfacing_results(self):
         self.start_harness()
         self.view.search_query = ''
@@ -70,8 +119,58 @@ class AppsTest (ScopeHarnessTestCase):
                     .subtitle("light rain") ) ) \
             .match(self.view.categories)
         self.assertMatchResult(match)
+@endif
 
 
+@if "%ContentType%" == "network-netcpp-qxml"
+    def test_search_results(self):
+        self.start_harness()
+        self.view.search_query = 'Manchester,uk'
+
+        match = CategoryListMatcher() \
+            .has_exactly(2) \
+            .mode(CategoryListMatcherMode.BY_ID) \
+            .category(CategoryMatcher("current") \
+                .title("Manchester, GB") \
+                .has_at_least(1) \
+                .result(ResultMatcher("2643123") \
+                    .title("17.4°C") \
+                    .art("http://openweathermap.org/img/w/03d.png") \
+                    .subtitle("scattered clouds") ) ) \
+            .category(CategoryMatcher("forecast") \
+                .title("7 day forecast") \
+                .has_at_least(7) \
+                .result(ResultMatcher("1000000") \
+                    .title("18.8°C to 12°C") \
+                    .art("http://openweathermap.org/img/w/01d.png") \
+                    .subtitle("sky is clear") ) \
+                .result(ResultMatcher("1000001") \
+                    .title("18.6°C to 12.3°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("moderate rain") ) \
+                .result(ResultMatcher("1000002") \
+                    .title("17.1°C to 10.8°C") \
+                    .art("http://openweathermap.org/img/w/04d.png") \
+                    .subtitle("broken clouds") ) \
+                .result(ResultMatcher("1000003") \
+                    .title("16°C to 12.2°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("moderate rain") ) \
+                .result(ResultMatcher("1000004") \
+                    .title("15.7°C to 13°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("light rain") ) \
+                .result(ResultMatcher("1000005") \
+                    .title("17.6°C to 14.1°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("moderate rain") ) \
+                .result(ResultMatcher("1000006") \
+                    .title("15.5°C to 13.4°C") \
+                    .art("http://openweathermap.org/img/w/10d.png") \
+                    .subtitle("moderate rain") ) ) \
+            .match(self.view.categories)
+        self.assertMatchResult(match)
+@else
     def test_search_results(self):
         self.start_harness()
         self.view.search_query = 'Manchester,uk'
@@ -119,6 +218,7 @@ class AppsTest (ScopeHarnessTestCase):
                     .subtitle("moderate rain") ) ) \
             .match(self.view.categories)
         self.assertMatchResult(match)
+@endif
 
 
 if __name__ == '__main__':
