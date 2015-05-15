@@ -1,54 +1,43 @@
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
-"""Ubuntu Touch App Autopilot tests."""
+"""Application autopilot helpers."""
 
-import os
 import logging
 
-import %ProjectName%
-
-from autopilot.testcase import AutopilotTestCase
-from autopilot import logging as autopilot_logging
-
+import autopilot.logging
 import ubuntuuitoolkit
-from ubuntuuitoolkit import base
 
 logger = logging.getLogger(__name__)
 
 
-class BaseTestCase(AutopilotTestCase):
+class AppException(ubuntuuitoolkit.ToolkitException):
 
-    """A common test case class
+    """Exception raised when there are problems with the Application."""
 
-    """
 
-    local_location = os.path.dirname(os.path.dirname(os.getcwd()))
-    local_location_qml = os.path.join(local_location, 'Main.qml')
-    click_package = '{0}.{1}'.format('%ProjectName%', '%ClickDomain%')
+class TouchApp(object):
 
-    def setUp(self):
-        super(BaseTestCase, self).setUp()
-        self.launcher, self.test_type = self.get_launcher_and_type()
-        self.app = %ProjectName%.TouchApp(self.launcher(), self.test_type)
+    """Autopilot helper object for the application."""
 
-    def get_launcher_and_type(self):
-        if os.path.exists(self.local_location_qml):
-            launcher = self.launch_test_local
-            test_type = 'local'
-        else:
-            launcher = self.launch_test_click
-            test_type = 'click'
-        return launcher, test_type
+    def __init__(self, app_proxy, test_type):
+        self.app = app_proxy
+        self.test_type = test_type
+        self.main_view = self.app.select_single(MainView)
 
-    @autopilot_logging.log_action(logger.info)
-    def launch_test_local(self):
-        return self.launch_test_application(
-            base.get_qmlscene_launch_command(),
-            self.local_location_qml,
-            app_type='qt',
-            emulator_base=ubuntuuitoolkit.UbuntuUIToolkitCustomProxyObjectBase)
+    @property
+    def pointing_device(self):
+        return self.app.pointing_device
 
-    @autopilot_logging.log_action(logger.info)
-    def launch_test_click(self):
-        return self.launch_click_package(
-            self.click_package,
-            emulator_base=ubuntuuitoolkit.UbuntuUIToolkitCustomProxyObjectBase)
+
+class MainView(ubuntuuitoolkit.MainView):
+
+    """A helper that makes it easy to interact with the mainview"""
+
+    def __init__(self, *args):
+        super(MainView, self).__init__(*args)
+        self.visible.wait_for(True, 30)
+
+    def get_button(self):
+        return self.select_single('Button', objectName="button")
+
+    def get_label(self):
+        return self.select_single('Label', objectName="label")
