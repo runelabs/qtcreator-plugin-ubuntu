@@ -2,8 +2,6 @@
 """Application autopilot helpers."""
 
 import logging
-
-import autopilot.logging
 import ubuntuuitoolkit
 
 logger = logging.getLogger(__name__)
