@@ -5,14 +5,13 @@ import logging
 
 import autopilot.logging
 import ubuntuuitoolkit
-from autopilot import exceptions
 
 logger = logging.getLogger(__name__)
 
 class AppException(ubuntuuitoolkit.ToolkitException):
 
     """Exception raised when there are problems with the Application."""
-    
+
 class TouchApp(object):
 
     """Autopilot helper object for the application."""

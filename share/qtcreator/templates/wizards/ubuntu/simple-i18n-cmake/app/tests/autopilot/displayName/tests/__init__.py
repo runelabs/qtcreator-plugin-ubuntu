@@ -2,10 +2,7 @@
 """Application autopilot helpers."""
 
 import logging
-
-import autopilot.logging
 import ubuntuuitoolkit
-from autopilot import exceptions
 
 logger = logging.getLogger(__name__)
 

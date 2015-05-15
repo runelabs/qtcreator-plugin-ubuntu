@@ -2,7 +2,6 @@
 """Ubuntu Touch App Autopilot tests."""
 
 import os
-import shutil
 import logging
 
 import %ProjectName%
