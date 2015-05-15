@@ -8,9 +8,11 @@ import ubuntuuitoolkit
 
 logger = logging.getLogger(__name__)
 
+
 class AppException(ubuntuuitoolkit.ToolkitException):
 
     """Exception raised when there are problems with the Application."""
+
 
 class TouchApp(object):
 
