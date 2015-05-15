@@ -8,7 +8,7 @@
     <description>A simple C++ based QtQuick2 Extension Library with
 simple UI written in QML.
 
-Includes also
+Also includes:
  - a unit test for C++
  - unit and functional tests for QML
 </description>

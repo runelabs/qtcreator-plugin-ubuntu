@@ -5,10 +5,7 @@
                 featuresRequired=""
         >
     <icon>../share/ubuntu.png</icon>
-    <description>A simple QML app with localization support.
-
-Includes also
- - unit and functional tests for QML
+    <description>A simple QML app with localization support. Also includes unit and functional tests.
 </description>
     <displayname>QML App with Simple UI (cmake)</displayname>
     <displaycategory>Ubuntu</displaycategory>

@@ -7,6 +7,9 @@
     <icon>../share/ubuntu.png</icon>
     <description>Creates a C++ Ubuntu application project with a sample UI containing a Label and a Button.
 
+Also includes:
+ - unit and functional tests for QML
+
 This templates requires a Kit using at least a 15.04 click chroot.
 </description>
     <displayname>QtQuick App with QML UI (qmake)</displayname>
@@ -23,11 +26,11 @@ This templates requires a Kit using at least a 15.04 click chroot.
             <file source="appName/main.cpp"          target="%ClickHookName%/main.cpp" openeditor="true"/>
             <file source="appName/appName.desktop"   target="%ClickHookName%/%ClickHookName%.desktop"  openeditor="false"/>
             <file source="appName/appName.apparmor"  target="%ClickHookName%/%ClickHookName%.apparmor" openeditor="false"/>
-            <file source="appName/tests/autopilot/run"                            target="app/tests/autopilot/run"                              openeditor="false"/>
-            <file source="appName/tests/autopilot/displayName/tests/test_main.py" target="app/tests/autopilot/%ProjectName%/tests/test_main.py" openeditor="false"/>
-            <file source="appName/tests/autopilot/displayName/__init__.py"        target="app/tests/autopilot/%ProjectName%/__init__.py"        openeditor="false"/>
-            <file source="appName/tests/autopilot/displayName/tests/__init__.py"  target="app/tests/autopilot/%ProjectName%/tests/__init__.py"  openeditor="false"/>
-            <file source="appName/tests/qml/tst_main.qml"                         target="tests/qml/tst_main.qml"                               openeditor="false"/>
+            <file source="appName/tests/autopilot/run"                            target="%ClickHookName%/tests/autopilot/run"                              openeditor="false"/>
+            <file source="appName/tests/autopilot/displayName/tests/test_main.py" target="%ClickHookName%/tests/autopilot/%ProjectName%/tests/test_main.py" openeditor="false"/>
+            <file source="appName/tests/autopilot/displayName/__init__.py"        target="%ClickHookName%/tests/autopilot/%ProjectName%/__init__.py"        openeditor="false"/>
+            <file source="appName/tests/autopilot/displayName/tests/__init__.py"  target="%ClickHookName%/tests/autopilot/%ProjectName%/tests/__init__.py"  openeditor="false"/>
+            <file source="appName/tests/qml/tst_main.qml"                         target="%ClickHookName%/tests/qml/tst_main.qml"                           openeditor="false"/>
    </files>
 
       <!-- Create a 2nd wizard page with click package parameters -->
