@@ -449,6 +449,9 @@ QString UbuntuClickTool::findOrCreateMakeWrapper (const UbuntuClickTool::Target 
 
 QString UbuntuClickTool::mapIncludePathsForCMake(ProjectExplorer::Kit *k, const QString &in)
 {
+    if (in.isEmpty())
+        return in;
+
     bool canMap = ProjectExplorer::ToolChainKitInformation::toolChain(k)
             && ProjectExplorer::ToolChainKitInformation::toolChain(k)->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
             && !ProjectExplorer::SysRootKitInformation::sysRoot(k).isEmpty();
@@ -471,6 +474,7 @@ QString UbuntuClickTool::mapIncludePathsForCMake(ProjectExplorer::Kit *k, const 
         QRegularExpression exp(QString::fromLatin1("(^|[^\\w+]|\\s+|[-=]\\w)\\/(%1)").arg(path));
         tmp.replace(exp,replace);
     }
+
     return tmp;
 }
 

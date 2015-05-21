@@ -8,15 +8,12 @@ COPY_DATAFILES=0
 
 ## Where the Qt Creator headers are located at
 QTCREATOR_SOURCES = $$(QTC_SOURCE)
-isEmpty(QTCREATOR_SOURCES):QTCREATOR_SOURCES=/usr/src/qtcreator
 
 ## Where our plugin will be compiled to
 IDE_BUILD_TREE = $$(QTC_BUILD)
 
 #support for compiling INTO a locally checked out QtC source tree
-UBUNTU_QTC_PLUGIN_QTCTREE_BUILD=$$(UBUNTU_QTC_PLUGIN_QTCTREE_BUILD)
-!isEmpty(UBUNTU_QTC_PLUGIN_QTCTREE_BUILD): {
-    QTCREATOR_SOURCES=$$clean_path($${UBUNTU_QTC_PLUGIN_QTCTREE_BUILD})
+!isEmpty(QTCREATOR_SOURCES): {
 
     #IDE_BUILD_TREE needs to be set to make this work properly
     isEmpty(IDE_BUILD_TREE): error("QTC_BUILD needs to point to the QtCreator build directory!")
@@ -25,6 +22,8 @@ UBUNTU_QTC_PLUGIN_QTCTREE_BUILD=$$(UBUNTU_QTC_PLUGIN_QTCTREE_BUILD)
     SCRIPTS_FROM_SRC=1
     SET_BUILD_ROOT=1
     COPY_DATAFILES=1
+} else {
+    QTCREATOR_SOURCES=/usr/src/qtcreator
 }
 
 #support for compiling into the user plugin directory
@@ -53,7 +52,7 @@ equals(RELEASE_BUILD, 0) {
     }
 
     equals(SET_BUILD_ROOT, 1) {
-        BUILD_ROOT_STR = '\\"$$clean_path($${OUT_PWD}/../../)\\"'
+      BUILD_ROOT_STR = '\\"$$clean_path($${OUT_PWD}/../../)\\"'
         DEFINES += UBUNTU_BUILD_ROOT=\"$${BUILD_ROOT_STR}\"
     }
 
@@ -71,9 +70,14 @@ equals(RELEASE_BUILD, 0) {
         for(data_dir, USDK_DATA_DIRS) {
             files = $$files($$PWD/$$data_dir/*, true)
             # Info.plist.in are handled below
-            for(file, files):!exists($$file/*): USDK_FILES += $$file
-
+            for(file, files):!exists($$file/*): {
+                USDK_FILES += $$file
+            }
         }
+
+        #seems $$files can not find hidden files ---
+        USDK_FILES += $$PWD/../share/qtcreator/templates/wizards/ubuntu/share/.excludes
+
         ubuntusdk_copy2build.input = USDK_FILES
         ubuntusdk_copy2build.output = $$IDE_DATA_PATH/${QMAKE_FUNC_FILE_IN_stripSrcDir}
         ubuntusdk_copy2build.variable_out = PRE_TARGETDEPS

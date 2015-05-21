@@ -55,6 +55,7 @@ public:
     virtual void addToBaseEnvironment(Utils::Environment &env) const override;
 
     // RunConfiguration interface
+    virtual bool isConfigured () const override;
     virtual ConfigurationState ensureConfigured(QString *errorMessage) override;
 
     //static helpers

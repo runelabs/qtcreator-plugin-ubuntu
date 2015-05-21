@@ -93,10 +93,6 @@ ProjectExplorer::ApplicationLauncher::Mode UbuntuLocalRunConfiguration::runMode(
 
 ProjectExplorer::RunConfiguration::ConfigurationState UbuntuLocalRunConfiguration::ensureConfigured(QString *errorMessage)
 {
-    ConfigurationState state = LocalApplicationRunConfiguration::ensureConfigured(errorMessage);
-    if(state != Configured)
-        return state;
-
     if(target()->project()->id() != Constants::UBUNTUPROJECT_ID) {
         QString idString = id().toString();
         if(idString.startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_APP_ID))) {
@@ -511,5 +507,10 @@ void UbuntuLocalRunConfiguration::addToBaseEnvironment(Utils::Environment &env) 
             }
         }
     }
+}
+
+bool UbuntuLocalRunConfiguration::isConfigured() const
+{
+    return false;
 }
 

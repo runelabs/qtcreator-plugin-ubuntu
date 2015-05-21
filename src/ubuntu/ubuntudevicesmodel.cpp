@@ -25,7 +25,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
-#include <utils/projectnamevalidatinglineedit.h>
+#include <utils/projectintropage.h>
 
 #include <QCoreApplication>
 #include <QRegularExpression>
@@ -916,7 +916,7 @@ void UbuntuDevicesModel::deleteEmulator(const QString &name)
 QVariant UbuntuDevicesModel::validateEmulatorName(const QString &name)
 {
     QString error;
-    bool result = Utils::ProjectNameValidatingLineEdit::validateProjectName(name,&error);
+    bool result = Utils::ProjectIntroPage::validateProjectName(name,&error);
 
     if(result) {
         foreach (UbuntuDevicesItem *item, m_knownDevices) {
