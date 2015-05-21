@@ -1,4 +1,4 @@
-#include <api/client.h>
+#include <client.h>
 
 @if "%ContentType%".substring(0, "network-netcpp".length) === "network-netcpp"
 #include <core/net/error.h>
@@ -18,7 +18,6 @@ namespace json = Json;
 @endif
 @endif
 
-using namespace api;
 using namespace std;
 
 Client::Client(Config::Ptr config) :
@@ -495,6 +494,6 @@ void Client::cancel() {
     cancelled_ = true;
 }
 
-Config::Ptr Client::config() {
+Client::Config::Ptr Client::config() {
     return config_;
 }

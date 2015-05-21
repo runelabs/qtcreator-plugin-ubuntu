@@ -1,66 +1,64 @@
 
-# Put the ini file in the build directory next to the scope
-# .so file so test tools can find both easily.
+# Put the ini files in the build directory next to the scope
+# .so file so that the test tools can find them.
 intltool_merge_translations(
-  "${CMAKE_SOURCE_DIR}/data/${SCOPE_NAME}.ini.in"
+  "data/%ClickHookName:l%.ini.in"
   "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}.ini"
   ALL
   UTF8
 )
-
-# Install the scope ini file
-install(
-  FILES "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}.ini"
-  DESTINATION ${SCOPE_INSTALL_DIR}
+intltool_merge_translations(
+  "data/%ClickHookName:l%-settings.ini.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}-settings.ini"
+  ALL
+  UTF8
 )
 
+# Install the scope ini files
+install(
+  FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}.ini"
+    "${CMAKE_CURRENT_BINARY_DIR}/${SCOPE_NAME}-settings.ini"
+  DESTINATION
+    ${SCOPE_INSTALL_DIR}
+)
+
+# Put the logo file in the build directory next to the scope
+# .ini file so that the test tools can find it.
 configure_file(
-  "${CMAKE_SOURCE_DIR}/data/logo.png"
+  "data/logo.png"
   "${CMAKE_CURRENT_BINARY_DIR}/logo.png"
   @ONLY
   COPYONLY
 )
 
-# The sources to build the scope
-set(SCOPE_SOURCES
-  api/client.cpp
-  scope/preview.cpp
-  scope/query.cpp
-  scope/scope.cpp
+# Install the scope images
+install(
+  FILES
+    "data/icon.png"
+    "data/logo.png"
+    "data/screenshot.png"
+  DESTINATION
+    ${SCOPE_INSTALL_DIR}
 )
 
-# Find all the headers
+# Find all the sources
 file(GLOB_RECURSE
-  SCOPE_HEADERS
-  "${CMAKE_SOURCE_DIR}/include/*.h" 
-)
-
-# Build an object library for the scope code
-add_library(
-  scope-static OBJECT
-  ${SCOPE_SOURCES}
-  ${SCOPE_HEADERS}
-)
-
-# Ensure we export all the symbols
-set_target_properties(
-  scope-static
-  PROPERTIES
-    LINK_FLAGS "-Wl,--export-all-symbols"
+  SCOPE_SOURCES
+  "*.cpp"
+  "*.h"
 )
 
 # Build a shared library containing our scope code.
-# This will be the actual plugin that is loaded.
 add_library(
   scope SHARED
-  $<TARGET_OBJECTS:scope-static>
+  ${SCOPE_SOURCES}
 )
 
 # Link against the object library and our external library dependencies
 target_link_libraries(
   scope
   ${SCOPE_LDFLAGS}
-  ${Boost_LIBRARIES}
 )
 
 @if "%ContentType%".substring(0, "network-netcpp-q".length) === "network-netcpp-q"

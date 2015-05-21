@@ -4,6 +4,7 @@ _Description=This is a %ProjectName:c% scope
 Art=screenshot.png
 Author=Firstname Lastname
 Icon=icon.png
+Keywords=weather
 
 [Appearance]
 PageHeader.Logo=logo.png

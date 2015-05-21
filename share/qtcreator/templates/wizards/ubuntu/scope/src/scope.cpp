@@ -1,7 +1,7 @@
-#include <scope/localization.h>
-#include <scope/preview.h>
-#include <scope/query.h>
-#include <scope/scope.h>
+#include <preview.h>
+#include <query.h>
+#include <scope.h>
+#include <localization.h>
 
 #include <iostream>
 #include <sstream>
@@ -9,11 +9,9 @@
 
 namespace sc = unity::scopes;
 using namespace std;
-using namespace api;
-using namespace scope;
 
 void Scope::start(string const&) {
-    config_ = make_shared<Config>();
+    config_ = make_shared<Client::Config>();
 
     setlocale(LC_ALL, "");
     string translation_directory = ScopeBase::scope_directory()

@@ -1,11 +1,11 @@
-[type: gettext/ini] data/%ProjectName:l%.%ClickDomain:l%_%ClickHookName:l%.ini.in
-include/api/config.h
-include/api/client.h
-include/scope/preview.h
-include/scope/localization.h
-include/scope/query.h
-include/scope/scope.h
-src/api/client.cpp
-src/scope/query.cpp
-src/scope/scope.cpp
-src/scope/preview.cpp
+[type: gettext/ini] src/data/%ClickHookName:l%.ini.in
+[type: gettext/ini] src/data/%ClickHookName:l%-settings.ini.in
+src/client.cpp
+src/client.h
+src/localization.h
+src/preview.cpp
+src/preview.h
+src/query.cpp
+src/query.h
+src/scope.cpp
+src/scope.h

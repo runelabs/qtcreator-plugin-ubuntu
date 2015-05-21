@@ -1,15 +1,13 @@
-#ifndef SCOPE_SCOPE_H_
-#define SCOPE_SCOPE_H_
+#ifndef SCOPE_H_
+#define SCOPE_H_
 
-#include <api/config.h>
+#include <client.h>
 
 #include <unity/scopes/ScopeBase.h>
 #include <unity/scopes/QueryBase.h>
 #include <unity/scopes/ReplyProxyFwd.h>
 #include <unity/scopes/QueryBase.h>
 #include <unity/scopes/PreviewQueryBase.h>
-
-namespace scope {
 
 /**
  * Defines the lifecycle of scope plugin, and acts as a factory
@@ -45,9 +43,7 @@ public:
             unity::scopes::SearchMetadata const&) override;
 
 protected:
-    api::Config::Ptr config_;
+    Client::Config::Ptr config_;
 };
 
-}
-
-#endif // SCOPE_SCOPE_H_
+#endif // SCOPE_H_

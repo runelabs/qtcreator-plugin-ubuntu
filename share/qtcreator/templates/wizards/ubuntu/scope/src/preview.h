@@ -1,5 +1,5 @@
-#ifndef SCOPE_PREVIEW_H_
-#define SCOPE_PREVIEW_H_
+#ifndef PREVIEW_H_
+#define PREVIEW_H_
 
 #include <unity/scopes/PreviewQueryBase.h>
 
@@ -8,8 +8,6 @@ namespace scopes {
 class Result;
 }
 }
-
-namespace scope {
 
 /**
  * Represents an individual preview request.
@@ -32,6 +30,4 @@ public:
     void run(unity::scopes::PreviewReplyProxy const& reply) override;
 };
 
-}
-
-#endif // SCOPE_PREVIEW_H_
+#endif // PREVIEW_H_

@@ -1,5 +1,5 @@
-#ifndef SCOPE_LOCALIZATION_H_
-#define SCOPE_LOCALIZATION_H_
+#ifndef LOCALIZATION_H_
+#define LOCALIZATION_H_
 
 #include <libintl.h>
 #include <string>
@@ -18,5 +18,5 @@ inline std::string _(const char *__msgid1, const char *__msgid2,
     }
 }
 
-#endif // SCOPE_LOCALIZATION_H_
+#endif // LOCALIZATION_H_
 
