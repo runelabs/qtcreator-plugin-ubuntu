@@ -70,4 +70,4 @@ add_custom_target("run" /usr/bin/qmlscene -I ${CMAKE_BINARY_DIR}/backend  ${CMAK
                     WORKING_DIRECTORY ./app)
 
 # No op custom target for all not compiled files, so they show up in the QtCreator project tree
-add_custom_target("%ProjectName:l%_ClickFiles" ALL SOURCES "%ClickHookName%.apparmor" "manifest.json.in")
+add_custom_target("%ProjectName:l%_ClickFiles" ALL SOURCES "%ClickHookName%.apparmor" "manifest.json.in" "tests/qml/tst_main.qml")

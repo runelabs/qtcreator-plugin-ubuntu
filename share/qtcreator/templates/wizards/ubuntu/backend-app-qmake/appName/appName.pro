@@ -10,8 +10,12 @@ CONF_FILES +=  %ClickHookName%.apparmor \
                %ClickHookName%.desktop \
                %ClickHookName%.png
 
+AP_TEST_FILES += tests/autopilot/run \
+                 $$files(tests/*.py,true)
+
 OTHER_FILES += $${CONF_FILES} \
-               $${QML_FILES}
+               $${QML_FILES} \
+               $${AP_TEST_FILES}
 
 #specify where the qml/js files are installed to
 qml_files.path = /%ClickHookName%
