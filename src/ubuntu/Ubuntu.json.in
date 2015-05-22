@@ -1,0 +1,12 @@
+{
+    \"Name\" : \"Ubuntu\",
+    \"Version\" : \"$$QTCREATOR_VERSION\",
+    \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
+    \"Vendor\" : \"Canonical\",
+    \"Copyright\" : \"(C) Canonical Ltd.\",
+    \"License\" : [\"LGPL\"],
+    \"Category\" : \"Device Support\",
+    \"Description\" : \"Ubuntu support library\",
+    \"Url\" : \"http://www.ubuntu.com\",
+    $$dependencyList
+}
