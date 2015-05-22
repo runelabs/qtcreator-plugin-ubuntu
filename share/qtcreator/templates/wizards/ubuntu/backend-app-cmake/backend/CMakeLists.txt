@@ -8,6 +8,9 @@ set(
     modules/%ClickHookName:s%/mytype.cpp
 )
 
+# Make the unit test files visible on qtcreator
+add_custom_target(%ClickHookName:s%backend_UNITTEST_QML_FILES ALL SOURCES "tests/unit/tst_mytype.qml")
+
 add_library(%ClickHookName:s%backend MODULE
     ${%ClickHookName:s%backend_SRCS}
 )
