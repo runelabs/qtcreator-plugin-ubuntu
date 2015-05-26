@@ -23,7 +23,7 @@ IDE_BUILD_TREE = $$(QTC_BUILD)
     SET_BUILD_ROOT=1
     COPY_DATAFILES=1
 } else {
-    QTCREATOR_SOURCES=/usr/src/qtcreator
+    QTCREATOR_SOURCES=../../../../
 }
 
 #support for compiling into the user plugin directory
@@ -40,7 +40,7 @@ UBUNTU_LOCAL_BUILD = $$(UBUNTU_QTC_PLUGIN_LOCALBUILD)
     LIBS += -L$$DESTDIRBASE/QtProject/$$DESTDIRAPPNAME/plugins/$$QTCREATOR_VERSION/QtProject
 }
 
-isEmpty(IDE_BUILD_TREE):IDE_BUILD_TREE=../../builddir
+#isEmpty(IDE_BUILD_TREE):IDE_BUILD_TREE=../../builddir
 include($$QTCREATOR_SOURCES/src/qtcreatorplugin.pri)
 
 
