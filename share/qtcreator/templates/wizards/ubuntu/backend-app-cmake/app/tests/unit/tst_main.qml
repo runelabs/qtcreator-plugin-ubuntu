@@ -26,7 +26,7 @@ Item {
         function init() {
             var label = findChild(main, "label");
             // See the compare method documentation at https://developer.ubuntu.com/api/qml/sdk-14.10/QtTest.TestCase/#compare-method
-            compare("Hello..", label.text);
+            compare("Hello world..", label.text);
         }
 
         function test_clickButtonMustChangeLabel() {
@@ -35,7 +35,7 @@ Item {
             mouseClick(button, buttonCenter.x, buttonCenter.y);
             var label = findChild(main, "label");
             // See the tryCompare method documentation at https://developer.ubuntu.com/api/qml/sdk-14.10/QtTest.TestCase/#tryCompare-method
-            tryCompare(label, "text", "..world!", 1);
+            tryCompare(label, "text", "..from Cpp Backend", 1);
         }
     }
 }

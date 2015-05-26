@@ -4,7 +4,7 @@ TARGET = %ClickHookName%
 RESOURCES += %ClickHookName%.qrc
 
 QML_FILES += $$files(*.qml,true) \
-					   $$files(*.js,true)
+             $$files(*.js,true)
 
 CONF_FILES +=  %ClickHookName%.apparmor \
                %ClickHookName%.desktop \
