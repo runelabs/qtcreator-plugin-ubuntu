@@ -6,11 +6,11 @@ exists( $$PWD/../../plugins.pro ) {
     include($$PWD/../../../qtcreatorplugin.pri)
 
     USDK_DATA_DIRS = \
-        ../share/qtcreator/templates \
-        ../share/qtcreator/ubuntu \
+        $$PWD/../share/qtcreator/templates \
+        $$PWD/../share/qtcreator/ubuntu \
 
     for(data_dir, USDK_DATA_DIRS) {
-        files = $$files($$PWD/$$data_dir/*, true)
+        files = $$files($$data_dir/*, true)
         # Info.plist.in are handled below
         for(file, files):!exists($$file/*): {
             USDK_FILES += $$file
@@ -21,7 +21,7 @@ exists( $$PWD/../../plugins.pro ) {
     USDK_FILES += $$PWD/../share/qtcreator/templates/wizards/ubuntu/share/.excludes
 
     ubuntusdk_copy2build.input = USDK_FILES
-    ubuntusdk_copy2build.output = $$IDE_DATA_PATH/${QMAKE_FUNC_FILE_IN_stripSrcDir}
+    ubuntusdk_copy2build.output = $$IDE_DATA_PATH/../../${QMAKE_FUNC_FILE_IN_stripSrcDir}
     ubuntusdk_copy2build.variable_out = PRE_TARGETDEPS
     ubuntusdk_copy2build.commands = $$QMAKE_COPY ${QMAKE_FILE_IN} ${QMAKE_FILE_OUT}
     ubuntusdk_copy2build.name = COPY ${QMAKE_FILE_IN}
@@ -30,7 +30,7 @@ exists( $$PWD/../../plugins.pro ) {
 
     !macx {
         for(data_dir, USDK_DATA_DIRS) {
-            eval($${data_dir}.files = $$IDE_DATA_PATH/$$data_dir)
+            eval($${data_dir}.files = $$IDE_DATA_PATH/../../$$stripSrcDir($$data_dir))
             eval($${data_dir}.path = $$QTC_PREFIX/share/qtcreator)
             eval($${data_dir}.CONFIG += no_check_exist)
             INSTALLS += $$data_dir
