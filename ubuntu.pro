@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
-SUBDIRS = src/ubuntu \
+SUBDIRS = UbuntuPlugin.pro \
           #tests \
           chroot-agent
 
@@ -19,7 +19,6 @@ QML_FILES += \
     $$QML_ROOT/qml/welcome.qml \
     $$QML_ROOT/qml/publishpage.qml \
     $$QML_ROOT/qml/devicespage.qml
-
 
 OTHER_FILES +=  \
     ubuntu-click.prf \
