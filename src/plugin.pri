@@ -28,13 +28,11 @@ exists( $$PWD/../../plugins.pro ) {
     ubuntusdk_copy2build.CONFIG += no_link
     QMAKE_EXTRA_COMPILERS += ubuntusdk_copy2build
 
-    !macx {
-        for(data_dir, USDK_DATA_DIRS) {
-            eval($${data_dir}.files = $$IDE_DATA_PATH/../../$$stripSrcDir($$data_dir))
-            eval($${data_dir}.path = $$QTC_PREFIX/share/qtcreator)
-            eval($${data_dir}.CONFIG += no_check_exist)
-            INSTALLS += $$data_dir
-        }
+    for(data_dir, USDK_DATA_DIRS) {
+        eval($${data_dir}.files = $$IDE_DATA_PATH/../../$$stripSrcDir($$data_dir))
+        eval($${data_dir}.path = $$QTC_PREFIX/share/qtcreator)
+        eval($${data_dir}.CONFIG += no_check_exist)
+        INSTALLS += $$data_dir
     }
 } else {
     ## Where the Qt Creator headers are located at
