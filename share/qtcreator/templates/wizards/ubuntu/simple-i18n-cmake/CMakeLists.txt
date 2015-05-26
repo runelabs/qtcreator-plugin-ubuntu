@@ -73,4 +73,4 @@ add_custom_target("run" /usr/bin/qmlscene -I ${CMAKE_BINARY_DIR}/backend  ${CMAK
 
 # Normally QtCreator would only show files that are part of a target, but we need it to show also files 
 # that are not compiled. Therefore we add a custom target that just does nothing but list the files 
-add_custom_target("%ProjectName:l%_ClickFiles" ALL SOURCES "%ClickHookName%.apparmor" "manifest.json.in" "tests/qml/tst_main.qml")
+add_custom_target("%ProjectName:l%_ClickFiles" ALL SOURCES "%ClickHookName%.apparmor" "manifest.json.in")

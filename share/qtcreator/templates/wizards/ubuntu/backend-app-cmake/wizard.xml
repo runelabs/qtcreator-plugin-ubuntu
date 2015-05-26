@@ -31,7 +31,7 @@ Also includes:
         <file source="app/tests/autopilot/displayName/tests/test_main.py" target="app/tests/autopilot/%ProjectName%/tests/test_main.py" openeditor="false"/>
         <file source="app/tests/autopilot/displayName/__init__.py"        target="app/tests/autopilot/%ProjectName%/__init__.py"        openeditor="false"/>
         <file source="app/tests/autopilot/displayName/tests/__init__.py"  target="app/tests/autopilot/%ProjectName%/tests/__init__.py"  openeditor="false"/>
-        <file source="app/tests/qml/tst_main.qml"                         target="tests/qml/tst_main.qml"                               openeditor="false"/>
+        <file source="app/tests/unit/tst_main.qml"                        target="app/tests/unit/tst_main.qml"                          openeditor="false"/>
         <file source="cmake/Click.cmake"                                  target="cmake/Click.cmake"                                    openeditor="false"/>
         <file source="manifest.json.in"                                   target="manifest.json.in"                                     openeditor="true"/>
         <file source="../share/displayName.apparmor"                      target="%ClickHookName%.apparmor"                             openeditor="false"/>

@@ -30,7 +30,7 @@ This templates requires a Kit using at least a 15.04 click chroot.
             <file source="appName/tests/autopilot/displayName/tests/test_main.py" target="%ClickHookName%/tests/autopilot/%ProjectName%/tests/test_main.py" openeditor="false"/>
             <file source="appName/tests/autopilot/displayName/__init__.py"        target="%ClickHookName%/tests/autopilot/%ProjectName%/__init__.py"        openeditor="false"/>
             <file source="appName/tests/autopilot/displayName/tests/__init__.py"  target="%ClickHookName%/tests/autopilot/%ProjectName%/tests/__init__.py"  openeditor="false"/>
-            <file source="appName/tests/qml/tst_main.qml"                         target="%ClickHookName%/tests/qml/tst_main.qml"                           openeditor="false"/>
+            <file source="appName/tests/unit/tst_main.qml"                        target="%ClickHookName%/tests/unit/tst_main.qml"                          openeditor="false"/>
    </files>
 
       <!-- Create a 2nd wizard page with click package parameters -->
