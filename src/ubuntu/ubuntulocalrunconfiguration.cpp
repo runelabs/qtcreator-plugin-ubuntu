@@ -504,8 +504,27 @@ void UbuntuLocalRunConfiguration::addToBaseEnvironment(Utils::Environment &env) 
                 QmakeProjectManager::TargetInformation info = applPro->targetInformation();
                 if(applPro->targetInformation().valid)
                     loc_addToImportPath(info.buildDir + QDir::separator() + info.target);
+
+                // The user could be linking to a library found via a -L/some/dir switch
+                // to find those libraries while actually running we explicitly prepend those
+                // dirs to the library search path
+                const QStringList libDirectories = applPro->variableValue(QmakeProjectManager::LibDirectoriesVar);
+                if (!libDirectories.isEmpty()) {
+                    const QString proDirectory = applPro->buildDir();
+                    foreach (QString dir, libDirectories) {
+                        // Fix up relative entries like "LIBS+=-L.."
+                        const QFileInfo fi(dir);
+                        if (!fi.isAbsolute())
+                            dir = QDir::cleanPath(proDirectory + QLatin1Char('/') + dir);
+                        env.prependOrSetLibrarySearchPath(dir);
+                    } // foreach
+                } // libDirectories
             }
         }
+
+        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit());
+        if (qtVersion)
+            env.prependOrSetLibrarySearchPath(qtVersion->qmakeProperty("QT_INSTALL_LIBS"));
     }
 }
 
