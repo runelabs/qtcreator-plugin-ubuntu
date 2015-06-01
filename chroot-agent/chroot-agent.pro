@@ -20,7 +20,9 @@ TEMPLATE = app
 #support compiling inside the QtC source tree
 exists( $$PWD/../../plugins.pro ) {
     include(../../../../qtcreator.pri)
-    target.path=$$IDE_LIBEXEC_PATH/bin
+
+    DESTDIR=$$IDE_LIBEXEC_PATH
+    target.path=$$QTC_PREFIX/bin
 } else {
 
     ## Where the Qt Creator headers are located at
