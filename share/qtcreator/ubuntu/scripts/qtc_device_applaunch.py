@@ -47,6 +47,20 @@ import dbus.mainloop.glib
 #make glib the default dbus event loop
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
+#--------------------------- globals ------------------------------
+
+#buffer for the syslog output, always contains the last or parts of the last line 
+syslogBuffer=""
+hook_name = None
+package_name = None
+package_version = None
+package_arch = None
+manifest = None
+app_id = None
+tmp_dir = "/tmp/"
+apparmor_path = None
+skip_apparmor_denials = 3
+
 # Runner to handle scopes
 class ScopeRunner(dbus.service.Object):
     def __init__(self,appid,loop):
@@ -167,6 +181,18 @@ def on_sigterm(runner):
     print("Sdk-Launcher> Received exit signal, stopping application",flush=True)
     runner.stop()
 
+def prepareFileHandle(handle, callback):
+    # make handle non-blocking:
+    fl = fcntl.fcntl(handle, fcntl.F_GETFL)
+    fcntl.fcntl(handle, fcntl.F_SETFL, fl | os.O_NONBLOCK)
+
+    if GObject.pygobject_version < (3,7,2):
+        GObject.io_add_watch(handle,GObject.IO_IN | GObject.IO_HUP,callback)
+    else:
+        GLib.io_add_watch(handle,GLib.PRIORITY_DEFAULT,GObject.IO_IN | GObject.IO_HUP,callback)
+
+    return handle
+
 def create_procpipe(path,callback):
     if(os.path.exists(path)):
         os.unlink(path)
@@ -174,16 +200,7 @@ def create_procpipe(path,callback):
     os.mkfifo(path)
     pipe = os.open(path,os.O_RDONLY | os.O_NONBLOCK)
 
-    # make pipe non-blocking:
-    fl = fcntl.fcntl(pipe, fcntl.F_GETFL)
-    fcntl.fcntl(pipe, fcntl.F_SETFL, fl | os.O_NONBLOCK)
-
-    if GObject.pygobject_version < (3,7,2):
-        GObject.io_add_watch(pipe,GObject.IO_IN | GObject.IO_HUP,callback)
-    else:
-        GLib.io_add_watch(pipe,GLib.PRIORITY_DEFAULT,GObject.IO_IN | GObject.IO_HUP,callback)
-
-    return pipe
+    return prepareFileHandle(pipe, callback)
 
 def readPipe(pipe):
     output=""
@@ -209,6 +226,53 @@ def on_proc_stdout(file, condition):
 def on_proc_stderr(file, condition):
     output = readPipe(file)
     print (output ,file=sys.stderr,end="",flush=True)
+    return True
+
+def create_filelistener(path, callback):
+    if(not os.path.exists(path)):
+        return None
+
+    handle = os.open(path,os.O_RDONLY | os.O_NONBLOCK)
+    os.lseek(handle,0,os.SEEK_END)
+
+    return prepareFileHandle(handle, callback)
+
+def filter_syslog_line(line):
+    global skip_apparmor_denials
+
+    if app_id in line:
+        if skip_apparmor_denials > 0:
+            skip_apparmor_denials-=1
+            return
+        sys.stderr.write("Sdk-Launcher> There has been a AppArmor denial for your application.\n")
+        sys.stderr.write("Sdk-Launcher> Most likely it is missing a policy in the AppArmor file.\n")
+        
+        # do not change this line, it is interpreted by QtCreator 
+        sys.stderr.write("Syslog> "+line)
+
+def on_syslog_update(fd, condition):
+    global syslogBuffer
+
+    while True:
+        chunk = os.read(fd,256).decode();
+        if (len(chunk) == 0):
+            break
+
+        syslogBuffer += chunk
+        
+    if len(syslogBuffer) <= 0 :
+        return True
+
+    #read the buffer and filter every complete line    
+    try:
+        while(True):
+            idx = syslogBuffer.index("\n")
+            line = syslogBuffer[0:idx+1]
+            syslogBuffer = syslogBuffer[idx+1:]
+            filter_syslog_line(line)
+    except ValueError:
+        pass
+    
     return True
 
 def is_confined (manifest_obj, hook_name):
@@ -285,15 +349,6 @@ if options.qmlDebug is not None:
     needs_debug_conf=True
     conf_obj['qmlDebug'] = options.qmlDebug
     print("Sdk-Launcher> QML Debug Settings:"+options.qmlDebug,flush=True)
-
-hook_name = None
-package_name = None
-package_version = None
-package_arch = None
-manifest = None
-app_id = None
-tmp_dir = "/tmp/"
-apparmor_path = None
 
 #get the manifest information from the click package
 try:
@@ -439,6 +494,9 @@ try:
     stderrPipeName = tmp_dir+app_id+".stderr"
     procStdErr = create_procpipe(stderrPipeName,on_proc_stderr)
 
+    syslogFileName = "/var/log/syslog"
+    syslogHandle = create_filelistener("/var/log/syslog",on_syslog_update)
+
     if "unix_signal_add" in dir(GLib):
         GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGTERM, on_sigterm, runner)
         GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGINT, on_sigterm, runner)
@@ -481,6 +539,9 @@ if (stdoutPipeName != None and os.path.exists(stdoutPipeName)):
 if (stderrPipeName != None and os.path.exists(stderrPipeName)):
     os.close(procStdErr)
     os.unlink(stderrPipeName)
+
+if (syslogHandle):
+    os.close(syslogHandle)
 
 if (options.noUninstall):
     print("Sdk-Launcher> Skipping uninstall step (--no-uninstall)")
