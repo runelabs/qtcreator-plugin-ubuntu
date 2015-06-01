@@ -104,7 +104,7 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
             if(debug) qDebug()<<"Solib search path : "<<params.solibSearchPath;
 
             Debugger::DebuggerRunControl * const runControl
-                    = Debugger::DebuggerRunControlFactory::doCreate(params, errorMessage);
+                    = Debugger::createDebuggerRunControl(params, errorMessage);
             if (!runControl)
                 return 0;
             UbuntuRemoteDebugSupport * const debugSupport =
