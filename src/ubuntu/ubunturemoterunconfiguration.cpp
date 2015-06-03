@@ -164,8 +164,7 @@ QString UbuntuRemoteRunConfiguration::disabledReason() const
 
 bool UbuntuRemoteRunConfiguration::isConfigured() const
 {
-    //we always want that ensureConfigured is called
-    return false;
+    return true;
 }
 
 /*!

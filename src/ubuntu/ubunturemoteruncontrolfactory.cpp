@@ -70,7 +70,10 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
          */
         QTC_ASSERT(canRun(runConfiguration, mode), return 0);
 
-        UbuntuRemoteRunConfiguration *rc = qobject_cast<UbuntuRemoteRunConfiguration *>(runConfiguration);
+        UbuntuRemoteRunConfiguration *rc = static_cast<UbuntuRemoteRunConfiguration *>(runConfiguration);
+        if (rc->ensureConfigured(errorMessage) != ProjectExplorer::RunConfiguration::Configured)
+            return 0;
+
         QTC_ASSERT(rc, return 0);
         switch (mode) {
         case ProjectExplorer::NormalRunMode:
