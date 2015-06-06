@@ -20,7 +20,6 @@ PKGCONFIG += libudev glib-2.0
 
 FORMS += \
     src/ubuntu/ubuntupackagingwidget.ui \
-    src/ubuntu/ubuntusettingswidget.ui \
     src/ubuntu/ubuntusecuritypolicypickerdialog.ui \
     src/ubuntu/ubuntusettingsdeviceconnectivitywidget.ui \
     src/ubuntu/ubuntusettingsclickwidget.ui \
@@ -53,20 +52,12 @@ SOURCES += \
     src/ubuntu/ubuntuversion.cpp \
     src/ubuntu/ubuntufeatureprovider.cpp \
     src/ubuntu/ubuntuversionmanager.cpp \
-    src/ubuntu/ubuntuircmode.cpp \
-    src/ubuntu/ubuntuapimode.cpp \
-    src/ubuntu/ubuntucoreappsmode.cpp \
-    src/ubuntu/ubuntuwikimode.cpp \
     src/ubuntu/ubuntupackagingmode.cpp \
     src/ubuntu/ubuntubzr.cpp \
     src/ubuntu/ubuntuclickmanifest.cpp \
-    src/ubuntu/ubuntuwebmode.cpp \
-    src/ubuntu/ubuntupastebinmode.cpp \
     src/ubuntu/ubuntudevicemode.cpp \
     src/ubuntu/ubuntuprocess.cpp \
     src/ubuntu/ubuntudevicenotifier.cpp \
-    src/ubuntu/ubuntusettingspage.cpp \
-    src/ubuntu/ubuntusettingswidget.cpp \
     src/ubuntu/ubuntusecuritypolicypickerdialog.cpp \
     src/ubuntu/ubuntupolicygroupmodel.cpp \
     src/ubuntu/ubuntupolicygroupinfo.cpp \
@@ -138,20 +129,12 @@ HEADERS += \
     src/ubuntu/ubuntuversion.h \
     src/ubuntu/ubuntufeatureprovider.h \
     src/ubuntu/ubuntuversionmanager.h \
-    src/ubuntu/ubuntuircmode.h \
-    src/ubuntu/ubuntuapimode.h \
-    src/ubuntu/ubuntucoreappsmode.h \
-    src/ubuntu/ubuntuwikimode.h \
     src/ubuntu/ubuntupackagingmode.h \
     src/ubuntu/ubuntubzr.h \
     src/ubuntu/ubuntuclickmanifest.h \
-    src/ubuntu/ubuntuwebmode.h \
-    src/ubuntu/ubuntupastebinmode.h \
     src/ubuntu/ubuntudevicemode.h \
     src/ubuntu/ubuntuprocess.h \
     src/ubuntu/ubuntudevicenotifier.h \
-    src/ubuntu/ubuntusettingspage.h \
-    src/ubuntu/ubuntusettingswidget.h \
     src/ubuntu/ubuntusecuritypolicypickerdialog.h \
     src/ubuntu/ubuntupolicygroupmodel.h \
     src/ubuntu/ubuntupolicygroupinfo.h \
