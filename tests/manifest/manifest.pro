@@ -1,4 +1,4 @@
-QT = core gui script scripttools
+QT = core gui qml
 
 CONFIG += c++11
 
