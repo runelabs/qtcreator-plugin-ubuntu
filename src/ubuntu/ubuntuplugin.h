@@ -26,13 +26,7 @@
 #include "ubuntuprojectmanager.h"
 #include "ubuntufeatureprovider.h"
 #include "ubuntuversionmanager.h"
-#include "ubuntuircmode.h"
-#include "ubuntuapimode.h"
-#include "ubuntucoreappsmode.h"
-#include "ubuntuwikimode.h"
 #include "ubuntupackagingmode.h"
-#include "ubuntupastebinmode.h"
-#include "ubuntusettingspage.h"
 #include "ubuntusettingsdeviceconnectivitypage.h"
 #include "ubuntusettingsclickpage.h"
 
@@ -62,12 +56,7 @@ private slots:
 protected:
     UbuntuDeviceMode       *m_ubuntuDeviceMode;
     UbuntuMenu             *m_ubuntuMenu;
-    UbuntuIRCMode          *m_ubuntuIRCMode;
-    UbuntuAPIMode          *m_ubuntuAPIMode;
-    UbuntuCoreAppsMode     *m_ubuntuCoreAppsMode;
-    UbuntuWikiMode         *m_ubuntuWikiMode;
     UbuntuPackagingMode    *m_ubuntuPackagingMode;
-    UbuntuPastebinMode     *m_ubuntuPastebinMode;
     QAction                *m_migrateProjectAction;
 
     ProjectExplorer::Project *m_currentContextMenuProject;

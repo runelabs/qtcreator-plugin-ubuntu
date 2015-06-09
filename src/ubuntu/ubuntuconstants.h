@@ -415,11 +415,6 @@ const char  TASK_DEVICE_SCRIPT[] = "Ubuntu.Task.DeviceScript";
 
 const char  UBUNTU_SETTINGS_ICON[] = ":/ubuntu/images/ubuntu-32.png";
 
-const bool  SETTINGS_DEFAULT_API_VISIBILITY = true;
-const bool  SETTINGS_DEFAULT_COREAPPS_VISIBILITY = true;
-const bool  SETTINGS_DEFAULT_IRC_VISIBILITY = true;
-const bool  SETTINGS_DEFAULT_PASTEBIN_VISIBILITY = true;
-const bool  SETTINGS_DEFAULT_WIKI_VISIBILITY = true;
 const char  SETTINGS_DEFAULT_DEVICE_USERNAME[] = "phablet";
 const char  SETTINGS_DEFAULT_DEVICE_IP[] = "127.0.0.1";
 const int   SETTINGS_DEFAULT_DEVICE_QML_PORT = 3768;
@@ -428,16 +423,10 @@ const bool  SETTINGS_DEFAULT_DEVICES_AUTOTOGGLE = true;
 
 const char  SETTINGS_COMPANY[] = "Canonical";
 const char  SETTINGS_PRODUCT[] = "UbuntuSDK";
-const char  SETTINGS_GROUP_MODE[]  = "Mode";
 const char  SETTINGS_GROUP_CLICK[] = "Click";
 const char  SETTINGS_GROUP_DEVICE_CONNECTIVITY[] = "DeviceConnectivity";
 const char  SETTINGS_GROUP_DEVICES[] = "Devices";
 
-const char  SETTINGS_KEY_API[] = "API";
-const char  SETTINGS_KEY_COREAPPS[] = "CoreApps";
-const char  SETTINGS_KEY_IRC[] = "IRC";
-const char  SETTINGS_KEY_PASTEBIN[] = "Pastebin";
-const char  SETTINGS_KEY_WIKI[] = "Wiki";
 const char  SETTINGS_KEY_USERNAME[] = "Username";
 const char  SETTINGS_KEY_IP[] = "IP";
 const char  SETTINGS_KEY_QML[] = "QML";

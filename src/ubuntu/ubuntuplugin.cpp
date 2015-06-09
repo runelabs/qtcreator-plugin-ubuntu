@@ -132,34 +132,6 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
     addAutoReleasedObject(new UbuntuBzr);
 
-    QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
-    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_MODE));
-
-    if (settings.value(QLatin1String(Constants::SETTINGS_KEY_API),Constants::SETTINGS_DEFAULT_API_VISIBILITY).toBool()) {
-        m_ubuntuAPIMode = new UbuntuAPIMode;
-        addAutoReleasedObject(m_ubuntuAPIMode);
-    }
-
-    if (settings.value(QLatin1String(Constants::SETTINGS_KEY_COREAPPS),Constants::SETTINGS_DEFAULT_COREAPPS_VISIBILITY).toBool()) {
-        m_ubuntuCoreAppsMode = new UbuntuCoreAppsMode;
-        addAutoReleasedObject(m_ubuntuCoreAppsMode);
-    }
-    if (settings.value(QLatin1String(Constants::SETTINGS_KEY_IRC),Constants::SETTINGS_DEFAULT_IRC_VISIBILITY).toBool()) {
-        m_ubuntuIRCMode = new UbuntuIRCMode;
-        addAutoReleasedObject(m_ubuntuIRCMode);
-    }
-    if (settings.value(QLatin1String(Constants::SETTINGS_KEY_PASTEBIN),Constants::SETTINGS_DEFAULT_PASTEBIN_VISIBILITY).toBool()) {
-        m_ubuntuPastebinMode = new UbuntuPastebinMode;
-        addAutoReleasedObject(m_ubuntuPastebinMode);
-    }
-
-    if (settings.value(QLatin1String(Constants::SETTINGS_KEY_WIKI),Constants::SETTINGS_DEFAULT_WIKI_VISIBILITY).toBool()) {
-        m_ubuntuWikiMode = new UbuntuWikiMode;
-        addAutoReleasedObject(m_ubuntuWikiMode);
-    }
-
-    settings.endGroup();
-
     m_ubuntuMenu = new UbuntuMenu;
     addAutoReleasedObject(m_ubuntuMenu);
 
@@ -168,7 +140,6 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
     addAutoReleasedObject(new UbuntuSettingsClickPage);
     addAutoReleasedObject(new UbuntuSettingsDeviceConnectivityPage);
-    addAutoReleasedObject(new UbuntuSettingsPage);
 
     addAutoReleasedObject(new UbuntuVersionManager);
     Core::IWizardFactory::registerFeatureProvider(new UbuntuFeatureProvider);
@@ -273,10 +244,6 @@ void UbuntuPlugin::extensionsInitialized()
 {
     if (m_ubuntuMenu) m_ubuntuMenu->initialize();
     m_ubuntuDeviceMode->initialize();
-    if (m_ubuntuIRCMode) m_ubuntuIRCMode->initialize();
-    if (m_ubuntuAPIMode) m_ubuntuAPIMode->initialize();
-    if (m_ubuntuCoreAppsMode) m_ubuntuCoreAppsMode->initialize();
-    if (m_ubuntuWikiMode) m_ubuntuWikiMode->initialize();
     m_ubuntuPackagingMode->initialize();
 
     //add the create click package menu item to the project context menu
