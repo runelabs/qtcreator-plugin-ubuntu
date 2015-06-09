@@ -16,10 +16,11 @@ DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 	dh $@ --fail-missing --parallel
 
 override_dh_auto_configure:
+	# Crude hack, the project needs to be fixed to not require hard coded path name
 	mkdir -p builddir
 	rm -rf ../ubuntu
 	mv ../qtcreator-plugin-ubuntu-* ../ubuntu
-	IDE_LIBRARY_BASENAME=lib/$(DEB_HOST_MULTIARCH) qmake -r ubuntu.pro
+	dh_auto_configure -- IDE_LIBRARY_BASENAME=lib/$(DEB_HOST_MULTIARCH)
 
 override_dh_auto_test:
 	LD_LIBRARY_PATH=/usr/lib/$(DEB_HOST_MULTIARCH)/qtcreator:/usr/lib/$(DEB_HOST_MULTIARCH)/qtcreator/plugins/QtProject make check

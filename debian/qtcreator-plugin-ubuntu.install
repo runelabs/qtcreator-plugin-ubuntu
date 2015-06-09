@@ -1,5 +1,4 @@
 debian/ubuntusdk.desktop usr/share/applications
 ubuntu-qtcreator.png usr/share/icons
-usr/lib/*/qtcreator/plugins/Canonical/Ubuntu.pluginspec
-usr/lib/*/qtcreator/plugins/Canonical/libUbuntu.so
+usr/lib/*/qtcreator/plugins/libUbuntu.so
 usr/bin/click-chroot-agent
