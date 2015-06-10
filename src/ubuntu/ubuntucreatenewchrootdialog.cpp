@@ -40,7 +40,7 @@ namespace Constants {
 
 namespace Internal {
 
-UbuntuCreateNewChrootDialog::UbuntuCreateNewChrootDialog(const QString &arch, QWidget *parent) :
+UbuntuCreateNewChrootDialog::UbuntuCreateNewChrootDialog(const QString &arch, const QString &framework,  QWidget *parent) :
     QDialog(parent),
     ui(new Ui::UbuntuCreateNewChrootDialog)
 {
@@ -48,7 +48,11 @@ UbuntuCreateNewChrootDialog::UbuntuCreateNewChrootDialog(const QString &arch, QW
 
     //add supported targets
     for(int i = 0; Constants::UBUNTU_CLICK_SUPPORTED_TARGETS[i][0][0] != '\0'; i++){
-        ui->comboBoxSeries->addItem(QLatin1String(Constants::UBUNTU_CLICK_SUPPORTED_TARGETS[i][2]),i);
+        const QString currFwDisplayName = QLatin1String(Constants::UBUNTU_CLICK_SUPPORTED_TARGETS[i][2]);
+        const QString currFw = QLatin1String(Constants::UBUNTU_CLICK_SUPPORTED_TARGETS[i][1]);
+
+        if ( framework.isNull() || currFw == framework)
+            ui->comboBoxSeries->addItem(currFwDisplayName,i);
     }
 
     //add supported architectures
@@ -70,9 +74,9 @@ UbuntuCreateNewChrootDialog::~UbuntuCreateNewChrootDialog()
  * Opens a dialog that lets the user select a new chroot, returns false
  * if the user pressed cancel
  */
-bool UbuntuCreateNewChrootDialog::getNewChrootTarget(UbuntuClickTool::Target *target, const QString &arch, QWidget *parent)
+bool UbuntuCreateNewChrootDialog::getNewChrootTarget(UbuntuClickTool::Target *target, const QString &arch, const QString &framework, QWidget *parent)
 {
-    UbuntuCreateNewChrootDialog dlg(arch, parent ? parent : Core::ICore::mainWindow());
+    UbuntuCreateNewChrootDialog dlg(arch, framework, parent ? parent : Core::ICore::mainWindow());
     if( dlg.exec() == QDialog::Accepted) {
         bool ok = false;
 
