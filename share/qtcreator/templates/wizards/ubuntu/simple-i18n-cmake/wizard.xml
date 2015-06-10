@@ -43,7 +43,7 @@ Includes also
 			</field>
 			<field mandatory="true" name="ClickHookName">
 			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
-			                defaulttext="myapp" placeholdertext="app hook name"/>
+			                defaulttext="%ProjectName%" placeholdertext="app hook name"/>
 			  <fielddescription>App name:</fielddescription>
 			</field>
 		  <field name="ClickFrameworkVersion">
