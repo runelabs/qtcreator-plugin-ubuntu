@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wizard version="1" kind="project" firstpage="10" id="A1_UbuntuAppSimple'" category="A.UbuntuProject"
+<wizard version="1" kind="project" firstpage="10" id="A3_UbuntuAppSimple'" category="A.UbuntuProject"
         platformIndependent="true" 
         class="ubuntu-project-plain-qml"
 				featuresRequired=""
