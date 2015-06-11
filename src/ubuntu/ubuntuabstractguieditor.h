@@ -36,7 +36,6 @@ class UbuntuAbstractGuiEditor : public Core::IEditor
 public:
     UbuntuAbstractGuiEditor(const Core::Context &context);
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     QWidget *toolBar();
     UbuntuAbstractGuiEditorWidget *editorWidget() const;
     Core::IDocument *document();

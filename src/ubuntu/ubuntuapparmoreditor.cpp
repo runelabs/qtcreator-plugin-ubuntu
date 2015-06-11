@@ -67,27 +67,18 @@ UbuntuApparmorEditorWidget::~UbuntuApparmorEditorWidget()
         delete m_ui;
 }
 
-bool UbuntuApparmorEditorWidget::open(QString *errorString, const QString &fileName, const QString &realFileName)
+void UbuntuApparmorEditorWidget::updateAfterFileLoad()
 {
-    bool result = UbuntuAbstractGuiEditorWidget::open(errorString,fileName,realFileName);
-
-    if(!result)
-        return result;
-
     //let see if we have valid data
     m_apparmor = QSharedPointer<UbuntuClickManifest>(new UbuntuClickManifest);
     if(m_apparmor->loadFromString(m_sourceEditor->toPlainText())) {
         if(activePage() != Source)
             syncToWidgets(m_apparmor.data());
-        return true;
     } else {
         //switch to source page without syncing
         m_widgetStack->setCurrentIndex(Source);
         updateInfoBar(tr("There is a error in the file, please check the syntax."));
     }
-
-    //ops something went wrong, we need to show the error somewhere
-    return true;
 }
 
 void UbuntuApparmorEditorWidget::setVersion(const QString &version)

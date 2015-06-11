@@ -58,7 +58,8 @@ UbuntuProjectApplicationWizard::UbuntuProjectApplicationWizard(ProjectType type)
 Core::BaseFileWizard *UbuntuProjectApplicationWizard::create(QWidget *parent, const Core::WizardDialogParameters &wizardDialogParameters) const
 {
     QTC_ASSERT(!parameters().isNull(), return 0);
-    UbuntuProjectApplicationWizardDialog *projectDialog = new UbuntuProjectApplicationWizardDialog(parent,
+    UbuntuProjectApplicationWizardDialog *projectDialog = new UbuntuProjectApplicationWizardDialog(this,
+                                                                                                   parent,
                                                                                                    m_type ,
                                                                                                    wizardDialogParameters);
     projectDialog->addChrootSetupPage(12);
@@ -66,7 +67,7 @@ Core::BaseFileWizard *UbuntuProjectApplicationWizard::create(QWidget *parent, co
 
     initProjectWizardDialog(projectDialog,
                             wizardDialogParameters.defaultPath(),
-                            wizardDialogParameters.extensionPages());
+                            projectDialog->extensionPages());
 
     QString maintainer = QStringLiteral("username");
     QString whoami     = QStringLiteral("Firstname Surname <your@mail.com>");
@@ -114,7 +115,7 @@ Core::BaseFileWizard *UbuntuProjectApplicationWizard::create(QWidget *parent, co
     return projectDialog;
 }
 
-bool UbuntuProjectApplicationWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage)
+bool UbuntuProjectApplicationWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage) const
 {
     const UbuntuProjectApplicationWizardDialog *dialog = qobject_cast<const UbuntuProjectApplicationWizardDialog *>(w);
 
@@ -151,10 +152,10 @@ Core::FeatureSet UbuntuProjectApplicationWizard::requiredFeatures() const
 #endif
 }
 
-UbuntuProjectApplicationWizardDialog::UbuntuProjectApplicationWizardDialog(QWidget *parent,
+UbuntuProjectApplicationWizardDialog::UbuntuProjectApplicationWizardDialog(const Core::BaseFileWizardFactory *factory, QWidget *parent,
                                                                            UbuntuProjectApplicationWizard::ProjectType type,
                                                                            const Core::WizardDialogParameters &parameters)
-    : ProjectExplorer::BaseProjectWizardDialog(parent,parameters)
+    : ProjectExplorer::BaseProjectWizardDialog(factory, parent, parameters)
     , m_targetSetupPage(0)
     , m_type(type)
 {

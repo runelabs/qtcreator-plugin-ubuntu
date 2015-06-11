@@ -90,29 +90,24 @@ UbuntuManifestEditorWidget::~UbuntuManifestEditorWidget()
     delete m_ui;
 }
 
-bool UbuntuManifestEditorWidget::open(QString *errorString, const QString &fileName, const QString &realFileName)
+void UbuntuManifestEditorWidget::updateAfterFileLoad()
 {
-    addMissingFieldsToManifest(realFileName);
-
-    bool result = UbuntuAbstractGuiEditorWidget::open(errorString,fileName,realFileName);
-
-    if(!result)
-        return result;
-
     //let see if we have valid data
     m_manifest = QSharedPointer<UbuntuClickManifest>(new UbuntuClickManifest);
     if(m_manifest->loadFromString(m_sourceEditor->toPlainText())) {
         if(activePage() != Source)
             syncToWidgets(m_manifest.data());
-        return true;
     } else {
         //switch to source page without syncing
         m_widgetStack->setCurrentIndex(Source);
         updateInfoBar(tr("There is a error in the file, please check the syntax."));
     }
+}
 
-    //ops something went wrong, we need to show the error somewhere
-    return true;
+void UbuntuManifestEditorWidget::aboutToOpen(const QString &fileName, const QString &realFileName)
+{
+    Q_UNUSED(fileName);
+    addMissingFieldsToManifest(realFileName);
 }
 
 bool UbuntuManifestEditorWidget::syncToWidgets()

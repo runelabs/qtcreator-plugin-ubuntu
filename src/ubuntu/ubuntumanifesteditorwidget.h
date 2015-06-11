@@ -43,12 +43,12 @@ public:
     explicit UbuntuManifestEditorWidget();
     ~UbuntuManifestEditorWidget();
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-
     static QString createPackageName (const QString &userName, const QString &projectName);
 
     virtual void saved() override;
 protected:
+    virtual void updateAfterFileLoad() override;
+    virtual void aboutToOpen(const QString &fileName, const QString &realFileName) override;
     bool syncToWidgets ();
     bool syncToWidgets (UbuntuClickManifest *source);
     void syncToSource  ();

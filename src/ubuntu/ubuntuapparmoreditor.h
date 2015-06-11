@@ -57,10 +57,10 @@ public:
 
     // UbuntuAbstractGuiEditorWidget interface
 public:
-    virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     void setVersion (const QString &version);
 
 protected:
+    virtual void updateAfterFileLoad() override;
     virtual bool syncToWidgets();
     bool syncToWidgets(UbuntuClickManifest *source);
     virtual void syncToSource();

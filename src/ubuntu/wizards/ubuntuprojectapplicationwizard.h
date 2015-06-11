@@ -55,7 +55,7 @@ protected:
     virtual Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const override;
     Core::BaseFileWizard *create(QWidget *parent,
                                  const Core::WizardDialogParameters &wizardDialogParameters) const override;
-    bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage) override;
+    bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage) const override;
 
 private:
     Core::FeatureSet requiredFeatures() const;
@@ -66,7 +66,8 @@ class UbuntuProjectApplicationWizardDialog : public ProjectExplorer::BaseProject
 {
     Q_OBJECT
 public:
-    explicit UbuntuProjectApplicationWizardDialog(QWidget *parent,
+    explicit UbuntuProjectApplicationWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                                  QWidget *parent,
                                                   UbuntuProjectApplicationWizard::ProjectType type,
                                                   const Core::WizardDialogParameters &parameters);
     virtual ~UbuntuProjectApplicationWizardDialog();

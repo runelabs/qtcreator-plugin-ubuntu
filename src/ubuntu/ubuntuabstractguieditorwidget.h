@@ -59,7 +59,6 @@ public:
     explicit UbuntuAbstractGuiEditorWidget(const QString &mimeType);
     ~UbuntuAbstractGuiEditorWidget();
 
-    virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     virtual bool isModified() const;
 
     EditorPage activePage() const;
@@ -76,6 +75,8 @@ protected slots:
     void createUI ();
 
 protected:
+    virtual void aboutToOpen(const QString &, const QString &);
+    virtual void updateAfterFileLoad ();
     virtual bool syncToWidgets () = 0;
     virtual void syncToSource  () = 0;
     virtual QWidget *createMainWidget () = 0;
@@ -84,6 +85,7 @@ protected:
 
 signals:
     void uiEditorChanged();
+    void editorViewChanged();
 
 protected:
     QStackedWidget *m_widgetStack;

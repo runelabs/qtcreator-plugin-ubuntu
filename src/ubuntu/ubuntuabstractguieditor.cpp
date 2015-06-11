@@ -38,15 +38,6 @@ UbuntuAbstractGuiEditor::UbuntuAbstractGuiEditor(const Core::Context &context)
     setContext(context);
 }
 
-bool UbuntuAbstractGuiEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
-{
-    if(editorWidget()->open(errorString,fileName,realFileName)){
-        syncCurrentAction();
-        return true;
-    }
-    return false;
-}
-
 QWidget *UbuntuAbstractGuiEditor::toolBar()
 {
     return m_toolBar;
@@ -90,7 +81,11 @@ void UbuntuAbstractGuiEditor::syncCurrentAction()
 
 void UbuntuAbstractGuiEditor::createUi()
 {
-    m_widget = createGuiEditor();
+    UbuntuAbstractGuiEditorWidget *loc_editorWidget = createGuiEditor();
+    m_widget = loc_editorWidget;
+
+    connect(loc_editorWidget, &UbuntuAbstractGuiEditorWidget::editorViewChanged,
+            this, &UbuntuAbstractGuiEditor::syncCurrentAction);
 
     m_toolBar = new QToolBar(m_widget.data());
     m_actionGroup = new QActionGroup(m_widget.data());

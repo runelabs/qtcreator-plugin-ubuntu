@@ -33,6 +33,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/kitinformation.h>
 #include <coreplugin/infobar.h>
+#include <coreplugin/idocument.h>
 
 #include <QStackedWidget>
 #include <QDebug>
@@ -74,19 +75,29 @@ UbuntuAbstractGuiEditorWidget::UbuntuAbstractGuiEditorWidget(const QString &mime
     m_sourceEditor = new UbuntuManifestTextEditorWidget(mimeType, this);
     setWidgetResizable(true);
     setWidget(m_widgetStack);
+
+    connect(m_sourceEditor->textDocument(), &TextEditor::TextDocument::aboutToOpen,
+            this, &UbuntuAbstractGuiEditorWidget::aboutToOpen);
+    connect(m_sourceEditor->textDocument(), &TextEditor::TextDocument::reloadFinished,
+            this, [this](bool success) { if (success) updateAfterFileLoad(); });
+    connect(m_sourceEditor->textDocument(), &TextEditor::TextDocument::openFinishedSuccessfully,
+            this, &UbuntuAbstractGuiEditorWidget::updateAfterFileLoad);
+    connect(m_widgetStack, &QStackedWidget::currentChanged,
+            this, &UbuntuAbstractGuiEditorWidget::editorViewChanged);
 }
 
 UbuntuAbstractGuiEditorWidget::~UbuntuAbstractGuiEditorWidget()
 {
 }
 
-bool UbuntuAbstractGuiEditorWidget::open(QString *errorString, const QString &fileName, const QString &realFileName)
+void UbuntuAbstractGuiEditorWidget::aboutToOpen(const QString &, const QString &)
 {
-    bool result = m_sourceEditor->open(errorString, fileName, realFileName);
+    //do nothing
+}
 
-    if(!result)
-        return result;
-    return true;
+void UbuntuAbstractGuiEditorWidget::updateAfterFileLoad()
+{
+    //do nothing
 }
 
 bool UbuntuAbstractGuiEditorWidget::isModified() const
