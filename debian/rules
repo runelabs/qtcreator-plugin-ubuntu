@@ -13,11 +13,11 @@ DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 # -----------------------------------
 
 %:
-	dh $@ --fail-missing
+	dh $@ --fail-missing --parallel
 
 override_dh_auto_configure:
 	mkdir -p builddir
-	dh_auto_configure -- IDE_LIBRARY_BASENAME=lib/$(DEB_HOST_MULTIARCH) 
+	dh_auto_configure -- IDE_LIBRARY_BASENAME=lib/$(DEB_HOST_MULTIARCH)
 
 override_dh_auto_test:
 	LD_LIBRARY_PATH=/usr/lib/$(DEB_HOST_MULTIARCH)/qtcreator:/usr/lib/$(DEB_HOST_MULTIARCH)/qtcreator/plugins/QtProject make check
@@ -30,7 +30,7 @@ override_dh_auto_install:
 	cp -r $(CURDIR)/tests/autopilot/qtcreator_plugin_ubuntu/* $(CURDIR)/debian/tmp/usr/lib/python3/dist-packages/qtcreator_plugin_ubuntu
 	mkdir -p $(CURDIR)/debian/tmp/usr/share/polkit-1/actions
 	cp $(CURDIR)/tests/com.ubuntu.pkexec.ubuntu-sdk-autopilot.policy  $(CURDIR)/debian/tmp/usr/share/polkit-1/actions/
-	dh_auto_install --destdir=debian/tmp/usr 
+	dh_auto_install --destdir=debian/tmp/usr
 	rm -rfv debian/tmp/usr/usr/tests
 
 
