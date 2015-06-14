@@ -1,3 +1,76 @@
+qtcreator-plugin-ubuntu (3.1.1+15.10.20150521-0ubuntu1) wily; urgency=medium
+
+  [ Marcus Tomlinson ]
+  * Refactored the scope templates to be more simplistic and
+    comprehensible: Reduced directory structure to as few folders as
+    possible Renamed scope ini file to <scope-name>.ini Added a <scope-
+    name>-settings.ini Cleaned out unnecessary complexities from source
+    and CMake files More descriptive comments and variable names Updated
+    tests to use python3-scope-harness Removed cmake/ modules folder
+    (SDK now includes cmake-extras) Allow scope template to build with
+    gcc > 4.9 Added "Keywords" key to scope ini
+
+  [ Zoltán Balogh ]
+  * Add cmake-extras
+  * add python3-scope-harness to dependencies
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Thu, 21 May 2015 09:24:25 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.10.20150508-0ubuntu1) wily; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Fix lp:1357237 "Inconsistent QML main files" Fix lp:1280631 "SDK
+    should have same restrictions on version number" Fix lp:1450481
+    "Default password not displayed in emulator creation wizard" (LP:
+    #1450481, #1357237, #1280631)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Fri, 08 May 2015 14:24:04 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.10.20150507-0ubuntu1) wily; urgency=medium
+
+  [ Alexandre Abreu ]
+  * Add autopilot and unit tests templates for HTML5 simple application
+
+  [ Benjamin Zeller ]
+  * Fix Bug lp:1402484 "A typo in the scope template readme file" Fix
+    bug lp:1427138 and lp:1404672, add schroot to the deps Fix Bug
+    lp:1450477 "Typo in initial startup wizard" (LP: #1404672, #1427138,
+    #1402484, #1450477)
+  * Remove either unused or dangerous functions and scripts. (LP:
+    #1324008, #1366785, #1388655)
+  * Show Desktop Kit in chroot setup page ( lp:1366934 lp:1369828) Fix
+    Bug lp:1400842 "devices panel: text says refresh but button is
+    redetect" (LP: #1400842, #1369828, #1366934)
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+  [ Zoltán Balogh ]
+  * Set the title of the tamplate apps to the app name. Fixes LP:
+    #1365309 (LP: #1365309)
+  * removed obsolate patch
+  * removed obsolate patch removed: debian/patches/
+    debian/patches/series debian/patches/u-d-f_syntax.diff
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Thu, 07 May 2015 06:26:00 +0000
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150420.1-0ubuntu2) vivid-proposed; urgency=medium
+
+  * Updating to use new u-d-f syntax (LP: #1447569)
+
+ -- Sergio Schvezov <sergio.schvezov@canonical.com>  Thu, 23 Apr 2015 08:37:13 -0300
+
+qtcreator-plugin-ubuntu (3.1.1+15.04.20150420.1-0ubuntu1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Fix bug lp:1446062, RSync failes if translation dir is not created
+    (LP: #1446062)
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Mon, 20 Apr 2015 21:31:37 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.04.20150417-0ubuntu1) vivid; urgency=medium
 
   [ Benjamin Zeller ]

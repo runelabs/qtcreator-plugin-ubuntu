@@ -13,7 +13,8 @@ that contain localizable strings you update "po/POTFILES.in".
 
 When you want to add a new language to the translation catalogue:
 
- * Copy the .pot file from the "po" directory and rename it to e.g. "zh_CH.po".
+ * Copy the .pot file from the "po" directory and rename it to e.g. "zh_CN.po", 
+   where "zh_CN" is the language code for China.
  * Enter the language code in "Language:".
  * Enter the "UTF-8" as the "Content-Type:".
  * Enter the translations in the msgstr tags.

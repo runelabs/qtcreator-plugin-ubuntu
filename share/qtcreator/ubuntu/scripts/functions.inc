@@ -108,22 +108,6 @@ function device_network_state_connected {
 	fi
 }
 
-function device_reboot {
-	adb_shell reboot
-}
-
-function device_reboot_bootloader {
-	adb -s ${SERIALNUMBER} reboot-bootloader
-}
-
-function device_reboot_recovery {
-	adb -s ${SERIALNUMBER} reboot recovery
-}
-
-function device_shutdown {
-	adb_shell shutdown -h now
-}
-
 function wait_for_network_state_switch_on {
 	local RESULT=`device_network_state_connected`
 	while [[ "$RESULT" -eq "0" ]]; do

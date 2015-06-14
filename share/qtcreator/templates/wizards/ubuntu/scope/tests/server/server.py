@@ -44,7 +44,7 @@ class MyRequestHandler(http.server.BaseHTTPRequestHandler):
             if 'mode' in query:
                 mode = query['mode'][0]
 
-            self.wfile.write(bytes(read_file('forecast/daily/%s.%s' % (query['q'][0], mode)), 'UTF-8'))
+            self.wfile.write(bytes(read_file('forecast/%s.%s' % (query['q'][0], mode)), 'UTF-8'))
         else:
             self.send_response(404)
             self.send_header("Content-type", "text/html")
