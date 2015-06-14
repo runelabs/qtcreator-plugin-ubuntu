@@ -195,7 +195,7 @@
                         "id": "Ubuntu.Menu.i18n.pot",
                         "projectRequired": true,
                         "saveRequired": true,
-                        "context": ["UbuntuProject.ProjectContext","QmlProject.ProjectContext","CMakeProject.ProjectContext","QMakeProject.ProjectContext"],
+                        "context": ["UbuntuProject.ProjectContext","QmlProject.ProjectContext","CMakeProject.ProjectContext"],
                         "actions": [
                             "%SCRIPTDIRECTORY%/i18n_update_template %DISPLAYNAME% %PROJECTFILES%"
                         ]
@@ -205,7 +205,7 @@
                         "id": "Ubuntu.Menu.i18n.mo",
                         "projectRequired": true,
                         "saveRequired": true,
-                        "context": ["UbuntuProject.ProjectContext","QmlProject.ProjectContext","CMakeProject.ProjectContext","QMakeProject.ProjectContext"],
+                        "context": ["UbuntuProject.ProjectContext","QmlProject.ProjectContext","CMakeProject.ProjectContext"],
                         "actions": [
                             "%SCRIPTDIRECTORY%/i18n_build_translations %NAME_FROM_MANIFEST% %PROJECTDIRECTORY%"
                         ]
