@@ -10,4 +10,5 @@ QTC_PLUGIN_DEPENDS += \
     debugger \
     qtsupport \
     remotelinux \
-    qtsupport
+    qtsupport \
+    qmlprofiler

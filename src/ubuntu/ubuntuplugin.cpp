@@ -22,6 +22,7 @@
 #include "ubuntulocalrunconfiguration.h"
 #include "ubuntulocalrunconfigurationfactory.h"
 #include "ubunturemoteruncontrolfactory.h"
+#include "ubuntulocalruncontrolfactory.h"
 #include "ubuntuclicktool.h"
 #include "ubuntukitmanager.h"
 #include "ubuntudevicefactory.h"
@@ -151,6 +152,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     addAutoReleasedObject(new UbuntuProjectManager);
     addAutoReleasedObject(new UbuntuLocalRunConfigurationFactory);
     addAutoReleasedObject(new UbuntuRemoteRunControlFactory);
+    addAutoReleasedObject(new UbuntuLocalRunControlFactory);
 
     // Build support
     addAutoReleasedObject(new ClickToolChainFactory);

@@ -26,7 +26,6 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
@@ -41,15 +40,28 @@ enum {
     debug = 1
 };
 
+UbuntuLocalEnvironmentAspect::UbuntuLocalEnvironmentAspect(ProjectExplorer::RunConfiguration *parent)
+    : LocalEnvironmentAspect(parent)
+{
+}
+
+Utils::Environment UbuntuLocalEnvironmentAspect::baseEnvironment() const
+{
+    Utils::Environment env = LocalEnvironmentAspect::baseEnvironment();
+    if (const UbuntuLocalRunConfiguration *rc = qobject_cast<const UbuntuLocalRunConfiguration *>(runConfiguration()))
+        rc->addToBaseEnvironment(env);
+    return env;
+}
+
 UbuntuLocalRunConfiguration::UbuntuLocalRunConfiguration(ProjectExplorer::Target *parent, Core::Id id)
-    : ProjectExplorer::LocalApplicationRunConfiguration(parent, id)
+    : ProjectExplorer::RunConfiguration(parent, id)
 {
     setDisplayName(appId());
-    addExtraAspect(new ProjectExplorer::LocalEnvironmentAspect(this));
+    addExtraAspect(new UbuntuLocalEnvironmentAspect(this));
 }
 
 UbuntuLocalRunConfiguration::UbuntuLocalRunConfiguration(ProjectExplorer::Target *parent, UbuntuLocalRunConfiguration *source)
-    : ProjectExplorer::LocalApplicationRunConfiguration(parent,source)
+    : ProjectExplorer::RunConfiguration(parent,source)
 {
 }
 
@@ -91,34 +103,39 @@ ProjectExplorer::ApplicationLauncher::Mode UbuntuLocalRunConfiguration::runMode(
     return ProjectExplorer::ApplicationLauncher::Gui;
 }
 
-ProjectExplorer::RunConfiguration::ConfigurationState UbuntuLocalRunConfiguration::ensureConfigured(QString *errorMessage)
+ProjectExplorer::RunConfiguration::ConfigurationState UbuntuLocalRunConfiguration::ensureConfigured(QString *)
+{
+    return Configured;
+}
+
+bool UbuntuLocalRunConfiguration::aboutToStart(QString *errorMessage)
 {
     if(target()->project()->id() != Constants::UBUNTUPROJECT_ID) {
         QString idString = id().toString();
         if(idString.startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_APP_ID))) {
             if (ensureClickAppConfigured(errorMessage))
-                return Configured;
+                return true;
             else
-                return UnConfigured;
+                return false;
         }
         else if(idString.startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_SCOPE_ID))) {
             if (ensureScopesAppConfigured(errorMessage))
-                return Configured;
+                return true;
             else
-                return UnConfigured;
+                return false;
         }
 
         //all other hook types can not be configured
         //should never happen
         if(errorMessage)
             *errorMessage = tr("Unknown hook type, only scope and app hooks are supported");
-        return UnConfigured;
+        return false;
     }
 
     if (ensureUbuntuProjectConfigured(errorMessage))
-        return Configured;
+        return true;
 
-    return UnConfigured;
+    return false;
 }
 
 QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfiguration* config, QString appId, QString *errorMessage)
@@ -530,6 +547,5 @@ void UbuntuLocalRunConfiguration::addToBaseEnvironment(Utils::Environment &env) 
 
 bool UbuntuLocalRunConfiguration::isConfigured() const
 {
-    return false;
+    return true;
 }
-

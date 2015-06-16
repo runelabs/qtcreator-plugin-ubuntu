@@ -47,13 +47,14 @@ public:
     virtual Utils::Environment environment() const override;
 
     virtual QStringList soLibSearchPaths () const;
+    bool aboutToStart (QString *errorMessage);
 
     // RunConfiguration interface
     virtual QWidget *createConfigurationWidget() override;
     virtual bool isEnabled() const override;
     virtual QString disabledReason() const override;
     virtual bool isConfigured() const override;
-    virtual ConfigurationState ensureConfigured(QString *errorMessage) override;
+    virtual ConfigurationState ensureConfigured(QString *) override;
 
     // ProjectConfiguration interface
     virtual bool fromMap(const QVariantMap &map) override;
