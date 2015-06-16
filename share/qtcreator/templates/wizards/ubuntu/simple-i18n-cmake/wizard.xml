@@ -1,63 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wizard version="1" kind="project" firstpage="10" id="A2_UbuntuSimpleI18nQmlProject'" category="A.UbuntuProject"
-        platformIndependent="true" 
+        platformIndependent="true"
         class="ubuntu-project-cmake"
-				featuresRequired=""
+                featuresRequired=""
         >
     <icon>../share/ubuntu.png</icon>
-    <description>A simple QML app with localization support.
-
-Includes also
- - unit and functional tests for QML
+    <description>A simple QML app with localization support. Also includes unit and functional tests.
 </description>
     <displayname>QML App with Simple UI (cmake)</displayname>
     <displaycategory>Ubuntu</displaycategory>
     <files>
         <file source="CMakeLists.txt"                          target="CMakeLists.txt" openproject="true"/>
         <file source="app/graphics/toolbarIcon@8.png"          target="app/graphics/toolbarIcon@8.png" openeditor="false" binary="true"/>
-	<file source="app/displayName.desktop.in"              target="app/%ClickHookName%.desktop.in" openeditor="false"/>
+        <file source="app/displayName.desktop.in"              target="app/%ClickHookName%.desktop.in" openeditor="false"/>
         <file source="app/graphics/displayName.png"            target="app/graphics/%ProjectName%.png" openeditor="false" binary="true"/>
         <file source="app/CMakeLists.txt"                      target="app/CMakeLists.txt" openeditor="false"/>
-        <file source="app/tests/autopilot/run"                 target="app/tests/autopilot/run" openeditor="false"/>
-        <file source="app/tests/autopilot/displayName/main/test_main.py" target="app/tests/autopilot/%ProjectName%/main/test_main.py" openeditor="false"/>
-        <file source="app/tests/autopilot/displayName/__init__.py"       target="app/tests/autopilot/%ProjectName%/__init__.py" openeditor="false"/>
-        <file source="app/tests/autopilot/displayName/main/__init__.py"  target="app/tests/autopilot/%ProjectName%/main/__init__.py" openeditor="false"/>
-        <file source="manifest.json.in"   			               target="manifest.json.in" openeditor="true"/>
-        <file source="../share/displayName.apparmor"   			   target="%ClickHookName%.apparmor" openeditor="false"/>
+        <file source="app/tests/autopilot/run"                            target="app/tests/autopilot/run"                              openeditor="false"/>
+        <file source="app/tests/autopilot/displayName/tests/test_main.py" target="app/tests/autopilot/%ProjectName%/tests/test_main.py" openeditor="false"/>
+        <file source="app/tests/autopilot/displayName/__init__.py"        target="app/tests/autopilot/%ProjectName%/__init__.py"        openeditor="false"/>
+        <file source="app/tests/autopilot/displayName/tests/__init__.py"  target="app/tests/autopilot/%ProjectName%/tests/__init__.py"  openeditor="false"/>
+        <file source="app/tests/unit/tst_main.qml"                         target="app/tests/unit/tst_main.qml"                          openeditor="false"/>
+        <file source="manifest.json.in"                            target="manifest.json.in" openeditor="true"/>
+        <file source="../share/displayName.apparmor"               target="%ClickHookName%.apparmor" openeditor="false"/>
         <file source="app/Main.qml"                     target="app/Main.qml" openeditor="true"/>
         <file source="po/CMakeLists.txt"                       target="po/CMakeLists.txt"     openeditor="false"/>
    </files>
 
-	  <!-- Create a 2nd wizard page with click package parameters -->
-		<fieldpagetitle>Click package parameters</fieldpagetitle>
-		<fields>
-			<field mandatory="true" name="ClickDomain">
-			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9-]+$'
-			                defaulttext="" placeholdertext="Nickname"/>
-			  <fielddescription>Nickname:</fielddescription>
-			</field>
-			<field mandatory="true" name="ClickMaintainer">
-			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
-			                defaulttext="" placeholdertext="Maintainer"/>
-			  <fielddescription>Maintainer:</fielddescription>
-			</field>
-			<field mandatory="true" name="ClickHookName">
-			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
-			                defaulttext="myapp" placeholdertext="app hook name"/>
-			  <fielddescription>App name:</fielddescription>
-			</field>
-		  <field name="ClickFrameworkVersion">
-		      <fieldcontrol class="QComboBox" defaultindex="0">
-		          <comboentries>
-								<!-- Do not add any other frameworks here, they are populated at runtime, this is just a dummy framework to make sure we can find the combobox -->
-								<comboentry value="ubuntu-sdk-dummy-framework">
-		                <comboentrytext>Dummy Framework</comboentrytext>
-		            </comboentry>
-		          </comboentries>
-		      </fieldcontrol>
-		      <fielddescription>Framework:</fielddescription>
-		  </field>
-		</fields>
+      <!-- Create a 2nd wizard page with click package parameters -->
+        <fieldpagetitle>Click package parameters</fieldpagetitle>
+        <fields>
+            <field mandatory="true" name="ClickDomain">
+              <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9-]+$'
+                            defaulttext="" placeholdertext="Nickname"/>
+              <fielddescription>Nickname:</fielddescription>
+            </field>
+            <field mandatory="true" name="ClickMaintainer">
+              <fieldcontrol class="QLineEdit" validator='^[^"]+$'
+                            defaulttext="" placeholdertext="Maintainer"/>
+              <fielddescription>Maintainer:</fielddescription>
+            </field>
+            <field mandatory="true" name="ClickHookName">
+              <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
+                            defaulttext="myapp" placeholdertext="app hook name"/>
+              <fielddescription>App name:</fielddescription>
+            </field>
+          <field name="ClickFrameworkVersion">
+              <fieldcontrol class="QComboBox" defaultindex="0">
+                  <comboentries>
+                                <!-- Do not add any other frameworks here, they are populated at runtime, this is just a dummy framework to make sure we can find the combobox -->
+                                <comboentry value="ubuntu-sdk-dummy-framework">
+                        <comboentrytext>Dummy Framework</comboentrytext>
+                    </comboentry>
+                  </comboentries>
+              </fieldcontrol>
+              <fielddescription>Framework:</fielddescription>
+          </field>
+        </fields>
     <validationrules>
         <validationrule condition='/^(.*)\s+&lt;(.*@.*)&gt;$/.test("%ClickMaintainer%")'>
             <message>Invalid format for maintainer (should be like "Joe Bloggs &lt;joe.bloggs@isp.com&gt;")</message>

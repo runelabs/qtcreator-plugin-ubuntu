@@ -9,14 +9,24 @@ SOURCES += main.cpp
 
 RESOURCES += %ClickHookName%.qrc
 
-OTHER_FILES += %ClickHookName%.apparmor \
+QML_FILES += $$files(*.qml,true) \
+             $$files(*.js,true)
+
+CONF_FILES +=  %ClickHookName%.apparmor \
                %ClickHookName%.desktop \
                %ClickHookName%.png
 
+AP_TEST_FILES += tests/autopilot/run \
+                 $$files(tests/*.py,true)
+
+#show all the files in QtCreator
+OTHER_FILES += $${CONF_FILES} \
+               $${QML_FILES} \
+               $${AP_TEST_FILES}
+
 #specify where the config files are installed to
 config_files.path = /%ClickHookName%
-config_files.files += $${OTHER_FILES}
-message($$config_files.files)
+config_files.files += $${CONF_FILES}
 INSTALLS+=config_files
 
 # Default rules for deployment.
