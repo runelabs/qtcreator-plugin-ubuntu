@@ -5,6 +5,8 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <ssh/sshconnection.h>
+#include <projectexplorer/taskhub.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QProcess>
 #include <QPointer>
@@ -268,12 +270,21 @@ void UbuntuRemoteClickApplicationRunner::handleLauncherStdErr()
     QTC_ASSERT(!d->m_proc.isNull(),return);
 
     QByteArray output = d->m_proc->readAllStandardError();
-    if (d->m_launcherPid <= 0 || d->m_appPid <= 0) {
-        d->m_launcherOutput.append( QString::fromUtf8(output) );
+    d->m_launcherOutput.append( QString::fromUtf8(output) );
+
+    while(true) {
+        int idx = d->m_launcherOutput.indexOf(QStringLiteral("\n"));
+        if (idx < 0)
+            break;
+
+        QString line = d->m_launcherOutput.mid(0,idx).trimmed();
+        d->m_launcherOutput = d->m_launcherOutput.mid(idx+1);
+
+        if (debug) { qDebug()<<"Processing Line: "<<line; }
 
         if (d->m_launcherPid <= 0) {
             QRegularExpression exp (QStringLiteral("Launcher PID: ([0-9]+)"));
-            QRegularExpressionMatch match = exp.match(d->m_launcherOutput);
+            QRegularExpressionMatch match = exp.match(line);
             if(match.hasMatch()) {
                 bool ok = false;
                 d->m_launcherPid = match.captured(1).toInt(&ok);
@@ -292,7 +303,7 @@ void UbuntuRemoteClickApplicationRunner::handleLauncherStdErr()
 
         if (d->m_appPid <= 0) {
             QRegularExpression exp (QStringLiteral("Application started: ([0-9]+)"));
-            QRegularExpressionMatch match = exp.match(d->m_launcherOutput);
+            QRegularExpressionMatch match = exp.match(line);
             if(match.hasMatch()) {
                 bool ok = false;
                 d->m_appPid = match.captured(1).toInt(&ok);
@@ -305,7 +316,19 @@ void UbuntuRemoteClickApplicationRunner::handleLauncherStdErr()
                 }
             }
         }
+
+        if (line.startsWith(QStringLiteral("Syslog>")) && line.contains(QStringLiteral("apparmor=\"DENIED\""))) {
+            if (debug) { qDebug()<<"Found a AppArmor denial"; }
+            //remove the prompt
+            line = line.mid(7);
+
+            if (debug) { qDebug()<<"Reporting a AppArmor denial "; }
+            ProjectExplorer::TaskHub::addTask(ProjectExplorer::Task::Error,
+                                              tr("There has been a AppArmor denial for the application. It usually means it is missing a policy in the AppArmor file:\n%1").arg(line),
+                                              ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+        }
     }
+
     emit launcherStderr(output);
 }
 
