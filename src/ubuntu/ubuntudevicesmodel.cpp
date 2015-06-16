@@ -783,19 +783,6 @@ void UbuntuDevicesModel::doCreateEmulatorImage(UbuntuProcess *process, const QSt
 
 void UbuntuDevicesModel::createEmulatorImage(const QString &name, const QString &arch, const QString &channel, const QString &passwd)
 {
-    QString ch = channel;
-    QString pwd = passwd;
-
-    //to work around a problem in the UITK that clips long text in dropdown menus we use short aliases in the UI
-    //for some channels. Here they are resolved to the correct channel names.
-    QMap<QString,QString> channelAliasMap = {
-        {QStringLiteral("rtm-14.09"),QStringLiteral("ubuntu-touch/ubuntu-rtm/14.09")},
-        {QStringLiteral("rtm-14.09-proposed"),QStringLiteral("ubuntu-touch/ubuntu-rtm/14.09-proposed")}
-    };
-
-    if(channelAliasMap.contains(ch))
-        ch = channelAliasMap[ch];
-
     setState(CreateEmulatorImage);
 
     //@BUG this should be cancellable but the QProcess::kill call just blocks for a long time, and then returns
@@ -803,7 +790,7 @@ void UbuntuDevicesModel::createEmulatorImage(const QString &name, const QString 
     //     elevated priviledges
     setCancellable(false);
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_LOCAL_CREATE_EMULATOR));
-    doCreateEmulatorImage(m_process,name,arch,ch,pwd);
+    doCreateEmulatorImage(m_process,name,arch,channel,passwd);
 }
 
 void UbuntuDevicesModel::queryAdb()
