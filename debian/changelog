@@ -1,3 +1,30 @@
+qtcreator-plugin-ubuntu (3.1.1+15.10.20150616-0ubuntu1) wily; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Fix Bug lp:1362028 "SDK not able to provide further hint about
+    missing apparmor policy" (LP: #1362028)
+  * Fix Bug lp:1455566 "ubuntu sdk references obsolete system-image
+    channel names" (LP: #1455566)
+  * Fix bug lp:1456627 "Almost unusuable while non-Ubuntu device
+    connected through adb" (LP: #1456627)
+
+  [ Marcus Tomlinson ]
+  * Split scope template into "14.10" and "Current" variations (LP:
+    #1464108)
+
+  [ Nicholas Skaggs ]
+  * Update qml based templates to best practicies
+
+  [ Niklas Wenzel ]
+  * Allow parallel builds using "dpkg-buildpackage -jN", reducing build
+    time on multi-core CPUs (LP: #1465018)
+  * Fix building translations (LP: #1257313)
+
+  [ nskaggs ]
+  * Update qml based templates to best practicies
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Tue, 16 Jun 2015 14:48:19 +0000
+
 qtcreator-plugin-ubuntu (3.1.1+15.10.20150521-0ubuntu1) wily; urgency=medium
 
   [ Marcus Tomlinson ]
