@@ -3,9 +3,6 @@ Section: devel
 Priority: optional
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Build-Depends: debhelper (>= 9),
-               libqt5script5 (>= 5.3),
-               libqt5scripttools5 (>= 5.3),
-               libqt5webkit5-dev,
                libqt5widgets5 (>= 5.3),
                libqt5dbus5 (>= 5.3),
                libsqlite3-dev,
