@@ -1,11 +1,10 @@
-#ifndef API_CLIENT_H_
-#define API_CLIENT_H_
-
-#include <api/config.h>
+#ifndef CLIENT_H_
+#define CLIENT_H_
 
 #include <atomic>
 #include <deque>
 #include <map>
+#include <memory>
 #include <string>
 @if "%ContentType%".substring(0, "network".length) === "network"
 #include <core/net/http/request.h>
@@ -22,8 +21,6 @@ class Value;
 @endif
 @endif
 
-namespace api {
-
 /**
  * Provide a nice way to access the HTTP API.
  *
@@ -31,6 +28,19 @@ namespace api {
  */
 class Client {
 public:
+
+    /**
+     * Client configuration
+     */
+    struct Config {
+        typedef std::shared_ptr<Config> Ptr;
+
+        // The root of all API request URLs
+        std::string apiroot { "http://api.openweathermap.org" };
+
+        // The custom HTTP user agent string for this library
+        std::string user_agent { "example-network-scope 0.1; (foo)" };
+    };
 
 @if "%ContentType%" == "empty"
     /**
@@ -163,6 +173,4 @@ protected:
     std::atomic<bool> cancelled_;
 };
 
-}
-
-#endif // API_CLIENT_H_
+#endif // CLIENT_H_

@@ -1,7 +1,5 @@
-#include <boost/algorithm/string/trim.hpp>
-
-#include <scope/localization.h>
-#include <scope/query.h>
+#include <query.h>
+#include <localization.h>
 
 #include <unity/scopes/Annotation.h>
 #include <unity/scopes/CategorisedResult.h>
@@ -10,18 +8,16 @@
 #include <unity/scopes/SearchReply.h>
 
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 
 namespace sc = unity::scopes;
-namespace alg = boost::algorithm;
 
 using namespace std;
-using namespace api;
-using namespace scope;
 
 @if "%ContentType%" == "empty"
 /**
- * Define the layout for theresults
+ * Define the layout for the results.
  *
  * The icon size is medium, and ask for the card layout
  * itself to be horizontal. I.e. the text will be placed
@@ -49,13 +45,36 @@ const static string CATEGORY_TEMPLATE =
 
 @if "%ContentType%".substring(0, "network".length) === "network"
 /**
- * Define the layout for the forecast results
+ * Define the larger "current weather" layout.
+ *
+ * The icons are larger.
+ */
+const static string CURRENT_TEMPLATE =
+        R"(
+{
+  "schema-version": 1,
+  "template": {
+    "category-layout": "grid",
+    "card-size": "medium"
+  },
+  "components": {
+    "title": "title",
+    "art" : {
+      "field": "art"
+    },
+    "subtitle": "subtitle"
+  }
+}
+)";
+
+/**
+ * Define the layout for the forecast results.
  *
  * The icon size is small, and ask for the card layout
  * itself to be horizontal. I.e. the text will be placed
  * next to the image.
  */
-const static string WEATHER_TEMPLATE =
+const static string FORECAST_TEMPLATE =
         R"(
 {
   "schema-version": 1,
@@ -73,33 +92,10 @@ const static string WEATHER_TEMPLATE =
   }
 }
 )";
-
-/**
- * Define the larger "current weather" layout.
- *
- * The icons are larger.
- */
-const static string CITY_TEMPLATE =
-        R"(
-{
-  "schema-version": 1,
-  "template": {
-    "category-layout": "grid",
-    "card-size": "medium"
-  },
-  "components": {
-    "title": "title",
-    "art" : {
-      "field": "art"
-    },
-    "subtitle": "subtitle"
-  }
-}
-)";
 @endif
 
 Query::Query(const sc::CannedQuery &query, const sc::SearchMetadata &metadata,
-        Config::Ptr config) :
+        Client::Config::Ptr config) :
         sc::SearchQueryBase(query, metadata), client_(config) {
 }
 
@@ -113,8 +109,8 @@ void Query::run(sc::SearchReplyProxy const& reply) {
         // Start by getting information about the query
         const sc::CannedQuery &query(sc::SearchQueryBase::query());
 
-        // Trim the query string of whitespace
-        string query_string = alg::trim_copy(query.query_string());
+        // Get the query string
+        string query_string = query.query_string();
 
         // the Client is the helper class that provides the results
         // without mixing APIs and scopes code.
@@ -168,8 +164,10 @@ void Query::run(sc::SearchReplyProxy const& reply) {
         // Start by getting information about the query
         const sc::CannedQuery &query(sc::SearchQueryBase::query());
 
-        // Trim the query string of whitespace
-        string query_string = alg::trim_copy(query.query_string());
+        // Get the query string
+        string query_string = query.query_string();
+
+        /// Populate current weather category
 
         // the Client is the helper class that provides the results
         // without mixing APIs and scopes code.
@@ -190,7 +188,7 @@ void Query::run(sc::SearchReplyProxy const& reply) {
 
         // Register a category for the current weather, with the title we just built
         auto location_cat = reply->register_category("current", ss.str(), "",
-                sc::CategoryRenderer(CITY_TEMPLATE));
+                                                     sc::CategoryRenderer(CURRENT_TEMPLATE));
 
         {
             // Create a single result for the current weather category
@@ -218,6 +216,8 @@ void Query::run(sc::SearchReplyProxy const& reply) {
             }
         }
 
+        /// Populate weather forecast category
+
         Client::Forecast forecast;
         if (query_string.empty()) {
             // If there is no search string, get the forecast for London
@@ -228,8 +228,8 @@ void Query::run(sc::SearchReplyProxy const& reply) {
         }
 
         // Register a category for the forecast
-        auto forecast_cat = reply->register_category("forecast",
-                _("7 day forecast"), "", sc::CategoryRenderer(WEATHER_TEMPLATE));
+        auto forecast_cat = reply->register_category("forecast", _("7 day forecast"), "",
+                                                     sc::CategoryRenderer(FORECAST_TEMPLATE));
 
         // For each of the forecast days
         for (const auto &weather : forecast.weather) {
