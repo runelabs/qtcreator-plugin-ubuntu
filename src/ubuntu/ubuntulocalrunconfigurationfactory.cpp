@@ -128,11 +128,26 @@ QString UbuntuLocalRunConfigurationFactory::displayNameForId(const Core::Id id) 
 bool UbuntuLocalRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent,
                                                    const Core::Id id) const
 {
-    return availableCreationIds(parent).contains(id);
+    if (!parent)
+        return false;
+
+    if (id.toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_APP_ID )))
+        return true;
+    else if (id.toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_SCOPE_ID )))
+        return true;
+    else if (id.toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_REMOTE_RUNCONTROL_APP_ID )))
+        return true;
+    else if (id.toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_REMOTE_RUNCONTROL_SCOPE_ID )))
+        return true;
+    return false;
 }
 
 bool UbuntuLocalRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const {
-    return parent && canCreate(parent, ProjectExplorer::idFromMap(map));
+    if (!parent)
+        return false;
+
+    Core::Id id = ProjectExplorer::idFromMap(map);
+    return canCreate(parent, id);
 }
 
 ProjectExplorer::RunConfiguration *UbuntuLocalRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, const Core::Id id) {
