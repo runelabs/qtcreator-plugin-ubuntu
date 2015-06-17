@@ -31,4 +31,14 @@ UBUNTU_TRANSLATION_SOURCES+= \
 # compiled and installed into the right place in the click package
 UBUNTU_PO_FILES+=$$files(po/*.po)
 
+aptest.target   = autopilot
+aptest.commands = QML2_IMPORT_PATH=$$OUT_PWD/backend bash $$PWD/app/tests/autopilot/run
+aptest.depends  = sub-app sub-backend-App
+
+unittest.target   = check
+unittest.commands = /usr/bin/qmltestrunner -input $$PWD/backend/tests/unit -import $$OUT_PWD/backend
+unittest.commands += && /usr/bin/qmltestrunner -input $$PWD/app/tests/unit -import $$OUT_PWD/backend
+unittest.depends  = sub-app sub-backend-App
+
+QMAKE_EXTRA_TARGETS += aptest unittest
 

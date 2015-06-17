@@ -5,6 +5,7 @@ usr/share/qtcreator/templates/wizards/ubuntu/goproject
 usr/share/qtcreator/templates/wizards/ubuntu/html5-simple
 usr/share/qtcreator/templates/wizards/ubuntu/qtquick-app-qmake
 usr/share/qtcreator/templates/wizards/ubuntu/scope
+usr/share/qtcreator/templates/wizards/ubuntu/scope-14.10
 usr/share/qtcreator/templates/wizards/ubuntu/share
 usr/share/qtcreator/templates/wizards/ubuntu/simple-app-qmake
 usr/share/qtcreator/templates/wizards/ubuntu/simple-app-qmlproject

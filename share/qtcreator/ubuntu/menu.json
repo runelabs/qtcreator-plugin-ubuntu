@@ -137,7 +137,7 @@
                         }
                     }
                 ]
-            },				
+            },
             {
                 "name": "Install Application on Device",
                 "id": "Ubuntu.Build.PackageInstall.Go",
@@ -194,9 +194,8 @@
                         "name": "Update Translations Template",
                         "id": "Ubuntu.Menu.i18n.pot",
                         "projectRequired": true,
-                        "qmlProjectRequired": true,
                         "saveRequired": true,
-			"context": ["UbuntuProject.ProjectContext"],
+                        "context": ["UbuntuProject.ProjectContext","QmlProject.ProjectContext","CMakeProject.ProjectContext"],
                         "actions": [
                             "%SCRIPTDIRECTORY%/i18n_update_template %DISPLAYNAME% %PROJECTFILES%"
                         ]
@@ -205,11 +204,10 @@
                         "name": "Build Translations",
                         "id": "Ubuntu.Menu.i18n.mo",
                         "projectRequired": true,
-                        "qmlProjectRequired": true,
                         "saveRequired": true,
-			"context": ["UbuntuProject.ProjectContext"],
+                        "context": ["UbuntuProject.ProjectContext","QmlProject.ProjectContext","CMakeProject.ProjectContext"],
                         "actions": [
-                            "msgfmt po/*.po"
+                            "%SCRIPTDIRECTORY%/i18n_build_translations %NAME_FROM_MANIFEST% %PROJECTDIRECTORY%"
                         ]
                     }
                 ]
@@ -305,7 +303,7 @@
                 "name": "GPG",
                 "id": "Ubuntu.Menu.gpg",
                 "submenu": [
-                    { 
+                    {
                         "name": "Passwords && Keys",
                         "id": "Ubuntu.Menu.gpg.seahorse",
                         "actions": [

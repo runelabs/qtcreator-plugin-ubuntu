@@ -6,7 +6,7 @@
         >
     <icon>../share/ubuntu.png</icon>
     <description>A simple C++ based Unity Scope</description>
-    <displayname>Unity Scope (cmake)</displayname>
+    <displayname>Unity Scope (Current)</displayname>
     <displaycategory>Ubuntu</displaycategory>
     <files>
         <file source="src/CMakeLists.txt"/>

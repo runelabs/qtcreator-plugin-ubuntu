@@ -1,0 +1,19 @@
+{
+@if "%ContentType%".substring(0, "network".length) === "network"
+  "description": "A simple Unity scope that accesses the network",
+@else
+  "description": "A simple Unity scope that accesses local content",
+@endif
+  "maintainer": "%ClickMaintainer%",
+  "architecture": "@CLICK_ARCH@",
+  "name": "%ProjectName:l%.%ClickDomain:l%",
+  "title": "%ProjectName:l%",
+  "framework" : "%ClickFrameworkVersion%",
+  "hooks": {
+    "%ClickHookName:l%": {
+      "scope": "%ClickHookName:l%",
+      "apparmor": "%ClickHookName:l%.apparmor"
+    }
+  }
+}
+
