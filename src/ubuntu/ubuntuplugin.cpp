@@ -106,6 +106,10 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
+    QFont defaultFont = QGuiApplication::font();
+    defaultFont.setFamily(QStringLiteral("Ubuntu"));
+    defaultFont.setWeight(QFont::Light);
+
     qmlRegisterUncreatableType<UbuntuQmlDeviceConnectionState>("Ubuntu.DevicesModel",0,1,"DeviceConnectionState",QStringLiteral("Not instantiable"));
     qmlRegisterUncreatableType<UbuntuQmlDeviceDetectionState>("Ubuntu.DevicesModel",0,1,"DeviceDetectionState",QStringLiteral("Not instantiable"));
     qmlRegisterUncreatableType<UbuntuQmlFeatureState>("Ubuntu.DevicesModel",0,1,"FeatureState",QStringLiteral("Not instantiable"));
@@ -268,6 +272,12 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_FILES);
 
     connect(m_migrateProjectAction, SIGNAL(triggered()), this, SLOT(migrateProject()));
+
+    /* Fix Bug lp:1340061 "Some dialogs have unreadable (too small) text"
+     * The Bug is caused by UITK that overrides the default Font that is based
+     * on the grid units, which is not useable in Widget based applications
+     */
+    QGuiApplication::setFont(defaultFont);
 
     return true;
 }
