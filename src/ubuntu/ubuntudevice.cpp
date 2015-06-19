@@ -159,14 +159,11 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
 {
     Q_UNUSED(code)
 
-    if (code == 0) {
-        m_errorCount = 0;
-    } else {
-        if(m_errorCount > 3) {
-            setProcessState(UbuntuDevice::Failed);
-            m_reply.clear();
-            return;
-        }
+
+    if(m_errorCount > 3) {
+        setProcessState(UbuntuDevice::Failed);
+        m_reply.clear();
+        return;
     }
 
     switch(m_dev->m_processState) {
@@ -176,6 +173,8 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
                 m_errorCount++;
                 waitForEmulatorStart();
                 break;
+            } else {
+                m_errorCount = 0;
             }
 
             m_dev->m_emulatorSerial = m_reply.trimmed();
@@ -191,6 +190,8 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
                 m_errorCount++;
                 waitForBoot();
                 break;
+            } else {
+                m_errorCount = 0;
             }
             //for now the script will wait forever until the shell is available
             detect();
@@ -220,6 +221,8 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
                 break;
             }
 
+            m_errorCount = 0;
+
             m_dev->m_framework = framework;
 
             //will trigger the device updated signal
@@ -235,6 +238,8 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
                 m_errorCount++;
                 detectHasNetworkConnection();
                 break;
+            } else {
+                m_errorCount = 0;
             }
 
             if (m_reply.trimmed() == QString::fromLatin1(Constants::ONE_STR)) {
@@ -258,6 +263,7 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
             break;
         }
         case UbuntuDevice::CloneNetwork:{
+            m_errorCount = 0;
             endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_NETWORK_CONF_COPIED));
             detectHasNetworkConnection();
             break;
@@ -267,6 +273,8 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
                 m_errorCount++;
                 detectOpenSsh();
                 break;
+            } else {
+                m_errorCount = 0;
             }
 
             if (m_reply.trimmed() != QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_NONE)
@@ -299,12 +307,14 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
             break;
         }
         case UbuntuDevice::InstallOpenSSH:{
+            m_errorCount = 0;
             endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SSH_WAS_INSTALLED));
 
             detectOpenSsh();
             break;
         }
         case UbuntuDevice::RemoveOpenSSH:{
+            m_errorCount = 0;
             endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_SSH_WAS_REMOVED));
 
             detectOpenSsh();
@@ -315,6 +325,8 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
                 m_errorCount++;
                 startSshService();
                 break;
+            } else {
+                m_errorCount = 0;
             }
 
             if(m_dev->m_openSSHStarted != UbuntuDevice::Available) {
@@ -327,6 +339,7 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
             break;
         }
         case UbuntuDevice::EnablePortForwarding:{
+            m_errorCount = 0;
             endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_PORTS_FORWARDED));
 
             deployPublicKey();
@@ -337,6 +350,8 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
                 m_errorCount++;
                 deployPublicKey();
                 break;
+            } else {
+                m_errorCount = 0;
             }
             //ready to use
             ProjectExplorer::DeviceManager::instance()->setDeviceState(m_dev->id(),ProjectExplorer::IDevice::DeviceReadyToUse);
@@ -350,6 +365,8 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
                 m_errorCount++;
                 detectDeviceWritableImage();
                 break;
+            } else {
+                m_errorCount = 0;
             }
 
             if (m_reply.trimmed() == QLatin1String(Constants::ZERO_STR)) {
@@ -369,6 +386,8 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
                 m_errorCount++;
                 detectDeveloperTools();
                 break;
+            } else {
+                m_errorCount = 0;
             }
 
             setProcessState(UbuntuDevice::Done);
@@ -384,23 +403,23 @@ void UbuntuDeviceHelper::processFinished(const QString &, const int code)
             emit featureDetected();
             break;
         }
-        case UbuntuDevice::CloneTimeConfig:
-            endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_TIME_CONF_COPIED));
-            setProcessState(UbuntuDevice::Done);
-            break;
         case UbuntuDevice::EnableRWImage:
+            m_errorCount = 0;
             endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_WRITABLE_ENABLED));
             detectDeviceWritableImage();
             break;
         case UbuntuDevice::DisableRWImage:
+            m_errorCount = 0;
             endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_WRITABLE_DISABLED));
             detectDeviceWritableImage();
             break;
         case UbuntuDevice::InstallDevTools:
+            m_errorCount = 0;
             endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_DEVELOPERTOOLS_WAS_INSTALLED));
             detectDeveloperTools();
             break;
         case UbuntuDevice::RemoveDevTools:
+            m_errorCount = 0;
             endAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_DEVELOPERTOOLS_REMOVED));
             detectDeveloperTools();
             break;
@@ -655,20 +674,6 @@ void UbuntuDeviceHelper::resetToDefaults()
     setProcessState(UbuntuDevice::NotStarted);
 
     emit featureDetected();
-}
-
-void UbuntuDeviceHelper::cloneTimeConfig()
-{
-    if(m_dev->m_processState < UbuntuDevice::FirstNonCriticalTask && m_dev->m_processState != UbuntuDevice::NotStarted)
-        return;
-
-    setProcessState(UbuntuDevice::CloneTimeConfig);
-    beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONETIME));
-    stopProcess();
-
-    startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_CLONETIME_SCRIPT)
-                 .arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                 .arg(m_dev->serialNumber()));
 }
 
 void UbuntuDeviceHelper::enableRWImage()
@@ -1026,70 +1031,9 @@ void UbuntuDevice::openTerminal()
 
 }
 
-void UbuntuDevice::cloneTimeConfig()
-{
-    m_helper->cloneTimeConfig();
-}
-
 void UbuntuDevice::enablePortForward()
 {
     m_helper->enablePortForward();
-}
-
-void UbuntuDevice::shutdown()
-{
-    QProcess p;
-    QStringList args = QStringList()
-            << serialNumber();
-
-    //no need to redetect this should happen automagically
-    p.startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SHUTDOWN_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                    , args
-                    , QCoreApplication::applicationDirPath());
-}
-
-void UbuntuDevice::reboot()
-{
-    QProcess p;
-    QStringList args = QStringList()
-            << serialNumber();
-
-    //no need to redetect this should happen automagically
-    bool started = p.startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                                   , args
-                                   , QCoreApplication::applicationDirPath());
-
-    if(!started && debug) {
-        qDebug()<<"Could not start process "
-               <<QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-              <<args
-             <<p.errorString();
-    }
-
-}
-
-void UbuntuDevice::rebootToRecovery()
-{
-    QProcess p;
-    QStringList args = QStringList()
-            << serialNumber();
-
-    //no need to redetect this should happen automagically
-    p.startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_TO_RECOVERY_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                    , args
-                    , QCoreApplication::applicationDirPath());
-}
-
-void UbuntuDevice::rebootToBootloader()
-{
-    QProcess p;
-    QStringList args = QStringList()
-            << serialNumber();
-
-    //no need to redetect this should happen automagically
-    p.startDetached(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_REBOOT_TO_BOOTLOADER_SCRIPT).arg(Ubuntu::Constants::UBUNTU_SCRIPTPATH)
-                    , args
-                    , QCoreApplication::applicationDirPath());
 }
 
 void UbuntuDevice::deployPublicKey()
@@ -1264,8 +1208,6 @@ QString UbuntuDevice::detectionStateString( ) const
             return tr("Detecting if developer tools are installed");
         case FirstNonCriticalTask:
             return tr("");
-        case CloneTimeConfig:
-            return tr("Cloning time configuration");
         case EnableRWImage:
             return tr("Enabling writeable image");
         case DisableRWImage:

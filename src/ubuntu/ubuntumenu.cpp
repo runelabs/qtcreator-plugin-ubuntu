@@ -419,6 +419,7 @@ void UbuntuMenu::menuItemTriggered() {
 
         QVariant projectRequired = act->property(Constants::UBUNTU_MENUJSON_PROJECTREQUIRED);
         ProjectExplorer::Project* project = NULL;
+        UbuntuClickManifest manifest;
 
         if (projectRequired.isValid() && projectRequired.toBool() == true) {
             project = ProjectExplorer::SessionManager::startupProject();
@@ -426,6 +427,14 @@ void UbuntuMenu::menuItemTriggered() {
             if (project == NULL) {
                 QMessageBox::information(Core::ICore::mainWindow(),QLatin1String(Constants::UBUNTU_DIALOG_NO_PROJECTOPEN_TITLE),QLatin1String(Constants::UBUNTU_DIALOG_NO_PROJECTOPEN_TEXT));
                 return;
+            } else {
+                QString manifestPath = project->projectDirectory()
+                                          +QDir::separator()
+                                          +QStringLiteral("manifest.json");
+
+                if (!manifest.load(manifestPath)) {
+                    qWarning() << "Could not load manifest from path" << manifestPath;
+                }
             }
         }
 
@@ -659,6 +668,10 @@ void UbuntuMenu::menuItemTriggered() {
                         command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_FOLDERNAME),folderName);
                         command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_DISPLAYNAME),displayName);
                         command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_PROJECTFILES),projectFiles.join(QLatin1String(" ")));
+
+                        if (manifest.isInitialized()) {
+                            command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_NAME_FROM_MANIFEST),manifest.name());
+                        }
 
                         if (isProperUbuntuHtmlProject(project)) {
                             command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_APP_RUNNER_EXECNAME),

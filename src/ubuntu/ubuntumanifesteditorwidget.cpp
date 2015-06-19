@@ -43,6 +43,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QRegularExpressionValidator>
 
 namespace Ubuntu {
 namespace Internal {
@@ -70,6 +71,10 @@ QWidget *UbuntuManifestEditorWidget::createMainWidget()
     QWidget *w = new QWidget();
     m_ui = new Ui::UbuntuManifestEditor();
     m_ui->setupUi(w);
+
+    QRegularExpressionValidator *versionValidator = new QRegularExpressionValidator(m_ui->lineEdit_version);
+    versionValidator->setRegularExpression(QRegularExpression(QLatin1String("^\\d*(\\.\\d*)*$")));
+    m_ui->lineEdit_version->setValidator(versionValidator);
 
     connect(m_ui->comboBoxFramework,SIGNAL(currentIndexChanged(int)),this,SLOT(onFrameworkChanged()));
     connect(m_ui->lineEdit_description,SIGNAL(textChanged(QString)),this,SLOT(setDirty()));

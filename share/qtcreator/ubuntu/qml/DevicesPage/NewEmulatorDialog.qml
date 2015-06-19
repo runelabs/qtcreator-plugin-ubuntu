@@ -38,23 +38,52 @@ Dialog {
 
     ListItem.ItemSelector {
         id: channel
-        model: ["devel",
-                "devel-proposed",
-                "stable",
-                "rtm-14.09",
-                "rtm-14.09-proposed",
-                "custom channel"]
+        model: ListModel{
+            id: channelModel
+            ListElement {
+                displayName: "devel"
+                value: "ubuntu-touch/devel/ubuntu"
+            }
+            ListElement {
+                displayName: "devel-proposed"
+                value: "ubuntu-touch/devel-proposed/ubuntu"
+            }
+            ListElement {
+                displayName: "bq-stable"
+                value: "ubuntu-touch/stable/bq-aquaris.en"
+            }
+            ListElement {
+                displayName: "bq-rc"
+                value: "ubuntu-touch/rc/bq-aquaris.en"
+            }
+            ListElement {
+                displayName: "rc-proposed"
+                value: "ubuntu-touch/rc-proposed/ubuntu"
+            }
+            ListElement {
+                displayName: "custom channel"
+                value: "custom channel"
+            }
+        }
+
+        delegate: OptionSelectorDelegate{
+            text: displayName
+        }
+
+        property string selectedChannel: {
+            return channelModel.get(channel.selectedIndex).value
+        }
     }
 
     TextField {
         id: inputChannelName
         placeholderText: i18n.tr("Emulator channel")
-        visible: channel.model[channel.selectedIndex] === "custom channel"
+        visible: channel.selectedChannel === "custom channel"
     }
 
     ListItem.ItemSelector {
         id: custom_pwd
-        model: ["Use default password",
+        model: ["Use default password (0000)",
                 "Set custom password"]
     }
 
@@ -88,7 +117,7 @@ Dialog {
                 return;
             devicesModel.createEmulatorImage(inputName.text,
                                              arch.model[arch.selectedIndex],
-                                             (inputChannelName.visible ? inputChannelName.text : channel.model[channel.selectedIndex]),
+                                             (inputChannelName.visible ? inputChannelName.text : channel.selectedChannel),
                                              (inputCustomPassword.visible ? inputCustomPassword.text : "0000")
                                              );
             PopupUtils.close(dialogue);

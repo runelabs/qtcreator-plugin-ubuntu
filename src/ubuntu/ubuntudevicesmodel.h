@@ -115,14 +115,9 @@ signals:
     void stateChanged(QString arg);
 
 public slots:
-    void triggerCloneTimeConfig ( const int devId );
     void triggerPortForwarding  ( const int devId );
     void triggerSSHSetup        ( const int devId );
     void triggerSSHConnection   ( const int devId );
-    void triggerReboot          ( const int devId );
-    void triggerRebootBootloader( const int devId );
-    void triggerRebootRecovery  ( const int devId );
-    void triggerShutdown        ( const int devId );
     void triggerKitAutocreate   ( const int devId );
     void triggerKitRemove       ( const int devId, const QVariant &kitid );
     void triggerRedetect        ( const int devId );

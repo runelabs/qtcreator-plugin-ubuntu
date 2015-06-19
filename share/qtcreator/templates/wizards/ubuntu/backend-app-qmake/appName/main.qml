@@ -25,7 +25,7 @@ MainView {
     height: units.gu(75)
 
     Page {
-        title: i18n.tr("App with backend")
+        title: i18n.tr("%ClickHookName%")
 
         MyType {
             id: myType

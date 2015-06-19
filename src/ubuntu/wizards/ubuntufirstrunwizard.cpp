@@ -10,6 +10,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QLabel>
 #include <QPushButton>
@@ -90,7 +91,7 @@ UbuntuSetupChrootWizardPage::UbuntuSetupChrootWizardPage(QWidget *parent)
     setTitle(tr("Build targets"));
 
     QLabel *label = new QLabel(tr("<p>In order to create Apps for the Ubuntu platform, it is required to create Kits. Kits enable cross-platform and cross-configuration development. Kits consist of a set of values that define one environment, such as a target device, sysroot to build against,  toolchain to build with, platform specific API set, and some metadata.</p>"
-                                  "<p><strong>Note: </strong>It is recommended to create Kits for each possible traget architecture (i386, armhf). When developing with the emulator, the best experience is provided by using a i386 emulator and Kit</p>"));
+                                  "<p><strong>Note: </strong>It is recommended to create Kits for each possible target architecture (i386, armhf). When developing with the emulator, the best experience is provided by using a i386 emulator and Kit</p>"));
     label->setWordWrap(true);
 
     m_kitExistsLabel = new QLabel(tr("These Kits are already available on the machine, but it is also possible to create new ones."));
@@ -129,7 +130,10 @@ void UbuntuSetupChrootWizardPage::initializePage()
     bool found = false;
     foreach(ProjectExplorer::Kit *curr, allKits) {
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(curr);
-        if (tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
+        const Core::Id devId = ProjectExplorer::DeviceKitInformation::deviceId(curr);
+
+        if (tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID) ||
+                devId == ProjectExplorer::Constants::DESKTOP_DEVICE_ID) {
             found = true;
 
             QTreeWidgetItem* kitItem = new QTreeWidgetItem;

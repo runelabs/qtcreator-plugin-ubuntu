@@ -27,7 +27,7 @@ option(INSTALL_TESTS "Install the tests on make install" on)
 set(APP_NAME          %ProjectName%)
 set(APP_ID            "%ProjectName:l%.%ClickDomain:l%")
 set(%ProjectName:u%_DIR "share/qml/%ProjectName%")
-set(MAIN_QML          "%ProjectName%.qml")
+set(MAIN_QML          "Main.qml")
 set(ICON              "graphics/%ProjectName%.png")
 
 # Set install paths
@@ -58,15 +58,17 @@ add_subdirectory(po)
 
 add_custom_target("autopilot" chmod +x ${CMAKE_SOURCE_DIR}/app/tests/autopilot/run
                     COMMAND ${CMAKE_SOURCE_DIR}/app/tests/autopilot/run
-                    DEPENDS %ProjectName%backend %ProjectName%backend-qmldir
+                    DEPENDS %ClickHookName:s%backend %ClickHookName:s%backend-qmldir
                     WORKING_DIRECTORY ./app)
 
-add_custom_target("check" /usr/bin/qmltestrunner -input ${CMAKE_SOURCE_DIR}/app/tests/unit -import ${CMAKE_BINARY_DIR}/backend
-                    DEPENDS %ProjectName%backend %ProjectName%backend-qmldir
+add_custom_target("check"
+                    COMMAND /usr/bin/qmltestrunner -input ${CMAKE_SOURCE_DIR}/backend/tests/unit -import ${CMAKE_BINARY_DIR}/backend
+                    COMMAND /usr/bin/qmltestrunner -input ${CMAKE_SOURCE_DIR}/app/tests/unit -import ${CMAKE_BINARY_DIR}/backend
+                    DEPENDS %ClickHookName:s%backend %ClickHookName:s%backend-qmldir
                     WORKING_DIRECTORY ./app)
 
-add_custom_target("run" /usr/bin/qmlscene -I ${CMAKE_BINARY_DIR}/backend  ${CMAKE_SOURCE_DIR}/app/%ProjectName%.qml
-                    DEPENDS %ProjectName%backend %ProjectName%backend-qmldir
+add_custom_target("run" /usr/bin/qmlscene -I ${CMAKE_BINARY_DIR}/backend  ${CMAKE_SOURCE_DIR}/app/Main.qml
+                    DEPENDS %ClickHookName:s%backend %ClickHookName:s%backend-qmldir
                     WORKING_DIRECTORY ./app)
 
 # No op custom target for all not compiled files, so they show up in the QtCreator project tree
