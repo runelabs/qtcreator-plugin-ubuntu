@@ -23,6 +23,8 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icontext.h>
+#include <coreplugin/id.h>
 #include <projectexplorer/projectexplorer.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
@@ -51,9 +53,11 @@ UbuntuDeviceMode::UbuntuDeviceMode(QObject *parent) :
     setPriority(Ubuntu::Constants::UBUNTU_MODE_DEVICES_PRIORITY);
     setId(Ubuntu::Constants::UBUNTU_MODE_DEVICES);
     setObjectName(QLatin1String(Ubuntu::Constants::UBUNTU_MODE_DEVICES));
-
+    setContext(Core::Context("Ubuntu Plugin"));
+    setContextHelpId(QStringLiteral("Managing Devices"));
 
     m_modeWidget = new QWidget;
+
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
@@ -87,6 +91,8 @@ UbuntuDeviceMode::UbuntuDeviceMode(QObject *parent) :
 
 UbuntuDevice::ConstPtr UbuntuDeviceMode::device()
 {
+    return UbuntuDevice::ConstPtr();
+
     if(m_devicesModel->rowCount() <= 0)
         return UbuntuDevice::ConstPtr();
 

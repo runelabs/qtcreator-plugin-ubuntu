@@ -3,12 +3,18 @@
 
 #include <analyzerbase/analyzerstartparameters.h>
 #include <analyzerbase/analyzerruncontrol.h>
+#include <analyzerbase/analyzermanager.h>
 #include <projectexplorer/localapplicationruncontrol.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/applicationlauncher.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/target.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <utils/fileutils.h>
 #include <qmlprofiler/localqmlprofilerrunner.h>
+
+#include <QTcpServer>
 
 namespace Ubuntu {
 namespace Internal {
@@ -70,7 +76,7 @@ ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplore
                     ubuntuRC->extraAspect<ProjectExplorer::EnvironmentAspect>();
 
             Analyzer::AnalyzerStartParameters sp;
-            sp.startMode = Analyzer::StartLocal;
+            sp.useStartupProject = true;
             sp.runMode = mode;
             sp.workingDirectory = ubuntuRC->workingDirectory();
             sp.debuggee = ubuntuRC->executable();
@@ -87,17 +93,41 @@ ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplore
 
             return QmlProfiler::LocalQmlProfilerRunner::createLocalRunControl(runConfiguration, sp,errorMessage);
         }
-        case ProjectExplorer::NoRunMode:
         case ProjectExplorer::CallgrindRunMode:
         case ProjectExplorer::MemcheckRunMode:
-        case ProjectExplorer::MemcheckWithGdbRunMode:
+        case ProjectExplorer::MemcheckWithGdbRunMode: {
+            Analyzer::AnalyzerStartParameters sp;
+            sp.displayName = ubuntuRC->displayName();
+            sp.runMode = mode;
+            ProjectExplorer::EnvironmentAspect *aspect
+                    = ubuntuRC->extraAspect<ProjectExplorer::EnvironmentAspect>();
+            if (aspect)
+                sp.environment = aspect->environment();
+            sp.workingDirectory = ubuntuRC->workingDirectory();
+            sp.debuggee = ubuntuRC->executable();
+            sp.debuggeeArgs = ubuntuRC->commandLineArguments();
+            const ProjectExplorer::IDevice::ConstPtr device =
+                    ProjectExplorer::DeviceKitInformation::device(ubuntuRC->target()->kit());
+            QTC_ASSERT(device, return 0);
+            QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
+            QTcpServer server;
+            if (!server.listen(QHostAddress::LocalHost) && !server.listen(QHostAddress::LocalHostIPv6)) {
+                *errorMessage = tr("Cannot open port on host for profiling.");
+                return 0;
+            }
+            sp.connParams.host = server.serverAddress().toString();
+            sp.connParams.port = server.serverPort();
+            sp.localRunMode = static_cast<ProjectExplorer::ApplicationLauncher::Mode>(ubuntuRC->runMode());
+
+
+            return Analyzer::AnalyzerManager::createRunControl(sp, runConfiguration);
+        }
+        case ProjectExplorer::NoRunMode:
         case ProjectExplorer::ClangStaticAnalyzerMode:
         case ProjectExplorer::PerfProfilerRunMode:
             QTC_ASSERT(false, return 0);
         }
-
         QTC_ASSERT(false, return 0);
-        return 0;
     }
     return 0;
 

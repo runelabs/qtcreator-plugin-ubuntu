@@ -238,7 +238,6 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_FILES);
 
     connect(m_migrateProjectAction, SIGNAL(triggered()), this, SLOT(migrateProject()));
-
     return true;
 }
 
