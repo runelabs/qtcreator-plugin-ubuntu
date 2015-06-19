@@ -429,8 +429,7 @@ void UbuntuMenu::menuItemTriggered() {
                 return;
             } else {
                 QString manifestPath = project->projectDirectory()
-                                          +QDir::separator()
-                                          +QStringLiteral("manifest.json");
+                        .appendPath(QStringLiteral("manifest.json")).toString();
 
                 if (!manifest.load(manifestPath)) {
                     qWarning() << "Could not load manifest from path" << manifestPath;
