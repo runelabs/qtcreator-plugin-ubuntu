@@ -36,6 +36,8 @@
 #include <QTextStream>
 #include <QRegularExpression>
 
+#include <glib-2.0/glib.h>
+
 
 namespace Ubuntu {
 namespace Internal {
@@ -156,6 +158,62 @@ QString UbuntuProjectHelper::getManifestPath(ProjectExplorer::Target *target, co
         return manifestFilePath;
     }
     return defaultValue;
+}
+
+/*!
+ * \brief UbuntuProjectHelper::injectScopeDebugHelper
+ * Injects the \a commandTemplate into the scope ini.
+ * Replaces %S with \a scriptName and %C with the subcommand.
+ * If no ScopeRunner is set \a defaultSubCmd is used.
+ */
+bool UbuntuProjectHelper::injectScopeDebugHelper(const QString &iniFilePath, const QString &scriptName, const QString &commandTemplate, const QString &defaultSubCmd)
+{
+    GKeyFile* keyFile = g_key_file_new();
+    GKeyFileFlags flags = static_cast<GKeyFileFlags>(G_KEY_FILE_KEEP_TRANSLATIONS|G_KEY_FILE_KEEP_COMMENTS);
+    if(!g_key_file_load_from_file(keyFile,qPrintable(iniFilePath),flags,NULL)){
+        g_key_file_free(keyFile);
+        qWarning()<<"Could not read the ini file";
+        return false;
+    }
+
+    QString subCmd;
+    if(g_key_file_has_key(keyFile,"ScopeConfig","ScopeRunner",NULL)) {
+        gchar *value = g_key_file_get_string(keyFile,"ScopeConfig","ScopeRunner",NULL);
+        if(value == NULL) {
+            qWarning()<<"Could not read the ScopeRunner entry";
+            g_key_file_free(keyFile);
+            return false;
+        }
+
+        subCmd = QString::fromUtf8(value);
+        g_free(value);
+
+    } else {
+        subCmd = defaultSubCmd;
+    }
+
+    if (!subCmd.contains(scriptName)) {
+        QString command = QString(commandTemplate)
+                .replace(QStringLiteral("%S"),scriptName)
+                .replace(QStringLiteral("%C"),subCmd);
+        g_key_file_set_string(keyFile,"ScopeConfig","ScopeRunner",command.toUtf8().data());
+    }
+
+    g_key_file_set_boolean(keyFile,"ScopeConfig","DebugMode",TRUE);
+
+    gsize size = 0;
+    gchar *settingData = g_key_file_to_data (keyFile, &size, NULL);
+    if(!settingData) {
+        qWarning()<<"Could not convert the new data into the ini file";
+        g_key_file_free(keyFile);
+        return false;
+    }
+
+    gboolean ret = g_file_set_contents (qPrintable(iniFilePath), settingData, size,  NULL);
+    g_free (settingData);
+    g_key_file_free (keyFile);
+
+    return ret == TRUE;
 }
 
 QString UbuntuProjectHelper::getManifestPath(ProjectExplorer::Project *p, const QString &defaultValue)

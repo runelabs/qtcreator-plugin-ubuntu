@@ -1,5 +1,8 @@
 #include "ubuntulocalruncontrolfactory.h"
 #include "ubuntulocalrunconfiguration.h"
+#include "ubuntulocalscopedebugsupport.h"
+#include "ubuntuconstants.h"
+#include "clicktoolchain.h"
 
 #include <analyzerbase/analyzerstartparameters.h>
 #include <analyzerbase/analyzerruncontrol.h>
@@ -9,12 +12,14 @@
 #include <projectexplorer/applicationlauncher.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/abi.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <utils/fileutils.h>
 #include <qmlprofiler/localqmlprofilerrunner.h>
 
 #include <QTcpServer>
+#include <QSet>
 
 namespace Ubuntu {
 namespace Internal {
@@ -22,13 +27,18 @@ namespace Internal {
 bool UbuntuLocalRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const
 {
     if(qobject_cast<UbuntuLocalRunConfiguration*>(runConfiguration)) {
-        if (mode != ProjectExplorer::NormalRunMode
-                && mode != ProjectExplorer::DebugRunMode
-                && mode != ProjectExplorer::DebugRunModeWithBreakOnMain
-                && mode != ProjectExplorer::QmlProfilerRunMode) {
-            return false;
+        switch (mode) {
+            case ProjectExplorer::NormalRunMode:
+            case ProjectExplorer::DebugRunMode:
+            case ProjectExplorer::DebugRunModeWithBreakOnMain:
+            case ProjectExplorer::QmlProfilerRunMode:
+            case ProjectExplorer::CallgrindRunMode:
+            case ProjectExplorer::MemcheckRunMode:
+            case ProjectExplorer::MemcheckWithGdbRunMode:
+                return runConfiguration->isEnabled();
+            default:
+                return false;
         }
-        return runConfiguration->isEnabled();
     }
     return false;
 }
@@ -54,21 +64,54 @@ ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplore
         case ProjectExplorer::DebugRunMode:
         case ProjectExplorer::DebugRunModeWithBreakOnMain: {
 
-            Debugger::DebuggerStartParameters params;
-            if (!Debugger::fillParametersFromRunConfiguration(&params,runConfiguration,errorMessage))
-                return 0;
+            QString rcId = runConfiguration->id().toString();
+            bool isScope = rcId.startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_SCOPE_ID));
 
+            Debugger::DebuggerStartParameters params;
             // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
             params.workingDirectory = Utils::FileUtils::normalizePathName(ubuntuRC->workingDirectory());
+            params.useTerminal = ubuntuRC->runMode() == ProjectExplorer::ApplicationLauncher::Console;
 
             params.executable = ubuntuRC->executable();
             if (params.executable.isEmpty())
                 return 0;
 
             params.processArgs = ubuntuRC->commandLineArguments();
-            params.useTerminal = ubuntuRC->runMode() == ProjectExplorer::ApplicationLauncher::Console;
 
-            return Debugger::createDebuggerRunControl(params, errorMessage);
+            if (isScope) {
+                ProjectExplorer::Abi hostAbi = ProjectExplorer::Abi::hostAbi();
+                if (hostAbi.os() == ProjectExplorer::Abi::LinuxOS) {
+                    QString triplet = ClickToolChain::gnutriplet(hostAbi);
+                    if (triplet.isEmpty()) {
+                        if (errorMessage)
+                            *errorMessage = tr("Unsupported host architecture");
+                        return 0;
+                    }
+
+                    params.executable = QString::fromLatin1("/usr/lib/%1/unity-scopes/scoperunner")
+                            .arg(triplet);
+                } else {
+                    if (errorMessage)
+                        *errorMessage = tr("Running scopes is not implemented on this OS.");
+                    return 0;
+                }
+
+                params.processArgs.clear();
+                params.continueAfterAttach = true;
+                params.startMode = Debugger::AttachToRemoteServer;
+                params.remoteSetupNeeded = true;
+                params.connParams.host = QStringLiteral("127.0.0.1");
+            }
+
+            Debugger::DebuggerRunControl *runControl
+                    = Debugger::createDebuggerRunControl(params, ubuntuRC, errorMessage, mode);
+
+            if (isScope) {
+                //runControl takes ownership of this pointer
+                new UbuntuLocalScopeDebugSupport(ubuntuRC, runControl, params.executable);
+            }
+
+            return runControl;
         }
         case ProjectExplorer::QmlProfilerRunMode: {
 
@@ -76,7 +119,6 @@ ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplore
                     ubuntuRC->extraAspect<ProjectExplorer::EnvironmentAspect>();
 
             Analyzer::AnalyzerStartParameters sp;
-            sp.useStartupProject = true;
             sp.runMode = mode;
             sp.workingDirectory = ubuntuRC->workingDirectory();
             sp.debuggee = ubuntuRC->executable();

@@ -93,21 +93,19 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
                 return 0;
             }
             Debugger::DebuggerStartParameters params = RemoteLinux::LinuxDeviceDebugSupport::startParameters(rc);
-            if (mode == ProjectExplorer::DebugRunModeWithBreakOnMain)
-                params.breakOnMain = true;
 
             params.solibSearchPath.append(rc->soLibSearchPaths());
-            params.runConfiguration = rc;
 
             //Always leave this empty or the debugger backend tries to execute
             //the binary on the phone instead of attaching and continuing the already
             //running app
             params.remoteExecutable = QString();
+            //params.expectedSignals.append("SIGTRAP");
 
             if(debug) qDebug()<<"Solib search path : "<<params.solibSearchPath;
 
             Debugger::DebuggerRunControl * const runControl
-                    = Debugger::createDebuggerRunControl(params, errorMessage);
+                    = Debugger::createDebuggerRunControl(params, rc, errorMessage, mode);
             if (!runControl)
                 return 0;
             UbuntuRemoteDebugSupport * const debugSupport =

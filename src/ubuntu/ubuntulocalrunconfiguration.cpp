@@ -22,6 +22,7 @@
 #include "ubuntuclickmanifest.h"
 #include "ubunturemoterunconfiguration.h"
 #include "ubuntucmakecache.h"
+#include "ubuntuprojecthelper.h"
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
@@ -34,6 +35,9 @@
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakenodes.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
+#include <qmljs/parser/qmldirparser_p.h>
+#include <qmljs/parser/qmlerror.h>
+
 using namespace Ubuntu::Internal;
 
 enum {
@@ -423,18 +427,14 @@ bool UbuntuLocalRunConfiguration::ensureClickAppConfigured(QString *errorMessage
     return true;
 }
 
-bool UbuntuLocalRunConfiguration::ensureScopesAppConfigured(QString *errorMessage)
+bool UbuntuLocalRunConfiguration::ensureScopesAppConfigured(QString *)
 {
     m_workingDir = target()->activeBuildConfiguration()->buildDirectory();
 
-    Utils::Environment env = Utils::Environment::systemEnvironment();
-    m_executable = env.searchInPath(QString::fromLatin1(Ubuntu::Constants::UBUNTUSCOPES_PROJECT_LAUNCHER_EXE)).toString();
+    Utils::FileName exec = Utils::FileName::fromString(Ubuntu::Constants::UBUNTU_SCRIPTPATH);
+    exec.appendPath(QLatin1String(Ubuntu::Constants::UBUNTUSCOPES_PROJECT_LAUNCHER_EXE));
 
-    if(m_executable.isEmpty()) {
-        if(errorMessage)
-            *errorMessage = tr("Could not find launcher %1 in path").arg(QLatin1String(Ubuntu::Constants::UBUNTUSCOPES_PROJECT_LAUNCHER_EXE));
-        return false;
-    }
+    m_executable = exec.toString();
 
     Utils::FileName iniFile = UbuntuProjectHelper::findScopesIniRecursive(target()->activeBuildConfiguration()->buildDirectory(),appId());
     if(iniFile.toFileInfo().exists())
@@ -488,11 +488,38 @@ void UbuntuLocalRunConfiguration::addToBaseEnvironment(Utils::Environment &env) 
 
     //lambda checks if the executable is in a qmldir and add its to QML2_IMPORT_PATH if
     //required
-    auto loc_addToImportPath = [&usedPaths,&env] (const QString &loc_executable) {
-        QDir d = QFileInfo(loc_executable).absoluteDir();
-        if(debug) qDebug()<<"Looking in the dir: "<<d.absolutePath()<<loc_executable;
-        if(d.exists(QLatin1String("qmldir"))) {
-            QString path = QDir::cleanPath(d.absolutePath()+QDir::separator()+QLatin1String(".."));
+    auto loc_addToImportPath = [&usedPaths,&env] (const QString &loc_buildDir) {
+        const QString absolutePath = loc_buildDir;
+        if(debug) qDebug()<<"Looking in the dir: "<<absolutePath;
+
+        QFileInfo qmldir = UbuntuProjectHelper::findFileRecursive(
+                    Utils::FileName::fromString(absolutePath),
+                    QStringLiteral("qmldir")).toFileInfo();
+
+        if (!qmldir.exists())
+            return;
+
+        QString absoluteQmlDirPath = qmldir.absolutePath();
+        QFile qmldirFile(qmldir.absoluteFilePath());
+        if (!qmldirFile.open(QIODevice::ReadOnly))
+            return;
+
+        QString qmldirData = QString::fromUtf8(qmldirFile.readAll());
+
+        QmlDirParser parser;
+        parser.parse(qmldirData);
+        if (parser.hasError()) {
+            if(debug) qDebug()<<"Unable to parse the qmldir file ";
+            return;
+        }
+
+        QString nameSpacePath = parser.typeNamespace();
+        nameSpacePath.replace(QStringLiteral("."), QStringLiteral("/"));
+
+        if (debug) qDebug()<<absoluteQmlDirPath<<" should contain "<<nameSpacePath;
+
+        if (qmldir.absolutePath().endsWith(nameSpacePath)) {
+            QString path = QDir::cleanPath(absoluteQmlDirPath.left(absoluteQmlDirPath.length() - nameSpacePath.length()));
             if(usedPaths.contains(path))
                 return;
 
@@ -508,19 +535,21 @@ void UbuntuLocalRunConfiguration::addToBaseEnvironment(Utils::Environment &env) 
             QList<CMakeProjectManager::CMakeBuildTarget> targets = proj->buildTargets();
             foreach (const CMakeProjectManager::CMakeBuildTarget& t, targets) {
                 if(t.targetType == CMakeProjectManager::DynamicLibraryType)
-                    loc_addToImportPath(t.executable);
+                    loc_addToImportPath(t.workingDirectory);
             }
         } else if (target()->project()->id() == QmakeProjectManager::Constants::QMAKEPROJECT_ID) {
             QmakeProjectManager::QmakeProject* pro = static_cast<QmakeProjectManager::QmakeProject*> (target()->project());
             foreach(const QmakeProjectManager::QmakeProFileNode* applPro, pro->allProFiles()) {
                 if(applPro->projectType() != QmakeProjectManager::ApplicationTemplate &&
-                        applPro->projectType() != QmakeProjectManager::SharedLibraryTemplate) {
+                        applPro->projectType() != QmakeProjectManager::SharedLibraryTemplate &&
+                        applPro->projectType() != QmakeProjectManager::ScriptTemplate &&
+                        applPro->projectType() != QmakeProjectManager::AuxTemplate) {
                     continue;
                 }
 
                 QmakeProjectManager::TargetInformation info = applPro->targetInformation();
                 if(applPro->targetInformation().valid)
-                    loc_addToImportPath(info.buildDir + QDir::separator() + info.target);
+                    loc_addToImportPath(info.buildDir);
 
                 // The user could be linking to a library found via a -L/some/dir switch
                 // to find those libraries while actually running we explicitly prepend those

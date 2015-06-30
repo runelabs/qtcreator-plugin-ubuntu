@@ -1,6 +1,9 @@
 QTC_PLUGIN_NAME = Ubuntu
+
 QTC_LIB_DEPENDS += \
-    utils
+    utils \
+    qmljs
+
 QTC_PLUGIN_DEPENDS += \
     coreplugin \
     projectexplorer \

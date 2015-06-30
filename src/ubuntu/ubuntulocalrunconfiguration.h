@@ -76,7 +76,7 @@ public:
 
 private:
     bool ensureClickAppConfigured (QString *errorMessage);
-    bool ensureScopesAppConfigured (QString *errorMessage);
+    bool ensureScopesAppConfigured (QString *);
     bool ensureUbuntuProjectConfigured (QString *errorMessage);
 
 private:

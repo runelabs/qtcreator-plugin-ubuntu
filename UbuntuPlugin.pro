@@ -113,7 +113,8 @@ SOURCES += \
     src/ubuntu/ubuntupackagingmodel.cpp \
     src/ubuntu/ubuntufixmanifeststep.cpp \
     src/ubuntu/wizards/ubuntufatpackagingwizard.cpp \
-    src/ubuntu/ubuntulocalruncontrolfactory.cpp
+    src/ubuntu/ubuntulocalruncontrolfactory.cpp \
+    src/ubuntu/ubuntulocalscopedebugsupport.cpp
 
 HEADERS += \
     src/ubuntu/ubuntuplugin.h \
@@ -191,7 +192,8 @@ HEADERS += \
     src/ubuntu/ubuntupackagingmodel.h \
     src/ubuntu/ubuntufixmanifeststep.h \
     src/ubuntu/wizards/ubuntufatpackagingwizard.h \
-    src/ubuntu/ubuntulocalruncontrolfactory.h
+    src/ubuntu/ubuntulocalruncontrolfactory.h \
+    src/ubuntu/ubuntulocalscopedebugsupport.h
 
 INCLUDEPATH+=$$OUT_PWD
 

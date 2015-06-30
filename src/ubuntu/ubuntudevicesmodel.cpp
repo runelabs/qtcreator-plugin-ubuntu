@@ -333,7 +333,7 @@ void UbuntuDevicesModel::triggerKitRemove(const int devId, const QVariant &kitid
         return;
 
     ProjectExplorer::Kit* k = ProjectExplorer::KitManager::find(Core::Id::fromSetting(kitid));
-    if(ProjectExplorer::DeviceKitInformation::deviceId(k) == Core::Id(devId)) {
+    if(ProjectExplorer::DeviceKitInformation::deviceId(k) == Core::Id::fromUniqueIdentifier(devId)) {
         //completely delete the kit
         ProjectExplorer::KitManager::deregisterKit(k);
     }
@@ -1045,7 +1045,7 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
 
             //remove all ubuntu emulators that are in the settings but don't exist in the system
             foreach(int curr,notFoundImages) {
-                ProjectExplorer::DeviceManager::instance()->removeDevice(Core::Id(curr));
+                ProjectExplorer::DeviceManager::instance()->removeDevice(Core::Id::fromUniqueIdentifier(curr));
             }
 
             queryAdb();

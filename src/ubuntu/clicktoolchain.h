@@ -47,6 +47,7 @@ public:
     virtual QVariantMap toMap() const override;
 
     QString gnutriplet () const;
+    static QString gnutriplet (const ProjectExplorer::Abi &abi);
     const UbuntuClickTool::Target &clickTarget () const;
 
     static ProjectExplorer::Abi architectureNameToAbi ( const QString &arch );

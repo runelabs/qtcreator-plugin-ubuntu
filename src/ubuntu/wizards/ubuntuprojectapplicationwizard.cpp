@@ -148,7 +148,7 @@ Core::FeatureSet UbuntuProjectApplicationWizard::requiredFeatures() const
 #else
     return CustomProjectWizard::requiredFeatures()
             | Core::Feature(QtSupport::Constants::FEATURE_QMLPROJECT)
-            | Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2);
+            | Core::Feature::versionedFeature(QtSupport::Constants::FEATURE_QT_QUICK_PREFIX, 2);
 #endif
 }
 
