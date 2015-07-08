@@ -408,6 +408,7 @@ void UbuntuPackageStep::setupAndStartProcess(const ProjectExplorer::ProcessParam
     //add special parser on click review step
     if(m_state == ClickReview) {
         UbuntuPackageOutputParser *packageStepParser = new UbuntuPackageOutputParser;
+        packageStepParser->setTreatAllErrorsAsWarnings(m_treatClickErrorsAsWarnings);
         connect(this,SIGNAL(currentSubStepFinished()),packageStepParser,SLOT(setEndOfData()));
         if (parser)
             parser->appendOutputParser(packageStepParser);

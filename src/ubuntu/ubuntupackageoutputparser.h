@@ -20,7 +20,7 @@ public:
     virtual void stdError(const QString &line);
     virtual bool hasFatalErrors() const;
 
-    void setTreatAllErrosAsWarnings ( const bool set );
+    void setTreatAllErrorsAsWarnings ( const bool set );
 
 public slots:
     void setEndOfData ();

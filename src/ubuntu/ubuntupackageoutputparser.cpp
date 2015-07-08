@@ -44,7 +44,7 @@ bool UbuntuPackageOutputParser::hasFatalErrors() const
     return IOutputParser::hasFatalErrors();
 }
 
-void UbuntuPackageOutputParser::setTreatAllErrosAsWarnings(const bool set)
+void UbuntuPackageOutputParser::setTreatAllErrorsAsWarnings(const bool set)
 {
     m_treatAllErrorsAsWarnings = set;
 }
