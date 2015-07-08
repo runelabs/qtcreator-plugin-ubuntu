@@ -44,6 +44,10 @@
 #include "ubuntuprojecthelper.h"
 #include "ubuntuscopefinalizer.h"
 #include "targetupgrademanager.h"
+#include "ubuntusettingspage.h"
+#include "ubuntusettingsdeviceconnectivitypage.h"
+#include "ubuntusettingsclickpage.h"
+#include "ubuntusettingsprojectdefaultspage.h"
 
 #include "wizards/ubuntuprojectapplicationwizard.h"
 #include "wizards/ubuntufirstrunwizard.h"
@@ -167,6 +171,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     addAutoReleasedObject(m_ubuntuPackagingMode);
 
     addAutoReleasedObject(new UbuntuSettingsClickPage);
+    addAutoReleasedObject(new UbuntuSettingsProjectDefaultsPage);
     addAutoReleasedObject(new UbuntuSettingsDeviceConnectivityPage);
     addAutoReleasedObject(new UbuntuSettingsPage);
 

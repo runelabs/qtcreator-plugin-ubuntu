@@ -30,7 +30,8 @@ FORMS += \
     ubuntumanifesteditor.ui \
     ubuntuapparmoreditor.ui \
     ubunturemoterunconfigurationwidget.ui \
-    targetupgrademanagerdialog.ui
+    targetupgrademanagerdialog.ui \
+    ubuntusettingsprojectdefaultspage.ui
 
 RESOURCES += \
     resources.qrc
@@ -124,7 +125,8 @@ SOURCES += \
     targetupgrademanager.cpp \
     ubuntupackagingmodel.cpp \
     ubuntufixmanifeststep.cpp \
-    wizards/ubuntufatpackagingwizard.cpp
+    wizards/ubuntufatpackagingwizard.cpp \
+    ubuntusettingsprojectdefaultspage.cpp
 
 HEADERS += \
     ubuntuplugin.h \
@@ -212,7 +214,8 @@ HEADERS += \
     targetupgrademanager.h \
     ubuntupackagingmodel.h \
     ubuntufixmanifeststep.h \
-    wizards/ubuntufatpackagingwizard.h
+    wizards/ubuntufatpackagingwizard.h \
+    ubuntusettingsprojectdefaultspage.h
 
 INCLUDEPATH+=$$OUT_PWD
 

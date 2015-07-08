@@ -31,6 +31,7 @@ enum {
 };
 
 const char PACKAGE_MODE_KEY[] = "Ubuntu.UbuntuPackageStep.PackageMode";
+const char ERROR_MODE_KEY[] = "Ubuntu.UbuntuPackageStep.TreatErrorsAsWarnings";
 
 /*!
  * \class UbuntuPackageStep
@@ -51,6 +52,20 @@ UbuntuPackageStep::UbuntuPackageStep(ProjectExplorer::BuildStepList *bsl) :
     m_cleanDeployDirectory(true)
 {
     setDefaultDisplayName(tr("UbuntuSDK Click build"));
+
+    QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),
+                       QLatin1String(Constants::SETTINGS_PRODUCT));
+
+    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_PROJECT_DEFAULTS));
+    m_treatClickErrorsAsWarnings =
+            settings.value(QLatin1String(Constants::SETTINGS_KEY_TREAT_REVIEW_ERRORS_AS_WARNINGS),
+                           false).toBool();
+
+    if (!settings.value(QLatin1String(Constants::SETTINGS_KEY_ENABLE_DEBUG_HELPER_DEFAULT),
+                       false).toBool())
+        m_debugMode = DisableDebugScript;
+
+    settings.endGroup();
 }
 
 UbuntuPackageStep::UbuntuPackageStep(ProjectExplorer::BuildStepList *bsl, UbuntuPackageStep *other) :
@@ -314,6 +329,9 @@ bool UbuntuPackageStep::fromMap(const QVariantMap &map)
         if(mode >= AutoEnableDebugScript && mode <= DisableDebugScript)
             setDebugMode(static_cast<DebugMode>(mode));
     }
+    if (map.contains(QLatin1String(ERROR_MODE_KEY))) {
+        setTreatClickErrorsAsWarnings(map[QLatin1String(ERROR_MODE_KEY)].toBool());
+    }
     return true;
 }
 
@@ -324,6 +342,7 @@ QVariantMap UbuntuPackageStep::toMap() const
         return map;
 
     map.insert(QLatin1String(PACKAGE_MODE_KEY),static_cast<int>(m_debugMode));
+    map.insert(QLatin1String(ERROR_MODE_KEY),m_treatClickErrorsAsWarnings);
     return map;
 }
 
@@ -890,6 +909,19 @@ void UbuntuPackageStep::setCleanDeployDirectory(bool cleanDeployDirectory)
     m_cleanDeployDirectory = cleanDeployDirectory;
 }
 
+bool UbuntuPackageStep::treatClickErrorsAsWarnings() const
+{
+    return m_treatClickErrorsAsWarnings;
+}
+
+void UbuntuPackageStep::setTreatClickErrorsAsWarnings(bool arg)
+{
+    if (m_treatClickErrorsAsWarnings != arg) {
+        m_treatClickErrorsAsWarnings = arg;
+        emit treatClickErrorsAsWarningsChanged(arg);
+    }
+}
+
 ProjectExplorer::BuildConfiguration *UbuntuPackageStep::referenceBuildConfig() const
 {
     if(m_referenceBuildConfig)
@@ -951,7 +983,9 @@ UbuntuPackageStepConfigWidget::UbuntuPackageStepConfigWidget(UbuntuPackageStep *
     ui->comboBoxMode->addItem(tr("Yes") ,static_cast<int>(UbuntuPackageStep::EnableDebugScript));
     ui->comboBoxMode->addItem(tr("No")  ,static_cast<int>(UbuntuPackageStep::DisableDebugScript));
     connect(step,SIGNAL(packageModeChanged(PackageMode)),this,SLOT(updateMode()));
+    connect(step,SIGNAL(treatClickErrorsAsWarningsChanged(bool)),this,SLOT(updateMode()));
     connect(ui->comboBoxMode,SIGNAL(activated(int)),this,SLOT(onModeSelected(int)));
+    connect(ui->checkBox,SIGNAL(clicked(bool)), this, SLOT(onClickErrorsToggled(bool)));
 
     updateMode();
 }
@@ -971,14 +1005,17 @@ void UbuntuPackageStepConfigWidget::updateMode()
     if (m_isUpdating)
         return;
 
-    int mode = static_cast<UbuntuPackageStep*>(step())->debugMode();
-    int idx = ui->comboBoxMode->findData(mode);
+    UbuntuPackageStep *myStep = static_cast<UbuntuPackageStep*>(step());
+    int mode = myStep->debugMode();
 
-    if(idx >= 0) {
-        m_isUpdating = true;
+    m_isUpdating = true;
+    int idx = ui->comboBoxMode->findData(mode);
+    if(idx >= 0)
         ui->comboBoxMode->setCurrentIndex(idx);
-        m_isUpdating = false;
-    }
+
+    ui->checkBox->setChecked(myStep->treatClickErrorsAsWarnings());
+
+    m_isUpdating = false;
 }
 
 void UbuntuPackageStepConfigWidget::onModeSelected(const int index)
@@ -992,7 +1029,16 @@ void UbuntuPackageStepConfigWidget::onModeSelected(const int index)
         static_cast<UbuntuPackageStep*>(step())->setDebugMode(static_cast<UbuntuPackageStep::DebugMode>(mode));
         m_isUpdating = false;
     }
+}
 
+void UbuntuPackageStepConfigWidget::onClickErrorsToggled(const bool checked)
+{
+    if (m_isUpdating)
+        return;
+
+    m_isUpdating = true;
+    static_cast<UbuntuPackageStep*>(step())->setTreatClickErrorsAsWarnings(checked);
+    m_isUpdating = false;
 }
 
 } // namespace Internal

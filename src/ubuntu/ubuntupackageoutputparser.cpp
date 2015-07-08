@@ -18,7 +18,8 @@ const QString DEBUG_POLICY_NAME(QStringLiteral("debug"));
 UbuntuPackageOutputParser::UbuntuPackageOutputParser() :
     ProjectExplorer::IOutputParser(),
     m_fatalError(false),
-    m_endOfData(false)
+    m_endOfData(false),
+    m_treatAllErrorsAsWarnings(false)
 {
     m_subParser.beginRecieveData();
     connect(&m_subParser,&ClickRunChecksParser::parsedNewTopLevelItem,this,&UbuntuPackageOutputParser::onParsedNewTopLevelItem);
@@ -41,6 +42,11 @@ bool UbuntuPackageOutputParser::hasFatalErrors() const
     //commented out due to bug lp:1377094 "Click review errors prevent applications from being deployed to the device"
     //return IOutputParser::hasFatalErrors() || m_fatalError;
     return IOutputParser::hasFatalErrors();
+}
+
+void UbuntuPackageOutputParser::setTreatAllErrosAsWarnings(const bool set)
+{
+    m_treatAllErrorsAsWarnings = set;
 }
 
 /*!
@@ -85,7 +91,7 @@ void UbuntuPackageOutputParser::emitTasks(const ClickRunChecksParser::DataItem *
     if(error)
         m_fatalError = true;
 
-    ProjectExplorer::Task task(error ? ProjectExplorer::Task::Error : ProjectExplorer::Task::Warning,
+    ProjectExplorer::Task task(error && !m_treatAllErrorsAsWarnings ? ProjectExplorer::Task::Error : ProjectExplorer::Task::Warning,
                                QStringLiteral(""), //empty description for now
                                Utils::FileName(),  //we have no file to show
                                -1,                 //line number
