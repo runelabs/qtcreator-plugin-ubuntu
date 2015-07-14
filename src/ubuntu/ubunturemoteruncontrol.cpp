@@ -64,7 +64,7 @@ public:
 };
 
 UbuntuRemoteRunControl::UbuntuRemoteRunControl(RunConfiguration *rc)
-        : RunControl(rc, ProjectExplorer::NormalRunMode), d(new UbuntuRemoteRunControlPrivate)
+        : RunControl(rc, ProjectExplorer::Constants::NORMAL_RUN_MODE), d(new UbuntuRemoteRunControlPrivate)
 {
     d->running = false;
 

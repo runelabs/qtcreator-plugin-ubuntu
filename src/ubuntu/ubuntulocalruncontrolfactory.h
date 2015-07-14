@@ -13,9 +13,9 @@ public:
     explicit UbuntuLocalRunControlFactory() {}
     virtual ~UbuntuLocalRunControlFactory() {}
 
-    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const override;
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id mode) const override;
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-                                        ProjectExplorer::RunMode mode, QString *errorMessage) override;
+                                        Core::Id mode, QString *errorMessage) override;
     QString displayName() const;
 
 };

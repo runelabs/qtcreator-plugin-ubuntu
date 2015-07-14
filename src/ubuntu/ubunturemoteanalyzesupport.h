@@ -16,7 +16,7 @@ class UbuntuRemoteAnalyzeSupport : public AbstractRemoteRunSupport
     Q_OBJECT
 public:
     UbuntuRemoteAnalyzeSupport(UbuntuRemoteRunConfiguration *runConfig,
-            Analyzer::AnalyzerRunControl *engine, ProjectExplorer::RunMode runMode);
+            Analyzer::AnalyzerRunControl *engine, Core::Id runMode);
     ~UbuntuRemoteAnalyzeSupport() override;
 
 protected:

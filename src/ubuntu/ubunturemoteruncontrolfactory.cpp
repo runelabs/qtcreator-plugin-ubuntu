@@ -44,13 +44,13 @@ enum {
 };
 
 bool UbuntuRemoteRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-                                ProjectExplorer::RunMode mode) const {
+                                Core::Id mode) const {
 
     if(qobject_cast<UbuntuRemoteRunConfiguration*>(runConfiguration)) {
-        if (mode != ProjectExplorer::NormalRunMode
-                && mode != ProjectExplorer::DebugRunMode
-                && mode != ProjectExplorer::DebugRunModeWithBreakOnMain
-                && mode != ProjectExplorer::QmlProfilerRunMode) {
+        if (mode != ProjectExplorer::Constants::NORMAL_RUN_MODE
+                && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE
+                && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN
+                && mode != ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
             return false;
         }
         return runConfiguration->isEnabled();
@@ -59,7 +59,7 @@ bool UbuntuRemoteRunControlFactory::canRun(ProjectExplorer::RunConfiguration *ru
 }
 
 ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplorer::RunConfiguration *runConfiguration,
-                                                        ProjectExplorer::RunMode mode, QString *errorMessage)
+                                                        Core::Id mode, QString *errorMessage)
 {
 
     if (qobject_cast<UbuntuRemoteRunConfiguration*>(runConfiguration)) {
@@ -75,11 +75,12 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
             return 0;
 
         QTC_ASSERT(rc, return 0);
-        switch (mode) {
-        case ProjectExplorer::NormalRunMode:
+
+        if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE) {
             return new UbuntuRemoteRunControl(rc);
-        case ProjectExplorer::DebugRunMode:
-        case ProjectExplorer::DebugRunModeWithBreakOnMain: {
+
+        } else if ( mode == ProjectExplorer::Constants::DEBUG_RUN_MODE
+                    || mode == ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN ) {
             ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(rc->target()->kit());
             if (!dev) {
                 *errorMessage = tr("Cannot debug: Kit has no device.");
@@ -112,8 +113,8 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
                     new UbuntuRemoteDebugSupport(rc, runControl);
             connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
             return runControl;
-        }
-        case ProjectExplorer::QmlProfilerRunMode: {
+
+        } else if ( mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE ) {
             Analyzer::AnalyzerStartParameters params = RemoteLinux::RemoteLinuxAnalyzeSupport::startParameters(rc, mode);
             Analyzer::AnalyzerRunControl *runControl = Analyzer::AnalyzerManager::createRunControl(params, runConfiguration);
             UbuntuRemoteAnalyzeSupport * const analyzeSupport =
@@ -121,17 +122,8 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
             connect(runControl, SIGNAL(finished()), analyzeSupport, SLOT(handleProfilingFinished()));
             return runControl;
         }
-        case ProjectExplorer::NoRunMode:
-        case ProjectExplorer::CallgrindRunMode:
-        case ProjectExplorer::MemcheckRunMode:
-        case ProjectExplorer::MemcheckWithGdbRunMode:
-        case ProjectExplorer::ClangStaticAnalyzerMode:
-        case ProjectExplorer::PerfProfilerRunMode:
-            QTC_ASSERT(false, return 0);
-        }
 
         QTC_ASSERT(false, return 0);
-        return 0;
     }
     return 0;
 }

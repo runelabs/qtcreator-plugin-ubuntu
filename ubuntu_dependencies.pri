@@ -14,4 +14,5 @@ QTC_PLUGIN_DEPENDS += \
     qtsupport \
     remotelinux \
     qtsupport \
-    qmlprofiler
+    qmlprofiler \
+    valgrind

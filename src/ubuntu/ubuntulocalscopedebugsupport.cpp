@@ -54,6 +54,10 @@ UbuntuLocalScopeDebugSupport::~UbuntuLocalScopeDebugSupport()
 
 void UbuntuLocalScopeDebugSupport::handleRemoteSetupRequested()
 {
+    // Inject the debug mode into the INI file, this is not perfect
+    // as it will stick even for the next non debug run, and even though
+    // we can then start without gdbserver the timouts will be always set
+    // high, because the DebugMode=true setting is still there
     m_port = getLocalPort();
 
     QStringList args = Utils::QtcProcess::splitArgs(m_commandLineArguments);

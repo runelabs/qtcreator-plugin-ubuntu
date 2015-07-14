@@ -17,6 +17,8 @@
 #include <debugger/debuggerstartparameters.h>
 #include <utils/fileutils.h>
 #include <qmlprofiler/localqmlprofilerrunner.h>
+#include <valgrind/callgrindtool.h>
+#include <valgrind/memchecktool.h>
 
 #include <QTcpServer>
 #include <QSet>
@@ -24,26 +26,25 @@
 namespace Ubuntu {
 namespace Internal {
 
-bool UbuntuLocalRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const
+bool UbuntuLocalRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id mode) const
 {
     if(qobject_cast<UbuntuLocalRunConfiguration*>(runConfiguration)) {
-        switch (mode) {
-            case ProjectExplorer::NormalRunMode:
-            case ProjectExplorer::DebugRunMode:
-            case ProjectExplorer::DebugRunModeWithBreakOnMain:
-            case ProjectExplorer::QmlProfilerRunMode:
-            case ProjectExplorer::CallgrindRunMode:
-            case ProjectExplorer::MemcheckRunMode:
-            case ProjectExplorer::MemcheckWithGdbRunMode:
-                return runConfiguration->isEnabled();
-            default:
-                return false;
+        if (mode != ProjectExplorer::Constants::NORMAL_RUN_MODE
+                && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE
+                && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN
+                && mode != ProjectExplorer::Constants::QML_PROFILER_RUN_MODE
+                && mode != Valgrind::Internal::CALLGRIND_RUN_MODE
+                && mode != Valgrind::MEMCHECK_RUN_MODE
+                && mode != Valgrind::MEMCHECK_WITH_GDB_RUN_MODE) {
+            return false;
         }
+
+        return runConfiguration->isEnabled();
     }
     return false;
 }
 
-ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode, QString *errorMessage)
+ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     UbuntuLocalRunConfiguration *ubuntuRC = qobject_cast<UbuntuLocalRunConfiguration*>(runConfiguration);
     if (ubuntuRC) {
@@ -52,8 +53,7 @@ ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplore
         if (!ubuntuRC->aboutToStart(errorMessage))
             return 0;
 
-        switch (mode) {
-        case ProjectExplorer::NormalRunMode: {
+        if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE) {
             ProjectExplorer::LocalApplicationRunControl *runControl =
                     new ProjectExplorer::LocalApplicationRunControl(ubuntuRC, mode);
             runControl->setCommand(ubuntuRC->executable(), ubuntuRC->commandLineArguments());
@@ -61,8 +61,8 @@ ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplore
             runControl->setWorkingDirectory(ubuntuRC->workingDirectory());
             return runControl;
         }
-        case ProjectExplorer::DebugRunMode:
-        case ProjectExplorer::DebugRunModeWithBreakOnMain: {
+        else if(mode == ProjectExplorer::Constants::DEBUG_RUN_MODE
+                || mode == ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN) {
 
             QString rcId = runConfiguration->id().toString();
             bool isScope = rcId.startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_SCOPE_ID));
@@ -113,8 +113,7 @@ ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplore
 
             return runControl;
         }
-        case ProjectExplorer::QmlProfilerRunMode: {
-
+        else if(mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
             ProjectExplorer::EnvironmentAspect *environment =
                     ubuntuRC->extraAspect<ProjectExplorer::EnvironmentAspect>();
 
@@ -135,9 +134,9 @@ ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplore
 
             return QmlProfiler::LocalQmlProfilerRunner::createLocalRunControl(runConfiguration, sp,errorMessage);
         }
-        case ProjectExplorer::CallgrindRunMode:
-        case ProjectExplorer::MemcheckRunMode:
-        case ProjectExplorer::MemcheckWithGdbRunMode: {
+        else if(mode == Valgrind::Internal::CALLGRIND_RUN_MODE
+                || mode == Valgrind::MEMCHECK_RUN_MODE
+                || mode == Valgrind::MEMCHECK_WITH_GDB_RUN_MODE) {
             Analyzer::AnalyzerStartParameters sp;
             sp.displayName = ubuntuRC->displayName();
             sp.runMode = mode;
@@ -163,11 +162,6 @@ ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplore
 
 
             return Analyzer::AnalyzerManager::createRunControl(sp, runConfiguration);
-        }
-        case ProjectExplorer::NoRunMode:
-        case ProjectExplorer::ClangStaticAnalyzerMode:
-        case ProjectExplorer::PerfProfilerRunMode:
-            QTC_ASSERT(false, return 0);
         }
         QTC_ASSERT(false, return 0);
     }
