@@ -41,3 +41,11 @@ sudo apt-get install python3-selenium
 cd tests/autopilot
 autopilot3 list application_tests
 autopilot3 run application_tests
+
+Notes:
+----------------------------
+
+- The .desktop file uses the executable 'webapp-container' as an HTML5 application launcher. Previously the executable 'ubuntu-html5-app-launcher' was used for this purpose, it has now been deprecated. For any application targetting the application framework 14.10 and apparmor policy 1.2 though, one can and should still use 'ubuntu-html5-app-launcher'. The Exec line in the .desktop file of the current application then becomes:
+
+Exec=ubuntu-html5-app-launcher $@ --www=www --inspector
+
