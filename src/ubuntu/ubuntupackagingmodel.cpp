@@ -57,7 +57,6 @@
 
 #include <QMenu>
 #include <QMessageBox>
-#include <QScriptEngine>
 #include <QRegularExpression>
 #include <QApplication>
 

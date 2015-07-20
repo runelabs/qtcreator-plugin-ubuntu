@@ -20,10 +20,8 @@
 #define UBUNTUCLICKMANIFEST_H
 
 #include <QObject>
-#include <QScriptProgram>
-#include <QScriptEngine>
+#include <QJSEngine>
 #include <QStringList>
-#include <QScriptValue>
 
 namespace ProjectExplorer { class Project; }
 
@@ -116,19 +114,18 @@ public slots:
     void nameDashReplaced(){ m_bNameDashReplaced = true; }
 
 protected:
-    void callSetFunction(QString functionName, QScriptValueList args);
+    void callSetFunction(QString functionName, QJSValueList args);
     void callSetStringListFunction(QString functionName, QStringList args);
     void callSetStringFunction(QString functionName, QString args);
 
-    QScriptValue callGetFunction(QString functionName, QScriptValueList args);
+    QJSValue callGetFunction(QString functionName, QJSValueList args);
     QStringList callGetStringListFunction(QString functionName);
     QStringList callGetStringListFunction(QString functionName, QString args);
     QString callGetStringFunction(QString functionName);
 
-    QScriptValue callFunction(QString functionName, QScriptValueList args);
+    QJSValue callFunction(QString functionName, QJSValueList args);
 
-    QScriptProgram m_manifestJsApp;
-    QScriptEngine engine;
+    QJSEngine engine;
 
     QString m_userName;
 

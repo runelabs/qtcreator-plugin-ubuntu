@@ -32,37 +32,37 @@ This templates requires a Kit using at least a 15.04 click chroot.
             <file source="appName/tests/autopilot/displayName/tests/__init__.py"  target="%ClickHookName%/tests/autopilot/%ProjectName%/tests/__init__.py"  openeditor="false"/>
             <file source="appName/tests/unit/tst_main.qml"                        target="%ClickHookName%/tests/unit/tst_main.qml"                          openeditor="false"/>
    </files>
-
-      <!-- Create a 2nd wizard page with click package parameters -->
-        <fieldpagetitle>Click package parameters</fieldpagetitle>
-        <fields>
-            <field mandatory="true" name="ClickDomain">
-              <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9-]+$'
-                            defaulttext="" placeholdertext="Nickname"/>
-              <fielddescription>Nickname:</fielddescription>
-            </field>
-            <field mandatory="true" name="ClickMaintainer">
-              <fieldcontrol class="QLineEdit" validator='^[^"]+$'
-                            defaulttext="" placeholdertext="Maintainer"/>
-              <fielddescription>Maintainer:</fielddescription>
-            </field>
-            <field mandatory="true" name="ClickHookName">
-              <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
-                            defaulttext="app" placeholdertext="app hook name"/>
-              <fielddescription>App name:</fielddescription>
-            </field>
-          <field name="ClickFrameworkVersion">
-              <fieldcontrol class="QComboBox" defaultindex="0">
-                  <comboentries>
-                                <!-- Do not add any other frameworks here, they are populated at runtime, this is just a dummy framework to make sure we can find the combobox -->
-                                <comboentry value="ubuntu-sdk-dummy-framework">
-                        <comboentrytext>Dummy Framework</comboentrytext>
-                    </comboentry>
-                  </comboentries>
-              </fieldcontrol>
-              <fielddescription>Framework:</fielddescription>
-          </field>
-        </fields>
+   
+	  <!-- Create a 2nd wizard page with click package parameters -->
+		<fieldpagetitle>Click package parameters</fieldpagetitle>
+		<fields>
+			<field mandatory="true" name="ClickDomain">
+			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9-]+$'
+			                defaulttext="" placeholdertext="Nickname"/>
+			  <fielddescription>Nickname:</fielddescription>
+			</field>
+			<field mandatory="true" name="ClickMaintainer">
+			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
+			                defaulttext="" placeholdertext="Maintainer"/>
+			  <fielddescription>Maintainer:</fielddescription>
+			</field>
+			<field mandatory="true" name="ClickHookName">
+			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
+			                defaulttext="%ProjectName%" placeholdertext="app hook name"/>
+			  <fielddescription>App name:</fielddescription>
+			</field>
+		  <field name="ClickFrameworkVersion">
+		      <fieldcontrol class="QComboBox" defaultindex="0">
+		          <comboentries>
+								<!-- Do not add any other frameworks here, they are populated at runtime, this is just a dummy framework to make sure we can find the combobox -->
+								<comboentry value="ubuntu-sdk-dummy-framework">
+		                <comboentrytext>Dummy Framework</comboentrytext>
+		            </comboentry>
+		          </comboentries>
+		      </fieldcontrol>
+		      <fielddescription>Framework:</fielddescription>
+		  </field>
+		</fields>
     <validationrules>
         <validationrule condition='/^(.*)\s+&lt;(.*@.*)&gt;$/.test("%ClickMaintainer%")'>
             <message>Invalid format for maintainer (should be like "Joe Bloggs &lt;joe.bloggs@isp.com&gt;")</message>
