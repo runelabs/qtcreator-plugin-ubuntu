@@ -415,6 +415,7 @@ const char  SETTINGS_COMPANY[] = "Canonical";
 const char  SETTINGS_PRODUCT[] = "UbuntuSDK";
 const char  SETTINGS_GROUP_MODE[]  = "Mode";
 const char  SETTINGS_GROUP_CLICK[] = "Click";
+const char  SETTINGS_GROUP_PROJECT_DEFAULTS[] = "ProjectDefaults";
 const char  SETTINGS_GROUP_DEVICE_CONNECTIVITY[] = "DeviceConnectivity";
 const char  SETTINGS_GROUP_DEVICES[] = "Devices";
 
@@ -430,6 +431,10 @@ const char  SETTINGS_KEY_SSH[] = "SSH";
 const char  SETTINGS_KEY_AUTOTOGGLE[] = "Auto_Toggle";
 const char  SETTINGS_KEY_AUTO_CHECK_CHROOT_UPDATES[] = "Auto_Check_Chroot_Updates";
 const char  SETTINGS_KEY_CHROOT_USE_LOCAL_MIRROR[] = "Chroot_Use_Local_Mirror";
+const char  SETTINGS_KEY_TREAT_REVIEW_ERRORS_AS_WARNINGS[] = "Treat_Review_Warnings_As_Errors";
+const char  SETTINGS_KEY_ENABLE_DEBUG_HELPER_DEFAULT[] = "Enable_Debug_Helper_By_Default";
+const char  SETTINGS_KEY_UNINSTALL_APPS_FROM_DEVICE_DEFAULT[] = "Uninstall_Apps_From_Device_By_Default";
+const char  SETTINGS_KEY_OVERRIDE_APPS_BY_DEFAULT[] = "Override_Apps_By_Default";
 
 //const char  SETTINGS_GROUP_CLICK[] = "Click";
 //const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS[] = "ReviewersToolsEnabled";
