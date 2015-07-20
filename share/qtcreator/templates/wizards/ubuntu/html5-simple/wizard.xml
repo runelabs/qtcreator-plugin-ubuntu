@@ -23,7 +23,7 @@ Unlike the default Qt HTML5 template, there is no C++ code or compilation necess
 	<file source="displayName.desktop"     target="%ClickHookName%.desktop" openeditor="false"/>
 	<file source="../share/manifest.json"   						target="manifest.json" openeditor="true"/>
       	<file source="www/index.html" 			   target="www/index.html" openeditor="true"/>
-        <file source="../share/displayName.apparmor"                     target="%ClickHookName%.apparmor" openeditor="false"/>
+        <file source="displayName.apparmor"                     target="%ClickHookName%.apparmor" openeditor="false"/>
         <file source="../share/.excludes"                     target=".excludes" openeditor="false"/>
 
     	<file source="README"  			   target="README" openeditor="false"/>
