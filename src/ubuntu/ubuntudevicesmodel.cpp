@@ -104,7 +104,7 @@ bool UbuntuDevicesModel::setData(const QModelIndex &index, const QVariant &value
         case KitListRole:
             return false;
         case DeveloperModeRole: {
-            if(!value.type() == QVariant::Bool)
+            if(value.type() != QVariant::Bool)
                 return false;
 
             bool set = value.toBool();
@@ -120,7 +120,7 @@ bool UbuntuDevicesModel::setData(const QModelIndex &index, const QVariant &value
             break;
         }
         case NetworkConnectionRole: {
-            if(!value.type() == QVariant::Bool)
+            if(value.type() != QVariant::Bool)
                 return false;
 
             bool set = value.toBool();
@@ -136,7 +136,7 @@ bool UbuntuDevicesModel::setData(const QModelIndex &index, const QVariant &value
             break;
         }
         case WriteableImageRole: {
-            if(!value.type() == QVariant::Bool)
+            if(value.type() != QVariant::Bool)
                 return false;
 
             bool set = value.toBool();
@@ -152,7 +152,7 @@ bool UbuntuDevicesModel::setData(const QModelIndex &index, const QVariant &value
             break;
         }
         case DeveloperToolsRole: {
-            if(!value.type() == QVariant::Bool)
+            if(value.type() != QVariant::Bool)
                 return false;
 
             bool set = value.toBool();
@@ -168,7 +168,7 @@ bool UbuntuDevicesModel::setData(const QModelIndex &index, const QVariant &value
             break;
         }
         case EmulatorScaleFactorRole: {
-            if(!value.type() == QVariant::String)
+            if(value.type() != QVariant::String)
                 return false;
 
             QString set = value.toString();
@@ -179,7 +179,7 @@ bool UbuntuDevicesModel::setData(const QModelIndex &index, const QVariant &value
             break;
         }
         case EmulatorMemorySettingRole: {
-            if(!value.type() == QVariant::String)
+            if(value.type() != QVariant::String)
                 return false;
 
             QString set = value.toString();
