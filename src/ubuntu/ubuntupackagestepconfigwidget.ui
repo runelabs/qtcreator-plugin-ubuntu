@@ -14,7 +14,14 @@
    <string>Form</string>
   </property>
   <layout class="QFormLayout" name="formLayout">
-   <item row="0" column="0">
+   <item row="0" column="0" colspan="2">
+    <widget class="QCheckBox" name="checkBox">
+     <property name="text">
+      <string>Treat click review errors as warnings</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>Enable debug helper</string>
@@ -24,7 +31,7 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
+   <item row="1" column="1">
     <widget class="QComboBox" name="comboBoxMode">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Specifies if the debug helper script &lt;br/&gt;is injected into the click package.&lt;/p&gt;&lt;p&gt;Auto will only package them when &lt;br/&gt;the project is compiled in debug mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>

@@ -22,13 +22,13 @@
 #include "ubuntushared.h"
 
 #include <QFile>
-#include <QtScriptTools/QScriptEngineDebugger>
 #include <QJsonDocument>
 #include <QProcess>
 #include <QDebug>
 #include <QMainWindow>
 #include <QAction>
-#include <QScriptValueIterator>
+#include <QJSEngine>
+#include <QJSValueIterator>
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <projectexplorer/session.h>
@@ -46,20 +46,13 @@ UbuntuClickManifest::UbuntuClickManifest(QObject *parent) :
     QObject(parent), m_bInitialized(false), m_bNameDashReplaced(false)
 
 {
-    QScriptEngineDebugger debugger;
-     debugger.attachTo(&engine);
-     debugger.setAutoShowStandardWindow(true);
-
     QFile manifestAppFile(QLatin1String(":/ubuntu/manifestlib.js"));
     if (!manifestAppFile.open(QIODevice::ReadOnly)) { if(debug) qDebug() << QLatin1String("unable to open js app"); return; }
     QString manifestApp = QString::fromLatin1(manifestAppFile.readAll());
     manifestAppFile.close();
 
-    QScriptProgram program(manifestApp);
-    QScriptValue val = engine.evaluate(program);
+    QJSValue val = engine.evaluate(manifestApp,QStringLiteral("manifestlib.js"));
     if (val.isNull()) { qWarning() << QLatin1String("unable to process app"); return; }
-
-    //load(QLatin1String(":/ubuntu/manifest.json.template"));
 
 }
 
@@ -151,26 +144,26 @@ QList<UbuntuClickManifest::Hook> UbuntuClickManifest::hooks()
     QList<UbuntuClickManifest::Hook> hooks;
     if (!isInitialized()) { return hooks; }
 
-    QScriptValue scriptHooks = callGetFunction(QLatin1String("getHooks"),QScriptValueList());
+    QJSValue scriptHooks = callGetFunction(QLatin1String("getHooks"),QJSValueList());
     if(!scriptHooks.isObject())
         return hooks;
 
-    QScriptValueIterator it(scriptHooks);
+    QJSValueIterator it(scriptHooks);
     while (it.hasNext()) {
         it.next();
-        QScriptValue appDescriptor = it.value();
+        QJSValue appDescriptor = it.value();
         if(!appDescriptor.isObject()) {
             printToOutputPane(tr("Invalid hook in manifest.json file."));
             continue;
         }
 
-        if(!appDescriptor.property(QLatin1String("apparmor")).isValid()) {
+        if(!appDescriptor.hasProperty(QLatin1String("apparmor"))) {
             printToOutputPane(tr("The apparmor path is missing in the manifest file"));
             continue;
         }
 
-        bool isScope = appDescriptor.property(QLatin1String("scope")).isValid();
-        bool isApp = appDescriptor.property(QLatin1String("desktop")).isValid();
+        bool isScope = appDescriptor.hasProperty(QLatin1String("scope"));
+        bool isApp = appDescriptor.hasProperty(QLatin1String("desktop"));
 
         if( (isScope && isApp) || (!isScope && !isApp)) {
             printToOutputPane(tr("The manifest file needs to specify if this is a app or a scope"));
@@ -195,7 +188,7 @@ void UbuntuClickManifest::setHook(const UbuntuClickManifest::Hook &hook)
 {
     Q_UNUSED(hook);
 
-    QScriptValue scriptValue = engine.newObject();
+    QJSValue scriptValue = engine.newObject();
 
     scriptValue.setProperty(QStringLiteral("appId"),hook.appId);
     scriptValue.setProperty(QStringLiteral("apparmor"),hook.appArmorFile);
@@ -207,7 +200,7 @@ void UbuntuClickManifest::setHook(const UbuntuClickManifest::Hook &hook)
         //not known
         return;
 
-    callSetFunction(QStringLiteral("setHook"),QScriptValueList{scriptValue});
+    callSetFunction(QStringLiteral("setHook"),QJSValueList{scriptValue});
 }
 
 void UbuntuClickManifest::setFrameworkName(const QString &name)
@@ -227,15 +220,15 @@ QString UbuntuClickManifest::appArmorFileName(const QString &appId)
 {
     if (!isInitialized()) { return QString(); }
 
-    QScriptValue v = callGetFunction(QLatin1String("getAppArmorFileName"),QScriptValueList()<<QScriptValue(appId));
+    QJSValue v = callGetFunction(QLatin1String("getAppArmorFileName"),QJSValueList()<<QJSValue(appId));
     return v.toString();
 }
 
 bool UbuntuClickManifest::setAppArmorFileName(const QString &appId, const QString &name)
 {
     if (!isInitialized()) { return false; }
-    bool result = callFunction(QLatin1String("setAppArmorFileName"),QScriptValueList()<<QScriptValue(appId)<<QScriptValue(name)).toBool();
-    callSetFunction(QLatin1String("setAppArmorFileName"), QScriptValueList()<<appId<<name);
+    bool result = callFunction(QLatin1String("setAppArmorFileName"),QJSValueList()<<QJSValue(appId)<<QJSValue(name)).toBool();
+    callSetFunction(QLatin1String("setAppArmorFileName"), QJSValueList()<<appId<<name);
     if(result)
         emit appArmorFileNameChanged(appId, name);
 
@@ -244,7 +237,7 @@ bool UbuntuClickManifest::setAppArmorFileName(const QString &appId, const QStrin
 
 bool UbuntuClickManifest::enableDebugging()
 {
-    return callFunction(QLatin1String("injectDebugPolicy"),QScriptValueList()).toBool();
+    return callFunction(QLatin1String("injectDebugPolicy"),QJSValueList()).toBool();
 }
 
 void UbuntuClickManifest::save(QString fileName) {
@@ -354,7 +347,7 @@ bool UbuntuClickManifest::load(const QString &fileName,ProjectExplorer::Project 
 bool UbuntuClickManifest::loadFromString(const QString &data)
 {
     //@TODO probably return the error message
-    QScriptValue ret = callFunction(QStringLiteral("fromJSON"),QScriptValueList{QScriptValue(data)});
+    QJSValue ret = callFunction(QStringLiteral("fromJSON"),QJSValueList{QJSValue(data)});
     bool success = ret.toBool();
     if(success) {
         m_bInitialized = true;
@@ -364,47 +357,47 @@ bool UbuntuClickManifest::loadFromString(const QString &data)
     return success;
 }
 
-QScriptValue UbuntuClickManifest::callFunction(QString functionName, QScriptValueList args) {
-    QScriptValue global = engine.globalObject();
-    QScriptValue cmd = global.property(functionName);
-    return cmd.call(QScriptValue(),args);
+QJSValue UbuntuClickManifest::callFunction(QString functionName, QJSValueList args) {
+    QJSValue global = engine.globalObject();
+    QJSValue cmd = global.property(functionName);
+    return cmd.call(args);
 }
 
-void UbuntuClickManifest::callSetFunction(QString functionName, QScriptValueList args) {
+void UbuntuClickManifest::callSetFunction(QString functionName, QJSValueList args) {
     callFunction(functionName,args);
 }
 
-QScriptValue UbuntuClickManifest::callGetFunction(QString functionName, QScriptValueList args) {
+QJSValue UbuntuClickManifest::callGetFunction(QString functionName, QJSValueList args) {
     return callFunction(functionName,args);
 }
 
 QStringList UbuntuClickManifest::callGetStringListFunction(QString functionName) {
-    QScriptValue retval = callFunction(functionName,QScriptValueList());
+    QJSValue retval = callFunction(functionName,QJSValueList());
     return retval.toVariant().toStringList();
 }
 
 QString UbuntuClickManifest::callGetStringFunction(QString functionName) {
-    QScriptValue retval = callFunction(functionName,QScriptValueList());
+    QJSValue retval = callFunction(functionName,QJSValueList());
     return retval.toVariant().toString();
 }
 
 void UbuntuClickManifest::callSetStringListFunction(QString functionName, QStringList args) {
-    QScriptValueList vargs;
+    QJSValueList vargs;
     foreach (QString arg, args)
-        vargs << QScriptValue(arg);
+        vargs << QJSValue(arg);
     callSetFunction(functionName,vargs);
 }
 
 void UbuntuClickManifest::callSetStringFunction(QString functionName, QString args) {
-    QScriptValueList vargs;
-    vargs << QScriptValue(args);
+    QJSValueList vargs;
+    vargs << QJSValue(args);
     callSetFunction(functionName,vargs);
 }
 
 QStringList UbuntuClickManifest::callGetStringListFunction(QString functionName, QString args) {
-    QScriptValueList vargs;
-    vargs << QScriptValue(args);
-    QScriptValue retval = callFunction(functionName,vargs);
+    QJSValueList vargs;
+    vargs << QJSValue(args);
+    QJSValue retval = callFunction(functionName,vargs);
     return retval.toVariant().toStringList();
 }
 

@@ -20,6 +20,8 @@ public:
     virtual void stdError(const QString &line);
     virtual bool hasFatalErrors() const;
 
+    void setTreatAllErrorsAsWarnings ( const bool set );
+
 public slots:
     void setEndOfData ();
 
@@ -33,6 +35,7 @@ private:
     ClickRunChecksParser m_subParser;
     bool m_fatalError;
     bool m_endOfData;
+    bool m_treatAllErrorsAsWarnings;
 
 };
 

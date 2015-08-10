@@ -38,25 +38,25 @@ Also includes:
         <file source="app/Main.qml"                                       target="app/Main.qml"                                         openeditor="true"/>
         <file source="po/CMakeLists.txt"                                  target="po/CMakeLists.txt"                                    openeditor="false"/>
    </files>
-
-      <!-- Create a 2nd wizard page with click package parameters -->
-        <fieldpagetitle>Click package parameters</fieldpagetitle>
-        <fields>
-            <field mandatory="true" name="ClickDomain">
-              <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9-]+$'
-                            defaulttext="" placeholdertext="Nickname"/>
-              <fielddescription>Nickname:</fielddescription>
-            </field>
-            <field mandatory="true" name="ClickMaintainer">
-              <fieldcontrol class="QLineEdit" validator='^[^"]+$'
-                            defaulttext="" placeholdertext="Maintainer"/>
-              <fielddescription>Maintainer:</fielddescription>
-            </field>
-            <field mandatory="true" name="ClickHookName">
-              <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
-                            defaulttext="myapp" placeholdertext="app hook name"/>
-              <fielddescription>App name:</fielddescription>
-            </field>
+   
+	  <!-- Create a 2nd wizard page with click package parameters -->
+		<fieldpagetitle>Click package parameters</fieldpagetitle>
+		<fields>
+			<field mandatory="true" name="ClickDomain">
+			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9-]+$'
+			                defaulttext="" placeholdertext="Nickname"/>
+			  <fielddescription>Nickname:</fielddescription>
+			</field>
+			<field mandatory="true" name="ClickMaintainer">
+			  <fieldcontrol class="QLineEdit" validator='^[^"]+$'
+			                defaulttext="" placeholdertext="Maintainer"/>
+			  <fielddescription>Maintainer:</fielddescription>
+			</field>
+			<field mandatory="true" name="ClickHookName">
+			  <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9.-]+$'
+			                defaulttext="%ProjectName%" placeholdertext="app hook name"/>
+			  <fielddescription>App name:</fielddescription>
+			</field>
       <field name="ClickFrameworkVersion">
           <fieldcontrol class="QComboBox" defaultindex="0">
               <comboentries>

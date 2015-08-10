@@ -1,4 +1,4 @@
-QT += network qml quick script scripttools dbus
+QT += network qml quick dbus
 
 include(src/plugin.pri)
 
@@ -29,7 +29,8 @@ FORMS += \
     src/ubuntu/ubuntumanifesteditor.ui \
     src/ubuntu/ubuntuapparmoreditor.ui \
     src/ubuntu/ubunturemoterunconfigurationwidget.ui \
-    src/ubuntu/targetupgrademanagerdialog.ui
+    src/ubuntu/targetupgrademanagerdialog.ui \
+    src/ubuntu/ubuntusettingsprojectdefaultspage.ui
 
 RESOURCES += \
     src/ubuntu/resources.qrc
@@ -114,7 +115,8 @@ SOURCES += \
     src/ubuntu/ubuntufixmanifeststep.cpp \
     src/ubuntu/wizards/ubuntufatpackagingwizard.cpp \
     src/ubuntu/ubuntulocalruncontrolfactory.cpp \
-    src/ubuntu/ubuntulocalscopedebugsupport.cpp
+    src/ubuntu/ubuntulocalscopedebugsupport.cpp \
+    src/ubuntu/ubuntusettingsprojectdefaultspage.cpp
 
 HEADERS += \
     src/ubuntu/ubuntuplugin.h \
@@ -193,7 +195,8 @@ HEADERS += \
     src/ubuntu/ubuntufixmanifeststep.h \
     src/ubuntu/wizards/ubuntufatpackagingwizard.h \
     src/ubuntu/ubuntulocalruncontrolfactory.h \
-    src/ubuntu/ubuntulocalscopedebugsupport.h
+    src/ubuntu/ubuntulocalscopedebugsupport.h\
+    src/ubuntu/ubuntusettingsprojectdefaultspage.h
 
 INCLUDEPATH+=$$OUT_PWD
 

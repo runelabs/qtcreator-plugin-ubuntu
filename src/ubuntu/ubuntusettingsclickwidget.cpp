@@ -84,8 +84,7 @@ void UbuntuSettingsClickWidget::on_pushButtonCreateClickTarget_clicked()
     //make sure the current settings are stored
     apply();
 
-    QString dummy;
-    Internal::UbuntuClickDialog::createClickChrootModal(true, dummy, this);
+    Internal::UbuntuClickDialog::createClickChrootModal(true, QString(), QString(), this);
     listExistingClickTargets();
 }
 

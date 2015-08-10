@@ -157,7 +157,7 @@ bool UbuntuSetupChrootWizardPage::isComplete() const
 
 void UbuntuSetupChrootWizardPage::onCreateKitButtonClicked()
 {
-    UbuntuClickDialog::createClickChrootModal(true,QString(),this);
+    UbuntuClickDialog::createClickChrootModal(true,QString(), QString(),this);
     initializePage();
 }
 

@@ -21,6 +21,7 @@ class UbuntuPackageStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
     Q_PROPERTY(DebugMode debugMode READ debugMode WRITE setDebugMode NOTIFY packageModeChanged)
+    Q_PROPERTY(bool treatClickErrorsAsWarnings READ treatClickErrorsAsWarnings WRITE setTreatClickErrorsAsWarnings NOTIFY treatClickErrorsAsWarningsChanged)
 public:
 
     enum State {
@@ -86,9 +87,14 @@ public:
     bool cleanDeployDirectory() const;
     void setCleanDeployDirectory(bool cleanDeployDirectory);
 
+    bool treatClickErrorsAsWarnings() const;
+    void setTreatClickErrorsAsWarnings(bool arg);
+
 signals:
     void packageModeChanged(DebugMode arg);
     void currentSubStepFinished();
+
+    void treatClickErrorsAsWarningsChanged(bool arg);
 
 protected:
     void internalInit ();
@@ -132,6 +138,7 @@ private:
     QString m_overrideClickWorkingDir;
     QPointer<ProjectExplorer::BuildConfiguration> m_referenceBuildConfig;
     bool m_cleanDeployDirectory;
+    bool m_treatClickErrorsAsWarnings;
 };
 
 class UbuntuPackageStepConfigWidget : public ProjectExplorer::SimpleBuildStepConfigWidget
@@ -147,6 +154,7 @@ public:
 public slots:
     void updateMode ();
     void onModeSelected (const int index);
+    void onClickErrorsToggled (const bool checked);
 
 private:
     Ui::UbuntuPackageStepConfigWidget *ui;
