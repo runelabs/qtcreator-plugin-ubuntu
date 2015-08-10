@@ -1,4 +1,4 @@
-QT += network qml quick webkitwidgets script scripttools dbus
+QT += network qml quick script scripttools dbus
 
 include(src/plugin.pri)
 
