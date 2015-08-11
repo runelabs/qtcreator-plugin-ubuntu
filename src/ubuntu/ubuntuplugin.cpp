@@ -112,7 +112,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    QFont defaultFont = QGuiApplication::font();
+    QFont  defaultFont = QGuiApplication::font();
     defaultFont.setFamily(QStringLiteral("Ubuntu"));
     defaultFont.setWeight(QFont::Light);
 
