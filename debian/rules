@@ -16,26 +16,37 @@ DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 	dh $@ --fail-missing --parallel
 
 override_dh_auto_configure:
-	# Crude hack, the project needs to be fixed to not require hard coded path name
-	mkdir -p builddir
-	rm -rf ../ubuntu
-	mv ../qtcreator-plugin-ubuntu-* ../ubuntu
-	dh_auto_configure -- IDE_LIBRARY_BASENAME=lib/$(DEB_HOST_MULTIARCH)
+	# Crude hack since being built as part of Qt Creator requires build
+	# directory to equal to the plugin name.
+	mkdir -p builddir/ubuntu
+	#rm -rf ../ubuntu
+	#cp -af ../qtcreator-plugin-ubuntu-* ../ubuntu/
+	cp -af [c-z]* [A-Z]* builddir/ubuntu/
+	cd builddir/ubuntu && dh_auto_configure -- IDE_LIBRARY_BASENAME=lib/$(DEB_HOST_MULTIARCH) -r
+ 
+override_dh_auto_build:
+	cd builddir/ubuntu && make
 
 override_dh_auto_test:
-	LD_LIBRARY_PATH=/usr/lib/$(DEB_HOST_MULTIARCH)/qtcreator:/usr/lib/$(DEB_HOST_MULTIARCH)/qtcreator/plugins/QtProject make check
+	cd builddir/ubuntu && LD_LIBRARY_PATH=/usr/lib/$(DEB_HOST_MULTIARCH)/qtcreator:/usr/lib/$(DEB_HOST_MULTIARCH)/qtcreator/plugins/QtProject make check
 
 override_dh_auto_install:
+	# Crude hack since being built as part of Qt Creator requires build
+	# directory to equal to the plugin name.
 	mkdir -p $(CURDIR)/debian/tmp/usr/bin
 	ln -s /usr/bin/qtcreator debian/tmp/usr/bin/ubuntu-sdk
-	cp -r $(CURDIR)/share $(CURDIR)/debian/tmp/usr
+	cp -a $(CURDIR)/builddir/ubuntu/share $(CURDIR)/debian/tmp/usr
 	mkdir -p $(CURDIR)/debian/tmp/usr/lib/python3/dist-packages/qtcreator_plugin_ubuntu
-	cp -r $(CURDIR)/tests/autopilot/qtcreator_plugin_ubuntu/* $(CURDIR)/debian/tmp/usr/lib/python3/dist-packages/qtcreator_plugin_ubuntu
+	cp -a $(CURDIR)/builddir/ubuntu/tests/autopilot/qtcreator_plugin_ubuntu/* $(CURDIR)/debian/tmp/usr/lib/python3/dist-packages/qtcreator_plugin_ubuntu
 	mkdir -p $(CURDIR)/debian/tmp/usr/share/polkit-1/actions
-	cp $(CURDIR)/tests/com.ubuntu.pkexec.ubuntu-sdk-autopilot.policy  $(CURDIR)/debian/tmp/usr/share/polkit-1/actions/
-	dh_auto_install --destdir=debian/tmp/usr
+	cp $(CURDIR)/builddir/ubuntu/tests/com.ubuntu.pkexec.ubuntu-sdk-autopilot.policy  $(CURDIR)/debian/tmp/usr/share/polkit-1/actions/
+	mkdir -p $(CURDIR)/debian/tmp/usr/lib/
+	mkdir -p $(CURDIR)/debian/tmp/usr/bin/
+	cp -a $(CURDIR)/builddir/lib/* debian/tmp/usr/lib/
+	cd builddir/ubuntu/ && dh_auto_install --destdir=debian/tmp/usr
+	cp -a $(CURDIR)/builddir/ubuntu/debian/tmp/usr/bin/* debian/tmp/usr/bin/
+	cp -a $(CURDIR)/builddir/ubuntu/debian/tmp/usr/lib/* debian/tmp/usr/lib
 	rm -rfv debian/tmp/usr/usr/tests
-
 
 override_dh_shlibdeps:
 	dh_shlibdeps -l/usr/lib/$(DEB_HOST_MULTIARCH)/qtcreator:/usr/lib/$(DEB_HOST_MULTIARCH)/qtcreator/plugins/QtProject
