@@ -277,7 +277,7 @@ void UbuntuProjectApplicationWizardDialog::addTargetSetupPage(int id)
 #endif
                 //this is just a fallback for now to remove all ubuntu kits until cross compiling is sorted out
                 //it should not be hit at all but i keep it there just to be safe
-                m_targetSetupPage->setRequiredKitMatcher(QtSupport::QtKitInformation::platformMatcher(platform));
+                m_targetSetupPage->setRequiredKitMatcher(QtSupport::QtKitInformation::platformMatcher(QLatin1String(QtSupport::Constants::DESKTOP_PLATFORM)));
             break;
         }
         case UbuntuProjectApplicationWizard::QMakeProject:
