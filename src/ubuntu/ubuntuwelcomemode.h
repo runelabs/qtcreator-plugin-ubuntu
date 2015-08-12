@@ -19,28 +19,24 @@
 #ifndef UBUNTUWELCOMEMODE_H
 #define UBUNTUWELCOMEMODE_H
 
-#include <utils/iwelcomepage.h>
+#include <coreplugin/iwelcomepage.h>
 #include <QQuickView>
 #include <QObject>
 
 namespace Ubuntu {
 namespace Internal {
 
-class UbuntuWelcomePage : public Utils::IWelcomePage
+class UbuntuWelcomePage : public Core::IWelcomePage
 {
     Q_OBJECT
 
 public:
-    enum {
-        UbuntuSdkPage = Utils::IWelcomePage::UserDefined+1
-    };
-
     // IWelcomePage interface
     virtual QUrl pageLocation() const;
     virtual QString title() const;
     virtual int priority() const;
     virtual void facilitateQml(QQmlEngine *engine);
-    virtual Id id() const;
+    virtual Core::Id id() const;
 
 public slots:
     void newProject();

@@ -1,2 +1,2 @@
 usr/share/polkit-1/actions
-usr/lib/*/dist-packages/qtcreator_plugin_ubuntu/*
+usr/lib/python3/dist-packages/qtcreator_plugin_ubuntu/*

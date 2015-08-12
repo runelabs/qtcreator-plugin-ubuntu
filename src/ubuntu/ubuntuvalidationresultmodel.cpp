@@ -40,14 +40,6 @@ UbuntuValidationResultModel::UbuntuValidationResultModel(QObject *parent)
     , m_nextSectionOffset(0)
 {
     m_rootItem->type = QLatin1String("RootItem");
-    QHash<int,QByteArray> roleNames = QAbstractItemModel::roleNames();
-    roleNames[TypeRole] = "TypeRole";
-    roleNames[LinkRole] = "LinkRole";
-    roleNames[DescriptionRole] = "DescriptionRole";
-    roleNames[ImageRole] = "ImageRole";
-    roleNames[ShouldExpandRole] = "ShouldExpandRole";
-
-    setRoleNames(roleNames);
 }
 
 UbuntuValidationResultModel::~UbuntuValidationResultModel()
@@ -180,6 +172,19 @@ QVariant UbuntuValidationResultModel::data(const QModelIndex &index, int role) c
 Qt::ItemFlags UbuntuValidationResultModel::flags(const QModelIndex &index) const
 {
     return QAbstractItemModel::flags(index);
+}
+
+QHash<int, QByteArray> UbuntuValidationResultModel::roleNames() const
+{
+    QHash<int, QByteArray> roleNames = QAbstractItemModel::roleNames();
+
+    roleNames[TypeRole] = "TypeRole";
+    roleNames[LinkRole] = "LinkRole";
+    roleNames[DescriptionRole] = "DescriptionRole";
+    roleNames[ImageRole] = "ImageRole";
+    roleNames[ShouldExpandRole] = "ShouldExpandRole";
+
+    return roleNames;
 }
 
 QModelIndex UbuntuValidationResultModel::findFirstErrorItem() const

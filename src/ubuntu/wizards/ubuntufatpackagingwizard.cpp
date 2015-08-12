@@ -98,7 +98,8 @@ void UbuntuFatPackagingIntroPage::initializePage()
     QList<QmakeProjectManager::QmakeProFileNode *> nodes = m_project->allProFiles();
     foreach(QmakeProjectManager::QmakeProFileNode * node, nodes) {
         if (node->projectType() == QmakeProjectManager::ApplicationTemplate
-                || node->projectType() == QmakeProjectManager::LibraryTemplate ) {
+                || node->projectType() == QmakeProjectManager::SharedLibraryTemplate
+                || node->projectType() == QmakeProjectManager::StaticLibraryTemplate) {
             likelyHasBinaryParts = true;
             break;
         }

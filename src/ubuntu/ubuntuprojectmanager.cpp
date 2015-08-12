@@ -32,7 +32,7 @@ ProjectExplorer::Project* UbuntuProjectManager::openProject(const QString &fileP
     QFileInfo fileInfo(filePath);
 
     foreach (ProjectExplorer::Project *pi, ProjectExplorer::SessionManager::projects()) {
-        if (filePath == pi->document()->filePath()) {
+        if (filePath == pi->document()->filePath().toString()) {
             if (errorString)
                 *errorString = tr("Failed opening project '%1': Project already open") .arg(QDir::toNativeSeparators(filePath));
             return 0;

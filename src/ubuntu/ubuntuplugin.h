@@ -26,15 +26,11 @@
 #include "ubuntuprojectmanager.h"
 #include "ubuntufeatureprovider.h"
 #include "ubuntuversionmanager.h"
-#include "ubuntuircmode.h"
-#include "ubuntuapimode.h"
-#include "ubuntucoreappsmode.h"
-#include "ubuntuwikimode.h"
 #include "ubuntupackagingmode.h"
-#include "ubuntupastebinmode.h"
+#include "ubuntusettingsdeviceconnectivitypage.h"
+#include "ubuntusettingsclickpage.h"
 
 #include <extensionsystem/iplugin.h>
-#include <coreplugin/mimedatabase.h>
 
 namespace Ubuntu {
 namespace Internal {
@@ -60,12 +56,7 @@ private slots:
 protected:
     UbuntuDeviceMode       *m_ubuntuDeviceMode;
     UbuntuMenu             *m_ubuntuMenu;
-    UbuntuIRCMode          *m_ubuntuIRCMode;
-    UbuntuAPIMode          *m_ubuntuAPIMode;
-    UbuntuCoreAppsMode     *m_ubuntuCoreAppsMode;
-    UbuntuWikiMode         *m_ubuntuWikiMode;
     UbuntuPackagingMode    *m_ubuntuPackagingMode;
-    UbuntuPastebinMode     *m_ubuntuPastebinMode;
     QAction                *m_migrateProjectAction;
 
     ProjectExplorer::Project *m_currentContextMenuProject;

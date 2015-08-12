@@ -40,6 +40,7 @@ class QNetworkReply;
 namespace ProjectExplorer {
     class Project;
     class Target;
+    class Kit;
 }
 
 namespace Ubuntu {
@@ -80,6 +81,7 @@ public:
     static QString findOrCreateToolWrapper(const QString &tool, const UbuntuClickTool::Target &target);
     static QString findOrCreateQMakeWrapper(const UbuntuClickTool::Target &target);
     static QString findOrCreateMakeWrapper(const UbuntuClickTool::Target &target);
+    static QString mapIncludePathsForCMake(ProjectExplorer::Kit *k, const QString &in);
 
     static bool          targetExists (const Target& target);
     static QList<Target> listAvailableTargets (const QString &framework=QString());

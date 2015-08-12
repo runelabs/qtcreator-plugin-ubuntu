@@ -20,8 +20,10 @@
 #define UBUNTURUNCONFIGURATION_H
 
 #include <QObject>
-#include <projectexplorer/localapplicationrunconfiguration.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/applicationlauncher.h>
+#include <projectexplorer/localenvironmentaspect.h>
 #include <utils/fileutils.h>
 
 
@@ -35,7 +37,16 @@ namespace Internal {
 
 class UbuntuClickManifest;
 
-class UbuntuLocalRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
+class UbuntuLocalEnvironmentAspect : public ProjectExplorer::LocalEnvironmentAspect
+{
+    Q_OBJECT
+public:
+    UbuntuLocalEnvironmentAspect(ProjectExplorer::RunConfiguration *parent);
+    virtual Utils::Environment baseEnvironment() const override;
+
+};
+
+class UbuntuLocalRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
 public:
@@ -44,18 +55,20 @@ public:
 
     QWidget *createConfigurationWidget() override;
     bool isEnabled() const override;
+    bool aboutToStart (QString *errorMessage);
 
     QString appId() const;
 
     // LocalApplicationRunConfiguration interface
-    virtual QString executable() const override;
-    virtual QString workingDirectory() const override;
-    virtual QString commandLineArguments() const override;
-    virtual RunMode runMode() const override;
-    virtual void addToBaseEnvironment(Utils::Environment &env) const override;
+    virtual QString executable() const;
+    virtual QString workingDirectory() const;
+    virtual QString commandLineArguments() const;
+    virtual ProjectExplorer::ApplicationLauncher::Mode runMode() const;
+    virtual void addToBaseEnvironment(Utils::Environment &env) const;
 
     // RunConfiguration interface
-    virtual bool ensureConfigured(QString *errorMessage) override;
+    virtual bool isConfigured () const override;
+    virtual ConfigurationState ensureConfigured(QString *) override;
 
     //static helpers
     static QString getDesktopFile (RunConfiguration *config, QString appId, QString *errorMessage = 0);
@@ -63,12 +76,12 @@ public:
 
 private:
     bool ensureClickAppConfigured (QString *errorMessage);
-    bool ensureScopesAppConfigured (QString *errorMessage);
+    bool ensureScopesAppConfigured (QString *);
     bool ensureUbuntuProjectConfigured (QString *errorMessage);
 
 private:
     QString m_executable;
-    QString m_workingDir;
+    Utils::FileName m_workingDir;
     QStringList m_args;
 };
 

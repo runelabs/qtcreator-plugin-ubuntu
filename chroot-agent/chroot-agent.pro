@@ -17,6 +17,26 @@ CONFIG += c++11 dbusadaptors dbusinterfaces
 
 TEMPLATE = app
 
+#support compiling inside the QtC source tree
+exists( $$PWD/../../plugins.pro ) {
+    include(../../../../qtcreator.pri)
+
+    DESTDIR=$$IDE_LIBEXEC_PATH
+    target.path=$$QTC_PREFIX/bin
+} else {
+
+    ## Where the Qt Creator headers are located at
+    QTCREATOR_SOURCES = $$(QTC_SOURCE)
+    isEmpty(QTCREATOR_SOURCES):QTCREATOR_SOURCES=/usr/src/qtcreator
+
+    ## Where our plugin will be compiled to
+    IDE_BUILD_TREE = $$(QTC_BUILD)
+    isEmpty(IDE_BUILD_TREE):IDE_BUILD_TREE=../../builddir
+
+    include($$QTCREATOR_SOURCES/qtcreator.pri)
+
+    target.path=/bin
+}
 
 SOURCES += main.cpp \
     chrootagent.cpp
@@ -24,8 +44,10 @@ SOURCES += main.cpp \
 HEADERS += \
     chrootagent.h
 
+INCLUDEPATH += $$OUT_PWD
+
 xml_desc.target=com.ubuntu.sdk.ClickChrootAgent.xml
-xml_desc.commands=qdbuscpp2xml -o $$xml_desc.target $$PWD/chrootagent.h
+xml_desc.commands=$$[QT_INSTALL_BINS]/qdbuscpp2xml -o $$xml_desc.target $$PWD/chrootagent.h
 xml_desc.depends=$$PWD/chrootagent.h
 
 QMAKE_EXTRA_TARGETS+=xml_desc
@@ -33,5 +55,5 @@ QMAKE_EXTRA_TARGETS+=xml_desc
 DBUS_ADAPTORS += $$xml_desc.target
 DBUS_INTERFACES += $$xml_desc.target
 
-target.path=/bin
+
 INSTALLS+=target

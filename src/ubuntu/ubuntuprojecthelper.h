@@ -41,6 +41,7 @@ public:
     static QList<Utils::FileName> findFilesRecursive(const Utils::FileName &searchdir, const QRegularExpression &regexp);
     static QString getManifestPath (ProjectExplorer::Project * p, const QString &defaultValue);
     static QString getManifestPath(ProjectExplorer::Target *target, const QString &defaultValue);
+    static bool injectScopeDebugHelper (const QString &iniFilePath, const QString &scriptName, const QString &commandTemplate, const QString &defaultSubCmd);
 };
 
 } // namespace Internal

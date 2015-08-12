@@ -26,7 +26,6 @@
 #include "ubuntushared.h"
 
 #include <projectexplorer/taskhub.h>
-#include <cmakeprojectmanager/cmakeproject.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
@@ -42,8 +41,10 @@ enum {
     debug = 0
 };
 
-QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
+QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const
 {
+    Q_UNUSED(mode);
+
     QList<Core::Id> types;
 
     Core::Id targetDevice = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(parent->kit());
@@ -69,8 +70,8 @@ QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(Project
     }
 
     QString defaultPath = QDir::cleanPath(parent->project()->projectDirectory()
-                                          +QDir::separator()
-                                          +QStringLiteral("manifest.json"));
+                                          .appendPath(QStringLiteral("manifest.json"))
+                                          .toString());
 
     QString manifestPath = UbuntuProjectHelper::getManifestPath(parent,defaultPath);
 
@@ -127,11 +128,26 @@ QString UbuntuLocalRunConfigurationFactory::displayNameForId(const Core::Id id) 
 bool UbuntuLocalRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent,
                                                    const Core::Id id) const
 {
-    return availableCreationIds(parent).contains(id);
+    if (!parent)
+        return false;
+
+    if (id.toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_APP_ID )))
+        return true;
+    else if (id.toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_SCOPE_ID )))
+        return true;
+    else if (id.toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_REMOTE_RUNCONTROL_APP_ID )))
+        return true;
+    else if (id.toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_REMOTE_RUNCONTROL_SCOPE_ID )))
+        return true;
+    return false;
 }
 
 bool UbuntuLocalRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const {
-    return parent && canCreate(parent, ProjectExplorer::idFromMap(map));
+    if (!parent)
+        return false;
+
+    Core::Id id = ProjectExplorer::idFromMap(map);
+    return canCreate(parent, id);
 }
 
 ProjectExplorer::RunConfiguration *UbuntuLocalRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, const Core::Id id) {

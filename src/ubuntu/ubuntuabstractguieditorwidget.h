@@ -22,8 +22,7 @@
 
 #include "ubuntuclickmanifest.h"
 
-#include <texteditor/basetexteditor.h>
-#include <texteditor/plaintexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <QScrollArea>
 #include "ui_ubuntumanifesteditor.h"
@@ -39,12 +38,13 @@ class UbuntuAbstractGuiEditor;
 class UbuntuAbstractGuiEditorWidget;
 class UbuntuClickManifest;
 
-class UbuntuManifestTextEditorWidget : public TextEditor::PlainTextEditorWidget
+class UbuntuManifestTextEditorWidget : public TextEditor::TextEditorWidget
 {
 public:
     UbuntuManifestTextEditorWidget(QString mimeType, UbuntuAbstractGuiEditorWidget *parent = 0);
 protected:
     UbuntuAbstractGuiEditorWidget *m_parent;
+    QString m_mimeType;
 };
 
 class UbuntuAbstractGuiEditorWidget : public QScrollArea
@@ -59,7 +59,6 @@ public:
     explicit UbuntuAbstractGuiEditorWidget(const QString &mimeType);
     ~UbuntuAbstractGuiEditorWidget();
 
-    virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     virtual bool isModified() const;
 
     EditorPage activePage() const;
@@ -67,7 +66,7 @@ public:
 
     bool preSave();
 
-    TextEditor::PlainTextEditorWidget *textEditorWidget() const;
+    TextEditor::TextEditorWidget *textEditorWidget() const;
 
     virtual void saved ();
 
@@ -76,6 +75,8 @@ protected slots:
     void createUI ();
 
 protected:
+    virtual void aboutToOpen(const QString &, const QString &);
+    virtual void updateAfterFileLoad ();
     virtual bool syncToWidgets () = 0;
     virtual void syncToSource  () = 0;
     virtual QWidget *createMainWidget () = 0;
@@ -84,10 +85,11 @@ protected:
 
 signals:
     void uiEditorChanged();
+    void editorViewChanged();
 
 protected:
     QStackedWidget *m_widgetStack;
-    TextEditor::PlainTextEditorWidget *m_sourceEditor;
+    TextEditor::TextEditorWidget *m_sourceEditor;
 
     bool m_dirty;
 };

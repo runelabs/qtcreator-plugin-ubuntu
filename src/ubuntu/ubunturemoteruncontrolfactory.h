@@ -27,7 +27,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -53,9 +52,9 @@ public:
     explicit UbuntuRemoteRunControlFactory() {}
     virtual ~UbuntuRemoteRunControlFactory() {}
 
-    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const override;
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id mode) const override;
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-                                        ProjectExplorer::RunMode mode, QString *errorMessage) override;
+                                        Core::Id mode, QString *errorMessage) override;
     QString displayName() const;
     
 };

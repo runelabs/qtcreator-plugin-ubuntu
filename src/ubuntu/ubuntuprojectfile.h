@@ -32,7 +32,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -51,7 +50,6 @@ public:
 
     QString defaultPath() const override;
     QString suggestedFileName() const override;
-    QString mimeType() const override;
 
     bool isModified() const override;
     bool isSaveAsAllowed() const override;

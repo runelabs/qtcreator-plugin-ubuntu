@@ -18,7 +18,6 @@
 #include "ubunturemoterunconfiguration.h"
 #include "clicktoolchain.h"
 #include "ubuntuclicktool.h"
-#include "ubuntucmakebuildconfiguration.h"
 #include "ubuntuconstants.h"
 #include "ubuntulocalrunconfiguration.h"
 #include "ubunturemotedeployconfiguration.h"
@@ -144,7 +143,7 @@ QStringList UbuntuRemoteRunConfiguration::soLibSearchPaths() const
         if(qmakeProj) {
             foreach (const QmakeProjectManager::QmakeProFileNode* pro, qmakeProj->allProFiles()) {
                 if(pro->projectType() == QmakeProjectManager::ApplicationTemplate
-                         || pro->projectType() == QmakeProjectManager::LibraryTemplate) {
+                         || pro->projectType() == QmakeProjectManager::SharedLibraryTemplate) {
                     QmakeProjectManager::TargetInformation info = pro->targetInformation();
                     if(!info.valid)
                         continue;
@@ -180,14 +179,19 @@ bool UbuntuRemoteRunConfiguration::isConfigured() const
     return true;
 }
 
+ProjectExplorer::RunConfiguration::ConfigurationState UbuntuRemoteRunConfiguration::ensureConfigured(QString *)
+{
+    return ProjectExplorer::RunConfiguration::Configured;
+}
+
 /*!
- * \brief UbuntuRemoteRunConfiguration::ensureConfigured
+ * \brief UbuntuRemoteRunConfiguration::aboutToStart
  * Configures the internal parameters and fetched the informations from
  * the manifest file. We have no way of knowing these things before the project
  * was build and all files are in <builddir>/package. That means we can not cache that
  * information, because it could change anytime
  */
-bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
+bool UbuntuRemoteRunConfiguration::aboutToStart(QString *errorMessage)
 {
     if(debug) qDebug()<<"--------------------- Reconfiguring RunConfiguration ----------------------------";
     m_arguments.clear();
@@ -289,7 +293,7 @@ bool UbuntuRemoteRunConfiguration::ensureConfigured(QString *errorMessage)
             } else {
                 CMakeProjectManager::CMakeProject* pro = static_cast<CMakeProjectManager::CMakeProject*> (target()->project());
                 foreach(const CMakeProjectManager::CMakeBuildTarget &t, pro->buildTargets()) {
-                    if(t.library || t.executable.isEmpty())
+                    if(!t.targetType != CMakeProjectManager::ExecutableType|| t.executable.isEmpty())
                         continue;
 
                     QFileInfo execInfo(t.executable);
@@ -454,12 +458,14 @@ QString UbuntuRemoteRunConfiguration::packageDir() const
         if (!target()->activeBuildConfiguration()) {
             //backwards compatibility, try to not crash QtC for old projects
             //they did not create a buildconfiguration back then
-            QDir pDir(p->projectDirectory());
-            return p->projectDirectory()+QDir::separator()+
-                    QStringLiteral("..")+QDir::separator()+
-                    pDir.dirName()+QStringLiteral("_build")+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR);
+            QDir pDir(p->projectDirectory().toString());
+            return p->projectDirectory()
+                    .appendPath(QStringLiteral(".."))
+                    .appendPath(pDir.dirName()+QStringLiteral("_build"))
+                    .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR)).toString();
         } else
-            return target()->activeBuildConfiguration()->buildDirectory().toString()+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR);
+            return target()->activeBuildConfiguration()->buildDirectory()
+                    .appendPath(QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR)).toString();
     }
     return QString();
 }

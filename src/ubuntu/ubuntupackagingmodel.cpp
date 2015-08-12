@@ -20,7 +20,6 @@
 #include "ubuntuconstants.h"
 #include "ubuntumenu.h"
 #include "ubuntuclicktool.h"
-#include "ubuntucmakemakestep.h"
 #include "ubuntuvalidationresultmodel.h"
 #include "ubuntudevice.h"
 #include "ubuntupackagestep.h"
@@ -126,7 +125,7 @@ void UbuntuPackagingModel::onFinishedAction(const QProcess *proc, QString cmd)
     if(!QFile::exists(manifestPath)) {
         //fall back to the project directory
         manifestPath = UbuntuProjectHelper::getManifestPath(startupProject->activeTarget(),
-                                                            Utils::FileName::fromString(startupProject->projectDirectory())
+                                                            startupProject->projectDirectory()
                                                             .appendPath(QStringLiteral("manifest.json")).toString());
     }
 
@@ -137,7 +136,7 @@ void UbuntuPackagingModel::onFinishedAction(const QProcess *proc, QString cmd)
     QString sClickPackageName;
     QString sClickPackagePath;
     sClickPackageName = QString::fromLatin1("%0_%1_all.click").arg(manifest.name()).arg(manifest.version());
-    sClickPackagePath = startupProject->projectDirectory();
+    sClickPackagePath = startupProject->projectDirectory().toString();
 
     QRegularExpression re(QLatin1String("\\/\\w+$")); // search for the project name in the path
     QRegularExpressionMatch match = re.match(sClickPackagePath);
@@ -266,7 +265,7 @@ void UbuntuPackagingModel::on_pushButtonReviewersTools_clicked() {
     m_ubuntuProcess.stop();
 
     QString directory = QDir::homePath();
-    if(startupProject) directory = startupProject->projectDirectory();
+    if(startupProject) directory = startupProject->projectDirectory().toString();
 
     QString clickPackage = QFileDialog::getOpenFileName(Core::ICore::mainWindow(),QString(QLatin1String(Constants::UBUNTU_CLICK_PACKAGE_SELECTOR_TEXT)),QString(QLatin1String("%0/..")).arg(directory),QLatin1String(Constants::UBUNTU_CLICK_PACKAGE_MASK));
     if (clickPackage.isEmpty()) return;

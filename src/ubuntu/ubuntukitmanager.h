@@ -26,6 +26,10 @@ namespace Debugger{
 class DebuggerItem;
 }
 
+namespace CMakeProjectManager{
+class CMakeTool;
+}
+
 namespace Ubuntu {
 namespace Internal {
 
@@ -44,6 +48,9 @@ public:
     static void fixKit (ProjectExplorer::Kit* k);
     static QList<ClickToolChain *> clickToolChains();
     static UbuntuQtVersion *createOrFindQtVersion(ClickToolChain* tc);
+    static CMakeProjectManager::CMakeTool *createOrFindCMakeTool(ClickToolChain* tc);
+    static CMakeProjectManager::CMakeTool *createCMakeTool(ClickToolChain *tc);
+    static CMakeProjectManager::CMakeTool *createCMakeTool(const UbuntuClickTool::Target &target);
 };
 
 } // namespace Internal

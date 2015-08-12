@@ -21,12 +21,15 @@
 #include "ubuntuclickmanifest.h"
 #include "ubuntusecuritypolicypickerdialog.h"
 
+#include <texteditor/textdocument.h>
+
+#include <QMenu>
+
 namespace Ubuntu {
 namespace Internal {
 
 UbuntuApparmorEditor::UbuntuApparmorEditor()
-    : UbuntuAbstractGuiEditor(Constants::UBUNTU_APPARMOR_EDITOR_ID,
-                              Core::Context(Constants::UBUNTU_APPARMOR_EDITOR_CONTEXT)),
+    : UbuntuAbstractGuiEditor(Core::Context(Constants::UBUNTU_APPARMOR_EDITOR_CONTEXT)),
       m_editorWidget(0)
 {
     createUi();
@@ -64,27 +67,18 @@ UbuntuApparmorEditorWidget::~UbuntuApparmorEditorWidget()
         delete m_ui;
 }
 
-bool UbuntuApparmorEditorWidget::open(QString *errorString, const QString &fileName, const QString &realFileName)
+void UbuntuApparmorEditorWidget::updateAfterFileLoad()
 {
-    bool result = UbuntuAbstractGuiEditorWidget::open(errorString,fileName,realFileName);
-
-    if(!result)
-        return result;
-
     //let see if we have valid data
     m_apparmor = QSharedPointer<UbuntuClickManifest>(new UbuntuClickManifest);
     if(m_apparmor->loadFromString(m_sourceEditor->toPlainText())) {
         if(activePage() != Source)
             syncToWidgets(m_apparmor.data());
-        return true;
     } else {
         //switch to source page without syncing
         m_widgetStack->setCurrentIndex(Source);
         updateInfoBar(tr("There is a error in the file, please check the syntax."));
     }
-
-    //ops something went wrong, we need to show the error somewhere
-    return true;
 }
 
 void UbuntuApparmorEditorWidget::setVersion(const QString &version)
@@ -94,9 +88,9 @@ void UbuntuApparmorEditorWidget::setVersion(const QString &version)
         syncToSource();
 
     UbuntuClickManifest aa;
-    if(aa.loadFromString(textEditorWidget()->baseTextDocument()->plainText())) {
+    if(aa.loadFromString(textEditorWidget()->textDocument()->plainText())) {
         aa.setPolicyVersion(version);
-        textEditorWidget()->baseTextDocument()->setPlainText(aa.raw()+QStringLiteral("\n"));
+        textEditorWidget()->textDocument()->setPlainText(aa.raw()+QStringLiteral("\n"));
         textEditorWidget()->document()->setModified(true);
 
         if(activePage() == General)

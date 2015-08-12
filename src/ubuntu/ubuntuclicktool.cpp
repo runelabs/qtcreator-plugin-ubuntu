@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2014 Canonical Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -44,6 +44,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kit.h>
 #include <utils/qtcprocess.h>
 #include <utils/environment.h>
 #include <utils/consoleprocess.h>
@@ -444,6 +445,37 @@ QString UbuntuClickTool::findOrCreateQMakeWrapper (const UbuntuClickTool::Target
 QString UbuntuClickTool::findOrCreateMakeWrapper (const UbuntuClickTool::Target &target)
 {
     return UbuntuClickTool::findOrCreateToolWrapper(QStringLiteral("make"),target);
+}
+
+QString UbuntuClickTool::mapIncludePathsForCMake(ProjectExplorer::Kit *k, const QString &in)
+{
+    if (in.isEmpty())
+        return in;
+
+    bool canMap = ProjectExplorer::ToolChainKitInformation::toolChain(k)
+            && ProjectExplorer::ToolChainKitInformation::toolChain(k)->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
+            && !ProjectExplorer::SysRootKitInformation::sysRoot(k).isEmpty();
+
+    if (!canMap)
+        return in;
+
+
+    QString tmp = in;
+    QString replace = QString::fromLatin1("\\1%1/\\2").arg(ProjectExplorer::SysRootKitInformation::sysRoot(k).toUserOutput());
+    QStringList pathsToMap = {
+        QLatin1String("var"),QLatin1String("bin"),QLatin1String("boot"),QLatin1String("dev"),
+        QLatin1String("etc"),QLatin1String("lib"),QLatin1String("lib64"),QLatin1String("media"),
+        QLatin1String("mnt"),QLatin1String("opt"),QLatin1String("proc"),QLatin1String("root"),
+        QLatin1String("run"),QLatin1String("sbin"),QLatin1String("srv"),QLatin1String("sys"),
+        QLatin1String("usr")
+    };
+
+    for (const QString &path : pathsToMap) {
+        QRegularExpression exp(QString::fromLatin1("(^|[^\\w+]|\\s+|[-=]\\w)\\/(%1)").arg(path));
+        tmp.replace(exp,replace);
+    }
+
+    return tmp;
 }
 
 QString UbuntuClickTool::findOrCreateToolWrapper (const QString &tool, const UbuntuClickTool::Target &target)

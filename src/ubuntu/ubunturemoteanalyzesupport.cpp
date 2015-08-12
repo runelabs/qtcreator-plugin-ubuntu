@@ -24,9 +24,9 @@ namespace Internal {
 class UbuntuRemoteAnalyzeSupportPrivate
 {
 public:
-    UbuntuRemoteAnalyzeSupportPrivate(Analyzer::AnalyzerRunControl *rc, ProjectExplorer::RunMode runMode)
+    UbuntuRemoteAnalyzeSupportPrivate(Analyzer::AnalyzerRunControl *rc, Core::Id runMode)
         : runControl(rc),
-          qmlProfiling(runMode == ProjectExplorer::QmlProfilerRunMode),
+          qmlProfiling(runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE),
           qmlPort(-1)
     {
     }
@@ -40,7 +40,7 @@ public:
 };
 
 UbuntuRemoteAnalyzeSupport::UbuntuRemoteAnalyzeSupport(UbuntuRemoteRunConfiguration *runConfig,
-                                                     Analyzer::AnalyzerRunControl *engine, ProjectExplorer::RunMode runMode)
+                                                     Analyzer::AnalyzerRunControl *engine, Core::Id runMode)
     : AbstractRemoteRunSupport(runConfig, engine),
       d(new UbuntuRemoteAnalyzeSupportPrivate(engine, runMode))
 {

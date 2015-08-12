@@ -25,7 +25,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
-#include <utils/projectnamevalidatinglineedit.h>
+#include <utils/projectintropage.h>
 
 #include <QCoreApplication>
 #include <QRegularExpression>
@@ -104,7 +104,7 @@ bool UbuntuDevicesModel::setData(const QModelIndex &index, const QVariant &value
         case KitListRole:
             return false;
         case DeveloperModeRole: {
-            if(!value.type() == QVariant::Bool)
+            if(value.type() != QVariant::Bool)
                 return false;
 
             bool set = value.toBool();
@@ -120,7 +120,7 @@ bool UbuntuDevicesModel::setData(const QModelIndex &index, const QVariant &value
             break;
         }
         case NetworkConnectionRole: {
-            if(!value.type() == QVariant::Bool)
+            if(value.type() != QVariant::Bool)
                 return false;
 
             bool set = value.toBool();
@@ -136,7 +136,7 @@ bool UbuntuDevicesModel::setData(const QModelIndex &index, const QVariant &value
             break;
         }
         case WriteableImageRole: {
-            if(!value.type() == QVariant::Bool)
+            if(value.type() != QVariant::Bool)
                 return false;
 
             bool set = value.toBool();
@@ -152,7 +152,7 @@ bool UbuntuDevicesModel::setData(const QModelIndex &index, const QVariant &value
             break;
         }
         case DeveloperToolsRole: {
-            if(!value.type() == QVariant::Bool)
+            if(value.type() != QVariant::Bool)
                 return false;
 
             bool set = value.toBool();
@@ -168,7 +168,7 @@ bool UbuntuDevicesModel::setData(const QModelIndex &index, const QVariant &value
             break;
         }
         case EmulatorScaleFactorRole: {
-            if(!value.type() == QVariant::String)
+            if(value.type() != QVariant::String)
                 return false;
 
             QString set = value.toString();
@@ -179,7 +179,7 @@ bool UbuntuDevicesModel::setData(const QModelIndex &index, const QVariant &value
             break;
         }
         case EmulatorMemorySettingRole: {
-            if(!value.type() == QVariant::String)
+            if(value.type() != QVariant::String)
                 return false;
 
             QString set = value.toString();
@@ -333,7 +333,7 @@ void UbuntuDevicesModel::triggerKitRemove(const int devId, const QVariant &kitid
         return;
 
     ProjectExplorer::Kit* k = ProjectExplorer::KitManager::find(Core::Id::fromSetting(kitid));
-    if(ProjectExplorer::DeviceKitInformation::deviceId(k) == Core::Id(devId)) {
+    if(ProjectExplorer::DeviceKitInformation::deviceId(k) == Core::Id::fromUniqueIdentifier(devId)) {
         //completely delete the kit
         ProjectExplorer::KitManager::deregisterKit(k);
     }
@@ -863,7 +863,7 @@ void UbuntuDevicesModel::deleteEmulator(const QString &name)
 QVariant UbuntuDevicesModel::validateEmulatorName(const QString &name)
 {
     QString error;
-    bool result = Utils::ProjectNameValidatingLineEdit::validateProjectName(name,&error);
+    bool result = Utils::ProjectIntroPage::validateProjectName(name,&error);
 
     if(result) {
         foreach (UbuntuDevicesItem *item, m_knownDevices) {
@@ -1045,7 +1045,7 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
 
             //remove all ubuntu emulators that are in the settings but don't exist in the system
             foreach(int curr,notFoundImages) {
-                ProjectExplorer::DeviceManager::instance()->removeDevice(Core::Id(curr));
+                ProjectExplorer::DeviceManager::instance()->removeDevice(Core::Id::fromUniqueIdentifier(curr));
             }
 
             queryAdb();

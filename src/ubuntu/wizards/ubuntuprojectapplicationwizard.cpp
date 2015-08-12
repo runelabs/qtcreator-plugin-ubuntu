@@ -24,15 +24,15 @@
 #include "../ubuntubzr.h"
 #include "../ubuntuclicktool.h"
 
-#include <coreplugin/mimedatabase.h>
-
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <projectexplorer/kitmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <cmakeprojectmanager/cmakekitinformation.h>
+#include <cmakeprojectmanager/cmaketool.h>
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/toolchain.h>
@@ -55,10 +55,11 @@ UbuntuProjectApplicationWizard::UbuntuProjectApplicationWizard(ProjectType type)
     setRequiredFeatures(requiredFeatures());
 }
 
-QWizard *UbuntuProjectApplicationWizard::createWizardDialog (QWidget *parent, const Core::WizardDialogParameters &wizardDialogParameters) const
+Core::BaseFileWizard *UbuntuProjectApplicationWizard::create(QWidget *parent, const Core::WizardDialogParameters &wizardDialogParameters) const
 {
     QTC_ASSERT(!parameters().isNull(), return 0);
-    UbuntuProjectApplicationWizardDialog *projectDialog = new UbuntuProjectApplicationWizardDialog(parent,
+    UbuntuProjectApplicationWizardDialog *projectDialog = new UbuntuProjectApplicationWizardDialog(this,
+                                                                                                   parent,
                                                                                                    m_type ,
                                                                                                    wizardDialogParameters);
     projectDialog->addChrootSetupPage(12);
@@ -66,7 +67,7 @@ QWizard *UbuntuProjectApplicationWizard::createWizardDialog (QWidget *parent, co
 
     initProjectWizardDialog(projectDialog,
                             wizardDialogParameters.defaultPath(),
-                            wizardDialogParameters.extensionPages());
+                            projectDialog->extensionPages());
 
     QString maintainer = QStringLiteral("username");
     QString whoami     = QStringLiteral("Firstname Surname <your@mail.com>");
@@ -114,7 +115,7 @@ QWizard *UbuntuProjectApplicationWizard::createWizardDialog (QWidget *parent, co
     return projectDialog;
 }
 
-bool UbuntuProjectApplicationWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage)
+bool UbuntuProjectApplicationWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage) const
 {
     const UbuntuProjectApplicationWizardDialog *dialog = qobject_cast<const UbuntuProjectApplicationWizardDialog *>(w);
 
@@ -147,14 +148,14 @@ Core::FeatureSet UbuntuProjectApplicationWizard::requiredFeatures() const
 #else
     return CustomProjectWizard::requiredFeatures()
             | Core::Feature(QtSupport::Constants::FEATURE_QMLPROJECT)
-            | Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2);
+            | Core::Feature::versionedFeature(QtSupport::Constants::FEATURE_QT_QUICK_PREFIX, 2);
 #endif
 }
 
-UbuntuProjectApplicationWizardDialog::UbuntuProjectApplicationWizardDialog(QWidget *parent,
+UbuntuProjectApplicationWizardDialog::UbuntuProjectApplicationWizardDialog(const Core::BaseFileWizardFactory *factory, QWidget *parent,
                                                                            UbuntuProjectApplicationWizard::ProjectType type,
                                                                            const Core::WizardDialogParameters &parameters)
-    : ProjectExplorer::BaseProjectWizardDialog(parent,parameters)
+    : ProjectExplorer::BaseProjectWizardDialog(factory, parent, parameters)
     , m_targetSetupPage(0)
     , m_type(type)
 {
@@ -178,10 +179,12 @@ bool UbuntuProjectApplicationWizardDialog::writeUserFile(const QString &projectF
 
     QString filePath = fi.canonicalFilePath();
 
-    if (const Core::MimeType mt = Core::MimeDatabase::findByFile(fi)) {
+    Utils::MimeDatabase mimeDb;
+    const Utils::MimeType mt = mimeDb.mimeTypeForFile(fi);
+    if (mt.isValid()) {
         QList<ProjectExplorer::IProjectManager*> allProjectManagers = ExtensionSystem::PluginManager::getObjects<ProjectExplorer::IProjectManager>();
         foreach (ProjectExplorer::IProjectManager *manager, allProjectManagers) {
-            if (manager->mimeType() == mt.type()) {
+            if (manager->mimeType() == mt.name()) {
                 QString tmp;
                 if (ProjectExplorer::Project *pro = manager->openProject(filePath, &tmp)) {
                     if(debug) qDebug()<<"Storing project type settings: "<<pro->id().toSetting();
@@ -240,17 +243,22 @@ void UbuntuProjectApplicationWizardDialog::addTargetSetupPage(int id)
     //prefer Qt Desktop or Platform Kit
     Core::FeatureSet features = Core::FeatureSet(QtSupport::Constants::FEATURE_DESKTOP);
     if (platform.isEmpty())
-        m_targetSetupPage->setPreferredKitMatcher(new QtSupport::QtVersionKitMatcher(features));
+        m_targetSetupPage->setPreferredKitMatcher(QtSupport::QtKitInformation::qtVersionMatcher(features));
     else
-        m_targetSetupPage->setPreferredKitMatcher(new QtSupport::QtPlatformKitMatcher(platform));
+        m_targetSetupPage->setPreferredKitMatcher(QtSupport::QtKitInformation::platformMatcher(platform));
 
 
     switch (m_type) {
         case UbuntuProjectApplicationWizard::CMakeProject:{
-            m_targetSetupPage->setRequiredKitMatcher(new CMakeProjectManager::CMakeKitMatcher());
+            auto cmakeKitMatcher = [](const ProjectExplorer::Kit *k){
+                auto tool = CMakeProjectManager::CMakeKitInformation::cmakeTool(k);
+                return tool && tool->isValid();
+            };
+            m_targetSetupPage->setRequiredKitMatcher(ProjectExplorer::KitMatcher(cmakeKitMatcher));
             break;
         }
         case UbuntuProjectApplicationWizard::GoProject: {
+#if 0
             ProjectExplorer::KitMatcher *matcher = 0;
             const char* retTypeName = QMetaType::typeName(qMetaTypeId<void*>());
             void **arg = reinterpret_cast<void**>(&matcher);
@@ -266,15 +274,16 @@ void UbuntuProjectApplicationWizardDialog::addTargetSetupPage(int id)
             if (matcher)
                 m_targetSetupPage->setRequiredKitMatcher(matcher);
             else
+#endif
                 //this is just a fallback for now to remove all ubuntu kits until cross compiling is sorted out
                 //it should not be hit at all but i keep it there just to be safe
-                m_targetSetupPage->setRequiredKitMatcher(new QtSupport::QtVersionKitMatcher(features));
+                m_targetSetupPage->setRequiredKitMatcher(QtSupport::QtKitInformation::platformMatcher(QLatin1String(QtSupport::Constants::DESKTOP_PLATFORM)));
             break;
         }
         case UbuntuProjectApplicationWizard::QMakeProject:
         case UbuntuProjectApplicationWizard::UbuntuQMLProject:
         case UbuntuProjectApplicationWizard::UbuntuHTMLProject: {
-            m_targetSetupPage->setRequiredKitMatcher(new UbuntuKitMatcher());
+            m_targetSetupPage->setRequiredKitMatcher(UbuntuKitMatcher());
             break;
         }
         default:

@@ -41,6 +41,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/projecttree.h>
 #include <utils/qtcprocess.h>
 #include <ssh/sshconnection.h>
 
@@ -92,8 +93,8 @@ UbuntuMenu::UbuntuMenu(QObject *parent) :
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(),SIGNAL(updateRunActions()),this,SLOT(slotUpdateActions()));
     connect(UbuntuDeviceMode::instance(),SIGNAL(updateDeviceActions()),this,SLOT(slotUpdateActions()));
 
-    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
-    connect(projectExplorer, SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)),
+    ProjectExplorer::ProjectTree *ptree = ProjectExplorer::ProjectTree::instance();
+    connect(ptree, SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)),
             this, SLOT(setContextMenuProject(ProjectExplorer::Project*)));
 }
 
@@ -170,7 +171,9 @@ void UbuntuMenu::createManifestFile()
 
     bool changed = false;
 
-    QString manifestFilePath = m_ctxMenuProject->projectDirectory()+QDir::separator()+QLatin1String("manifest.json");
+    QString manifestFilePath = m_ctxMenuProject->projectDirectory().toString()
+            + QDir::separator()
+            + QLatin1String("manifest.json");
 
     UbuntuClickManifest manifest;
     if(QFile::exists(manifestFilePath)) {
@@ -195,7 +198,9 @@ void UbuntuMenu::createManifestFile()
     foreach(const UbuntuClickManifest::Hook &hook, hooks) {
         if(!hook.appArmorFile.isEmpty()) {
             UbuntuClickManifest aaFile;
-            QString aaFilePath = QDir::cleanPath(m_ctxMenuProject->projectDirectory()+QDir::separator()+hook.appArmorFile);
+            QString aaFilePath = QDir::cleanPath(m_ctxMenuProject->projectDirectory().toString()
+                                                 + QDir::separator()
+                                                 + hook.appArmorFile);
             if(QFile::exists(aaFilePath))
                 continue;
 
@@ -424,8 +429,7 @@ void UbuntuMenu::menuItemTriggered() {
                 return;
             } else {
                 QString manifestPath = project->projectDirectory()
-                                          +QDir::separator()
-                                          +QStringLiteral("manifest.json");
+                        .appendPath(QStringLiteral("manifest.json")).toString();
 
                 if (!manifest.load(manifestPath)) {
                     qWarning() << "Could not load manifest from path" << manifestPath;
@@ -643,7 +647,7 @@ void UbuntuMenu::menuItemTriggered() {
 
                     if (project) {
 
-                        QString projectDirectory = project->projectDirectory();
+                        QString projectDirectory = project->projectDirectory().toString();
                         QString displayName = project->displayName();
 
                         QString folderName = projectDirectory;

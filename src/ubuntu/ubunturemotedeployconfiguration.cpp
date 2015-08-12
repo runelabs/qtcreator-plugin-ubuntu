@@ -16,8 +16,6 @@
  * Author: Benjamin Zeller <benjamin.zeller@canonical.com>
  */
 #include "ubunturemotedeployconfiguration.h"
-#include "ubuntucmakebuildconfiguration.h"
-#include "ubuntucmakemakestep.h"
 #include "ubuntudirectuploadstep.h"
 #include "ubuntuprojecthelper.h"
 #include "ubuntuconstants.h"
@@ -33,6 +31,7 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/namedwidget.h>
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
@@ -148,6 +147,11 @@ ProjectExplorer::DeployConfiguration *UbuntuRemoteDeployConfigurationFactory::re
         return 0;
     }
     return dc;
+}
+
+bool UbuntuRemoteDeployConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::DeployConfiguration *product) const
+{
+    return canCreate(parent,product->id());
 }
 
 ProjectExplorer::DeployConfiguration *UbuntuRemoteDeployConfigurationFactory::clone(ProjectExplorer::Target *parent,

@@ -28,7 +28,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -54,8 +53,8 @@ class UbuntuProjectNode;
 class UbuntuKitMatcher : public ProjectExplorer::KitMatcher
 {
 public:
-    explicit UbuntuKitMatcher() { }
-    bool matches(const ProjectExplorer::Kit *k) const override;
+    explicit UbuntuKitMatcher();
+    static bool matches(const ProjectExplorer::Kit *k);
 };
 
 class UbuntuProject : public ProjectExplorer::Project
@@ -73,7 +72,7 @@ public:
     QStringList files(FilesMode fileMode) const override;
 
     QDir projectDir() const {
-        return projectDirectory();
+        return projectDirectory().toString();
     }
 
     QString filesFileName() const {
@@ -85,11 +84,9 @@ public:
     }
 
     // Project interface
-    virtual bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const override;
-    virtual bool needsConfiguration() const override;
-    virtual bool supportsNoTargetPanel() const override;
-    virtual ProjectExplorer::KitMatcher *createRequiredKitMatcher() const override;
-    virtual ProjectExplorer::KitMatcher *createPreferredKitMatcher() const override;
+    bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const override;
+    bool needsConfiguration() const override;
+    bool requiresTargetPanel() const override;
 
     static QString shadowBuildDirectory(const QString &proFilePath, const ProjectExplorer::Kit *k, const QString &suffix = QString());
 private:

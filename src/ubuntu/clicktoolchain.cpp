@@ -154,12 +154,17 @@ QVariantMap ClickToolChain::toMap() const
 
 QString ClickToolChain::gnutriplet() const
 {
-    switch(targetAbi().architecture()) {
+    return gnutriplet(targetAbi());
+}
+
+QString ClickToolChain::gnutriplet(const ProjectExplorer::Abi &abi)
+{
+    switch(abi.architecture()) {
         case ProjectExplorer::Abi::ArmArchitecture:
             return QLatin1String("arm-linux-gnueabihf");
             break;
         case ProjectExplorer::Abi::X86Architecture:
-            switch(targetAbi().wordWidth())
+            switch(abi.wordWidth())
             {
                 case 32:
                     return QLatin1String("i386-linux-gnu");
@@ -205,7 +210,7 @@ ClickToolChain::ClickToolChain(const UbuntuClickTool::Target &target, Detection 
     : GccToolChain(QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID), d)
     , m_clickTarget(target)
 {
-    setCompilerCommand(Utils::FileName::fromString(
+    resetToolChain(Utils::FileName::fromString(
                            UbuntuClickTool::findOrCreateGccWrapper(target)
                            ));
 

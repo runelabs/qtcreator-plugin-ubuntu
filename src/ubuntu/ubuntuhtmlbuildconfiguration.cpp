@@ -2,13 +2,12 @@
 #include "ubuntuconstants.h"
 #include "ubuntuproject.h"
 
-#include <coreplugin/mimedatabase.h>
-
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/kit.h>
 #include <utils/fancylineedit.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QFormLayout>
 
@@ -77,13 +76,13 @@ QList<ProjectExplorer::BuildInfo *> UbuntuHtmlBuildConfigurationFactory::availab
 {
     if(!canHandle(parent))
         return QList<ProjectExplorer::BuildInfo *>();
-    return createBuildInfos(parent->kit(),parent->project()->projectFilePath());
+    return createBuildInfos(parent->kit(),parent->project()->projectFilePath().toString());
 }
 
 int UbuntuHtmlBuildConfigurationFactory::priority(const ProjectExplorer::Kit *k, const QString &projectPath) const
 {
-    return (k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
-            .matchesType(QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE))) ? 100 : -1;
+    return (k && Utils::MimeDatabase().mimeTypeForFile(projectPath)
+            .matchesName(QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE))) ? 100 : -1;
 }
 
 QList<ProjectExplorer::BuildInfo *> UbuntuHtmlBuildConfigurationFactory::availableSetups(const ProjectExplorer::Kit *k, const QString &projectPath) const
@@ -166,7 +165,6 @@ QList<ProjectExplorer::BuildInfo *> UbuntuHtmlBuildConfigurationFactory::createB
     info->buildDirectory = Utils::FileName::fromString(UbuntuProject::shadowBuildDirectory(projectDir,k,QStringLiteral("default")));
     info->typeName = tr("Html5");
     info->kitId    = k->id();
-    info->supportsShadowBuild = true;
     info->displayName = tr("Default");
 
     builds << info;

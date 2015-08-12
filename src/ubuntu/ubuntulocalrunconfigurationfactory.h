@@ -30,7 +30,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -57,7 +56,7 @@ public:
         setObjectName(QLatin1String("UbuntuRunConfigurationFactory"));
     }
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const override;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode = UserCreate) const override;
     QString displayNameForId(const Core::Id id) const override;
 
     bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const override;

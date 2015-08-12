@@ -51,6 +51,8 @@ public:
     ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id) override;
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const override;
     ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map) override;
+    bool canClone(ProjectExplorer::Target *parent,
+                   ProjectExplorer::DeployConfiguration *product) const override;
     ProjectExplorer::DeployConfiguration *clone(ProjectExplorer::Target *parent,
                                                 ProjectExplorer::DeployConfiguration *product) override;
 };

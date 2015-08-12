@@ -21,7 +21,6 @@
 #include <QTimer>
 #include <QRegularExpression>
 #include <QVariant>
-#include <glib-2.0/glib.h>
 
 namespace Ubuntu {
 namespace Internal {
@@ -99,11 +98,11 @@ void UbuntuPackageStep::internalInit()
 {
     m_tasks.clear();
 
-    QString projectDir = target()->project()->projectDirectory();
+    QString projectDir = target()->project()->projectDirectory().toString();
     m_buildDir.clear();
     m_deployDir.clear();
     Utils::Environment env = Utils::Environment::systemEnvironment();
-    Utils::AbstractMacroExpander *mExp = 0;
+    Utils::MacroExpander *mExp = 0;
 
     m_MakeParam = m_ClickParam = m_ReviewParam = ProjectExplorer::ProcessParameters();
     m_clickPackageName.clear();
@@ -138,8 +137,9 @@ void UbuntuPackageStep::internalInit()
                 //ubuntu + qml project types
                 QDir pDir(projectDir);
                 m_buildDir = QDir::cleanPath(target()->project()->projectDirectory()
-                                             +QDir::separator()+QStringLiteral("..")
-                                             +QDir::separator()+pDir.dirName()+QStringLiteral("_build"));
+                                             .appendPath(QStringLiteral(".."))
+                                             .appendPath(pDir.dirName()+QStringLiteral("_build"))
+                                             .toString());
                 m_deployDir = m_buildDir+QDir::separator()+QLatin1String(Constants::UBUNTU_DEPLOY_DESTDIR);
 
                 //clean up the old "build"
@@ -630,63 +630,22 @@ void UbuntuPackageStep::injectDebugHelperStep()
                 if(!injectDebugScript)
                     continue;
 
-                GKeyFile* keyFile = g_key_file_new();
-                GKeyFileFlags flags = static_cast<GKeyFileFlags>(G_KEY_FILE_KEEP_TRANSLATIONS|G_KEY_FILE_KEEP_COMMENTS);
-                if(!g_key_file_load_from_file(keyFile,qPrintable(iniFilePath),flags,NULL)){
-                    g_key_file_free(keyFile);
-                    qWarning()<<"Could not read the ini file";
+                ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
+                if(!tc || tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
+                    qWarning()<<"Incompatible Toolchain for hook"<<hook.appId;
                     continue;
                 }
 
-                QString subCmd;
-                if(g_key_file_has_key(keyFile,"ScopeConfig","ScopeRunner",NULL)) {
-                    gchar *value = g_key_file_get_string(keyFile,"ScopeConfig","ScopeRunner",NULL);
-                    if(value == NULL) {
-                        qWarning()<<"Could not read the ScopeRunner entry";
-                        g_key_file_free(keyFile);
-                        continue;
-                    }
+                QString defaultSubCmd = QStringLiteral("/usr/lib/%1/unity-scopes/scoperunner '' %S ").arg(static_cast<ClickToolChain*>(tc)->gnutriplet());
+                QString commTemplate = QStringLiteral("./%S scope %1 %C")
+                        .arg(manifest.name()+QStringLiteral("_")+hook.appId); //tell our script the appid
 
-                    subCmd = QString::fromUtf8(value);
-                    g_free(value);
-
-                } else {
-                    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
-                    if(!tc || tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
-                        qWarning()<<"Incompatible Toolchain for hook"<<hook.appId;
-                        continue;
-                    }
-
-                    subCmd = QStringLiteral("/usr/lib/%1/unity-scopes/scoperunner '' %S ").arg(static_cast<ClickToolChain*>(tc)->gnutriplet());
-                }
-
-                QString command = QStringLiteral("./%1 scope %2 %3")
-                        .arg(debScript)
-                        .arg(manifest.name()+QStringLiteral("_")+hook.appId) //tell our script the appid
-                        .arg(subCmd);
-
-                g_key_file_set_string(keyFile,"ScopeConfig","ScopeRunner",command.toUtf8().data());
+                if(!UbuntuProjectHelper::injectScopeDebugHelper(iniFilePath, debScript, commTemplate, defaultSubCmd))
+                    qWarning()<<"Could not write the updated ini file";
 
                 //copy the helper script to the click package tree
                 if(QFile::exists(debSourcePath))
                     QFile::copy(debSourcePath,debTargetPath);
-
-                g_key_file_set_boolean(keyFile,"ScopeConfig","DebugMode",TRUE);
-
-                gsize size = 0;
-                gchar *settingData = g_key_file_to_data (keyFile, &size, NULL);
-                if(!settingData) {
-                    qWarning()<<"Could not convert the new data into the ini file";
-                    g_key_file_free(keyFile);
-                    continue;
-                }
-
-                gboolean ret = g_file_set_contents (qPrintable(iniFilePath), settingData, size,  NULL);
-                g_free (settingData);
-                g_key_file_free (keyFile);
-
-                if(!ret)
-                    qWarning()<<"Could not write the updated ini file";
 
             } else if(!hook.desktopFile.isEmpty() && hook.scope.isEmpty()){
 
@@ -983,8 +942,10 @@ UbuntuPackageStepConfigWidget::UbuntuPackageStepConfigWidget(UbuntuPackageStep *
     ui->setupUi(this);
     ui->comboBoxMode->addItem(tr("Yes") ,static_cast<int>(UbuntuPackageStep::EnableDebugScript));
     ui->comboBoxMode->addItem(tr("No")  ,static_cast<int>(UbuntuPackageStep::DisableDebugScript));
-    connect(step,SIGNAL(packageModeChanged(PackageMode)),this,SLOT(updateMode()));
+
+    connect(step,SIGNAL(packageModeChanged(DebugMode)),this,SLOT(updateMode()));
     connect(step,SIGNAL(treatClickErrorsAsWarningsChanged(bool)),this,SLOT(updateMode()));
+
     connect(ui->comboBoxMode,SIGNAL(activated(int)),this,SLOT(onModeSelected(int)));
     connect(ui->checkBox,SIGNAL(clicked(bool)), this, SLOT(onClickErrorsToggled(bool)));
 

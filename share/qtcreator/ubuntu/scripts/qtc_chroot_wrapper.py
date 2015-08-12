@@ -27,6 +27,7 @@
 
 import sys
 import os
+import os.path
 import shutil
 import subprocess
 import select
@@ -62,6 +63,17 @@ if (command.startswith("qt5-qmake")):
         legacy_script = scriptpath+"/qtc_chroot_qmake_legacy"
         success = subprocess.call(["/bin/bash",legacy_script,framework,architecture,chroot_name_prefix]+args,stdout=sys.stdout,stderr=sys.stderr)
         sys.exit(success)
+
+#ugly hack to prevent from teh moc error when running in the chroots
+if (command == "cmake"):
+    if any("help" not in s for s in args):
+        work_dir = os.getcwd()
+        if (os.path.exists(work_dir+"/CMakeCache.txt")):
+            print("-- Removing build artifacts")
+            shutil.rmtree(work_dir+'/CMakeFiles')
+            os.remove(work_dir+"/CMakeCache.txt")
+            os.remove(work_dir+"/cmake_install.cmake")
+            os.remove(work_dir+"/Makefile")
 
 subproc    = None
 session_id = ""

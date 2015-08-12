@@ -24,9 +24,9 @@
 
 #include <projectexplorer/kitinformation.h>
 #include <debugger/debuggerstartparameters.h>
-#include <debugger/debuggerrunner.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
+#include <debugger/debuggerruncontrol.h>
 #include <remotelinux/remotelinuxdebugsupport.h>
 #include <remotelinux/remotelinuxruncontrol.h>
 #include <remotelinux/remotelinuxanalyzesupport.h>
@@ -44,13 +44,13 @@ enum {
 };
 
 bool UbuntuRemoteRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-                                ProjectExplorer::RunMode mode) const {
+                                Core::Id mode) const {
 
     if(qobject_cast<UbuntuRemoteRunConfiguration*>(runConfiguration)) {
-        if (mode != ProjectExplorer::NormalRunMode
-                && mode != ProjectExplorer::DebugRunMode
-                && mode != ProjectExplorer::DebugRunModeWithBreakOnMain
-                && mode != ProjectExplorer::QmlProfilerRunMode) {
+        if (mode != ProjectExplorer::Constants::NORMAL_RUN_MODE
+                && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE
+                && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN
+                && mode != ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
             return false;
         }
         return runConfiguration->isEnabled();
@@ -59,7 +59,7 @@ bool UbuntuRemoteRunControlFactory::canRun(ProjectExplorer::RunConfiguration *ru
 }
 
 ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplorer::RunConfiguration *runConfiguration,
-                                                        ProjectExplorer::RunMode mode, QString *errorMessage)
+                                                        Core::Id mode, QString *errorMessage)
 {
 
     if (qobject_cast<UbuntuRemoteRunConfiguration*>(runConfiguration)) {
@@ -70,13 +70,17 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
          */
         QTC_ASSERT(canRun(runConfiguration, mode), return 0);
 
-        UbuntuRemoteRunConfiguration *rc = qobject_cast<UbuntuRemoteRunConfiguration *>(runConfiguration);
+        UbuntuRemoteRunConfiguration *rc = static_cast<UbuntuRemoteRunConfiguration *>(runConfiguration);
+        if (!rc->aboutToStart(errorMessage))
+            return 0;
+
         QTC_ASSERT(rc, return 0);
-        switch (mode) {
-        case ProjectExplorer::NormalRunMode:
+
+        if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE) {
             return new UbuntuRemoteRunControl(rc);
-        case ProjectExplorer::DebugRunMode:
-        case ProjectExplorer::DebugRunModeWithBreakOnMain: {
+
+        } else if ( mode == ProjectExplorer::Constants::DEBUG_RUN_MODE
+                    || mode == ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN ) {
             ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(rc->target()->kit());
             if (!dev) {
                 *errorMessage = tr("Cannot debug: Kit has no device.");
@@ -90,22 +94,27 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
                 return 0;
             }
             Debugger::DebuggerStartParameters params = RemoteLinux::LinuxDeviceDebugSupport::startParameters(rc);
-            if (mode == ProjectExplorer::DebugRunModeWithBreakOnMain)
-                params.breakOnMain = true;
 
             params.solibSearchPath.append(rc->soLibSearchPaths());
+
+            //Always leave this empty or the debugger backend tries to execute
+            //the binary on the phone instead of attaching and continuing the already
+            //running app
+            params.remoteExecutable = QString();
+            //params.expectedSignals.append("SIGTRAP");
+
             if(debug) qDebug()<<"Solib search path : "<<params.solibSearchPath;
 
             Debugger::DebuggerRunControl * const runControl
-                    = Debugger::DebuggerPlugin::createDebugger(params, rc, errorMessage);
+                    = Debugger::createDebuggerRunControl(params, rc, errorMessage, mode);
             if (!runControl)
                 return 0;
             UbuntuRemoteDebugSupport * const debugSupport =
-                    new UbuntuRemoteDebugSupport(rc, runControl->engine());
+                    new UbuntuRemoteDebugSupport(rc, runControl);
             connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
             return runControl;
-        }
-        case ProjectExplorer::QmlProfilerRunMode: {
+
+        } else if ( mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE ) {
             Analyzer::AnalyzerStartParameters params = RemoteLinux::RemoteLinuxAnalyzeSupport::startParameters(rc, mode);
             Analyzer::AnalyzerRunControl *runControl = Analyzer::AnalyzerManager::createRunControl(params, runConfiguration);
             UbuntuRemoteAnalyzeSupport * const analyzeSupport =
@@ -113,14 +122,8 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
             connect(runControl, SIGNAL(finished()), analyzeSupport, SLOT(handleProfilingFinished()));
             return runControl;
         }
-        case ProjectExplorer::NoRunMode:
-        case ProjectExplorer::CallgrindRunMode:
-        case ProjectExplorer::MemcheckRunMode:
-            QTC_ASSERT(false, return 0);
-        }
 
         QTC_ASSERT(false, return 0);
-        return 0;
     }
     return 0;
 }

@@ -22,12 +22,11 @@
 #include "ubuntulocalrunconfiguration.h"
 #include "ubuntulocalrunconfigurationfactory.h"
 #include "ubunturemoteruncontrolfactory.h"
+#include "ubuntulocalruncontrolfactory.h"
 #include "ubuntuclicktool.h"
 #include "ubuntukitmanager.h"
-#include "ubuntucmaketool.h"
 #include "ubuntudevicefactory.h"
 #include "clicktoolchain.h"
-#include "ubuntucmakebuildconfiguration.h"
 #include "ubuntuhtmlbuildconfiguration.h"
 #include "ubunturemotedeployconfiguration.h"
 #include "ubuntulocaldeployconfiguration.h"
@@ -44,7 +43,6 @@
 #include "ubuntuprojecthelper.h"
 #include "ubuntuscopefinalizer.h"
 #include "targetupgrademanager.h"
-#include "ubuntusettingspage.h"
 #include "ubuntusettingsdeviceconnectivitypage.h"
 #include "ubuntusettingsclickpage.h"
 #include "ubuntusettingsprojectdefaultspage.h"
@@ -55,8 +53,12 @@
 
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projecttree.h>
 #include <coreplugin/featureprovider.h>
 #include <coreplugin/coreplugin.h>
+#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimetypes/mimeglobpattern_p.h>
+#include <cmakeprojectmanager/cmaketoolmanager.h>
 
 #include <qmakeprojectmanager/qmakenodes.h>
 #include <qmakeprojectmanager/qmakeproject.h>
@@ -110,7 +112,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    QFont defaultFont = QGuiApplication::font();
+    QFont  defaultFont = QGuiApplication::font();
     defaultFont.setFamily(QStringLiteral("Ubuntu"));
     defaultFont.setWeight(QFont::Light);
 
@@ -129,9 +131,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
             qWarning()<<"Unable to create Ubuntu-SDK configuration directory "<<confdir;
     }
 
-    const QLatin1String mimetypesXml(Constants::UBUNTU_MIMETYPE_XML);
-    if (!Core::MimeDatabase::addMimeTypes(mimetypesXml, errorString))
-        return false;
+    Utils::MimeDatabase::addMimeTypes(QLatin1String(Constants::UBUNTU_MIMETYPE_XML));
 
     addAutoReleasedObject(new UbuntuClickFrameworkProvider);
 
@@ -139,34 +139,6 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     addAutoReleasedObject(m_ubuntuDeviceMode);
 
     addAutoReleasedObject(new UbuntuBzr);
-
-    QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
-    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_MODE));
-
-    if (settings.value(QLatin1String(Constants::SETTINGS_KEY_API),Constants::SETTINGS_DEFAULT_API_VISIBILITY).toBool()) {
-        m_ubuntuAPIMode = new UbuntuAPIMode;
-        addAutoReleasedObject(m_ubuntuAPIMode);
-    }
-
-    if (settings.value(QLatin1String(Constants::SETTINGS_KEY_COREAPPS),Constants::SETTINGS_DEFAULT_COREAPPS_VISIBILITY).toBool()) {
-        m_ubuntuCoreAppsMode = new UbuntuCoreAppsMode;
-        addAutoReleasedObject(m_ubuntuCoreAppsMode);
-    }
-    if (settings.value(QLatin1String(Constants::SETTINGS_KEY_IRC),Constants::SETTINGS_DEFAULT_IRC_VISIBILITY).toBool()) {
-        m_ubuntuIRCMode = new UbuntuIRCMode;
-        addAutoReleasedObject(m_ubuntuIRCMode);
-    }
-    if (settings.value(QLatin1String(Constants::SETTINGS_KEY_PASTEBIN),Constants::SETTINGS_DEFAULT_PASTEBIN_VISIBILITY).toBool()) {
-        m_ubuntuPastebinMode = new UbuntuPastebinMode;
-        addAutoReleasedObject(m_ubuntuPastebinMode);
-    }
-
-    if (settings.value(QLatin1String(Constants::SETTINGS_KEY_WIKI),Constants::SETTINGS_DEFAULT_WIKI_VISIBILITY).toBool()) {
-        m_ubuntuWikiMode = new UbuntuWikiMode;
-        addAutoReleasedObject(m_ubuntuWikiMode);
-    }
-
-    settings.endGroup();
 
     m_ubuntuMenu = new UbuntuMenu;
     addAutoReleasedObject(m_ubuntuMenu);
@@ -177,10 +149,9 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     addAutoReleasedObject(new UbuntuSettingsClickPage);
     addAutoReleasedObject(new UbuntuSettingsProjectDefaultsPage);
     addAutoReleasedObject(new UbuntuSettingsDeviceConnectivityPage);
-    addAutoReleasedObject(new UbuntuSettingsPage);
 
     addAutoReleasedObject(new UbuntuVersionManager);
-    addAutoReleasedObject(new UbuntuFeatureProvider);
+    Core::IWizardFactory::registerFeatureProvider(new UbuntuFeatureProvider);
 
     // welcome page plugin
     addAutoReleasedObject(new UbuntuWelcomePage);
@@ -189,16 +160,27 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     addAutoReleasedObject(new UbuntuProjectManager);
     addAutoReleasedObject(new UbuntuLocalRunConfigurationFactory);
     addAutoReleasedObject(new UbuntuRemoteRunControlFactory);
+    addAutoReleasedObject(new UbuntuLocalRunControlFactory);
 
     // Build support
     addAutoReleasedObject(new ClickToolChainFactory);
-    addAutoReleasedObject(new UbuntuCMakeToolFactory);
-    addAutoReleasedObject(new UbuntuCMakeMakeStepFactory);
     addAutoReleasedObject(new UbuntuCMakeCache);
-    addAutoReleasedObject(new UbuntuCMakeBuildConfigurationFactory);
     addAutoReleasedObject(new UbuntuHtmlBuildConfigurationFactory);
     addAutoReleasedObject(new UbuntuQmlBuildConfigurationFactory);
     addAutoReleasedObject(new UbuntuQmlBuildStepFactory);
+
+    CMakeProjectManager::CMakeToolManager::registerAutodetectionHelper([](){
+        QList<CMakeProjectManager::CMakeTool *> found;
+
+        QList<UbuntuClickTool::Target> targets = UbuntuClickTool::listAvailableTargets();
+        foreach (const UbuntuClickTool::Target &t, targets) {
+            CMakeProjectManager::CMakeTool *tool = UbuntuKitManager::createCMakeTool(t);
+            if (tool)
+                found.append(tool);
+        }
+
+        return found;
+    });
 
     //ubuntu device support
     addAutoReleasedObject(new UbuntuDeviceFactory);
@@ -212,23 +194,23 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     addAutoReleasedObject(
                 new UbuntuWizardFactory<UbuntuProjectApplicationWizard,UbuntuProjectApplicationWizard::CMakeProject>(
                     QStringLiteral("ubuntu-project-cmake"),
-                    Core::IWizard::ProjectWizard));
+                    Core::IWizardFactory::ProjectWizard));
     addAutoReleasedObject(
                 new UbuntuWizardFactory<UbuntuProjectApplicationWizard,UbuntuProjectApplicationWizard::QMakeProject>(
                     QStringLiteral("ubuntu-project-qmake"),
-                    Core::IWizard::ProjectWizard));
+                    Core::IWizardFactory::ProjectWizard));
     addAutoReleasedObject(
                 new UbuntuWizardFactory<UbuntuProjectApplicationWizard,UbuntuProjectApplicationWizard::UbuntuHTMLProject>(
                     QStringLiteral("ubuntu-project-plain-html"),
-                    Core::IWizard::ProjectWizard));
+                    Core::IWizardFactory::ProjectWizard));
     addAutoReleasedObject(
                 new UbuntuWizardFactory<UbuntuProjectApplicationWizard,UbuntuProjectApplicationWizard::UbuntuQMLProject>(
                     QStringLiteral("ubuntu-project-plain-qml"),
-                    Core::IWizard::ProjectWizard));
+                    Core::IWizardFactory::ProjectWizard));
     addAutoReleasedObject(
                 new UbuntuWizardFactory<UbuntuProjectApplicationWizard,UbuntuProjectApplicationWizard::GoProject>(
                     QStringLiteral("ubuntu-project-go"),
-                    Core::IWizard::ProjectWizard));
+                    Core::IWizardFactory::ProjectWizard));
 
     //register Qt version
     addAutoReleasedObject(new Ubuntu::Internal::UbuntuQtVersionFactory);
@@ -237,19 +219,6 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     //for local applications in the future
     //addAutoReleasedObject(new UbuntuLocalDeployConfigurationFactory);
     addAutoReleasedObject(new UbuntuDeployStepFactory);
-
-    //add support for the manifest editor
-    Core::MimeGlobPattern ubuntuManifestGlobPattern(QStringLiteral("manifest.json*"), Core::MimeGlobPattern::MaxWeight);
-    Core::MimeType ubuntuManifestMimeType;
-    ubuntuManifestMimeType.setType(QLatin1String(Constants::UBUNTU_MANIFEST_MIME_TYPE));
-    ubuntuManifestMimeType.setComment(tr("Ubuntu Manifest file"));
-    ubuntuManifestMimeType.setGlobPatterns(QList<Core::MimeGlobPattern>() << ubuntuManifestGlobPattern);
-    ubuntuManifestMimeType.setSubClassesOf(QStringList() << QLatin1String("application/json"));
-
-    if (!Core::MimeDatabase::addMimeType(ubuntuManifestMimeType)) {
-        *errorString = tr("Could not add mime-type for manifest.json editor.");
-        return false;
-    }
 
     addAutoReleasedObject(new Internal::UbuntuManifestEditorFactory);
     addAutoReleasedObject(new Internal::UbuntuApparmorEditorFactory);
@@ -267,7 +236,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
 
     //support for the UbuntuProjectMigrateWizard
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)),
+    connect(ProjectExplorer::ProjectTree::instance(), SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)),
             this, SLOT(updateContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)));
 
     m_migrateProjectAction = new QAction(tr("Migrate to Ubuntu project"), this);
@@ -291,10 +260,6 @@ void UbuntuPlugin::extensionsInitialized()
 {
     if (m_ubuntuMenu) m_ubuntuMenu->initialize();
     m_ubuntuDeviceMode->initialize();
-    if (m_ubuntuIRCMode) m_ubuntuIRCMode->initialize();
-    if (m_ubuntuAPIMode) m_ubuntuAPIMode->initialize();
-    if (m_ubuntuCoreAppsMode) m_ubuntuCoreAppsMode->initialize();
-    if (m_ubuntuWikiMode) m_ubuntuWikiMode->initialize();
     m_ubuntuPackagingMode->initialize();
 
     //add the create click package menu item to the project context menu
@@ -359,7 +324,7 @@ void UbuntuPlugin::updateContextMenu(ProjectExplorer::Project *project, ProjectE
     m_migrateProjectAction->setVisible(false);
 
     QmakeProjectManager::QmakeProject *qProject = qobject_cast<QmakeProjectManager::QmakeProject *>(project);
-    QmakeProjectManager::QmakeProFileNode *qNode = qobject_cast<QmakeProjectManager::QmakeProFileNode *>(node);
+    QmakeProjectManager::QmakeProFileNode *qNode = static_cast<QmakeProjectManager::QmakeProFileNode *>(node);
     if(qProject && qNode) {
         if(qProject->rootProjectNode() == qNode &&
                 UbuntuProjectHelper::getManifestPath(project,QString()).isEmpty()) {
@@ -380,6 +345,3 @@ void UbuntuPlugin::migrateProject()
 
     UbuntuProjectMigrationWizard::doMigrateProject(p,Core::ICore::mainWindow());
 }
-
-Q_EXPORT_PLUGIN2(Ubuntu, UbuntuPlugin)
-

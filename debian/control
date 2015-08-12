@@ -3,14 +3,11 @@ Section: devel
 Priority: optional
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Build-Depends: debhelper (>= 9),
-               libqt5script5 (>= 5.3),
-               libqt5scripttools5 (>= 5.3),
-               libqt5webkit5-dev,
                libqt5widgets5 (>= 5.3),
                libqt5dbus5 (>= 5.3),
                libsqlite3-dev,
                qt5-qmake (>= 5.3),
-               qtcreator-dev (>= 3.1.1-0ubuntu7),
+               qtcreator-dev (>= 3.5.0~),
                qtdeclarative5-dev-tools (>= 5.3),
                qtdeclarative5-private-dev (>= 5.3),
                qtquick1-5-dev (>= 5.3),
@@ -22,8 +19,6 @@ Build-Depends: debhelper (>= 9),
                libicu-dev,
                libglib2.0-dev,
                pkg-config,
-               qtcreator-plugin-cmake-dev (>= 3.1.1~),
-               qtcreator-plugin-remotelinux-dev (>= 3.1.1~),
 Standards-Version: 3.9.4
 Homepage: https://launchpad.net/qtcreator-plugin-ubuntu
 # If you aren't a member of ~ubuntu-sdk-team but need to upload packaging changes,
@@ -43,8 +38,6 @@ Depends: android-tools-adb,
          qtcreator-plugin-ubuntu-common,
          ubuntu-ui-toolkit-doc,
          rsync,
-         qtcreator-plugin-cmake (>= 3.1.1~),
-         qtcreator-plugin-remotelinux (>= 3.1.1~),
          qtdeclarative5-controls-plugin,
          webapp-container [i386 amd64 armhf],
 # Only for unity8-supported archs

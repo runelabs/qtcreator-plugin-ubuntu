@@ -53,9 +53,9 @@ public:
 protected:
     // BaseFileWizard interface
     virtual Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const override;
-    QWizard *createWizardDialog(QWidget *parent,
-                                const Core::WizardDialogParameters &wizardDialogParameters) const override;
-    bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage) override;
+    Core::BaseFileWizard *create(QWidget *parent,
+                                 const Core::WizardDialogParameters &wizardDialogParameters) const override;
+    bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage) const override;
 
 private:
     Core::FeatureSet requiredFeatures() const;
@@ -66,7 +66,8 @@ class UbuntuProjectApplicationWizardDialog : public ProjectExplorer::BaseProject
 {
     Q_OBJECT
 public:
-    explicit UbuntuProjectApplicationWizardDialog(QWidget *parent,
+    explicit UbuntuProjectApplicationWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                                  QWidget *parent,
                                                   UbuntuProjectApplicationWizard::ProjectType type,
                                                   const Core::WizardDialogParameters &parameters);
     virtual ~UbuntuProjectApplicationWizardDialog();
@@ -84,12 +85,12 @@ private:
     UbuntuProjectApplicationWizard::ProjectType m_type;
 };
 
-template <class Wizard,UbuntuProjectApplicationWizard::ProjectType type> class UbuntuWizardFactory : public ProjectExplorer::ICustomWizardFactory
+template <class Wizard,UbuntuProjectApplicationWizard::ProjectType type> class UbuntuWizardFactory : public ProjectExplorer::ICustomWizardMetaFactory
 {
 public:
-    UbuntuWizardFactory(const QString &klass, Core::IWizard::WizardKind kind) : ICustomWizardFactory(klass, kind) { }
-    UbuntuWizardFactory(Core::IWizard::WizardKind kind) : ICustomWizardFactory(QString(), kind) { }
-    ProjectExplorer::CustomWizard *create() const { return new Wizard(type); }
+    UbuntuWizardFactory(const QString &klass, Core::IWizardFactory::WizardKind kind) : ICustomWizardMetaFactory(klass, kind) { }
+    UbuntuWizardFactory(Core::IWizardFactory::WizardKind kind) : ICustomWizardMetaFactory(QString(), kind) { }
+    ProjectExplorer::CustomWizard *create() const override { return new Wizard(type); }
 };
 
 } // namespace Internal

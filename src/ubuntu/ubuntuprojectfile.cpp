@@ -26,7 +26,8 @@ UbuntuProjectFile::UbuntuProjectFile(UbuntuProject *parent, QString fileName)
       m_fileName(fileName) {
     QTC_CHECK(m_project);
     QTC_CHECK(!fileName.isEmpty());
-    setFilePath(fileName);
+    setFilePath(Utils::FileName::fromString(fileName));
+    setMimeType(QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE));
 }
 
 bool UbuntuProjectFile::save(QString *, const QString &, bool) {
@@ -39,10 +40,6 @@ QString UbuntuProjectFile::defaultPath() const {
 
 QString UbuntuProjectFile::suggestedFileName() const {
     return QString();
-}
-
-QString UbuntuProjectFile::mimeType() const {
-    return QLatin1String(Constants::UBUNTUPROJECT_MIMETYPE);
 }
 
 bool UbuntuProjectFile::isModified() const {

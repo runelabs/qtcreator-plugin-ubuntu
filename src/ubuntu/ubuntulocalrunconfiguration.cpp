@@ -22,11 +22,11 @@
 #include "ubuntuclickmanifest.h"
 #include "ubunturemoterunconfiguration.h"
 #include "ubuntucmakecache.h"
+#include "ubuntuprojecthelper.h"
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
@@ -35,21 +35,37 @@
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakenodes.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
+#include <qmljs/parser/qmldirparser_p.h>
+#include <qmljs/parser/qmlerror.h>
+
 using namespace Ubuntu::Internal;
 
 enum {
     debug = 1
 };
 
+UbuntuLocalEnvironmentAspect::UbuntuLocalEnvironmentAspect(ProjectExplorer::RunConfiguration *parent)
+    : LocalEnvironmentAspect(parent)
+{
+}
+
+Utils::Environment UbuntuLocalEnvironmentAspect::baseEnvironment() const
+{
+    Utils::Environment env = LocalEnvironmentAspect::baseEnvironment();
+    if (const UbuntuLocalRunConfiguration *rc = qobject_cast<const UbuntuLocalRunConfiguration *>(runConfiguration()))
+        rc->addToBaseEnvironment(env);
+    return env;
+}
+
 UbuntuLocalRunConfiguration::UbuntuLocalRunConfiguration(ProjectExplorer::Target *parent, Core::Id id)
-    : ProjectExplorer::LocalApplicationRunConfiguration(parent, id)
+    : ProjectExplorer::RunConfiguration(parent, id)
 {
     setDisplayName(appId());
-    addExtraAspect(new ProjectExplorer::LocalEnvironmentAspect(this));
+    addExtraAspect(new UbuntuLocalEnvironmentAspect(this));
 }
 
 UbuntuLocalRunConfiguration::UbuntuLocalRunConfiguration(ProjectExplorer::Target *parent, UbuntuLocalRunConfiguration *source)
-    : ProjectExplorer::LocalApplicationRunConfiguration(parent,source)
+    : ProjectExplorer::RunConfiguration(parent,source)
 {
 }
 
@@ -78,7 +94,7 @@ QString UbuntuLocalRunConfiguration::executable() const
 
 QString UbuntuLocalRunConfiguration::workingDirectory() const
 {
-    return m_workingDir;
+    return m_workingDir.toString();
 }
 
 QString UbuntuLocalRunConfiguration::commandLineArguments() const
@@ -86,22 +102,32 @@ QString UbuntuLocalRunConfiguration::commandLineArguments() const
     return Utils::QtcProcess::joinArgs(m_args);
 }
 
-ProjectExplorer::LocalApplicationRunConfiguration::RunMode UbuntuLocalRunConfiguration::runMode() const
+ProjectExplorer::ApplicationLauncher::Mode UbuntuLocalRunConfiguration::runMode() const
 {
-    return Gui;
+    return ProjectExplorer::ApplicationLauncher::Gui;
 }
 
-bool UbuntuLocalRunConfiguration::ensureConfigured(QString *errorMessage)
+ProjectExplorer::RunConfiguration::ConfigurationState UbuntuLocalRunConfiguration::ensureConfigured(QString *)
 {
-    if(!LocalApplicationRunConfiguration::ensureConfigured(errorMessage))
-        return false;
+    return Configured;
+}
 
+bool UbuntuLocalRunConfiguration::aboutToStart(QString *errorMessage)
+{
     if(target()->project()->id() != Constants::UBUNTUPROJECT_ID) {
         QString idString = id().toString();
-        if(idString.startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_APP_ID)))
-            return ensureClickAppConfigured(errorMessage);
-        else if(idString.startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_SCOPE_ID)))
-            return ensureScopesAppConfigured(errorMessage);
+        if(idString.startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_APP_ID))) {
+            if (ensureClickAppConfigured(errorMessage))
+                return true;
+            else
+                return false;
+        }
+        else if(idString.startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_SCOPE_ID))) {
+            if (ensureScopesAppConfigured(errorMessage))
+                return true;
+            else
+                return false;
+        }
 
         //all other hook types can not be configured
         //should never happen
@@ -110,7 +136,10 @@ bool UbuntuLocalRunConfiguration::ensureConfigured(QString *errorMessage)
         return false;
     }
 
-    return ensureUbuntuProjectConfigured(errorMessage);
+    if (ensureUbuntuProjectConfigured(errorMessage))
+        return true;
+
+    return false;
 }
 
 QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfiguration* config, QString appId, QString *errorMessage)
@@ -139,7 +168,7 @@ QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfigur
         //For a locally compiled project, we have no CLICK_MODE enabled, that means we have to search
         //the project and build trees for our desktop file so we can query the main qml file from the desktop file
 
-        Utils::FileName projectDir = Utils::FileName::fromString(config->target()->project()->projectDirectory());
+        Utils::FileName projectDir = config->target()->project()->projectDirectory();
 
         //lambda that searches for the desktop file in the project and build directory
         auto searchDesktopFile = [&]( const QString &desktopFileName ){
@@ -151,7 +180,7 @@ QString UbuntuLocalRunConfiguration::getDesktopFile(ProjectExplorer::RunConfigur
             if (!desktopInfo.exists()) {
 
                 //search again in the project directory
-                desktopInfo = UbuntuProjectHelper::findFileRecursive(Utils::FileName::fromString(config->target()->project()->projectDirectory()),
+                desktopInfo = UbuntuProjectHelper::findFileRecursive(config->target()->project()->projectDirectory(),
                                                                       desktopFinder).toFileInfo();
 
                 if(!desktopInfo.exists())
@@ -316,7 +345,7 @@ bool UbuntuLocalRunConfiguration::ensureClickAppConfigured(QString *errorMessage
     if(!UbuntuLocalRunConfiguration::readDesktopFile(desktopFile,&command,&args,errorMessage))
         return false;
 
-    m_workingDir = target()->activeBuildConfiguration()->buildDirectory().toString();
+    m_workingDir = target()->activeBuildConfiguration()->buildDirectory();
 
     QFileInfo commInfo(command);
     if(commInfo.fileName().startsWith(QLatin1String("qmlscene"))) {
@@ -336,7 +365,7 @@ bool UbuntuLocalRunConfiguration::ensureClickAppConfigured(QString *errorMessage
             return false;
         }
 
-        QFileInfo mainFileInfo = UbuntuProjectHelper::findFileRecursive(Utils::FileName::fromString(target()->project()->projectDirectory()),
+        QFileInfo mainFileInfo = UbuntuProjectHelper::findFileRecursive(target()->project()->projectDirectory(),
                                                                          QString::fromLatin1("^%1$").arg(mainQml)).toFileInfo();
 
         if(!mainFileInfo.exists()) {
@@ -372,7 +401,7 @@ bool UbuntuLocalRunConfiguration::ensureClickAppConfigured(QString *errorMessage
             CMakeProjectManager::CMakeProject* proj = static_cast<CMakeProjectManager::CMakeProject*> (target()->project());
             QList<CMakeProjectManager::CMakeBuildTarget> targets = proj->buildTargets();
             foreach (const CMakeProjectManager::CMakeBuildTarget& t, targets) {
-                if(t.library)
+                if(t.targetType != CMakeProjectManager::ExecutableType)
                     continue;
 
                 QFileInfo targetInfo(t.executable);
@@ -398,18 +427,14 @@ bool UbuntuLocalRunConfiguration::ensureClickAppConfigured(QString *errorMessage
     return true;
 }
 
-bool UbuntuLocalRunConfiguration::ensureScopesAppConfigured(QString *errorMessage)
+bool UbuntuLocalRunConfiguration::ensureScopesAppConfigured(QString *)
 {
-    m_workingDir = target()->activeBuildConfiguration()->buildDirectory().toString();
+    m_workingDir = target()->activeBuildConfiguration()->buildDirectory();
 
-    Utils::Environment env = Utils::Environment::systemEnvironment();
-    m_executable = env.searchInPath(QString::fromLatin1(Ubuntu::Constants::UBUNTUSCOPES_PROJECT_LAUNCHER_EXE));
+    Utils::FileName exec = Utils::FileName::fromString(Ubuntu::Constants::UBUNTU_SCRIPTPATH);
+    exec.appendPath(QLatin1String(Ubuntu::Constants::UBUNTUSCOPES_PROJECT_LAUNCHER_EXE));
 
-    if(m_executable.isEmpty()) {
-        if(errorMessage)
-            *errorMessage = tr("Could not find launcher %1 in path").arg(QLatin1String(Ubuntu::Constants::UBUNTUSCOPES_PROJECT_LAUNCHER_EXE));
-        return false;
-    }
+    m_executable = exec.toString();
 
     Utils::FileName iniFile = UbuntuProjectHelper::findScopesIniRecursive(target()->activeBuildConfiguration()->buildDirectory(),appId());
     if(iniFile.toFileInfo().exists())
@@ -425,16 +450,19 @@ bool UbuntuLocalRunConfiguration::ensureUbuntuProjectConfigured(QString *errorMe
         m_workingDir = ubuntuProject->projectDirectory();
         if (ubuntuProject->mainFile().compare(QString::fromLatin1("www/index.html"), Qt::CaseInsensitive) == 0) {
             Utils::Environment env = Utils::Environment::systemEnvironment();
-            m_executable = env.searchInPath(QString::fromLatin1(Ubuntu::Constants::UBUNTUHTML_PROJECT_LAUNCHER_EXE));
-            m_args = QStringList()<<QString::fromLatin1("--www=%0/www").arg(ubuntuProject->projectDirectory())
+            m_executable = env.searchInPath(QString::fromLatin1(Ubuntu::Constants::UBUNTUHTML_PROJECT_LAUNCHER_EXE)).toString();
+            m_args = QStringList()<<QString::fromLatin1("--www=%0/www").arg(ubuntuProject->projectDirectory().toString())
                                   <<QString::fromLatin1("--inspector");
         } else if (ubuntuProject->mainFile().endsWith(QStringLiteral(".desktop"), Qt::CaseInsensitive)) {
             Utils::Environment env = Utils::Environment::systemEnvironment();
 
-            if(!readDesktopFile(ubuntuProject->projectDirectory()+QDir::separator()+ubuntuProject->mainFile(),&m_executable,&m_args,errorMessage))
+            if(!readDesktopFile(ubuntuProject->projectDirectory()
+                                .appendPath(ubuntuProject->mainFile())
+                                .toString()
+                                ,&m_executable,&m_args,errorMessage))
                 return false;
 
-            m_executable = env.searchInPath(QString::fromLatin1(Ubuntu::Constants::UBUNTUWEBAPP_PROJECT_LAUNCHER_EXE));
+            m_executable = env.searchInPath(QString::fromLatin1(Ubuntu::Constants::UBUNTUWEBAPP_PROJECT_LAUNCHER_EXE)).toString();
         } else {
             m_executable = QtSupport::QtKitInformation::qtVersion(target()->kit())->qmlsceneCommand();
             m_args = QStringList()<<QString(QLatin1String("%0.qml")).arg(ubuntuProject->displayName());
@@ -460,11 +488,38 @@ void UbuntuLocalRunConfiguration::addToBaseEnvironment(Utils::Environment &env) 
 
     //lambda checks if the executable is in a qmldir and add its to QML2_IMPORT_PATH if
     //required
-    auto loc_addToImportPath = [&usedPaths,&env] (const QString &loc_executable) {
-        QDir d = QFileInfo(loc_executable).absoluteDir();
-        if(debug) qDebug()<<"Looking in the dir: "<<d.absolutePath()<<loc_executable;
-        if(d.exists(QLatin1String("qmldir"))) {
-            QString path = QDir::cleanPath(d.absolutePath()+QDir::separator()+QLatin1String(".."));
+    auto loc_addToImportPath = [&usedPaths,&env] (const QString &loc_buildDir) {
+        const QString absolutePath = loc_buildDir;
+        if(debug) qDebug()<<"Looking in the dir: "<<absolutePath;
+
+        QFileInfo qmldir = UbuntuProjectHelper::findFileRecursive(
+                    Utils::FileName::fromString(absolutePath),
+                    QStringLiteral("qmldir")).toFileInfo();
+
+        if (!qmldir.exists())
+            return;
+
+        QString absoluteQmlDirPath = qmldir.absolutePath();
+        QFile qmldirFile(qmldir.absoluteFilePath());
+        if (!qmldirFile.open(QIODevice::ReadOnly))
+            return;
+
+        QString qmldirData = QString::fromUtf8(qmldirFile.readAll());
+
+        QmlDirParser parser;
+        parser.parse(qmldirData);
+        if (parser.hasError()) {
+            if(debug) qDebug()<<"Unable to parse the qmldir file ";
+            return;
+        }
+
+        QString nameSpacePath = parser.typeNamespace();
+        nameSpacePath.replace(QStringLiteral("."), QStringLiteral("/"));
+
+        if (debug) qDebug()<<absoluteQmlDirPath<<" should contain "<<nameSpacePath;
+
+        if (qmldir.absolutePath().endsWith(nameSpacePath)) {
+            QString path = QDir::cleanPath(absoluteQmlDirPath.left(absoluteQmlDirPath.length() - nameSpacePath.length()));
             if(usedPaths.contains(path))
                 return;
 
@@ -479,22 +534,47 @@ void UbuntuLocalRunConfiguration::addToBaseEnvironment(Utils::Environment &env) 
             CMakeProjectManager::CMakeProject* proj = static_cast<CMakeProjectManager::CMakeProject*> (target()->project());
             QList<CMakeProjectManager::CMakeBuildTarget> targets = proj->buildTargets();
             foreach (const CMakeProjectManager::CMakeBuildTarget& t, targets) {
-                if(t.library)
-                    loc_addToImportPath(t.executable);
+                if(t.targetType == CMakeProjectManager::DynamicLibraryType)
+                    loc_addToImportPath(t.workingDirectory);
             }
         } else if (target()->project()->id() == QmakeProjectManager::Constants::QMAKEPROJECT_ID) {
             QmakeProjectManager::QmakeProject* pro = static_cast<QmakeProjectManager::QmakeProject*> (target()->project());
             foreach(const QmakeProjectManager::QmakeProFileNode* applPro, pro->allProFiles()) {
                 if(applPro->projectType() != QmakeProjectManager::ApplicationTemplate &&
-                        applPro->projectType() != QmakeProjectManager::LibraryTemplate) {
+                        applPro->projectType() != QmakeProjectManager::SharedLibraryTemplate &&
+                        applPro->projectType() != QmakeProjectManager::ScriptTemplate &&
+                        applPro->projectType() != QmakeProjectManager::AuxTemplate) {
                     continue;
                 }
 
                 QmakeProjectManager::TargetInformation info = applPro->targetInformation();
                 if(applPro->targetInformation().valid)
-                    loc_addToImportPath(info.buildDir + QDir::separator() + info.target);
+                    loc_addToImportPath(info.buildDir);
+
+                // The user could be linking to a library found via a -L/some/dir switch
+                // to find those libraries while actually running we explicitly prepend those
+                // dirs to the library search path
+                const QStringList libDirectories = applPro->variableValue(QmakeProjectManager::LibDirectoriesVar);
+                if (!libDirectories.isEmpty()) {
+                    const QString proDirectory = applPro->buildDir();
+                    foreach (QString dir, libDirectories) {
+                        // Fix up relative entries like "LIBS+=-L.."
+                        const QFileInfo fi(dir);
+                        if (!fi.isAbsolute())
+                            dir = QDir::cleanPath(proDirectory + QLatin1Char('/') + dir);
+                        env.prependOrSetLibrarySearchPath(dir);
+                    } // foreach
+                } // libDirectories
             }
         }
+
+        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit());
+        if (qtVersion)
+            env.prependOrSetLibrarySearchPath(qtVersion->qmakeProperty("QT_INSTALL_LIBS"));
     }
 }
 
+bool UbuntuLocalRunConfiguration::isConfigured() const
+{
+    return true;
+}
