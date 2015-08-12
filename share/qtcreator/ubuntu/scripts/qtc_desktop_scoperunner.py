@@ -52,7 +52,7 @@ except ValueError as err:
 #the scope tmpdir, as this is desktop its always unconfined (for now)
 tmpdir  = os.path.expanduser('~')+"/.local/share/unity-scopes/unconfined/"+packagename+"/"
 if(not os.path.exists(tmpdir)):
-    os.mkdir(tmpdir)
+    os.makedirs(tmpdir)
 
 print ("ScopeRunner> Setting up environment")
 print ("ScopeRunner> TmpDir:      "+tmpdir)
