@@ -1,3 +1,11 @@
+qtcreator-plugin-ubuntu (3.5.0+15.10.20150817-0ubuntu1) wily; urgency=medium
+
+  [ Timo Jyrinki ]
+  * Remove unneeded Qt Script and Qt Quick 1 (LP: #1485539) (LP:
+    #1485539)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Mon, 17 Aug 2015 10:44:47 +0000
+
 qtcreator-plugin-ubuntu (3.5.0+15.10.20150812-0ubuntu1) wily; urgency=medium
 
   [ Benjamin Zeller ]
