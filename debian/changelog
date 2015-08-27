@@ -1,3 +1,14 @@
+qtcreator-plugin-ubuntu (3.1.1+15.10.201507827-0ubuntu1~0vivid1) vivid; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Catch "permission denied" error if opening syslog is not allowed
+  * Fix LP: #1480771 "Wrong directory used for translation"
+  * Fix LP: #1443351 ".desktop file is not translated for qmake based projects"
+  * Fix LP: #1479581 "Debug helper is disabled by default"
+  * Fix LP: #1481325 "fix i18n integration in qmake template" 
+
+ -- Zoltán Balogh <zoltan@bakter.hu>  Thu, 27 Aug 2015 13:46:21 +0300
+
 qtcreator-plugin-ubuntu (3.1.1+15.10.20150720-0ubuntu1) wily; urgency=medium
 
   [ Alexandre Abreu ]
