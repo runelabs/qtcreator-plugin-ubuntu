@@ -21,20 +21,21 @@ UBUNTU_TRANSLATION_DOMAIN="%ProjectName:l%.%ClickDomain:l%"
 # template is created in po/template.pot, to create a
 # translation copy the template to e.g. de.po and edit the sources
 UBUNTU_TRANSLATION_SOURCES+= \
-    $$files(app/*.qml,true) \
-    $$files(app/*.js,true)
+    $$files(*.qml,true) \
+    $$files(*.js,true) \
+    $$files(*.desktop,true)
 
 # specifies all translations files and makes sure they are
 # compiled and installed into the right place in the click package
 UBUNTU_PO_FILES+=$$files(po/*.po)
 
 aptest.target   = autopilot
-aptest.commands = bash $$PWD/app/tests/autopilot/run
-aptest.depends  = sub-app
+aptest.commands = bash $$PWD/%ClickHookName%/tests/autopilot/run
+aptest.depends  = sub-%ClickHookName%
 
 unittest.target   = check
-unittest.commands = /usr/bin/qmltestrunner -input $$PWD/app/tests/unit
-unittest.depends  = sub-app
+unittest.commands = /usr/bin/qmltestrunner -input $$PWD/%ClickHookName%/tests/unit
+unittest.depends  = sub-%ClickHookName%
 
 QMAKE_EXTRA_TARGETS += aptest unittest
 

@@ -62,7 +62,7 @@ UbuntuPackageStep::UbuntuPackageStep(ProjectExplorer::BuildStepList *bsl) :
                            false).toBool();
 
     if (!settings.value(QLatin1String(Constants::SETTINGS_KEY_ENABLE_DEBUG_HELPER_DEFAULT),
-                       false).toBool())
+                       true).toBool())
         m_debugMode = DisableDebugScript;
 
     settings.endGroup();
