@@ -32,7 +32,10 @@ UbuntuSecurityPolicyPickerDialog::UbuntuSecurityPolicyPickerDialog(const QString
     ui->listViewPolicyGroups->setModel(&m_model);
     ui->stackedWidget->setCurrentIndex(0);
 
-    connect(ui->listViewPolicyGroups,SIGNAL(clicked(QModelIndex)),this,SLOT(onPolicyClicked(QModelIndex)));
+    QItemSelectionModel *selModel = ui->listViewPolicyGroups->selectionModel();
+    connect(selModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this, SLOT(onPolicyClicked(QModelIndex)));
+
     connect(&m_info,SIGNAL(infoReady(bool)),this,SLOT(onInfoChanged(bool)));
 }
 
@@ -44,6 +47,9 @@ UbuntuSecurityPolicyPickerDialog::~UbuntuSecurityPolicyPickerDialog()
 void UbuntuSecurityPolicyPickerDialog::onScanComplete(bool ok) {
     if (ok) {
         ui->stackedWidget->setCurrentIndex(1);
+        ui->listViewPolicyGroups->selectionModel()->setCurrentIndex(m_model.index(0,0),
+                                                                    QItemSelectionModel::SelectCurrent);
+        ui->listViewPolicyGroups->setFocus();
     } else {
         ui->stackedWidget->setCurrentIndex(2);
     }

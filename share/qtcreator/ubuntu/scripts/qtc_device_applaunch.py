@@ -441,7 +441,7 @@ print("Sdk-Launcher> Installing application .....",flush=True)
 success = subprocess.call(
     ["pkcon","--allow-untrusted","install-local",options.clickPck,"-p"])
 if success != 0:
-    print("Sdk-Launcher> Installing the application failed",flush=True)
+    print("Sdk-Launcher> Installing the application failed",flush=True,file=sys.stderr)
     sys.exit(1)
 
 print("Sdk-Launcher> Application installed successfully",flush=True)
@@ -451,6 +451,7 @@ stdoutPipeName  = None
 procStdOut      = None
 stderrPipeName  = None
 procStdErr      = None
+syslogHandle    = None
 
 try:
     confined = is_confined(manifest,hook_name)
@@ -494,8 +495,12 @@ try:
     stderrPipeName = tmp_dir+app_id+".stderr"
     procStdErr = create_procpipe(stderrPipeName,on_proc_stderr)
 
-    syslogFileName = "/var/log/syslog"
-    syslogHandle = create_filelistener("/var/log/syslog",on_syslog_update)
+    try:
+        syslogFileName = "/var/log/syslog"
+        syslogHandle = create_filelistener("/var/log/syslog",on_syslog_update)
+    except OSError:
+        print("Sdk-Launcher> Not able to open syslog, apparmor errors will not be reported.",flush=True,file=sys.stderr)
+
 
     if "unix_signal_add" in dir(GLib):
         GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGTERM, on_sigterm, runner)

@@ -70,6 +70,9 @@
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
         <widget class="QGroupBox" name="groupBox">
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
          <property name="title">
           <string>Available Policy Groups</string>
          </property>
@@ -81,6 +84,9 @@
               <width>200</width>
               <height>16777215</height>
              </size>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::StrongFocus</enum>
             </property>
             <property name="showDropIndicator" stdset="0">
              <bool>false</bool>
@@ -195,6 +201,13 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>listViewPolicyGroups</tabstop>
+  <tabstop>textBrowserEditInfo</tabstop>
+  <tabstop>pushButtonAdd</tabstop>
+  <tabstop>pushButtonCancel</tabstop>
+  <tabstop>lineEditPolicyGroup</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
