@@ -4,6 +4,7 @@
 #include "ubuntudevice.h"
 #include "ubuntuclickdialog.h"
 #include "ubuntuqtversion.h"
+#include "settings.h"
 
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kit.h>
@@ -306,7 +307,7 @@ void UbuntuKitManager::autoDetectKits()
         if (!tool)
             return;
 
-        QString basePath = QStringLiteral("%1/ubuntu-sdk").arg(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation));
+        QString basePath = Settings::settingsPath().toString();
         if (tool->cmakeExecutable().toString().startsWith(basePath)) {
             qDebug()<<"Setting mapper to "<<tool->displayName();
             tool->setPathMapper(&UbuntuClickTool::mapIncludePathsForCMake);
@@ -332,7 +333,7 @@ ProjectExplorer::Kit *UbuntuKitManager::createKit(ClickToolChain *tc)
     //@TODO find a qt version
     ProjectExplorer::Kit* newKit = new ProjectExplorer::Kit;
     newKit->setAutoDetected(false); //let the user delete that stuff
-    newKit->setIconPath(Utils::FileName::fromString(QLatin1String(Constants::UBUNTU_MODE_WEB_ICON)));
+    newKit->setIconPath(Utils::FileName::fromString(QLatin1String(Constants::UBUNTU_ICON)));
     ProjectExplorer::ToolChainKitInformation::setToolChain(newKit, tc);
 
     CMakeProjectManager::CMakeTool *cmake = createOrFindCMakeTool(tc);

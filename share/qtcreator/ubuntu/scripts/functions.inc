@@ -23,7 +23,15 @@ set -e
 
 SCRIPTPATH=`dirname $0`
 SERIALNUMBER=$1
-CONFIGDIR=~/.config/ubuntu-sdk
+
+if [ -z "$USDK_CONF_DIR" ]; then
+    echo "USDK_CONF_DIR not set falling back to default"
+    CONFIGDIR=~/.config/QtProject/qtcreator/ubuntu-sdk
+    exit 1
+else
+    CONFIGDIR=$USDK_CONF_DIR
+fi
+
 SSHIDENTITY=${CONFIGDIR}/ubuntudevice_id_rsa
 USERNAME=phablet
 

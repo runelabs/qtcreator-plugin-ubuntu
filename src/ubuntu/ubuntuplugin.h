@@ -29,6 +29,7 @@
 #include "ubuntupackagingmode.h"
 #include "ubuntusettingsdeviceconnectivitypage.h"
 #include "ubuntusettingsclickpage.h"
+#include "settings.h"
 
 #include <extensionsystem/iplugin.h>
 
@@ -58,6 +59,7 @@ protected:
     UbuntuMenu             *m_ubuntuMenu;
     UbuntuPackagingMode    *m_ubuntuPackagingMode;
     QAction                *m_migrateProjectAction;
+    Settings                m_settings;
 
     ProjectExplorer::Project *m_currentContextMenuProject;
 };

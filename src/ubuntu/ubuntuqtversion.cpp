@@ -1,5 +1,6 @@
 #include "ubuntuqtversion.h"
 #include "ubuntuconstants.h"
+#include "settings.h"
 
 #include <qtsupport/qtsupportconstants.h>
 
@@ -14,7 +15,7 @@ const char SCRIPT_VERSION_KEY[] = "UbuntuQtVersion.ScriptVersion";
 
 /*!
  * \brief MIN_SCRIPT_VERSION
- * Increment this version if all qmake scripts in ~/.config/ubuntu-sdk
+ * Increment this version if all qmake scripts in <confdir>/ubuntu-sdk
  * need to be recreated
  */
 const int  MIN_SCRIPT_VERSION   = 2;
@@ -116,7 +117,7 @@ QtSupport::BaseQtVersion *UbuntuQtVersionFactory::create(const Utils::FileName &
 {
     Q_UNUSED(evaluator);
     //we only care about our qmakes
-    if(!qmakePath.toFileInfo().absolutePath().contains(QStringLiteral(".config/ubuntu-sdk")))
+    if(!qmakePath.toFileInfo().absolutePath().contains(Settings::settingsPath().toString()))
         return 0;
 
     return new UbuntuQtVersion(qmakePath,isAutoDetected,autoDetectionSource);

@@ -24,6 +24,7 @@
 #include "ubuntuclicktool.h"
 #include "localportsmanager.h"
 #include "clicktoolchain.h"
+#include "settings.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <remotelinux/genericlinuxdeviceconfigurationwidget.h>
@@ -978,7 +979,9 @@ void UbuntuDevice::setupPrivateKey()
         return;
 
     QSsh::SshConnectionParameters params = this->sshParameters();
-    params.privateKeyFile = QString::fromLatin1(Constants::UBUNTU_DEVICE_SSHIDENTITY).arg(QDir::homePath());
+    params.privateKeyFile = Settings::settingsPath()
+            .appendPath(QLatin1String(Constants::UBUNTU_DEVICE_SSHIDENTITY))
+            .toString();
 
     setSshParameters(params);
 }

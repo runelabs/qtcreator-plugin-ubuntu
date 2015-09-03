@@ -21,6 +21,7 @@
 #include "ubuntuconstants.h"
 #include "ubuntushared.h"
 #include "clicktoolchain.h"
+#include "settings.h"
 
 #include <QRegularExpression>
 #include <QDir>
@@ -480,9 +481,10 @@ QString UbuntuClickTool::mapIncludePathsForCMake(ProjectExplorer::Kit *k, const 
 
 QString UbuntuClickTool::findOrCreateToolWrapper (const QString &tool, const UbuntuClickTool::Target &target)
 {
-    QString baseDir = QStringLiteral("%1/ubuntu-sdk/%2-%3").arg(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation))
-            .arg(target.framework)
-            .arg(target.architecture);
+    QString baseDir = Settings::settingsPath()
+            .appendPath(QStringLiteral("%1-%2")
+                        .arg(target.framework)
+                        .arg(target.architecture)).toString();
 
     QDir d(baseDir);
     if(!d.exists()) {
@@ -618,8 +620,9 @@ UbuntuClickFrameworkProvider::UbuntuClickFrameworkProvider()
     Q_ASSERT_X(m_instance == nullptr,Q_FUNC_INFO,"UbuntuClickFrameworkProvider can only be instantiated once");
     m_instance = this;
 
-    m_cacheFilePath = QStringLiteral("%1/ubuntu-sdk/framework-cache.json")
-            .arg(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation));
+    m_cacheFilePath = Settings::settingsPath()
+            .appendPath(QStringLiteral("framework-cache.json"))
+            .toString();
 
     m_manager = new QNetworkAccessManager(this);
     m_cacheUpdateTimer = new QTimer(this);

@@ -345,32 +345,7 @@ const char  UBUNTU_MODE_DEVICES_DISPLAYNAME[] = "Devices";
 const char  UBUNTU_MODE_DEVICES_ICON[] = ":/ubuntu/images/device.png";
 const int   UBUNTU_MODE_DEVICES_PRIORITY = 11;
 
-const char  UBUNTU_MODE_WEB[] = "UbuntuWeb";
-const char  UBUNTU_MODE_WEB_DISPLAYNAME[] = "WEB";
-const char  UBUNTU_MODE_WEB_ICON[] = ":/ubuntu/images/ubuntu-32.png";
-const int   UBUNTU_MODE_WEB_PRIORITY = 10;
-
-const char  UBUNTU_MODE_PASTEBIN[] = "UbuntuPasteBin";
-const char  UBUNTU_MODE_PASTEBIN_DISPLAYNAME[] = "Pastebin";
-
-const char  UBUNTU_MODE_IRC[] = "UbuntuIRC";
-const char  UBUNTU_MODE_IRC_DISPLAYNAME[] = "IRC";
-
-const char  UBUNTU_MODE_API[] = "UbuntuAPI";
-const char  UBUNTU_MODE_API_DISPLAYNAME[] = "API";
-
-const char  UBUNTU_MODE_COREAPPS[] = "UbuntuCoreApps";
-const char  UBUNTU_MODE_COREAPPS_DISPLAYNAME[] = "Core Apps";
-
-const char  UBUNTU_MODE_WIKI[] = "UbuntuWiki";
-const char  UBUNTU_MODE_WIKI_DISPLAYNAME[] = "Wiki";
-
-const char  UBUNTU_IRC[] = "http://webchat.freenode.net/?channels=ubuntu-app-devel";
-const char  UBUNTU_API_ONLINE[] = "http://developer.ubuntu.com/api/qml/current";
-const char  UBUNTU_API_OFFLINE[] = "%1/share/ubuntu-ui-toolkit/doc/html/overview-ubuntu-sdk.html";
-const char  UBUNTU_COREAPPS[] = "https://launchpad.net/ubuntu-phone-coreapps/";
-const char  UBUNTU_WIKI[] = "https://wiki.ubuntu.com/Touch";
-const char  UBUNTU_PASTEBIN[] = "http://pastebin.ubuntu.com";
+const char  UBUNTU_ICON[] = ":/ubuntu/images/ubuntu-32.png";
 
 const char  FEATURE_UNITY_SCOPE[] = "Ubuntu.Wizards.FeatureUnityScope";
 const char  FEATURE_UBUNTU_PRECISE[] = "Ubuntu.Wizards.FeatureUbuntuPrecise";
@@ -418,12 +393,6 @@ const char  SETTINGS_KEY_IP[] = "IP";
 const char  SETTINGS_KEY_QML[] = "QML";
 const char  SETTINGS_KEY_SSH[] = "SSH";
 const char  SETTINGS_KEY_AUTOTOGGLE[] = "Auto_Toggle";
-const char  SETTINGS_KEY_AUTO_CHECK_CHROOT_UPDATES[] = "Auto_Check_Chroot_Updates";
-const char  SETTINGS_KEY_CHROOT_USE_LOCAL_MIRROR[] = "Chroot_Use_Local_Mirror";
-const char  SETTINGS_KEY_TREAT_REVIEW_ERRORS_AS_WARNINGS[] = "Treat_Review_Warnings_As_Errors";
-const char  SETTINGS_KEY_ENABLE_DEBUG_HELPER_DEFAULT[] = "Enable_Debug_Helper_By_Default";
-const char  SETTINGS_KEY_UNINSTALL_APPS_FROM_DEVICE_DEFAULT[] = "Uninstall_Apps_From_Device_By_Default";
-const char  SETTINGS_KEY_OVERRIDE_APPS_BY_DEFAULT[] = "Override_Apps_By_Default";
 
 //const char  SETTINGS_GROUP_CLICK[] = "Click";
 //const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS[] = "ReviewersToolsEnabled";
@@ -512,7 +481,7 @@ const char UBUNTU_CLICK_QML_BUILD_TRANSL_MAKESTEP[]      = "UbuntuProjectManager
 const char UBUNTU_CLICK_QML_BUILD_TRANSL_DIR[]      = "mo";
 //Devicesupport
 const char UBUNTU_DEVICE_TYPE_ID[] = "UbuntuProjectManager.DeviceTypeId";
-const char UBUNTU_DEVICE_SSHIDENTITY[] = "%0/.config/ubuntu-sdk/ubuntudevice_id_rsa";
+const char UBUNTU_DEVICE_SSHIDENTITY[] = "ubuntudevice_id_rsa";
 
 //Deploysupport
 const char UBUNTU_DEPLOYCONFIGURATION_ID[]       = "UbuntuProjectManager.DeployConfiguration";
