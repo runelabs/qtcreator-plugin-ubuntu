@@ -375,34 +375,6 @@ const char  TASK_DEVICE_SCRIPT[] = "Ubuntu.Task.DeviceScript";
 
 const char  UBUNTU_SETTINGS_ICON[] = ":/ubuntu/images/ubuntu-32.png";
 
-/*
-const char  SETTINGS_DEFAULT_DEVICE_USERNAME[] = "phablet";
-const char  SETTINGS_DEFAULT_DEVICE_IP[] = "127.0.0.1";
-const int   SETTINGS_DEFAULT_DEVICE_QML_PORT = 3768;
-const int   SETTINGS_DEFAULT_DEVICE_SSH_PORT = 2222;
-const bool  SETTINGS_DEFAULT_DEVICES_AUTOTOGGLE = true;
-
-const char  SETTINGS_COMPANY[] = "Canonical";
-const char  SETTINGS_PRODUCT[] = "UbuntuSDK";
-const char  SETTINGS_GROUP_CLICK[] = "Click";
-const char  SETTINGS_GROUP_PROJECT_DEFAULTS[] = "ProjectDefaults";
-const char  SETTINGS_GROUP_DEVICE_CONNECTIVITY[] = "DeviceConnectivity";
-const char  SETTINGS_GROUP_DEVICES[] = "Devices";
-
-const char  SETTINGS_KEY_USERNAME[] = "Username";
-const char  SETTINGS_KEY_IP[] = "IP";
-const char  SETTINGS_KEY_QML[] = "QML";
-const char  SETTINGS_KEY_SSH[] = "SSH";
-const char  SETTINGS_KEY_AUTOTOGGLE[] = "Auto_Toggle";
-
-const char  SETTINGS_GROUP_CLICK[] = "Click";
-const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS[] = "ReviewersToolsEnabled";
-const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS_LOCATION[] = "ReviewersToolsLocation";
-const bool  SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS = false;
-const bool  SETTINGS_CLICK_REVIEWERSTOOLS_TRUE = true;
-const char  UBUNTUSETTINGSCLICKWIDGET_FILEDIALOG[] = "Location of click-reviewers-tools";
-*/
-
 //review tools
 const char    CLICK_REVIEWERSTOOLS_BINARY[]   = "/usr/bin/click-review";
 const char    CLICK_REVIEWERSTOOLS_ARGS[]     = "--sdk \"%0\"";
