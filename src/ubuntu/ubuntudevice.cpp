@@ -753,10 +753,7 @@ void UbuntuDeviceHelper::enablePortForward()
         ports.append(QString::number(copy.getNext()));
 
     //@TODO per device settings
-    QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
-    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICE_CONNECTIVITY));
     QString deviceSshPort = QString::number(connParms.port);
-
     QStringList args = QStringList()
             << m_dev->serialNumber()
             <<deviceSshPort
@@ -813,11 +810,7 @@ void UbuntuDeviceHelper::deployPublicKey()
     setProcessState(UbuntuDevice::DeployPublicKey);
     beginAction(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SETUP_PUBKEY_AUTH));
 
-    QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
-    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICE_CONNECTIVITY));
-    QString deviceUsername = settings.value(QLatin1String(Constants::SETTINGS_KEY_USERNAME),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_USERNAME)).toString();
-
-
+    QString deviceUsername = Settings::deviceConnectivity().user;
 
     stopProcess();
     startProcess(QString::fromLatin1(Constants::UBUNTUDEVICESWIDGET_SETUP_PUBKEY_AUTH_SCRIPT)
@@ -956,13 +949,12 @@ UbuntuDevice::UbuntuDevice(const UbuntuDevice &other)
  */
 void UbuntuDevice::loadDefaultConfig()
 {
-    QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
-    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICE_CONNECTIVITY));
+    Settings::DeviceConnectivity devConn = Settings::deviceConnectivity();
 
-    QString ip            = settings.value(QLatin1String(Constants::SETTINGS_KEY_IP),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_IP)).toString();
-    QString username      = settings.value(QLatin1String(Constants::SETTINGS_KEY_USERNAME),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_USERNAME)).toString();
+    QString ip            = devConn.ip;
+    QString username      = devConn.user;
     //even though this is set here, it will be changed dynamically when the device is connected
-    QString deviceSshPort = QString::number(Constants::SETTINGS_DEFAULT_DEVICE_SSH_PORT);
+    QString deviceSshPort = QString::number(devConn.sshPort);
     QSsh::SshConnectionParameters params;
     params.authenticationType = QSsh::SshConnectionParameters::AuthenticationTypePublicKey;
     params.host = ip;

@@ -38,7 +38,7 @@ public:
     virtual ~Settings();
 
     void restoreSettings ();
-    void flushSettings ();
+    static void flushSettings ();
 
     static Utils::FileName settingsPath ();
 

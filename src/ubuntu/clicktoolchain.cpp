@@ -40,6 +40,9 @@ QLatin1String UBUNTU_TARGET_SERIES_KEY = QLatin1String("Ubuntu.ClickToolChain.Ta
 QLatin1String UBUNTU_TARGET_MINOR_KEY = QLatin1String("Ubuntu.ClickToolChain.Target.MinorV");
 QLatin1String UBUNTU_TARGET_MAJOR_KEY = QLatin1String("Ubuntu.ClickToolChain.Target.MajorV");
 
+
+const char UBUNTU_CLICK_GCC_WRAPPER[]    = "qtc_chroot_gcc";    //deprecated just for updating
+
 #if 1
 static QMap <QString,ProjectExplorer::Abi> init_architectures()
 {
@@ -253,7 +256,7 @@ ProjectExplorer::ToolChain *ClickToolChainFactory::restore(const QVariantMap &da
     if (tc->fromMap(data)) {
         QFileInfo compilerCommand(tc->compilerCommand().toString());
         //deprecated wrapper script, update to use the new one
-        if(compilerCommand.fileName() == QString::fromLatin1(Constants::UBUNTU_CLICK_GCC_WRAPPER)) {
+        if(compilerCommand.fileName() == QString::fromLatin1(UBUNTU_CLICK_GCC_WRAPPER)) {
             QString wrapper = UbuntuClickTool::findOrCreateGccWrapper(tc->clickTarget());
 
             //if we cannot create a good wrapper its better to drop the ToolChain

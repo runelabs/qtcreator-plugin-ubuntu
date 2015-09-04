@@ -21,29 +21,30 @@
 #include "ubuntuconstants.h"
 #include "ubuntuclicktool.h"
 #include "ubuntuclickdialog.h"
+#include "settings.h"
+
 #include <QFileDialog>
 #include <QDir>
 #include <QRegExp>
 #include <QTreeWidgetItem>
 #include <QDebug>
 
-using namespace Ubuntu;
-
 enum {
     debug = 0
 };
 
+namespace Ubuntu { namespace Internal {
+
 UbuntuSettingsClickWidget::UbuntuSettingsClickWidget(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::UbuntuSettingsClickWidget)
+    ui(new ::Ui::UbuntuSettingsClickWidget)
 {
     ui->setupUi(this);
 
-    m_settings = new QSettings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
-    m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_CLICK));
-    ui->enableUpdateCheckerCheckBox->setChecked(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_AUTO_CHECK_CHROOT_UPDATES),true).toBool());
-    ui->checkBoxLocalMirror->setChecked(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_CHROOT_USE_LOCAL_MIRROR),false).toBool());
-    m_settings->endGroup();
+    Settings::ChrootSettings def = Settings::chrootSettings();
+
+    ui->enableUpdateCheckerCheckBox->setChecked(def.autoCheckForUpdates);
+    ui->checkBoxLocalMirror->setChecked(def.useLocalMirror);
 
     m_deleteMapper = new QSignalMapper(this);
     connect(m_deleteMapper, SIGNAL(mapped(int)),this, SLOT(on_deleteClickChroot(int)));
@@ -66,12 +67,11 @@ UbuntuSettingsClickWidget::UbuntuSettingsClickWidget(QWidget *parent) :
 
 void UbuntuSettingsClickWidget::apply() {
 
-    m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_CLICK));
-    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_AUTO_CHECK_CHROOT_UPDATES),ui->enableUpdateCheckerCheckBox->checkState() == Qt::Checked);
-    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_CHROOT_USE_LOCAL_MIRROR),ui->checkBoxLocalMirror->checkState() == Qt::Checked);
-    m_settings->endGroup();
-
-    m_settings->sync();
+    Settings::ChrootSettings set;
+    set.autoCheckForUpdates = ui->enableUpdateCheckerCheckBox->checkState() == Qt::Checked;
+    set.useLocalMirror = ui->checkBoxLocalMirror->checkState() == Qt::Checked;
+    Settings::setChrootSettings(set);
+    Settings::flushSettings();
 }
 
 UbuntuSettingsClickWidget::~UbuntuSettingsClickWidget()
@@ -155,3 +155,5 @@ void UbuntuSettingsClickWidget::listExistingClickTargets()
         ui->treeWidgetClickTargets->setIndexWidget(model->index(i,5), push);
     }
 }
+
+}}

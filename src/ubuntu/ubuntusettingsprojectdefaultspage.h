@@ -7,7 +7,6 @@
 #include <QPointer>
 
 class QWidget;
-class QSettings;
 
 namespace Ubuntu {
 namespace Internal {
@@ -28,7 +27,6 @@ signals:
 public slots:
 
 private:
-    QSettings *m_settings;
     QPointer<QWidget> m_widget;
     ::Ui::UbuntuSettingsDefaultPage *m_ui;
 

@@ -25,7 +25,7 @@ SCRIPTPATH=`dirname $0`
 SERIALNUMBER=$1
 
 if [ -z "$USDK_CONF_DIR" ]; then
-    echo "USDK_CONF_DIR not set falling back to default"
+    echo "USDK_CONF_DIR not set falling back to default" >> /tmp/errorstuff
     CONFIGDIR=~/.config/QtProject/qtcreator/ubuntu-sdk
     exit 1
 else

@@ -5,6 +5,7 @@
 #include "ubuntuprojecthelper.h"
 #include "ubuntuclickmanifest.h"
 #include "ubuntupackageoutputparser.h"
+#include "settings.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
@@ -52,19 +53,10 @@ UbuntuPackageStep::UbuntuPackageStep(ProjectExplorer::BuildStepList *bsl) :
 {
     setDefaultDisplayName(tr("UbuntuSDK Click build"));
 
-    QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),
-                       QLatin1String(Constants::SETTINGS_PRODUCT));
+    m_treatClickErrorsAsWarnings = Settings::projectDefaults().reviewErrorsAsWarnings;
 
-    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_PROJECT_DEFAULTS));
-    m_treatClickErrorsAsWarnings =
-            settings.value(QLatin1String(Constants::SETTINGS_KEY_TREAT_REVIEW_ERRORS_AS_WARNINGS),
-                           false).toBool();
-
-    if (!settings.value(QLatin1String(Constants::SETTINGS_KEY_ENABLE_DEBUG_HELPER_DEFAULT),
-                       false).toBool())
+    if (!Settings::projectDefaults().enableDebugHelper)
         m_debugMode = DisableDebugScript;
-
-    settings.endGroup();
 }
 
 UbuntuPackageStep::UbuntuPackageStep(ProjectExplorer::BuildStepList *bsl, UbuntuPackageStep *other) :

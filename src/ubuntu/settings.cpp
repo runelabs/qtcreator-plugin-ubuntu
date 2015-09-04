@@ -11,6 +11,7 @@
 #include <QString>
 #include <QVariant>
 #include <QDebug>
+#include <QProcess>
 
 namespace {
 static const char UBUNTUSDK_DATA_KEY[] = "UbuntuSdk.";
@@ -51,6 +52,13 @@ Settings::Settings()
     Q_ASSERT_X(!m_instance, Q_FUNC_INFO, "There can be only one Settings instance");
     m_instance = this;
 
+    //set default values
+    setChrootSettings(ChrootSettings());
+    setDeviceConnectivity(DeviceConnectivity());
+    setProjectDefaults(ProjectDefaults());
+    setDeviceAutoToggle(DEFAULT_DEVICES_AUTOTOGGLE);
+
+    //load migrate old settings
     migrateSettings();
 
     //create ubuntu-sdk directory if it does not exist
@@ -73,46 +81,73 @@ Settings::~Settings()
 
 void Settings::migrateSettings()
 {
-    QVariantMap migrated;
-    QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),
-                       QLatin1String(Constants::SETTINGS_PRODUCT));
+    QString oldConfDirPath = QStringLiteral("%0/.config/ubuntu-sdk").arg(QDir::homePath());
+    QDir oldConfDir(oldConfDirPath);
+    if (oldConfDir.exists() && !settingsPath().exists()) {
+        QSettings settings(QStringLiteral("Canonical"),
+                           QStringLiteral("UbuntuSDK"));
 
-    ChrootSettings defChrootSettings;
-    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_CLICK));
+        ChrootSettings defChrootSettings;
+        settings.beginGroup(QStringLiteral("Click"));
 
-    migrated[QLatin1String(KEY_AUTO_CHECK_CHROOT_UPDATES)]
-            = settings.value(QStringLiteral("Auto_Check_Chroot_Updates"),
-                             defChrootSettings.autoCheckForUpdates).toBool();
+        m_settings[QLatin1String(KEY_AUTO_CHECK_CHROOT_UPDATES)]
+                = settings.value(QStringLiteral("Auto_Check_Chroot_Updates"),
+                                 defChrootSettings.autoCheckForUpdates).toBool();
 
-    migrated[QLatin1String(KEY_CHROOT_USE_LOCAL_MIRROR)]
-            = settings.value(QStringLiteral("Chroot_Use_Local_Mirror"),
-                             defChrootSettings.autoCheckForUpdates).toBool();
+        m_settings[QLatin1String(KEY_CHROOT_USE_LOCAL_MIRROR)]
+                = settings.value(QStringLiteral("Chroot_Use_Local_Mirror"),
+                                 defChrootSettings.autoCheckForUpdates).toBool();
 
-    settings.endGroup();
+        settings.endGroup();
 
-    ProjectDefaults defProjectDefaults;
-    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_PROJECT_DEFAULTS));
-    migrated[QLatin1String(KEY_ENABLE_DEBUG_HELPER_DEFAULT)]
-            = settings.value(QStringLiteral("Enable_Debug_Helper_By_Default")
-                             ,defProjectDefaults.enableDebugHelper).toBool();
+        ProjectDefaults defProjectDefaults;
+        settings.beginGroup(QStringLiteral("ProjectDefaults"));
+        m_settings[QLatin1String(KEY_ENABLE_DEBUG_HELPER_DEFAULT)]
+                = settings.value(QStringLiteral("Enable_Debug_Helper_By_Default")
+                                 ,defProjectDefaults.enableDebugHelper).toBool();
 
-    migrated[QLatin1String(KEY_OVERRIDE_APPS_BY_DEFAULT)]
-            = settings.value(QStringLiteral("Override_Apps_By_Default")
-                             ,defProjectDefaults.overrideAppsByDefault).toBool();
+        m_settings[QLatin1String(KEY_OVERRIDE_APPS_BY_DEFAULT)]
+                = settings.value(QStringLiteral("Override_Apps_By_Default")
+                                 ,defProjectDefaults.overrideAppsByDefault).toBool();
 
-    migrated[QLatin1String(KEY_UNINSTALL_APPS_FROM_DEVICE_DEFAULT)]
-            = settings.value(QStringLiteral("Uninstall_Apps_From_Device_By_Default")
-                             ,defProjectDefaults.uninstallAppsByDefault).toBool();
+        m_settings[QLatin1String(KEY_UNINSTALL_APPS_FROM_DEVICE_DEFAULT)]
+                = settings.value(QStringLiteral("Uninstall_Apps_From_Device_By_Default")
+                                 ,defProjectDefaults.uninstallAppsByDefault).toBool();
 
-    migrated[QLatin1String(KEY_TREAT_REVIEW_ERRORS_AS_WARNINGS)]
-            = settings.value(QStringLiteral("Treat_Review_Warnings_As_Errors")
-                             ,defProjectDefaults.reviewErrorsAsWarnings).toBool();
-    settings.endGroup();
+        m_settings[QLatin1String(KEY_TREAT_REVIEW_ERRORS_AS_WARNINGS)]
+                = settings.value(QStringLiteral("Treat_Review_Warnings_As_Errors")
+                                 ,defProjectDefaults.reviewErrorsAsWarnings).toBool();
+        settings.endGroup();
+
+        FileName parentDir = settingsPath().parentDir();
+        if (!parentDir.exists()) {
+            QDir d;
+            if (!d.mkpath(parentDir.toString())) {
+                qWarning()<<"Could not create settings directory";
+                return;
+            }
+        }
+
+        //moving the old settings directory is enough, the ubuntu kit manager
+        //will fix the scriptpaths in the existing Kits later
+        if (!QDir().rename(oldConfDirPath,settingsPath().toString())) {
+            QStringList args = {
+                oldConfDirPath,
+                settingsPath().toString()
+            };
+
+            if (QProcess::execute(QStringLiteral("mv"), args) != 0)
+                qWarning()<<"Could not rename the old settings directory to "<<settingsPath().toString();
+        }
+    }
 }
 
 FileName Settings::settingsPath()
 {
-    return FileName::fromString(QFileInfo(Core::ICore::settings()->fileName()).absolutePath());
+    return FileName::fromString(
+                settingsFileName(QLatin1String(UBUNTUSDK_FILENAME))
+                .toFileInfo()
+                .absolutePath());
 }
 
 void Settings::restoreSettings()
@@ -121,12 +156,6 @@ void Settings::restoreSettings()
     m_writer = new PersistentSettingsWriter(
                 settingsFileName(QLatin1String(UBUNTUSDK_FILENAME)),
                 QLatin1String("UbuntuSDKSettings"));
-
-    //migrate old QSettings
-    /*
-     *     QString file = QStringLiteral("%1/.config/ubuntu-sdk/firstrun")
-            .arg(QDir::homePath());
-            */
 
     PersistentSettingsReader read;
     if (read.load(settingsFileName(QLatin1String(UBUNTUSDK_FILENAME), QSettings::SystemScope)))
@@ -145,8 +174,8 @@ void Settings::restoreSettings()
 
 void Settings::flushSettings()
 {
-    m_settings[QLatin1String(UBUNTUSDK_FILE_VERSION_KEY)] = 1;
-    m_writer->save(m_settings, Core::ICore::mainWindow());
+    m_instance->m_settings[QLatin1String(UBUNTUSDK_FILE_VERSION_KEY)] = 1;
+    m_instance->m_writer->save(m_instance->m_settings, Core::ICore::mainWindow());
 }
 
 Settings::DeviceConnectivity Settings::deviceConnectivity()

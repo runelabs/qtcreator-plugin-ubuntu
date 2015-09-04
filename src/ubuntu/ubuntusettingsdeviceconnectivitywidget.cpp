@@ -19,6 +19,7 @@
 #include "ubuntusettingsdeviceconnectivitywidget.h"
 #include "ui_ubuntusettingsdeviceconnectivitywidget.h"
 #include "ubuntuconstants.h"
+#include "settings.h"
 
 using namespace Ubuntu;
 
@@ -27,16 +28,12 @@ UbuntuSettingsDeviceConnectivityWidget::UbuntuSettingsDeviceConnectivityWidget(Q
     ui(new Ui::UbuntuSettingsDeviceConnectivityWidget)
 {
     ui->setupUi(this);
-    m_settings = new QSettings(QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
 
-    m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICE_CONNECTIVITY));
-    ui->lineEditDeviceUserName->setText(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_USERNAME),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_USERNAME)).toString());
-    ui->lineEditDeviceIP->setText(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_IP),QLatin1String(Constants::SETTINGS_DEFAULT_DEVICE_IP)).toString());
-    m_settings->endGroup();
+    Internal::Settings::DeviceConnectivity devConn = Internal::Settings::deviceConnectivity();
 
-    m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICES));
-    ui->checkBox_mode_devices_autotoggle->setChecked(m_settings->value(QLatin1String(Constants::SETTINGS_KEY_AUTOTOGGLE),Constants::SETTINGS_DEFAULT_DEVICES_AUTOTOGGLE).toBool());
-    m_settings->endGroup();
+    ui->lineEditDeviceUserName->setText(devConn.user);
+    ui->lineEditDeviceIP->setText(devConn.ip);
+    ui->checkBox_mode_devices_autotoggle->setChecked(Internal::Settings::deviceAutoToggle());
 }
 
 UbuntuSettingsDeviceConnectivityWidget::~UbuntuSettingsDeviceConnectivityWidget()
@@ -45,14 +42,11 @@ UbuntuSettingsDeviceConnectivityWidget::~UbuntuSettingsDeviceConnectivityWidget(
 }
 
 void UbuntuSettingsDeviceConnectivityWidget::apply() {
-    m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICE_CONNECTIVITY));
-    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_USERNAME),ui->lineEditDeviceUserName->text());
-    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_IP),ui->lineEditDeviceIP->text());
-    m_settings->endGroup();
 
-    m_settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP_DEVICES));
-    m_settings->setValue(QLatin1String(Constants::SETTINGS_KEY_AUTOTOGGLE),ui->checkBox_mode_devices_autotoggle->isChecked());
-    m_settings->endGroup();
-
-    m_settings->sync();
+    Internal::Settings::DeviceConnectivity devConn = Internal::Settings::deviceConnectivity();
+    devConn.user = ui->lineEditDeviceUserName->text();
+    devConn.ip   = ui->lineEditDeviceIP->text();
+    Internal::Settings::setDeviceConnectivity(devConn);
+    Internal::Settings::setDeviceAutoToggle(ui->checkBox_mode_devices_autotoggle->isChecked());
+    Internal::Settings::flushSettings();
 }

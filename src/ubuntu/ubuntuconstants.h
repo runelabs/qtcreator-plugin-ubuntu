@@ -375,6 +375,7 @@ const char  TASK_DEVICE_SCRIPT[] = "Ubuntu.Task.DeviceScript";
 
 const char  UBUNTU_SETTINGS_ICON[] = ":/ubuntu/images/ubuntu-32.png";
 
+/*
 const char  SETTINGS_DEFAULT_DEVICE_USERNAME[] = "phablet";
 const char  SETTINGS_DEFAULT_DEVICE_IP[] = "127.0.0.1";
 const int   SETTINGS_DEFAULT_DEVICE_QML_PORT = 3768;
@@ -394,12 +395,13 @@ const char  SETTINGS_KEY_QML[] = "QML";
 const char  SETTINGS_KEY_SSH[] = "SSH";
 const char  SETTINGS_KEY_AUTOTOGGLE[] = "Auto_Toggle";
 
-//const char  SETTINGS_GROUP_CLICK[] = "Click";
-//const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS[] = "ReviewersToolsEnabled";
-//const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS_LOCATION[] = "ReviewersToolsLocation";
-//const bool  SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS = false;
-//const bool  SETTINGS_CLICK_REVIEWERSTOOLS_TRUE = true;
-//const char  UBUNTUSETTINGSCLICKWIDGET_FILEDIALOG[] = "Location of click-reviewers-tools";
+const char  SETTINGS_GROUP_CLICK[] = "Click";
+const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS[] = "ReviewersToolsEnabled";
+const char  SETTINGS_KEY_CLICK_REVIEWERSTOOLS_LOCATION[] = "ReviewersToolsLocation";
+const bool  SETTINGS_DEFAULT_CLICK_REVIEWERSTOOLS = false;
+const bool  SETTINGS_CLICK_REVIEWERSTOOLS_TRUE = true;
+const char  UBUNTUSETTINGSCLICKWIDGET_FILEDIALOG[] = "Location of click-reviewers-tools";
+*/
 
 //review tools
 const char    CLICK_REVIEWERSTOOLS_BINARY[]   = "/usr/bin/click-review";
@@ -470,9 +472,6 @@ const char UBUNTU_CLICK_TOOLCHAIN_ID[]   = "UbuntuProjectManager.UbuntuGccToolCh
 const char UBUNTU_CLICK_CMAKE_TOOL_ID[]  = "UbuntuProjectManager.UbuntuCMake";
 const char UBUNTU_CLICK_CMAKE_BC_ID[]       = "UbuntuProjectManager.UbuntuCMake.BuildConfiguration";
 const char UBUNTU_CLICK_CMAKE_MAKESTEP_ID[] = "UbuntuProjectManager.UbuntuCMake.MakeStep";
-const char UBUNTU_CLICK_CMAKE_WRAPPER[]  = "%0/qtc_chroot_cmake2";
-const char UBUNTU_CLICK_MAKE_WRAPPER[]   = "%0/qtc_chroot_make2";  //deprecated
-const char UBUNTU_CLICK_GCC_WRAPPER[]    = "qtc_chroot_gcc";    //deprecated
 const char UBUNTU_CLICK_CHROOT_WRAPPER[] = "%0/qtc_chroot_wrapper.py";
 const char UBUNTU_CLICK_HTML_BC_ID[]     = "UbuntuProjectManager.UbuntuHTML5.BuildConfiguration";
 const char UBUNTU_CLICK_QML_BC_ID[]      = "UbuntuProjectManager.UbuntuQml.BuildConfiguration";

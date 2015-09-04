@@ -24,6 +24,7 @@
 #include "ubuntupackagestep.h"
 #include "ubuntuclickmanifest.h"
 #include "ui_ubunturemoterunconfigurationwidget.h"
+#include "settings.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
@@ -43,7 +44,6 @@
 #include <QVariantMap>
 #include <QVariant>
 #include <QFileInfo>
-#include <QSettings>
 
 namespace Ubuntu {
 namespace Internal {
@@ -64,17 +64,8 @@ UbuntuRemoteRunConfiguration::UbuntuRemoteRunConfiguration(ProjectExplorer::Targ
     setDisplayName(appId());
     addExtraAspect(new RemoteLinux::RemoteLinuxEnvironmentAspect(this));
 
-    QSettings settings(QLatin1String(Constants::SETTINGS_COMPANY),
-                       QLatin1String(Constants::SETTINGS_PRODUCT));
-
-    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_PROJECT_DEFAULTS));
-    m_forceInstall = settings.value(
-                QLatin1String(Constants::SETTINGS_KEY_OVERRIDE_APPS_BY_DEFAULT),
-                m_running).toBool();
-    m_uninstall = settings.value(
-                QLatin1String(Constants::SETTINGS_KEY_UNINSTALL_APPS_FROM_DEVICE_DEFAULT),
-                m_uninstall).toBool();
-    settings.endGroup();
+    m_forceInstall = Settings::projectDefaults().overrideAppsByDefault;
+    m_uninstall = Settings::projectDefaults().uninstallAppsByDefault;
 }
 
 UbuntuRemoteRunConfiguration::UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent, UbuntuRemoteRunConfiguration *source)
