@@ -284,7 +284,7 @@ bool UbuntuRemoteRunConfiguration::aboutToStart(QString *errorMessage)
             } else {
                 CMakeProjectManager::CMakeProject* pro = static_cast<CMakeProjectManager::CMakeProject*> (target()->project());
                 foreach(const CMakeProjectManager::CMakeBuildTarget &t, pro->buildTargets()) {
-                    if(!t.targetType != CMakeProjectManager::ExecutableType|| t.executable.isEmpty())
+                    if(t.targetType != CMakeProjectManager::ExecutableType|| t.executable.isEmpty())
                         continue;
 
                     QFileInfo execInfo(t.executable);
