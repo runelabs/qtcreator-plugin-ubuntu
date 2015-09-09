@@ -294,7 +294,7 @@ void UbuntuPackagingModel::on_pushButtonClickPackage_clicked() {
         return;
 
     QString mimeType = project->projectManager()->mimeType();
-    if(mimeType == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE)
+    if(mimeType == QLatin1String(CMakeProjectManager::Constants::CMAKEPROJECTMIMETYPE)
             || mimeType == QLatin1String(Ubuntu::Constants::UBUNTUPROJECT_MIMETYPE)
             || mimeType == QLatin1String(QmlProjectManager::Constants::QMLPROJECT_MIMETYPE)
             || mimeType == QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE)) {
@@ -428,7 +428,7 @@ void UbuntuPackagingModel::buildClickPackage()
     }
 
     QString mimeType = project->projectManager()->mimeType();
-    bool isCMake = mimeType == QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE);
+    bool isCMake = mimeType == QLatin1String(CMakeProjectManager::Constants::CMAKEPROJECTMIMETYPE);
     bool isHtml  = mimeType == QLatin1String(Ubuntu::Constants::UBUNTUPROJECT_MIMETYPE);
     bool isQml   = mimeType == QLatin1String(QmlProjectManager::Constants::QMLPROJECT_MIMETYPE);
     bool isQmake = mimeType == QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE);

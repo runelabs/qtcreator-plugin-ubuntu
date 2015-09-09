@@ -1,3 +1,19 @@
+qtcreator-plugin-ubuntu (3.5.0+15.10.20150902-0ubuntu1) wily; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Fixes Bug lp:1488085 "Navigating in the Add Security Policies window
+    is broken with keyboard" Fixes Bug lp:1489344 "Install on device is
+    broken" Fixes Bug lp:1489567 "Ubuntu gallery can not be openend"
+    Catch "permission denied" error if opening syslog is not allowed Fix
+    Bug lp:1480771 "Wrong directory used for translation" Fix Bug
+    lp:1443351 ".desktop file is not translated for qmake based
+    projects" Fix Bug lp:1479581 "Debug helper is disabled by default"
+    Fix Bug lp:1481325 "fix i18n integration in qmake template" (LP:
+    #1489344, #1480771, #1481325, #1488085, #1443351, #1479581,
+    #1489567)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Wed, 02 Sep 2015 15:32:19 +0000
+
 qtcreator-plugin-ubuntu (3.5.0+15.10.20150817-0ubuntu2) wily; urgency=medium
 
   * No-change rebuild against final Qt Creator 3.5.0.
