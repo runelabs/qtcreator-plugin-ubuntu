@@ -1,3 +1,12 @@
+qtcreator-plugin-ubuntu (3.5.0+15.10.20150910-0ubuntu1) wily; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Fix Bug lp:1488402 "Unify settings directories" Cleanup old scripts
+    Cleanup unused constants Fix CMake project execution on remote
+    devices (LP: #1488402)
+
+ -- Zoltan Balogh <zoltan.balogh@canonical.com>  Thu, 10 Sep 2015 08:47:43 +0000
+
 qtcreator-plugin-ubuntu (3.5.0+15.10.20150902-0ubuntu1) wily; urgency=medium
 
   [ Benjamin Zeller ]
