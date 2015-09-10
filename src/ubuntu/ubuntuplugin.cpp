@@ -116,20 +116,12 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     defaultFont.setFamily(QStringLiteral("Ubuntu"));
     defaultFont.setWeight(QFont::Light);
 
+    m_settings.restoreSettings();
+
     qmlRegisterUncreatableType<UbuntuQmlDeviceConnectionState>("Ubuntu.DevicesModel",0,1,"DeviceConnectionState",QStringLiteral("Not instantiable"));
     qmlRegisterUncreatableType<UbuntuQmlDeviceDetectionState>("Ubuntu.DevicesModel",0,1,"DeviceDetectionState",QStringLiteral("Not instantiable"));
     qmlRegisterUncreatableType<UbuntuQmlFeatureState>("Ubuntu.DevicesModel",0,1,"FeatureState",QStringLiteral("Not instantiable"));
     qmlRegisterUncreatableType<UbuntuQmlDeviceMachineType>("Ubuntu.DevicesModel",0,1,"DeviceMachineType",QStringLiteral("Not instantiable"));
-
-    //create .config/ubuntu-sdk directory if it does not exist
-    QString confdir = QStringLiteral("%1/.config/ubuntu-sdk")
-            .arg(QDir::homePath());
-
-    QDir d = QDir::root();
-    if(!d.exists(confdir)) {
-        if(!d.mkpath(confdir))
-            qWarning()<<"Unable to create Ubuntu-SDK configuration directory "<<confdir;
-    }
 
     Utils::MimeDatabase::addMimeTypes(QLatin1String(Constants::UBUNTU_MIMETYPE_XML));
 
@@ -294,8 +286,7 @@ void UbuntuPlugin::onKitsLoaded()
 
 void UbuntuPlugin::showFirstStartWizard()
 {
-    QString file = QStringLiteral("%1/.config/ubuntu-sdk/firstrun")
-            .arg(QDir::homePath());
+    QString file = m_settings.settingsPath().appendPath(QStringLiteral("firstrun")).toString();
 
     if(!QFile::exists(file)) {
         UbuntuFirstRunWizard wiz(Core::ICore::mainWindow());

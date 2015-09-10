@@ -116,7 +116,8 @@ SOURCES += \
     src/ubuntu/wizards/ubuntufatpackagingwizard.cpp \
     src/ubuntu/ubuntulocalruncontrolfactory.cpp \
     src/ubuntu/ubuntulocalscopedebugsupport.cpp \
-    src/ubuntu/ubuntusettingsprojectdefaultspage.cpp
+    src/ubuntu/ubuntusettingsprojectdefaultspage.cpp \
+    src/ubuntu/settings.cpp
 
 HEADERS += \
     src/ubuntu/ubuntuplugin.h \
@@ -196,7 +197,8 @@ HEADERS += \
     src/ubuntu/wizards/ubuntufatpackagingwizard.h \
     src/ubuntu/ubuntulocalruncontrolfactory.h \
     src/ubuntu/ubuntulocalscopedebugsupport.h\
-    src/ubuntu/ubuntusettingsprojectdefaultspage.h
+    src/ubuntu/ubuntusettingsprojectdefaultspage.h \
+    src/ubuntu/settings.h
 
 INCLUDEPATH+=$$OUT_PWD
 

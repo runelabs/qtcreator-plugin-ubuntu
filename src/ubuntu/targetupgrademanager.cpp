@@ -21,6 +21,7 @@
 #include "ubuntuconstants.h"
 #include "ubuntuclickdialog.h"
 #include "ui_targetupgrademanagerdialog.h"
+#include "settings.h"
 
 #include <coreplugin/coreplugin.h>
 #include <utils/qtcassert.h>
@@ -28,7 +29,6 @@
 #include <QProcess>
 #include <QString>
 #include <QPointer>
-#include <QSettings>
 #include <QProgressDialog>
 
 
@@ -43,11 +43,7 @@ TargetUpgradeManager::TargetUpgradeManager(QObject *parent) :
 
 void TargetUpgradeManager::checkForUpgrades()
 {
-    QSettings settings (QLatin1String(Constants::SETTINGS_COMPANY),QLatin1String(Constants::SETTINGS_PRODUCT));
-    settings.beginGroup(QLatin1String(Constants::SETTINGS_GROUP_CLICK));
-    bool set = settings.value(QLatin1String(Constants::SETTINGS_KEY_AUTO_CHECK_CHROOT_UPDATES),true).toBool();
-    settings.endGroup();
-
+    bool set = Settings::chrootSettings().autoCheckForUpdates;
     if(set && m_state == Idle) {
         m_state = CollectPendingUpdates;
         m_outdatedChroots.clear();

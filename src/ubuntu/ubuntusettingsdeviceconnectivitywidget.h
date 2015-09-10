@@ -19,7 +19,6 @@
 #define UBUNTUSETTINGSDEVICECONNECTIVITYWIDGET_H
 
 #include <QWidget>
-#include <QSettings>
 
 namespace Ui {
 class UbuntuSettingsDeviceConnectivityWidget;
@@ -37,7 +36,6 @@ public:
 
 private:
     Ui::UbuntuSettingsDeviceConnectivityWidget *ui;
-    QSettings* m_settings;
 };
 
 #endif // UBUNTUSETTINGSDEVICECONNECTIVITYWIDGET_H

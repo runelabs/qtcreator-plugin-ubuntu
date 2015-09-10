@@ -23,7 +23,14 @@ set -e
 
 SCRIPTPATH=`dirname $0`
 SERIALNUMBER=$1
-CONFIGDIR=~/.config/ubuntu-sdk
+
+if [ -z "$USDK_CONF_DIR" ]; then
+    echo "USDK_CONF_DIR must be set in order for this scripts to work" 
+    exit 1
+else
+    CONFIGDIR=$USDK_CONF_DIR
+fi
+
 SSHIDENTITY=${CONFIGDIR}/ubuntudevice_id_rsa
 USERNAME=phablet
 
