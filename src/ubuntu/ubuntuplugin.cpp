@@ -74,6 +74,7 @@
 #include <QFile>
 #include <QAction>
 #include <QProcess>
+#include <QProcessEnvironment>
 
 #include <coreplugin/icore.h>
 #include <stdint.h>
@@ -84,22 +85,28 @@ using namespace Ubuntu::Internal;
 UbuntuPlugin::UbuntuPlugin()
 {
     if(UbuntuClickTool::clickChrootSuffix() == QLatin1String(Constants::UBUNTU_CLICK_CHROOT_DEFAULT_NAME)) {
+
+        bool started = false;
 #ifdef UBUNTU_BUILD_ROOT
         Utils::FileName chrootAgent = Utils::FileName::fromString(QStringLiteral(UBUNTU_BUILD_ROOT));
         chrootAgent.appendPath(QStringLiteral("chroot-agent"))  //append dir
                 .appendPath(QStringLiteral("click-chroot-agent")); //append binary
 
-        bool started = false;
         if(chrootAgent.toFileInfo().isExecutable()) {
             started = QProcess::startDetached(chrootAgent.toFileInfo().absoluteFilePath());
         }
-        if(!started) {
-            QProcess::startDetached(QStringLiteral("click-chroot-agent"));
-        }
-#else
-        //start the chroot-agent
-        QProcess::startDetached(QStringLiteral("click-chroot-agent"));
 #endif
+        if(!started) {
+            Utils::FileName agent = Utils::FileName::fromString(QCoreApplication::applicationDirPath())
+                    .appendPath(QStringLiteral("click-chroot-agent"));
+
+            if (agent.toFileInfo().isExecutable()) {
+                QProcess::startDetached(agent.toString());
+            } else {
+                //start the chroot-agent
+                QProcess::startDetached(QStringLiteral("click-chroot-agent"));
+            }
+        }
     }
 }
 
