@@ -74,7 +74,6 @@
 #include <QFile>
 #include <QAction>
 #include <QProcess>
-#include <QProcessEnvironment>
 
 #include <coreplugin/icore.h>
 #include <stdint.h>
