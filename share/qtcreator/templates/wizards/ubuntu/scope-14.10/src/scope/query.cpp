@@ -10,6 +10,7 @@
 #include <unity/scopes/SearchReply.h>
 
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 
 namespace sc = unity::scopes;
