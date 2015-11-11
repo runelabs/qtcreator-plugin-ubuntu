@@ -1,3 +1,18 @@
+qtcreator-plugin-ubuntu (3.5.0+16.04.20151111.1-0ubuntu1) xenial; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Fix crash when there are no devices in the settings Fix possible
+    crash when a kit has not toolchain set Disable debug output
+  * Start click-chroot-agent from the install path when packaged as
+    ubuntu sdk-ide
+
+  [ Marcus Tomlinson ]
+  * Fixed scopes templates: OpenWeatherMap now requires an APPID key for
+    all requests. Fixed "'cerr' was not declared in this scope" error in
+    query.cpp. Fixed import in test-scope.py. (LP: #1508418)
+
+ -- Benjamin Zeller <ci-train-bot@canonical.com>  Wed, 11 Nov 2015 15:44:59 +0000
+
 qtcreator-plugin-ubuntu (3.5.0+15.10.20150910-0ubuntu1) wily; urgency=medium
 
   [ Benjamin Zeller ]
