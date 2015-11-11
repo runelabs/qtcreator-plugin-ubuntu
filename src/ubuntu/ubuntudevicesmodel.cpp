@@ -451,9 +451,11 @@ void UbuntuDevicesModel::readDevicesFromSettings()
         }
     }
 
-    beginInsertRows(QModelIndex(),0,devs.count()-1);
-    m_knownDevices = devs;
-    endInsertRows();
+    if (devs.count()) {
+        beginInsertRows(QModelIndex(),0,devs.count()-1);
+        m_knownDevices = devs;
+        endInsertRows();
+    }
 
     connect(devMgr,SIGNAL(deviceAdded(Core::Id)),this,SLOT(deviceAdded(Core::Id)),Qt::UniqueConnection);
     connect(devMgr,SIGNAL(deviceRemoved(Core::Id)),this,SLOT(deviceRemoved(Core::Id)),Qt::UniqueConnection);
