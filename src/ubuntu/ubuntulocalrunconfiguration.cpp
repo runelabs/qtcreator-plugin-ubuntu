@@ -41,7 +41,7 @@
 using namespace Ubuntu::Internal;
 
 enum {
-    debug = 1
+    debug = 0
 };
 
 UbuntuLocalEnvironmentAspect::UbuntuLocalEnvironmentAspect(ProjectExplorer::RunConfiguration *parent)
