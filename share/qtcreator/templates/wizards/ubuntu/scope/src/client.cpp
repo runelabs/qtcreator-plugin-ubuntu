@@ -288,14 +288,13 @@ Client::Current Client::weather(const string& query) {
     // Build a URI and get the contents.
     // The fist parameter forms the path part of the URI.
     // The second parameter forms the CGI parameters.
-    get(
-        { "data", "2.5", "weather" },
-        { { "q", query }, { "units", "metric" }
+    get( { "data", "2.5", "weather" },
+         { { "q", query }, { "units", "metric" }
+         , { "APPID", "2b12bf09b4e0ab0c1aa5e32a9a3f0cdc" }
 @if "%ContentType%" == "network-netcpp-qxml"
-        , { "mode", "xml" }
+         , { "mode", "xml" }
 @endif
-        },
-        root);
+         }, root);
     // e.g. http://api.openweathermap.org/data/2.5/weather?q=QUERY&units=metric
 
     Current result;
@@ -384,12 +383,13 @@ Client::Forecast Client::forecast_daily(const string& query, unsigned int cnt) {
     // Build a URI and get the contents
     // The fist parameter forms the path part of the URI.
     // The second parameter forms the CGI parameters.
-    get( { "data", "2.5", "forecast", "daily" }, { { "q", query }, { "units",
-            "metric" }, { "cnt", to_string(cnt) }
+    get( { "data", "2.5", "forecast", "daily" },
+         { { "q", query }, { "units", "metric" }, { "cnt", to_string(cnt) }
+         , { "APPID", "2b12bf09b4e0ab0c1aa5e32a9a3f0cdc" }
 @if "%ContentType%" == "network-netcpp-qxml"
-            , { "mode", "xml" }
+         , { "mode", "xml" }
 @endif
-        }, root);
+         }, root);
     // e.g. http://api.openweathermap.org/data/2.5/forecast/daily/?q=QUERY&units=metric&cnt=7
 
     Forecast result;

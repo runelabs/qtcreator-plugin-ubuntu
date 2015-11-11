@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
-from scope_harness import *
+from scope_harness import (
+    CategoryListMatcher, CategoryListMatcherMode, CategoryMatcher,
+    Parameters, ResultMatcher, ScopeHarness
+)
 from scope_harness.testing import *
 import unittest, sys, os
 from subprocess import Popen, PIPE
