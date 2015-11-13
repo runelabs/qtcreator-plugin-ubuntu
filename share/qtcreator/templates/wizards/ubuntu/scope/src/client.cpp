@@ -352,9 +352,7 @@ Client::Current Client::weather(const string& query) {
 
         /* If token is StartElement, we'll see if we can read it.*/
         if (token == QXmlStreamReader::StartElement) {
-            if (root.name() == "current") {
-                root.readNext();
-            } else if (root.name() == "city") {
+            if (root.name() == "city") {
                 parseCity(result.city, root);
             } else if (root.name() == "weather") {
                 parseWeather(result.weather, root);
@@ -463,9 +461,7 @@ Client::Forecast Client::forecast_daily(const string& query, unsigned int cnt) {
 
         /* If token is StartElement, we'll see if we can read it.*/
         if (token == QXmlStreamReader::StartElement) {
-            if (root.name() == "weatherdata") {
-                root.readNext();
-            } else if (root.name() == "location") {
+            if (root.name() == "location") {
                 parseLocation(result.city, root);
             } else if (root.name() == "forecast") {
                 parseForecast(result.weather, root);
