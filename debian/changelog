@@ -1,3 +1,12 @@
+qtcreator-plugin-ubuntu (3.5.0+16.04.20151113-0ubuntu1) xenial; urgency=medium
+
+  [ Marcus Tomlinson ]
+  * Fix mistake in XML scope templates where only odd numbered XML nodes
+    where being read, causing a blank top level "City, Country" title
+    (second node in XML)
+
+ -- Benjamin Zeller <ci-train-bot@canonical.com>  Fri, 13 Nov 2015 11:47:07 +0000
+
 qtcreator-plugin-ubuntu (3.5.0+16.04.20151111.1-0ubuntu1) xenial; urgency=medium
 
   [ Benjamin Zeller ]
