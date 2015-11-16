@@ -90,14 +90,6 @@ Description: Common data files for the Ubuntu plugin for Qt Creator IDE
  This package contains the runtime data files for the Ubuntu plugin for
  Qt Creator IDE.
 
-Package: ubuntu-sdk-qmake-extras
-Architecture: any
-Depends: ${misc:Depends},
-Description: Extra qmake features required by the Ubuntu-SDK templates,
- extends qmake projects with Ubuntu specific variables and tools
- .
- This package contains qmake feature files for the Ubuntu-SDK
-
 Package: qtcreator-plugin-ubuntu-autopilot
 Architecture: any
 Depends: ${misc:Depends},
