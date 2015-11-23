@@ -12,6 +12,7 @@ QML_FILES += \
     $$QML_ROOT/qml/Components/ScrollableView.qml \
     $$QML_ROOT/qml/Components/SectionItem.qml \
     $$QML_ROOT/qml/Components/Link.qml \
+    $$QML_ROOT/qml/Components/UbuntuStyleToolbar.qml \
     $$QML_ROOT/qml/DevicesPage/DevicePage.qml  \
     $$QML_ROOT/qml/DevicesPage/NewEmulatorDialog.qml \
     $$QML_ROOT/qml/DevicesPage/DeleteDeviceDialog.qml \
