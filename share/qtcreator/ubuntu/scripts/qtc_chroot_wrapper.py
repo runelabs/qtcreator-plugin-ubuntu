@@ -176,10 +176,10 @@ while True:
         break
 
 if(len(stdout) != 0):
-    sys.stdout.write(mapPaths(stdout))
+    sys.stdout.write(str(mapPaths(stdout).encode("utf-8")))
 
 if(len(stderr) != 0):
-    sys.stderr.write(mapPaths(stderr))
+    sys.stderr.write(str(mapPaths(stderr).encode("utf-8")))
 
 if (not pre_spawned_session):
     subprocess.call([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"end-session",session_id],stdout=subprocess.DEVNULL)
