@@ -36,7 +36,7 @@ set(DATA_DIR /)
 set(DESKTOP_DIR ${DATA_DIR})
 set(DESKTOP_FILE_NAME "%ClickHookName%.desktop")
 
-set(EXEC "qmlscene $@ ${%ProjectName:u%_DIR}/${MAIN_QML}")
+set(EXEC "qmlscene %U ${%ProjectName:u%_DIR}/${MAIN_QML}")
 
 # This command figures out the target architecture for use in the manifest file
 execute_process(

@@ -46,7 +46,7 @@ set(DESKTOP_DIR ${DATA_DIR})
 set(DESKTOP_FILE_NAME "%ClickHookName%.desktop")
 
 # This sets the commandline that is executed on the device
-set(EXEC "qmlscene $@ ${%ProjectName:u%_DIR}/${MAIN_QML}")
+set(EXEC "qmlscene %U ${%ProjectName:u%_DIR}/${MAIN_QML}")
 
 # Configures the manifest file. The manifest file describes the click package
 # to the target system. All cmake variables that are defined at this point
