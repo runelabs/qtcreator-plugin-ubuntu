@@ -38,6 +38,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
+#include <QCollator>
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
@@ -576,7 +577,11 @@ static bool caseInsensitiveFWLessThan(const QString &s1, const QString &s2)
     FrameworkDesc fwDesc1 = fwDescFromString(s1);
     FrameworkDesc fwDesc2 = fwDescFromString(s2);
 
-    int comp = QString::compare(fwDesc1.baseVersion,fwDesc2.baseVersion,Qt::CaseInsensitive);
+    QCollator coll;
+    coll.setNumericMode(true);
+    coll.setCaseSensitivity(Qt::CaseInsensitive);
+
+    int comp = coll.compare(fwDesc1.baseVersion,fwDesc2.baseVersion);
     if(comp < 0)
         return false;
     else if(comp > 0)
