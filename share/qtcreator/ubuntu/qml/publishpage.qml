@@ -104,11 +104,26 @@ MainView {
             }
         }
 
+        Row {
+            id: warningsRow
+            anchors.top: topRow.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.topMargin: units.gu(2)
+            spacing: units.gu(2)
+            visible: !publishModel.canBuild
+            Icon {
+                source: "qrc:/ubuntu/images/warning.png"
+            }
+            Label {
+                text: "The selected Kit does not support building click packages. Please make sure to select a Ubuntu Kit."
+            }
+        }
+
         ScrollableView {
             id: scrollView
             clip: true
 
-            anchors.top: topRow.bottom
+            anchors.top: warningsRow.bottom
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
