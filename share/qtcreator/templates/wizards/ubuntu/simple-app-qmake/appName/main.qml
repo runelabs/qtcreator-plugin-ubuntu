@@ -1,5 +1,5 @@
-import QtQuick 2.0
-import Ubuntu.Components 1.1
+import QtQuick 2.4
+import Ubuntu.Components 1.3
 
 /*!
     \brief MainView with a Label and Button elements.
@@ -18,9 +18,7 @@ MainView {
     */
     //automaticOrientation: true
 
-    // Removes the old toolbar and enables new features of the new header.                                                                                                                                  
-    useDeprecatedToolbar: false
-
+                                                                                                                                      
     width: units.gu(100)
     height: units.gu(75)
 
