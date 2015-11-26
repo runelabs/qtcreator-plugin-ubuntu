@@ -31,7 +31,7 @@ fi
 
 echo "Copying ubuntu-ui-toolkit-gallery from ${EXAMPLES_PATH} to /tmp"
 mkdir -p /tmp/ubuntu-ui-toolkit-gallery
-cp -r "${EXAMPLES_PATH}/ubuntu-ui-toolkit-gallery/*" /tmp/ubuntu-ui-toolkit-gallery
+cp -r "${EXAMPLES_PATH}/ubuntu-ui-toolkit-gallery"/* /tmp/ubuntu-ui-toolkit-gallery
 echo "Opening project in Qt Creator"
 qtcreator -client /tmp/ubuntu-ui-toolkit-gallery/ubuntu-ui-toolkit-gallery.qmlproject &
 echo "Launching the qmlscene"

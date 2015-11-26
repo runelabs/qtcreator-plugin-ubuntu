@@ -23,5 +23,10 @@
         <file>images/view-expand.svg</file>
         <file>images/view-collapse.svg</file>
         <file>click-framework.json</file>
+        <file>images/run.png</file>
+        <file>images/stop.png</file>
+        <file>images/warning.png</file>
+        <file>images/error.png</file>
+        <file>images/clear.png</file>
     </qresource>
 </RCC>

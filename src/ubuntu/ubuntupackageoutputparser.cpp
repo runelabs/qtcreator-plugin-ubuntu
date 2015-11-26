@@ -9,7 +9,7 @@ namespace Ubuntu {
 namespace Internal {
 
 const QRegularExpression DEBUG_POLICY_REGEX(QStringLiteral("security_policy_groups_safe_\\S+\\s+\\((\\S+)\\)"));
-const QRegularExpression DEBUG_SCOPE_POLICY_REGEX(QStringLiteral("security_policy_groups_scopes"));
+const QRegularExpression DEBUG_POLICY_REGEX_NEW(QStringLiteral("security:policy_groups_safe:[^:]+:(.*)"));
 const QRegularExpression DEBUG_INAPPROPRIATE_GROUP_TEXT_REGEX(QStringLiteral("found inappropriate policy groups:\\s+(.*)"));
 const QRegularExpression DEBUG_UNUSUAL_GROUP_TEXT_REGEX(QStringLiteral("found unusual policy groups:\\s+(.*)"));
 const QRegularExpression ARCHITECTURE_ERROR_REGEX(QStringLiteral("lint_(control|manifest)_architecture_valid"));
@@ -101,9 +101,10 @@ void UbuntuPackageOutputParser::emitTasks(const ClickRunChecksParser::DataItem *
     if(item->link.isValid())
         desc.append(QStringLiteral("\n")).append(item->link.toString());
 
-    QRegularExpressionMatch match = DEBUG_POLICY_REGEX.match(item->type);
-    if(match.captured(1) == DEBUG_POLICY_NAME)
-        desc.append(QStringLiteral("\n")).append(tr("The debug policy group is automatically injected and should only be used for development.\nTo create a package for the store use the publish tab!"));
+    QRegularExpressionMatch match  = DEBUG_POLICY_REGEX.match(item->type);
+    QRegularExpressionMatch match2 = DEBUG_POLICY_REGEX_NEW.match(item->type);
+    if(match.captured(1) == DEBUG_POLICY_NAME || match2.captured(1) == DEBUG_POLICY_NAME)
+        desc.append(QStringLiteral("\n")).append(tr("The debug policy group is automatically injected and should only be used for development.\nPlease use the publish mode to create a package for the store!"));
 
     task.description = desc;
     addTask(task);
@@ -115,6 +116,11 @@ bool UbuntuPackageOutputParser::isError(const ClickRunChecksParser::DataItem *it
     if(isError) {
         //add other error item types here if we just want them treated as warnings
         QRegularExpressionMatch match = DEBUG_POLICY_REGEX.match(item->type);
+        if(match.hasMatch()) {
+            if(match.captured(1) == DEBUG_POLICY_NAME)
+                return false;
+        }
+        match = DEBUG_POLICY_REGEX_NEW.match(item->type);
         if(match.hasMatch()) {
             if(match.captured(1) == DEBUG_POLICY_NAME)
                 return false;

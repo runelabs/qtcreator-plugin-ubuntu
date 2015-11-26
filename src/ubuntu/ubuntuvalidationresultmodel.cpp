@@ -141,13 +141,13 @@ QVariant UbuntuValidationResultModel::data(const QModelIndex &index, int role) c
             QString iconUrl;
             switch(item->icon){
                 case ClickRunChecksParser::Warning:
-                    iconUrl = QStringLiteral(":/projectexplorer/images/compile_warning.png");
+                    iconUrl = QStringLiteral(":/ubuntu/images/warning.png");
                     break;
                 case ClickRunChecksParser::Error:
-                    iconUrl = QStringLiteral(":/projectexplorer/images/compile_error.png");
+                    iconUrl = QStringLiteral(":/ubuntu/images/error.png");
                     break;
                 case ClickRunChecksParser::Check:
-                    iconUrl = QStringLiteral(":/projectexplorer/images/run.png");
+                    iconUrl = QStringLiteral(":/ubuntu/images/run.png");
                     break;
                 default:
                     break;

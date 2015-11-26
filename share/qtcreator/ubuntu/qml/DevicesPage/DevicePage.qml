@@ -246,7 +246,7 @@ Item {
                                 Controls.ToolButton {
                                     text: i18n.tr("Run Emulator")
                                     tooltip: text
-                                    iconSource: "qrc:/projectexplorer/images/run.png"
+                                    iconSource: "qrc:/ubuntu/images/run.png"
                                     height: parent.height - units.gu(1)
                                     width: height
                                     anchors.verticalCenter: parent.verticalCenter
@@ -256,7 +256,7 @@ Item {
                                 Controls.ToolButton {
                                     text: i18n.tr("Stop Emulator")
                                     tooltip: text
-                                    iconSource: "qrc:/projectexplorer/images/stop.png"
+                                    iconSource: "qrc:/ubuntu/images/stop.png"
                                     height: parent.height - units.gu(1)
                                     width: height
                                     anchors.verticalCenter: parent.verticalCenter
@@ -266,7 +266,7 @@ Item {
                                 Controls.ToolButton {
                                     text: i18n.tr("Delete")
                                     tooltip: text
-                                    iconSource: "qrc:/core/images/clear.png"
+                                    iconSource: "qrc:/ubuntu/images/clear.png"
                                     height: parent.height - units.gu(1)
                                     width: height
                                     anchors.verticalCenter: parent.verticalCenter

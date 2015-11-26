@@ -288,7 +288,7 @@ const char CLICK_REVIEWERSTOOLS_LOCATION[] = "/usr/bin/click-review --sdk \"%0\"
 const char UBUNTU_CLICK_OPEN_TERMINAL_ERROR[] = "Error when starting terminal";
 const char UBUNTU_CLICK_TARGETS_REGEX[] = "^%1-(.*)-([A-Za-z0-9]+)$";
 const char UBUNTU_CLICK_TARGETS_FRAMEWORK_REGEX[] = "^%1-(%2)-([A-Za-z0-9]+)$";
-const char UBUNTU_CLICK_BASE_FRAMEWORK_REGEX[] = "(ubuntu-(.*)-[0-9]{1,2}.[0-9]{1,2})";
+const char UBUNTU_CLICK_BASE_FRAMEWORK_REGEX[] = "(ubuntu-(.*)-[\\d]{1,2}\\.[\\d]{1,2}(\\.[\\d]+)?)";
 const char UBUNTU_CLICK_VERSION_REGEX[] = "^DISTRIB_RELEASE=([0-9]+)\\.([0-9]+)$";
 const char UBUNTU_CLICK_SERIES_REGEX[]  = "^DISTRIB_CODENAME=([A-Za-z]+)$";
 
