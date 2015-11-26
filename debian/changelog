@@ -1,3 +1,24 @@
+qtcreator-plugin-ubuntu (3.5.0+16.04.20151126-0ubuntu1) xenial; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Fix Bug lp:1494566 "Tools/Ubuntu/Showcase gallery is not working
+    after updating my SDK" Fix Bug lp:1499135 "Cannot deploy a scope
+    onto phone due to reserved policy group 'debug'" Fix Bug lp:1512072
+    "qtc_chroot_wrapper.py craches when build in non ASCII build dir"
+    Fix Bug lp:1519385: Latest framework is not presented as the default
+    (workaround) Move image files into our own plugin so we do not clash
+    with the scaling image provider of UITK (LP: #1512072, #1519385,
+    #1494566, #1499135)
+  * Migrate plugin to UITK 1.3
+
+  [ Zoltán Balogh ]
+  * Change exec line in desktop files. Fixes LP: #1495062 (LP: #1495062)
+  * Correct the READMe instruction of the webapp template. Fixes LP:
+    #1517196 (LP: #1517196)
+  * Migrate the templates to 1.3 UITK
+
+ -- Zoltan Balogh <zoltan.balogh@canonical.com>  Thu, 26 Nov 2015 05:24:55 +0000
+
 qtcreator-plugin-ubuntu (3.5.0+16.04.20151116.2-0ubuntu1) xenial; urgency=medium
 
   [ Zoltán Balogh ]
