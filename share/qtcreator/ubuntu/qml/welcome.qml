@@ -16,7 +16,7 @@
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
 
-import QtQuick 2.0
+import QtQuick 2.4
 import "Components"
 
 Rectangle {

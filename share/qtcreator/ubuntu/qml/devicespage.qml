@@ -1,5 +1,5 @@
-import QtQuick 2.0
-import Ubuntu.Components 1.0
+import QtQuick 2.4
+import Ubuntu.Components 1.3
 
 import "Components"
 import "DevicesPage"
@@ -9,15 +9,26 @@ MainView {
     width: 860
     height: 548
 
-    useDeprecatedToolbar: false
-    Tabs {
-        Tab {
+    Page {
+        header: PageHeader {
+            id: header
             title: "Ubuntu Devices"
-            page: DevicePage{}
+            sections.model: ["Devices", "Log"]
         }
-        Tab {
-            title: "Log"
-            page: LogPage{}
+
+        DevicePage{
+            anchors.top: header.bottom
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            visible: header.sections.selectedIndex == 0
+        }
+        LogPage{
+            anchors.top: header.bottom
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            visible: header.sections.selectedIndex == 1
         }
     }
 }

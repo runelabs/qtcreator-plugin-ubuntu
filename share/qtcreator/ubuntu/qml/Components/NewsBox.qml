@@ -15,7 +15,7 @@
  *
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
  */
-import QtQuick 2.0
+import QtQuick 2.4
 import QtQuick.XmlListModel 2.0
 
 ListView {
@@ -55,6 +55,7 @@ ListView {
                 wrapMode: Text.WordWrap
                 font.weight: Font.Light
                 width: parent.width
+                baseUrl: link
             }
 
             Text {
@@ -66,6 +67,7 @@ ListView {
                 font.letterSpacing: 1.5
                 width: parent.width
                 textFormat: Text.RichText
+                baseUrl: link
             }
         }
         MouseArea {
