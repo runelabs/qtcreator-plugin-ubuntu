@@ -24,6 +24,8 @@ EMULATOR_PASSWORD=$5
 WHOAMI=$6
 USERHOME=$7
 
+GROUP=$(id -gn ${WHOAMI})
+
 if [[ -z ${EMULATOR_CHANNEL} ]]; then
         EMULATOR_CHANNEL="devel"
 fi
@@ -35,5 +37,5 @@ then
 fi
 
 HOME=${USERHOME} /usr/bin/ubuntu-emulator create ${EMULATOR_NAME} --arch=${EMULATOR_ARCH} --channel=${EMULATOR_CHANNEL} --password=${EMULATOR_PASSWORD}
-chown ${WHOAMI}:${WHOAMI} ${EMULATOR_PATH} -R
+chown ${WHOAMI}:${GROUP} ${EMULATOR_PATH} -R
 
