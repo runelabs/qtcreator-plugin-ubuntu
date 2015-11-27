@@ -1,3 +1,13 @@
+qtcreator-plugin-ubuntu (3.5.0+16.04.20151127-0ubuntu1) xenial; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Fix Bug lp:1476647 local_create_emulator chowns with group name same
+    as user name (LP: #1476647)
+  * Make scopes run again Fix Bug lp:1427133 "Build and validate click
+    package button disabled without explanation" (LP: #1427133)
+
+ -- Zoltan Balogh <zoltan.balogh@canonical.com>  Fri, 27 Nov 2015 13:47:26 +0000
+
 qtcreator-plugin-ubuntu (3.5.0+16.04.20151126-0ubuntu1) xenial; urgency=medium
 
   [ Benjamin Zeller ]
