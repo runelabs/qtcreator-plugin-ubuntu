@@ -628,7 +628,7 @@ void UbuntuPackageStep::injectDebugHelperStep()
                     continue;
                 }
 
-                QString defaultSubCmd = QStringLiteral("/usr/lib/%1/unity-scopes/scoperunner '' %S ").arg(static_cast<ClickToolChain*>(tc)->gnutriplet());
+                QString defaultSubCmd = QStringLiteral("/usr/lib/%1/unity-scopes/scoperunner %R %S ").arg(static_cast<ClickToolChain*>(tc)->gnutriplet());
                 QString commTemplate = QStringLiteral("./%S scope %1 %C")
                         .arg(manifest.name()+QStringLiteral("_")+hook.appId); //tell our script the appid
 
