@@ -1,3 +1,10 @@
+qtcreator-plugin-ubuntu (3.5.0+16.04.20151204.1-0ubuntu1) xenial; urgency=medium
+
+  * Fix possible crash in ubuntulocalrunconfiguration.cpp Recreate SSH
+    keys when they are too weak
+
+ -- Benjamin Zeller <ci-train-bot@canonical.com>  Fri, 04 Dec 2015 09:25:58 +0000
+
 qtcreator-plugin-ubuntu (3.5.0+16.04.20151127-0ubuntu1) xenial; urgency=medium
 
   [ Benjamin Zeller ]
