@@ -18,46 +18,66 @@
 . `dirname $0`/functions.inc
 
 USERNAME=$2
+MIN_KEYLEN="2048"
+
+if [ -z "$USERNAME" ]; then
+    echo "Username missing"
+    echo "Usage: openssh_publickey <deviceId> <username>"
+    exit 1
+fi
 
 function check_key {
-	echo "Checking for keys.."
-	KEY=`cat $SSHIDENTITY.pub`
-	set +e
-	PHABLET_KEYS=`adb_shell "cat /home/$USERNAME/.ssh/authorized_keys2"`
-	KEYS=`echo $PHABLET_KEYS | grep "$KEY"`
-	set -e
-	echo
-	echo "Host key is:"
-	echo $KEY
-	echo
-	echo "We have following keys on the device: "
-	echo $KEYS
-	if [[ -z $KEYS || $KEYS == *No\ such* ]]; then
-		echo "*no keys*"
-		echo
-		deploy_key
-	else
-		echo
-		echo "The host key has been already deployed."
-	fi
+    printf "Checking keylen.."
+    KEY_LEN=$(ssh-keygen -l -f $SSHIDENTITY.pub | cut -f1 -d " ")
+    printf "  ${KEY_LEN}\n"
+    if [ "$KEY_LEN" -lt "${MIN_KEYLEN}" ]; then
+        echo "SSH key len ${KEY_LEN} is too weak. Creating a new one"
+        generate_key
+        deploy_key
+    else
+        echo "Checking for keys.."
+        KEY=`cat $SSHIDENTITY.pub`
+        set +e
+        PHABLET_KEYS=`adb_shell "cat /home/$USERNAME/.ssh/authorized_keys2"`
+        KEYS=`echo $PHABLET_KEYS | grep "$KEY"`
+        set -e
+        echo
+        echo "Host key is:"
+        echo $KEY
+        echo
+        echo "We have following keys on the device: "
+        echo $KEYS
+        if [[ -z $KEYS || $KEYS == *No\ such* ]]; then
+            echo "*no keys*"
+            echo
+            deploy_key
+        else
+            echo
+            echo "The host key has been already deployed."
+        fi
+    fi
 }
 
 function deploy_key {
-	echo "Deploy the host key to the device.."
-	KEY=`cat $SSHIDENTITY.pub`
-	adb_shell "mkdir -p /home/$USERNAME/.ssh"
-	echo "..key folder created!"
-	adb_shell "echo $KEY >> /home/$USERNAME/.ssh/authorized_keys2"
-	echo "..key deployed!"
-	adb_shell "chown -R $USERNAME:$USERNAME /home/$USERNAME/.ssh"
-	adb_shell "chmod 0700 /home/$USERNAME/.ssh"
-	adb_shell "chmod 0600 /home/$USERNAME/.ssh/authorized_keys2"
-	echo "..permissions updated!"
+    echo "Deploy the host key to the device.."
+    KEY=`cat $SSHIDENTITY.pub`
+    adb_shell "mkdir -p /home/$USERNAME/.ssh"
+    echo "..key folder created!"
+    adb_shell "echo $KEY >> /home/$USERNAME/.ssh/authorized_keys2"
+    echo "..key deployed!"
+    adb_shell "chown -R $USERNAME:$USERNAME /home/$USERNAME/.ssh"
+    adb_shell "chmod 0700 /home/$USERNAME/.ssh"
+    adb_shell "chmod 0600 /home/$USERNAME/.ssh/authorized_keys2"
+    echo "..permissions updated!"
 }
 
 function generate_key {
-	echo "Generating host key.."
-	ssh-keygen -t rsa -N '' -f $SSHIDENTITY -b 768
+    echo "Generating host key.."
+    if [[ -f $SSHIDENTITY ]]; then
+        echo -e  'y\n'|ssh-keygen -t rsa -N '' -f $SSHIDENTITY -b ${MIN_KEYLEN}
+    else
+        ssh-keygen -t rsa -N '' -f $SSHIDENTITY -b ${MIN_KEYLEN}
+    fi
 }
 
 #################
