@@ -347,6 +347,11 @@ bool UbuntuLocalRunConfiguration::ensureClickAppConfigured(QString *errorMessage
 
     m_workingDir = target()->activeBuildConfiguration()->buildDirectory();
 
+    bool isCMake  = target()->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID;
+    //bool isHTML   = target()->project()->id() == Ubuntu::Constants::UBUNTUPROJECT_ID;
+    //bool isQML    = target()->project()->id() == "QmlProjectManager.QmlProject";
+    bool isQMake  = target()->project()->id() == QmakeProjectManager::Constants::QMAKEPROJECT_ID;
+
     QFileInfo commInfo(command);
     if(commInfo.fileName().startsWith(QLatin1String("qmlscene"))) {
         m_executable = QtSupport::QtKitInformation::qtVersion(target()->kit())->qmlsceneCommand();
@@ -386,7 +391,7 @@ bool UbuntuLocalRunConfiguration::ensureClickAppConfigured(QString *errorMessage
         */
     } else {
         //looks like a application without a launcher
-        if(target()->project()->id() == QmakeProjectManager::Constants::QMAKEPROJECT_ID) {
+        if(isQMake) {
             QmakeProjectManager::QmakeProject* pro = static_cast<QmakeProjectManager::QmakeProject*> (target()->project());
             foreach(const QmakeProjectManager::QmakeProFileNode* applPro, pro->applicationProFiles()) {
                 QmakeProjectManager::TargetInformation info = applPro->targetInformation();
@@ -397,7 +402,7 @@ bool UbuntuLocalRunConfiguration::ensureClickAppConfigured(QString *errorMessage
                     }
                 }
             }
-        } else {
+        } else if(isCMake){
             CMakeProjectManager::CMakeProject* proj = static_cast<CMakeProjectManager::CMakeProject*> (target()->project());
             QList<CMakeProjectManager::CMakeBuildTarget> targets = proj->buildTargets();
             foreach (const CMakeProjectManager::CMakeBuildTarget& t, targets) {

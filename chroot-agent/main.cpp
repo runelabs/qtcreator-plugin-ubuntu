@@ -51,6 +51,13 @@ void syslogMessageHandler(QtMsgType type, const QMessageLogContext &context, con
     case QtFatalMsg:
         syslog (LOG_EMERG,  "Fatal: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
         do_abort=true;
+        break;
+#if QT_VERSION >= 0x050500
+    case QtInfoMsg:
+        syslog (LOG_INFO,   "Info: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+        break;
+#endif
+
     }
 
     closelog();
