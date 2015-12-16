@@ -1,7 +1,6 @@
-#hello-page {
-	padding: 1rem;
+#hello-page{
+        padding: 1rem;
 }
-
 .title, .introduction, .button {
 	margin-bottom: 1rem;
 }
@@ -24,13 +23,13 @@
     50% { opacity: 0.4; }
     to { opacity: 1.0; }
 }
- 
+
 @-webkit-keyframes fade {
     from { opacity: 1.0; }
     50% { opacity: 0.4; }
     to { opacity: 1.0; }
 }
- 
+
 .blink {
     animation:fade 3000ms infinite;
     -webkit-animation:fade 3000ms infinite;
