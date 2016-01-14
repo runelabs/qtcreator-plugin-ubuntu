@@ -534,49 +534,50 @@ void UbuntuLocalRunConfiguration::addToBaseEnvironment(Utils::Environment &env) 
         }
     };
 
-    if(id().toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_APP_ID))) {
-        if(target()->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID) {
-            CMakeProjectManager::CMakeProject* proj = static_cast<CMakeProjectManager::CMakeProject*> (target()->project());
-            QList<CMakeProjectManager::CMakeBuildTarget> targets = proj->buildTargets();
-            foreach (const CMakeProjectManager::CMakeBuildTarget& t, targets) {
-                if(t.targetType == CMakeProjectManager::DynamicLibraryType)
-                    loc_addToImportPath(t.workingDirectory);
-            }
-        } else if (target()->project()->id() == QmakeProjectManager::Constants::QMAKEPROJECT_ID) {
-            QmakeProjectManager::QmakeProject* pro = static_cast<QmakeProjectManager::QmakeProject*> (target()->project());
-            foreach(const QmakeProjectManager::QmakeProFileNode* applPro, pro->allProFiles()) {
-                if(applPro->projectType() != QmakeProjectManager::ApplicationTemplate &&
-                        applPro->projectType() != QmakeProjectManager::SharedLibraryTemplate &&
-                        applPro->projectType() != QmakeProjectManager::ScriptTemplate &&
-                        applPro->projectType() != QmakeProjectManager::AuxTemplate) {
-                    continue;
-                }
+    if(!id().toString().startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_BASE_ID)))
+        return;
 
-                QmakeProjectManager::TargetInformation info = applPro->targetInformation();
-                if(applPro->targetInformation().valid)
-                    loc_addToImportPath(info.buildDir);
-
-                // The user could be linking to a library found via a -L/some/dir switch
-                // to find those libraries while actually running we explicitly prepend those
-                // dirs to the library search path
-                const QStringList libDirectories = applPro->variableValue(QmakeProjectManager::LibDirectoriesVar);
-                if (!libDirectories.isEmpty()) {
-                    const QString proDirectory = applPro->buildDir();
-                    foreach (QString dir, libDirectories) {
-                        // Fix up relative entries like "LIBS+=-L.."
-                        const QFileInfo fi(dir);
-                        if (!fi.isAbsolute())
-                            dir = QDir::cleanPath(proDirectory + QLatin1Char('/') + dir);
-                        env.prependOrSetLibrarySearchPath(dir);
-                    } // foreach
-                } // libDirectories
-            }
+    if(target()->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID) {
+        CMakeProjectManager::CMakeProject* proj = static_cast<CMakeProjectManager::CMakeProject*> (target()->project());
+        QList<CMakeProjectManager::CMakeBuildTarget> targets = proj->buildTargets();
+        foreach (const CMakeProjectManager::CMakeBuildTarget& t, targets) {
+            if(t.targetType == CMakeProjectManager::DynamicLibraryType)
+                loc_addToImportPath(t.workingDirectory);
         }
+    } else if (target()->project()->id() == QmakeProjectManager::Constants::QMAKEPROJECT_ID) {
+        QmakeProjectManager::QmakeProject* pro = static_cast<QmakeProjectManager::QmakeProject*> (target()->project());
+        foreach(const QmakeProjectManager::QmakeProFileNode* applPro, pro->allProFiles()) {
+            if(applPro->projectType() != QmakeProjectManager::ApplicationTemplate &&
+                    applPro->projectType() != QmakeProjectManager::SharedLibraryTemplate &&
+                    applPro->projectType() != QmakeProjectManager::ScriptTemplate &&
+                    applPro->projectType() != QmakeProjectManager::AuxTemplate) {
+                continue;
+            }
 
-        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit());
-        if (qtVersion)
-            env.prependOrSetLibrarySearchPath(qtVersion->qmakeProperty("QT_INSTALL_LIBS"));
+            QmakeProjectManager::TargetInformation info = applPro->targetInformation();
+            if(applPro->targetInformation().valid)
+                loc_addToImportPath(info.buildDir);
+
+            // The user could be linking to a library found via a -L/some/dir switch
+            // to find those libraries while actually running we explicitly prepend those
+            // dirs to the library search path
+            const QStringList libDirectories = applPro->variableValue(QmakeProjectManager::LibDirectoriesVar);
+            if (!libDirectories.isEmpty()) {
+                const QString proDirectory = applPro->buildDir();
+                foreach (QString dir, libDirectories) {
+                    // Fix up relative entries like "LIBS+=-L.."
+                    const QFileInfo fi(dir);
+                    if (!fi.isAbsolute())
+                        dir = QDir::cleanPath(proDirectory + QLatin1Char('/') + dir);
+                    env.prependOrSetLibrarySearchPath(dir);
+                } // foreach
+            } // libDirectories
+        }
     }
+
+    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit());
+    if (qtVersion)
+        env.prependOrSetLibrarySearchPath(qtVersion->qmakeProperty("QT_INSTALL_LIBS"));
 }
 
 bool UbuntuLocalRunConfiguration::isConfigured() const
