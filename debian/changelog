@@ -1,3 +1,11 @@
+qtcreator-plugin-ubuntu (3.5.0+16.04.20160114.1-0ubuntu1) xenial; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Add used Qt version and project libraries to LD_LIBRARY_PATH for all
+    project types
+
+ -- Zoltan Balogh <zoltan.balogh@canonical.com>  Thu, 14 Jan 2016 11:29:45 +0000
+
 qtcreator-plugin-ubuntu (3.5.0+16.04.20151204.1-0ubuntu1) xenial; urgency=medium
 
   * Fix possible crash in ubuntulocalrunconfiguration.cpp Recreate SSH
