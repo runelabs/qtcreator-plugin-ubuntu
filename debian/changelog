@@ -1,3 +1,12 @@
+qtcreator-plugin-ubuntu (3.5.0+16.04.20160118-0ubuntu1) xenial; urgency=medium
+
+  [ Zoltán Balogh ]
+  * Adjust HTML5 template to mirror the QML sample app
+  * Use different qmlscene and different UITK path with difefrent
+    packaging of the plugin
+
+ -- Zoltan Balogh <zoltan.balogh@canonical.com>  Mon, 18 Jan 2016 11:48:09 +0000
+
 qtcreator-plugin-ubuntu (3.5.0+16.04.20160114.1-0ubuntu1) xenial; urgency=medium
 
   [ Benjamin Zeller ]
