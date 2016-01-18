@@ -15,24 +15,24 @@
 #
 # Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
 
-EXAMPLES_PATH="/usr/lib/ubuntu-ui-toolkit/examples"
-NEW_EXAMPLES_PATH="$(qmake -query QT_INSTALL_EXAMPLES)/ubuntu-ui-toolkit/examples"
-
-if [ -d "${NEW_EXAMPLES_PATH}" ]
-then
-    EXAMPLES_PATH=${NEW_EXAMPLES_PATH}
+if [[ `dirname $0` =~ ubuntu-sdk-ide ]]; then
+  echo Run from IDE
+  EXAMPLES_PATH="$(/usr/ubuntu-sdk-dev/bin/qmake -query QT_INSTALL_EXAMPLES)/ubuntu-ui-toolkit/examples"
+  export LD_LIBRARY_PATH=/usr/ubuntu-sdk-dev/lib/
+  QMLSCENE="/usr/ubuntu-sdk-dev/bin/qmlscene"
 else
-    if [ ! -d "${EXAMPLES_PATH}" ]
-    then
-        echo "Could not find the ubuntu-ui-toolkit examples, please make sure they are installed"
-        exit 1
-    fi
+  EXAMPLES_PATH="/usr/lib/ubuntu-ui-toolkit/examples"
+  QMLSCENE="/usr/bin/qmlscene"
 fi
-
+if [ ! -d "${EXAMPLES_PATH}" ]
+  then
+    echo "Could not find the ubuntu-ui-toolkit examples, please make sure they are installed"
+      exit 1
+  fi
 echo "Copying ubuntu-ui-toolkit-gallery from ${EXAMPLES_PATH} to /tmp"
 mkdir -p /tmp/ubuntu-ui-toolkit-gallery
 cp -r "${EXAMPLES_PATH}/ubuntu-ui-toolkit-gallery"/* /tmp/ubuntu-ui-toolkit-gallery
 echo "Opening project in Qt Creator"
-qtcreator -client /tmp/ubuntu-ui-toolkit-gallery/ubuntu-ui-toolkit-gallery.qmlproject &
+ubuntu-sdk -client /tmp/ubuntu-ui-toolkit-gallery/ubuntu-ui-toolkit-gallery.qmlproject &
 echo "Launching the qmlscene"
-/usr/bin/qmlscene $@ /tmp/ubuntu-ui-toolkit-gallery/ubuntu-ui-toolkit-gallery.qml &
+$QMLSCENE $@ /tmp/ubuntu-ui-toolkit-gallery/ubuntu-ui-toolkit-gallery.qml &
