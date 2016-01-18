@@ -7,6 +7,12 @@ Application.prototype.init = function() {
         this._initialized = true;
         var UI = new this._uiContextClass();
         UI.init();
+
+        // hello-button event handler
+        UI.button('hello-button').click( function() {
+            var helloLabel = document.getElementById("hello-label");
+            helloLabel.innerHTML = "...World!";
+        });
     }
 };
 Application.prototype.initialized = function() {
