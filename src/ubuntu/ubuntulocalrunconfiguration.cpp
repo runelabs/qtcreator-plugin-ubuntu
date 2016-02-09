@@ -54,8 +54,6 @@ Utils::Environment UbuntuLocalEnvironmentAspect::baseEnvironment() const
     Utils::Environment env = LocalEnvironmentAspect::baseEnvironment();
     if (const UbuntuLocalRunConfiguration *rc = qobject_cast<const UbuntuLocalRunConfiguration *>(runConfiguration()))
         rc->addToBaseEnvironment(env);
-
-    qDebug()<<"Setting env to : "<<env.toStringList();
     return env;
 }
 
