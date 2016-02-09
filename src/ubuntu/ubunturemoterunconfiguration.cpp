@@ -390,9 +390,10 @@ bool UbuntuRemoteRunConfiguration::aboutToStart(QString *errorMessage)
             m_arguments = args;
             return true;
         } else {
-            if(errorMessage)
-                *errorMessage = tr("Using a custom scopelauncher is not yet supported");
-            return false;
+            //no debug support for custom scoperunners
+            m_localExecutable = QString();
+            m_remoteExecutable = executable;
+            return true;
         }
     }
 

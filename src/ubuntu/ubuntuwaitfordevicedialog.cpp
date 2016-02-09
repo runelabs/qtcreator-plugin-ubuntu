@@ -54,7 +54,8 @@ void UbuntuWaitForDeviceDialog::updateLabelText()
     switch (m_dev->deviceState()) {
         case ProjectExplorer::IDevice::DeviceDisconnected:
         case ProjectExplorer::IDevice::DeviceStateUnknown:
-            setLabelText(isEmulator ? tr("Please start your emulator") : tr("Please attach your device"));
+            setLabelText(isEmulator ? tr("Please start your emulator: %1").arg(m_dev->displayName())
+                                    : tr("Please attach your device: %1").arg(m_dev->displayName()));
             break;
         case ProjectExplorer::IDevice::DeviceConnected:
             setLabelText(tr("Waiting for your %1 to get ready").arg(isEmulator ? tr("emulator") : tr("device")));

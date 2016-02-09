@@ -427,6 +427,9 @@ void UbuntuPackagingModel::buildClickPackage()
         return;
     }
 
+    if(!ProjectExplorer::ProjectExplorerPlugin::instance()->saveModifiedFiles())
+        return;
+
     QString mimeType = project->projectManager()->mimeType();
     bool isCMake = mimeType == QLatin1String(CMakeProjectManager::Constants::CMAKEPROJECTMIMETYPE);
     bool isHtml  = mimeType == QLatin1String(Ubuntu::Constants::UBUNTUPROJECT_MIMETYPE);
