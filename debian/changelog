@@ -1,3 +1,13 @@
+qtcreator-plugin-ubuntu (3.5.0+16.04.20160225-0ubuntu1) xenial; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Fix Bug lp:1537550 "Manifest changes are not saved before publishing
+    regardless of setting" Fix Bug lp:1534509 "Please attach your device
+    - which one?" Add support for executing custom scope runners on the
+    phone (LP: #1534509, #1537550)
+
+ -- Zoltan Balogh <zoltan.balogh@canonical.com>  Thu, 25 Feb 2016 14:48:23 +0000
+
 qtcreator-plugin-ubuntu (3.5.0+16.04.20160118-0ubuntu1) xenial; urgency=medium
 
   [ Zoltán Balogh ]
