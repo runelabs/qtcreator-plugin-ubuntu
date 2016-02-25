@@ -89,6 +89,11 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
 
             if(debug) qDebug()<<"Free ports on the device: "<<dev->freePorts().count();
 
+            if (rc->localExecutableFilePath().isEmpty()) {
+                if (errorMessage) *errorMessage = tr("The current project has no support for running in a debugger.");
+                return 0;
+            }
+
             if (2 > dev->freePorts().count()) {
                 *errorMessage = tr("Cannot debug: Not enough free ports available.");
                 return 0;
