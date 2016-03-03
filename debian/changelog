@@ -1,3 +1,40 @@
+qtcreator-plugin-ubuntu (3.5.0+16.04.20160303-0ubuntu1) xenial; urgency=medium
+
+  * Remove the qmlproject wizard. It is deprecated and should not be
+    used anymore. removed:
+    share/qtcreator/templates/wizards/ubuntu/share/displayName.qmlprojec
+    t share/qtcreator/templates/wizards/ubuntu/simple-app-qmlproject/
+    share/qtcreator/templates/wizards/ubuntu/simple-app-
+    qmlproject/Main.qml share/qtcreator/templates/wizards/ubuntu/simple-
+    app-qmlproject/Makefile
+    share/qtcreator/templates/wizards/ubuntu/simple-app-
+    qmlproject/displayName.desktop
+    share/qtcreator/templates/wizards/ubuntu/simple-app-
+    qmlproject/displayName.png
+    share/qtcreator/templates/wizards/ubuntu/simple-app-
+    qmlproject/tests/ share/qtcreator/templates/wizards/ubuntu/simple-
+    app-qmlproject/tests/autopilot/
+    share/qtcreator/templates/wizards/ubuntu/simple-app-
+    qmlproject/tests/autopilot/displayName/
+    share/qtcreator/templates/wizards/ubuntu/simple-app-
+    qmlproject/tests/autopilot/displayName/__init__.py
+    share/qtcreator/templates/wizards/ubuntu/simple-app-
+    qmlproject/tests/autopilot/displayName/tests/
+    share/qtcreator/templates/wizards/ubuntu/simple-app-
+    qmlproject/tests/autopilot/displayName/tests/__init__.py
+    share/qtcreator/templates/wizards/ubuntu/simple-app-
+    qmlproject/tests/autopilot/displayName/tests/test_main.py
+    share/qtcreator/templates/wizards/ubuntu/simple-app-
+    qmlproject/tests/autopilot/run
+    share/qtcreator/templates/wizards/ubuntu/simple-app-
+    qmlproject/tests/qml/
+    share/qtcreator/templates/wizards/ubuntu/simple-app-
+    qmlproject/tests/qml/tst_main.qml
+    share/qtcreator/templates/wizards/ubuntu/simple-app-
+    qmlproject/wizard.xml
+
+ -- Benjamin Zeller <ci-train-bot@canonical.com>  Thu, 03 Mar 2016 14:29:58 +0000
+
 qtcreator-plugin-ubuntu (3.5.0+16.04.20160225-0ubuntu1) xenial; urgency=medium
 
   [ Benjamin Zeller ]
