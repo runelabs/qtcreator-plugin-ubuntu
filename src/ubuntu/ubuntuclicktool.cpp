@@ -477,9 +477,7 @@ QString UbuntuClickTool::mapIncludePathsForCMake(ProjectExplorer::Kit *k, const 
 QString UbuntuClickTool::findOrCreateToolWrapper (const QString &tool, const UbuntuClickTool::Target &target)
 {
     QString baseDir = Settings::settingsPath()
-            .appendPath(QStringLiteral("%1-%2")
-                        .arg(target.framework)
-                        .arg(target.architecture)).toString();
+            .appendPath(target.containerName).toString();
 
     QDir d(baseDir);
     if(!d.exists()) {

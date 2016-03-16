@@ -64,6 +64,7 @@ public:
         QString series;
         QString framework;
         QString architecture;
+        QString containerName;
     };
 
     UbuntuClickTool();
