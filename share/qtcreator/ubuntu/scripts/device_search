@@ -27,7 +27,7 @@ do
         if [[ ${DEVICES_INFO} =~ ^([a-zA-Z0-9]+)(.*)$ ]]; then
                 NAME="${BASH_REMATCH[1]}"
                 REST="${BASH_REMATCH[2]}"
-		ARCH=`adb -s ${NAME} shell uname -p 2>&1|egrep -v "device not found"`
+		ARCH=`adb -s ${NAME} shell dpkg --print-architecture 2>&1|egrep -v "device not found"`
                 if [ $? -ne 0 ]
 		then
 			continue

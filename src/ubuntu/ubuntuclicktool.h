@@ -58,12 +58,9 @@ public:
     };
 
     struct Target {
-        bool    maybeBroken;
-        int     majorVersion;
-        int     minorVersion;
-        QString series;
         QString framework;
         QString architecture;
+        QString containerName;
     };
 
     UbuntuClickTool();
@@ -85,8 +82,6 @@ public:
 
     static bool          targetExists (const Target& target);
     static QList<Target> listAvailableTargets (const QString &framework=QString());
-    static QPair<int,int> targetVersion (const Target& target);
-    static bool        targetFromPath(const QString& targetPath, Target* tg);
     static const Target *clickTargetFromTarget(ProjectExplorer::Target *t);
     static QString clickChrootSuffix ();
     static QString m_strClickChrootSuffix;
@@ -109,7 +104,7 @@ public:
     static QStringList getSupportedFrameworks ();
     static QString getMostRecentFramework ( const QString &subFramework);
     static QString getBaseFramework (const QString &framework, QStringList *extensions = 0);
-
+    static bool caseInsensitiveFWLessThan(const QString &s1, const QString &s2);
 signals:
     void frameworksUpdated();
 

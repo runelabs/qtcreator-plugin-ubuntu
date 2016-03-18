@@ -236,7 +236,6 @@ const char  UBUNTU_ACTION_DEVICE_PORT[] = "%PORT%";
 const char  UBUNTU_ACTION_APP_RUNNER_EXECNAME[] = "%APPRUNNEREXECNAME%";
 const char  UBUNTU_ACTION_CLICK_ARCH[] = "%CLICK_ARCH%";
 const char  UBUNTU_ACTION_CLICK_FRAMEWORK[] = "%CLICK_FRAMEWORK%";
-const char  UBUNTU_ACTION_CLICK_SERIES[] = "%CLICK_SERIES%";
 const char  UBUNTU_ACTION_CLICK_PACKAGING_FOLDER[] = "%CLICK_PACKAGING_FOLDER%";
 
 const char  UBUNTU_MODE_PACKAGING[] = "UbuntuPackaging";
@@ -296,6 +295,7 @@ const char UBUNTU_CLICK_CHROOT_SUFFIX_ENV_VAR[] = "CLICK_CHROOT_SUFFIX";
 const char UBUNTU_CLICK_CHROOT_DEFAULT_NAME[] = "click"; 
 const char UBUNTU_CLICK_BINARY[]  = "/usr/bin/click";
 const char UBUNTU_SUDO_BINARY[]   = "/usr/bin/pkexec";
+const char UBUNTU_TARGET_TOOL[]   = "%1/usdk-target.py";
 const char UBUNTU_CLICK_CHROOT_BASEPATH[] = "/var/lib/schroot/chroots";
 const char UBUNTU_CLICK_CLICK_PACKAGE_DIR[] = "%CLICK_FRAMEWORK%-%CLICK_ARCH%/click_package";
 const char UBUNTU_CLICK_CHROOT_CREATE_ARGS[]  = "%0/click_create_target %1 %2 %3 %4";
@@ -320,7 +320,7 @@ extern const char* UBUNTU_CLICK_SUPPORTED_TARGETS[][3];
 
 //Buildsupport
 const char UBUNTU_CLICK_TOOLCHAIN_ID[]   = "UbuntuProjectManager.UbuntuGccToolChain";
-const char UBUNTU_CLICK_CHROOT_WRAPPER[] = "%0/qtc_chroot_wrapper.py";
+const char UBUNTU_CLICK_TARGET_WRAPPER[] = "%0/qtc_target_wrapper.py";
 const char UBUNTU_CLICK_HTML_BC_ID[]     = "UbuntuProjectManager.UbuntuHTML5.BuildConfiguration";
 const char UBUNTU_CLICK_QML_BC_ID[]      = "UbuntuProjectManager.UbuntuQml.BuildConfiguration";
 const char UBUNTU_CLICK_QML_UPDATE_TRANSL_MAKESTEP[]      = "UbuntuProjectManager.UbuntuQml.UpdateTranslationTemplateMakeStep";

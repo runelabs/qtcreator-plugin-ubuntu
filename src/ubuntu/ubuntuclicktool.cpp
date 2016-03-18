@@ -106,7 +106,7 @@ void UbuntuClickTool::parametersForCreateChroot(const Target &target, ProjectExp
             .arg(Constants::UBUNTU_SCRIPTPATH)
             .arg(target.architecture)
             .arg(target.framework)
-            .arg(target.series)
+            //.arg(target.series)
             .arg(clickChrootSuffix());
 
     if(!Settings::chrootSettings().useLocalMirror)
@@ -131,7 +131,7 @@ void UbuntuClickTool::parametersForMaintainChroot(const UbuntuClickTool::Maintai
             arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_UPGRADE_ARGS)
                     .arg(target.architecture)
                     .arg(target.framework)
-                    .arg(target.series)
+                    //.arg(target.series)
                     .arg(clickChrootSuffix());
             break;
         case Delete:
@@ -140,7 +140,7 @@ void UbuntuClickTool::parametersForMaintainChroot(const UbuntuClickTool::Maintai
                     .arg(Constants::UBUNTU_SCRIPTPATH)
                     .arg(target.architecture)
                     .arg(target.framework)
-                    .arg(target.series)
+                    //.arg(target.series)
                     .arg(clickChrootSuffix());
             break;
     }
@@ -163,7 +163,7 @@ void UbuntuClickTool::openChrootTerminal(const UbuntuClickTool::Target &target)
     args << QString(QLatin1String(Constants::UBUNTU_CLICK_OPEN_TERMINAL))
             .arg(target.architecture)
             .arg(target.framework)
-            .arg(target.series)
+            //.arg(target.series)
             .arg(clickChrootSuffix());
 
     if(!QProcess::startDetached(term,args,QDir::homePath())) {
@@ -226,11 +226,10 @@ QString UbuntuClickTool::targetBasePath(const UbuntuClickTool::Target &target)
  */
 bool UbuntuClickTool::targetExists(const UbuntuClickTool::Target &target)
 {
-    QPair<int,int> targetVer = targetVersion(target);
-    if(targetVer.first == -1)
-        return false;
+    int exit = QProcess::execute(QString::fromLatin1(Constants::UBUNTU_TARGET_TOOL).arg(Constants::UBUNTU_SCRIPTPATH),
+                                 QStringList()<<QStringLiteral("exists")<<target.containerName);
 
-    return true;
+    return (exit == 0);
 }
 
 /**
@@ -239,147 +238,58 @@ bool UbuntuClickTool::targetExists(const UbuntuClickTool::Target &target)
  */
 QList<UbuntuClickTool::Target> UbuntuClickTool::listAvailableTargets(const QString &framework)
 {
-    QList<Target> items;
-    QDir chrootDir(QLatin1String(Constants::UBUNTU_CLICK_CHROOT_BASEPATH));
+    QProcess sdkTool;
+    sdkTool.setProgram(QString::fromLatin1(Constants::UBUNTU_TARGET_TOOL).arg(Constants::UBUNTU_SCRIPTPATH));
+    sdkTool.setArguments(QStringList()<<QStringLiteral("list"));
+    sdkTool.start(QIODevice::ReadOnly);
+    if (!sdkTool.waitForFinished(3000)
+            || sdkTool.exitCode() != 0
+            || sdkTool.exitStatus() != QProcess::NormalExit)
+        return QList<Target>();
+
+    QJsonParseError err;
+    QJsonDocument doc = QJsonDocument::fromJson(sdkTool.readAllStandardOutput(), &err);
+    if (err.error != QJsonParseError::NoError || !doc.isArray())
+        return QList<Target>();
+
+
     QString filterRegex;
     filterRegex = QString::fromLatin1(Constants::UBUNTU_CLICK_TARGETS_REGEX).arg(clickChrootSuffix());
-    if(!framework.isEmpty()) {
-        QRegularExpression expr(QLatin1String(Constants::UBUNTU_CLICK_BASE_FRAMEWORK_REGEX));
-        QRegularExpressionMatch match = expr.match(framework);
-        if(match.hasMatch()) {
-            if(debug) qDebug()<<"Filtering for base framework: "<<match.captured(1);
+    if (!framework.isEmpty()) {
+        QString baseFw = UbuntuClickFrameworkProvider::getBaseFramework(framework);
+        if (!baseFw.isEmpty()) {
+            if(debug) qDebug()<<"Filtering for base framework: "<<baseFw;
             filterRegex = QString::fromLatin1(Constants::UBUNTU_CLICK_TARGETS_FRAMEWORK_REGEX)
-                        		     .arg(clickChrootSuffix())
-                                             .arg(match.captured(1));
+                    .arg(clickChrootSuffix())
+                    .arg(baseFw);
         }
     }
 
-    //if the dir does not exist there are no available chroots
-    if(!chrootDir.exists())
-        return items;
+    QList <Target> targets;
+    QVariantList data = doc.toVariant().toList();
+    QRegularExpression frameworkFilter(filterRegex);
+    foreach (const QVariant &target, data) {
+        QVariantMap map = target.toMap();
 
-    QStringList availableChroots = chrootDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot,
-                                                       QDir::Name | QDir::Reversed);
+        if (!map.contains(QStringLiteral("name"))
+                || !map.contains(QStringLiteral("framework"))
+                || !map.contains(QStringLiteral("architecture")))
+            continue;
 
-    QRegularExpression clickFilter(filterRegex);
-    //iterate over all chroots and check if they are click chroots
-    foreach (const QString &chroot, availableChroots) {
-        QRegularExpressionMatch match = clickFilter.match(chroot);
+        QString targetFw = map.value(QStringLiteral("framework")).toString();
+        QRegularExpressionMatch match = frameworkFilter.match(targetFw);
         if(!match.hasMatch()) {
             continue;
         }
+
 
         Target t;
-        if(!targetFromPath(chroot,&t))
-            continue;
-
-        items.append(t);
+        t.architecture  = map.value(QStringLiteral("architecture")).toString();
+        t.framework     = targetFw;
+        t.containerName = map.value(QStringLiteral("name")).toString();
+        targets.append(t);
     }
-    return items;
-}
-
-/**
- * @brief UbuntuClickTool::targetVersion
- * Reads the ubuntu version from the lsb-release file
- * @returns a QPair containing the major and minor version information
- */
-QPair<int, int> UbuntuClickTool::targetVersion(const UbuntuClickTool::Target &target)
-{
-    QFile f(QString::fromLatin1("%1/%2")
-            .arg(targetBasePath(target))
-            .arg(QLatin1String("etc/lsb-release")));
-
-    if (!f.open(QIODevice::ReadOnly)) {
-        //there is no lsb-release file... what now?
-        return qMakePair(-1,-1);
-    }
-
-    QString info = QString::fromLatin1(f.readAll());
-
-    QRegularExpression grep(QLatin1String(Constants::UBUNTU_CLICK_VERSION_REGEX),QRegularExpression::MultilineOption);
-    QRegularExpressionMatch match = grep.match(info);
-
-    if(!match.hasMatch()) {
-        return qMakePair(-1,-1);
-    }
-
-    bool ok = false;
-    int majorV = match.captured(1).toInt(&ok);
-    if(!ok) {
-        return qMakePair(-1,-1);
-    }
-
-    int minorV = match.captured(2).toInt();
-
-    return qMakePair(majorV,minorV);
-}
-
-/*!
- * \brief UbuntuClickTool::targetFromPath
- * returns true if the given path is a click target
- * if it is, \a tg will be initialized with that targets values
- */
-bool UbuntuClickTool::targetFromPath(const QString &targetPath, UbuntuClickTool::Target *tg)
-{
-    QRegularExpression clickFilter(QString::fromLatin1(Constants::UBUNTU_CLICK_TARGETS_REGEX).arg(clickChrootSuffix()));
-    QRegularExpressionMatch match = clickFilter.match(targetPath);
-    if(!match.hasMatch()) {
-        return false;
-    }
-
-    Target t;
-    t.maybeBroken  = false; //we are optimistic
-    t.framework    = match.captured(1);
-    t.architecture = match.captured(2);
-
-    //now read informations about the target
-    QFile f(QString::fromLatin1("%1/%2")
-            .arg(targetBasePath(t))
-            .arg(QLatin1String("/etc/lsb-release")));
-
-    if (!f.open(QIODevice::ReadOnly)) {
-        //there is no lsb-release file... what now?
-        t.maybeBroken = true;
-
-    } else {
-        QString info = QString::fromLatin1(f.readAll());
-
-        //read version
-        QRegularExpression grep(QLatin1String(Constants::UBUNTU_CLICK_VERSION_REGEX),QRegularExpression::MultilineOption);
-        QRegularExpressionMatch match = grep.match(info);
-
-        if(!match.hasMatch()) {
-            t.maybeBroken = true;
-        } else {
-            bool ok = false;
-
-            t.majorVersion = match.captured(1).toInt(&ok);
-            if(!ok) {
-                t.maybeBroken = true;
-                t.majorVersion = -1;
-            }
-
-            t.minorVersion = match.captured(2).toInt(&ok);
-            if(!ok) {
-                t.maybeBroken = true;
-                t.minorVersion = -1;
-            }
-        }
-
-        //read series
-        grep.setPattern(QString::fromLatin1(Constants::UBUNTU_CLICK_SERIES_REGEX));
-        grep.setPatternOptions(QRegularExpression::MultilineOption);
-        match = grep.match(info);
-
-        if(!match.hasMatch()) {
-            t.maybeBroken = true;
-        } else {
-            t.series = match.captured(1);
-        }
-    }
-
-    *tg = t;
-    return true;
+    return targets;
 }
 
 /*!
@@ -477,9 +387,7 @@ QString UbuntuClickTool::mapIncludePathsForCMake(ProjectExplorer::Kit *k, const 
 QString UbuntuClickTool::findOrCreateToolWrapper (const QString &tool, const UbuntuClickTool::Target &target)
 {
     QString baseDir = Settings::settingsPath()
-            .appendPath(QStringLiteral("%1-%2")
-                        .arg(target.framework)
-                        .arg(target.architecture)).toString();
+            .appendPath(target.containerName).toString();
 
     QDir d(baseDir);
     if(!d.exists()) {
@@ -490,7 +398,7 @@ QString UbuntuClickTool::findOrCreateToolWrapper (const QString &tool, const Ubu
     }
 
     QString toolWrapper = (Utils::FileName::fromString(baseDir).appendPath(tool).toString());
-    QString toolTarget  = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_WRAPPER).arg(Constants::UBUNTU_SCRIPTPATH);
+    QString toolTarget  = QString::fromLatin1(Constants::UBUNTU_CLICK_TARGET_WRAPPER).arg(Constants::UBUNTU_SCRIPTPATH);
 
     QFileInfo symlinkInfo(toolWrapper);
 
@@ -510,11 +418,9 @@ QString UbuntuClickTool::findOrCreateToolWrapper (const QString &tool, const Ubu
 
 QDebug operator<<(QDebug dbg, const UbuntuClickTool::Target& t)
 {
-    dbg.nospace() << "("<<"series: "<<t.series<<" "
+    dbg.nospace() << "("<<"container: "<<t.containerName<<" "
                         <<"arch: "<<t.architecture<<" "
                         <<"framework: "<<t.framework<<" "
-                        <<"version: "<<t.majorVersion<<"."<<t.minorVersion<<" "
-                        <<"broken "<<t.maybeBroken
                         <<")";
 
     return dbg.space();
@@ -571,7 +477,7 @@ static FrameworkDesc fwDescFromString (const QString &fw)
 }
 
 
-static bool caseInsensitiveFWLessThan(const QString &s1, const QString &s2)
+bool UbuntuClickFrameworkProvider::caseInsensitiveFWLessThan(const QString &s1, const QString &s2)
 {
 
     FrameworkDesc fwDesc1 = fwDescFromString(s1);

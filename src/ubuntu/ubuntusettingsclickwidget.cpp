@@ -133,7 +133,7 @@ void UbuntuSettingsClickWidget::listExistingClickTargets()
         const Internal::UbuntuClickTool::Target& target = items.at(i);
 
         QTreeWidgetItem* chrootItem = new QTreeWidgetItem;
-        chrootItem->setText(0,target.series);
+        chrootItem->setText(0,target.containerName);
         chrootItem->setText(1,target.framework);
         chrootItem->setText(2,target.architecture);
 

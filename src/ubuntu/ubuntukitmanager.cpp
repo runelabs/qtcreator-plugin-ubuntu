@@ -44,13 +44,7 @@ static bool lessThanToolchain (const ClickToolChain* left, const ClickToolChain*
 {
     const UbuntuClickTool::Target &leftTarget = left->clickTarget();
     const UbuntuClickTool::Target &rightTarget = right->clickTarget();
-
-    if(leftTarget.majorVersion < rightTarget.majorVersion)
-        return true;
-    if(leftTarget.minorVersion < rightTarget.minorVersion)
-        return true;
-
-    return false;
+    return UbuntuClickFrameworkProvider::caseInsensitiveFWLessThan(leftTarget.framework, rightTarget.framework);
 }
 
 UbuntuKitManager::UbuntuKitManager()
@@ -131,7 +125,7 @@ CMakeProjectManager::CMakeTool *UbuntuKitManager::createCMakeTool(const UbuntuCl
     cmake->setDisplayName(tr("Ubuntu SDK cmake (%1-%2-%3)")
                           .arg(target.architecture)
                           .arg(target.framework)
-                          .arg(target.series));
+                          .arg(target.containerName));
     return cmake;
 }
 
@@ -206,7 +200,7 @@ void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
                                         .arg(device->displayName())
                                         .arg(match->clickTarget().architecture)
                                         .arg(match->clickTarget().framework)
-                                        .arg(match->clickTarget().series));
+                                        .arg(match->clickTarget().containerName));
 
         ProjectExplorer::DeviceKitInformation::setDevice(newKit,device);
         ProjectExplorer::KitManager::registerKit(newKit);
@@ -297,7 +291,7 @@ void UbuntuKitManager::autoDetectKits()
         kit->setUnexpandedDisplayName(tr("UbuntuSDK for %1 (GCC %2-%3)")
                                       .arg(tc->clickTarget().architecture)
                                       .arg(tc->clickTarget().framework)
-                                      .arg(tc->clickTarget().series));
+                                      .arg(tc->clickTarget().containerName));
         ProjectExplorer::KitManager::registerKit(kit);
         fixKit(kit);
     }

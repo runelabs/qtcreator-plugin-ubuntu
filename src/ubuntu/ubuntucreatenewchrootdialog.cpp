@@ -85,7 +85,7 @@ bool UbuntuCreateNewChrootDialog::getNewChrootTarget(UbuntuClickTool::Target *ta
             return false;
 
         target->architecture = dlg.ui->comboBoxArch->currentText();
-        target->series       = QString::fromLatin1(Constants::UBUNTU_CLICK_SUPPORTED_TARGETS[idx][0]);
+        //target->series       = QString::fromLatin1(Constants::UBUNTU_CLICK_SUPPORTED_TARGETS[idx][0]);
         target->framework    = QString::fromLatin1(Constants::UBUNTU_CLICK_SUPPORTED_TARGETS[idx][1]);
 
         return true;
