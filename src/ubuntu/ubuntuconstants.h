@@ -296,7 +296,6 @@ const char UBUNTU_CLICK_CHROOT_DEFAULT_NAME[] = "click";
 const char UBUNTU_CLICK_BINARY[]  = "/usr/bin/click";
 const char UBUNTU_SUDO_BINARY[]   = "/usr/bin/pkexec";
 const char UBUNTU_TARGET_TOOL[]   = "%1/usdk-target.py";
-const char UBUNTU_CLICK_CHROOT_BASEPATH[] = "/var/lib/schroot/chroots";
 const char UBUNTU_CLICK_CLICK_PACKAGE_DIR[] = "%CLICK_FRAMEWORK%-%CLICK_ARCH%/click_package";
 const char UBUNTU_CLICK_CHROOT_CREATE_ARGS[]  = "%0/click_create_target %1 %2 %3 %4";
 const char UBUNTU_CLICK_CHROOT_DESTROY_ARGS[] = "%0/click_destroy_target %1 %2 %3 %4";

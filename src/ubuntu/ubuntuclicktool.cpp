@@ -39,6 +39,7 @@
 #include <QJsonObject>
 #include <QJsonParseError>
 #include <QCollator>
+#include <QTextStream>
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
@@ -213,11 +214,18 @@ bool UbuntuClickTool::getTargetFromUser(Target *target, const QString &framework
 
 QString UbuntuClickTool::targetBasePath(const UbuntuClickTool::Target &target)
 {
-    return QString::fromLatin1("%1/%2-%3-%4")
-            .arg(QLatin1String(Constants::UBUNTU_CLICK_CHROOT_BASEPATH))
-	    .arg(clickChrootSuffix())
-            .arg(target.framework)
-            .arg(target.architecture);
+    QProcess sdkTool;
+    sdkTool.setReadChannel(QProcess::StandardOutput);
+    sdkTool.setProgram(QString::fromLatin1(Constants::UBUNTU_TARGET_TOOL).arg(Constants::UBUNTU_SCRIPTPATH));
+    sdkTool.setArguments(QStringList()<<QStringLiteral("rootfs")<<target.containerName);
+    sdkTool.start(QIODevice::ReadOnly);
+    if (!sdkTool.waitForFinished(3000)
+            || sdkTool.exitCode() != 0
+            || sdkTool.exitStatus() != QProcess::NormalExit)
+        return QString();
+
+    QTextStream in(&sdkTool);
+    return in.readAll();
 }
 
 /*!
@@ -254,7 +262,6 @@ QList<UbuntuClickTool::Target> UbuntuClickTool::listAvailableTargets(const QStri
 
 
     QString filterRegex;
-    filterRegex = QString::fromLatin1(Constants::UBUNTU_CLICK_TARGETS_REGEX).arg(clickChrootSuffix());
     if (!framework.isEmpty()) {
         QString baseFw = UbuntuClickFrameworkProvider::getBaseFramework(framework);
         if (!baseFw.isEmpty()) {
@@ -277,11 +284,13 @@ QList<UbuntuClickTool::Target> UbuntuClickTool::listAvailableTargets(const QStri
             continue;
 
         QString targetFw = map.value(QStringLiteral("framework")).toString();
-        QRegularExpressionMatch match = frameworkFilter.match(targetFw);
-        if(!match.hasMatch()) {
-            continue;
-        }
 
+        if (!filterRegex.isEmpty()) {
+            QRegularExpressionMatch match = frameworkFilter.match(targetFw);
+            if(!match.hasMatch()) {
+                continue;
+            }
+        }
 
         Target t;
         t.architecture  = map.value(QStringLiteral("architecture")).toString();
