@@ -90,6 +90,7 @@ install(FILES "%ClickHookName:l%.apparmor" DESTINATION "/")
 file(GLOB_RECURSE
   _PO_FILES
   "po/*.po" 
+  "po/*.pot" 
 )
 add_custom_target(hidden_files
   ALL
@@ -98,7 +99,6 @@ add_custom_target(hidden_files
     %ClickHookName:l%.apparmor
     data/${SCOPE_NAME}.ini.in
     po/POTFILES.in
-    po/${GETTEXT_PACKAGE}.pot
     ${_PO_FILES}
 )
 
