@@ -1,3 +1,15 @@
+qtcreator-plugin-ubuntu (3.5.0+16.04.20160321.1-0ubuntu1) xenial; urgency=medium
+
+  [ Marcus Tomlinson ]
+  * Don't expect .pot file to exist, this breaks CMake when no
+    translations are present (LP: #1538419)
+
+  [ Zoltán Balogh ]
+  * Use dpkg --print-architecture instead of uname to discover arch type
+    (LP: #1558413)
+
+ -- Zoltan Balogh <zoltan.balogh@canonical.com>  Mon, 21 Mar 2016 14:35:36 +0000
+
 qtcreator-plugin-ubuntu (3.5.0+16.04.20160303-0ubuntu1) xenial; urgency=medium
 
   * Remove the qmlproject wizard. It is deprecated and should not be
