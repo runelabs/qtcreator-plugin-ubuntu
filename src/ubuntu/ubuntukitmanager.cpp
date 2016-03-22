@@ -68,11 +68,8 @@ QList<ClickToolChain *> UbuntuKitManager::clickToolChains()
     return toolchains;
 }
 
-
-
 UbuntuQtVersion *UbuntuKitManager::createOrFindQtVersion(ClickToolChain *tc)
 {
-
     QString qmakePath = UbuntuClickTool::findOrCreateQMakeWrapper(tc->clickTarget());
     if(!QFile::exists(qmakePath)) {
         return 0;
@@ -273,7 +270,7 @@ void UbuntuKitManager::autoDetectKits()
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
         CMakeProjectManager::CMakeTool* cmake = CMakeProjectManager::CMakeKitInformation::cmakeTool(k);
         if (tc && tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
-                && cmake //&& icmake->id().toString().startsWith(QLatin1String(Constants::UBUNTU_CLICK_CMAKE_TOOL_ID))
+                && cmake
                 && cmake->isValid()) {
             fixKit(k);
 
@@ -289,9 +286,9 @@ void UbuntuKitManager::autoDetectKits()
     foreach (ProjectExplorer::Kit *kit, newKits) {
         ClickToolChain *tc = static_cast<ClickToolChain *>(ProjectExplorer::ToolChainKitInformation::toolChain(kit));
         kit->setUnexpandedDisplayName(tr("UbuntuSDK for %1 (GCC %2-%3)")
+                                      .arg(tc->clickTarget().containerName)
                                       .arg(tc->clickTarget().architecture)
-                                      .arg(tc->clickTarget().framework)
-                                      .arg(tc->clickTarget().containerName));
+                                      .arg(tc->clickTarget().framework));
         ProjectExplorer::KitManager::registerKit(kit);
         fixKit(kit);
     }

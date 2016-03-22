@@ -92,6 +92,21 @@ int UbuntuQtVersion::minimalScriptVersion()
     return MIN_SCRIPT_VERSION;
 }
 
+bool UbuntuQtVersion::hasQmlDump() const
+{
+    return false;
+}
+
+bool UbuntuQtVersion::hasQmlDumpWithRelocatableFlag() const
+{
+    return false;
+}
+
+bool UbuntuQtVersion::needsQmlDump() const
+{
+    return false;
+}
+
 
 bool UbuntuQtVersionFactory::canRestore(const QString &type)
 {

@@ -103,15 +103,11 @@ QString UbuntuClickTool::clickChrootSuffix()
  */
 void UbuntuClickTool::parametersForCreateChroot(const Target &target, ProjectExplorer::ProcessParameters *params)
 {
-    QString command = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_CREATE_ARGS)
+    QString command = QString::fromLatin1(Constants::UBUNTU_CREATE_CLICK_TARGET_ARGS)
             .arg(Constants::UBUNTU_SCRIPTPATH)
             .arg(target.architecture)
             .arg(target.framework)
-            //.arg(target.series)
-            .arg(clickChrootSuffix());
-
-    if(!Settings::chrootSettings().useLocalMirror)
-        command.prepend(QStringLiteral("env CLICK_NO_LOCAL_MIRROR=1 "));
+            .arg(target.containerName);
 
     params->setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
     params->setEnvironment(Utils::Environment::systemEnvironment());
@@ -128,21 +124,15 @@ void UbuntuClickTool::parametersForMaintainChroot(const UbuntuClickTool::Maintai
     QString arguments;
     switch (mode) {
         case Upgrade:
-            params->setCommand(QLatin1String(Constants::UBUNTU_CLICK_BINARY));
-            arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_UPGRADE_ARGS)
-                    .arg(target.architecture)
-                    .arg(target.framework)
-                    //.arg(target.series)
-                    .arg(clickChrootSuffix());
+            params->setCommand(QString::fromLatin1(Constants::UBUNTU_TARGET_TOOL).arg(Constants::UBUNTU_SCRIPTPATH));
+            arguments = QString::fromLatin1(Constants::UBUNTU_UPGRADE_CLICK_TARGET_ARGS)
+                    .arg(target.containerName);
             break;
         case Delete:
             params->setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
-            arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_DESTROY_ARGS)
+            arguments = QString::fromLatin1(Constants::UBUNTU_DESTROY_CLICK_TARGET_ARGS)
                     .arg(Constants::UBUNTU_SCRIPTPATH)
-                    .arg(target.architecture)
-                    .arg(target.framework)
-                    //.arg(target.series)
-                    .arg(clickChrootSuffix());
+                    .arg(target.containerName);
             break;
     }
 
@@ -162,10 +152,8 @@ void UbuntuClickTool::openChrootTerminal(const UbuntuClickTool::Target &target)
     QString     term = args.takeFirst();
 
     args << QString(QLatin1String(Constants::UBUNTU_CLICK_OPEN_TERMINAL))
-            .arg(target.architecture)
-            .arg(target.framework)
-            //.arg(target.series)
-            .arg(clickChrootSuffix());
+            .arg(Constants::UBUNTU_SCRIPTPATH)
+            .arg(target.containerName);
 
     if(!QProcess::startDetached(term,args,QDir::homePath())) {
         printToOutputPane(QLatin1String(Constants::UBUNTU_CLICK_OPEN_TERMINAL_ERROR));

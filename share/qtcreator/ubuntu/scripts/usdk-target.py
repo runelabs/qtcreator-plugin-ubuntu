@@ -22,10 +22,16 @@
 import argparse
 import json
 import sys
-from pylxd import api
+import shutil
+import shlex
+import getpass
+import os
+import pylxd
+import stat
+from pylxd.deprecated.exceptions import PyLXDException
 
 def findExistingTargets ():
-    apiObj = api.container.LXDContainer()
+    apiObj = pylxd.api.container.LXDContainer()
     containers = apiObj.container_list()
     targets = []
     for container in containers:
@@ -39,32 +45,200 @@ def findExistingTargets ():
                 framework= config["config"]["user.click-framework"]
             ))
     return targets;
+
+def executeCommand (args, priviledged):
+    apiObj = pylxd.api.API()
+    if not apiObj.container_defined(args.name):
+        print("Container not found")
+        sys.exit(1)
+        
+    info = apiObj.container_info(args.name)
+    if info['status'] != "Running":    
+        op = pylxd.api.operation.LXDOperation();
+        op_data = apiObj.container_start(args.name, -1)
+        if not op.operation_wait(op_data[1]["operation"], op_data[1]["status_code"], -1):
+            print("Could not start container")
+            sys.exit(1)
+        
+    lxc_command = shutil.which("lxc")
+    if lxc_command is None:
+        print("lxc was not found in PATH")
+        sys.exit(1)
+        
+    lxc_args   = []
+    lxc_args.append(lxc_command)
+    lxc_args.append("exec")
+    lxc_args.append(args.name)
+    lxc_args.append("--")
+    lxc_args.append("su")
+    lxc_args.append("-l")
+    lxc_args.append("-s")
+    lxc_args.append("/bin/bash")
+    
+    if priviledged == False:
+        lxc_args.append(getpass.getuser())
+    
+    if args.program:
+        program = "cd \""+os.getcwd()+"\" && "
+        program += " ".join(shlex.quote(arg) for arg in args.program)
+        lxc_args.append("-c")
+        lxc_args.append(program)
+        
+    #replace us with the new process
+    os.execv(lxc_command,lxc_args)
+    
+def containerBasePath (name):
+    apiObj = pylxd.api.API()
+    if apiObj.container_defined(name):
+        return "/var/lib/lxd/containers/"+name
+    return None
+    
+def containerRootFs (name):
+    basePath = containerBasePath(name)
+    if basePath is None:
+        return None
+    return basePath+"/rootfs"
     
 
 def listCmd (args):
     print(json.dumps(findExistingTargets()))
     
 def existsCmd (args):
-    containers = findExistingTargets()
-    for container in containers:
-        if (container["name"] == args.name):
-            print("Container exists") 
-            sys.exit(0)
+    apiObj = pylxd.api.API()
+    if apiObj.container_defined(args.name):
+        print("Container exists") 
+        sys.exit(0)
     print("Container not found")
     sys.exit(1)
     
 def createCmd (args):
-    print("Create")
+    if os.getuid() is not 0:
+        print ("Must be root to create a new container")
+        sys.exit(1)
+    
+    imagename = args.framework+"-"+args.architecture
+    print("Creating builder target from image: "+imagename)
+    apiObj = pylxd.api.API()
+    if apiObj.container_defined(args.name):
+        print("Container already exists")
+        sys.exit(1)
+        
+    #todo check if host arch can run the container arch
+    config = {
+          "security.privileged":"true",
+          "user.click-architecture":"armhf",
+          "user.click-framework":"ubuntu-sdk-15.04"
+    }
+    
+    devices = {
+         "dri":{  
+            "path":"/dev/dri",
+            "source":"/dev/dri",
+            "type":"disk"
+         },
+         "group":{  
+            "path":"/etc/group",
+            "source":"/etc/group",
+            "type":"disk",
+            "readonly":"true"
+         },
+         "homedir":{  
+            "path":"/home",
+            "source":"/home",
+            "type":"disk"
+         },
+         "passwd":{  
+            "path":"/etc/passwd",
+            "source":"/etc/passwd",
+            "type":"disk",
+            "readonly":"true"
+         },
+         "root":{  
+            "path":"/",
+            "type":"disk"
+         },
+         "shadow":{  
+            "path":"/etc/shadow",
+            "source":"/etc/shadow",
+            "type":"disk",
+            "readonly":"true"
+         },
+         "tmp":{  
+            "path":"/tmp",
+            "source":"/tmp",
+            "type":"disk"
+         }
+    }
+    
+    container = {
+      'name': args.name,
+      'source': {
+         'type': 'image',
+         'alias': imagename
+      },
+      'config':config, 
+      'devices':devices             
+    }
+    
+    op = pylxd.api.operation.LXDOperation();
+    try:
+        op_data = apiObj.container_init(container)
+        if op.operation_wait(op_data[1]["operation"], op_data[1]["status_code"], -1):
+            basePath = containerBasePath(args.name)
+            if (os.path.islink(basePath)):
+                basePath = os.path.realpath(basePath)
+                
+            os.chmod(basePath, stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+            print("Success")
+            sys.exit(0)
+        else:
+            print("Creating the container failed")
+            sys.exit(1)
+    except PyLXDException as ex:
+        print("Creating the container failed with error: "+str(ex))
+        sys.exit(1)
+        
+def destroyCmd (args):
+    apiObj = pylxd.api.API()
+    if not apiObj.container_defined(args.name):
+        print("Container does not exists")
+        sys.exit(1)
+        
+    op = pylxd.api.operation.LXDOperation();
+    try:
+        op_data = apiObj.container_destroy(args.name)
+        if op.operation_wait(op_data[1]["operation"], op_data[1]["status_code"], -1):
+            print("Success")
+            sys.exit(0)
+        else:
+            print("Removing the container failed")
+            sys.exit(1)
+    except PyLXDException as ex:
+        print("Removing the container failed with error: "+str(ex))
+        sys.exit(1)
     
 def registerCmd (args):
     print("Register")
     
 def rootfsCmd (args):
     #todo: ask the container where the filesystem is
-    print("/var/lib/lxd/containers/"+args.name+"/rootfs")
+    rootfs = containerRootFs(args.name)
+    if rootfs is None:
+        print("Container not found")
+        sys.exit(1)
+        
+    print(rootfs)
     sys.exit(0)
     
-
+def runCmd (args):
+    executeCommand(args, False)
+    
+def maintCmd (args):
+    print (args)
+    executeCommand(args, True)
+    
+def upgradeCmd (args):
+    maintCmd(argparse.Namespace(name=args.name, program=["/bin/bash", "-c", "apt update && apt full-upgrade --yes"]))
 
 # register options to the argument parser
 parser = argparse.ArgumentParser(description="Ubuntu SDK build target utility")
@@ -81,11 +255,44 @@ exists_parser = subparsers.add_parser("exists")
 exists_parser.add_argument("name", action="store")
 exists_parser.set_defaults(func=existsCmd)
 
+upgrade_parser = subparsers.add_parser("upgrade")
+upgrade_parser.add_argument("name", action="store")
+upgrade_parser.set_defaults(func=upgradeCmd)
+
+run_parser = subparsers.add_parser("run")
+run_parser.add_argument("name", action="store")
+run_parser.add_argument(
+        "program", nargs=argparse.REMAINDER,
+        help="program to run with arguments")
+run_parser.set_defaults(func=runCmd)
+
+maint_parser = subparsers.add_parser("maint",
+    help="run a maintenance command in the container")
+maint_parser.add_argument("name", action="store")
+maint_parser.add_argument("program", 
+    nargs=argparse.REMAINDER,
+    help="program to run with arguments")
+maint_parser.set_defaults(func=maintCmd)
+
 create_parser = subparsers.add_parser("create")
 create_parser.set_defaults(func=createCmd)
+create_parser.add_argument(
+    "-a", "--architecture", required=True,
+    help="architecture for the chroot")
+create_parser.add_argument(
+    "-f", "--framework", default="ubuntu-sdk-15.04",
+    help="framework for the chroot (default: ubuntu-sdk-15.04)")
+create_parser.add_argument(
+    "-n", "--name", required=True,
+    help=(
+        "name of the container"))
 
 register_parser = subparsers.add_parser("register")
 register_parser.set_defaults(func=registerCmd)
+
+destroy_parser = subparsers.add_parser("destroy")
+destroy_parser.add_argument("name", action="store")
+destroy_parser.set_defaults(func=destroyCmd)
 
 options = parser.parse_args()
 options.func(options)

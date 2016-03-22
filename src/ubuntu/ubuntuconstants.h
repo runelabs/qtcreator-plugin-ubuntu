@@ -295,12 +295,15 @@ const char UBUNTU_CLICK_CHROOT_SUFFIX_ENV_VAR[] = "CLICK_CHROOT_SUFFIX";
 const char UBUNTU_CLICK_CHROOT_DEFAULT_NAME[] = "click"; 
 const char UBUNTU_CLICK_BINARY[]  = "/usr/bin/click";
 const char UBUNTU_SUDO_BINARY[]   = "/usr/bin/pkexec";
+
 const char UBUNTU_TARGET_TOOL[]   = "%1/usdk-target.py";
+const char UBUNTU_CREATE_CLICK_TARGET_ARGS[]  = "%0/usdk-target.py create -a %1 -f %2 %3";
+const char UBUNTU_DESTROY_CLICK_TARGET_ARGS[] = "%0/usdk-target.py destroy %1";
+const char UBUNTU_UPGRADE_CLICK_TARGET_ARGS[] = "upgrade %0";
+const char UBUNTU_CLICK_OPEN_TERMINAL[]       = "%0/usdk-target.py maint %1";
+
 const char UBUNTU_CLICK_CLICK_PACKAGE_DIR[] = "%CLICK_FRAMEWORK%-%CLICK_ARCH%/click_package";
-const char UBUNTU_CLICK_CHROOT_CREATE_ARGS[]  = "%0/click_create_target %1 %2 %3 %4";
-const char UBUNTU_CLICK_CHROOT_DESTROY_ARGS[] = "%0/click_destroy_target %1 %2 %3 %4";
-const char UBUNTU_CLICK_CHROOT_UPGRADE_ARGS[] = "chroot -a %0 -f %1 -s %2 -n %3 upgrade";
-const char UBUNTU_CLICK_OPEN_TERMINAL[] = "click chroot -a %0 -f %1 -s %2 -n %3 maint /bin/bash";
+
 
 const char UBUNTU_CLICK_DELETE_TITLE[] = "Delete click chroot";
 const char UBUNTU_CLICK_DELETE_MESSAGE[] = "Are you sure you want to delete this chroot?";

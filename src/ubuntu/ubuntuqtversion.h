@@ -34,6 +34,11 @@ public:
 
     static int minimalScriptVersion ();
 
+    // BaseQtVersion interface
+    virtual bool hasQmlDump() const override;
+    virtual bool hasQmlDumpWithRelocatableFlag() const override;
+    virtual bool needsQmlDump() const override;
+
 private:
     int m_scriptVersion;
 };
