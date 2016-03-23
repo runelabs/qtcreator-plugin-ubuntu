@@ -1,3 +1,10 @@
+qtcreator-plugin-ubuntu (3.5.0+16.04.20160323-0ubuntu1) xenial; urgency=medium
+
+  [ Zoltán Balogh ]
+  * Use the qmake project of the Showcase galler
+
+ -- Zoltan Balogh <zoltan.balogh@canonical.com>  Wed, 23 Mar 2016 09:24:34 +0000
+
 qtcreator-plugin-ubuntu (3.5.0+16.04.20160321.1-0ubuntu1) xenial; urgency=medium
 
   [ Marcus Tomlinson ]
