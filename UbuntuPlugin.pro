@@ -78,8 +78,6 @@ SOURCES += \
     src/ubuntu/ubuntushared.cpp \
     src/ubuntu/ubuntupackagestep.cpp \
     src/ubuntu/ubuntuqtversion.cpp \
-    src/ubuntu/ubuntudeploystepfactory.cpp \
-    src/ubuntu/ubuntudirectuploadstep.cpp \
     src/ubuntu/ubuntuhtmlbuildconfiguration.cpp \
     src/ubuntu/ubuntuqmlbuildconfiguration.cpp \
     src/ubuntu/wizards/ubuntufirstrunwizard.cpp \
@@ -149,8 +147,6 @@ HEADERS += \
     src/ubuntu/ubuntudevicesmodel.h \
     src/ubuntu/ubuntupackagestep.h \
     src/ubuntu/ubuntuqtversion.h \
-    src/ubuntu/ubuntudeploystepfactory.h \
-    src/ubuntu/ubuntudirectuploadstep.h \
     src/ubuntu/ubuntuhtmlbuildconfiguration.h \
     src/ubuntu/ubuntuqmlbuildconfiguration.h \
     src/ubuntu/wizards/ubuntufirstrunwizard.h \
@@ -196,7 +192,9 @@ SOURCES += \
     src/ubuntu/device/remote/ubunturemotedebugsupport.cpp \
     src/ubuntu/device/remote/ubunturemoteanalyzesupport.cpp \
     src/ubuntu/device/remote/ubunturemoterunner.cpp \
-    src/ubuntu/device/remote/ubuntuwaitfordevicedialog.cpp
+    src/ubuntu/device/remote/ubuntuwaitfordevicedialog.cpp \
+    src/ubuntu/device/remote/ubuntudirectuploadstep.cpp \
+    src/ubuntu/device/remote/ubuntudeploystepfactory.cpp
 
 HEADERS +=  \
     src/ubuntu/device/remote/abstractremoterunsupport.h \
@@ -212,7 +210,9 @@ HEADERS +=  \
     src/ubuntu/device/remote/ubunturemotedebugsupport.h \
     src/ubuntu/device/remote/ubunturemoteanalyzesupport.h \
     src/ubuntu/device/remote/ubunturemoterunner.h \
-    src/ubuntu/device/remote/ubuntuwaitfordevicedialog.h
+    src/ubuntu/device/remote/ubuntuwaitfordevicedialog.h \
+    src/ubuntu/device/remote/ubuntudirectuploadstep.h \
+    src/ubuntu/device/remote/ubuntudeploystepfactory.h
 
 FORMS += \
     src/ubuntu/device/remote/ubunturemoterunconfigurationwidget.ui \

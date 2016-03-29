@@ -16,7 +16,7 @@
  * Author: Benjamin Zeller <benjamin.zeller@canonical.com>
  */
 #include "ubunturemotedeployconfiguration.h"
-#include <ubuntu/ubuntudirectuploadstep.h>
+#include <ubuntu/device/remote/ubuntudirectuploadstep.h>
 #include <ubuntu/ubuntuprojecthelper.h>
 #include <ubuntu/ubuntuconstants.h>
 #include <ubuntu/ubuntupackagestep.h>

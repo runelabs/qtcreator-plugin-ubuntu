@@ -1,8 +1,9 @@
 #include "ubuntudeploystepfactory.h"
-#include "ubuntuprojecthelper.h"
-#include "ubuntuconstants.h"
 #include "ubuntudirectuploadstep.h"
-#include "ubuntupackagestep.h"
+
+#include <ubuntu/ubuntuprojecthelper.h>
+#include <ubuntu/ubuntuconstants.h>
+#include <ubuntu/ubuntupackagestep.h>
 
 #include <utils/qtcassert.h>
 

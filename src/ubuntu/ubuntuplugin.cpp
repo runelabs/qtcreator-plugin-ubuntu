@@ -31,7 +31,6 @@
 #include "localportsmanager.h"
 #include "ubuntubzr.h"
 #include "ubuntuqtversion.h"
-#include "ubuntudeploystepfactory.h"
 #include "ubuntuqmlbuildconfiguration.h"
 #include "ubuntueditorfactory.h"
 #include "ubuntucmakecache.h"
@@ -48,6 +47,7 @@
 #include <ubuntu/device/remote/ubunturemoteruncontrolfactory.h>
 #include <ubuntu/device/remote/ubuntudevicefactory.h>
 #include <ubuntu/device/remote/ubunturemotedeployconfiguration.h>
+#include <ubuntu/device/remote/ubuntudeploystepfactory.h>
 
 #include "wizards/ubuntuprojectapplicationwizard.h"
 #include "wizards/ubuntufirstrunwizard.h"
