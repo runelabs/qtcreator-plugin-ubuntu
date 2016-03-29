@@ -20,7 +20,7 @@
 #define UBUNTURUNCONTROLFACTORY_H
 
 #include <QObject>
-#include "ubuntuproject.h"
+#include <ubuntu/ubuntuproject.h>
 
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/actionmanager/actioncontainer.h>

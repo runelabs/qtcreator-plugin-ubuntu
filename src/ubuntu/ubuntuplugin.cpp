@@ -21,14 +21,11 @@
 #include "ubuntuprojectmanager.h"
 #include "ubuntulocalrunconfiguration.h"
 #include "ubuntulocalrunconfigurationfactory.h"
-#include "ubunturemoteruncontrolfactory.h"
 #include "ubuntulocalruncontrolfactory.h"
 #include "ubuntuclicktool.h"
 #include "ubuntukitmanager.h"
-#include "ubuntudevicefactory.h"
 #include "clicktoolchain.h"
 #include "ubuntuhtmlbuildconfiguration.h"
-#include "ubunturemotedeployconfiguration.h"
 #include "ubuntulocaldeployconfiguration.h"
 #include "ubuntudevicesmodel.h"
 #include "localportsmanager.h"
@@ -46,6 +43,11 @@
 #include "ubuntusettingsdeviceconnectivitypage.h"
 #include "ubuntusettingsclickpage.h"
 #include "ubuntusettingsprojectdefaultspage.h"
+#include "device/container/containerdevicefactory.h"
+
+#include <ubuntu/device/remote/ubunturemoteruncontrolfactory.h>
+#include <ubuntu/device/remote/ubuntudevicefactory.h>
+#include <ubuntu/device/remote/ubunturemotedeployconfiguration.h>
 
 #include "wizards/ubuntuprojectapplicationwizard.h"
 #include "wizards/ubuntufirstrunwizard.h"
@@ -182,6 +184,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
     //ubuntu device support
     addAutoReleasedObject(new UbuntuDeviceFactory);
+    addAutoReleasedObject(new ContainerDeviceFactory);
     addAutoReleasedObject(new UbuntuLocalPortsManager);
 
     //deploy support

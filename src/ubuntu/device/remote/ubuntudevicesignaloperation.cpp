@@ -1,5 +1,5 @@
 #include "ubuntudevicesignaloperation.h"
-#include "ubuntuconstants.h"
+#include <ubuntu/ubuntuconstants.h>
 #include <QProcess>
 namespace Ubuntu {
 namespace Internal {

@@ -19,13 +19,14 @@
 #ifndef UBUNTUDEVICESMODEL_H
 #define UBUNTUDEVICESMODEL_H
 
-#include "ubuntudevice.h"
-#include "ubuntudevicenotifier.h"
+#include <ubuntu/device/remote/ubuntudevice.h>
+#include <ubuntu/device/remote/ubuntudevicenotifier.h>
 #include "ubuntuprocess.h"
 #include <coreplugin/id.h>
 
 #include <QAbstractListModel>
 #include <QList>
+#include <QTime>
 
 namespace ProjectExplorer {
 class Kit;
@@ -173,6 +174,7 @@ private:
 
     QString   m_reply;
     UbuntuProcess *m_process;
+    QTime m_profiler;
 };
 
 class UbuntuQmlFeatureState : public QObject

@@ -1,11 +1,11 @@
 #include "ubuntufirstrunwizard.h"
-#include "../ubuntuconstants.h"
-#include "../ubuntukitmanager.h"
-#include "../ubuntuclickdialog.h"
-#include "../clicktoolchain.h"
-#include "../ubuntudevicesmodel.h"
-#include "../ubuntuprocess.h"
-#include "../ubuntudevice.h"
+#include <ubuntu/ubuntuconstants.h>
+#include <ubuntu/ubuntukitmanager.h>
+#include <ubuntu/ubuntuclickdialog.h>
+#include <ubuntu/clicktoolchain.h>
+#include <ubuntu/ubuntudevicesmodel.h>
+#include <ubuntu/ubuntuprocess.h>
+#include <ubuntu/device/remote/ubuntudevice.h>
 
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitinformation.h>

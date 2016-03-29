@@ -16,8 +16,8 @@
  * Author: Benjamin Zeller <benjamin.zeller@canonical.com>
  */
 #include "ubuntudevicefactory.h"
-#include "ubuntuconstants.h"
 #include "ubuntudevice.h"
+#include <ubuntu/ubuntuconstants.h>
 
 #include <utils/qtcassert.h>
 #include <QDir>

@@ -23,7 +23,6 @@ QML_FILES += \
 
 OTHER_FILES +=  \
     share/qtcreator/ubuntu/scripts/*.py \
-    share/qtcreator/ubuntu/scripts/qtc_lxd_wrapper.py \
     $$QML_FILES
 
 #support compiling inside the QtC source tree

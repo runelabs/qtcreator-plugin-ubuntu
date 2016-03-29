@@ -31,8 +31,8 @@
 #include "ubunturemoteruncontrol.h"
 #include "ubunturemoterunconfiguration.h"
 #include "ubunturemoterunner.h"
-#include "ubuntuwaitfordevicedialog.h"
 #include "ubuntudevice.h"
+#include "ubuntuwaitfordevicedialog.h"
 
 #include <remotelinux/abstractremotelinuxrunconfiguration.h>
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>

@@ -1,7 +1,7 @@
 #include "ubunturemoteanalyzesupport.h"
 #include "ubunturemoterunconfiguration.h"
 #include "ubunturemoterunner.h"
-#include "ubuntuconstants.h"
+#include <ubuntu/ubuntuconstants.h>
 
 #include <remotelinux/remotelinuxrunconfiguration.h>
 #include <analyzerbase/analyzerruncontrol.h>

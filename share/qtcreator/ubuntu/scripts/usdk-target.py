@@ -28,7 +28,25 @@ import getpass
 import os
 import pylxd
 import stat
+import subprocess
 from pylxd.deprecated.exceptions import PyLXDException
+
+import pwd
+import spwd
+import grp
+
+def bootOrDie (apiObj, container):
+    if not apiObj.container_defined(container):
+        print("Container not found")
+        sys.exit(1)
+        
+    info = apiObj.container_info(container)
+    if info['status'] != "Running":    
+        op = pylxd.api.operation.LXDOperation();
+        op_data = apiObj.container_start(container, -1)
+        if not op.operation_wait(op_data[1]["operation"], op_data[1]["status_code"], -1):
+            print("Could not start container")
+            sys.exit(1)
 
 def findExistingTargets ():
     apiObj = pylxd.api.container.LXDContainer()
@@ -48,18 +66,8 @@ def findExistingTargets ():
 
 def executeCommand (args, priviledged):
     apiObj = pylxd.api.API()
-    if not apiObj.container_defined(args.name):
-        print("Container not found")
-        sys.exit(1)
-        
-    info = apiObj.container_info(args.name)
-    if info['status'] != "Running":    
-        op = pylxd.api.operation.LXDOperation();
-        op_data = apiObj.container_start(args.name, -1)
-        if not op.operation_wait(op_data[1]["operation"], op_data[1]["status_code"], -1):
-            print("Could not start container")
-            sys.exit(1)
-        
+    bootOrDie(apiObj, args.name)
+    
     lxc_command = shutil.which("lxc")
     if lxc_command is None:
         print("lxc was not found in PATH")
@@ -80,12 +88,11 @@ def executeCommand (args, priviledged):
     
     if args.program:
         program = "cd \""+os.getcwd()+"\" && "
-        program += " ".join(shlex.quote(arg) for arg in args.program)
+        program = " ".join(shlex.quote(arg) for arg in args.program)
         lxc_args.append("-c")
         lxc_args.append(program)
         
-    #replace us with the new process
-    os.execv(lxc_command,lxc_args)
+    sys.exit(subprocess.call(lxc_args))
     
 def containerBasePath (name):
     apiObj = pylxd.api.API()
@@ -136,32 +143,14 @@ def createCmd (args):
             "source":"/dev/dri",
             "type":"disk"
          },
-         "group":{  
-            "path":"/etc/group",
-            "source":"/etc/group",
-            "type":"disk",
-            "readonly":"true"
-         },
          "homedir":{  
             "path":"/home",
             "source":"/home",
             "type":"disk"
          },
-         "passwd":{  
-            "path":"/etc/passwd",
-            "source":"/etc/passwd",
-            "type":"disk",
-            "readonly":"true"
-         },
          "root":{  
             "path":"/",
             "type":"disk"
-         },
-         "shadow":{  
-            "path":"/etc/shadow",
-            "source":"/etc/shadow",
-            "type":"disk",
-            "readonly":"true"
          },
          "tmp":{  
             "path":"/tmp",
@@ -188,8 +177,8 @@ def createCmd (args):
             if (os.path.islink(basePath)):
                 basePath = os.path.realpath(basePath)
                 
-            os.chmod(basePath, stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
-            print("Success")
+            os.chmod(basePath, stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)            
+            registerCmd((argparse.Namespace(name=args.name, user=None)))
             sys.exit(0)
         else:
             print("Creating the container failed")
@@ -218,7 +207,79 @@ def destroyCmd (args):
         sys.exit(1)
     
 def registerCmd (args):
-    print("Register")
+    if os.getuid() is not 0:
+        print ("Must be root to register new users inside the container")
+        sys.exit(1)
+        
+    apiObj = pylxd.api.API()
+    bootOrDie(apiObj, args.name)
+    
+    user_entry = None
+    if args.user is None:
+        env = os.environ
+        if "SUDO_UID" in env:
+            user_entry = pwd.getpwuid(int(env["SUDO_UID"]))
+        elif "PKEXEC_UID" in env:
+            user_entry = pwd.getpwuid(int(env["PKEXEC_UID"]))
+    else:
+        user_entry   = pwd.getpwnam(args.user)
+        
+    if user_entry is None:
+        print("Can not determine user, please specify with the --user switch")
+        sys.exit(1)
+        
+    if user_entry[2] == 0:
+        print ("Can not register root.")
+        sys.exit(1)
+        
+    shadow_entry = spwd.getspnam(user_entry[0])
+    
+    groups=[]
+    print(grp.getgrall())
+    for currGrp in grp.getgrall():
+        
+        if user_entry[0] in currGrp[3] or currGrp[0] == user_entry[0]:
+            
+            is_primGroup = (currGrp[2] == user_entry[3])
+            
+            print ("Create group "+currGrp[0])
+            
+            #autocreate groups
+            cmd = ["lxc", "exec", args.name, "--",
+                   "groupadd", 
+                   "-g", str(currGrp[2]),
+                   currGrp[0]]
+            
+            res = subprocess.call(cmd)
+            # 0=success
+            # 9=group name already exists
+            if res is not 0 and res is not 9:
+                if not is_primGroup:
+                    print("Could not create group "+currGrp[0]+" skipping it")
+                    continue;
+                else:
+                    print("Could not create primary group")
+                    sys.exit(1)
+            
+            # we don't need the default group in the supplementary ones
+            if not is_primGroup:
+                groups.append(currGrp[0])
+            
+            
+    print ("Adding user")
+    cmd = ["lxc", "exec", args.name, "--",
+           "useradd", "--no-create-home", 
+           "-u", str(user_entry[2]),
+           "--gid", str(user_entry[3]), 
+           "--groups", ",".join(groups),
+           "--home-dir", user_entry[5],
+           "-s", "/bin/bash",
+           "-p", shadow_entry[1],
+           user_entry[0]]
+    
+    print(" ".join(cmd))
+            
+    sys.exit(subprocess.call(cmd))
     
 def rootfsCmd (args):
     #todo: ask the container where the filesystem is
@@ -287,7 +348,9 @@ create_parser.add_argument(
     help=(
         "name of the container"))
 
-register_parser = subparsers.add_parser("register")
+register_parser = subparsers.add_parser("register", help="register a user into the target")
+register_parser.add_argument("name", action="store")
+register_parser.add_argument("-u", "--user", required=False, default=None)
 register_parser.set_defaults(func=registerCmd)
 
 destroy_parser = subparsers.add_parser("destroy")

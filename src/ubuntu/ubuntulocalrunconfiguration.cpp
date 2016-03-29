@@ -20,7 +20,7 @@
 #include "ubuntuproject.h"
 #include "ubuntuprojecthelper.h"
 #include "ubuntuclickmanifest.h"
-#include "ubunturemoterunconfiguration.h"
+#include <ubuntu/device/remote/ubunturemoterunconfiguration.h>
 #include "ubuntucmakecache.h"
 #include "ubuntuprojecthelper.h"
 

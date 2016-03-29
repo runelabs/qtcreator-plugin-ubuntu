@@ -79,9 +79,12 @@ public:
     static QString findOrCreateQMakeWrapper(const UbuntuClickTool::Target &target);
     static QString findOrCreateMakeWrapper(const UbuntuClickTool::Target &target);
     static QString mapIncludePathsForCMake(ProjectExplorer::Kit *k, const QString &in);
+    static QString hostArchitecture ();
+    static bool    compatibleWithHostArchitecture (const QString &targetArch);
 
     static bool          targetExists (const Target& target);
     static QList<Target> listAvailableTargets (const QString &framework=QString());
+    static QList<Target> listPossibleDeviceContainers ();
     static const Target *clickTargetFromTarget(ProjectExplorer::Target *t);
     static QString clickChrootSuffix ();
     static QString m_strClickChrootSuffix;

@@ -328,9 +328,15 @@ const char UBUNTU_CLICK_QML_BC_ID[]      = "UbuntuProjectManager.UbuntuQml.Build
 const char UBUNTU_CLICK_QML_UPDATE_TRANSL_MAKESTEP[]      = "UbuntuProjectManager.UbuntuQml.UpdateTranslationTemplateMakeStep";
 const char UBUNTU_CLICK_QML_BUILD_TRANSL_MAKESTEP[]      = "UbuntuProjectManager.UbuntuQml.BuildTranslationMakeStep";
 const char UBUNTU_CLICK_QML_BUILD_TRANSL_DIR[]      = "mo";
+
 //Devicesupport
 const char UBUNTU_DEVICE_TYPE_ID[] = "UbuntuProjectManager.DeviceTypeId";
 const char UBUNTU_DEVICE_SSHIDENTITY[] = "ubuntudevice_id_rsa";
+
+//Container devices
+const int  UBUNTU_DESKTOP_PORT_START = 40000;
+const int  UBUNTU_DESKTOP_PORT_END = 41000;
+const char UBUNTU_CONTAINER_DEVICE_TYPE_ID[] = "UbuntuProjectManager.LocalDeviceTypeId.";
 
 //Deploysupport
 const char UBUNTU_DEPLOYCONFIGURATION_ID[]       = "UbuntuProjectManager.DeployConfiguration";

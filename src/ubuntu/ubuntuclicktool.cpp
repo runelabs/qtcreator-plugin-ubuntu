@@ -213,7 +213,7 @@ QString UbuntuClickTool::targetBasePath(const UbuntuClickTool::Target &target)
         return QString();
 
     QTextStream in(&sdkTool);
-    return in.readAll();
+    return in.readAll().trimmed();
 }
 
 /*!
@@ -287,6 +287,23 @@ QList<UbuntuClickTool::Target> UbuntuClickTool::listAvailableTargets(const QStri
         targets.append(t);
     }
     return targets;
+}
+
+QList<UbuntuClickTool::Target> UbuntuClickTool::listPossibleDeviceContainers()
+{
+    QString arch = hostArchitecture();
+    if (arch.isEmpty())
+        return QList<UbuntuClickTool::Target>();
+
+    QList<Target> allTargets = listAvailableTargets();
+
+    QList<Target> deviceTargets;
+    foreach(const Target &t, allTargets) {
+        if (t.architecture == arch
+                || (QStringLiteral("amd64") == arch && t.architecture == QStringLiteral("i386")))
+            deviceTargets.append(t);
+    }
+    return deviceTargets;
 }
 
 /*!
@@ -379,6 +396,27 @@ QString UbuntuClickTool::mapIncludePathsForCMake(ProjectExplorer::Kit *k, const 
     }
 
     return tmp;
+}
+
+QString UbuntuClickTool::hostArchitecture()
+{
+    QProcess proc;
+    proc.setProgram(QStringLiteral("dpkg"));
+    proc.setArguments(QStringList()<<QStringLiteral("--print-architecture"));
+    proc.start(QIODevice::ReadOnly);
+    if (!proc.waitForFinished(3000) || proc.exitCode() != 0 || proc.exitStatus() != QProcess::NormalExit) {
+        qWarning()<<"Could not determine the host architecture";
+        return QString();
+    }
+
+    QTextStream in(&proc);
+    return in.readAll().simplified();
+}
+
+bool UbuntuClickTool::compatibleWithHostArchitecture(const QString &targetArch)
+{
+    QString arch = hostArchitecture();
+    return (targetArch == arch || (QStringLiteral("amd64") == arch && targetArch == QStringLiteral("i386")));
 }
 
 QString UbuntuClickTool::findOrCreateToolWrapper (const QString &tool, const UbuntuClickTool::Target &target)

@@ -26,7 +26,6 @@
 # the chroot. All arguments are forwarded
 
 import sys
-import os
 import os.path
 import shutil
 import subprocess
@@ -35,7 +34,6 @@ import re
 import fcntl
 import signal
 import getpass
-import shlex
 
 #find out the directory holding the link
 container = os.path.basename(os.path.dirname(os.path.abspath(sys.argv[0])))
@@ -87,11 +85,8 @@ signal.signal(signal.SIGTERM, exit_gracefully)
 signal.signal(signal.SIGINT , exit_gracefully)
 signal.signal(signal.SIGHUP , exit_gracefully)
 
-escaped_command = " ".join(shlex.quote(s) for s in [command]+args)
-escaped_command = "cd \""+os.getcwd()+"\" && "+escaped_command
-
 #force bash shell so we can be sure the environment is set up correcly by sourcing files in /etc/profile.d
-subproc = subprocess.Popen([lxc,"exec",container,"--","su", "-l", "-s", "/bin/bash", username, "-c",escaped_command],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+subproc = subprocess.Popen([scriptpath+"/usdk-target.py","run",container,command]+args,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 stdout = ""
 stderr = ""

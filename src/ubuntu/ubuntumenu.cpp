@@ -22,7 +22,7 @@
 #include "ubuntudevicemode.h"
 #include "ubuntuproject.h"
 #include "ubuntuclicktool.h"
-#include "ubuntudevice.h"
+#include <ubuntu/device/remote/ubuntudevice.h>
 #include "ubuntuclickmanifest.h"
 
 #include <coreplugin/icore.h>

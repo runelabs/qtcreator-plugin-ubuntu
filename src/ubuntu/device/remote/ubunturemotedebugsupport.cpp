@@ -30,7 +30,7 @@
 #include "ubunturemotedebugsupport.h"
 #include "ubunturemoterunconfiguration.h"
 #include "ubunturemoterunner.h"
-#include "ubuntuconstants.h"
+#include <ubuntu/ubuntuconstants.h>
 
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggerengine.h>

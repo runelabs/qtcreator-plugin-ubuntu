@@ -1,9 +1,9 @@
 #include "ubuntudirectuploadstep.h"
 #include "ubuntupackagestep.h"
 #include "ubuntuconstants.h"
-#include "ubuntudevice.h"
-#include "ubunturemotedeployconfiguration.h"
-#include "ubuntuwaitfordevicedialog.h"
+#include <ubuntu/device/remote/ubuntudevice.h>
+#include <ubuntu/device/remote/ubunturemotedeployconfiguration.h>
+#include <ubuntu/device/remote/ubuntuwaitfordevicedialog.h>
 
 #include <utils/qtcassert.h>
 #include <projectexplorer/deployablefile.h>

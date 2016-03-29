@@ -21,7 +21,7 @@
 #include "ubuntumenu.h"
 #include "ubuntuclicktool.h"
 #include "ubuntuvalidationresultmodel.h"
-#include "ubuntudevice.h"
+#include <ubuntu/device/remote/ubuntudevice.h>
 #include "ubuntupackagestep.h"
 #include "ubuntushared.h"
 #include "ubuntucmakecache.h"

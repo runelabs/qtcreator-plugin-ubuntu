@@ -1,10 +1,11 @@
 #include "ubuntukitmanager.h"
 #include "clicktoolchain.h"
 #include "ubuntuconstants.h"
-#include "ubuntudevice.h"
+#include <ubuntu/device/remote/ubuntudevice.h>
 #include "ubuntuclickdialog.h"
 #include "ubuntuqtversion.h"
 #include "settings.h"
+#include "device/container/containerdevice.h"
 
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kit.h>
@@ -47,6 +48,28 @@ static bool lessThanToolchain (const ClickToolChain* left, const ClickToolChain*
     return UbuntuClickFrameworkProvider::caseInsensitiveFWLessThan(leftTarget.framework, rightTarget.framework);
 }
 
+
+static void createOrFindDeviceAndType(ProjectExplorer::Kit *k, ClickToolChain *tc)
+{
+    if (UbuntuClickTool::compatibleWithHostArchitecture(tc->clickTarget().architecture)) {
+        Core::Id devId = ContainerDevice::createIdForContainer(tc->clickTarget().containerName);
+        ProjectExplorer::IDevice::ConstPtr ptr
+                = ProjectExplorer::DeviceManager::instance()->find(devId);
+
+        if (!ptr) {
+            ContainerDevice::Ptr dev = ContainerDevice::Ptr(new ContainerDevice(devId, devId));
+            ProjectExplorer::DeviceManager::instance()->addDevice(dev);
+            ptr = dev;
+        }
+
+        ProjectExplorer::DeviceTypeKitInformation::setDeviceTypeId(k,devId);
+        ProjectExplorer::DeviceKitInformation::setDevice(k, ptr);
+    } else {
+        //a Kit that cannot take a Container Device
+        Core::Id devTypeId = Core::Id(Constants::UBUNTU_DEVICE_TYPE_ID).withSuffix(tc->clickTarget().architecture);
+        ProjectExplorer::DeviceTypeKitInformation::setDeviceTypeId(k,devTypeId);
+    }
+}
 UbuntuKitManager::UbuntuKitManager()
 {
 }
@@ -335,14 +358,14 @@ ProjectExplorer::Kit *UbuntuKitManager::createKit(ClickToolChain *tc)
 
     ProjectExplorer::SysRootKitInformation::setSysRoot(newKit,Utils::FileName::fromString(UbuntuClickTool::targetBasePath(tc->clickTarget())));
 
-    //we always want a ubuntu device
-    Core::Id devTypeId = Core::Id(Constants::UBUNTU_DEVICE_TYPE_ID).withSuffix(tc->clickTarget().architecture);
-    ProjectExplorer::DeviceTypeKitInformation::setDeviceTypeId(newKit,devTypeId);
+    createOrFindDeviceAndType(newKit, tc);
 
     //@TODO add gdbserver support
     QtSupport::QtKitInformation::setQtVersion(newKit, createOrFindQtVersion(tc));
     return newKit;
 }
+
+
 
 /*!
  * \brief UbuntuKitManager::createOrFindDebugger
@@ -407,49 +430,49 @@ void UbuntuKitManager::fixKit(ProjectExplorer::Kit *k)
 
     //make sure we point to a ubuntu device
     Core::Id devId = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k);
-    if ( !devId.isValid() ||                                             //invalid type
-         devId == Constants::UBUNTU_DEVICE_TYPE_ID ||                    //Kit uses still the old device type ids
-         !devId.toString().startsWith(QLatin1String(Constants::UBUNTU_DEVICE_TYPE_ID)) //kit has a wrong device type
-         ) {
+    bool devValid        = devId.isValid(); //invalid type
+    bool usesOldDevType  = devId == Constants::UBUNTU_DEVICE_TYPE_ID; //Kit uses still the old device type ids
+    bool hasWrongDevType = devId.toString().startsWith(QLatin1String(Constants::UBUNTU_DEVICE_TYPE_ID)) ||
+            devId.toString().startsWith(QLatin1String(Constants::UBUNTU_CONTAINER_DEVICE_TYPE_ID)); //kit has a wrong device type
 
+    if (usesOldDevType) {
         //if this kit still uses the old type ids, we try to find the correct device by name
-        bool doMigration = (devId == Constants::UBUNTU_DEVICE_TYPE_ID);
 
-        //a old kit with a incorrect device ID, lets set the correct device type id
         Core::Id devTypeId = Core::Id(Constants::UBUNTU_DEVICE_TYPE_ID).withSuffix(tc->clickTarget().architecture);
         ProjectExplorer::DeviceTypeKitInformation::setDeviceTypeId(k,devTypeId);
+        UbuntuDevice::ConstPtr fuzzyMatch;
+        UbuntuDevice::ConstPtr fullMatch;
 
-        if (doMigration) {
-            UbuntuDevice::ConstPtr fuzzyMatch;
-            UbuntuDevice::ConstPtr fullMatch;
+        //lets search for a device
+        ProjectExplorer::DeviceManager *devMgr = ProjectExplorer::DeviceManager::instance();
+        for (int i = 0; i<devMgr->deviceCount(); i++) {
+            ProjectExplorer::IDevice::ConstPtr dev = devMgr->deviceAt(i);
+            if(!dev)
+                continue;
 
-            //lets search for a device
-            ProjectExplorer::DeviceManager *devMgr = ProjectExplorer::DeviceManager::instance();
-            for (int i = 0; i<devMgr->deviceCount(); i++) {
-                ProjectExplorer::IDevice::ConstPtr dev = devMgr->deviceAt(i);
-                if(!dev)
-                    continue;
+            //the type ID also checks if the architecture is correct
+            if(dev->type() != devTypeId)
+                continue;
 
-                //the type ID also checks if the architecture is correct
-                if(dev->type() != devTypeId)
-                    continue;
+            UbuntuDevice::ConstPtr ubuntuDev = qSharedPointerCast<const UbuntuDevice>(dev);
 
-                UbuntuDevice::ConstPtr ubuntuDev = qSharedPointerCast<const UbuntuDevice>(dev);
+            //we found a possible Device!
+            if(!fuzzyMatch)
+                fuzzyMatch = ubuntuDev;
 
-                //we found a possible Device!
-                if(!fuzzyMatch)
-                    fuzzyMatch = ubuntuDev;
-
-                //this is most likely the device that was used with this kit by using the autocreate button
-                QRegularExpression regExp (QStringLiteral("^(%1\\s+\\(.*\\))$").arg(ubuntuDev->displayName()));
-                QRegularExpressionMatch m = regExp.match(ubuntuDev->displayName());
-                if (m.hasMatch()) {
-                    fullMatch = ubuntuDev;
-                    break;
-                }
+            //this is most likely the device that was used with this kit by using the autocreate button
+            QRegularExpression regExp (QStringLiteral("^(%1\\s+\\(.*\\))$").arg(ubuntuDev->displayName()));
+            QRegularExpressionMatch m = regExp.match(ubuntuDev->displayName());
+            if (m.hasMatch()) {
+                fullMatch = ubuntuDev;
+                break;
             }
-            ProjectExplorer::DeviceKitInformation::setDevice(k,!fullMatch.isNull() ? fullMatch : fuzzyMatch);
         }
+        ProjectExplorer::DeviceKitInformation::setDevice(k,!fullMatch.isNull() ? fullMatch : fuzzyMatch);
+    }
+
+    if (!devValid || hasWrongDevType) {
+        createOrFindDeviceAndType(k, tc);
     }
 
     //values the user can change

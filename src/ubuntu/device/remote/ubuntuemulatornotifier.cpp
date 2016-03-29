@@ -16,7 +16,7 @@
  * Author: Benjamin Zeller <benjamin.zeller@canonical.com>
  */
 #include "ubuntuemulatornotifier.h"
-#include "ubuntuconstants.h"
+#include <ubuntu/ubuntuconstants.h>
 
 #include <QTimer>
 #include <QRegularExpression>

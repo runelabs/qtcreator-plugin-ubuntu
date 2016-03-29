@@ -18,13 +18,14 @@
 #include "ubuntudevice.h"
 #include "ubuntudevicenotifier.h"
 #include "ubuntuemulatornotifier.h"
-#include "ubuntuprocess.h"
-#include "ubuntuconstants.h"
 #include "ubuntudevicesignaloperation.h"
-#include "ubuntuclicktool.h"
-#include "localportsmanager.h"
-#include "clicktoolchain.h"
-#include "settings.h"
+
+#include <ubuntu/ubuntuprocess.h>
+#include <ubuntu/ubuntuconstants.h>
+#include <ubuntu/ubuntuclicktool.h>
+#include <ubuntu/localportsmanager.h>
+#include <ubuntu/clicktoolchain.h>
+#include <ubuntu/settings.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <remotelinux/genericlinuxdeviceconfigurationwidget.h>

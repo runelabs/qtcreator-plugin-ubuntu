@@ -16,15 +16,16 @@
  * Author: Benjamin Zeller <benjamin.zeller@canonical.com>
  */
 #include "ubunturemoterunconfiguration.h"
-#include "clicktoolchain.h"
-#include "ubuntuclicktool.h"
-#include "ubuntuconstants.h"
-#include "ubuntulocalrunconfiguration.h"
 #include "ubunturemotedeployconfiguration.h"
-#include "ubuntupackagestep.h"
-#include "ubuntuclickmanifest.h"
 #include "ui_ubunturemoterunconfigurationwidget.h"
-#include "settings.h"
+
+#include <ubuntu/clicktoolchain.h>
+#include <ubuntu/ubuntuclicktool.h>
+#include <ubuntu/ubuntuconstants.h>
+#include <ubuntu/ubuntulocalrunconfiguration.h>
+#include <ubuntu/ubuntupackagestep.h>
+#include <ubuntu/ubuntuclickmanifest.h>
+#include <ubuntu/settings.h>
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>

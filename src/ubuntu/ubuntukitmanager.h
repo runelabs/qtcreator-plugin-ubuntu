@@ -19,7 +19,7 @@
 #define UBUNTU_INTERNAL_UBUNTUKITMANAGER_H
 
 #include "clicktoolchain.h"
-#include "ubuntudevice.h"
+#include <ubuntu/device/remote/ubuntudevice.h>
 #include <projectexplorer/kit.h>
 
 namespace Debugger{
