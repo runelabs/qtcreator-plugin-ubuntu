@@ -1,7 +1,7 @@
 #include "ubuntulocalscopedebugsupport.h"
 #include "ubuntulocalrunconfiguration.h"
-#include "ubuntuprojecthelper.h"
-#include "ubuntuconstants.h"
+#include <ubuntu/ubuntuprojecthelper.h>
+#include <ubuntu/ubuntuconstants.h>
 
 #include <debugger/debuggerstartparameters.h>
 #include <projectexplorer/environmentaspect.h>

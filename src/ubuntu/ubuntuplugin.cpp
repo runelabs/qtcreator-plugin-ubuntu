@@ -19,14 +19,10 @@
 #include "ubuntuplugin.h"
 #include "ubuntuconstants.h"
 #include "ubuntuprojectmanager.h"
-#include "ubuntulocalrunconfiguration.h"
-#include "ubuntulocalrunconfigurationfactory.h"
-#include "ubuntulocalruncontrolfactory.h"
 #include "ubuntuclicktool.h"
 #include "ubuntukitmanager.h"
 #include "clicktoolchain.h"
 #include "ubuntuhtmlbuildconfiguration.h"
-#include "ubuntulocaldeployconfiguration.h"
 #include "ubuntudevicesmodel.h"
 #include "localportsmanager.h"
 #include "ubuntubzr.h"
@@ -42,7 +38,11 @@
 #include "ubuntusettingsdeviceconnectivitypage.h"
 #include "ubuntusettingsclickpage.h"
 #include "ubuntusettingsprojectdefaultspage.h"
-#include "device/container/containerdevicefactory.h"
+
+#include <ubuntu/device/container/containerdevicefactory.h>
+#include <ubuntu/device/container/ubuntulocalrunconfigurationfactory.h>
+#include <ubuntu/device/container/ubuntulocalruncontrolfactory.h>
+#include <ubuntu/device/container/ubuntulocaldeployconfiguration.h>
 
 #include <ubuntu/device/remote/ubunturemoteruncontrolfactory.h>
 #include <ubuntu/device/remote/ubuntudevicefactory.h>

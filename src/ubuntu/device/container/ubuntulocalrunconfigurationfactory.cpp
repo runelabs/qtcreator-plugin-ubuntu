@@ -17,11 +17,11 @@
  */
 
 #include "ubuntulocalrunconfigurationfactory.h"
-#include "ubuntuprojecthelper.h"
-#include "clicktoolchain.h"
-#include "ubuntuclickmanifest.h"
-#include "ubuntucmakecache.h"
-#include "ubuntushared.h"
+#include <ubuntu/ubuntuprojecthelper.h>
+#include <ubuntu/clicktoolchain.h>
+#include <ubuntu/ubuntuclickmanifest.h>
+#include <ubuntu/ubuntucmakecache.h>
+#include <ubuntu/ubuntushared.h>
 
 #include <ubuntu/device/remote/ubunturemoterunconfiguration.h>
 #include <ubuntu/device/remote/ubuntudevice.h>

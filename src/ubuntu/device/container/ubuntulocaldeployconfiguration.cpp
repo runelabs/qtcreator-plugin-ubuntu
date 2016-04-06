@@ -16,9 +16,9 @@
  * Author: Benjamin Zeller <benjamin.zeller@canonical.com>
  */
 #include "ubuntulocaldeployconfiguration.h"
-#include "ubuntuprojecthelper.h"
-#include "ubuntuconstants.h"
-#include "ubuntupackagestep.h"
+#include <ubuntu/ubuntuprojecthelper.h>
+#include <ubuntu/ubuntuconstants.h>
+#include <ubuntu/ubuntupackagestep.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>

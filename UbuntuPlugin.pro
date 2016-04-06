@@ -71,9 +71,6 @@ SOURCES += \
     src/ubuntu/clicktoolchain.cpp \
     src/ubuntu/ubuntukitmanager.cpp \
     src/ubuntu/localportsmanager.cpp \
-    src/ubuntu/ubuntulocaldeployconfiguration.cpp \
-    src/ubuntu/ubuntulocalrunconfigurationfactory.cpp \
-    src/ubuntu/ubuntulocalrunconfiguration.cpp \
     src/ubuntu/ubuntudevicesmodel.cpp \
     src/ubuntu/ubuntushared.cpp \
     src/ubuntu/ubuntupackagestep.cpp \
@@ -96,13 +93,16 @@ SOURCES += \
     src/ubuntu/targetupgrademanager.cpp \
     src/ubuntu/ubuntupackagingmodel.cpp \
     src/ubuntu/ubuntufixmanifeststep.cpp \
-    src/ubuntu/wizards/ubuntufatpackagingwizard.cpp \
-    src/ubuntu/ubuntulocalruncontrolfactory.cpp \
-    src/ubuntu/ubuntulocalscopedebugsupport.cpp \
+    src/ubuntu/wizards/ubuntufatpackagingwizard.cpp\
     src/ubuntu/ubuntusettingsprojectdefaultspage.cpp \
     src/ubuntu/settings.cpp \
     src/ubuntu/device/container/containerdevice.cpp \
-    src/ubuntu/device/container/containerdevicefactory.cpp
+    src/ubuntu/device/container/containerdevicefactory.cpp \
+    src/ubuntu/device/container/ubuntulocalruncontrolfactory.cpp \
+    src/ubuntu/device/container/ubuntulocalscopedebugsupport.cpp \
+    src/ubuntu/device/container/ubuntulocaldeployconfiguration.cpp \
+    src/ubuntu/device/container/ubuntulocalrunconfigurationfactory.cpp \
+    src/ubuntu/device/container/ubuntulocalrunconfiguration.cpp
 
 HEADERS += \
     src/ubuntu/ubuntuplugin.h \
@@ -138,9 +138,6 @@ HEADERS += \
     src/ubuntu/clicktoolchain.h \
     src/ubuntu/ubuntukitmanager.h \
     src/ubuntu/localportsmanager.h \
-    src/ubuntu/ubuntulocaldeployconfiguration.h \
-    src/ubuntu/ubuntulocalrunconfigurationfactory.h \
-    src/ubuntu/ubuntulocalrunconfiguration.h \
     src/ubuntu/ubuntudevicesmodel.h \
     src/ubuntu/ubuntupackagestep.h \
     src/ubuntu/ubuntuqtversion.h \
@@ -164,13 +161,16 @@ HEADERS += \
     src/ubuntu/ubuntupackagingmodel.h \
     src/ubuntu/ubuntufixmanifeststep.h \
     src/ubuntu/wizards/ubuntufatpackagingwizard.h \
-    src/ubuntu/ubuntulocalruncontrolfactory.h \
-    src/ubuntu/ubuntulocalscopedebugsupport.h\
     src/ubuntu/ubuntusettingsprojectdefaultspage.h \
     src/ubuntu/settings.h \
     src/ubuntu/device/container/containerdevice.h \
     src/ubuntu/device/container/containerdevice_p.h \
-    src/ubuntu/device/container/containerdevicefactory.h
+    src/ubuntu/device/container/containerdevicefactory.h \
+    src/ubuntu/device/container/ubuntulocalruncontrolfactory.h \
+    src/ubuntu/device/container/ubuntulocalscopedebugsupport.h \
+    src/ubuntu/device/container/ubuntulocaldeployconfiguration.h \
+    src/ubuntu/device/container/ubuntulocalrunconfigurationfactory.h \
+    src/ubuntu/device/container/ubuntulocalrunconfiguration.h
 
 #remote device support
 SOURCES += \

@@ -1,8 +1,8 @@
 #include "ubuntulocalruncontrolfactory.h"
 #include "ubuntulocalrunconfiguration.h"
 #include "ubuntulocalscopedebugsupport.h"
-#include "ubuntuconstants.h"
-#include "clicktoolchain.h"
+#include <ubuntu/ubuntuconstants.h>
+#include <ubuntu/clicktoolchain.h>
 
 #include <analyzerbase/analyzerstartparameters.h>
 #include <analyzerbase/analyzerruncontrol.h>

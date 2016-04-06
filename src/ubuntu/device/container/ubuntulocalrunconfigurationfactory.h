@@ -21,8 +21,8 @@
 
 #include <QtGlobal>
 #include <QObject>
-#include "ubuntuproject.h"
-#include "ubuntuconstants.h"
+#include <ubuntu/ubuntuproject.h>
+#include <ubuntu/ubuntuconstants.h>
 #include "ubuntulocalrunconfiguration.h"
 
 #include <coreplugin/actionmanager/command.h>

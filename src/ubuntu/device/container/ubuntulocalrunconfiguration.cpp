@@ -17,12 +17,12 @@
  */
 
 #include "ubuntulocalrunconfiguration.h"
-#include "ubuntuproject.h"
-#include "ubuntuprojecthelper.h"
-#include "ubuntuclickmanifest.h"
+#include <ubuntu/ubuntuproject.h>
+#include <ubuntu/ubuntuprojecthelper.h>
+#include <ubuntu/ubuntuclickmanifest.h>
 #include <ubuntu/device/remote/ubunturemoterunconfiguration.h>
-#include "ubuntucmakecache.h"
-#include "ubuntuprojecthelper.h"
+#include <ubuntu/ubuntucmakecache.h>
+#include <ubuntu/ubuntuprojecthelper.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
