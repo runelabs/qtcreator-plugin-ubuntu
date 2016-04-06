@@ -106,6 +106,23 @@ def containerRootFs (name):
         return None
     return basePath+"/rootfs"
     
+def statusCmd(args):
+    apiObj = pylxd.api.API()
+    bootOrDie(apiObj, args.name)
+    
+    info = apiObj.container_info(args.name)
+    status = {}
+    status["status"] = info["status"]
+    
+    if "network" in info and "eth0" in info["network"]:
+        if "addresses" in info["network"]["eth0"]:
+            for add in info["network"]["eth0"]["addresses"]:
+                if add["family"] == "inet":
+                    status["ipv4"] = add["address"]
+                    break
+    
+    print(json.dumps(status))
+    
 
 def listCmd (args):
     print(json.dumps(findExistingTargets()))
@@ -311,6 +328,10 @@ list_parser.set_defaults(func=listCmd)
 rootfs_parser = subparsers.add_parser("rootfs")
 rootfs_parser.add_argument("name", action="store")
 rootfs_parser.set_defaults(func=rootfsCmd)
+
+status_parser = subparsers.add_parser("status")
+status_parser.add_argument("name", action="store")
+status_parser.set_defaults(func=statusCmd)
 
 exists_parser = subparsers.add_parser("exists")
 exists_parser.add_argument("name", action="store")

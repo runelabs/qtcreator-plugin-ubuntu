@@ -57,7 +57,7 @@ static void createOrFindDeviceAndType(ProjectExplorer::Kit *k, ClickToolChain *t
                 = ProjectExplorer::DeviceManager::instance()->find(devId);
 
         if (!ptr) {
-            ContainerDevice::Ptr dev = ContainerDevice::Ptr(new ContainerDevice(devId, devId));
+            ContainerDevice::Ptr dev = ContainerDevice::create(devId, devId);
             ProjectExplorer::DeviceManager::instance()->addDevice(dev);
             ptr = dev;
         }

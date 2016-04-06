@@ -1,0 +1,76 @@
+#!/bin/bash
+# Copyright 2016 Canonical Ltd.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; version 2.1.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
+
+if [ -z "$USDK_CONF_DIR" ]; then
+    echo "USDK_CONF_DIR must be set in order for this scripts to work" 
+    exit 1
+else
+    CONFIGDIR=$USDK_CONF_DIR
+fi
+
+SCRIPTPATH=`dirname $0`
+SSHIDENTITY=${CONFIGDIR}/ubuntudevice_id_rsa
+USERNAME=$(id -u -n)
+CONTAINER=$1
+
+if [ -z "$CONTAINER" ]; then
+    echo "Container name missing"
+    echo "Usage: container_publickey_deploy <containername>"
+    exit 1
+fi
+
+function deploy_key {
+    echo "Checking for keys.."
+    KEY=$(cat $SSHIDENTITY.pub)
+    set +e
+    PHABLET_KEYS=$(lxc exec ${CONTAINER} -- bash -c "cat /etc/ssh/authorized_keys.d/$USERNAME")
+    KEYS=$(echo $PHABLET_KEYS | grep "$KEY")
+    set -e
+    echo
+    echo "Host key is:"
+    echo $KEY
+    echo
+    echo "We have following keys on the device: "
+    echo $KEYS
+    if [[ -z $KEYS || $KEYS == *No\ such* ]]; then
+        echo "*no keys*"
+        echo
+        push_key
+    else
+        echo
+        echo "The host key has been already deployed."
+    fi
+}
+
+function push_key {
+    echo "Deploy the host key to the device.."
+    KEY=`cat $SSHIDENTITY.pub`
+    lxc exec ${CONTAINER} -- bash -c "mkdir -p /etc/ssh/authorized_keys.d"
+    echo "..key folder created!"
+    lxc exec ${CONTAINER} -- bash -c "echo $KEY >> /etc/ssh/authorized_keys.d/$USERNAME"
+    echo "..key deployed!"
+    lxc exec ${CONTAINER} -- bash -c "chown $USERNAME:$USERNAME /etc/ssh/authorized_keys.d/$USERNAME"
+    lxc exec ${CONTAINER} -- bash -c "chmod 0600 /etc/ssh/authorized_keys.d/$USERNAME"
+    echo "..permissions updated!"
+}
+
+#################
+set -e
+${SCRIPTPATH}/openssh_publickey_create
+set +e
+deploy_key
+

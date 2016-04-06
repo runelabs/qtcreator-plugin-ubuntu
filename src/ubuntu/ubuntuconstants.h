@@ -155,7 +155,7 @@ const char UBUNTUDEVICESWIDGET_CLONENETWORK_SCRIPT[] = "%0/device_network_clone 
 const char UBUNTUDEVICESWIDGET_PORTFORWARD[] = "Enabling port forward..";
 const char UBUNTUDEVICESWIDGET_PORTFORWARD_SCRIPT[] = "%0/device_portforward";
 const char UBUNTUDEVICESWIDGET_SETUP_PUBKEY_AUTH[] = "Setting up public key authentication..";
-const char UBUNTUDEVICESWIDGET_SETUP_PUBKEY_AUTH_SCRIPT[] = "%0/openssh_publickey %1 %2";
+const char UBUNTUDEVICESWIDGET_SETUP_PUBKEY_AUTH_SCRIPT[] = "%0/device_publickey_deploy %1 %2";
 const char UBUNTUDEVICESWIDGET_HASNETWORK[] = "Check if the device is connected to a network..";
 const char UBUNTUDEVICESWIDGET_HASNETWORK_SCRIPT[] = "%0/device_hasnetwork %1";
 const char UBUNTUDEVICESWIDGET_DETECTDEVICEVERSION[] = "Check device image version..";
@@ -337,6 +337,7 @@ const char UBUNTU_DEVICE_SSHIDENTITY[] = "ubuntudevice_id_rsa";
 const int  UBUNTU_DESKTOP_PORT_START = 40000;
 const int  UBUNTU_DESKTOP_PORT_END = 41000;
 const char UBUNTU_CONTAINER_DEVICE_TYPE_ID[] = "UbuntuProjectManager.LocalDeviceTypeId.";
+const char UBUNTU_CONTAINER_DEPLOY_PUBKEY_SCRIPT[] = "%0/container_publickey_deploy";
 
 //Deploysupport
 const char UBUNTU_DEPLOYCONFIGURATION_ID[]       = "UbuntuProjectManager.DeployConfiguration";

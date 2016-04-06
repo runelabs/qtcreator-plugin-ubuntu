@@ -59,7 +59,7 @@ ProjectExplorer::IDevice::Ptr ContainerDeviceFactory::restore(const QVariantMap 
         return ProjectExplorer::IDevice::Ptr();
 
     const ProjectExplorer::IDevice::Ptr device
-            = ProjectExplorer::IDevice::Ptr(new ContainerDevice(typeId, devId));
+            = ContainerDevice::create(typeId, devId);
     device->fromMap(map);
     return device;
 }
