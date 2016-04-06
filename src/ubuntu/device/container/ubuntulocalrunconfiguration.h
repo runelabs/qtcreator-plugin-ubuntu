@@ -20,10 +20,10 @@
 #define UBUNTURUNCONFIGURATION_H
 
 #include <QObject>
-#include <projectexplorer/runconfiguration.h>
+#include <remotelinux/abstractremotelinuxrunconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/applicationlauncher.h>
-#include <projectexplorer/localenvironmentaspect.h>
+#include <remotelinux/remotelinuxenvironmentaspect.h>
 #include <utils/fileutils.h>
 
 
@@ -37,7 +37,7 @@ namespace Internal {
 
 class UbuntuClickManifest;
 
-class UbuntuLocalEnvironmentAspect : public ProjectExplorer::LocalEnvironmentAspect
+class UbuntuLocalEnvironmentAspect : public RemoteLinux::RemoteLinuxEnvironmentAspect
 {
     Q_OBJECT
 public:
@@ -46,7 +46,7 @@ public:
 
 };
 
-class UbuntuLocalRunConfiguration : public ProjectExplorer::RunConfiguration
+class UbuntuLocalRunConfiguration : public RemoteLinux::AbstractRemoteLinuxRunConfiguration
 {
     Q_OBJECT
 public:
@@ -59,11 +59,14 @@ public:
 
     QString appId() const;
 
-    // LocalApplicationRunConfiguration interface
-    virtual QString executable() const;
+    // AbstractRemoteLinuxRunConfiguration interface
+    virtual QString localExecutableFilePath() const override;
+    virtual QString remoteExecutableFilePath() const override;
+    virtual QStringList arguments() const override;
+    virtual Utils::Environment environment() const override;
     virtual QString workingDirectory() const;
-    virtual QString commandLineArguments() const;
-    virtual ProjectExplorer::ApplicationLauncher::Mode runMode() const;
+
+    // LocalApplicationRunConfiguration interface
     virtual void addToBaseEnvironment(Utils::Environment &env) const;
 
     // RunConfiguration interface
@@ -83,6 +86,8 @@ private:
     QString m_executable;
     Utils::FileName m_workingDir;
     QStringList m_args;
+
+
 };
 
 }

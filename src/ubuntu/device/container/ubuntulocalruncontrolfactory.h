@@ -2,6 +2,7 @@
 #define UBUNTULOCALRUNCONTROLFACTORY_H
 
 #include <projectexplorer/runconfiguration.h>
+#include <utils/environment.h>
 
 namespace Ubuntu {
 namespace Internal {
@@ -9,6 +10,7 @@ namespace Internal {
 class UbuntuLocalRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
+    Utils::Environment fixEnvironment(const Utils::Environment &env);
 public:
     explicit UbuntuLocalRunControlFactory() {}
     virtual ~UbuntuLocalRunControlFactory() {}

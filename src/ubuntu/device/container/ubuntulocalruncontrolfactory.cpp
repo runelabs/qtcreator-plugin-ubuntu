@@ -4,21 +4,25 @@
 #include <ubuntu/ubuntuconstants.h>
 #include <ubuntu/clicktoolchain.h>
 
+#include "containerdevice.h"
+
 #include <analyzerbase/analyzerstartparameters.h>
 #include <analyzerbase/analyzerruncontrol.h>
 #include <analyzerbase/analyzermanager.h>
-#include <projectexplorer/localapplicationruncontrol.h>
-#include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/applicationlauncher.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/abi.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <utils/fileutils.h>
+#include <utils/portlist.h>
 #include <qmlprofiler/localqmlprofilerrunner.h>
 #include <valgrind/callgrindtool.h>
 #include <valgrind/memchecktool.h>
+
+#include <remotelinux/remotelinuxruncontrol.h>
+#include <remotelinux/remotelinuxdebugsupport.h>
+#include <remotelinux/remotelinuxanalyzesupport.h>
 
 #include <QTcpServer>
 #include <QSet>
@@ -47,131 +51,116 @@ bool UbuntuLocalRunControlFactory::canRun(ProjectExplorer::RunConfiguration *run
 ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     UbuntuLocalRunConfiguration *ubuntuRC = qobject_cast<UbuntuLocalRunConfiguration*>(runConfiguration);
-    if (ubuntuRC) {
-        QTC_ASSERT(canRun(runConfiguration, mode), return 0);
+    if (!ubuntuRC)
+        return 0;
 
-        if (!ubuntuRC->aboutToStart(errorMessage))
-            return 0;
+    QTC_ASSERT(canRun(runConfiguration, mode), return 0);
 
-        if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE) {
-            ProjectExplorer::LocalApplicationRunControl *runControl =
-                    new ProjectExplorer::LocalApplicationRunControl(ubuntuRC, mode);
-            runControl->setCommand(ubuntuRC->executable(), ubuntuRC->commandLineArguments());
-            runControl->setApplicationLauncherMode(ubuntuRC->runMode());
-            runControl->setWorkingDirectory(ubuntuRC->workingDirectory());
-            return runControl;
-        }
-        else if(mode == ProjectExplorer::Constants::DEBUG_RUN_MODE
-                || mode == ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN) {
+    ProjectExplorer::IDevice::ConstPtr genericDev = ProjectExplorer::DeviceKitInformation::device(runConfiguration->target()->kit());
+    if (!genericDev || !genericDev->type().toString().startsWith(QLatin1String(Constants::UBUNTU_CONTAINER_DEVICE_TYPE_ID))) {
+        if(!errorMessage)
+            *errorMessage = tr("Wrong or no device assigned to runconfiguration.");
+        return 0;
+    }
 
-            QString rcId = runConfiguration->id().toString();
-            bool isScope = rcId.startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_SCOPE_ID));
+    ProjectExplorer::ToolChain *genericToolchain = ProjectExplorer::ToolChainKitInformation::toolChain(runConfiguration->target()->kit());
+    if (!genericToolchain || genericToolchain->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
+        if(!errorMessage)
+            *errorMessage = tr("Wrong toolchain type in runconfiguration.");
+        return 0;
+    }
 
+    ContainerDevice::ConstPtr dev = qSharedPointerCast<const ContainerDevice>(genericDev);
+    ClickToolChain *tc = static_cast<ClickToolChain *>(genericToolchain);
+
+    if (!ubuntuRC->aboutToStart(errorMessage))
+        return 0;
+
+    if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE) {
+        RemoteLinux::RemoteLinuxRunControl *runControl = new RemoteLinux::RemoteLinuxRunControl(ubuntuRC);
+        return runControl;
+    }
+
+    else if(mode == ProjectExplorer::Constants::DEBUG_RUN_MODE
+            || mode == ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN) {
+
+        QString rcId = runConfiguration->id().toString();
+        bool isScope = rcId.startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_SCOPE_ID));
+
+        if (isScope) {
             Debugger::DebuggerStartParameters params;
             // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
             params.workingDirectory = Utils::FileUtils::normalizePathName(ubuntuRC->workingDirectory());
-            params.useTerminal = ubuntuRC->runMode() == ProjectExplorer::ApplicationLauncher::Console;
 
-            params.executable = ubuntuRC->executable();
-            if (params.executable.isEmpty())
+            QString triplet = tc->gnutriplet();
+            if (triplet.isEmpty()) {
+                if (errorMessage)
+                    *errorMessage = tr("Unsupported host architecture");
                 return 0;
-
-            params.processArgs = ubuntuRC->commandLineArguments();
-
-            if (isScope) {
-                ProjectExplorer::Abi hostAbi = ProjectExplorer::Abi::hostAbi();
-                if (hostAbi.os() == ProjectExplorer::Abi::LinuxOS) {
-                    QString triplet = ClickToolChain::gnutriplet(hostAbi);
-                    if (triplet.isEmpty()) {
-                        if (errorMessage)
-                            *errorMessage = tr("Unsupported host architecture");
-                        return 0;
-                    }
-
-                    params.executable = QString::fromLatin1("/usr/lib/%1/unity-scopes/scoperunner")
-                            .arg(triplet);
-                } else {
-                    if (errorMessage)
-                        *errorMessage = tr("Running scopes is not implemented on this OS.");
-                    return 0;
-                }
-
-                params.processArgs.clear();
-                params.continueAfterAttach = true;
-                params.startMode = Debugger::AttachToRemoteServer;
-                params.remoteSetupNeeded = true;
-                params.connParams.host = QStringLiteral("127.0.0.1");
             }
+
+            QString scoperunnerPth = QString::fromLatin1("/usr/lib/%1/unity-scopes/scoperunner")
+                    .arg(triplet);
+            params.executable = QString(scoperunnerPth);
+            params.continueAfterAttach = true;
+            params.startMode = Debugger::AttachToRemoteServer;
+            params.remoteSetupNeeded = true;
+            params.connParams.host = dev->sshParameters().host;
 
             Debugger::DebuggerRunControl *runControl
                     = Debugger::createDebuggerRunControl(params, ubuntuRC, errorMessage, mode);
 
-            if (isScope) {
-                //runControl takes ownership of this pointer
-                new UbuntuLocalScopeDebugSupport(ubuntuRC, runControl, params.executable);
-            }
+            //HACKEDY-HACK prevent the gdb backend to unset all environment vars
+            runControl->startParameters().environment = fixEnvironment(ubuntuRC->environment());
+
+            //runControl takes ownership of this pointer
+            new UbuntuLocalScopeDebugSupport(ubuntuRC, runControl, params.executable);
 
             return runControl;
-        }
-        else if(mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
-            ProjectExplorer::EnvironmentAspect *environment =
-                    ubuntuRC->extraAspect<ProjectExplorer::EnvironmentAspect>();
-
-            Analyzer::AnalyzerStartParameters sp;
-            sp.runMode = mode;
-            sp.workingDirectory = ubuntuRC->workingDirectory();
-            sp.debuggee = ubuntuRC->executable();
-            sp.debuggeeArgs = ubuntuRC->commandLineArguments();
-            sp.displayName = ubuntuRC->displayName();
-            if (environment)
-                sp.environment = environment->environment();
-
-            sp.analyzerPort = QmlProfiler::LocalQmlProfilerRunner::findFreePort(sp.analyzerHost);
-            if(sp.analyzerPort == 0) {
-                *errorMessage = tr("Cannot open port on host for QML profiling.");
+        } else {
+            if (ubuntuRC->portsUsedByDebuggers() > dev->freePorts().count()) {
+                *errorMessage = tr("Cannot debug: Not enough free ports available.");
                 return 0;
             }
 
-            return QmlProfiler::LocalQmlProfilerRunner::createLocalRunControl(runConfiguration, sp,errorMessage);
-        }
-        else if(mode == Valgrind::Internal::CALLGRIND_RUN_MODE
-                || mode == Valgrind::MEMCHECK_RUN_MODE
-                || mode == Valgrind::MEMCHECK_WITH_GDB_RUN_MODE) {
-            Analyzer::AnalyzerStartParameters sp;
-            sp.displayName = ubuntuRC->displayName();
-            sp.runMode = mode;
-            ProjectExplorer::EnvironmentAspect *aspect
-                    = ubuntuRC->extraAspect<ProjectExplorer::EnvironmentAspect>();
-            if (aspect)
-                sp.environment = aspect->environment();
-            sp.workingDirectory = ubuntuRC->workingDirectory();
-            sp.debuggee = ubuntuRC->executable();
-            sp.debuggeeArgs = ubuntuRC->commandLineArguments();
-            const ProjectExplorer::IDevice::ConstPtr device =
-                    ProjectExplorer::DeviceKitInformation::device(ubuntuRC->target()->kit());
-            QTC_ASSERT(device, return 0);
-            QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
-            QTcpServer server;
-            if (!server.listen(QHostAddress::LocalHost) && !server.listen(QHostAddress::LocalHostIPv6)) {
-                *errorMessage = tr("Cannot open port on host for profiling.");
+            Debugger::DebuggerStartParameters params = RemoteLinux::LinuxDeviceDebugSupport::startParameters(ubuntuRC);
+            Debugger::DebuggerRunControl * const runControl = Debugger::createDebuggerRunControl(params, ubuntuRC, errorMessage, mode);
+            if (!runControl)
                 return 0;
-            }
-            sp.connParams.host = server.serverAddress().toString();
-            sp.connParams.port = server.serverPort();
-            sp.localRunMode = static_cast<ProjectExplorer::ApplicationLauncher::Mode>(ubuntuRC->runMode());
 
+            //HACKEDY-HACK prevent the gdb backend to unset all environment vars
+            runControl->startParameters().environment = fixEnvironment(ubuntuRC->environment());
 
-            return Analyzer::AnalyzerManager::createRunControl(sp, runConfiguration);
+            RemoteLinux::LinuxDeviceDebugSupport * const debugSupport =
+                    new RemoteLinux::LinuxDeviceDebugSupport(ubuntuRC, runControl);
+            connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
+            return runControl;
         }
-        QTC_ASSERT(false, return 0);
+        return 0;
     }
-    return 0;
+    else if(mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
+        Analyzer::AnalyzerStartParameters params = RemoteLinux::RemoteLinuxAnalyzeSupport::startParameters(ubuntuRC, mode);
+        Analyzer::AnalyzerRunControl *runControl = Analyzer::AnalyzerManager::createRunControl(params, ubuntuRC);
+        (void) new RemoteLinux::RemoteLinuxAnalyzeSupport(ubuntuRC, runControl, mode);
+        return runControl;
+    }
+    QTC_ASSERT(false, return 0);
 
 }
 
 QString UbuntuLocalRunControlFactory::displayName() const
 {
     return tr("Run Ubuntu project locally");
+}
+
+Utils::Environment UbuntuLocalRunControlFactory::fixEnvironment(const Utils::Environment &env)
+{
+    Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
+    Utils::Environment::const_iterator i = env.constBegin();
+    for (;i != env.constEnd(); i++) {
+        sysEnv.set(i.key(), i.value());
+    }
+    return sysEnv;
 }
 
 } //namespace Internal

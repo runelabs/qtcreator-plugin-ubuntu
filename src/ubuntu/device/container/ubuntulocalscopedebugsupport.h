@@ -2,7 +2,7 @@
 #define UBUNTU_INTERNAL_UBUNTULOCALSCOPEDEBUGSUPPORT_H
 
 #include <projectexplorer/applicationlauncher.h>
-#include <debugger/debuggerruncontrol.h>
+#include <remotelinux/abstractremotelinuxrunsupport.h>
 
 #include <QObject>
 
@@ -14,7 +14,7 @@ namespace Internal {
 
 class UbuntuLocalRunConfiguration;
 
-class UbuntuLocalScopeDebugSupport : public QObject
+class UbuntuLocalScopeDebugSupport : public RemoteLinux::AbstractRemoteLinuxRunSupport
 {
     Q_OBJECT
 public:
@@ -23,28 +23,27 @@ public:
                                           const QString &scopeRunnerPath);
     virtual ~UbuntuLocalScopeDebugSupport();
 
-    ProjectExplorer::ApplicationLauncher::Mode appLauncherMode() const;
-    void setAppLauncherMode(const ProjectExplorer::ApplicationLauncher::Mode &appLauncherMode);
+    // AbstractRemoteLinuxRunSupport interface
+    virtual void startExecution() override;
 
-private:
-    quint16 getLocalPort() const;
-
-private slots:
+protected slots:
     void handleRemoteSetupRequested();
-    void handleProcessStarted();
-    void handleProcessExited(int exitCode, QProcess::ExitStatus);
-    void handleError(QProcess::ProcessError error);
-    void handleStateChanged(Debugger::DebuggerState state);
+    void handleAppRunnerError(const QString &error);
+    void handleRemoteOutput(const QByteArray &output);
+    void handleAppRunnerFinished(bool success);
+    void handleRemoteErrorOutput(const QByteArray &output);
+    void handleProgressReport(const QString &progressOutput);
+
+protected:
+    void showMessage(const QString &msg, int channel);
 
 private:
-    quint16 m_port;
+    int m_port;
     QString m_scopeRunnerPath;
     QString m_executable;
-    QString m_commandLineArguments;
+    QStringList m_commandLineArguments;
     Debugger::DebuggerRunControl *m_runControl;
-    ProjectExplorer::ApplicationLauncher m_launcher;
-    ProjectExplorer::ApplicationLauncher::Mode m_appLauncherMode;
-
+    QByteArray m_gdbserverOutput;
 };
 
 } // namespace Internal

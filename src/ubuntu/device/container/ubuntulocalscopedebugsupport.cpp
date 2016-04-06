@@ -3,8 +3,11 @@
 #include <ubuntu/ubuntuprojecthelper.h>
 #include <ubuntu/ubuntuconstants.h>
 
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
+#include <debugger/debuggerconstants.h>
 #include <projectexplorer/environmentaspect.h>
+#include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/abi.h>
 #include <utils/qtcprocess.h>
 
@@ -16,51 +19,40 @@ namespace Internal {
 
 UbuntuLocalScopeDebugSupport::UbuntuLocalScopeDebugSupport(UbuntuLocalRunConfiguration *runConfig,
                                                            Debugger::DebuggerRunControl *runControl,
-                                                           const QString &scopeRunnerPath)
-    : QObject(runControl)
+                                                           const QString &scopeRunnerPath) :
+    RemoteLinux::AbstractRemoteLinuxRunSupport(runConfig, runControl)
     , m_port(-1)
     , m_scopeRunnerPath(scopeRunnerPath)
     , m_runControl(runControl)
 {
-    m_executable = runConfig->executable();
-    m_commandLineArguments = runConfig->commandLineArguments();
-
-    ProjectExplorer::EnvironmentAspect *env = runConfig->extraAspect<ProjectExplorer::EnvironmentAspect>();
-    if (env) {
-        m_launcher.setEnvironment(env->environment());
-    }
+    m_executable = runConfig->localExecutableFilePath();
+    m_commandLineArguments = runConfig->arguments();
 
     connect (runControl, &Debugger::DebuggerRunControl::requestRemoteSetup,
              this, &UbuntuLocalScopeDebugSupport::handleRemoteSetupRequested);
-    connect (&m_launcher,SIGNAL(appendMessage(QString,Utils::OutputFormat)),
-             m_runControl, SLOT(appendMessage(QString,Utils::OutputFormat)));
-    connect (&m_launcher, &ProjectExplorer::ApplicationLauncher::processStarted,
-             this, &UbuntuLocalScopeDebugSupport::handleProcessStarted);
-    connect (&m_launcher, &ProjectExplorer::ApplicationLauncher::processExited,
-             this, &UbuntuLocalScopeDebugSupport::handleProcessExited);
-    connect (&m_launcher, &ProjectExplorer::ApplicationLauncher::bringToForegroundRequested,
-             m_runControl, &Debugger::DebuggerRunControl::bringApplicationToForeground);
-    connect (&m_launcher, &ProjectExplorer::ApplicationLauncher::error,
-             this, &UbuntuLocalScopeDebugSupport::handleError);
-    connect (m_runControl, &Debugger::DebuggerRunControl::stateChanged,
-             this, &UbuntuLocalScopeDebugSupport::handleStateChanged);
 
 }
 
 UbuntuLocalScopeDebugSupport::~UbuntuLocalScopeDebugSupport()
 {
-    m_launcher.stop();
 }
 
-void UbuntuLocalScopeDebugSupport::handleRemoteSetupRequested()
+void UbuntuLocalScopeDebugSupport::startExecution()
 {
     // Inject the debug mode into the INI file, this is not perfect
     // as it will stick even for the next non debug run, and even though
     // we can then start without gdbserver the timouts will be always set
     // high, because the DebugMode=true setting is still there
-    m_port = getLocalPort();
+    if(!setPort(m_port)) {
+        Debugger::RemoteSetupResult res;
+        res.success = false;
+        res.reason = tr("Could not assign a free port for debugging.");
+        m_runControl->notifyEngineRemoteSetupFinished(res);
+        return;
 
-    QStringList args = Utils::QtcProcess::splitArgs(m_commandLineArguments);
+    }
+
+    QStringList args = m_commandLineArguments;
     if (args.size() < 0) {
         Debugger::RemoteSetupResult res;
         res.success = false;
@@ -107,64 +99,99 @@ void UbuntuLocalScopeDebugSupport::handleRemoteSetupRequested()
 
     args.append(QStringLiteral("--cppdebug"));
     args.append(QString::number(m_port));
-    m_launcher.start(m_appLauncherMode,
-                     m_executable,
-                     Utils::QtcProcess::joinArgs(args));
+
+
+    setState(StartingRunner);
+    m_gdbserverOutput.clear();
+
+    ProjectExplorer::DeviceApplicationRunner *runner = appRunner();
+    connect(runner, &ProjectExplorer::DeviceApplicationRunner::remoteStderr,
+            this, &UbuntuLocalScopeDebugSupport::handleRemoteErrorOutput);
+    connect(runner, &ProjectExplorer::DeviceApplicationRunner::remoteStdout,
+            this, &UbuntuLocalScopeDebugSupport::handleRemoteOutput);
+    connect(runner, &ProjectExplorer::DeviceApplicationRunner::finished,
+            this, &UbuntuLocalScopeDebugSupport::handleAppRunnerFinished);
+    connect(runner, &ProjectExplorer::DeviceApplicationRunner::reportProgress,
+            this, &UbuntuLocalScopeDebugSupport::handleProgressReport);
+    connect(runner, &ProjectExplorer::DeviceApplicationRunner::reportError,
+            this, &UbuntuLocalScopeDebugSupport::handleAppRunnerError);
+
+    runner->setEnvironment(environment());
+    runner->setWorkingDirectory(workingDirectory());
+    runner->start(device(), m_executable, args);
 }
 
-void UbuntuLocalScopeDebugSupport::handleProcessStarted()
+void UbuntuLocalScopeDebugSupport::handleRemoteSetupRequested()
 {
-    Debugger::RemoteSetupResult res;
-    res.success = true;
-    res.gdbServerPort = m_port;
-    m_runControl->notifyEngineRemoteSetupFinished(res);
+    QTC_ASSERT(state() == Inactive, return);
+
+    showMessage(tr("Checking available ports...") + QLatin1Char('\n'), Debugger::LogStatus);
+    AbstractRemoteLinuxRunSupport::handleRemoteSetupRequested();
 }
 
-void UbuntuLocalScopeDebugSupport::handleProcessExited(int exitCode, QProcess::ExitStatus)
+void UbuntuLocalScopeDebugSupport::handleAppRunnerError(const QString &error)
 {
-    if (exitCode != 0)
-        m_runControl->notifyInferiorIll();
-    else
-        m_runControl->debuggingFinished();
-}
-
-void UbuntuLocalScopeDebugSupport::handleError(QProcess::ProcessError error)
-{
-    if (error == QProcess::FailedToStart) {
-        Debugger::RemoteSetupResult res;
-        res.success = false;
-        res.reason = tr("The process failed to start");
-        m_runControl->notifyEngineRemoteSetupFinished(res);
+    if (state() == Running) {
+        showMessage(error, Debugger::AppError);
+        if (m_runControl)
+            m_runControl->notifyInferiorIll();
+    } else if (state() != Inactive) {
+        handleAdapterSetupFailed(error);
     }
-
-    if (error == QProcess::Crashed)
-        m_runControl->notifyInferiorIll();
 }
 
-void UbuntuLocalScopeDebugSupport::handleStateChanged(Debugger::DebuggerState state)
+void UbuntuLocalScopeDebugSupport::handleRemoteOutput(const QByteArray &output)
 {
-    qDebug() << "Changed to State: "<<state;
-    if (state == Debugger::DebuggerFinished && m_launcher.isRunning())
-        m_launcher.stop();
+    QTC_ASSERT(state() == Inactive || state() == Running, return);
+
+    showMessage(QString::fromUtf8(output), Debugger::AppOutput);
 }
 
-ProjectExplorer::ApplicationLauncher::Mode UbuntuLocalScopeDebugSupport::appLauncherMode() const
+void UbuntuLocalScopeDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
 {
-    return m_appLauncherMode;
+    QTC_ASSERT(state() != GatheringPorts, return);
+
+    if (!m_runControl)
+        return;
+
+    showMessage(QString::fromUtf8(output), Debugger::AppError);
+    if (state() == StartingRunner) {
+        m_gdbserverOutput += output;
+        if (m_gdbserverOutput.contains("Listening on port")) {
+            handleAdapterSetupDone();
+            m_gdbserverOutput.clear();
+        }
+    }
 }
 
-void UbuntuLocalScopeDebugSupport::setAppLauncherMode(const ProjectExplorer::ApplicationLauncher::Mode &appLauncherMode)
+void UbuntuLocalScopeDebugSupport::handleAppRunnerFinished(bool success)
 {
-    m_appLauncherMode = appLauncherMode;
+    if (!m_runControl || state() == Inactive)
+        return;
+
+    if (state() == Running) {
+        if (!success)
+            m_runControl->notifyInferiorIll();
+
+    } else if (state() == StartingRunner) {
+        Debugger::RemoteSetupResult result;
+        result.success = false;
+        result.reason = tr("Debugging failed.");
+        m_runControl->notifyEngineRemoteSetupFinished(result);
+    }
 }
 
-quint16 UbuntuLocalScopeDebugSupport::getLocalPort() const
+void UbuntuLocalScopeDebugSupport::handleProgressReport(const QString &progressOutput)
 {
-    QTcpServer srv;
-    if (srv.listen(QHostAddress::LocalHost) || srv.listen(QHostAddress::LocalHostIPv6))
-        return srv.serverPort();
-    return -1;
+    showMessage(progressOutput + QLatin1Char('\n'), Debugger::LogStatus);
 }
+
+void UbuntuLocalScopeDebugSupport::showMessage(const QString &msg, int channel)
+{
+    if (state() != Inactive && m_runControl)
+        m_runControl->showMessage(msg, channel);
+}
+
 
 
 } // namespace Internal

@@ -88,11 +88,15 @@ def executeCommand (args, priviledged):
     
     if args.program:
         program = "cd \""+os.getcwd()+"\" && "
-        program = " ".join(shlex.quote(arg) for arg in args.program)
+        program +=" LC_ALL=C "
+        program += " ".join(shlex.quote(arg) for arg in args.program)
         lxc_args.append("-c")
         lxc_args.append(program)
         
-    sys.exit(subprocess.call(lxc_args))
+    print(lxc_args)
+    sys.stdout.flush()
+    sys.stderr.flush()
+    os.execv(lxc_command, lxc_args)
     
 def containerBasePath (name):
     apiObj = pylxd.api.API()

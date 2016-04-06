@@ -22,7 +22,7 @@
 #include <ubuntu/clicktoolchain.h>
 #include <ubuntu/ubuntuclicktool.h>
 #include <ubuntu/ubuntuconstants.h>
-#include <ubuntu/ubuntulocalrunconfiguration.h>
+#include <ubuntu/device/container/ubuntulocalrunconfiguration.h>
 #include <ubuntu/ubuntupackagestep.h>
 #include <ubuntu/ubuntuclickmanifest.h>
 #include <ubuntu/settings.h>

@@ -45,27 +45,26 @@ enum {
 };
 
 UbuntuLocalEnvironmentAspect::UbuntuLocalEnvironmentAspect(ProjectExplorer::RunConfiguration *parent)
-    : LocalEnvironmentAspect(parent)
+    : RemoteLinuxEnvironmentAspect(parent)
 {
 }
 
 Utils::Environment UbuntuLocalEnvironmentAspect::baseEnvironment() const
 {
-    Utils::Environment env = LocalEnvironmentAspect::baseEnvironment();
+    Utils::Environment env = RemoteLinuxEnvironmentAspect::baseEnvironment();
     if (const UbuntuLocalRunConfiguration *rc = qobject_cast<const UbuntuLocalRunConfiguration *>(runConfiguration()))
         rc->addToBaseEnvironment(env);
     return env;
 }
 
 UbuntuLocalRunConfiguration::UbuntuLocalRunConfiguration(ProjectExplorer::Target *parent, Core::Id id)
-    : ProjectExplorer::RunConfiguration(parent, id)
+    : RemoteLinux::AbstractRemoteLinuxRunConfiguration(parent, id)
 {
-    setDisplayName(appId());
     addExtraAspect(new UbuntuLocalEnvironmentAspect(this));
 }
 
 UbuntuLocalRunConfiguration::UbuntuLocalRunConfiguration(ProjectExplorer::Target *parent, UbuntuLocalRunConfiguration *source)
-    : ProjectExplorer::RunConfiguration(parent,source)
+    : RemoteLinux::AbstractRemoteLinuxRunConfiguration(parent,source)
 {
 }
 
@@ -87,24 +86,31 @@ QString UbuntuLocalRunConfiguration::appId() const
         return id().suffixAfter(Constants::UBUNTUPROJECT_RUNCONTROL_SCOPE_ID);
 }
 
-QString UbuntuLocalRunConfiguration::executable() const
+QString UbuntuLocalRunConfiguration::localExecutableFilePath() const
 {
     return m_executable;
+}
+
+QString UbuntuLocalRunConfiguration::remoteExecutableFilePath() const
+{
+    return m_executable;
+}
+
+QStringList UbuntuLocalRunConfiguration::arguments() const
+{
+    return m_args;
+}
+
+Utils::Environment UbuntuLocalRunConfiguration::environment() const
+{
+    UbuntuLocalEnvironmentAspect *aspect = extraAspect<UbuntuLocalEnvironmentAspect>();
+    QTC_ASSERT(aspect, return Utils::Environment());
+    return aspect->environment();
 }
 
 QString UbuntuLocalRunConfiguration::workingDirectory() const
 {
     return m_workingDir.toString();
-}
-
-QString UbuntuLocalRunConfiguration::commandLineArguments() const
-{
-    return Utils::QtcProcess::joinArgs(m_args);
-}
-
-ProjectExplorer::ApplicationLauncher::Mode UbuntuLocalRunConfiguration::runMode() const
-{
-    return ProjectExplorer::ApplicationLauncher::Gui;
 }
 
 ProjectExplorer::RunConfiguration::ConfigurationState UbuntuLocalRunConfiguration::ensureConfigured(QString *)
