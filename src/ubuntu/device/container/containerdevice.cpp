@@ -1,5 +1,6 @@
 #include "containerdevice.h"
 #include "containerdevice_p.h"
+#include "containerdeviceprocess.h"
 
 #include <ubuntu/ubuntuconstants.h>
 #include <ubuntu/settings.h>
@@ -18,6 +19,8 @@
 namespace Ubuntu {
 namespace Internal {
 
+//dpkg-reconfigure -p medium lxd
+
 ContainerDevicePrivate::ContainerDevicePrivate(ContainerDevice *q)
     : QObject(nullptr)
     , q_ptr(q)
@@ -30,11 +33,8 @@ void ContainerDevicePrivate::resetProcess()
 {
     if (m_detectionProcess) {
         m_detectionProcess->disconnect(this);
-        if (m_detectionProcess->state() != QProcess::NotRunning) {
-            m_detectionProcess->terminate();
-            if (!m_detectionProcess->waitForFinished(1000))
-                m_detectionProcess->kill();
-        }
+        if (m_detectionProcess->state() != QProcess::NotRunning)
+            m_detectionProcess->kill();
         delete m_detectionProcess;
         m_detectionProcess = nullptr;
     }
@@ -237,6 +237,11 @@ QString ContainerDevice::displayNameForActionId(Core::Id actionId) const
 QString ContainerDevice::displayType() const
 {
     return tr("Ubuntu Desktop Device");
+}
+
+ProjectExplorer::DeviceProcess *ContainerDevice::createProcess(QObject *parent) const
+{
+    return new ContainerDeviceProcess(sharedFromThis(), parent);
 }
 
 } // namespace Internal

@@ -2,6 +2,7 @@
 #define UBUNTU_INTERNAL_UBUNTULOCALSCOPEDEBUGSUPPORT_H
 
 #include <projectexplorer/applicationlauncher.h>
+#include <debugger/debuggerconstants.h>
 #include <remotelinux/abstractremotelinuxrunsupport.h>
 
 #include <QObject>
@@ -25,14 +26,17 @@ public:
 
     // AbstractRemoteLinuxRunSupport interface
     virtual void startExecution() override;
+    virtual void handleAdapterSetupDone() override;
 
 protected slots:
-    void handleRemoteSetupRequested();
-    void handleAppRunnerError(const QString &error);
-    void handleRemoteOutput(const QByteArray &output);
-    void handleAppRunnerFinished(bool success);
-    void handleRemoteErrorOutput(const QByteArray &output);
-    void handleProgressReport(const QString &progressOutput);
+    void handleRemoteSetupRequested() override;
+    void handleAppRunnerError(const QString &error) override;
+    void handleRemoteOutput(const QByteArray &output) override;
+    void handleAppRunnerFinished(bool success) override;
+    void handleRemoteErrorOutput(const QByteArray &output) override;
+    void handleProgressReport(const QString &progressOutput) override;
+    void handleStateChanged(Debugger::DebuggerState state);
+    void handleRemoteProcessStarted();
 
 protected:
     void showMessage(const QString &msg, int channel);

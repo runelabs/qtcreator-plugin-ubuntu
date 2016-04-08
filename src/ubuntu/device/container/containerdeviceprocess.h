@@ -3,7 +3,7 @@
 
 #include "containerdevice.h"
 
-#include <projectexplorer/devicesupport/deviceprocess.h>
+#include <remotelinux/linuxdeviceprocess.h>
 #include <utils/environment.h>
 
 namespace Ubuntu {
@@ -11,38 +11,26 @@ namespace Internal {
 
 class ContainerDevice;
 
-class ContainerDeviceProcess: public ProjectExplorer::DeviceProcess
+class ContainerDeviceProcess: public RemoteLinux::LinuxDeviceProcess
 {
     Q_OBJECT
 public:
-    ContainerDeviceProcess(const ContainerDevice::ConstPtr &device, QObject *parent = 0);
+    ContainerDeviceProcess(const QSharedPointer<const ProjectExplorer::IDevice> &device, QObject *parent = 0);
+    ~ContainerDeviceProcess();
+    virtual void setWorkingDirectory(const QString &directory) override;
 
-    void start(const QString &executable, const QStringList &arguments);
-    void interrupt();
-    void terminate();
-    void kill();
+    // DeviceProcess interface
+    virtual void interrupt() override { doSignal(2); }
+    virtual void terminate() override { doSignal(15); }
+    virtual void kill() override { doSignal(9); }
 
-    QProcess::ProcessState state() const;
-    QProcess::ExitStatus exitStatus() const;
-    int exitCode() const;
-    QString errorString() const;
-
-    Utils::Environment environment() const;
-    void setEnvironment(const Utils::Environment &env);
-
-    void setWorkingDirectory(const QString &directory);
-
-    QByteArray readAllStandardOutput();
-    QByteArray readAllStandardError();
-
-    qint64 write(const QByteArray &data);
-
-protected:
-    ContainerDevice::ConstPtr containerDevice() const;
-
+    void doSignal (const int sig);
 private:
-    QProcess * const m_process;
-    Utils::Environment m_env;
+    // SshDeviceProcess interface
+    virtual QString fullCommandLine() const override;
+    QString m_workingDir;
+    QString m_pidFile;
+
 };
 
 } // namespace Internal

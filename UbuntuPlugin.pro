@@ -97,6 +97,7 @@ SOURCES += \
     src/ubuntu/ubuntusettingsprojectdefaultspage.cpp \
     src/ubuntu/settings.cpp \
     src/ubuntu/device/container/containerdevice.cpp \
+    src/ubuntu/device/container/containerdeviceprocess.cpp \
     src/ubuntu/device/container/containerdevicefactory.cpp \
     src/ubuntu/device/container/ubuntulocalruncontrolfactory.cpp \
     src/ubuntu/device/container/ubuntulocalscopedebugsupport.cpp \
@@ -164,6 +165,7 @@ HEADERS += \
     src/ubuntu/ubuntusettingsprojectdefaultspage.h \
     src/ubuntu/settings.h \
     src/ubuntu/device/container/containerdevice.h \
+    src/ubuntu/device/container/containerdeviceprocess.h \
     src/ubuntu/device/container/containerdevice_p.h \
     src/ubuntu/device/container/containerdevicefactory.h \
     src/ubuntu/device/container/ubuntulocalruncontrolfactory.h \

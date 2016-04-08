@@ -93,7 +93,6 @@ def executeCommand (args, priviledged):
         lxc_args.append("-c")
         lxc_args.append(program)
         
-    print(lxc_args)
     sys.stdout.flush()
     sys.stderr.flush()
     os.execv(lxc_command, lxc_args)

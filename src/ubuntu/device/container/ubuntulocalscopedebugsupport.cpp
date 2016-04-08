@@ -5,7 +5,6 @@
 
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
-#include <debugger/debuggerconstants.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/abi.h>
@@ -39,6 +38,11 @@ UbuntuLocalScopeDebugSupport::~UbuntuLocalScopeDebugSupport()
 
 void UbuntuLocalScopeDebugSupport::startExecution()
 {
+    QTC_ASSERT(state() == GatheringPorts, return);
+
+    setState(StartingRunner);
+    m_gdbserverOutput.clear();
+
     // Inject the debug mode into the INI file, this is not perfect
     // as it will stick even for the next non debug run, and even though
     // we can then start without gdbserver the timouts will be always set
@@ -115,6 +119,8 @@ void UbuntuLocalScopeDebugSupport::startExecution()
             this, &UbuntuLocalScopeDebugSupport::handleProgressReport);
     connect(runner, &ProjectExplorer::DeviceApplicationRunner::reportError,
             this, &UbuntuLocalScopeDebugSupport::handleAppRunnerError);
+    connect(m_runControl, &Debugger::DebuggerRunControl::stateChanged,
+            this, &UbuntuLocalScopeDebugSupport::handleStateChanged);
 
     runner->setEnvironment(environment());
     runner->setWorkingDirectory(workingDirectory());
@@ -142,7 +148,7 @@ void UbuntuLocalScopeDebugSupport::handleAppRunnerError(const QString &error)
 
 void UbuntuLocalScopeDebugSupport::handleRemoteOutput(const QByteArray &output)
 {
-    QTC_ASSERT(state() == Inactive || state() == Running, return);
+    QTC_ASSERT(state() == Inactive || state() == Running || state() == StartingRunner, return);
 
     showMessage(QString::fromUtf8(output), Debugger::AppOutput);
 }
@@ -172,7 +178,6 @@ void UbuntuLocalScopeDebugSupport::handleAppRunnerFinished(bool success)
     if (state() == Running) {
         if (!success)
             m_runControl->notifyInferiorIll();
-
     } else if (state() == StartingRunner) {
         Debugger::RemoteSetupResult result;
         result.success = false;
@@ -192,7 +197,28 @@ void UbuntuLocalScopeDebugSupport::showMessage(const QString &msg, int channel)
         m_runControl->showMessage(msg, channel);
 }
 
+void UbuntuLocalScopeDebugSupport::handleAdapterSetupDone()
+{
+    AbstractRemoteLinuxRunSupport::handleAdapterSetupDone();
 
+    Debugger::RemoteSetupResult result;
+    result.success = true;
+    result.gdbServerPort = m_port;
+    m_runControl->notifyEngineRemoteSetupFinished(result);
+}
+
+void UbuntuLocalScopeDebugSupport::handleRemoteProcessStarted()
+{
+    QTC_ASSERT(state() == StartingRunner, return);
+    handleAdapterSetupDone();
+}
+
+void UbuntuLocalScopeDebugSupport::handleStateChanged(Debugger::DebuggerState state)
+{
+    if (state == Debugger::DebuggerFinished) {
+        setFinished();
+    }
+}
 
 } // namespace Internal
 } // namespace Ubuntu

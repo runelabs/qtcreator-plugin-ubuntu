@@ -2,114 +2,93 @@
 #include "../../ubuntuconstants.h"
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QProcess>
 #include <QDebug>
+#include <QUuid>
 
 namespace Ubuntu {
 namespace Internal {
 
-ContainerDeviceProcess::ContainerDeviceProcess(const ContainerDevice::ConstPtr &device,
+ContainerDeviceProcess::ContainerDeviceProcess(const QSharedPointer<const ProjectExplorer::IDevice> &device,
                                            QObject *parent)
-    : DeviceProcess(device, parent), m_process(new QProcess(this))
+    : LinuxDeviceProcess(device, parent)
 {
-    connect(m_process, SIGNAL(error(QProcess::ProcessError)),
-            SIGNAL(error(QProcess::ProcessError)));
-    connect(m_process, SIGNAL(finished(int)), SIGNAL(finished()));
-    connect(m_process, SIGNAL(readyReadStandardOutput()), SIGNAL(readyReadStandardOutput()));
-    connect(m_process, SIGNAL(readyReadStandardError()), SIGNAL(readyReadStandardError()));
-    connect(m_process, SIGNAL(started()), SIGNAL(started()));
+    m_pidFile = QString::fromLatin1("/tmp/qtc.%1.pid").arg(QString::fromLatin1(QUuid::createUuid().toRfc4122().toHex()));
 }
 
-void ContainerDeviceProcess::start(const QString &executable, const QStringList &arguments)
+ContainerDeviceProcess::~ContainerDeviceProcess()
 {
-    QTC_ASSERT(m_process->state() == QProcess::NotRunning, return);
+    SshDeviceProcess *cleaner = new SshDeviceProcess(device());
 
-    QStringList args {
-        QStringLiteral("run"),
-        containerDevice()->containerName(),
-        QStringLiteral("env")
+    auto callback = [cleaner](){
+        if (cleaner->exitCode() != 0) {
+            qWarning()<<"Cleaning the pidfile "<<m_pidFile<<" has failed";
+        }
+        cleaner->deleteLater();
     };
-    for (auto it = m_env.constBegin(); it != m_env.constEnd(); ++it)
-        args << QString(it.key()).append(QLatin1String("='")).append(it.value()).append(QLatin1String("\'"));
 
-    args << executable;
-    args << arguments;
-
-    m_process->setProgram(QString::fromLatin1(Constants::UBUNTU_TARGET_TOOL).arg(Constants::UBUNTU_SCRIPTPATH));
-    m_process->setArguments(args);
-    m_process->start(executable, arguments);
-}
-
-void ContainerDeviceProcess::interrupt()
-{
-    qWarning()<<"Interrupting the process is not supported";
-    terminate();
-}
-
-void ContainerDeviceProcess::terminate()
-{
-    m_process->terminate();
-}
-
-void ContainerDeviceProcess::kill()
-{
-    m_process->kill();
-}
-
-QProcess::ProcessState ContainerDeviceProcess::state() const
-{
-    return m_process->state();
-}
-
-QProcess::ExitStatus ContainerDeviceProcess::exitStatus() const
-{
-    return m_process->exitStatus();
-}
-
-int ContainerDeviceProcess::exitCode() const
-{
-    return m_process->exitCode();
-}
-
-QString ContainerDeviceProcess::errorString() const
-{
-    return m_process->errorString();
-}
-
-Utils::Environment ContainerDeviceProcess::environment() const
-{
-    return m_env;
-}
-
-void ContainerDeviceProcess::setEnvironment(const Utils::Environment &env)
-{
-    m_env = env;
+    connect(cleaner, &SshDeviceProcess::finished, callback);
+    cleaner->start(QStringLiteral("rm"), QStringList{m_pidFile});
 }
 
 void ContainerDeviceProcess::setWorkingDirectory(const QString &directory)
 {
-    m_process->setWorkingDirectory(directory);
+    m_workingDir = directory;
+    LinuxDeviceProcess::setWorkingDirectory(directory);
 }
 
-QByteArray ContainerDeviceProcess::readAllStandardOutput()
+void ContainerDeviceProcess::doSignal(const int sig)
 {
-    return m_process->readAllStandardOutput();
+    SshDeviceProcess *signaler = new SshDeviceProcess(device(), this);
+    connect(signaler, &SshDeviceProcess::finished, [signaler](){
+        if (signaler->exitCode() != 0) {
+            qDebug()<<"Killing the process has failed";
+            qDebug()<<signaler->readAllStandardOutput();
+            qDebug()<<signaler->readAllStandardError();
+        }
+        signaler->deleteLater();
+    });
+    QString cmd = QString::fromLatin1("kill -%2 `cat %1`").arg(m_pidFile).arg(sig);
+    signaler->start(cmd, QStringList());
 }
 
-QByteArray ContainerDeviceProcess::readAllStandardError()
+QString ContainerDeviceProcess::fullCommandLine() const
 {
-    return m_process->readAllStandardError();
-}
+    QString fullCommandLine;
+    QStringList rcFiles {
+        QLatin1String("/etc/profile"),
+        QLatin1String("$HOME/.profile")
+    };
+    foreach (const QString &filePath, rcFiles)
+        fullCommandLine += QString::fromLatin1("test -f %1 && . %1;").arg(filePath);
+    if (!m_workingDir.isEmpty()) {
+        fullCommandLine.append(QLatin1String("cd ")).append(Utils::QtcProcess::quoteArgUnix(m_workingDir))
+                .append(QLatin1String(" && "));
+    }
+    QString envString;
+    for (auto it = environment().constBegin(); it != environment().constEnd(); ++it) {
+        if (!envString.isEmpty())
+            envString += QLatin1Char(' ');
+        envString.append(it.key()).append(QLatin1String("='")).append(it.value())
+                .append(QLatin1Char('\''));
+    }
+    if (!envString.isEmpty())
+        fullCommandLine.append(QLatin1Char(' ')).append(envString);
 
-qint64 ContainerDeviceProcess::write(const QByteArray &data)
-{
-    return m_process->write(data);
-}
+    if (!fullCommandLine.isEmpty())
+        fullCommandLine += QLatin1Char(' ');
 
-ContainerDevice::ConstPtr ContainerDeviceProcess::containerDevice() const
-{
-    return qSharedPointerCast<const ContainerDevice>(device());
+    fullCommandLine.append(Utils::QtcProcess::quoteArgUnix(QStringLiteral("dbus-run-session")));
+    fullCommandLine += QString::fromLatin1(" bash -c \"echo \\$\\$ > %1; exec ").arg(m_pidFile);
+    fullCommandLine.append(Utils::QtcProcess::quoteArgUnix(executable()));
+    if (!arguments().isEmpty()) {
+        fullCommandLine.append(QLatin1Char(' '));
+        fullCommandLine.append(Utils::QtcProcess::joinArgs(arguments(), Utils::OsTypeLinux));
+    }
+    fullCommandLine.append(QStringLiteral("\""));
+    return fullCommandLine;
 }
 
 } // namespace Internal

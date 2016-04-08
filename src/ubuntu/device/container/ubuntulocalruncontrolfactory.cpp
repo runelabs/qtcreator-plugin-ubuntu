@@ -101,17 +101,15 @@ ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplore
 
             QString scoperunnerPth = QString::fromLatin1("/usr/lib/%1/unity-scopes/scoperunner")
                     .arg(triplet);
-            params.executable = QString(scoperunnerPth);
+            params.executable = QString(UbuntuClickTool::targetBasePath(tc->clickTarget())+scoperunnerPth);
             params.continueAfterAttach = true;
             params.startMode = Debugger::AttachToRemoteServer;
             params.remoteSetupNeeded = true;
             params.connParams.host = dev->sshParameters().host;
+            params.environment = ubuntuRC->environment();
 
             Debugger::DebuggerRunControl *runControl
                     = Debugger::createDebuggerRunControl(params, ubuntuRC, errorMessage, mode);
-
-            //HACKEDY-HACK prevent the gdb backend to unset all environment vars
-            runControl->startParameters().environment = fixEnvironment(ubuntuRC->environment());
 
             //runControl takes ownership of this pointer
             new UbuntuLocalScopeDebugSupport(ubuntuRC, runControl, params.executable);
@@ -127,9 +125,6 @@ ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplore
             Debugger::DebuggerRunControl * const runControl = Debugger::createDebuggerRunControl(params, ubuntuRC, errorMessage, mode);
             if (!runControl)
                 return 0;
-
-            //HACKEDY-HACK prevent the gdb backend to unset all environment vars
-            runControl->startParameters().environment = fixEnvironment(ubuntuRC->environment());
 
             RemoteLinux::LinuxDeviceDebugSupport * const debugSupport =
                     new RemoteLinux::LinuxDeviceDebugSupport(ubuntuRC, runControl);
@@ -151,16 +146,6 @@ ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplore
 QString UbuntuLocalRunControlFactory::displayName() const
 {
     return tr("Run Ubuntu project locally");
-}
-
-Utils::Environment UbuntuLocalRunControlFactory::fixEnvironment(const Utils::Environment &env)
-{
-    Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
-    Utils::Environment::const_iterator i = env.constBegin();
-    for (;i != env.constEnd(); i++) {
-        sysEnv.set(i.key(), i.value());
-    }
-    return sysEnv;
 }
 
 } //namespace Internal

@@ -28,6 +28,7 @@ public:
     virtual IDevice::Ptr clone() const override;
     virtual QString displayNameForActionId(Core::Id actionId) const override;
     virtual QString displayType() const override;
+    virtual ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const override;
 
 protected:
     ContainerDevice(Core::Id type, Core::Id id);

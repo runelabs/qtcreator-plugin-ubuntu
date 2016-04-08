@@ -10,7 +10,6 @@ namespace Internal {
 class UbuntuLocalRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
-    Utils::Environment fixEnvironment(const Utils::Environment &env);
 public:
     explicit UbuntuLocalRunControlFactory() {}
     virtual ~UbuntuLocalRunControlFactory() {}
