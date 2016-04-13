@@ -64,6 +64,7 @@ Recommends: ubuntu-sdk,
             qtconnectivity5-examples,
             qtsystems5-examples,
             qtcreator-plugin-go,
+Suggests:
             ubuntu-emulator
 Description: Ubuntu plugin for Qt Creator IDE
  Qt Creator is a lightweight, cross-platform integrated development
