@@ -1,11 +1,8 @@
 import QtQuick 2.4
 import Ubuntu.Components 1.3
 import %ClickHookName:s% 1.0
-
 /*!
-    \brief MainView with Tabs element.
-           First Tab has a single Label and
-           second Tab has a single ToolbarAction.
+    \brief MainView with a Label and Button elements.
 */
 
 MainView {
@@ -15,51 +12,55 @@ MainView {
     // Note! applicationName needs to match the "name" field of the click manifest
     applicationName: "%ProjectName:l%.%ClickDomain:l%"
 
-    /* 
-     This property enables the application to change orientation 
-     when the device is rotated. The default is false.
-    */
-    //automaticOrientation: true
-
-
     width: units.gu(100)
-    height: units.gu(76)
+    height: units.gu(75)
 
     Page {
-         title: i18n.tr("%ClickHookName%")
+        header: PageHeader {
+            id: pageHeader
+            title: i18n.tr("%ClickHookName%")
+            StyleHints {
+                foregroundColor: UbuntuColors.orange
+                backgroundColor: UbuntuColors.porcelain
+                dividerColor: UbuntuColors.slate
+            }
+        }
 
-         MyType {
-             id: myType
+        MyType {
+            id: myType
 
-             Component.onCompleted: {
-                 myType.helloWorld = i18n.tr("Hello world..")
-             }
-         }
+            Component.onCompleted: {
+                myType.helloWorld = i18n.tr("Hello world..")
+            }
+        }
 
-         Column {
-             spacing: units.gu(1)
-             anchors {
-                 margins: units.gu(2)
-                 fill: parent
-             }
+        Label {
+            id: label
+            objectName: "label"
+            anchors {
+                horizontalCenter: parent.horizontalCenter
+                top: pageHeader.bottom
+                topMargin: units.gu(2)
+            }
+            text: myType.helloWorld
+        }
 
-             Label {
-                 id: label
-                 objectName: "label"
+        Button {
+            objectName: "button"
+            anchors {
+                horizontalCenter: parent.horizontalCenter
+                top: label.bottom
+                topMargin: units.gu(2)
+            }
+            width: parent.width
 
-                 text: myType.helloWorld
-             }
+            text: i18n.tr("Tap me!")
 
-             Button {
-                 objectName: "button"
-                 width: parent.width
-
-                 text: i18n.tr("Tap me!")
-
-                 onClicked: {
-                     myType.helloWorld = i18n.tr("..from Cpp Backend")
-                 }
-             }
-         }
-     }
+            onClicked: {
+                myType.helloWorld = i18n.tr("..from Cpp Backend")
+            }
+        }
+    }
 }
+
+
