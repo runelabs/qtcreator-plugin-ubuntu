@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Canonical Ltd.
+ * Copyright 2016 Canonical Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -14,19 +14,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
+ * Author: Benjamin Zeller <benjamin.zeller@canonical.com>
  */
 
-import QtQuick 2.4
+import QtQuick 2.5
+import QtQuick.Controls 1.4
+import QtQuick.Layouts 1.1
 import "Components"
+
 
 Rectangle {
     color: "#F7F6F5"
 
     property int maximumWidth : 900
-    property int maximumHeight: 579
 
-    width: parent.width
-    height: scrollView.height
+    anchors.fill: parent
 
 
     Image {
@@ -36,78 +38,101 @@ Rectangle {
     }
 
     Rectangle {
+        id: contentBackground
+        color: "#fff"
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        height: maximumHeight
-        width: parent.width>maximumWidth ? maximumWidth : parent.width
-        color: "#fff"
+        anchors.margins: 0
+        width: parent.width > maximumWidth ? maximumWidth : parent.width
+    }
 
-        Image {
-            anchors.top: parent.top
-            anchors.topMargin: 10
-            anchors.right: parent.right
-            source: "images/devices.png"
-            width: parent.width/2
-            fillMode: Image.PreserveAspectFit
-        }
+    ScrollView {
+        anchors.fill: parent
 
-        Rectangle {
-            color: "transparent"
-            anchors.margins: 20
-            anchors.top: parent.top
-            anchors.topMargin: 40
-            anchors.bottom: parent.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: parent.width - anchors.margins*2
+        ColumnLayout {
+            id: topLayout
+            x: contentBackground.x
+            width: contentBackground.width
+            spacing: 0
 
-            Column {
-                id: headerColumn
-                spacing: 20
-                anchors.top: parent.top
-                anchors.left: parent.left
-                width: parent.width/2
+
+            GridLayout {
+                id: grid
+                Layout.alignment: Qt.AlignTop
+                Layout.leftMargin: 20
+                Layout.rightMargin: 0
+                Layout.topMargin: 10
+
+                Layout.fillWidth: true
+                Layout.maximumWidth: topLayout.width - 20
+
+                flow: GridLayout.TopToBottom
+                rows: 3
 
                 Text {
-                    width: parent.width
                     wrapMode: Text.WordWrap
                     font.family: "Ubuntu"
                     font.weight: Font.Light
                     font.pointSize: 42
                     font.letterSpacing: 2
                     text: "Make it Ubuntu"
+
+                    Layout.fillWidth: true
+                    Layout.topMargin: 30
                 }
 
                 Text {
                     wrapMode: Text.WordWrap
-                    width: parent.width
                     font.family: "Ubuntu"
                     font.weight: Font.Light
                     font.pointSize: 20
                     font.letterSpacing: 1.5
                     textFormat: Text.RichText
-                    text: "<style> a { text-decoration: none; color: #DD4814; cursor: pointer } </style><a href=\"http://developer.ubuntu.com/get-started/\">Get started</a> today with the Ubuntu SDK Preview and the App Design Guides."
+                    text: "<style> a { text-decoration: none; color: #DD4814; cursor: pointer } </style><a href=\"http://developer.ubuntu.com/get-started/\">Get started</a> today with the Ubuntu SDK and the App Design Guides."
                     onLinkActivated: {
                         Qt.openUrlExternally(link);
                     }
+                    Layout.fillWidth: true
+                    Layout.topMargin: 20
+                }
 
+                Item {
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                }
+
+                Column {
+                    Layout.rowSpan: 3
+                    Layout.margins: 0
+                    Layout.minimumWidth: topLayout.width / 2
+                    Layout.maximumWidth: topLayout.width / 2
+                    Layout.alignment: Qt.AlignTop
+                    Image {
+                        width: parent.width
+                        source: "images/devices.png"
+                        fillMode: Image.PreserveAspectFit
+                    }
                 }
             }
 
             Column {
                 id: topLinks
-                anchors.topMargin: 50
-                anchors.top: headerColumn.bottom
-                width: parent.width
+
+                Layout.minimumWidth: topLayout.width
+                Layout.maximumWidth: topLayout.width
+                Layout.margins: 20
+                Layout.topMargin: 0
+
                 spacing: 5
-                
+
                 Link {
                     width: parent.width
                     title: "Create a New Project &gt;"
                     onClicked: ubuntuWelcomeMode.newProject()
                     pixelSize: 20
                 }
-                
+
                 Link {
                     width: parent.width
                     title: "See Ubuntu Touch core apps @ Launchpad &gt;"
@@ -134,14 +159,29 @@ Rectangle {
                     link: "http://developer.ubuntu.com/api/html5/current/"
                     pixelSize: 20
                 }
+                Link {
+                    width: parent.width
+                    title: "Open UI Toolkit component gallery &gt;"
+                    onClicked: ubuntuWelcomeMode.openGallery()
+                    pixelSize: 20
+                }
+                Link {
+                    width: parent.width
+                    title: "Stay up to date with the developer community &gt;"
+                    link: "http://developer.ubuntu.com/blog"
+                    pixelSize: 20
+                }
             }
+
             Column {
                 id: bottomBox
-                anchors.top: topLinks.bottom
-                anchors.left: parent.left
-                anchors.topMargin: 20
 
-                width: parent.width
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignBottom | Qt.AlignHCenter
+                Layout.topMargin: 20
+                Layout.leftMargin: 20
+                Layout.bottomMargin: 0
+
                 spacing: 5
                 Text {
                     wrapMode: Text.WordWrap
@@ -165,29 +205,6 @@ Rectangle {
                     }
                 }
             }
-            Row {
-                anchors.topMargin: 20
-                anchors.top: bottomBox.bottom
-                anchors.bottom: parent.bottom
-                anchors.left: parent.left
-                width: parent.width
-
-                NewsBox {
-                    height: parent.height
-                    width: parent.width/2
-
-                    link: "http://developer.ubuntu.com/feed/"
-                }
-
-                NewsBox {
-                    height: parent.height
-                    width: parent.width/2
-
-                    link: "http://developer.ubuntu.com/category/event/feed/"
-                }
-
-            }
         }
     }
 }
-

@@ -41,6 +41,7 @@ public:
 public slots:
     void newProject();
     void openProject();
+    void openGallery();
 };
 
 } // Internal
