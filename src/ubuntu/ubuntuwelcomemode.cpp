@@ -33,6 +33,7 @@
 #include <QDebug>
 #include <QList>
 #include <QCoreApplication>
+#include <QProcess>
 
 using namespace Ubuntu;
 using namespace Ubuntu::Internal;
@@ -74,4 +75,9 @@ void UbuntuWelcomePage::newProject()
 void UbuntuWelcomePage::openProject()
 {
     ProjectExplorer::ProjectExplorerPlugin::instance()->openOpenProjectDialog();
+}
+
+void UbuntuWelcomePage::openGallery()
+{
+    QProcess::startDetached(QString::fromLatin1("%1/qtc_launch_gallery").arg(Constants::UBUNTU_SCRIPTPATH));
 }

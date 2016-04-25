@@ -169,7 +169,7 @@ extra_packages = {
         "qttools5-dev:{TARGET}",
         "qttools5-dev-tools:{TARGET}",
         "ubuntu-html5-theme:{TARGET}",
-        "ubuntu-ui-toolkit-doc",
+        "ubuntu-ui-toolkit-doc:{TARGET}",
         "sudo",
         ],
     "ubuntu-sdk-15.04": [

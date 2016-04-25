@@ -8,22 +8,23 @@ import %ClickHookName:s% 1.0
 MainView {
     // objectName for functional testing purposes (autopilot-qt5)
     objectName: "mainView"
-    
+
     // Note! applicationName needs to match the "name" field of the click manifest
     applicationName: "%ProjectName:l%.%ClickDomain:l%"
-
-    /* 
-     This property enables the application to change orientation 
-     when the device is rotated. The default is false.
-    */
-    //automaticOrientation: true
-    
 
     width: units.gu(100)
     height: units.gu(75)
 
     Page {
-        title: i18n.tr("%ClickHookName%")
+        header: PageHeader {
+            id: pageHeader
+            title: i18n.tr("%ClickHookName%")
+            StyleHints {
+                foregroundColor: UbuntuColors.orange
+                backgroundColor: UbuntuColors.porcelain
+                dividerColor: UbuntuColors.slate
+            }
+        }
 
         MyType {
             id: myType
@@ -33,30 +34,33 @@ MainView {
             }
         }
 
-        Column {
-            spacing: units.gu(1)
+        Label {
+            id: label
+            objectName: "label"
             anchors {
-                margins: units.gu(2)
-                fill: parent
+                horizontalCenter: parent.horizontalCenter
+                top: pageHeader.bottom
+                topMargin: units.gu(2)
             }
+            text: myType.helloWorld
+        }
 
-            Label {
-                id: label
-                objectName: "label"
-
-                text: myType.helloWorld
+        Button {
+            objectName: "button"
+            anchors {
+                horizontalCenter: parent.horizontalCenter
+                top: label.bottom
+                topMargin: units.gu(2)
             }
+            width: parent.width
 
-            Button {
-                objectName: "button"
-                width: parent.width
+            text: i18n.tr("Tap me!")
 
-                text: i18n.tr("Tap me!")
-
-                onClicked: {
-                    myType.helloWorld = i18n.tr("..from Cpp Backend")
-                }
+            onClicked: {
+                myType.helloWorld = i18n.tr("..from Cpp Backend")
             }
         }
     }
 }
+
+
