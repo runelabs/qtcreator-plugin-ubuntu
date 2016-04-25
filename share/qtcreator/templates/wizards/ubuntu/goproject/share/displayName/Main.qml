@@ -8,44 +8,47 @@ import Ubuntu.Components 1.3
 MainView {
     // objectName for functional testing purposes (autopilot-qt5)
     objectName: "mainView"
-    
+
     // Note! applicationName needs to match the "name" field of the click manifest
     applicationName: "%ProjectName:l%.%ClickDomain:l%"
-
-    /* 
-     This property enables the application to change orientation 
-     when the device is rotated. The default is false.
-    */
-    //automaticOrientation: true
-    
 
     width: units.gu(100)
     height: units.gu(75)
 
     Page {
-        title: i18n.tr("%ClickHookName%")
+        header: PageHeader {
+            id: pageHeader
+            title: i18n.tr("%ClickHookName%")
+            StyleHints {
+                foregroundColor: UbuntuColors.orange
+                backgroundColor: UbuntuColors.porcelain
+                dividerColor: UbuntuColors.slate
+            }
+        }
 
-        Column {
-            spacing: units.gu(1)
+        Label {
+            id: label
+            objectName: "label"
             anchors {
-                margins: units.gu(2)
-                fill: parent
+                horizontalCenter: parent.horizontalCenter
+                top: pageHeader.bottom
+                topMargin: units.gu(2)
             }
 
-            Label {
-                id: label
-                objectName: "label"
+            text: i18n.tr("Hello..")
+        }
 
-                text: ctrl.message
+        Button {
+            objectName: "button"
+            anchors {
+                horizontalCenter: parent.horizontalCenter
+                top: label.bottom
+                topMargin: units.gu(2)
             }
-
-            Button {
-                objectName: "button"
-                width: parent.width
-
-                text: i18n.tr("Tap me!")
-
-                onClicked: ctrl.hello()
+            width: parent.width
+            text: i18n.tr("Tap me!")
+            onClicked: {
+                label.text = i18n.tr("..world!")
             }
         }
     }

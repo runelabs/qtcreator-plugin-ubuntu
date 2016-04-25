@@ -1,3 +1,33 @@
+qtcreator-plugin-ubuntu (3.5.0+16.04.20160419-0ubuntu1) xenial; urgency=medium
+
+  [ Benjamin Zeller ]
+  * Added scrollview to Ubuntu welcome page Replaced Newsbox with a link
+    to the developer blog Added a link on the welcome page to open the
+    UITK gallery
+
+ -- Zoltan Balogh <zoltan.balogh@canonical.com>  Tue, 19 Apr 2016 12:19:32 +0000
+
+qtcreator-plugin-ubuntu (3.5.0+16.04.20160415-0ubuntu1) xenial; urgency=medium
+
+  [ Zoltán Balogh ]
+  * Fix templates for 1.3 UITK
+
+ -- Zoltan Balogh <zoltan.balogh@canonical.com>  Fri, 15 Apr 2016 12:56:56 +0000
+
+qtcreator-plugin-ubuntu (3.5.0+16.04.20160323-0ubuntu2) xenial; urgency=medium
+
+  * Lower ubuntu-emulator Recommends: to a Suggests:, as ubuntu-emulator is in
+    multiverse.
+
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Wed, 13 Apr 2016 14:43:09 +0200
+
+qtcreator-plugin-ubuntu (3.5.0+16.04.20160323-0ubuntu1) xenial; urgency=medium
+
+  [ Zoltán Balogh ]
+  * Use the qmake project of the Showcase galler
+
+ -- Zoltan Balogh <zoltan.balogh@canonical.com>  Wed, 23 Mar 2016 09:24:34 +0000
+
 qtcreator-plugin-ubuntu (3.5.0+16.04.20160321.1-0ubuntu1) xenial; urgency=medium
 
   [ Marcus Tomlinson ]
