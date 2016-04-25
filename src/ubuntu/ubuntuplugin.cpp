@@ -56,6 +56,7 @@
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/taskhub.h>
 #include <coreplugin/featureprovider.h>
 #include <coreplugin/coreplugin.h>
 #include <utils/mimetypes/mimedatabase.h>
@@ -259,6 +260,10 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
 void UbuntuPlugin::extensionsInitialized()
 {
+
+    ProjectExplorer::TaskHub::addCategory(Constants::UBUNTU_TASK_CATEGORY_DEVICE,
+                         tr("Ubuntu", "Category for ubuntu device issues listed under 'Issues'"));
+
     if (m_ubuntuMenu) m_ubuntuMenu->initialize();
     m_ubuntuDeviceMode->initialize();
     m_ubuntuPackagingMode->initialize();

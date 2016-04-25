@@ -34,6 +34,7 @@ from pylxd.deprecated.exceptions import PyLXDException
 import pwd
 import spwd
 import grp
+from decorator import append
 
 def bootOrDie (apiObj, container):
     if not apiObj.container_defined(container):
@@ -47,7 +48,46 @@ def bootOrDie (apiObj, container):
         if not op.operation_wait(op_data[1]["operation"], op_data[1]["status_code"], -1):
             print("Could not start container")
             sys.exit(1)
+    
+def splitSkipEmpty(s, delim=None):
+    return [x.strip() for x in s.split(delim) if x]
+            
+def tableToMap (content):
+    lines = content.decode().splitlines()
+    
+    del lines[0] #remove decoration
+    keys = splitSkipEmpty(lines[0], "|")
+    del lines[0]
+    del lines[0]
+    
+    dataMap = []
+    
+    while len(lines) > 0:
+        data = splitSkipEmpty(lines[0], "|")
+        lineData = {}
+        if len(keys) == len(data):
+            for idx, val in enumerate(keys):
+                lineData[val.strip()] = data[idx].strip()
+            dataMap.append(lineData)
+        del lines[0]
+        del lines[0]
 
+    return dataMap
+    
+def registerRemote():
+    output = subprocess.check_output(["lxc","remote", "list"])
+    existing_remotes = tableToMap(output)
+    for remote in existing_remotes:
+        if remote["NAME"] == "ubuntu-sdk-images":
+            return
+    
+    #if we reach this place we need to register the remote
+    #default_remote = "https://sdk-images.ubuntu.com"
+    remote = "https://people.canonical.com/~zbenjamin"    
+    res = subprocess.call(["lxc", "remote", "add", "ubuntu-sdk-images", remote, "--accept-certificate", "--protocol=simplestreams"])
+    if res != 0:
+        sys.exit(res)
+    
 def findExistingTargets ():
     apiObj = pylxd.api.container.LXDContainer()
     containers = apiObj.container_list()
@@ -79,7 +119,10 @@ def executeCommand (args, priviledged):
     lxc_args.append(args.name)
     lxc_args.append("--")
     lxc_args.append("su")
-    lxc_args.append("-l")
+    
+    if not args.program:
+        lxc_args.append("-l")
+        
     lxc_args.append("-s")
     lxc_args.append("/bin/bash")
     
@@ -87,9 +130,19 @@ def executeCommand (args, priviledged):
         lxc_args.append(getpass.getuser())
     
     if args.program:
+        #source dotfiles
+        program = ""
+        rcFiles = ["/etc/profile", "$HOME/.profile"]
+        for rcFile in rcFiles:
+            program += "test -f "+rcFile+" && . "+rcFile+"; "
+        
+        #make sure the WD is correct
         program = "cd \""+os.getcwd()+"\" && "
+        
+        #force C locale as QtCreator needs it
         program +=" LC_ALL=C "
         program += " ".join(shlex.quote(arg) for arg in args.program)
+        
         lxc_args.append("-c")
         lxc_args.append(program)
         
@@ -143,7 +196,7 @@ def createCmd (args):
         print ("Must be root to create a new container")
         sys.exit(1)
     
-    imagename = args.framework+"-"+args.architecture
+    imagename = args.fingerprint
     print("Creating builder target from image: "+imagename)
     apiObj = pylxd.api.API()
     if apiObj.container_defined(args.name):
@@ -153,8 +206,9 @@ def createCmd (args):
     #todo check if host arch can run the container arch
     config = {
           "security.privileged":"true",
-          "user.click-architecture":"armhf",
-          "user.click-framework":"ubuntu-sdk-15.04"
+          "user.click-architecture": args.architecture,
+          "user.click-framework": args.framework,
+          "raw.lxc" : "lxc.aa_profile = unconfined"
     }
     
     devices = {
@@ -182,8 +236,11 @@ def createCmd (args):
     container = {
       'name': args.name,
       'source': {
-         'type': 'image',
-         'alias': imagename
+                 "type": "image",                                         # Can be: "image", "migration", "copy" or "none"
+                 "mode": "pull",                                          # One of "local" (default) or "pull"
+                 "server": "https://people.canonical.com/~zbenjamin",     # Remote server (pull mode only)
+                 "protocol": "simplestreams",                             # Protocol (one of lxd or simplestreams, defaults to lxd)
+                 "fingerprint": imagename
       },
       'config':config, 
       'devices':devices             
@@ -320,6 +377,12 @@ def maintCmd (args):
     
 def upgradeCmd (args):
     maintCmd(argparse.Namespace(name=args.name, program=["/bin/bash", "-c", "apt update && apt full-upgrade --yes"]))
+    
+def imagesCmd (args):
+    registerRemote()
+    output = subprocess.check_output(["lxc","image", "list", "ubuntu-sdk-images:"])
+    map = tableToMap(output)
+    print(json.dumps(map))
 
 # register options to the argument parser
 parser = argparse.ArgumentParser(description="Ubuntu SDK build target utility")
@@ -371,6 +434,10 @@ create_parser.add_argument(
     "-n", "--name", required=True,
     help=(
         "name of the container"))
+create_parser.add_argument(
+    "-p", "--fingerprint", required=True,
+    help=(
+        "sha256 fingerprint of the base image"))
 
 register_parser = subparsers.add_parser("register", help="register a user into the target")
 register_parser.add_argument("name", action="store")
@@ -380,6 +447,9 @@ register_parser.set_defaults(func=registerCmd)
 destroy_parser = subparsers.add_parser("destroy")
 destroy_parser.add_argument("name", action="store")
 destroy_parser.set_defaults(func=destroyCmd)
+
+images_parser = subparsers.add_parser("images")
+images_parser.set_defaults(func=imagesCmd)
 
 options = parser.parse_args()
 options.func(options)

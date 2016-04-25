@@ -22,7 +22,7 @@ ContainerDeviceProcess::~ContainerDeviceProcess()
 {
     SshDeviceProcess *cleaner = new SshDeviceProcess(device());
 
-    auto callback = [cleaner](){
+    auto callback = [this, cleaner](){
         if (cleaner->exitCode() != 0) {
             qWarning()<<"Cleaning the pidfile "<<m_pidFile<<" has failed";
         }
@@ -44,9 +44,9 @@ void ContainerDeviceProcess::doSignal(const int sig)
     SshDeviceProcess *signaler = new SshDeviceProcess(device(), this);
     connect(signaler, &SshDeviceProcess::finished, [signaler](){
         if (signaler->exitCode() != 0) {
-            qDebug()<<"Killing the process has failed";
-            qDebug()<<signaler->readAllStandardOutput();
-            qDebug()<<signaler->readAllStandardError();
+            qWarning()<<"Killing the process has failed";
+            qWarning()<<signaler->readAllStandardOutput();
+            qWarning()<<signaler->readAllStandardError();
         }
         signaler->deleteLater();
     });

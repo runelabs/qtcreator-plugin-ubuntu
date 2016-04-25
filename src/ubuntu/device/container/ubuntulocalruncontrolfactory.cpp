@@ -112,7 +112,7 @@ ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplore
                     = Debugger::createDebuggerRunControl(params, ubuntuRC, errorMessage, mode);
 
             //runControl takes ownership of this pointer
-            new UbuntuLocalScopeDebugSupport(ubuntuRC, runControl, params.executable);
+            new UbuntuLocalScopeDebugSupport(ubuntuRC, runControl, scoperunnerPth);
 
             return runControl;
         } else {

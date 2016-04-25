@@ -61,6 +61,7 @@ public:
         QString framework;
         QString architecture;
         QString containerName;
+        QString imageName; //only set for container creation
     };
 
     UbuntuClickTool();
@@ -71,6 +72,7 @@ public:
     static void openChrootTerminal (const Target& target);
 
     static QString targetBasePath (const Target& target);
+    static bool parseContainerName (const QString &name, Target *target);
     static bool getTargetFromUser (Target* target, const QString &framework=QString());
     static QStringList getSupportedFrameworks (const Target *target);
     static QString getMostRecentFramework ( const QString &subFramework, const Target *target );

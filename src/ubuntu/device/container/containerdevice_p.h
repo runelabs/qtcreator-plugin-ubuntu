@@ -18,6 +18,8 @@ public:
     QString userName () const;
     void reset ();
 
+    void showWarningMessage (const QString &msg);
+
 public slots:
     void handleDetectionStepFinished();
 

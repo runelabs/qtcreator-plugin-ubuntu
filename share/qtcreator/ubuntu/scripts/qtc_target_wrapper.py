@@ -44,7 +44,7 @@ scriptpath = os.path.dirname(os.path.realpath(__file__))
 args    = sys.argv[1:]
 command = os.path.basename(sys.argv[0])
 
-#ugly hack to prevent from teh moc error when running in the chroots
+#ugly hack to prevent from the moc error when running in the chroots
 if (command == "cmake"):
     if any("help" not in s for s in args):
         work_dir = os.getcwd()

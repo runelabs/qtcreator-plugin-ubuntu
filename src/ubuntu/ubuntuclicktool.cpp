@@ -107,7 +107,8 @@ void UbuntuClickTool::parametersForCreateChroot(const Target &target, ProjectExp
             .arg(Constants::UBUNTU_SCRIPTPATH)
             .arg(target.architecture)
             .arg(target.framework)
-            .arg(target.containerName);
+            .arg(target.containerName)
+            .arg(target.imageName);
 
     params->setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
     params->setEnvironment(Utils::Environment::systemEnvironment());
@@ -216,6 +217,21 @@ QString UbuntuClickTool::targetBasePath(const UbuntuClickTool::Target &target)
     return in.readAll().trimmed();
 }
 
+bool UbuntuClickTool::parseContainerName(const QString &name, UbuntuClickTool::Target *target)
+{
+    QStringList ext;
+    target->framework = UbuntuClickFrameworkProvider::getBaseFramework(name, &ext);
+    if (target->framework.isEmpty())
+        return false;
+
+    //the architecture of the the container is always last in the name
+    if (ext.isEmpty())
+        return false;
+    target->architecture = ext.last();
+
+    return true;
+}
+
 /*!
  * \brief UbuntuClickTool::targetExists
  * checks if the target is still available
@@ -315,20 +331,20 @@ const UbuntuClickTool::Target *UbuntuClickTool::clickTargetFromTarget(ProjectExp
 {
 #ifndef IN_TEST_PROJECT
     if(!t)
-        return 0;
+        return nullptr;
 
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(t->kit());
     if(!tc || (tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)))
-        return 0;
+        return nullptr;
 
     ClickToolChain *clickTc = static_cast<ClickToolChain*>(tc);
     if(!clickTc)
-        return 0;
+        return nullptr;
 
     return  &clickTc->clickTarget();
 #else
     Q_UNUSED(t);
-    return 0;
+    return nullptr;
 #endif
 }
 
@@ -400,6 +416,11 @@ QString UbuntuClickTool::mapIncludePathsForCMake(ProjectExplorer::Kit *k, const 
 
 QString UbuntuClickTool::hostArchitecture()
 {
+    static QString hostArch;
+
+    if(!hostArch.isEmpty())
+        return hostArch;
+
     QProcess proc;
     proc.setProgram(QStringLiteral("dpkg"));
     proc.setArguments(QStringList()<<QStringLiteral("--print-architecture"));
@@ -410,7 +431,8 @@ QString UbuntuClickTool::hostArchitecture()
     }
 
     QTextStream in(&proc);
-    return in.readAll().simplified();
+    hostArch = in.readAll().simplified();
+    return hostArch;
 }
 
 bool UbuntuClickTool::compatibleWithHostArchitecture(const QString &targetArch)

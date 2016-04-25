@@ -23,6 +23,7 @@
 #include <ubuntu/device/remote/ubunturemoterunconfiguration.h>
 #include <ubuntu/ubuntucmakecache.h>
 #include <ubuntu/ubuntuprojecthelper.h>
+#include <ubuntu/ubuntuclicktool.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
@@ -93,7 +94,12 @@ QString UbuntuLocalRunConfiguration::localExecutableFilePath() const
 
 QString UbuntuLocalRunConfiguration::remoteExecutableFilePath() const
 {
-    return m_executable;
+    const UbuntuClickTool::Target *t = UbuntuClickTool::clickTargetFromTarget(target());
+    QTC_ASSERT(t != nullptr, return m_executable);
+
+    QString remoteExec = m_executable;
+    remoteExec.replace(UbuntuClickTool::targetBasePath(*t),QStringLiteral(""));
+    return remoteExec;
 }
 
 QStringList UbuntuLocalRunConfiguration::arguments() const
@@ -361,7 +367,6 @@ bool UbuntuLocalRunConfiguration::ensureClickAppConfigured(QString *errorMessage
     QFileInfo commInfo(command);
     if(commInfo.fileName().startsWith(QLatin1String("qmlscene"))) {
         m_executable = QtSupport::QtKitInformation::qtVersion(target()->kit())->qmlsceneCommand();
-
         QString mainQml;
         foreach(const QString &arg, args) {
             if(arg.contains(QLatin1String(".qml"))) {
@@ -460,20 +465,17 @@ bool UbuntuLocalRunConfiguration::ensureUbuntuProjectConfigured(QString *errorMe
     if (ubuntuProject) {
         m_workingDir = ubuntuProject->projectDirectory();
         if (ubuntuProject->mainFile().compare(QString::fromLatin1("www/index.html"), Qt::CaseInsensitive) == 0) {
-            Utils::Environment env = Utils::Environment::systemEnvironment();
-            m_executable = env.searchInPath(QString::fromLatin1(Ubuntu::Constants::UBUNTUHTML_PROJECT_LAUNCHER_EXE)).toString();
+            m_executable = QString::fromLatin1(Ubuntu::Constants::UBUNTUHTML_PROJECT_LAUNCHER_EXE);
             m_args = QStringList()<<QString::fromLatin1("--www=%0/www").arg(ubuntuProject->projectDirectory().toString())
                                   <<QString::fromLatin1("--inspector");
         } else if (ubuntuProject->mainFile().endsWith(QStringLiteral(".desktop"), Qt::CaseInsensitive)) {
-            Utils::Environment env = Utils::Environment::systemEnvironment();
-
             if(!readDesktopFile(ubuntuProject->projectDirectory()
                                 .appendPath(ubuntuProject->mainFile())
                                 .toString()
                                 ,&m_executable,&m_args,errorMessage))
                 return false;
 
-            m_executable = env.searchInPath(QString::fromLatin1(Ubuntu::Constants::UBUNTUWEBAPP_PROJECT_LAUNCHER_EXE)).toString();
+            m_executable = QString::fromLatin1(Ubuntu::Constants::UBUNTUWEBAPP_PROJECT_LAUNCHER_EXE);
         } else {
             m_executable = QtSupport::QtKitInformation::qtVersion(target()->kit())->qmlsceneCommand();
             m_args = QStringList()<<QString(QLatin1String("%0.qml")).arg(ubuntuProject->displayName());
@@ -481,7 +483,7 @@ bool UbuntuLocalRunConfiguration::ensureUbuntuProjectConfigured(QString *errorMe
 
         if(m_executable.isEmpty()) {
             if(errorMessage)
-                *errorMessage = tr("Could not find a launcher for this projecttype in path");
+                *errorMessage = tr("Could not find a launcher for this projecttype");
             return false;
         }
         return true;

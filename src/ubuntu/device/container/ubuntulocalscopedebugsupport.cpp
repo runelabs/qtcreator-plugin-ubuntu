@@ -24,7 +24,7 @@ UbuntuLocalScopeDebugSupport::UbuntuLocalScopeDebugSupport(UbuntuLocalRunConfigu
     , m_scopeRunnerPath(scopeRunnerPath)
     , m_runControl(runControl)
 {
-    m_executable = runConfig->localExecutableFilePath();
+    m_executable = runConfig->remoteExecutableFilePath();
     m_commandLineArguments = runConfig->arguments();
 
     connect (runControl, &Debugger::DebuggerRunControl::requestRemoteSetup,

@@ -6,6 +6,7 @@
 #include <ubuntu/settings.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/taskhub.h>
 #include <ssh/sshconnection.h>
 #include <utils/portlist.h>
 
@@ -61,6 +62,11 @@ void ContainerDevicePrivate::reset()
     handleDetectionStepFinished();
 }
 
+void ContainerDevicePrivate::showWarningMessage(const QString &msg)
+{
+    ProjectExplorer::TaskHub::addTask(ProjectExplorer::Task::Error, msg, Constants::UBUNTU_TASK_CATEGORY_DEVICE);
+}
+
 void ContainerDevicePrivate::handleDetectionStepFinished()
 {
     Q_Q(ContainerDevice);
@@ -88,19 +94,21 @@ void ContainerDevicePrivate::handleDetectionStepFinished()
             QJsonParseError err;
             QJsonDocument doc = QJsonDocument::fromJson( m_detectionProcess->readAllStandardOutput(), &err);
             if (err.error != QJsonParseError::NoError) {
-                qWarning()<<"There was a error in the device detection of "<<q->containerName()<<", it was not possible to parse the status:";
-                qWarning()<<err.errorString();
+                showWarningMessage(tr("There was a error in the device detection of %1, it was not possible to parse the status:\n%2")
+                                   .arg(q->containerName())
+                                   .arg(err.errorString()));
                 return;
             }
 
             if (!doc.isObject()) {
-                qWarning()<<"There was a error in the device detection of "<<q->containerName()<<", the returned format was not a JSON object.";
-                return;
+                showWarningMessage(tr("There was a error in the device detection of %1, the returned format was not a JSON object.")
+                                   .arg(q->containerName()));
             }
 
             QVariantMap obj = doc.object().toVariantMap();
             if (!obj.contains(QStringLiteral("ipv4"))) {
-                qWarning()<<"There was a problem in the device detection of "<<q->containerName()<<", no IP address was returned.";
+                showWarningMessage(tr("There was a error in the device detection of %1, no IP address was returned.")
+                                   .arg(q->containerName()));
                 return;
             }
 
@@ -143,17 +151,20 @@ void ContainerDevicePrivate::handleDetectionStepFinished()
 
     m_detectionProcess->start();
     if (!m_detectionProcess->waitForStarted(3000)) {
-        qWarning()<<"Error while detecting the device state "<<m_detectionProcess->errorString();
-        qWarning()<<m_detectionProcess->program()<<m_detectionProcess->arguments();
+        showWarningMessage(tr("Error while detecting the device state of %1.\n%2 %3")
+                           .arg(q->containerName())
+                           .arg(m_detectionProcess->program())
+                           .arg(m_detectionProcess->arguments().join(QStringLiteral(" "))));
         resetProcess();
     }
 }
 
 void ContainerDevicePrivate::printProcessError()
 {
-    qWarning()<<"There was a error in the device detection, it will not be possible to run apps on it:";
-    qWarning()<<m_detectionProcess->readAllStandardOutput();
-    qWarning()<<m_detectionProcess->readAllStandardError();
+    QString message = tr("There was a error in the device detection, it will not be possible to run apps on it:\n%1\n%2")
+            .arg(QString::fromLocal8Bit(m_detectionProcess->readAllStandardOutput()))
+            .arg(QString::fromLocal8Bit(m_detectionProcess->readAllStandardError()));
+    showWarningMessage(message);
 }
 
 ContainerDevice::ContainerDevice(Core::Id type, Core::Id id) :

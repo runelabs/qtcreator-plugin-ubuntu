@@ -21,6 +21,7 @@
 
 #include <QDialog>
 #include <QPair>
+#include <QProcess>
 #include "ubuntuclicktool.h"
 
 namespace Ubuntu {
@@ -40,7 +41,16 @@ public:
 
     static bool getNewChrootTarget(UbuntuClickTool::Target *target, const QString &arch, const QString &framework, QWidget *parent = 0);
 
+protected:
+    void load ();
+    void loaderErrorOccurred(QProcess::ProcessError error);
+
+protected slots:
+    void loaderFinished();
+
 private:
+    QString m_filter;
+    QProcess *m_loader;
     Ui::UbuntuCreateNewChrootDialog *ui;
 };
 

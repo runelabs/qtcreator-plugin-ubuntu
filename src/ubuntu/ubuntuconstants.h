@@ -116,8 +116,8 @@ const char UBUNTUPROJECT_REMOTE_RUNCONTROL_BASE_ID[] = "UbuntuProjectManager.Rem
 const char UBUNTUPROJECT_REMOTE_RUNCONTROL_SCOPE_ID[] = "UbuntuProjectManager.RemoteRunConfiguration.Scope";
 const char UBUNTUPROJECT_REMOTE_RUNCONTROL_APP_ID[] = "UbuntuProjectManager.RemoteRunConfiguration.App";
 
-const char UBUNTUHTML_PROJECT_LAUNCHER_EXE[] = "ubuntu-html5-app-launcher";
-const char UBUNTUWEBAPP_PROJECT_LAUNCHER_EXE[] = "webapp-container";
+const char UBUNTUHTML_PROJECT_LAUNCHER_EXE[] = "/usr/bin/ubuntu-html5-app-launcher";
+const char UBUNTUWEBAPP_PROJECT_LAUNCHER_EXE[] = "/usr/bin/webapp-container";
 const char UBUNTUSCOPES_PROJECT_LAUNCHER_EXE[] = "qtc_desktop_scoperunner.py";
 
 const char UBUNTUBZR_INITIALIZE[] ="%0/qtc_bzr_info";
@@ -297,7 +297,7 @@ const char UBUNTU_CLICK_BINARY[]  = "/usr/bin/click";
 const char UBUNTU_SUDO_BINARY[]   = "/usr/bin/pkexec";
 
 const char UBUNTU_TARGET_TOOL[]   = "%1/usdk-target.py";
-const char UBUNTU_CREATE_CLICK_TARGET_ARGS[]  = "%0/usdk-target.py create -a %1 -f %2 %3";
+const char UBUNTU_CREATE_CLICK_TARGET_ARGS[]  = "%0/usdk-target.py create -a %1 -f %2 -n %3 -p %4";
 const char UBUNTU_DESTROY_CLICK_TARGET_ARGS[] = "%0/usdk-target.py destroy %1";
 const char UBUNTU_UPGRADE_CLICK_TARGET_ARGS[] = "upgrade %0";
 const char UBUNTU_CLICK_OPEN_TERMINAL[]       = "%0/usdk-target.py maint %1";
@@ -338,6 +338,7 @@ const int  UBUNTU_DESKTOP_PORT_START = 40000;
 const int  UBUNTU_DESKTOP_PORT_END = 41000;
 const char UBUNTU_CONTAINER_DEVICE_TYPE_ID[] = "UbuntuProjectManager.LocalDeviceTypeId.";
 const char UBUNTU_CONTAINER_DEPLOY_PUBKEY_SCRIPT[] = "%0/container_publickey_deploy";
+const char UBUNTU_TASK_CATEGORY_DEVICE [] = "Task.Category.Ubuntu.ContainerDevice";
 
 //Deploysupport
 const char UBUNTU_DEPLOYCONFIGURATION_ID[]       = "UbuntuProjectManager.DeployConfiguration";

@@ -16,25 +16,22 @@
  * Author: Benjamin Zeller <benjamin.zeller@canonical.com>
  */
 #include "ubuntucreatenewchrootdialog.h"
+#include "ubuntuclicktool.h"
 #include "ui_ubuntucreatenewchrootdialog.h"
 
 #include "ubuntuconstants.h"
 
 #include <coreplugin/icore.h>
 
+#include <QJsonDocument>
+
 namespace Ubuntu {
 
 namespace Constants {
-    const char* UBUNTU_CLICK_SUPPORTED_ARCHS[]      = {"armhf","i386","amd64","\0"};
-
-    //lists all currently supported targets by the plugin
-    const char* UBUNTU_CLICK_SUPPORTED_TARGETS[][3]   = {
-        //Series      Framework         Displayname
-        {"vivid","ubuntu-sdk-15.04","Framework-15.04"},
-        {"utopic","ubuntu-sdk-14.10","Framework-14.10"},
-        {"trusty","ubuntu-sdk-14.04","Framework-14.04"},
-        {"saucy" ,"ubuntu-sdk-13.10","Framework-13.10"},
-        {"\0","\0","\0"}
+    enum {
+        INDEX_DATA = 0,
+        INDEX_LOADING = 1,
+        INDEX_ERROR = 2
     };
 }
 
@@ -42,26 +39,21 @@ namespace Internal {
 
 UbuntuCreateNewChrootDialog::UbuntuCreateNewChrootDialog(const QString &arch, const QString &framework,  QWidget *parent) :
     QDialog(parent),
+    m_loader(nullptr),
     ui(new Ui::UbuntuCreateNewChrootDialog)
 {
     ui->setupUi(this);
+    ui->progressBar->setRange(0, 0);
+    ui->stackedWidget->setCurrentIndex(Constants::INDEX_DATA);
 
-    //add supported targets
-    for(int i = 0; Constants::UBUNTU_CLICK_SUPPORTED_TARGETS[i][0][0] != '\0'; i++){
-        const QString currFwDisplayName = QLatin1String(Constants::UBUNTU_CLICK_SUPPORTED_TARGETS[i][2]);
-        const QString currFw = QLatin1String(Constants::UBUNTU_CLICK_SUPPORTED_TARGETS[i][1]);
+    QString fwFilter, archFilter = fwFilter = QStringLiteral("(.*)");
+    if(!framework.isEmpty())
+        fwFilter = framework;
+    if(!arch.isEmpty())
+        archFilter = arch;
 
-        if ( framework.isNull() || currFw == framework)
-            ui->comboBoxSeries->addItem(currFwDisplayName,i);
-    }
-
-    //add supported architectures
-    for(int i = 0; Constants::UBUNTU_CLICK_SUPPORTED_ARCHS[i][0] != '\0' ;i++) {
-        QString currArch = QLatin1String(Constants::UBUNTU_CLICK_SUPPORTED_ARCHS[i]);
-
-        if( arch.isNull() || currArch == arch )
-            ui->comboBoxArch->addItem(currArch);
-    }
+    m_filter = QString::fromLatin1("^%1-%2").arg(fwFilter).arg(archFilter);
+    load();
 }
 
 UbuntuCreateNewChrootDialog::~UbuntuCreateNewChrootDialog()
@@ -78,20 +70,98 @@ bool UbuntuCreateNewChrootDialog::getNewChrootTarget(UbuntuClickTool::Target *ta
 {
     UbuntuCreateNewChrootDialog dlg(arch, framework, parent ? parent : Core::ICore::mainWindow());
     if( dlg.exec() == QDialog::Accepted) {
-        bool ok = false;
-
-        int idx = dlg.ui->comboBoxSeries->itemData(dlg.ui->comboBoxSeries->currentIndex()).toInt(&ok);
-        if(!ok)
+        QTreeWidgetItem * item = dlg.ui->treeWidgetImages->currentItem();
+        if (!item)
             return false;
 
-        target->architecture  = dlg.ui->comboBoxArch->currentText();
-        //target->series       = QString::fromLatin1(Constants::UBUNTU_CLICK_SUPPORTED_TARGETS[idx][0]);
-        target->framework     = QString::fromLatin1(Constants::UBUNTU_CLICK_SUPPORTED_TARGETS[idx][1]);
-        target->containerName = dlg.ui->lineEditName->text();
+        QString alias = item->text(0);
+        alias = alias.mid(0, alias.indexOf(QStringLiteral(" ")));
 
+        if (!UbuntuClickTool::parseContainerName(alias, target))
+            return false;
+
+        target->containerName = dlg.ui->lineEditName->text();
+        target->imageName = item->text(1);
         return true;
     }
     return false;
+}
+
+void UbuntuCreateNewChrootDialog::load()
+{
+    if (m_loader) {
+        m_loader->disconnect(this);
+        if (m_loader->state() != QProcess::NotRunning) {
+            m_loader->kill();
+            m_loader->waitForFinished(1000);
+        }
+        m_loader->deleteLater();
+        m_loader = nullptr;
+    }
+
+    ui->stackedWidget->setCurrentIndex(Constants::INDEX_LOADING);
+
+    m_loader = new QProcess(this);
+    connect(m_loader, &QProcess::errorOccurred, this, &UbuntuCreateNewChrootDialog::loaderErrorOccurred);
+    connect(m_loader, SIGNAL(finished(int)), this, SLOT(loaderFinished()));
+    m_loader->setProgram(QString::fromLatin1(Constants::UBUNTU_TARGET_TOOL).arg(Constants::UBUNTU_SCRIPTPATH));
+    m_loader->setArguments(QStringList{QStringLiteral("images")});
+
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.insert(QStringLiteral("LC_ALL"), QStringLiteral("C"));
+    m_loader->setProcessEnvironment(env);
+
+    m_loader->start();
+
+}
+
+void UbuntuCreateNewChrootDialog::loaderErrorOccurred(QProcess::ProcessError)
+{
+    ui->stackedWidget->setCurrentIndex(Constants::INDEX_ERROR);
+    ui->errorLabel->setText(QStringLiteral("Error loading querying the images from the server"));
+}
+
+void UbuntuCreateNewChrootDialog::loaderFinished()
+{
+    if (m_loader->exitCode() != 0) {
+        ui->stackedWidget->setCurrentIndex(Constants::INDEX_ERROR);
+        ui->errorLabel->setText(QStringLiteral("Error loading querying the images from the server"));
+        return;
+    }
+
+    QJsonParseError err;
+    QJsonDocument doc = QJsonDocument::fromJson(m_loader->readAllStandardOutput(), &err);
+    if (err.error != QJsonParseError::NoError) {
+        ui->stackedWidget->setCurrentIndex(Constants::INDEX_ERROR);
+        ui->errorLabel->setText(QString::fromLatin1("Error loading the response from the server\n%1")
+                                .arg(err.errorString()));
+        return;
+    }
+
+    qDebug()<<"Filter is "<<m_filter;
+    QRegularExpression expr(m_filter);
+    QList<QVariant> data = doc.toVariant().toList();
+    foreach (const QVariant &entry, data) {
+
+        QVariantMap m = entry.toMap();
+        qDebug()<<m;
+        QString alias = m.value(QStringLiteral("ALIAS"), QStringLiteral("error")).toString();
+        if(!expr.match(alias).hasMatch())
+            continue;
+
+        //check arch compat
+
+        QTreeWidgetItem *item = new QTreeWidgetItem;
+        item->setText(0,alias);
+        item->setText(1,m.value(QStringLiteral("FINGERPRINT"), QStringLiteral("error")).toString());
+        item->setText(2,m.value(QStringLiteral("PUBLIC"), QStringLiteral("error")).toString());
+        item->setText(3,m.value(QStringLiteral("DESCRIPTION"), QStringLiteral("error")).toString());
+        item->setText(4,m.value(QStringLiteral("ARCH"), QStringLiteral("error")).toString());
+        item->setText(5,m.value(QStringLiteral("SIZE"), QStringLiteral("error")).toString());
+        item->setText(6,m.value(QStringLiteral("UPLOAD DATE"), QStringLiteral("error")).toString());
+        ui->treeWidgetImages->addTopLevelItem(item);
+    }
+    ui->stackedWidget->setCurrentIndex(Constants::INDEX_DATA);
 }
 
 } // namespace Internal
