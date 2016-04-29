@@ -29,7 +29,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Run Click</string>
+      <string>Run Target Tool</string>
      </property>
     </widget>
    </item>

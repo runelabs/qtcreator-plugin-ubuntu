@@ -29,7 +29,6 @@
 #include <texteditor/fontsettings.h>
 
 #include "ubuntucreatenewchrootdialog.h"
-#include "clickchrootagent_interface.h"
 
 namespace Ubuntu {
 namespace Internal {
@@ -129,19 +128,6 @@ int UbuntuClickDialog::maintainClickModal(const QList<UbuntuClickTool::Target> &
             QString text  = tr(Constants::UBUNTU_CLICK_DELETE_MESSAGE);
             if( QMessageBox::question(Core::ICore::mainWindow(),title,text) != QMessageBox::Yes )
                 return 0;
-
-            if(UbuntuClickTool::clickChrootSuffix() == QLatin1String(Constants::UBUNTU_CLICK_CHROOT_DEFAULT_NAME)) {
-                ComUbuntuSdkClickChrootAgentInterface clickAgent(QStringLiteral("com.ubuntu.sdk.ClickChrootAgent"),
-                                                                 QStringLiteral("/com/ubuntu/sdk/ClickChrootAgent"),
-                                                                 QDBusConnection::sessionBus());
-                if(clickAgent.isValid()) {
-                    QDBusPendingReply<bool> ret = clickAgent.releaseSession(target.framework,target.architecture);
-                    if(ret.isError())
-                        qDebug()<<ret.error();
-
-                    ret.waitForFinished();
-                }
-            }
         }
 
         ProjectExplorer::ProcessParameters params;
@@ -149,7 +135,11 @@ int UbuntuClickDialog::maintainClickModal(const QList<UbuntuClickTool::Target> &
         paramList<<params;
     }
 
-    return runClickModal(paramList);
+    int code = runClickModal(paramList);
+    if (mode == UbuntuClickTool::Delete ) {
+        UbuntuKitManager::autoDetectKits();
+    }
+    return code;
 }
 
 void UbuntuClickDialog::done(int code)

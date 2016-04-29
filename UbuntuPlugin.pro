@@ -216,10 +216,3 @@ FORMS += \
 
 INCLUDEPATH += $$OUT_PWD \
                $$PWD/src
-
-xml_desc.target=com.ubuntu.sdk.ClickChrootAgent.xml
-xml_desc.commands=$$[QT_INSTALL_BINS]/qdbuscpp2xml -o $$xml_desc.target $$PWD/chroot-agent/chrootagent.h
-xml_desc.depends=$$PWD/chroot-agent/chrootagent.h
-QMAKE_EXTRA_TARGETS+=xml_desc
-
-DBUS_INTERFACES += $$xml_desc.target

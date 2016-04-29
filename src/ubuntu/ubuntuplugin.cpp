@@ -76,7 +76,6 @@
 #include <QtQml>
 #include <QFile>
 #include <QAction>
-#include <QProcess>
 
 #include <coreplugin/icore.h>
 #include <stdint.h>
@@ -86,30 +85,6 @@ using namespace Ubuntu::Internal;
 
 UbuntuPlugin::UbuntuPlugin()
 {
-    if(UbuntuClickTool::clickChrootSuffix() == QLatin1String(Constants::UBUNTU_CLICK_CHROOT_DEFAULT_NAME)) {
-
-        bool started = false;
-#ifdef UBUNTU_BUILD_ROOT
-        Utils::FileName chrootAgent = Utils::FileName::fromString(QStringLiteral(UBUNTU_BUILD_ROOT));
-        chrootAgent.appendPath(QStringLiteral("chroot-agent"))  //append dir
-                .appendPath(QStringLiteral("click-chroot-agent")); //append binary
-
-        if(chrootAgent.toFileInfo().isExecutable()) {
-            started = QProcess::startDetached(chrootAgent.toFileInfo().absoluteFilePath());
-        }
-#endif
-        if(!started) {
-            Utils::FileName agent = Utils::FileName::fromString(QCoreApplication::applicationDirPath())
-                    .appendPath(QStringLiteral("click-chroot-agent"));
-
-            if (agent.toFileInfo().isExecutable()) {
-                QProcess::startDetached(agent.toString());
-            } else {
-                //start the chroot-agent
-                QProcess::startDetached(QStringLiteral("click-chroot-agent"));
-            }
-        }
-    }
 }
 
 UbuntuPlugin::~UbuntuPlugin()
@@ -120,6 +95,18 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
+
+    if (Constants::UBUNTU_CLICK_TARGET_WRAPPER.isEmpty()) {
+        if (errorString)
+            *errorString = tr("\nusdk-wrapper was not found in PATH. Make sure ubuntu-sdk-tools is installed!\napt-get install ubuntu-sdk-tools");
+        return false;
+    }
+
+    if (Constants::UBUNTU_TARGET_TOOL.isEmpty()) {
+        if (errorString)
+            *errorString = tr("\nusdk-target was not found in PATH. Make sure ubuntu-sdk-tools is installed!\napt-get install ubuntu-sdk-tools");
+        return false;
+    }
 
     QFont  defaultFont = QGuiApplication::font();
     defaultFont.setFamily(QStringLiteral("Ubuntu"));

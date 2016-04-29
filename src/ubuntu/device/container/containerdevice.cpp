@@ -12,6 +12,7 @@
 
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QStandardPaths>
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -76,8 +77,14 @@ void ContainerDevicePrivate::handleDetectionStepFinished()
             m_deviceState = GetStatus;
 
             resetProcess();
-            m_detectionProcess->setProgram(QString::fromLatin1(Constants::UBUNTU_TARGET_TOOL)
-                                           .arg(Constants::UBUNTU_SCRIPTPATH));
+
+            QString tool = Constants::UBUNTU_TARGET_TOOL;
+            if (tool.isEmpty()) {
+                showWarningMessage(tr("Could not find usdk-target in PATH.\n Make sure ubuntu-sdk-tools is installed."));
+                return;
+            }
+
+            m_detectionProcess->setProgram(tool);
             m_detectionProcess->setArguments(QStringList{
                 QStringLiteral("status"),
                 q->containerName()

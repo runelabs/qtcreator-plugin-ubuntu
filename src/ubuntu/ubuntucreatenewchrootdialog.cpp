@@ -24,6 +24,7 @@
 #include <coreplugin/icore.h>
 
 #include <QJsonDocument>
+#include <QMessageBox>
 
 namespace Ubuntu {
 
@@ -54,6 +55,17 @@ UbuntuCreateNewChrootDialog::UbuntuCreateNewChrootDialog(const QString &arch, co
 
     m_filter = QString::fromLatin1("^%1-%2").arg(fwFilter).arg(archFilter);
     load();
+
+    ui->lineEditName->setValidationFunction([](Utils::FancyLineEdit *edit, QString *errorMessage) {
+        if (edit->text().isEmpty()) {
+            if (errorMessage)
+                *errorMessage = tr("Name can not be empty");
+            return false;
+        }
+        return true;
+    });
+    ui->lineEditName->setPlaceholderText(tr("Please select a name"));
+    ui->lineEditName->triggerChanged();
 }
 
 UbuntuCreateNewChrootDialog::~UbuntuCreateNewChrootDialog()
@@ -87,6 +99,19 @@ bool UbuntuCreateNewChrootDialog::getNewChrootTarget(UbuntuClickTool::Target *ta
     return false;
 }
 
+void UbuntuCreateNewChrootDialog::accept()
+{
+    if (!ui->treeWidgetImages->currentItem()) {
+        QMessageBox::warning(this, tr("No image selected"), tr("Please select a Image to continue."));
+        return;
+    }
+    if (!ui->lineEditName->isValid()) {
+        QMessageBox::warning(this, tr("No target name given"), tr("Invalid value for name given."));
+        return;
+    }
+    QDialog::accept();
+}
+
 void UbuntuCreateNewChrootDialog::load()
 {
     if (m_loader) {
@@ -104,7 +129,7 @@ void UbuntuCreateNewChrootDialog::load()
     m_loader = new QProcess(this);
     connect(m_loader, &QProcess::errorOccurred, this, &UbuntuCreateNewChrootDialog::loaderErrorOccurred);
     connect(m_loader, SIGNAL(finished(int)), this, SLOT(loaderFinished()));
-    m_loader->setProgram(QString::fromLatin1(Constants::UBUNTU_TARGET_TOOL).arg(Constants::UBUNTU_SCRIPTPATH));
+    m_loader->setProgram(Constants::UBUNTU_TARGET_TOOL);
     m_loader->setArguments(QStringList{QStringLiteral("images")});
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
@@ -145,7 +170,7 @@ void UbuntuCreateNewChrootDialog::loaderFinished()
 
         QVariantMap m = entry.toMap();
         qDebug()<<m;
-        QString alias = m.value(QStringLiteral("ALIAS"), QStringLiteral("error")).toString();
+        QString alias = m.value(QStringLiteral("alias"), QStringLiteral("error")).toString();
         if(!expr.match(alias).hasMatch())
             continue;
 
@@ -153,12 +178,11 @@ void UbuntuCreateNewChrootDialog::loaderFinished()
 
         QTreeWidgetItem *item = new QTreeWidgetItem;
         item->setText(0,alias);
-        item->setText(1,m.value(QStringLiteral("FINGERPRINT"), QStringLiteral("error")).toString());
-        item->setText(2,m.value(QStringLiteral("PUBLIC"), QStringLiteral("error")).toString());
-        item->setText(3,m.value(QStringLiteral("DESCRIPTION"), QStringLiteral("error")).toString());
-        item->setText(4,m.value(QStringLiteral("ARCH"), QStringLiteral("error")).toString());
-        item->setText(5,m.value(QStringLiteral("SIZE"), QStringLiteral("error")).toString());
-        item->setText(6,m.value(QStringLiteral("UPLOAD DATE"), QStringLiteral("error")).toString());
+        item->setText(1,m.value(QStringLiteral("fingerprint"), QStringLiteral("error")).toString());
+        item->setText(2,m.value(QStringLiteral("desc"), QStringLiteral("error")).toString());
+        item->setText(3,m.value(QStringLiteral("arch"), QStringLiteral("error")).toString());
+        item->setText(4,m.value(QStringLiteral("size"), QStringLiteral("error")).toString());
+        item->setText(5,m.value(QStringLiteral("uploadDate"), QStringLiteral("error")).toString());
         ui->treeWidgetImages->addTopLevelItem(item);
     }
     ui->stackedWidget->setCurrentIndex(Constants::INDEX_DATA);

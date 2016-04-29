@@ -29,47 +29,29 @@ import shutil
 def splitIgnoreEmptyParts(s, delim=None):
     return [x for x in s.split(delim) if x]
 
-if (len(sys.argv) < 3):
-    print("Useage: qtc_chroot_get_upgrades <architecture> <framework>")
+if (len(sys.argv) < 2):
+    print("Useage: qtc_chroot_get_upgrades <container>")
     sys.exit(-1)
 
-click      = shutil.which("click")
-session_id = ""
-chroot_name_prefix = os.getenv('CLICK_CHROOT_SUFFIX', "click")
+targetTool      = shutil.which("usdk-target")
 
-architecture = sys.argv[1]
-framework    = sys.argv[2]
+container = sys.argv[1]
 subproc      = None
 
-if (len(session_id) == 0):
-    session_id   = str(uuid.uuid4())
-    pre_spawned_session = False
-else:
-    pre_spawned_session = True
-
-def endSession():
-    subprocess.call([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"end-session",session_id],stdout=subprocess.DEVNULL)
 
 def exit_gracefully(arg1,arg2):
     if(subproc is not None):
         subproc.kill()
-    endSession()
     sys.exit(-1)
 
 signal.signal(signal.SIGTERM, exit_gracefully)
 signal.signal(signal.SIGINT , exit_gracefully)
 signal.signal(signal.SIGHUP , exit_gracefully)
 
-if ( not pre_spawned_session ):
-    success = subprocess.call([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"begin-session",session_id],stdout=subprocess.DEVNULL)
-
-subproc = subprocess.Popen([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"maint","-n",session_id
-                           ,"env","LC_ALL=C","apt-get","update"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+subproc = subprocess.Popen([targetTool, "maint", "--", container,"env","LC_ALL=C","apt-get","update"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 subproc.wait()
-subproc = subprocess.Popen([click, "chroot","-a",architecture,"-f",framework,"-n",chroot_name_prefix,"maint","-n",session_id
-                           ,"env","LC_ALL=C","apt","list","--upgradable"],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL, universal_newlines=True)
+subproc = subprocess.Popen([targetTool, "maint", "--", container,"env","LC_ALL=C","apt","list","--upgradable"],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL, universal_newlines=True)
 stdout, stderr = subproc.communicate()
-endSession()
 
 packages = splitIgnoreEmptyParts(stdout,"\n")
 if(len(packages) == 0):

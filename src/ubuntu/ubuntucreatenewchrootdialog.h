@@ -41,6 +41,10 @@ public:
 
     static bool getNewChrootTarget(UbuntuClickTool::Target *target, const QString &arch, const QString &framework, QWidget *parent = 0);
 
+// QDialog interface
+public slots:
+    virtual void accept() override;
+
 protected:
     void load ();
     void loaderErrorOccurred(QProcess::ProcessError error);

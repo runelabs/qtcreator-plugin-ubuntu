@@ -1,5 +1,7 @@
 eclipse.preferences.version=1
+encoding/qtc_chroot_get_upgrades.py=utf-8
 encoding/qtc_desktop_scoperunner.py=utf-8
+encoding/qtc_device_applaunch.py=utf-8
 encoding/qtc_device_debughelper.py=utf-8
 encoding/qtc_target_wrapper.py=utf-8
 encoding/usdk-target.py=utf-8

@@ -26,6 +26,8 @@ XS-Testsuite: autopkgtest
 Package: qtcreator-plugin-ubuntu
 Architecture: any
 Depends: android-tools-adb,
+         lxd,
+         ubuntu-sdk-tools,
          click,
          click-dev,
          click-doc,

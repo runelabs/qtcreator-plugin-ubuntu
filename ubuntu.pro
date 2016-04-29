@@ -1,7 +1,6 @@
 TEMPLATE = subdirs
 SUBDIRS = UbuntuPlugin.pro \
-          #tests \
-          chroot-agent
+          #tests
 
 #QML files
 QML_ROOT="$${PWD}/share/qtcreator/ubuntu"

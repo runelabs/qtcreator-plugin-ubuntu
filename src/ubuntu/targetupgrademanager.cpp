@@ -47,18 +47,17 @@ void TargetUpgradeManager::checkForUpgrades()
     if(set && m_state == Idle) {
         m_state = CollectPendingUpdates;
         m_outdatedChroots.clear();
-        foreach(const UbuntuClickTool::Target &chroot, UbuntuClickTool::listAvailableTargets()) {
+        foreach(const UbuntuClickTool::Target &buildTarget, UbuntuClickTool::listAvailableTargets()) {
             QPointer<QProcess> proc(new QProcess(this));
             connect(proc.data(),SIGNAL(finished(int)),this,SLOT(processFinished()));
 
             proc->start(QString::fromLatin1(Constants::CHROOT_UPDATE_LIST_SCRIPT)
                         .arg(Constants::UBUNTU_RESOURCE_PATH)
-                        .arg(chroot.architecture)
-                        .arg(chroot.framework));
+                        .arg(buildTarget.containerName));
 
             Task t;
             t.proc = proc;
-            t.target = chroot;
+            t.target = buildTarget;
             m_running.insert(reinterpret_cast<qintptr>(proc.data()),t);
         }
     }

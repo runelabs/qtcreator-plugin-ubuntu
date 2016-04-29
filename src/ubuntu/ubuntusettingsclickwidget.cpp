@@ -41,6 +41,9 @@ UbuntuSettingsClickWidget::UbuntuSettingsClickWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    //hide this setting for the moment, as we have no local mirror for lxd images
+    ui->checkBoxLocalMirror->setVisible(false);
+
     Settings::ChrootSettings def = Settings::chrootSettings();
 
     ui->enableUpdateCheckerCheckBox->setChecked(def.autoCheckForUpdates);

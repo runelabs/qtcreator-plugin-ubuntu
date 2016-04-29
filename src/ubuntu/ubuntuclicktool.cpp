@@ -104,7 +104,7 @@ QString UbuntuClickTool::clickChrootSuffix()
 void UbuntuClickTool::parametersForCreateChroot(const Target &target, ProjectExplorer::ProcessParameters *params)
 {
     QString command = QString::fromLatin1(Constants::UBUNTU_CREATE_CLICK_TARGET_ARGS)
-            .arg(Constants::UBUNTU_SCRIPTPATH)
+            .arg(Constants::UBUNTU_TARGET_TOOL)
             .arg(target.architecture)
             .arg(target.framework)
             .arg(target.containerName)
@@ -125,14 +125,14 @@ void UbuntuClickTool::parametersForMaintainChroot(const UbuntuClickTool::Maintai
     QString arguments;
     switch (mode) {
         case Upgrade:
-            params->setCommand(QString::fromLatin1(Constants::UBUNTU_TARGET_TOOL).arg(Constants::UBUNTU_SCRIPTPATH));
+            params->setCommand(Constants::UBUNTU_TARGET_TOOL);
             arguments = QString::fromLatin1(Constants::UBUNTU_UPGRADE_CLICK_TARGET_ARGS)
                     .arg(target.containerName);
             break;
         case Delete:
             params->setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
             arguments = QString::fromLatin1(Constants::UBUNTU_DESTROY_CLICK_TARGET_ARGS)
-                    .arg(Constants::UBUNTU_SCRIPTPATH)
+                    .arg(Constants::UBUNTU_TARGET_TOOL)
                     .arg(target.containerName);
             break;
     }
@@ -153,7 +153,7 @@ void UbuntuClickTool::openChrootTerminal(const UbuntuClickTool::Target &target)
     QString     term = args.takeFirst();
 
     args << QString(QLatin1String(Constants::UBUNTU_CLICK_OPEN_TERMINAL))
-            .arg(Constants::UBUNTU_SCRIPTPATH)
+            .arg(Constants::UBUNTU_TARGET_TOOL)
             .arg(target.containerName);
 
     if(!QProcess::startDetached(term,args,QDir::homePath())) {
@@ -205,7 +205,7 @@ QString UbuntuClickTool::targetBasePath(const UbuntuClickTool::Target &target)
 {
     QProcess sdkTool;
     sdkTool.setReadChannel(QProcess::StandardOutput);
-    sdkTool.setProgram(QString::fromLatin1(Constants::UBUNTU_TARGET_TOOL).arg(Constants::UBUNTU_SCRIPTPATH));
+    sdkTool.setProgram(Constants::UBUNTU_TARGET_TOOL);
     sdkTool.setArguments(QStringList()<<QStringLiteral("rootfs")<<target.containerName);
     sdkTool.start(QIODevice::ReadOnly);
     if (!sdkTool.waitForFinished(3000)
@@ -238,7 +238,7 @@ bool UbuntuClickTool::parseContainerName(const QString &name, UbuntuClickTool::T
  */
 bool UbuntuClickTool::targetExists(const UbuntuClickTool::Target &target)
 {
-    int exit = QProcess::execute(QString::fromLatin1(Constants::UBUNTU_TARGET_TOOL).arg(Constants::UBUNTU_SCRIPTPATH),
+    int exit = QProcess::execute(Constants::UBUNTU_TARGET_TOOL,
                                  QStringList()<<QStringLiteral("exists")<<target.containerName);
 
     return (exit == 0);
@@ -251,7 +251,7 @@ bool UbuntuClickTool::targetExists(const UbuntuClickTool::Target &target)
 QList<UbuntuClickTool::Target> UbuntuClickTool::listAvailableTargets(const QString &framework)
 {
     QProcess sdkTool;
-    sdkTool.setProgram(QString::fromLatin1(Constants::UBUNTU_TARGET_TOOL).arg(Constants::UBUNTU_SCRIPTPATH));
+    sdkTool.setProgram(Constants::UBUNTU_TARGET_TOOL);
     sdkTool.setArguments(QStringList()<<QStringLiteral("list"));
     sdkTool.start(QIODevice::ReadOnly);
     if (!sdkTool.waitForFinished(3000)
@@ -455,7 +455,7 @@ QString UbuntuClickTool::findOrCreateToolWrapper (const QString &tool, const Ubu
     }
 
     QString toolWrapper = (Utils::FileName::fromString(baseDir).appendPath(tool).toString());
-    QString toolTarget  = QString::fromLatin1(Constants::UBUNTU_CLICK_TARGET_WRAPPER).arg(Constants::UBUNTU_SCRIPTPATH);
+    QString toolTarget  = Constants::UBUNTU_CLICK_TARGET_WRAPPER;
 
     QFileInfo symlinkInfo(toolWrapper);
 

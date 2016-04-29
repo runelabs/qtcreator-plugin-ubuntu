@@ -20,6 +20,7 @@
 #define UBUNTUCONSTANTS2_H
 
 #include <QString>
+#include <QStandardPaths>
 #include <coreplugin/icore.h>
 
 
@@ -296,25 +297,25 @@ const char UBUNTU_CLICK_CHROOT_DEFAULT_NAME[] = "click";
 const char UBUNTU_CLICK_BINARY[]  = "/usr/bin/click";
 const char UBUNTU_SUDO_BINARY[]   = "/usr/bin/pkexec";
 
-const char UBUNTU_TARGET_TOOL[]   = "%1/usdk-target.py";
-const char UBUNTU_CREATE_CLICK_TARGET_ARGS[]  = "%0/usdk-target.py create -a %1 -f %2 -n %3 -p %4";
-const char UBUNTU_DESTROY_CLICK_TARGET_ARGS[] = "%0/usdk-target.py destroy %1";
+const QString UBUNTU_TARGET_TOOL = QStandardPaths::findExecutable(QStringLiteral("usdk-target"));
+const char UBUNTU_CREATE_CLICK_TARGET_ARGS[]  = "%0 create -a %1 -f %2 -n %3 -p %4";
+const char UBUNTU_DESTROY_CLICK_TARGET_ARGS[] = "%0 destroy %1";
 const char UBUNTU_UPGRADE_CLICK_TARGET_ARGS[] = "upgrade %0";
-const char UBUNTU_CLICK_OPEN_TERMINAL[]       = "%0/usdk-target.py maint %1";
+const char UBUNTU_CLICK_OPEN_TERMINAL[]       = "%0 maint %1";
 
 const char UBUNTU_CLICK_CLICK_PACKAGE_DIR[] = "%CLICK_FRAMEWORK%-%CLICK_ARCH%/click_package";
 
 
-const char UBUNTU_CLICK_DELETE_TITLE[] = "Delete click chroot";
-const char UBUNTU_CLICK_DELETE_MESSAGE[] = "Are you sure you want to delete this chroot?";
-const char UBUNTU_CLICK_STOP_TITLE[] = "Stop click tool";
-const char UBUNTU_CLICK_STOP_MESSAGE[] = "Are you sure you want to stop click? This could break your chroot!";
-const char UBUNTU_CLICK_STOP_WAIT_MESSAGE[] = "Waiting for click to stop";
+const char UBUNTU_CLICK_DELETE_TITLE[] = "Delete target";
+const char UBUNTU_CLICK_DELETE_MESSAGE[] = "Are you sure you want to delete this target?";
+const char UBUNTU_CLICK_STOP_TITLE[] = "Stop target tool";
+const char UBUNTU_CLICK_STOP_MESSAGE[] = "Are you sure you want to stop usdk-target? This could break your target!";
+const char UBUNTU_CLICK_STOP_WAIT_MESSAGE[] = "Waiting for usdk-target to stop";
 const char UBUNTU_CLICK_ERROR_EXIT_MESSAGE[] = "Click exited with errors, please check the output";
 const char UBUNTU_CLICK_SUCCESS_EXIT_MESSAGE[] = "Click exited with no errors";
-const char UBUNTU_CLICK_NOTARGETS_TITLE[] = "No click build targets available";
-const char UBUNTU_CLICK_NOTARGETS_MESSAGE[] = "There are no click build targets available.\nPlease create a target in the Ubuntu option page.";
-const char UBUNTU_CLICK_NOTARGETS_FRAMEWORK_MESSAGE[] = "There are no click build targets for framework %1 available.\nPlease create a target in the Ubuntu option page.";
+const char UBUNTU_CLICK_NOTARGETS_TITLE[] = "No Ubuntu SDK build targets available";
+const char UBUNTU_CLICK_NOTARGETS_MESSAGE[] = "There are no Ubuntu SDK build targets available.\nPlease create a target in the Ubuntu option page.";
+const char UBUNTU_CLICK_NOTARGETS_FRAMEWORK_MESSAGE[] = "There are no Ubuntu SDK build targets for framework %1 available.\nPlease create a target in the Ubuntu option page.";
 const char UBUNTU_CLICK_SELECT_TARGET_TITLE[] = "Select build target";
 const char UBUNTU_CLICK_SELECT_TARGET_LABEL[] = "Build target";
 extern const char* UBUNTU_CLICK_SUPPORTED_ARCHS[];
@@ -322,7 +323,7 @@ extern const char* UBUNTU_CLICK_SUPPORTED_TARGETS[][3];
 
 //Buildsupport
 const char UBUNTU_CLICK_TOOLCHAIN_ID[]   = "UbuntuProjectManager.UbuntuGccToolChain";
-const char UBUNTU_CLICK_TARGET_WRAPPER[] = "%0/qtc_target_wrapper.py";
+const QString UBUNTU_CLICK_TARGET_WRAPPER = QStandardPaths::findExecutable(QStringLiteral("usdk-wrapper"));
 const char UBUNTU_CLICK_HTML_BC_ID[]     = "UbuntuProjectManager.UbuntuHTML5.BuildConfiguration";
 const char UBUNTU_CLICK_QML_BC_ID[]      = "UbuntuProjectManager.UbuntuQml.BuildConfiguration";
 const char UBUNTU_CLICK_QML_UPDATE_TRANSL_MAKESTEP[]      = "UbuntuProjectManager.UbuntuQml.UpdateTranslationTemplateMakeStep";
