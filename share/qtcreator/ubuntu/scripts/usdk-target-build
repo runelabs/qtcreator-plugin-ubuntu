@@ -593,7 +593,7 @@ def main():
               bcolors.OKGREEN +
               options.target_architecture +
               bcolors.ENDC +
-              " on " + 
+              " on " +
               bcolors.OKGREEN +
               options.base_architecture + bcolors.ENDC +
               " base arch with " + bcolors.OKGREEN +
