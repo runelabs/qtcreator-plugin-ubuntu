@@ -571,6 +571,13 @@ def check_valid_framework(value):
 
 
 def main():
+    if os.geteuid() != 0:
+        exit("You need to have" +
+             bcolors.FAIL +
+             " root privileges" +
+             bcolors.ENDC +
+             " to run this tool.\nPlease try again, using 'sudo'")
+
     parser = argparse.ArgumentParser(description="Ubuntu SDK target builder")
     parser.add_argument('-a',
                         '--target_architecture',
