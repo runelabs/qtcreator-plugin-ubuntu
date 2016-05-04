@@ -37,17 +37,7 @@ import hashlib
 from textwrap import dedent
 from xml.etree import ElementTree
 
-
 framework_base = {
-    "ubuntu-sdk-13.10": "ubuntu-sdk-13.10",
-    # 14.04
-    "ubuntu-sdk-14.04-html": "ubuntu-sdk-14.04",
-    "ubuntu-sdk-14.04-papi": "ubuntu-sdk-14.04",
-    "ubuntu-sdk-14.04-qml": "ubuntu-sdk-14.04",
-    # 14.10
-    "ubuntu-sdk-14.10-html": "ubuntu-sdk-14.10",
-    "ubuntu-sdk-14.10-papi": "ubuntu-sdk-14.10",
-    "ubuntu-sdk-14.10-qml": "ubuntu-sdk-14.10",
     # 15.04
     "ubuntu-sdk-15.04-html": "ubuntu-sdk-15.04",
     "ubuntu-sdk-15.04-papi": "ubuntu-sdk-15.04",
@@ -60,118 +50,12 @@ framework_base = {
 
 
 framework_series = {
-    "ubuntu-sdk-13.10": "saucy",
-    "ubuntu-sdk-14.04": "trusty",
-    "ubuntu-sdk-14.10": "utopic",
     "ubuntu-sdk-15.04": "vivid",
     "ubuntu-sdk-15.10": "wily",
     }
 
-
 # Please keep the lists of package names sorted.
 extra_packages = {
-    "ubuntu-sdk-13.10": [
-        "libqt5opengl5-dev:{TARGET}",
-        "libqt5svg5-dev:{TARGET}",
-        "libqt5v8-5-dev:{TARGET}",
-        "libqt5webkit5-dev:{TARGET}",
-        "libqt5xmlpatterns5-dev:{TARGET}",
-        "qmlscene:{TARGET}",
-        "qt3d5-dev:{TARGET}",
-        "qt5-default:{TARGET}",
-        "qt5-qmake:{TARGET}",
-        "qtbase5-dev:{TARGET}",
-        "qtdeclarative5-dev:{TARGET}",
-        "qtmultimedia5-dev:{TARGET}",
-        "qtquick1-5-dev:{TARGET}",
-        "qtscript5-dev:{TARGET}",
-        "qtsensors5-dev:{TARGET}",
-        "qttools5-dev:{TARGET}",
-        "ubuntu-ui-toolkit-doc",
-        ],
-    "ubuntu-sdk-14.04": [
-        "cmake",
-        "google-mock:{TARGET}",
-        "intltool",
-        "libboost1.54-dev:{TARGET}",
-        "libjsoncpp-dev:{TARGET}",
-        "libprocess-cpp-dev:{TARGET}",
-        "libproperties-cpp-dev:{TARGET}",
-        "libqt5svg5-dev:{TARGET}",
-        "libqt5webkit5-dev:{TARGET}",
-        "libqt5xmlpatterns5-dev:{TARGET}",
-        "libunity-scopes-dev:{TARGET}",
-        # bug #1316930, needed for autopilot
-        "python3",
-        "qmlscene:{TARGET}",
-        "qt3d5-dev:{TARGET}",
-        "qt5-default:{TARGET}",
-        "qtbase5-dev:{TARGET}",
-        "qtdeclarative5-dev:{TARGET}",
-        "qtdeclarative5-dev-tools",
-        "qtlocation5-dev:{TARGET}",
-        "qtmultimedia5-dev:{TARGET}",
-        "qtscript5-dev:{TARGET}",
-        "qtsensors5-dev:{TARGET}",
-        "qttools5-dev:{TARGET}",
-        "qttools5-dev-tools:{TARGET}",
-        "ubuntu-ui-toolkit-doc",
-        ],
-    "ubuntu-sdk-14.10": [
-        "cmake",
-        "cmake-extras",
-        "google-mock:{TARGET}",
-        "intltool",
-        "libboost1.55-dev:{TARGET}",
-        "libcontent-hub-dev:{TARGET}",
-        "libjsoncpp-dev:{TARGET}",
-        "libnet-cpp-dev:{TARGET}",
-        "libprocess-cpp-dev:{TARGET}",
-        "libproperties-cpp-dev:{TARGET}",
-        "libqt5keychain0:{TARGET}",
-        "libqt5sensors5-dev:{TARGET}",
-        "libqt5svg5-dev:{TARGET}",
-        "libqt5webkit5-dev:{TARGET}",
-        "libqt5xmlpatterns5-dev:{TARGET}",
-        "libunity-scopes-dev:{TARGET}",
-        # bug #1316930, needed for autopilot
-        "python3",
-        "qml-module-qt-labs-settings:{TARGET}",
-        "qml-module-qtmultimedia:{TARGET}",
-        "qml-module-qtquick-layouts:{TARGET}",
-        "qml-module-qtsensors:{TARGET}",
-        "qml-module-qtwebkit:{TARGET}",
-        "qmlscene:{TARGET}",
-        "qt3d5-dev:{TARGET}",
-        "qt5-default:{TARGET}",
-        "qtdeclarative5-accounts-plugin:{TARGET}",
-        "qtdeclarative5-dev-tools",
-        "qtdeclarative5-folderlistmodel-plugin:{TARGET}",
-        "qtdeclarative5-localstorage-plugin:{TARGET}",
-        "qtdeclarative5-online-accounts-client0.1:{TARGET}",
-        "qtdeclarative5-particles-plugin:{TARGET}",
-        "qtdeclarative5-poppler1.0:{TARGET}",
-        "qtdeclarative5-qtlocation-plugin:{TARGET}",
-        "qtdeclarative5-qtorganizer-plugin:{TARGET}",
-        "qtdeclarative5-qtpositioning-plugin:{TARGET}",
-        "qtdeclarative5-u1db1.0:{TARGET}",
-        "qtdeclarative5-ubuntu-content0.1:{TARGET}",
-        "qtdeclarative5-ubuntu-download-manager0.1:{TARGET}",
-        "qtdeclarative5-ubuntu-mediascanner0.1:{TARGET}",
-        "qtdeclarative5-ubuntu-syncmonitor0.1:{TARGET}",
-        "qtdeclarative5-ubuntu-telephony-phonenumber0.1:{TARGET}",
-        "qtdeclarative5-ubuntu-ui-toolkit-plugin:{TARGET}",
-        "qtdeclarative5-usermetrics0.1:{TARGET}",
-        "qtdeclarative5-xmllistmodel-plugin:{TARGET}",
-        "qtlocation5-dev:{TARGET}",
-        "qtmultimedia5-dev:{TARGET}",
-        "qtscript5-dev:{TARGET}",
-        "qttools5-dev:{TARGET}",
-        "qttools5-dev-tools:{TARGET}",
-        "ubuntu-html5-theme:{TARGET}",
-        "ubuntu-ui-toolkit-doc:{TARGET}",
-        "sudo",
-        ],
     "ubuntu-sdk-15.04": [
         # the sdk libs
         "ubuntu-sdk-libs:{TARGET}",
@@ -245,27 +129,43 @@ iface eth0 inet dhcp
 
 primary_arches = ["amd64", "i386"]
 lxd_arch = {
-    "i386" : "i686",
-    "amd64" : "x86_64",
-    "armhf" : "armv7l",
-    "arm64" : "aarch64",
-    "powerpc" : "ppc",
-    "ppc64el" : "ppc64le"
+    "i386": "i686",
+    "amd64": "x86_64",
+    "armhf": "armv7l",
+    "arm64": "aarch64",
+    "powerpc": "ppc",
+    "ppc64el": "ppc64le"
 }
 
-#list of target architecures supported by host architectures
+# list of target architecures supported by host architectures
 compatible_arches = {
-    "i386"  : ["i386", "armhf"],
-    "amd64" : ["i386", "amd64", "armhf"],
-    "armhf" : ["armhf"],
+    "i386": ["i386", "armhf"],
+    "amd64": ["i386", "amd64", "armhf"],
+    "armhf": ["armhf"],
 }
 
 non_meta_re = re.compile(r'^[a-zA-Z0-9+,./:=@_-]+$')
 
-
 GEOIP_SERVER = "http://geoip.ubuntu.com/lookup"
 
 overlay_ppa = "ci-train-ppa-service/stable-phone-overlay"
+
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+
+    def disable(self):
+        self.HEADER = ''
+        self.OKBLUE = ''
+        self.OKGREEN = ''
+        self.WARNING = ''
+        self.FAIL = ''
+        self.ENDC = ''
 
 
 def get_geoip_country_code_prefix():
@@ -279,7 +179,7 @@ def get_geoip_country_code_prefix():
         cc = et.find("CountryCode")
         if not cc:
             return ""
-        return cc.text.lower()+"."
+        return cc.text.lower() + "."
     except (ElementTree.ParseError, URLError):
         pass
     return ""
@@ -333,6 +233,7 @@ def strip_dev_series_from_framework(framework):
     """Remove trailing -dev[0-9]+ from a framework name"""
     return re.sub(r'^(.*)-dev[0-9]+$', r'\1', framework)
 
+
 class ClickChroot:
 
     DAEMON_POLICY = dedent("""\
@@ -347,22 +248,21 @@ class ClickChroot:
     done
     """)
 
-    def __init__(self, target_arch, framework, series=None, chroots_dir=None):
+    def __init__(self,
+                 system_arch,
+                 target_arch,
+                 framework,
+                 series=None,
+                 chroots_dir=None):
         self.target_arch = target_arch
         self.framework = strip_dev_series_from_framework(framework)
-        
         if series is None:
             series = framework_series[self.framework_base]
-            
         self.series = series
-        system_arch = subprocess.check_output(
-            ["dpkg", "--print-architecture"],
-            universal_newlines=True).strip()
         self.native_arch = self._get_native_arch(system_arch, self.target_arch)
         if chroots_dir is None:
             chroots_dir = os.getcwd()
         self.chroots_dir = chroots_dir
-
         if "SUDO_USER" in os.environ:
             self.user = os.environ["SUDO_USER"]
         elif "PKEXEC_UID" in os.environ:
@@ -480,11 +380,14 @@ class ClickChroot:
                 # Make sure network is initialized
                 systemctl enable systemd-networkd.service
                 # Make sure dpkg variables are correct
-                for i in $(dpkg-architecture -a {target_arch} 2>/dev/null); do echo "export $i" >> /etc/profile.d/clickvars.sh ; done
+                for i in $(dpkg-architecture -a {target_arch} 2>/dev/null); \
+                    do echo "export $i" >> /etc/profile.d/clickvars.sh ; \
+                done
                 # Clean up
                 rm /finish.sh
                 apt-get clean
-                [[ -e /sbin/initctl_tmp ]] && mv /sbin/initctl_tmp /sbin/initctl
+                [[ -e /sbin/initctl_tmp ]] && \
+                mv /sbin/initctl_tmp /sbin/initctl
                 rm /usr/sbin/policy-rc.d
             """).format(build_pkgs=' '.join(build_pkgs),
                         target_arch=self.target_arch))
@@ -526,14 +429,13 @@ class ClickChroot:
         else:
             target_tuple = self.dpkg_architecture["DEB_HOST_GNU_TYPE"]
             return "%s-%s" % (prefix, target_tuple)
-        
+
     def _is_crossbuild(self):
         return (self.native_arch != self.target_arch)
 
     def create(self):
         components = ["main", "restricted", "universe", "multiverse"]
         mount = "%s/rootfs" % (os.getcwd())
-
         proxy = None
         if not proxy and "http_proxy" in os.environ:
             proxy = os.environ["http_proxy"]
@@ -554,18 +456,22 @@ class ClickChroot:
             self._make_cross_package("g++"),
             self._make_cross_package("pkg-config"),
         ]
-        
         for package in extra_packages.get(self.framework_base, []):
             package = package.format(TARGET=self.target_arch)
             build_pkgs.append(package)
-            
         if not self._is_crossbuild():
             for package in runtime_packages:
                 package = package.format(TARGET=self.target_arch)
                 build_pkgs.append(package)
-            
-        os.makedirs(mount)
-
+        if not os.path.exists(mount):
+            os.makedirs(mount)
+        else:
+            print("The " +
+                  bcolors.FAIL +
+                  "%s" % mount +
+                  bcolors.ENDC +
+                  " directory already exists")
+            sys.exit(1)
         country_code = get_geoip_country_code_prefix()
         archive_mirror = "http://%sarchive.ubuntu.com/ubuntu" % country_code
         ports_mirror = "http://%sports.ubuntu.com/ubuntu-ports" % country_code
@@ -580,59 +486,58 @@ class ClickChroot:
         with open("%s/etc/apt/sources.list" % mount, "w") as sources_list:
             for line in sources:
                 print(line, file=sources_list)
-
         daemon_policy = self._generate_daemon_policy(mount)
         self._make_executable(daemon_policy)
         initctl = "%s/sbin/initctl" % mount
         if os.path.exists(initctl):
-            shutil.copyfile(initctl, initctl+"_tmp")
+            shutil.copyfile(initctl, initctl + "_tmp")
             os.remove(initctl)
             os.symlink("%s/bin/true" % mount, initctl)
         self._generate_apt_proxy_file(mount, proxy)
         finish_script = self._generate_finish_script(mount, build_pkgs)
         self._make_executable(finish_script)
         command = ["/finish.sh"]
-        
-        
-        ret_code = subprocess.call(["/usr/sbin/chroot",mount,"/finish.sh"])
-        
+        ret_code = subprocess.call(["/usr/sbin/chroot", mount, "/finish.sh"])
         if ret_code != 0:
-            print("Debootstrapping the chroot failed.")
+            print(bcolors.FAIL +
+                  "Debootstrapping the chroot failed." +
+                  bcolors.ENDC)
             sys.exit(1)
-            
         metadata = metadata_template.format(
             ARCH=lxd_arch[self.native_arch],
             CREATETIME=int(time.time()),
             FULLNAME=self.full_name,
             SERIES=self.series
         )
-        
         with open("metadata.yaml", "w") as metadata_file:
                 print(metadata, file=metadata_file)
-        
-        #make sure /tmp is not cleaned when the chroot boots
-        with open("%s/etc/tmpfiles.d/tmp.conf" % mount, "w") as notmpclean_file:
+        # make sure /tmp is not cleaned when the chroot boots
+        with open("%s/etc/tmpfiles.d/tmp.conf" % mount,
+                  "w") as notmpclean_file:
             print("d /tmp 1777 root root -", file=notmpclean_file)
-            
-        #boot up network
+        # boot up network
         with open("%s/etc/network/interfaces" % mount, "w") as network_file:
             print(network_settings, file=network_file)
-            
-        #setup sshd for running and debugging
+        # setup sshd for running and debugging
         if not self._is_crossbuild():
             with open("%s/etc/ssh/sshd_config" % mount, "a") as sshd_conf_file:
-                print("\nAuthorizedKeysFile /etc/ssh/authorized_keys.d/%u", file=sshd_conf_file)
-                
+                print("\nAuthorizedKeysFile /etc/ssh/authorized_keys.d/%u",
+                      file=sshd_conf_file)
         scriptpath = os.path.dirname(os.path.realpath(__file__))
         shutil.copytree("%s/lxd_templates" % scriptpath, "templates")
-        
-        #cat lxd.tar.xz root.tar.xz | sha256sum
+        # cat lxd.tar.xz root.tar.xz | sha256sum
         print("Packaging the LXD image.....")
         rootfs_parts = os.listdir("rootfs")
-        ret = subprocess.call(["tar", "-C", "rootfs", "-ScpJf", "%s.tar.xz" % self.full_name]+rootfs_parts)
-        ret = subprocess.call(["tar", "-ScpJf", "%s.lxd.tar.xz" % self.full_name, "metadata.yaml", "templates"])
-        
-
+        ret = subprocess.call(["tar",
+                               "-C",
+                               "rootfs",
+                               "-ScpJf",
+                               "%s.tar.xz" % self.full_name] + rootfs_parts)
+        ret = subprocess.call(["tar",
+                               "-ScpJf",
+                               "%s.lxd.tar.xz" % self.full_name,
+                               "metadata.yaml",
+                               "templates"])
         BLOCKSIZE = 65536
         hasher = hashlib.sha256()
         with open("%s.lxd.tar.xz" % self.full_name, 'rb') as afile:
@@ -645,26 +550,55 @@ class ClickChroot:
             while len(buf) > 0:
                 hasher.update(buf)
                 buf = afile.read(BLOCKSIZE)
-        
         print(hasher.hexdigest())
-        
-        
         shutil.rmtree("rootfs")
         shutil.rmtree("templates")
         os.remove("metadata.yaml")
-        
         sys.exit(ret)
-    
+
+
+def check_valid_arch(value):
+    valid_arch_set = ["i386", "amd64", "armhf"]
+    if value not in valid_arch_set:
+        raise argparse.ArgumentTypeError("%s is not a valid arch type" % value)
+    return value
+
+
+def check_valid_framework(value):
+    if value not in framework_series:
+        raise argparse.ArgumentTypeError("%s is not a valid arch type" % value)
+    return value
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Ubuntu SDK build target utility")
-    parser.add_argument('-a', '--architecture',action="store")
-    parser.add_argument('-f', '--framework', action='store')
+    parser = argparse.ArgumentParser(description="Ubuntu SDK target builder")
+    parser.add_argument('-a',
+                        '--target_architecture',
+                        action="store",
+                        default="armhf",
+                        type=check_valid_arch)
+    parser.add_argument('-b',
+                        '--base_architecture',
+                        action="store",
+                        default="amd64",
+                        type=check_valid_arch)
+    parser.add_argument('-f',
+                        '--framework',
+                        action='store',
+                        default="ubuntu-sdk-15.04",
+                        type=check_valid_framework)
     options = parser.parse_args()
-    
-    print("Building for "+options.architecture+" "+options.framework)
-    
-    click = ClickChroot(options.architecture, options.framework , None, os.getcwd())
+    print("Building for " +
+          bcolors.OKGREEN + options.target_architecturei + bcolors.ENDC +
+          " on " + bcolors.OKGREEN + options.base_architecture + bcolors.ENDC +
+          " base arch with " + bcolors.OKGREEN +
+          options.framework + " framework" +
+          bcolors.ENDC)
+    click = ClickChroot(options.base_architecture,
+                        options.target_architecture,
+                        options.framework,
+                        None,
+                        os.getcwd())
     sys.exit(click.create())
-    
-main()    
-    
+
+main()
