@@ -588,12 +588,19 @@ def main():
                         default="ubuntu-sdk-15.04",
                         type=check_valid_framework)
     options = parser.parse_args()
-    print("Building for " +
-          bcolors.OKGREEN + options.target_architecturei + bcolors.ENDC +
-          " on " + bcolors.OKGREEN + options.base_architecture + bcolors.ENDC +
-          " base arch with " + bcolors.OKGREEN +
-          options.framework + " framework" +
-          bcolors.ENDC)
+    if os.isatty(sys.stdout.fileno()):
+        print("Building for " +
+              bcolors.OKGREEN +
+              options.target_architecture +
+              bcolors.ENDC +
+              " on " + 
+              bcolors.OKGREEN +
+              options.base_architecture + bcolors.ENDC +
+              " base arch with " + bcolors.OKGREEN +
+              options.framework + " framework" +
+              bcolors.ENDC)
+    else:
+        bcolors.disable()
     click = ClickChroot(options.base_architecture,
                         options.target_architecture,
                         options.framework,
