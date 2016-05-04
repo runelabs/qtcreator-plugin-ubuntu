@@ -38,6 +38,7 @@
 #include "ubuntusettingsdeviceconnectivitypage.h"
 #include "ubuntusettingsclickpage.h"
 #include "ubuntusettingsprojectdefaultspage.h"
+#include "processoutputdialog.h"
 
 #include <ubuntu/device/container/containerdevicefactory.h>
 #include <ubuntu/device/container/ubuntulocalrunconfigurationfactory.h>
@@ -57,6 +58,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/taskhub.h>
+#include <projectexplorer/processparameters.h>
 #include <coreplugin/featureprovider.h>
 #include <coreplugin/coreplugin.h>
 #include <utils/mimetypes/mimedatabase.h>
@@ -76,6 +78,7 @@
 #include <QtQml>
 #include <QFile>
 #include <QAction>
+#include <QMessageBox>
 
 #include <coreplugin/icore.h>
 #include <stdint.h>
@@ -96,6 +99,11 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
+
+    QFont  defaultFont = QGuiApplication::font();
+    defaultFont.setFamily(QStringLiteral("Ubuntu"));
+    defaultFont.setWeight(QFont::Light);
+
     if (Constants::UBUNTU_CLICK_TARGET_WRAPPER.isEmpty()) {
         if (errorString)
             *errorString = tr("\nusdk-wrapper was not found in PATH. Make sure ubuntu-sdk-tools is installed!\napt-get install ubuntu-sdk-tools");
@@ -108,11 +116,13 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
         return false;
     }
 
-    QFont  defaultFont = QGuiApplication::font();
-    defaultFont.setFamily(QStringLiteral("Ubuntu"));
-    defaultFont.setWeight(QFont::Light);
-
     m_settings.restoreSettings();
+
+    if(!checkContainerSetup()) {
+        if (errorString)
+            *errorString = tr("Initializing the container backend failed.");
+        return false;
+    }
 
     qmlRegisterUncreatableType<UbuntuQmlDeviceConnectionState>("Ubuntu.DevicesModel",0,1,"DeviceConnectionState",QStringLiteral("Not instantiable"));
     qmlRegisterUncreatableType<UbuntuQmlDeviceDetectionState>("Ubuntu.DevicesModel",0,1,"DeviceDetectionState",QStringLiteral("Not instantiable"));
@@ -336,4 +346,57 @@ void UbuntuPlugin::migrateProject()
         return;
 
     UbuntuProjectMigrationWizard::doMigrateProject(p,Core::ICore::mainWindow());
+}
+
+bool UbuntuPlugin::checkContainerSetup()
+{
+    QProcess proc;
+    proc.setProgram(Constants::UBUNTU_TARGET_TOOL);
+    proc.setArguments(QStringList{QStringLiteral("initialized")});
+    proc.start();
+    if (!proc.waitForFinished(3000) || proc.exitStatus() != QProcess::NormalExit) {
+        qWarning()<<"Could not detect the Container backend setup";
+        return false;
+    }
+
+    if(proc.exitCode() != 0 && Settings::askForContainerSetup()) {
+
+        QString text = tr("The container backend is not completely initialized.\n\n"
+                          "Create default configuration?\n"
+                          "Not setting up the container configuration will\nmake it impossible to run applications locally.\n\n"
+                          "Note: Will override existing LXD configurations."
+                          );
+
+        QMessageBox box(QMessageBox::Question, qApp->applicationName(),text, QMessageBox::Yes | QMessageBox::No | QMessageBox::Abort, Core::ICore::mainWindow());
+        QCheckBox *check = new QCheckBox(&box);
+        check->setText(tr("Do not show again"));
+        check->setChecked(false);
+        box.setCheckBox(check);
+
+        int choice = box.exec();
+        Settings::setAskForContainerSetup(check->checkState() != Qt::Checked);
+        Settings::flushSettings();
+
+        if (choice == QMessageBox::Yes) {
+
+            QString arguments = Utils::QtcProcess::joinArgs(QStringList{
+                Constants::UBUNTU_TARGET_TOOL,
+                QStringLiteral("autosetup"),
+                QStringLiteral("-y")
+            });
+
+            ProjectExplorer::ProcessParameters params;
+            params.setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
+            params.setEnvironment(Utils::Environment::systemEnvironment());
+            params.setArguments(arguments);
+
+            int res = ProcessOutputDialog::runProcessModal(params, Core::ICore::mainWindow());
+            if (res != 0) {
+                return false;
+            }
+        } else if (choice == QMessageBox::Abort) {
+            return false;
+        }
+    }
+    return true;
 }

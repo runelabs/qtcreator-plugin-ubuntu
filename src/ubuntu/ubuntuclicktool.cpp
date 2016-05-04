@@ -238,10 +238,15 @@ bool UbuntuClickTool::parseContainerName(const QString &name, UbuntuClickTool::T
  */
 bool UbuntuClickTool::targetExists(const UbuntuClickTool::Target &target)
 {
-    int exit = QProcess::execute(Constants::UBUNTU_TARGET_TOOL,
-                                 QStringList()<<QStringLiteral("exists")<<target.containerName);
+    QProcess proc;
+    proc.start(Constants::UBUNTU_TARGET_TOOL,
+               QStringList()<<QStringLiteral("exists")<<target.containerName);
+    if(!proc.waitForFinished(3000)) {
+        qWarning()<<"usdk-target did not return in time.";
+        return false;
+    }
 
-    return (exit == 0);
+    return (proc.exitCode() == 0);
 }
 
 /**

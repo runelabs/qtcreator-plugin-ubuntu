@@ -54,6 +54,9 @@ private slots:
     void updateContextMenu(ProjectExplorer::Project *project,ProjectExplorer::Node *node);
     void migrateProject ();
 
+private:
+    bool checkContainerSetup();
+
 protected:
     UbuntuDeviceMode       *m_ubuntuDeviceMode;
     UbuntuMenu             *m_ubuntuMenu;

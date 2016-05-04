@@ -23,7 +23,7 @@ FORMS += \
     src/ubuntu/ubuntusecuritypolicypickerdialog.ui \
     src/ubuntu/ubuntusettingsdeviceconnectivitywidget.ui \
     src/ubuntu/ubuntusettingsclickwidget.ui \
-    src/ubuntu/ubuntuclickdialog.ui \
+    src/ubuntu/processoutputdialog.ui \
     src/ubuntu/ubuntucreatenewchrootdialog.ui \
     src/ubuntu/ubuntupackagestepconfigwidget.ui \
     src/ubuntu/ubuntumanifesteditor.ui \
@@ -103,7 +103,8 @@ SOURCES += \
     src/ubuntu/device/container/ubuntulocalscopedebugsupport.cpp \
     src/ubuntu/device/container/ubuntulocaldeployconfiguration.cpp \
     src/ubuntu/device/container/ubuntulocalrunconfigurationfactory.cpp \
-    src/ubuntu/device/container/ubuntulocalrunconfiguration.cpp
+    src/ubuntu/device/container/ubuntulocalrunconfiguration.cpp \
+    src/ubuntu/processoutputdialog.cpp
 
 HEADERS += \
     src/ubuntu/ubuntuplugin.h \
@@ -172,7 +173,8 @@ HEADERS += \
     src/ubuntu/device/container/ubuntulocalscopedebugsupport.h \
     src/ubuntu/device/container/ubuntulocaldeployconfiguration.h \
     src/ubuntu/device/container/ubuntulocalrunconfigurationfactory.h \
-    src/ubuntu/device/container/ubuntulocalrunconfiguration.h
+    src/ubuntu/device/container/ubuntulocalrunconfiguration.h \
+    src/ubuntu/processoutputdialog.h
 
 #remote device support
 SOURCES += \

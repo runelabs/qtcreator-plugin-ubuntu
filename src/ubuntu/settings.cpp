@@ -19,6 +19,7 @@ static const char UBUNTUSDK_FILE_VERSION_KEY[] = "Version";
 static const char UBUNTUSDK_FILENAME[] = "/qtcreator/ubuntu-sdk/config.xml";
 
 static const bool DEFAULT_DEVICES_AUTOTOGGLE = true;
+static const bool DEFAULT_ASK_FOR_CONTAINER_SETUP = true;
 
 static const char KEY_USERNAME[] = "DeviceConnectivity.Username";
 static const char KEY_IP[] = "DeviceConnectivity.IP";
@@ -30,6 +31,7 @@ static const char KEY_TREAT_REVIEW_ERRORS_AS_WARNINGS[] = "ProjectDefaults.Treat
 static const char KEY_ENABLE_DEBUG_HELPER_DEFAULT[] = "ProjectDefaults.Enable_Debug_Helper_By_Default";
 static const char KEY_UNINSTALL_APPS_FROM_DEVICE_DEFAULT[] = "ProjectDefaults.Uninstall_Apps_From_Device_By_Default";
 static const char KEY_OVERRIDE_APPS_BY_DEFAULT[] = "ProjectDefaults.Override_Apps_By_Default";
+static const char KEY_ASK_FOR_CONTAINER_SETUP[] = "BasicSettings.AskForContainerSetup";
 }
 
 using namespace Utils;
@@ -239,6 +241,17 @@ bool Settings::deviceAutoToggle()
 void Settings::setDeviceAutoToggle(const bool set)
 {
     m_instance->m_settings[QLatin1String(KEY_AUTOTOGGLE)] = set;
+}
+
+bool Settings::askForContainerSetup()
+{
+    return m_instance->m_settings.value(QLatin1String(KEY_ASK_FOR_CONTAINER_SETUP),
+                            DEFAULT_ASK_FOR_CONTAINER_SETUP).toBool();
+}
+
+void Settings::setAskForContainerSetup(const bool set)
+{
+    m_instance->m_settings[QLatin1String(KEY_ASK_FOR_CONTAINER_SETUP)] = set;
 }
 
 } // namespace Internal

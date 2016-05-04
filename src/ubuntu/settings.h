@@ -54,6 +54,9 @@ public:
     static bool deviceAutoToggle ();
     static void setDeviceAutoToggle (const bool set);
 
+    static bool askForContainerSetup ();
+    static void setAskForContainerSetup (const bool set);
+
 private:
     void migrateSettings ();
 

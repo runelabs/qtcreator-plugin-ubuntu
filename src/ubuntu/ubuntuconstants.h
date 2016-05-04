@@ -308,11 +308,6 @@ const char UBUNTU_CLICK_CLICK_PACKAGE_DIR[] = "%CLICK_FRAMEWORK%-%CLICK_ARCH%/cl
 
 const char UBUNTU_CLICK_DELETE_TITLE[] = "Delete target";
 const char UBUNTU_CLICK_DELETE_MESSAGE[] = "Are you sure you want to delete this target?";
-const char UBUNTU_CLICK_STOP_TITLE[] = "Stop target tool";
-const char UBUNTU_CLICK_STOP_MESSAGE[] = "Are you sure you want to stop usdk-target? This could break your target!";
-const char UBUNTU_CLICK_STOP_WAIT_MESSAGE[] = "Waiting for usdk-target to stop";
-const char UBUNTU_CLICK_ERROR_EXIT_MESSAGE[] = "Click exited with errors, please check the output";
-const char UBUNTU_CLICK_SUCCESS_EXIT_MESSAGE[] = "Click exited with no errors";
 const char UBUNTU_CLICK_NOTARGETS_TITLE[] = "No Ubuntu SDK build targets available";
 const char UBUNTU_CLICK_NOTARGETS_MESSAGE[] = "There are no Ubuntu SDK build targets available.\nPlease create a target in the Ubuntu option page.";
 const char UBUNTU_CLICK_NOTARGETS_FRAMEWORK_MESSAGE[] = "There are no Ubuntu SDK build targets for framework %1 available.\nPlease create a target in the Ubuntu option page.";

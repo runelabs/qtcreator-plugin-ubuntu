@@ -7,6 +7,7 @@
 #include "settings.h"
 #include "device/container/containerdevice.h"
 
+#include <coreplugin/icore.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/toolchain.h>
@@ -316,25 +317,31 @@ void UbuntuKitManager::autoDetectKits()
         fixKit(kit);
     }
 
-    auto cmakeUpdater = [](const Core::Id &id){
-        CMakeProjectManager::CMakeTool *tool = CMakeProjectManager::CMakeToolManager::findById(id);
-        if (!tool)
-            return;
+    static bool cmakeUpdaterSet = false;
+    if (!cmakeUpdaterSet) {
 
-        QString basePath = Settings::settingsPath().toString();
-        if (tool->cmakeExecutable().toString().startsWith(basePath)) {
-            qDebug()<<"Setting mapper to "<<tool->displayName();
-            tool->setPathMapper(&UbuntuClickTool::mapIncludePathsForCMake);
-        } else {
-            qDebug()<<"Unsetting mapper from "<<tool->displayName();
-            tool->setPathMapper(CMakeProjectManager::CMakeTool::PathMapper());
-        }
-    };
+        cmakeUpdaterSet = true;
 
-    connect(CMakeProjectManager::CMakeToolManager::instance(), &CMakeProjectManager::CMakeToolManager::cmakeAdded,
-            cmakeUpdater);
-    connect(CMakeProjectManager::CMakeToolManager::instance(), &CMakeProjectManager::CMakeToolManager::cmakeRemoved,
-            cmakeUpdater);
+        auto cmakeUpdater = [](const Core::Id &id){
+            CMakeProjectManager::CMakeTool *tool = CMakeProjectManager::CMakeToolManager::findById(id);
+            if (!tool)
+                return;
+
+            QString basePath = Settings::settingsPath().toString();
+            if (tool->cmakeExecutable().toString().startsWith(basePath)) {
+                qDebug()<<"Setting mapper to "<<tool->displayName();
+                tool->setPathMapper(&UbuntuClickTool::mapIncludePathsForCMake);
+            } else {
+                qDebug()<<"Unsetting mapper from "<<tool->displayName();
+                tool->setPathMapper(CMakeProjectManager::CMakeTool::PathMapper());
+            }
+        };
+
+        connect(CMakeProjectManager::CMakeToolManager::instance(), &CMakeProjectManager::CMakeToolManager::cmakeAdded,
+                cmakeUpdater);
+        connect(CMakeProjectManager::CMakeToolManager::instance(), &CMakeProjectManager::CMakeToolManager::cmakeRemoved,
+                cmakeUpdater);
+    }
 }
 
 /*!
