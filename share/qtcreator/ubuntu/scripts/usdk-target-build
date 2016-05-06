@@ -417,7 +417,9 @@ class ClickChroot:
 
     @property
     def full_name(self):
-        return "%s-%s" % (self.framework_base, self.target_arch)
+        return "%s-%s-%s" % (self.framework_base,
+                             self.native_arch,
+                             self.target_arch)
 
     def _make_executable(self, path):
         mode = stat.S_IMODE(os.stat(path).st_mode)
