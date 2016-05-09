@@ -47,6 +47,7 @@ public:
     static QVariant createOrFindDebugger(const Utils::FileName &path);
     static void fixKit (ProjectExplorer::Kit* k);
     static QList<ClickToolChain *> clickToolChains();
+    static QList<ProjectExplorer::Kit *> findKitsUsingTarget (const UbuntuClickTool::Target &target);
     static UbuntuQtVersion *createOrFindQtVersion(ClickToolChain* tc);
     static CMakeProjectManager::CMakeTool *createOrFindCMakeTool(ClickToolChain* tc);
     static CMakeProjectManager::CMakeTool *createCMakeTool(ClickToolChain *tc);

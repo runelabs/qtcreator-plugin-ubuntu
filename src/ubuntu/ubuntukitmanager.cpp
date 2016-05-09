@@ -29,6 +29,8 @@
 #include <QStandardPaths>
 #include <QFileInfo>
 #include <QDebug>
+#include <QPair>
+#include <QInputDialog>
 
 namespace Ubuntu {
 namespace Internal {
@@ -90,6 +92,23 @@ QList<ClickToolChain *> UbuntuKitManager::clickToolChains()
         }
     }
     return toolchains;
+}
+
+QList<ProjectExplorer::Kit *> UbuntuKitManager::findKitsUsingTarget (const UbuntuClickTool::Target &target)
+{
+    auto matcher = [&target](const ProjectExplorer::Kit *k) {
+        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
+        if (!tc)
+            return false;
+
+        if (tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
+            return false;
+
+        ClickToolChain *cTc = static_cast<ClickToolChain *>(tc);
+        return (cTc->clickTarget().containerName == target.containerName);
+    };
+
+    return ProjectExplorer::KitManager::matchingKits(ProjectExplorer::KitMatcher(matcher));
 }
 
 UbuntuQtVersion *UbuntuKitManager::createOrFindQtVersion(ClickToolChain *tc)
@@ -171,7 +190,8 @@ void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
     QList<ClickToolChain*> toolchains = clickToolChains();
 
     auto findCompatibleTc = [&](){
-        ClickToolChain* match = 0;
+        QList<ClickToolChain *> perfectMatches;
+        QList<ClickToolChain *> fuzzyMatches;
         if(toolchains.size() > 0) {
             qSort(toolchains.begin(),toolchains.end(),lessThanToolchain);
 
@@ -182,35 +202,84 @@ void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
                     continue;
 
                 if( tc->targetAbi() == requiredAbi ) {
-                    match = tc;
-                    break;
+                    perfectMatches.append(tc);
+                    continue;
                 }
 
                 //the abi is compatible but not exactly the same
-                //lets continue and see if we find a better candidate
                 if(tc->targetAbi().isCompatibleWith(requiredAbi))
-                    match = tc;
+                    fuzzyMatches.append(tc);
             }
         }
-        return match;
+        return qMakePair(perfectMatches, fuzzyMatches);
     };
 
-    //search a tk with a compatible arch
-    ClickToolChain* match = findCompatibleTc();
-    while(!match) {
-        //create target
-        int choice = QMessageBox::question(Core::ICore::mainWindow(),
-                              tr("No target available"),
-                              tr("There is no compatible chroot available on your system, do you want to create it now?"));
+    ClickToolChain* match = nullptr;
+    while (!match) {
 
-        if(choice == QMessageBox::Yes) {
-            if(!UbuntuClickDialog::createClickChrootModal(false, device->architecture(), device->framework()))
+        //search a tk with a compatible arch
+        QPair<QList<ClickToolChain *>, QList<ClickToolChain *> > matches = findCompatibleTc();
+        QList<ClickToolChain *> perfect = matches.first;
+        QList<ClickToolChain *> fuzzy = matches.second;
+
+        auto getToolchain = [](const QList<ClickToolChain *> &toolchains, bool *ok) {
+            QStringList names;
+            foreach (const ClickToolChain *curr, toolchains) {
+                names.append(curr->displayName());
+            }
+
+            if (names.empty())
+                return static_cast<ClickToolChain *>(nullptr);
+
+            QString selection = QInputDialog::getItem(Core::ICore::mainWindow(), qApp->applicationName(),
+                                                      tr("There are multiple compatible Toolchains available, please select one:"),
+                                                      names, 0, false, ok);
+            if (!ok) {
+                return static_cast<ClickToolChain *>(nullptr);
+            }
+
+            return toolchains.at(names.indexOf(selection));
+        };
+
+        if (perfect.size() > 0) {
+            if (perfect.size() == 1) {
+                match = perfect.first();
+                break;
+            } else {
+                bool ok = true;
+                match = getToolchain(perfect, &ok);
+                if (!ok)
+                    return;
+
+                break;
+            }
+        } else if (fuzzy.size() > 0) {
+            if (perfect.size() == 1) {
+                match = fuzzy.first();
+                break;
+            } else {
+                bool ok = true;
+                match = getToolchain(fuzzy, &ok);
+                if (!ok)
+                    return;
+
+                break;
+            }
+        }
+
+        if (!match) {
+            //create target
+            int choice = QMessageBox::question(Core::ICore::mainWindow(),
+                                  tr("No target available"),
+                                  tr("There is no compatible target available on your system, do you want to create it now?"));
+
+            if(choice == QMessageBox::Yes) {
+                if(!UbuntuClickDialog::createClickChrootModal(false, device->architecture(), device->framework()))
+                    return;
+                toolchains = clickToolChains();
+            } else
                 return;
-
-            toolchains = clickToolChains();
-            match = findCompatibleTc();
-        } else
-            return;
+        }
     }
 
     ProjectExplorer::Kit* newKit = createKit(match);

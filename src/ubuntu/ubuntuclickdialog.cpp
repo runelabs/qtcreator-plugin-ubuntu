@@ -24,6 +24,9 @@
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/kitmanager.h>
+#include <coreplugin/helpmanager.h>
+#include <qtsupport/qtversionmanager.h>
 
 #include <QMessageBox>
 
@@ -63,10 +66,31 @@ int UbuntuClickDialog::maintainClickModal(const QList<UbuntuClickTool::Target> &
     QList<ProjectExplorer::ProcessParameters> paramList;
     foreach(const UbuntuClickTool::Target &target, targetList) {
         if(mode == UbuntuClickTool::Delete) {
+
+            QStringList docToRemove;
+            QString rootfs = UbuntuClickTool::targetBasePath(target);
+            if (!rootfs.isEmpty()) {
+                foreach(const QString &ns, Core::HelpManager::registeredNamespaces()) {
+                    QString fileName = Core::HelpManager::fileFromNamespace(ns);
+                    if(fileName.startsWith(rootfs)) {
+                        docToRemove.append(ns);
+                    }
+                }
+            }
+
             QString title = tr(Constants::UBUNTU_CLICK_DELETE_TITLE);
             QString text  = tr(Constants::UBUNTU_CLICK_DELETE_MESSAGE);
             if( QMessageBox::question(Core::ICore::mainWindow(),title,text) != QMessageBox::Yes )
                 return 0;
+
+            //remove all kits using the target
+            QList<ProjectExplorer::Kit *> kitsToDelete = UbuntuKitManager::findKitsUsingTarget(target);
+            foreach(ProjectExplorer::Kit *curr, kitsToDelete) {
+                ProjectExplorer::KitManager::deregisterKit(curr);
+            }
+
+            //make sure no help files are still opened
+            Core::HelpManager::unregisterDocumentation(docToRemove);
         }
 
         ProjectExplorer::ProcessParameters params;
@@ -75,8 +99,9 @@ int UbuntuClickDialog::maintainClickModal(const QList<UbuntuClickTool::Target> &
     }
 
     int code = runProcessModal(paramList);
-    if (mode == UbuntuClickTool::Delete ) {
-        UbuntuKitManager::autoDetectKits();
+    if(mode == UbuntuClickTool::Delete) {
+        //redetect documentation
+        QtSupport::QtVersionManager::delayedInitialize();
     }
     return code;
 }
