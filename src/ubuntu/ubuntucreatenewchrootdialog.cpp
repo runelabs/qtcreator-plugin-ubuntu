@@ -34,6 +34,15 @@ namespace Constants {
         INDEX_LOADING = 1,
         INDEX_ERROR = 2
     };
+
+    const QMap<QString, QString> TARGET_ARCH_MAP({
+        std::make_pair(QStringLiteral("i686"), QStringLiteral("i386")),
+        std::make_pair(QStringLiteral("x86_64"), QStringLiteral("amd64")),
+        std::make_pair(QStringLiteral("armv7l"), QStringLiteral("armhf")),
+        std::make_pair(QStringLiteral("aarch64"), QStringLiteral("arm64")),
+        std::make_pair(QStringLiteral("ppc"), QStringLiteral("powerpc")),
+        std::make_pair(QStringLiteral("ppc64le"), QStringLiteral("ppc64el"))
+    });
 }
 
 namespace Internal {
@@ -169,18 +178,23 @@ void UbuntuCreateNewChrootDialog::loaderFinished()
     foreach (const QVariant &entry, data) {
 
         QVariantMap m = entry.toMap();
-        qDebug()<<m;
         QString alias = m.value(QStringLiteral("alias"), QStringLiteral("error")).toString();
         if(!expr.match(alias).hasMatch())
             continue;
 
         //check arch compat
+        QString arch = m.value(QStringLiteral("arch"), QStringLiteral("error")).toString();
+        if (arch == QStringLiteral("error") || !Constants::TARGET_ARCH_MAP.contains(arch))
+            continue;
+
+        if (!UbuntuClickTool::compatibleWithHostArchitecture(Constants::TARGET_ARCH_MAP[arch]))
+            continue;
 
         QTreeWidgetItem *item = new QTreeWidgetItem;
         item->setText(0,alias);
         item->setText(1,m.value(QStringLiteral("fingerprint"), QStringLiteral("error")).toString());
         item->setText(2,m.value(QStringLiteral("desc"), QStringLiteral("error")).toString());
-        item->setText(3,m.value(QStringLiteral("arch"), QStringLiteral("error")).toString());
+        item->setText(3,arch);
         item->setText(4,m.value(QStringLiteral("size"), QStringLiteral("error")).toString());
         item->setText(5,m.value(QStringLiteral("uploadDate"), QStringLiteral("error")).toString());
         ui->treeWidgetImages->addTopLevelItem(item);
