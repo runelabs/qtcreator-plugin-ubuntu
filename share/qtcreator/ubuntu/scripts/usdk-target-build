@@ -650,7 +650,7 @@ class ClickChroot:
                                % self.full_name] + rootfs_parts)
         ret = subprocess.call(["tar",
                                "-ScpJf",
-                               "%s.lxd.tar.xz" % self.full_name,
+                               "%s-lxd.tar.xz" % self.full_name,
                                "metadata.yaml",
                                "templates"])
         BLOCKSIZE = 65536
