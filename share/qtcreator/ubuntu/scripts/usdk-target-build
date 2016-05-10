@@ -4,6 +4,7 @@
 #          Brian Murray <brian@ubuntu.com>
 #          Michael Vogt <mvo@ubuntu.com>
 #          Benjamin Zeller <benjamin.zeller@canonical.com>
+#          Zoltán Balogh <zoltan.balogh@canonical.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -36,6 +37,10 @@ import time
 import hashlib
 from textwrap import dedent
 from xml.etree import ElementTree
+import json
+import os.path
+from time import gmtime, strftime
+
 
 framework_base = {
     # 15.04
@@ -166,6 +171,113 @@ class bcolors:
         self.WARNING = ''
         self.FAIL = ''
         self.ENDC = ''
+
+
+def make_md5_sha256(file_name, combined_hash_sha256):
+    hash_md5 = hashlib.md5()
+    hash_sha256 = hashlib.sha256()
+    with open(file_name, "rb") as f:
+        for chunk in iter(lambda: f.read(65536), b""):
+            hash_sha256.update(chunk)
+            hash_md5.update(chunk)
+            combined_hash_sha256.update(chunk)
+    return (hash_md5.hexdigest(),
+            hash_sha256.hexdigest(),
+            combined_hash_sha256.hexdigest())
+
+
+def add_image_to_download(framework, base_arch, target_arch):
+    root_image = "%s-%s-%s-root.tar.xz" % (framework, base_arch, target_arch)
+    lxd_image = "%s-%s-%s-lxd.tar.xz" % (framework, base_arch, target_arch)
+    if not os.path.isfile(root_image):
+        print("The %s root file does not exist" % root_image)
+        return
+    if not os.path.isfile(lxd_image):
+        print("The %s lxd file does not exist" % lxd_image)
+        return
+    str_time = strftime("%a, %d %b %Y %H:%M:%S %z", gmtime())
+    short_date = strftime("%Y%m%d", gmtime())
+    combined_hash_sha256 = hashlib.sha256()
+    root_md5,\
+        root_sha256,\
+        combined_sha256 = make_md5_sha256(root_image,
+                                          combined_hash_sha256)
+    lxd_md5,\
+        lxd_sha256,\
+        combined_sha256 = make_md5_sha256(lxd_image,
+                                          combined_hash_sha256)
+    download_json = "download.json"
+    license = "http://www.canonical.com/intellectual-property-policy"
+    download_template = '{"content_id" : \
+                          "com.ubuntu.sdk-image:released:download",\
+                          "datatype" : "image-downloads",\
+                          "format" : "products:1.0",\
+                          "license" : "%s",\
+                          "products" : "",\
+                          "updated" : "%s"}' % (license, str_time)
+    if os.path.isfile(download_json):
+        with open(download_json) as download_json_file:
+            download_data = json.load(download_json_file)
+    else:
+        download_data = json.loads(download_template)
+    products = download_data["products"]
+    pruduct_id = "com.ubuntu.sdkimage:builder:%s:16.04:%s"\
+                 % (base_arch, target_arch)
+    lxd_file = '{"size": "%s",\
+                "ftype": "lxd.tar.xz",\
+                "path": "releases/vivid/%s",\
+                "combined_sha256": "%s",\
+                "sha256": "%s",\
+                "md5": "%s"\
+                }'\
+                % (os.path.getsize(lxd_image),
+                   lxd_image,
+                   combined_sha256,
+                   lxd_sha256,
+                   lxd_md5)
+    root_file = '{"size": "%s",\
+                 "ftype": "root.tar.xz",\
+                 "path": "releases/vivid/%s",\
+                 "combined_sha256": "%s",\
+                 "sha256": "%s",\
+                 "md5": "%s"\
+                 }' % (os.path.getsize(root_image),
+                       root_image,
+                       combined_sha256,
+                       root_sha256,
+                       root_md5)
+    items = '{"lxd.tar.xz": %s,\
+              "root.tar.xz": %s\
+             }' % (lxd_file, root_file)
+    date_section = '{"items" : %s,\
+                    "pubname": "ubuntu-vivid-15.04-overlay-%s-builder-%s",\
+                    "label": "sdk-%s"\
+                    }' % (items, target_arch, short_date, target_arch)
+    versions = '{"%s": %s\
+                }' % (short_date, date_section)
+    product_object = '{"versions": %s,\
+                       "arch": "%s",\
+                       "supported": true,\
+                       "release_title": "15.04",\
+                       "release_codename": "Vivid",\
+                       "version": "15.04",\
+                       "release": "vivid",\
+                       "aliases": \
+                       "%s-%s,ubuntu-framework-15.04-%s",\
+                       "os": "ubuntu",\
+                       "support_eol": "2019-04-17"\
+                      }' % (versions,
+                            target_arch,
+                            framework,
+                            target_arch,
+                            target_arch)
+    products_string = '{"%s": %s}' % (pruduct_id, product_object)
+    new_product = json.loads(products_string)
+    merged_products = dict(products, **new_product)
+    download_data["products"] = merged_products
+    download_data["updated"] = str_time
+    with open('download.json', 'w') as outfile:
+        json.dump(download_data, outfile, indent=4)
 
 
 def get_geoip_country_code_prefix():
@@ -534,7 +646,8 @@ class ClickChroot:
                                "-C",
                                "rootfs",
                                "-ScpJf",
-                               "%s.tar.xz" % self.full_name] + rootfs_parts)
+                               "%s-root.tar.xz"
+                               % self.full_name] + rootfs_parts)
         ret = subprocess.call(["tar",
                                "-ScpJf",
                                "%s.lxd.tar.xz" % self.full_name,
@@ -556,6 +669,9 @@ class ClickChroot:
         shutil.rmtree("rootfs")
         shutil.rmtree("templates")
         os.remove("metadata.yaml")
+        add_image_to_download(self.framework,
+                              self.native_arch,
+                              self.target_arch)
         sys.exit(ret)
 
 
