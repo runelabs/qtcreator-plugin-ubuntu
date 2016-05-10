@@ -187,6 +187,10 @@ def make_md5_sha256(file_name, combined_hash_sha256):
 
 
 def add_image_to_download(framework, base_arch, target_arch):
+    print(framework)
+    match = re.search('ubuntu-sdk-(.*)', framework)
+    if match:
+        ubuntu_version = match.group(1)
     root_image = "%s-%s-%s-root.tar.xz" % (framework, base_arch, target_arch)
     lxd_image = "%s-%s-%s-lxd.tar.xz" % (framework, base_arch, target_arch)
     if not os.path.isfile(root_image):
@@ -197,15 +201,14 @@ def add_image_to_download(framework, base_arch, target_arch):
         return
     str_time = strftime("%a, %d %b %Y %H:%M:%S %z", gmtime())
     short_date = strftime("%Y%m%d", gmtime())
+    combined_sha256 = "combined_sha256"
     combined_hash_sha256 = hashlib.sha256()
     root_md5,\
         root_sha256,\
-        combined_sha256 = make_md5_sha256(root_image,
-                                          combined_hash_sha256)
+        combined_sha256 = make_md5_sha256(root_image, combined_hash_sha256)
     lxd_md5,\
         lxd_sha256,\
-        combined_sha256 = make_md5_sha256(lxd_image,
-                                          combined_hash_sha256)
+        combined_sha256 = make_md5_sha256(lxd_image, combined_hash_sha256)
     download_json = "download.json"
     license = "http://www.canonical.com/intellectual-property-policy"
     download_template = '{"content_id" : \
@@ -250,26 +253,33 @@ def add_image_to_download(framework, base_arch, target_arch):
               "root.tar.xz": %s\
              }' % (lxd_file, root_file)
     date_section = '{"items" : %s,\
-                    "pubname": "ubuntu-vivid-15.04-overlay-%s-builder-%s",\
+                    "pubname": "ubuntu-vivid-%s-overlay-%s-builder-%s",\
                     "label": "sdk-%s"\
-                    }' % (items, target_arch, short_date, target_arch)
+                    }' % (items,
+                          ubuntu_version,
+                          target_arch,
+                          short_date,
+                          target_arch)
     versions = '{"%s": %s\
                 }' % (short_date, date_section)
     product_object = '{"versions": %s,\
                        "arch": "%s",\
                        "supported": true,\
-                       "release_title": "15.04",\
+                       "release_title": "%s",\
                        "release_codename": "Vivid",\
-                       "version": "15.04",\
+                       "version": "%s",\
                        "release": "vivid",\
                        "aliases": \
-                       "%s-%s,ubuntu-framework-15.04-%s",\
+                       "%s-%s,ubuntu-framework-%s-%s",\
                        "os": "ubuntu",\
                        "support_eol": "2019-04-17"\
                       }' % (versions,
                             target_arch,
+                            ubuntu_version,
+                            ubuntu_version,
                             framework,
                             target_arch,
+                            ubuntu_version,
                             target_arch)
     products_string = '{"%s": %s}' % (pruduct_id, product_object)
     new_product = json.loads(products_string)
