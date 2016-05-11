@@ -779,7 +779,6 @@ def main():
               bcolors.ENDC)
     else:
         bcolors.disable()
-    add_image_to_download("ubuntu-sdk-15.04", "i386", "armhf")
     click = ClickChroot(options.base_architecture,
                         options.target_architecture,
                         options.framework,
