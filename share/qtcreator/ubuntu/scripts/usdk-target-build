@@ -40,7 +40,7 @@ from xml.etree import ElementTree
 import json
 import os.path
 from time import gmtime, strftime
-
+from shutil import copyfile
 
 framework_base = {
     # 15.04
@@ -150,10 +150,10 @@ compatible_arches = {
 }
 
 non_meta_re = re.compile(r'^[a-zA-Z0-9+,./:=@_-]+$')
-
 GEOIP_SERVER = "http://geoip.ubuntu.com/lookup"
-
 overlay_ppa = "ci-train-ppa-service/stable-phone-overlay"
+rootfs = "rootfs"
+qemu_arm_static = "/usr/bin/qemu-arm-static"
 
 
 class bcolors:
@@ -518,17 +518,27 @@ class ClickChroot:
     def _debootstrap(self, components, mount, archive_mirror, ports_mirror):
         if self.native_arch in primary_arches:
             mirror = archive_mirror
+            subprocess.check_call([
+                "debootstrap",
+                "--arch", self.native_arch,
+                "--variant=buildd",
+                "--components=%s" % ','.join(components),
+                self.series,
+                mount,
+                mirror
+                ])
         else:
             mirror = ports_mirror
-        subprocess.check_call([
-            "debootstrap",
-            "--arch", self.native_arch,
-            "--variant=buildd",
-            "--components=%s" % ','.join(components),
-            self.series,
-            mount,
-            mirror,
-            ])
+            subprocess.check_call([
+                "debootstrap",
+                "--arch", self.native_arch,
+                "--foreign",
+                "--variant=buildd",
+                "--components=%s" % ','.join(components),
+                self.series,
+                mount,
+                mirror
+                ])
 
     @property
     def framework_base(self):
@@ -559,7 +569,7 @@ class ClickChroot:
 
     def create(self):
         components = ["main", "restricted", "universe", "multiverse"]
-        mount = "%s/rootfs" % (os.getcwd())
+        mount = "%s/%s" % (os.getcwd(), rootfs)
         proxy = None
         if not proxy and "http_proxy" in os.environ:
             proxy = os.environ["http_proxy"]
@@ -603,6 +613,26 @@ class ClickChroot:
         if 'DEBOOTSTRAP_MIRROR' in os.environ:
             archive_mirror = os.environ['DEBOOTSTRAP_MIRROR']
         self._debootstrap(components, mount, archive_mirror, ports_mirror)
+        # in case of creating foreign arch image we need to add the emulator
+        if self.native_arch not in primary_arches:
+            if os.path.isfile(qemu_arm_static):
+               shutil.copy2(qemu_arm_static, "%s/usr/bin/" % mount)
+            else:
+               print(bcolors.FAIL +
+                     "The %s is not present, please install\
+                      qemu-user-static package"
+                     % qemu_arm_static +
+                     bcolors.ENDC)
+               sys.exit(1)
+            ret_code = subprocess.call(["/usr/sbin/chroot",
+                                        mount,
+                                        "/debootstrap/debootstrap",
+                                        "--second-stage"])
+            if ret_code != 0:
+                print(bcolors.FAIL +
+                      "Second stage of the debootstrapping failed." +
+                      bcolors.ENDC)
+                sys.exit(1)
         sources = generate_sources(self.series, self.native_arch,
                                    self.target_arch,
                                    archive_mirror, ports_mirror,
@@ -651,10 +681,10 @@ class ClickChroot:
         shutil.copytree("%s/lxd_templates" % scriptpath, "templates")
         # cat lxd.tar.xz root.tar.xz | sha256sum
         print("Packaging the LXD image.....")
-        rootfs_parts = os.listdir("rootfs")
+        rootfs_parts = os.listdir(rootfs)
         ret = subprocess.call(["tar",
                                "-C",
-                               "rootfs",
+                               "%s" % rootfs,
                                "-ScpJf",
                                "%s-root.tar.xz"
                                % self.full_name] + rootfs_parts)
@@ -663,22 +693,11 @@ class ClickChroot:
                                "%s-lxd.tar.xz" % self.full_name,
                                "metadata.yaml",
                                "templates"])
-        BLOCKSIZE = 65536
-        hasher = hashlib.sha256()
-        with open("%s.lxd.tar.xz" % self.full_name, 'rb') as afile:
-            buf = afile.read(BLOCKSIZE)
-            while len(buf) > 0:
-                hasher.update(buf)
-                buf = afile.read(BLOCKSIZE)
-        with open("%s.tar.xz" % self.full_name, 'rb') as afile:
-            buf = afile.read(BLOCKSIZE)
-            while len(buf) > 0:
-                hasher.update(buf)
-                buf = afile.read(BLOCKSIZE)
-        print(hasher.hexdigest())
-        shutil.rmtree("rootfs")
+        print("Clean up the build artifacts.")
+        shutil.rmtree(rootfs)
         shutil.rmtree("templates")
         os.remove("metadata.yaml")
+        print("Create the download.json")
         add_image_to_download(self.framework,
                               self.native_arch,
                               self.target_arch)
