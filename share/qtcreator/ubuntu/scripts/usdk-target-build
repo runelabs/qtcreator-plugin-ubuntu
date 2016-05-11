@@ -79,22 +79,8 @@ extra_packages = {
         "language-pack-en",
         ],
     "ubuntu-sdk-16.04": [
-        "ubuntu-sdk-libs:{TARGET}",
-        "ubuntu-sdk-libs-dev:{TARGET}",
-        "ubuntu-sdk-libs-tools",
-        "oxideqt-codecs-extra",
-        "ubuntu-html5-container:{TARGET}",
-        "qt5-doc",
-        "language-pack-en",
         ],
     "ubuntu-sdk-16.10": [
-        "ubuntu-sdk-libs:{TARGET}",
-        "ubuntu-sdk-libs-dev:{TARGET}",
-        "ubuntu-sdk-libs-tools",
-        "oxideqt-codecs-extra",
-        "ubuntu-html5-container:{TARGET}",
-        "qt5-doc",
-        "language-pack-en",
         ]
     }
 
@@ -211,6 +197,7 @@ def add_image_to_download(framework, base_arch, target_arch):
     match = re.search('ubuntu-sdk-(.*)', framework)
     if match:
         ubuntu_version = match.group(1)
+    series = framework_series[framework]
     root_image = "%s-%s-%s-root.tar.xz" % (framework, base_arch, target_arch)
     lxd_image = "%s-%s-%s-lxd.tar.xz" % (framework, base_arch, target_arch)
     if not os.path.isfile(root_image):
@@ -269,23 +256,25 @@ def add_image_to_download(framework, base_arch, target_arch):
         index_data["index"][image_category]["products"].append(pruduct_id)
     lxd_file = '{"size": "%s",\
                 "ftype": "lxd.tar.xz",\
-                "path": "releases/vivid/%s",\
+                "path": "releases/%s/%s",\
                 "combined_sha256": "%s",\
                 "sha256": "%s",\
                 "md5": "%s"\
                 }'\
                 % (os.path.getsize(lxd_image),
+                   series,
                    lxd_image,
                    combined_sha256,
                    lxd_sha256,
                    lxd_md5)
     root_file = '{"size": "%s",\
                  "ftype": "root.tar.xz",\
-                 "path": "releases/vivid/%s",\
+                 "path": "releases/%s/%s",\
                  "combined_sha256": "%s",\
                  "sha256": "%s",\
                  "md5": "%s"\
                  }' % (os.path.getsize(root_image),
+                       series,
                        root_image,
                        combined_sha256,
                        root_sha256,
@@ -294,9 +283,10 @@ def add_image_to_download(framework, base_arch, target_arch):
               "root.tar.xz": %s\
              }' % (lxd_file, root_file)
     date_section = '{"items" : %s,\
-                    "pubname": "ubuntu-vivid-%s-overlay-%s-builder-%s",\
+                    "pubname": "ubuntu-%s-%s-overlay-%s-builder-%s",\
                     "label": "sdk-%s"\
                     }' % (items,
+                          series,
                           ubuntu_version,
                           target_arch,
                           short_date,
@@ -307,15 +297,17 @@ def add_image_to_download(framework, base_arch, target_arch):
                        "arch": "%s",\
                        "supported": true,\
                        "release_title": "%s",\
-                       "release_codename": "Vivid",\
+                       "release_codename": "%s",\
                        "version": "%s",\
-                       "release": "vivid",\
+                       "release": "%s",\
                        "aliases": \
                        "%s-%s,ubuntu-framework-%s-%s",\
                        "os": "ubuntu",\
                        "support_eol": "2019-04-17"\
                       }' % (versions,
                             target_arch,
+                            series,
+                            series.capitalize(),
                             ubuntu_version,
                             ubuntu_version,
                             framework,
@@ -722,22 +714,26 @@ class ClickChroot:
                 print("\nAuthorizedKeysFile /etc/ssh/authorized_keys.d/%u",
                       file=sshd_conf_file)
         scriptpath = os.path.dirname(os.path.realpath(__file__))
+        print(scriptpath)
         if not os.path.exists(template_directory):
             os.makedirs(template_directory)
-        with open("%s/%s" % (scriptpath,
+        print("%s/%s/%s" % (scriptpath, template_directory, hostname_tpl_filename))
+        with open("%s/%s/%s" % (scriptpath,
+                  template_directory,
                   hostname_tpl_filename),
                   "w") as hostname_tpl_file:
                 print(hostname_tpl, file=hostname_tpl_file)
-        with open("%s/%s" % (scriptpath,
+        with open("%s/%s/%s" % (scriptpath,
+                  template_directory,
                   hosts_tpl_filename),
                   "w") as hosts_tpl_file:
                 print(hosts_tpl, file=hosts_tpl_file)
 
-        with open("%s/%s" % (scriptpath,
+        with open("%s/%s/%s" % (scriptpath,
+                  template_directory,
                   upstart_override_tpl_filename),
                   "w") as upstart_override_tpl_file:
                 print(upstart_override_tpl, file=upstart_override_tpl_file)
-        # cat lxd.tar.xz root.tar.xz | sha256sum
         print("Packaging the LXD image.....")
         rootfs_parts = os.listdir(rootfs)
         ret = subprocess.call(["tar",
