@@ -285,7 +285,7 @@ def add_image_to_download(framework, base_arch, target_arch):
     merged_products = dict(products, **new_product)
     download_data["products"] = merged_products
     download_data["updated"] = str_time
-    with open('download.json', 'w') as outfile:
+    with open(download_json, 'w') as outfile:
         json.dump(download_data, outfile, indent=4)
 
 
