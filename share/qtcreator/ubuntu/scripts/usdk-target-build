@@ -616,14 +616,14 @@ class ClickChroot:
         # in case of creating foreign arch image we need to add the emulator
         if self.native_arch not in primary_arches:
             if os.path.isfile(qemu_arm_static):
-               shutil.copy2(qemu_arm_static, "%s/usr/bin/" % mount)
+                shutil.copy2(qemu_arm_static, "%s/usr/bin/" % mount)
             else:
-               print(bcolors.FAIL +
-                     "The %s is not present, please install\
+                print(bcolors.FAIL +
+                      "The %s is not present, please install\
                       qemu-user-static package"
-                     % qemu_arm_static +
-                     bcolors.ENDC)
-               sys.exit(1)
+                      % qemu_arm_static +
+                      bcolors.ENDC)
+                sys.exit(1)
             ret_code = subprocess.call(["/usr/sbin/chroot",
                                         mount,
                                         "/debootstrap/debootstrap",
