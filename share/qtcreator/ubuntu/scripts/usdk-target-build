@@ -209,7 +209,7 @@ def add_image_to_download(framework, base_arch, target_arch):
     lxd_md5,\
         lxd_sha256,\
         combined_sha256 = make_md5_sha256(lxd_image, combined_hash_sha256)
-    download_json = "download.json"
+    download_json = "com.ubuntu.sdkimage:released:download.json"
     license = "http://www.canonical.com/intellectual-property-policy"
     download_template = '{"content_id" : \
                           "com.ubuntu.sdk-image:released:download",\
