@@ -40,7 +40,6 @@ from xml.etree import ElementTree
 import json
 import os.path
 from time import gmtime, strftime
-from shutil import copyfile
 
 framework_base = {
     # 15.04
@@ -57,39 +56,46 @@ framework_base = {
 framework_series = {
     "ubuntu-sdk-15.04": "vivid",
     "ubuntu-sdk-15.10": "wily",
+    "ubuntu-sdk-16.04": "xenial",
+    "ubuntu-sdk-16.10": "yakketi",
     }
 
-# Please keep the lists of package names sorted.
 extra_packages = {
     "ubuntu-sdk-15.04": [
-        # the sdk libs
         "ubuntu-sdk-libs:{TARGET}",
         "ubuntu-sdk-libs-dev:{TARGET}",
-        # the native build tools
         "ubuntu-sdk-libs-tools",
-        # FIXME: see
-        #  http://pad.lv/~mvo/oxide/crossbuild-friendly/+merge/234093
-        # we help the apt resolver here until the
-        #  oxideqt-codecs/oxidec-codecs-extras is sorted
         "oxideqt-codecs-extra",
         "ubuntu-html5-container:{TARGET}",
         "qt5-doc",
         "language-pack-en",
         ],
     "ubuntu-sdk-15.10-dev1": [
-        # the sdk libs
         "ubuntu-sdk-libs:{TARGET}",
         "ubuntu-sdk-libs-dev:{TARGET}",
-        # the native build tools
         "ubuntu-sdk-libs-tools",
-        # FIXME: see
-        #  http://pad.lv/~mvo/oxide/crossbuild-friendly/+merge/234093
-        # we help the apt resolver here until the
-        #  oxideqt-codecs/oxidec-codecs-extras is sorted
         "oxideqt-codecs-extra",
         "qt5-doc",
         "language-pack-en",
         ],
+    "ubuntu-sdk-16.04": [
+        "ubuntu-sdk-libs:{TARGET}",
+        "ubuntu-sdk-libs-dev:{TARGET}",
+        "ubuntu-sdk-libs-tools",
+        "oxideqt-codecs-extra",
+        "ubuntu-html5-container:{TARGET}",
+        "qt5-doc",
+        "language-pack-en",
+        ],
+    "ubuntu-sdk-16.10": [
+        "ubuntu-sdk-libs:{TARGET}",
+        "ubuntu-sdk-libs-dev:{TARGET}",
+        "ubuntu-sdk-libs-tools",
+        "oxideqt-codecs-extra",
+        "ubuntu-html5-container:{TARGET}",
+        "qt5-doc",
+        "language-pack-en",
+        ]
     }
 
 # all runtime only packages, they are only installed on NON cross chroots
@@ -154,6 +160,21 @@ GEOIP_SERVER = "http://geoip.ubuntu.com/lookup"
 overlay_ppa = "ci-train-ppa-service/stable-phone-overlay"
 rootfs = "rootfs"
 qemu_arm_static = "/usr/bin/qemu-arm-static"
+
+template_directory = "templates"
+hostname_tpl_filename = "hostname.tpl"
+hostname_tpl = "{{ container.name }}"
+hosts_tpl_filename = "hosts.tpl"
+hosts_tpl = "127.0.0.1   localhost\n\
+             127.0.1.1   {{ container.name }}\n\
+             # The following lines are desirable for IPv6 capable hosts\n\
+             ::1     ip6-localhost ip6-loopback\n\
+             fe00::0 ip6-localnet\n\
+             ff00::0 ip6-mcastprefix\n\
+             ff02::1 ip6-allnodes\n\
+             ff02::2 ip6-allrouters"
+upstart_override_tpl_filename = "upstart-override.tpl"
+upstart_override_tpl = "manual"
 
 
 class bcolors:
@@ -674,7 +695,6 @@ class ClickChroot:
         self._generate_apt_proxy_file(mount, proxy)
         finish_script = self._generate_finish_script(mount, build_pkgs)
         self._make_executable(finish_script)
-        command = ["/finish.sh"]
         ret_code = subprocess.call(["/usr/sbin/chroot", mount, "/finish.sh"])
         if ret_code != 0:
             print(bcolors.FAIL +
@@ -702,7 +722,21 @@ class ClickChroot:
                 print("\nAuthorizedKeysFile /etc/ssh/authorized_keys.d/%u",
                       file=sshd_conf_file)
         scriptpath = os.path.dirname(os.path.realpath(__file__))
-        shutil.copytree("%s/lxd_templates" % scriptpath, "templates")
+        if not os.path.exists(template_directory):
+            os.makedirs(template_directory)
+        with open("%s/%s" % (scriptpath,
+                  hostname_tpl_filename),
+                  "w") as hostname_tpl_file:
+                print(hostname_tpl, file=hostname_tpl_file)
+        with open("%s/%s" % (scriptpath,
+                  hosts_tpl_filename),
+                  "w") as hosts_tpl_file:
+                print(hosts_tpl, file=hosts_tpl_file)
+
+        with open("%s/%s" % (scriptpath,
+                  upstart_override_tpl_filename),
+                  "w") as upstart_override_tpl_file:
+                print(upstart_override_tpl, file=upstart_override_tpl_file)
         # cat lxd.tar.xz root.tar.xz | sha256sum
         print("Packaging the LXD image.....")
         rootfs_parts = os.listdir(rootfs)
