@@ -201,14 +201,13 @@ def add_image_to_download(framework, base_arch, target_arch):
         return
     str_time = strftime("%a, %d %b %Y %H:%M:%S %z", gmtime())
     short_date = strftime("%Y%m%d", gmtime())
-    combined_sha256 = "combined_sha256"
     combined_hash_sha256 = hashlib.sha256()
-    root_md5,\
-        root_sha256,\
-        combined_sha256 = make_md5_sha256(root_image, combined_hash_sha256)
     lxd_md5,\
         lxd_sha256,\
         combined_sha256 = make_md5_sha256(lxd_image, combined_hash_sha256)
+    root_md5,\
+        root_sha256,\
+        combined_sha256 = make_md5_sha256(root_image, combined_hash_sha256)
     download_json = "com.ubuntu.sdkimage:released:download.json"
     license = "http://www.canonical.com/intellectual-property-policy"
     download_template = '{"content_id" : \
