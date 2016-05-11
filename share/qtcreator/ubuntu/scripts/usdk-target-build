@@ -187,7 +187,6 @@ def make_md5_sha256(file_name, combined_hash_sha256):
 
 
 def add_image_to_download(framework, base_arch, target_arch):
-    print(framework)
     match = re.search('ubuntu-sdk-(.*)', framework)
     if match:
         ubuntu_version = match.group(1)
@@ -209,7 +208,10 @@ def add_image_to_download(framework, base_arch, target_arch):
         root_sha256,\
         combined_sha256 = make_md5_sha256(root_image, combined_hash_sha256)
     download_json = "com.ubuntu.sdkimage:released:download.json"
+    index_json = "index.json"
     license = "http://www.canonical.com/intellectual-property-policy"
+    image_category = "com.ubuntu.sdk-image:released:download"
+    download_json_path = "streams/v1/%s" % download_json
     download_template = '{"content_id" : \
                           "com.ubuntu.sdk-image:released:download",\
                           "datatype" : "image-downloads",\
@@ -217,14 +219,33 @@ def add_image_to_download(framework, base_arch, target_arch):
                           "license" : "%s",\
                           "products" : "",\
                           "updated" : "%s"}' % (license, str_time)
+    index_template = '{"index": {\
+                           "com.ubuntu.sdk-image:released:download": {\
+                               "datatype": "image-downloads",\
+                               "path": "%s",\
+                               "updated": "%s",\
+                               "products": [],\
+                               "format": "products:1.0"\
+                              }\
+                          },\
+                      "updated": "%s",\
+                      "format": "index:1.0"\
+                      }' % (download_json_path, str_time, str_time)
     if os.path.isfile(download_json):
         with open(download_json) as download_json_file:
             download_data = json.load(download_json_file)
     else:
         download_data = json.loads(download_template)
+    if os.path.isfile(index_json):
+        with open(index_json) as index_json_file:
+            index_data = json.load(index_json_file)
+    else:
+        index_data = json.loads(index_template)
     products = download_data["products"]
-    pruduct_id = "com.ubuntu.sdkimage:builder:%s:16.04:%s"\
-                 % (base_arch, target_arch)
+    pruduct_id = "com.ubuntu.sdkimage:builder:%s:%s:%s"\
+                 % (base_arch, ubuntu_version, target_arch)
+    if pruduct_id not in index_data["index"][image_category]["products"]:
+        index_data["index"][image_category]["products"].append(pruduct_id)
     lxd_file = '{"size": "%s",\
                 "ftype": "lxd.tar.xz",\
                 "path": "releases/vivid/%s",\
@@ -287,6 +308,10 @@ def add_image_to_download(framework, base_arch, target_arch):
     download_data["updated"] = str_time
     with open(download_json, 'w') as outfile:
         json.dump(download_data, outfile, indent=4)
+    index_data["updated"] = str_time
+    index_data["index"][image_category]["updated"] = str_time
+    with open(index_json, 'w') as outfile:
+        json.dump(index_data, outfile, indent=4)
 
 
 def get_geoip_country_code_prefix():
@@ -754,6 +779,7 @@ def main():
               bcolors.ENDC)
     else:
         bcolors.disable()
+    add_image_to_download("ubuntu-sdk-15.04", "i386", "armhf")
     click = ClickChroot(options.base_architecture,
                         options.target_architecture,
                         options.framework,
