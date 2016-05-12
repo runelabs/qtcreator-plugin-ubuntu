@@ -346,10 +346,12 @@ void UbuntuKitManager::autoDetectKits()
             if (equalKits(existingKit, newKit)) {
                 // Kit is already registered, nothing to do
                 ProjectExplorer::Kit *oldKit = existingKits.takeAt(i);
+                oldKit->blockNotification();
                 oldKit->makeSticky();
 
                 //make sure kit has all required informations
                 fixKit(oldKit);
+                oldKit->unblockNotification();
 
                 newKits.removeAt(j);
                 ProjectExplorer::KitManager::deleteKit(newKit);

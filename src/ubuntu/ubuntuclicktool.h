@@ -28,6 +28,8 @@
 #include <utils/qtcprocess.h>
 #include <QDebug>
 
+#include "ubuntu_global.h"
+
 
 class QDialogButtonBox;
 class QPlainTextEdit;
@@ -45,10 +47,10 @@ namespace ProjectExplorer {
 
 namespace Ubuntu {
 namespace Internal {
-
 class UbuntuClickBuildConfiguration;
+} // namespace Internal
 
-class UbuntuClickTool
+class UBUNTUSHARED_EXPORT UbuntuClickTool
 {
 public:
 
@@ -90,11 +92,15 @@ public:
     static const Target *clickTargetFromTarget(ProjectExplorer::Target *t);
     static QString clickChrootSuffix ();
     static QString m_strClickChrootSuffix;
+
+    static ProjectExplorer::ProcessParameters prepareToRunInTarget (ProjectExplorer::Kit *target, const QString &cmd,
+                                                                    const QStringList &args, const QString &wd,
+                                                                    const QMap<QString, QString> &envMap = QMap<QString, QString>() );
 };
 
 QDebug operator<<(QDebug dbg, const UbuntuClickTool::Target& t);
 
-class UbuntuClickFrameworkProvider : public QObject
+class UBUNTUSHARED_EXPORT UbuntuClickFrameworkProvider : public QObject
 {
     Q_OBJECT
 
@@ -133,8 +139,6 @@ private:
     QTimer                *m_cacheUpdateTimer;
     static UbuntuClickFrameworkProvider *m_instance;
 };
-
-} // namespace Internal
 } // namespace Ubuntu
 
 #endif // UBUNTU_INTERNAL_UBUNTUCLICKTOOL_H

@@ -58,7 +58,6 @@
 #include <QDebug>
 
 namespace Ubuntu {
-namespace Internal {
 
 enum {
     debug = 0
@@ -94,6 +93,57 @@ UbuntuClickTool::UbuntuClickTool()
 QString UbuntuClickTool::clickChrootSuffix()
 {
     return m_strClickChrootSuffix;
+}
+
+/**
+ * @brief UbuntuClickTool::runToolInTarget
+ * Adjusts the \a paramsIn to run in the \a target
+ */
+ProjectExplorer::ProcessParameters UbuntuClickTool::prepareToRunInTarget(ProjectExplorer::Kit *target, const QString &cmd,
+                                                                         const QStringList &args,
+                                                                         const QString &wd,
+                                                                         const QMap<QString, QString> &envMap)
+{
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target);
+    if (!tc || tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
+        ProjectExplorer::ProcessParameters p;
+        p.setArguments(Utils::QtcProcess::joinArgs(args));
+        p.setCommand(cmd);
+        p.setWorkingDirectory(wd);
+
+        Utils::Environment env = Utils::Environment::systemEnvironment();
+        for (const QString &key : envMap.keys()) {
+            env.set(key, envMap[key]);
+        }
+        p.setEnvironment(env);
+        return p;
+    }
+
+    Internal::ClickToolChain *cTc = static_cast<Internal::ClickToolChain *>(tc);
+    const Target &clickTarget = cTc->clickTarget();
+
+    ProjectExplorer::ProcessParameters paramsOut;
+    paramsOut.setCommand(Constants::UBUNTU_TARGET_TOOL);
+
+    QStringList arguments{
+        QStringLiteral("exec"),
+        clickTarget.containerName,
+        QStringLiteral("--")
+    };
+
+    //@TODO map env vars into the container
+    if (envMap.size()) {
+
+    }
+
+    arguments.append(cmd);
+    arguments.append(args);
+
+    paramsOut.setArguments(Utils::QtcProcess::joinArgs(arguments));
+    paramsOut.setWorkingDirectory(wd);
+
+    paramsOut.setEnvironment(Utils::Environment::systemEnvironment());
+    return paramsOut;
 }
 
 /**
@@ -342,7 +392,7 @@ const UbuntuClickTool::Target *UbuntuClickTool::clickTargetFromTarget(ProjectExp
     if(!tc || (tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)))
         return nullptr;
 
-    ClickToolChain *clickTc = static_cast<ClickToolChain*>(tc);
+    Internal::ClickToolChain *clickTc = static_cast<Internal::ClickToolChain*>(tc);
     if(!clickTc)
         return nullptr;
 
@@ -448,7 +498,7 @@ bool UbuntuClickTool::compatibleWithHostArchitecture(const QString &targetArch)
 
 QString UbuntuClickTool::findOrCreateToolWrapper (const QString &tool, const UbuntuClickTool::Target &target)
 {
-    QString baseDir = Settings::settingsPath()
+    QString baseDir = Internal::Settings::settingsPath()
             .appendPath(target.containerName).toString();
 
     QDir d(baseDir);
@@ -587,7 +637,7 @@ UbuntuClickFrameworkProvider::UbuntuClickFrameworkProvider()
     Q_ASSERT_X(m_instance == nullptr,Q_FUNC_INFO,"UbuntuClickFrameworkProvider can only be instantiated once");
     m_instance = this;
 
-    m_cacheFilePath = Settings::settingsPath()
+    m_cacheFilePath = Internal::Settings::settingsPath()
             .appendPath(QStringLiteral("framework-cache.json"))
             .toString();
 
@@ -829,6 +879,5 @@ QStringList UbuntuClickFrameworkProvider::parseData(const QByteArray &data) cons
     return result;
 }
 
-} // namespace Internal
 } // namespace Ubuntu
 
