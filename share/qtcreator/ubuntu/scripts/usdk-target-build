@@ -713,24 +713,19 @@ class ClickChroot:
             with open("%s/etc/ssh/sshd_config" % mount, "a") as sshd_conf_file:
                 print("\nAuthorizedKeysFile /etc/ssh/authorized_keys.d/%u",
                       file=sshd_conf_file)
-        scriptpath = os.path.dirname(os.path.realpath(__file__))
-        print(scriptpath)
         if not os.path.exists(template_directory):
             os.makedirs(template_directory)
-        print("%s/%s/%s" % (scriptpath, template_directory, hostname_tpl_filename))
-        with open("%s/%s/%s" % (scriptpath,
-                  template_directory,
+        print("%s/%s" % (template_directory, hostname_tpl_filename))
+        with open("%s/%s" % (template_directory,
                   hostname_tpl_filename),
                   "w") as hostname_tpl_file:
                 print(hostname_tpl, file=hostname_tpl_file)
-        with open("%s/%s/%s" % (scriptpath,
-                  template_directory,
+        with open("%s/%s" % (template_directory,
                   hosts_tpl_filename),
                   "w") as hosts_tpl_file:
                 print(hosts_tpl, file=hosts_tpl_file)
 
-        with open("%s/%s/%s" % (scriptpath,
-                  template_directory,
+        with open("%s/%s" % (template_directory,
                   upstart_override_tpl_filename),
                   "w") as upstart_override_tpl_file:
                 print(upstart_override_tpl, file=upstart_override_tpl_file)
