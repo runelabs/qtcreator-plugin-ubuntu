@@ -41,20 +41,8 @@ Dialog {
         model: ListModel{
             id: channelModel
             ListElement {
-                displayName: "devel"
-                value: "ubuntu-touch/devel/ubuntu"
-            }
-            ListElement {
-                displayName: "devel-proposed"
-                value: "ubuntu-touch/devel-proposed/ubuntu"
-            }
-            ListElement {
-                displayName: "bq-stable"
-                value: "ubuntu-touch/stable/bq-aquaris.en"
-            }
-            ListElement {
-                displayName: "bq-rc"
-                value: "ubuntu-touch/rc/bq-aquaris.en"
+                displayName: "stable"
+                value: "ubuntu-touch/stable/ubuntu"
             }
             ListElement {
                 displayName: "rc-proposed"
