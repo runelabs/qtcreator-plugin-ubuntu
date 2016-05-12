@@ -4,6 +4,7 @@
 #          Brian Murray <brian@ubuntu.com>
 #          Michael Vogt <mvo@ubuntu.com>
 #          Benjamin Zeller <benjamin.zeller@canonical.com>
+#          Zoltán Balogh <zoltan.balogh@canonical.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -36,6 +37,9 @@ import time
 import hashlib
 from textwrap import dedent
 from xml.etree import ElementTree
+import json
+import os.path
+from time import gmtime, strftime
 
 framework_base = {
     # 15.04
@@ -52,39 +56,32 @@ framework_base = {
 framework_series = {
     "ubuntu-sdk-15.04": "vivid",
     "ubuntu-sdk-15.10": "wily",
+    "ubuntu-sdk-16.04": "xenial",
+    "ubuntu-sdk-16.10": "yakketi",
     }
 
-# Please keep the lists of package names sorted.
 extra_packages = {
     "ubuntu-sdk-15.04": [
-        # the sdk libs
         "ubuntu-sdk-libs:{TARGET}",
         "ubuntu-sdk-libs-dev:{TARGET}",
-        # the native build tools
         "ubuntu-sdk-libs-tools",
-        # FIXME: see
-        #  http://pad.lv/~mvo/oxide/crossbuild-friendly/+merge/234093
-        # we help the apt resolver here until the
-        #  oxideqt-codecs/oxidec-codecs-extras is sorted
         "oxideqt-codecs-extra",
         "ubuntu-html5-container:{TARGET}",
         "qt5-doc",
         "language-pack-en",
         ],
     "ubuntu-sdk-15.10-dev1": [
-        # the sdk libs
         "ubuntu-sdk-libs:{TARGET}",
         "ubuntu-sdk-libs-dev:{TARGET}",
-        # the native build tools
         "ubuntu-sdk-libs-tools",
-        # FIXME: see
-        #  http://pad.lv/~mvo/oxide/crossbuild-friendly/+merge/234093
-        # we help the apt resolver here until the
-        #  oxideqt-codecs/oxidec-codecs-extras is sorted
         "oxideqt-codecs-extra",
         "qt5-doc",
         "language-pack-en",
         ],
+    "ubuntu-sdk-16.04": [
+        ],
+    "ubuntu-sdk-16.10": [
+        ]
     }
 
 # all runtime only packages, they are only installed on NON cross chroots
@@ -145,10 +142,25 @@ compatible_arches = {
 }
 
 non_meta_re = re.compile(r'^[a-zA-Z0-9+,./:=@_-]+$')
-
 GEOIP_SERVER = "http://geoip.ubuntu.com/lookup"
-
 overlay_ppa = "ci-train-ppa-service/stable-phone-overlay"
+rootfs = "rootfs"
+qemu_arm_static = "/usr/bin/qemu-arm-static"
+
+template_directory = "templates"
+hostname_tpl_filename = "hostname.tpl"
+hostname_tpl = "{{ container.name }}"
+hosts_tpl_filename = "hosts.tpl"
+hosts_tpl = "127.0.0.1   localhost\
+             \n127.0.1.1   {{ container.name }}\
+             \n# The following lines are desirable for IPv6 capable hosts\
+             \n::1     ip6-localhost ip6-loopback\
+             \nfe00::0 ip6-localnet\
+             \nff00::0 ip6-mcastprefix\
+             \nff02::1 ip6-allnodes\
+             \nff02::2 ip6-allrouters"
+upstart_override_tpl_filename = "upstart-override.tpl"
+upstart_override_tpl = "manual"
 
 
 class bcolors:
@@ -166,6 +178,153 @@ class bcolors:
         self.WARNING = ''
         self.FAIL = ''
         self.ENDC = ''
+
+
+def make_md5_sha256(file_name, combined_hash_sha256):
+    hash_md5 = hashlib.md5()
+    hash_sha256 = hashlib.sha256()
+    with open(file_name, "rb") as f:
+        for chunk in iter(lambda: f.read(65536), b""):
+            hash_sha256.update(chunk)
+            hash_md5.update(chunk)
+            combined_hash_sha256.update(chunk)
+    return (hash_md5.hexdigest(),
+            hash_sha256.hexdigest(),
+            combined_hash_sha256.hexdigest())
+
+
+def add_image_to_download(framework, base_arch, target_arch):
+    match = re.search('ubuntu-sdk-(.*)', framework)
+    if match:
+        ubuntu_version = match.group(1)
+    series = framework_series[framework]
+    root_image = "%s-%s-%s-root.tar.xz" % (framework, base_arch, target_arch)
+    lxd_image = "%s-%s-%s-lxd.tar.xz" % (framework, base_arch, target_arch)
+    if not os.path.isfile(root_image):
+        print("The %s root file does not exist" % root_image)
+        return
+    if not os.path.isfile(lxd_image):
+        print("The %s lxd file does not exist" % lxd_image)
+        return
+    str_time = strftime("%a, %d %b %Y %H:%M:%S %z", gmtime())
+    short_date = strftime("%Y%m%d", gmtime())
+    combined_hash_sha256 = hashlib.sha256()
+    lxd_md5,\
+        lxd_sha256,\
+        combined_sha256 = make_md5_sha256(lxd_image, combined_hash_sha256)
+    root_md5,\
+        root_sha256,\
+        combined_sha256 = make_md5_sha256(root_image, combined_hash_sha256)
+    download_json = "com.ubuntu.sdkimage:released:download.json"
+    index_json = "index.json"
+    license = "http://www.canonical.com/intellectual-property-policy"
+    image_category = "com.ubuntu.sdk-image:released:download"
+    download_json_path = "streams/v1/%s" % download_json
+    download_template = '{"content_id" : \
+                          "com.ubuntu.sdk-image:released:download",\
+                          "datatype" : "image-downloads",\
+                          "format" : "products:1.0",\
+                          "license" : "%s",\
+                          "products" : "",\
+                          "updated" : "%s"}' % (license, str_time)
+    index_template = '{"index": {\
+                           "com.ubuntu.sdk-image:released:download": {\
+                               "datatype": "image-downloads",\
+                               "path": "%s",\
+                               "updated": "%s",\
+                               "products": [],\
+                               "format": "products:1.0"\
+                              }\
+                          },\
+                      "updated": "%s",\
+                      "format": "index:1.0"\
+                      }' % (download_json_path, str_time, str_time)
+    if os.path.isfile(download_json):
+        with open(download_json) as download_json_file:
+            download_data = json.load(download_json_file)
+    else:
+        download_data = json.loads(download_template)
+    if os.path.isfile(index_json):
+        with open(index_json) as index_json_file:
+            index_data = json.load(index_json_file)
+    else:
+        index_data = json.loads(index_template)
+    products = download_data["products"]
+    pruduct_id = "com.ubuntu.sdkimage:builder:%s:%s:%s"\
+                 % (base_arch, ubuntu_version, target_arch)
+    if pruduct_id not in index_data["index"][image_category]["products"]:
+        index_data["index"][image_category]["products"].append(pruduct_id)
+    lxd_file = '{"size": "%s",\
+                "ftype": "lxd.tar.xz",\
+                "path": "releases/%s/%s",\
+                "combined_sha256": "%s",\
+                "sha256": "%s",\
+                "md5": "%s"\
+                }'\
+                % (os.path.getsize(lxd_image),
+                   series,
+                   lxd_image,
+                   combined_sha256,
+                   lxd_sha256,
+                   lxd_md5)
+    root_file = '{"size": "%s",\
+                 "ftype": "root.tar.xz",\
+                 "path": "releases/%s/%s",\
+                 "combined_sha256": "%s",\
+                 "sha256": "%s",\
+                 "md5": "%s"\
+                 }' % (os.path.getsize(root_image),
+                       series,
+                       root_image,
+                       combined_sha256,
+                       root_sha256,
+                       root_md5)
+    items = '{"lxd.tar.xz": %s,\
+              "root.tar.xz": %s\
+             }' % (lxd_file, root_file)
+    date_section = '{"items" : %s,\
+                    "pubname": "ubuntu-%s-%s-overlay-%s-builder-%s",\
+                    "label": "sdk-%s"\
+                    }' % (items,
+                          series,
+                          ubuntu_version,
+                          target_arch,
+                          short_date,
+                          target_arch)
+    versions = '{"%s": %s\
+                }' % (short_date, date_section)
+    product_object = '{"versions": %s,\
+                       "arch": "%s",\
+                       "supported": true,\
+                       "release_title": "%s",\
+                       "release_codename": "%s",\
+                       "version": "%s",\
+                       "release": "%s",\
+                       "aliases": \
+                       "%s-%s,ubuntu-framework-%s-%s",\
+                       "os": "ubuntu",\
+                       "support_eol": "2019-04-17"\
+                      }' % (versions,
+                            target_arch,
+                            series,
+                            series.capitalize(),
+                            ubuntu_version,
+                            ubuntu_version,
+                            framework,
+                            target_arch,
+                            ubuntu_version,
+                            target_arch)
+    products_string = '{"%s": %s}' % (pruduct_id, product_object)
+    new_product = json.loads(products_string)
+    merged_products = dict(products, **new_product)
+    download_data["products"] = merged_products
+    download_data["updated"] = str_time
+    with open(download_json, 'w') as outfile:
+        json.dump(download_data, outfile, indent=4)
+    index_data["updated"] = str_time
+    index_data["index"][image_category]["updated"] = str_time
+    with open(index_json, 'w') as outfile:
+        json.dump(index_data, outfile, indent=4)
 
 
 def get_geoip_country_code_prefix():
@@ -396,17 +555,27 @@ class ClickChroot:
     def _debootstrap(self, components, mount, archive_mirror, ports_mirror):
         if self.native_arch in primary_arches:
             mirror = archive_mirror
+            subprocess.check_call([
+                "debootstrap",
+                "--arch", self.native_arch,
+                "--variant=buildd",
+                "--components=%s" % ','.join(components),
+                self.series,
+                mount,
+                mirror
+                ])
         else:
             mirror = ports_mirror
-        subprocess.check_call([
-            "debootstrap",
-            "--arch", self.native_arch,
-            "--variant=buildd",
-            "--components=%s" % ','.join(components),
-            self.series,
-            mount,
-            mirror,
-            ])
+            subprocess.check_call([
+                "debootstrap",
+                "--arch", self.native_arch,
+                "--foreign",
+                "--variant=buildd",
+                "--components=%s" % ','.join(components),
+                self.series,
+                mount,
+                mirror
+                ])
 
     @property
     def framework_base(self):
@@ -437,7 +606,7 @@ class ClickChroot:
 
     def create(self):
         components = ["main", "restricted", "universe", "multiverse"]
-        mount = "%s/rootfs" % (os.getcwd())
+        mount = "%s/%s" % (os.getcwd(), rootfs)
         proxy = None
         if not proxy and "http_proxy" in os.environ:
             proxy = os.environ["http_proxy"]
@@ -481,6 +650,26 @@ class ClickChroot:
         if 'DEBOOTSTRAP_MIRROR' in os.environ:
             archive_mirror = os.environ['DEBOOTSTRAP_MIRROR']
         self._debootstrap(components, mount, archive_mirror, ports_mirror)
+        # in case of creating foreign arch image we need to add the emulator
+        if self.native_arch not in primary_arches:
+            if os.path.isfile(qemu_arm_static):
+                shutil.copy2(qemu_arm_static, "%s/usr/bin/" % mount)
+            else:
+                print(bcolors.FAIL +
+                      "The %s is not present, please install\
+                      qemu-user-static package"
+                      % qemu_arm_static +
+                      bcolors.ENDC)
+                sys.exit(1)
+            ret_code = subprocess.call(["/usr/sbin/chroot",
+                                        mount,
+                                        "/debootstrap/debootstrap",
+                                        "--second-stage"])
+            if ret_code != 0:
+                print(bcolors.FAIL +
+                      "Second stage of the debootstrapping failed." +
+                      bcolors.ENDC)
+                sys.exit(1)
         sources = generate_sources(self.series, self.native_arch,
                                    self.target_arch,
                                    archive_mirror, ports_mirror,
@@ -498,7 +687,6 @@ class ClickChroot:
         self._generate_apt_proxy_file(mount, proxy)
         finish_script = self._generate_finish_script(mount, build_pkgs)
         self._make_executable(finish_script)
-        command = ["/finish.sh"]
         ret_code = subprocess.call(["/usr/sbin/chroot", mount, "/finish.sh"])
         if ret_code != 0:
             print(bcolors.FAIL +
@@ -526,36 +714,47 @@ class ClickChroot:
                 print("\nAuthorizedKeysFile /etc/ssh/authorized_keys.d/%u",
                       file=sshd_conf_file)
         scriptpath = os.path.dirname(os.path.realpath(__file__))
-        shutil.copytree("%s/lxd_templates" % scriptpath, "templates")
-        # cat lxd.tar.xz root.tar.xz | sha256sum
+        print(scriptpath)
+        if not os.path.exists(template_directory):
+            os.makedirs(template_directory)
+        print("%s/%s/%s" % (scriptpath, template_directory, hostname_tpl_filename))
+        with open("%s/%s/%s" % (scriptpath,
+                  template_directory,
+                  hostname_tpl_filename),
+                  "w") as hostname_tpl_file:
+                print(hostname_tpl, file=hostname_tpl_file)
+        with open("%s/%s/%s" % (scriptpath,
+                  template_directory,
+                  hosts_tpl_filename),
+                  "w") as hosts_tpl_file:
+                print(hosts_tpl, file=hosts_tpl_file)
+
+        with open("%s/%s/%s" % (scriptpath,
+                  template_directory,
+                  upstart_override_tpl_filename),
+                  "w") as upstart_override_tpl_file:
+                print(upstart_override_tpl, file=upstart_override_tpl_file)
         print("Packaging the LXD image.....")
-        rootfs_parts = os.listdir("rootfs")
+        rootfs_parts = os.listdir(rootfs)
         ret = subprocess.call(["tar",
                                "-C",
-                               "rootfs",
+                               "%s" % rootfs,
                                "-ScpJf",
-                               "%s.tar.xz" % self.full_name] + rootfs_parts)
+                               "%s-root.tar.xz"
+                               % self.full_name] + rootfs_parts)
         ret = subprocess.call(["tar",
                                "-ScpJf",
-                               "%s.lxd.tar.xz" % self.full_name,
+                               "%s-lxd.tar.xz" % self.full_name,
                                "metadata.yaml",
                                "templates"])
-        BLOCKSIZE = 65536
-        hasher = hashlib.sha256()
-        with open("%s.lxd.tar.xz" % self.full_name, 'rb') as afile:
-            buf = afile.read(BLOCKSIZE)
-            while len(buf) > 0:
-                hasher.update(buf)
-                buf = afile.read(BLOCKSIZE)
-        with open("%s.tar.xz" % self.full_name, 'rb') as afile:
-            buf = afile.read(BLOCKSIZE)
-            while len(buf) > 0:
-                hasher.update(buf)
-                buf = afile.read(BLOCKSIZE)
-        print(hasher.hexdigest())
-        shutil.rmtree("rootfs")
+        print("Clean up the build artifacts.")
+        shutil.rmtree(rootfs)
         shutil.rmtree("templates")
         os.remove("metadata.yaml")
+        print("Create the download.json")
+        add_image_to_download(self.framework,
+                              self.native_arch,
+                              self.target_arch)
         sys.exit(ret)
 
 
