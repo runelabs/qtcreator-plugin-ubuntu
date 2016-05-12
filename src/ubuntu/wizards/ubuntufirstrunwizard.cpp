@@ -131,14 +131,11 @@ void UbuntuSetupChrootWizardPage::initializePage()
     bool found = false;
     foreach(ProjectExplorer::Kit *curr, allKits) {
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(curr);
-        const Core::Id devId = ProjectExplorer::DeviceKitInformation::deviceId(curr);
-
         //we just care about Kits with a toolchain and a qt version
         if (!tc || !QtSupport::QtKitInformation::qtVersion(curr))
             continue;
 
-        if (tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID) ||
-                devId == ProjectExplorer::Constants::DESKTOP_DEVICE_ID) {
+        if (tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
             found = true;
 
             QTreeWidgetItem* kitItem = new QTreeWidgetItem;

@@ -238,21 +238,23 @@ void UbuntuProjectApplicationWizardDialog::addChrootSetupPage(int id)
 void UbuntuProjectApplicationWizardDialog::addTargetSetupPage(int id)
 {
     m_targetSetupPage = new ProjectExplorer::TargetSetupPage;
-    const QString platform = selectedPlatform();
 
-    //prefer Qt Desktop or Platform Kit
-    Core::FeatureSet features = Core::FeatureSet(QtSupport::Constants::FEATURE_DESKTOP);
-    if (platform.isEmpty())
-        m_targetSetupPage->setPreferredKitMatcher(QtSupport::QtKitInformation::qtVersionMatcher(features));
-    else
-        m_targetSetupPage->setPreferredKitMatcher(QtSupport::QtKitInformation::platformMatcher(platform));
-
+    //prefer Desktop
+    auto desktopMatcher = [](const ProjectExplorer::Kit *k) {
+        return ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k)
+                .toString().startsWith(QLatin1String(Constants::UBUNTU_CONTAINER_DEVICE_TYPE_ID));
+    };
+    m_targetSetupPage->setPreferredKitMatcher(ProjectExplorer::KitMatcher(desktopMatcher));
 
     switch (m_type) {
         case UbuntuProjectApplicationWizard::CMakeProject:{
             auto cmakeKitMatcher = [](const ProjectExplorer::Kit *k){
                 auto tool = CMakeProjectManager::CMakeKitInformation::cmakeTool(k);
-                return tool && tool->isValid();
+                if (!tool && tool->isValid())
+                    return false;
+
+                UbuntuKitMatcher m;
+                return m.matches(k);
             };
             m_targetSetupPage->setRequiredKitMatcher(ProjectExplorer::KitMatcher(cmakeKitMatcher));
             break;
