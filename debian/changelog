@@ -1,3 +1,11 @@
+qtcreator-plugin-ubuntu (3.5.0+16.10.20160512-0ubuntu1) yakkety; urgency=medium
+
+  [ Zoltán Balogh ]
+  * Remove devel and rc and use generic ubuntu channels. Fixes LP:
+    #1580770 (LP: #1580770)
+
+ -- Zoltan Balogh <zoltan.balogh@canonical.com>  Thu, 12 May 2016 11:57:35 +0000
+
 qtcreator-plugin-ubuntu (3.5.0+16.04.20160419-0ubuntu1) xenial; urgency=medium
 
   [ Benjamin Zeller ]
