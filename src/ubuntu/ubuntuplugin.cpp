@@ -83,6 +83,7 @@
 #include <coreplugin/icore.h>
 #include <stdint.h>
 
+
 using namespace Ubuntu;
 using namespace Ubuntu::Internal;
 
@@ -104,6 +105,12 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     defaultFont.setFamily(QStringLiteral("Ubuntu"));
     defaultFont.setWeight(QFont::Light);
 
+    if (QStandardPaths::findExecutable(QStringLiteral("lxc")).isEmpty()) {
+        if (errorString)
+            *errorString = tr("\nLxd is not installed properly. It is required for the Ubuntu-SDK-IDE to work.");
+        return false;
+    }
+
     if (Constants::UBUNTU_CLICK_TARGET_WRAPPER.isEmpty()) {
         if (errorString)
             *errorString = tr("\nusdk-wrapper was not found in PATH. Make sure ubuntu-sdk-tools is installed!\napt-get install ubuntu-sdk-tools");
@@ -118,9 +125,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
     m_settings.restoreSettings();
 
-    if(!checkContainerSetup()) {
-        if (errorString)
-            *errorString = tr("Initializing the container backend failed.");
+    if(!checkContainerSetup(*errorString)) {
         return false;
     }
 
@@ -348,14 +353,22 @@ void UbuntuPlugin::migrateProject()
     UbuntuProjectMigrationWizard::doMigrateProject(p,Core::ICore::mainWindow());
 }
 
-bool UbuntuPlugin::checkContainerSetup()
+bool UbuntuPlugin::checkContainerSetup(QString &errorString)
 {
     QProcess proc;
     proc.setProgram(Constants::UBUNTU_TARGET_TOOL);
     proc.setArguments(QStringList{QStringLiteral("initialized")});
     proc.start();
     if (!proc.waitForFinished(3000) || proc.exitStatus() != QProcess::NormalExit) {
-        qWarning()<<"Could not detect the Container backend setup";
+        errorString = tr("Could not detect the Container backend setup.");
+        return false;
+    }
+
+    int exitCode = proc.exitCode();
+
+    if (exitCode == 255) {
+        //the tool tells us that we have no access to the LXD server
+        errorString = tr("The current user can not access the LXD server which is required for the Ubuntu SDK.\nMake sure the user is part of the lxd group and restart the IDE.");
         return false;
     }
 
@@ -392,9 +405,11 @@ bool UbuntuPlugin::checkContainerSetup()
 
             int res = ProcessOutputDialog::runProcessModal(params, Core::ICore::mainWindow());
             if (res != 0) {
+                errorString = tr("Setting up the container backend failed.");
                 return false;
             }
         } else if (choice == QMessageBox::Abort) {
+            errorString = tr("Container backend initialization was cancelled.");
             return false;
         }
     }
