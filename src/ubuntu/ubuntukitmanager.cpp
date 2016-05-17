@@ -254,7 +254,7 @@ void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
                 break;
             }
         } else if (fuzzy.size() > 0) {
-            if (perfect.size() == 1) {
+            if (fuzzy.size() == 1) {
                 match = fuzzy.first();
                 break;
             } else {

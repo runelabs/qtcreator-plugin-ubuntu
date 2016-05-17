@@ -26,9 +26,13 @@ class UbuntuClickDialog : public ProcessOutputDialog
 {
 
 public:
+    static bool createClickChrootModal (bool redetectKits = true, QWidget *parent = 0);
     static bool createClickChrootModal (bool redetectKits = true , const QString &arch = QString(), const QString &framework = QString(), QWidget *parent = 0);
     static int maintainClickModal (const UbuntuClickTool::Target &target, const UbuntuClickTool::MaintainMode &mode);
     static int maintainClickModal (const QList<UbuntuClickTool::Target> &targetList, const UbuntuClickTool::MaintainMode &mode);
+
+protected:
+    static bool doCreateTarget(bool redetectKits, const UbuntuClickTool::Target &t, QWidget *parent);
 };
 
 }}

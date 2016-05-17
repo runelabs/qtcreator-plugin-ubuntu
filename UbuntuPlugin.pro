@@ -24,12 +24,15 @@ FORMS += \
     src/ubuntu/ubuntusettingsdeviceconnectivitywidget.ui \
     src/ubuntu/ubuntusettingsclickwidget.ui \
     src/ubuntu/processoutputdialog.ui \
-    src/ubuntu/ubuntucreatenewchrootdialog.ui \
     src/ubuntu/ubuntupackagestepconfigwidget.ui \
     src/ubuntu/ubuntumanifesteditor.ui \
     src/ubuntu/ubuntuapparmoreditor.ui \
     src/ubuntu/targetupgrademanagerdialog.ui \
-    src/ubuntu/ubuntusettingsprojectdefaultspage.ui
+    src/ubuntu/ubuntusettingsprojectdefaultspage.ui \
+    src/ubuntu/wizards/createtargetimagepage.ui \
+    src/ubuntu/wizards/createtargetintropage.ui \
+    src/ubuntu/wizards/createtargetnamepage.ui
+
 
 RESOURCES += \
     src/ubuntu/resources.qrc
@@ -65,7 +68,7 @@ SOURCES += \
     src/ubuntu/ubuntusettingsclickpage.cpp \
     src/ubuntu/ubuntusettingsclickwidget.cpp \
     src/ubuntu/ubuntuclicktool.cpp \
-    src/ubuntu/ubuntucreatenewchrootdialog.cpp \
+    src/ubuntu/wizards/createtargetwizard.cpp \
     src/ubuntu/ubuntuclickdialog.cpp \
     src/ubuntu/ubuntuvalidationresultmodel.cpp \
     src/ubuntu/clicktoolchain.cpp \
@@ -134,7 +137,7 @@ HEADERS += \
     src/ubuntu/ubuntusettingsclickpage.h \
     src/ubuntu/ubuntusettingsclickwidget.h \
     src/ubuntu/ubuntuclicktool.h \
-    src/ubuntu/ubuntucreatenewchrootdialog.h \
+    src/ubuntu/wizards/createtargetwizard.h \
     src/ubuntu/ubuntuclickdialog.h \
     src/ubuntu/ubuntuvalidationresultmodel.h \
     src/ubuntu/clicktoolchain.h \

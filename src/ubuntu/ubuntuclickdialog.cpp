@@ -20,7 +20,7 @@
 #include "ubuntuconstants.h"
 #include "clicktoolchain.h"
 #include "ubuntukitmanager.h"
-#include "ubuntucreatenewchrootdialog.h"
+#include <ubuntu/wizards/createtargetwizard.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -33,17 +33,12 @@
 namespace Ubuntu {
 namespace Internal {
 
-bool UbuntuClickDialog::createClickChrootModal(bool redetectKits, const QString &arch, const QString &framework, QWidget *parent)
+bool UbuntuClickDialog::doCreateTarget (bool redetectKits, const UbuntuClickTool::Target &t, QWidget *parent)
 {
-
-    UbuntuClickTool::Target t;
-    if(!UbuntuCreateNewChrootDialog::getNewChrootTarget(&t,arch,framework,parent))
-        return false;
-
     ProjectExplorer::ProcessParameters params;
-    UbuntuClickTool::parametersForCreateChroot(t,&params);
+    UbuntuClickTool::parametersForCreateChroot(t, &params);
 
-    bool success = (runProcessModal(params,parent) == 0);
+    bool success = (runProcessModal(params, parent) == 0);
 
     if(success) {
         ClickToolChain* tc = new ClickToolChain(t, ProjectExplorer::ToolChain::AutoDetection);
@@ -54,6 +49,23 @@ bool UbuntuClickDialog::createClickChrootModal(bool redetectKits, const QString 
     }
 
     return success;
+}
+
+bool UbuntuClickDialog::createClickChrootModal(bool redetectKits, QWidget *parent)
+{
+    UbuntuClickTool::Target t;
+    if(!CreateTargetWizard::getNewTarget(&t, parent))
+        return false;
+    return doCreateTarget(redetectKits, t, parent);
+}
+
+bool UbuntuClickDialog::createClickChrootModal(bool redetectKits, const QString &arch, const QString &framework, QWidget *parent)
+{
+
+    UbuntuClickTool::Target t;
+    if(!CreateTargetWizard::getNewTarget(&t,arch,framework,parent))
+        return false;
+    return doCreateTarget(redetectKits, t, parent);
 }
 
 int UbuntuClickDialog::maintainClickModal(const UbuntuClickTool::Target &target, const UbuntuClickTool::MaintainMode &mode)
