@@ -23,6 +23,7 @@
 #include <ubuntu/ubuntuclicktool.h>
 
 #include <utils/wizard.h>
+#include <utils/wizardpage.h>
 
 #include <QPair>
 #include <QProcess>
@@ -48,7 +49,8 @@ public:
 
     enum ImageType {
         DesktopImage,
-        DeviceImage
+        DeviceImage,
+        AllImages
     };
 
     explicit CreateTargetWizard(QWidget *parent = 0);
@@ -65,7 +67,7 @@ private:
     CreateTargetNamePage  *m_namePage;
 };
 
-class CreateTargetIntroPage : public QWizardPage
+class CreateTargetIntroPage : public Utils::WizardPage
 {
     Q_OBJECT
 public:
@@ -85,9 +87,11 @@ private:
     QButtonGroup *m_imageTypeGroup;
 };
 
-class CreateTargetImagePage : public QWizardPage
+class CreateTargetImagePage : public Utils::WizardPage
 {
     Q_OBJECT
+    Q_PROPERTY(QString imageAlias READ selectedImageAlias)
+    Q_PROPERTY(QString selectedDeviceArchitecture READ selectedDeviceArchitecture)
 
 public:
     explicit CreateTargetImagePage(QWidget *parent = 0);
@@ -98,7 +102,7 @@ public:
 
     QString selectedImageAlias () const;
     QString selectedImageId () const;
-    QString chosenName () const;
+    QString selectedDeviceArchitecture () const;
 
     // QWizardPage interface
     virtual void initializePage() override;
@@ -117,12 +121,14 @@ private:
     Ui::CreateTargetImagePage *ui;
 };
 
-class CreateTargetNamePage : public QWizardPage
+class CreateTargetNamePage : public Utils::WizardPage
 {
     Q_OBJECT
 public:
     CreateTargetNamePage(QWidget *parent = 0);
     ~CreateTargetNamePage();
+
+    void setImageType (CreateTargetWizard::ImageType imageType);
 
     // QWizardPage interface
     virtual void initializePage() override;
@@ -131,6 +137,7 @@ public:
     QString chosenName() const;
 private:
     Ui::CreateTargetNamePage *ui;
+    int m_imageType;
 };
 
 

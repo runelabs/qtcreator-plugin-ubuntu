@@ -23,24 +23,22 @@
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
         <widget class="QTreeWidget" name="treeWidgetImages">
+         <attribute name="headerStretchLastSection">
+          <bool>true</bool>
+         </attribute>
          <column>
           <property name="text">
-           <string>Alias</string>
+           <string>Framework</string>
           </property>
          </column>
          <column>
           <property name="text">
-           <string>Fingerprint</string>
+           <string>Architecture</string>
           </property>
          </column>
          <column>
           <property name="text">
            <string>Description</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Arch</string>
           </property>
          </column>
          <column>

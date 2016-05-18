@@ -47,6 +47,9 @@ namespace Constants {
         std::make_pair(QStringLiteral("ppc"), QStringLiteral("powerpc")),
         std::make_pair(QStringLiteral("ppc64le"), QStringLiteral("ppc64el"))
     });
+
+    const QString ARCH_FIELD(QStringLiteral("deviceArch"));
+    const QString ALIAS_FIELD(QStringLiteral("imageAlias"));
 }
 
 namespace Internal {
@@ -62,10 +65,14 @@ CreateTargetWizard::CreateTargetWizard(QWidget *parent)
     addPage(m_imageSelectPage);
 
     m_namePage = new CreateTargetNamePage(this);
+    m_namePage->setImageType(m_introPage->imageType());
     addPage(m_namePage);
 
     connect(m_introPage, &CreateTargetIntroPage::imageTypeChanged,
             m_imageSelectPage, &CreateTargetImagePage::setImageType);
+
+    connect(m_introPage, &CreateTargetIntroPage::imageTypeChanged,
+            m_namePage, &CreateTargetNamePage::setImageType);
 
     setMinimumSize(800,400);
 }
@@ -128,7 +135,7 @@ bool CreateTargetWizard::doSelectImage (CreateTargetWizard &dlg, UbuntuClickTool
 }
 
 CreateTargetIntroPage::CreateTargetIntroPage(QWidget *parent)
-    : QWizardPage(parent)
+    : Utils::WizardPage(parent)
     , ui(new Ui::CreateTargetIntroPage)
 
 {
@@ -137,6 +144,7 @@ CreateTargetIntroPage::CreateTargetIntroPage(QWidget *parent)
     m_imageTypeGroup = new QButtonGroup(this);
     m_imageTypeGroup->addButton(ui->desktopButton, CreateTargetWizard::DesktopImage);
     m_imageTypeGroup->addButton(ui->deviceButton, CreateTargetWizard::DeviceImage);
+    m_imageTypeGroup->addButton(ui->allImagesButton, CreateTargetWizard::AllImages);
     m_imageTypeGroup->button(CreateTargetWizard::DesktopImage)->setChecked(true);
 
     connect(m_imageTypeGroup, SIGNAL(buttonClicked(int)),
@@ -162,16 +170,20 @@ void CreateTargetIntroPage::buttonSelected(const int id)
 }
 
 CreateTargetImagePage::CreateTargetImagePage(QWidget *parent) :
-    QWizardPage(parent),
+    Utils::WizardPage(parent),
     m_loader(nullptr),
     ui(new Ui::CreateTargetImagePage)
 {
     ui->setupUi(this);
     ui->progressBar->setRange(0, 0);
     ui->stackedWidget->setCurrentIndex(Constants::INDEX_DATA);
+    ui->treeWidgetImages->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     setTitle(tr("Please select the image:"));
     setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Image"));
+
+    registerField(Constants::ALIAS_FIELD, this, "imageAlias");
+    registerField(Constants::ARCH_FIELD, this, "selectedDeviceArchitecture");
 }
 
 CreateTargetImagePage::~CreateTargetImagePage()
@@ -183,6 +195,8 @@ void CreateTargetImagePage::setImageType(CreateTargetWizard::ImageType imageType
 {
     if (imageType == CreateTargetWizard::DesktopImage) {
         setFilter(UbuntuClickTool::hostArchitecture(), QString());
+    } else if (imageType == CreateTargetWizard::DeviceImage){
+        setFilter(QStringLiteral("(i386|aarch64|armhf)"), QString());
     } else {
         setFilter(QString(), QString());
     }
@@ -205,7 +219,7 @@ QString CreateTargetImagePage::selectedImageAlias() const
     QTreeWidgetItem * item = ui->treeWidgetImages->currentItem();
     if (!item)
         return QString();
-    return item->text(0);
+    return item->data(0, Qt::UserRole+1).toString();
 }
 
 QString CreateTargetImagePage::selectedImageId() const
@@ -213,8 +227,16 @@ QString CreateTargetImagePage::selectedImageId() const
     QTreeWidgetItem * item = ui->treeWidgetImages->currentItem();
     if (!item)
         return QString();
-    return item->text(1);
+    return item->data(0, Qt::UserRole).toString();
 
+}
+
+QString CreateTargetImagePage::selectedDeviceArchitecture() const
+{
+    QTreeWidgetItem * item = ui->treeWidgetImages->currentItem();
+    if (!item)
+        return QString();
+    return item->text(1);
 }
 
 void CreateTargetImagePage::initializePage()
@@ -294,26 +316,34 @@ void CreateTargetImagePage::loaderFinished()
 
         //check arch compat
         QString arch = m.value(QStringLiteral("arch"), QStringLiteral("error")).toString();
-        if (arch == QStringLiteral("error") || !Constants::TARGET_ARCH_MAP.contains(arch))
+        if (!Constants::TARGET_ARCH_MAP.contains(arch))
             continue;
 
         if (!UbuntuClickTool::compatibleWithHostArchitecture(Constants::TARGET_ARCH_MAP[arch]))
             continue;
 
+        UbuntuClickTool::Target target;
+        if (!UbuntuClickTool::parseContainerName(alias, &target))
+            continue;
+
         QTreeWidgetItem *item = new QTreeWidgetItem;
-        item->setText(0,alias);
-        item->setText(1,m.value(QStringLiteral("fingerprint"), QStringLiteral("error")).toString());
+        item->setText(0,target.framework);
+        item->setData(0, Qt::UserRole, m.value(QStringLiteral("fingerprint"), QStringLiteral("error")));
+        item->setData(0, Qt::UserRole+1, alias);
+
+        item->setText(1,target.architecture);
         item->setText(2,m.value(QStringLiteral("desc"), QStringLiteral("error")).toString());
-        item->setText(3,arch);
-        item->setText(4,m.value(QStringLiteral("size"), QStringLiteral("error")).toString());
-        item->setText(5,m.value(QStringLiteral("uploadDate"), QStringLiteral("error")).toString());
+        item->setText(3,m.value(QStringLiteral("size"), QStringLiteral("error")).toString());
+        item->setText(4,m.value(QStringLiteral("uploadDate"), QStringLiteral("error")).toString());
         ui->treeWidgetImages->addTopLevelItem(item);
     }
     ui->stackedWidget->setCurrentIndex(Constants::INDEX_DATA);
+    ui->treeWidgetImages->setCurrentItem(ui->treeWidgetImages->topLevelItem(0));
 }
 
-CreateTargetNamePage::CreateTargetNamePage(QWidget *parent) : QWizardPage(parent),
-    ui(new Ui::CreateTargetNamePage)
+CreateTargetNamePage::CreateTargetNamePage(QWidget *parent) : Utils::WizardPage(parent),
+    ui(new Ui::CreateTargetNamePage) ,
+    m_imageType(-1)
 {
     ui->setupUi(this);
     ui->lineEditName->setValidationFunction([](Utils::FancyLineEdit *edit, QString *errorMessage) {
@@ -322,6 +352,14 @@ CreateTargetNamePage::CreateTargetNamePage(QWidget *parent) : QWizardPage(parent
                 *errorMessage = tr("Name can not be empty");
             return false;
         }
+
+        QRegularExpression hostnameRegEx(QStringLiteral("^[A-Za-z0-9\\-_]+$"));
+        if (!hostnameRegEx.match(edit->text()).hasMatch()){
+            if (errorMessage)
+                *errorMessage = tr("Name can only contain letters, numbers,dash and underscore");
+            return false;
+        }
+
         return true;
     });
     ui->lineEditName->setPlaceholderText(tr("Please select a name"));
@@ -336,6 +374,11 @@ CreateTargetNamePage::~CreateTargetNamePage()
     delete ui;
 }
 
+void CreateTargetNamePage::setImageType(CreateTargetWizard::ImageType imageType)
+{
+    m_imageType = imageType;
+}
+
 QString CreateTargetNamePage::chosenName() const
 {
     return ui->lineEditName->text();
@@ -343,7 +386,21 @@ QString CreateTargetNamePage::chosenName() const
 
 void CreateTargetNamePage::initializePage()
 {
+    QString name;
+    switch(m_imageType) {
+        case CreateTargetWizard::DesktopImage:
+            name = QStringLiteral("desktop");
+            break;
+        case CreateTargetWizard::DeviceImage:
+            name = QString::fromLatin1("device-%1").arg(field(Constants::ARCH_FIELD).toString());
+            break;
+        default:
+            name = QString::fromLatin1("builder-%1").arg(field(Constants::ARCH_FIELD).toString());
+            break;
+    }
 
+    if (!name.isEmpty())
+        ui->lineEditName->setText(name);
 }
 
 bool CreateTargetNamePage::validatePage()

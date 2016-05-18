@@ -18,7 +18,7 @@
     <widget class="QLabel" name="label">
      <property name="text">
       <string>This Wizard will help to create build and runtime targets.&lt;br/&gt;
-Please select for which type of device you want to compile your project for.</string>
+Please select for which type of device the target should be created for.</string>
      </property>
     </widget>
    </item>
@@ -54,7 +54,14 @@ Please select for which type of device you want to compile your project for.</st
       <item>
        <widget class="QRadioButton" name="deviceButton">
         <property name="text">
-         <string>Build and run your application on a Ubuntu device or emulator.</string>
+         <string>Build  your application to run on a Ubuntu device or emulator.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="allImagesButton">
+        <property name="text">
+         <string>Show all available Images</string>
         </property>
        </widget>
       </item>
