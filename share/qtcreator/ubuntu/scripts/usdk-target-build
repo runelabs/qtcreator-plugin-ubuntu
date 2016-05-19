@@ -301,18 +301,20 @@ def add_image_to_download(framework, base_arch, target_arch):
                        "version": "%s",\
                        "release": "%s",\
                        "aliases": \
-                       "%s-%s,ubuntu-framework-%s-%s",\
+                       "%s-%s-%s,ubuntu-framework-%s-%s-%s",\
                        "os": "ubuntu",\
                        "support_eol": "2019-04-17"\
                       }' % (versions,
-                            target_arch,
+                            base_arch,
                             series,
                             series.capitalize(),
                             ubuntu_version,
                             ubuntu_version,
                             framework,
+                            base_arch,
                             target_arch,
                             ubuntu_version,
+                            base_arch,
                             target_arch)
     products_string = '{"%s": %s}' % (pruduct_id, product_object)
     new_product = json.loads(products_string)
