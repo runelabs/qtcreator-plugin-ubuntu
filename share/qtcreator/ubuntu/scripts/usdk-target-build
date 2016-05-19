@@ -254,7 +254,7 @@ def add_image_to_download(framework, base_arch, target_arch):
                  % (base_arch, ubuntu_version, target_arch)
     if pruduct_id not in index_data["index"][image_category]["products"]:
         index_data["index"][image_category]["products"].append(pruduct_id)
-    lxd_file = '{"size": "%s",\
+    lxd_file = '{"size": %s,\
                 "ftype": "lxd.tar.xz",\
                 "path": "releases/%s/%s",\
                 "combined_sha256": "%s",\
@@ -267,7 +267,7 @@ def add_image_to_download(framework, base_arch, target_arch):
                    combined_sha256,
                    lxd_sha256,
                    lxd_md5)
-    root_file = '{"size": "%s",\
+    root_file = '{"size": %s,\
                  "ftype": "root.tar.xz",\
                  "path": "releases/%s/%s",\
                  "combined_sha256": "%s",\
