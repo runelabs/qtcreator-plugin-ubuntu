@@ -827,7 +827,6 @@ def main():
               " framework")
     else:
         bcolors.disable()
-    sys.exit()
     click = ClickChroot(options.base_architecture,
                         options.target_architecture,
                         options.framework,
