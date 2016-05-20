@@ -301,7 +301,7 @@ def add_image_to_download(framework, base_arch, target_arch):
                        "version": "%s",\
                        "release": "%s",\
                        "aliases": \
-                       "%s-%s-%s,ubuntu-framework-%s-%s-%s",\
+                       "%s-%s-%s-%s,ubuntu-framework-%s-%s-%s-%s",\
                        "os": "ubuntu",\
                        "support_eol": "2019-04-17"\
                       }' % (versions,
@@ -313,9 +313,11 @@ def add_image_to_download(framework, base_arch, target_arch):
                             framework,
                             base_arch,
                             target_arch,
+                            image_type,
                             ubuntu_version,
                             base_arch,
-                            target_arch)
+                            target_arch,
+                            image_type)
     products_string = '{"%s": %s}' % (pruduct_id, product_object)
     new_product = json.loads(products_string)
     merged_products = dict(products, **new_product)
@@ -413,10 +415,12 @@ class ClickChroot:
                  system_arch,
                  target_arch,
                  framework,
+                 image_type,
                  series=None,
                  chroots_dir=None):
         self.target_arch = target_arch
         self.framework = strip_dev_series_from_framework(framework)
+        self.image_type = image_type
         if series is None:
             series = framework_series[self.framework_base]
         self.series = series
@@ -768,6 +772,14 @@ def check_valid_framework(value):
     return value
 
 
+def check_valid_type(value):
+    ota_re = '^ota\d+$|^dev$'
+    if not re.search(ota_re, value):
+        raise argparse.ArgumentTypeError("%s is not a valid image type"
+                                         % value)
+    return value
+
+
 def main():
     if os.geteuid() != 0:
         exit("You need to have" +
@@ -792,9 +804,18 @@ def main():
                         action='store',
                         default="ubuntu-sdk-15.04",
                         type=check_valid_framework)
+    parser.add_argument('-t',
+                        '--image_type',
+                        action='store',
+                        default="dev",
+                        type=check_valid_type)
     options = parser.parse_args()
     if os.isatty(sys.stdout.fileno()):
-        print("Building for " +
+        print("Building " +
+              bcolors.OKGREEN +
+              options.image_type +
+              bcolors.ENDC +
+              " type image for " +
               bcolors.OKGREEN +
               options.target_architecture +
               bcolors.ENDC +
@@ -802,13 +823,15 @@ def main():
               bcolors.OKGREEN +
               options.base_architecture + bcolors.ENDC +
               " base arch with " + bcolors.OKGREEN +
-              options.framework + " framework" +
-              bcolors.ENDC)
+              options.framework + bcolors.ENDC +
+              " framework")
     else:
         bcolors.disable()
+    sys.exit()
     click = ClickChroot(options.base_architecture,
                         options.target_architecture,
                         options.framework,
+                        options.image_type,
                         None,
                         os.getcwd())
     sys.exit(click.create())
