@@ -193,7 +193,7 @@ def make_md5_sha256(file_name, combined_hash_sha256):
             combined_hash_sha256.hexdigest())
 
 
-def add_image_to_download(framework, base_arch, target_arch):
+def add_image_to_download(framework, base_arch, target_arch, image_type):
     match = re.search('ubuntu-sdk-(.*)', framework)
     if match:
         ubuntu_version = match.group(1)
@@ -755,7 +755,8 @@ class ClickChroot:
         print("Create the download.json")
         add_image_to_download(self.framework,
                               self.native_arch,
-                              self.target_arch)
+                              self.target_arch,
+                              self.image_type)
         sys.exit(ret)
 
 
