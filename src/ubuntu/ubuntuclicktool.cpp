@@ -278,7 +278,6 @@ bool UbuntuClickTool::parseContainerName(const QString &name, UbuntuClickTool::T
     if (ext.isEmpty())
         return false;
     target->architecture = ext.last();
-
     return true;
 }
 

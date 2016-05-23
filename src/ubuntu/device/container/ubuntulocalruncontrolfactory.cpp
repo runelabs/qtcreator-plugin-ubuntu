@@ -107,6 +107,7 @@ ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplore
             params.remoteSetupNeeded = true;
             params.connParams.host = dev->sshParameters().host;
             params.environment = ubuntuRC->environment();
+            params.solibSearchPath.append(ubuntuRC->soLibSearchPaths());
 
             Debugger::DebuggerRunControl *runControl
                     = Debugger::createDebuggerRunControl(params, ubuntuRC, errorMessage, mode);
@@ -122,6 +123,8 @@ ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplore
             }
 
             Debugger::DebuggerStartParameters params = RemoteLinux::LinuxDeviceDebugSupport::startParameters(ubuntuRC);
+            params.solibSearchPath.append(ubuntuRC->soLibSearchPaths());
+
             Debugger::DebuggerRunControl * const runControl = Debugger::createDebuggerRunControl(params, ubuntuRC, errorMessage, mode);
             if (!runControl)
                 return 0;

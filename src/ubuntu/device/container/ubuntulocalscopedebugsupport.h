@@ -45,6 +45,7 @@ private:
     int m_port;
     QString m_scopeRunnerPath;
     QString m_executable;
+    QString m_buildDir;
     QStringList m_commandLineArguments;
     Debugger::DebuggerRunControl *m_runControl;
     QByteArray m_gdbserverOutput;

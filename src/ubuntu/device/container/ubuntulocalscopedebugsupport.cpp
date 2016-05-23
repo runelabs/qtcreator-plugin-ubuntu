@@ -79,7 +79,23 @@ void UbuntuLocalScopeDebugSupport::startExecution()
 
     //debughelper script name, source and destination path
     const QString debScript = QStringLiteral("qtc_device_debughelper.py");
-    const QString debSourcePath = QStringLiteral("%1/%2").arg(Constants::UBUNTU_SCRIPTPATH).arg(debScript);
+
+    Utils::FileName debSourcePath = Utils::FileName::fromString(Constants::UBUNTU_SCRIPTPATH);
+    debSourcePath.appendPath(debScript);
+
+    Utils::FileName debTargetPath = Utils::FileName::fromString(iniFile.absolutePath());
+    debTargetPath.appendPath(debScript);
+
+    if (QFile::exists(debTargetPath.toString()))
+        QFile::remove(debTargetPath.toString());
+    if (!QFile::copy(debSourcePath.toString(), debTargetPath.toString())) {
+        Debugger::RemoteSetupResult res;
+        res.success = false;
+        res.reason = tr("Unable to copy the debug helper script to: %1.").arg(iniFile.absolutePath());
+        m_runControl->notifyEngineRemoteSetupFinished(res);
+        return;
+    }
+
 
     QString commTemplate = QStringLiteral("%S scope %1 %C")
             .arg(appId); //tell our script the appid
@@ -90,7 +106,7 @@ void UbuntuLocalScopeDebugSupport::startExecution()
 
     bool injected = UbuntuProjectHelper::injectScopeDebugHelper(
                         iniFile.absoluteFilePath(),
-                        debSourcePath,
+                        debTargetPath.toString(),
                         commTemplate,
                         defaultSubCmd);
     if (!injected) {

@@ -58,8 +58,8 @@ QString ContainerDeviceProcess::fullCommandLine() const
 {
     QString fullCommandLine;
     QStringList rcFiles {
-        QLatin1String("/etc/profile"),
-        QLatin1String("$HOME/.profile")
+        QLatin1String("/etc/profile")
+        , QLatin1String("$HOME/.profile")
     };
     foreach (const QString &filePath, rcFiles)
         fullCommandLine += QString::fromLatin1("test -f %1 && . %1;").arg(filePath);

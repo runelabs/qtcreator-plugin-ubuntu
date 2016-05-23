@@ -61,6 +61,7 @@ Utils::Environment UbuntuLocalEnvironmentAspect::baseEnvironment() const
 UbuntuLocalRunConfiguration::UbuntuLocalRunConfiguration(ProjectExplorer::Target *parent, Core::Id id)
     : RemoteLinux::AbstractRemoteLinuxRunConfiguration(parent, id)
 {
+    setDisplayName(appId());
     addExtraAspect(new UbuntuLocalEnvironmentAspect(this));
 }
 
@@ -443,12 +444,24 @@ bool UbuntuLocalRunConfiguration::ensureClickAppConfigured(QString *errorMessage
     return true;
 }
 
-bool UbuntuLocalRunConfiguration::ensureScopesAppConfigured(QString *)
+bool UbuntuLocalRunConfiguration::ensureScopesAppConfigured(QString *errorMessage)
 {
     m_workingDir = target()->activeBuildConfiguration()->buildDirectory();
 
-    Utils::FileName exec = Utils::FileName::fromString(Ubuntu::Constants::UBUNTU_SCRIPTPATH);
+    Utils::FileName script = Utils::FileName::fromString(Ubuntu::Constants::UBUNTU_SCRIPTPATH);
+    script.appendPath(QLatin1String(Ubuntu::Constants::UBUNTUSCOPES_PROJECT_LAUNCHER_EXE));
+
+    Utils::FileName exec = m_workingDir;
     exec.appendPath(QLatin1String(Ubuntu::Constants::UBUNTUSCOPES_PROJECT_LAUNCHER_EXE));
+
+    if (QFile::exists(exec.toString()))
+        QFile::remove(exec.toString());
+
+    if (!QFile::copy(script.toString(), exec.toString())) {
+        if (errorMessage)
+            *errorMessage = tr("Not able to copy the scope runner script to the build directory");
+        return false;
+    }
 
     m_executable = exec.toString();
 
@@ -498,10 +511,11 @@ bool UbuntuLocalRunConfiguration::ensureUbuntuProjectConfigured(QString *errorMe
 void UbuntuLocalRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
 {
     QSet<QString> usedPaths;
+    QString sysroot = ProjectExplorer::SysRootKitInformation::sysRoot(target()->kit()).toFileInfo().absoluteFilePath();
 
     //lambda checks if the executable is in a qmldir and add its to QML2_IMPORT_PATH if
     //required
-    auto loc_addToImportPath = [&usedPaths,&env] (const QString &loc_buildDir) {
+    auto loc_addToImportPath = [&usedPaths,&env, &sysroot] (const QString &loc_buildDir) {
         const QString absolutePath = loc_buildDir;
         if(debug) qDebug()<<"Looking in the dir: "<<absolutePath;
 
@@ -537,6 +551,9 @@ void UbuntuLocalRunConfiguration::addToBaseEnvironment(Utils::Environment &env) 
                 return;
 
             if(debug) qDebug()<<"Adding"<<path<<"to QML2_IMPORT_PATH";
+            if (path.startsWith(sysroot))
+                path = path.mid(sysroot.length());
+
             env.appendOrSet(QStringLiteral("QML2_IMPORT_PATH"),path,QStringLiteral(":"));
             usedPaths.insert(path);
         }
@@ -577,18 +594,59 @@ void UbuntuLocalRunConfiguration::addToBaseEnvironment(Utils::Environment &env) 
                     const QFileInfo fi(dir);
                     if (!fi.isAbsolute())
                         dir = QDir::cleanPath(proDirectory + QLatin1Char('/') + dir);
+
+                    if (dir.startsWith(sysroot))
+                        dir = dir.mid(sysroot.length());
+
                     env.prependOrSetLibrarySearchPath(dir);
                 } // foreach
             } // libDirectories
         }
     }
 
+#if 0
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (qtVersion)
         env.prependOrSetLibrarySearchPath(qtVersion->qmakeProperty("QT_INSTALL_LIBS"));
+#endif
 }
 
 bool UbuntuLocalRunConfiguration::isConfigured() const
 {
     return true;
+}
+
+QStringList UbuntuLocalRunConfiguration::soLibSearchPaths() const
+{
+    QStringList paths;
+    CMakeProjectManager::CMakeProject *cmakeProj
+            = qobject_cast<CMakeProjectManager::CMakeProject *>(target()->project());
+
+    if(cmakeProj) {
+        QList<CMakeProjectManager::CMakeBuildTarget> targets = cmakeProj->buildTargets();
+        foreach(const CMakeProjectManager::CMakeBuildTarget& target, targets) {
+            QFileInfo binary(target.executable);
+            if(binary.exists()) {
+                if(debug) qDebug()<<"Adding path "<<binary.absolutePath()<<" to solib-search-paths";
+                paths << binary.absolutePath();
+            }
+        }
+    } else {
+        QmakeProjectManager::QmakeProject* qmakeProj =
+                qobject_cast<QmakeProjectManager::QmakeProject *>(target()->project());
+        if(qmakeProj) {
+            foreach (const QmakeProjectManager::QmakeProFileNode* pro, qmakeProj->allProFiles()) {
+                if(pro->projectType() == QmakeProjectManager::ApplicationTemplate
+                         || pro->projectType() == QmakeProjectManager::SharedLibraryTemplate) {
+                    QmakeProjectManager::TargetInformation info = pro->targetInformation();
+                    if(!info.valid)
+                        continue;
+                    if(debug) qDebug()<<"Adding path "<<info.buildDir<<" to solib-search-paths";
+                    paths << info.buildDir;
+                }
+            }
+        }
+    }
+
+    return paths;
 }
