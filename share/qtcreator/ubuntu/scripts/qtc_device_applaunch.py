@@ -40,9 +40,13 @@ import subprocess
 import argparse
 import fcntl
 import shutil
-import dbus
+import threading
+import time
 import dbus.service
 import dbus.mainloop.glib
+
+#intialize threading
+GObject.threads_init()
 
 #make glib the default dbus event loop
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -88,7 +92,7 @@ class ScopeRunner(dbus.service.Object):
                 #just make the default scope visible again
                 self._dispatchUrl("scope://clickscope")
             else:
-                print("Sdk-Launcher> Error: Could start the scope.",flush=True,file=sys.stderr)
+                print("Sdk-Launcher> Error: Could not start the scope.",flush=True,file=sys.stderr)
                 return 1
         except KeyboardInterrupt:
             pass
@@ -177,20 +181,56 @@ class AppRunner:
     def stop(self):
         UAL.stop_application(self.appid)
 
+#FileTailer based on http://code.activestate.com/recipes/157035/        
+class FileTailer(threading.Thread):
+    def __init__(self, fileName, callback, errCb):
+        super(FileTailer, self).__init__()
+        self.fileName = fileName 
+        self.cb       = callback
+        self.errCb    = errCb
+        self.exitNow  = threading.Event()
+        
+    def stop(self):
+        self.exitNow.set()
+        
+    def run(self):
+        try:
+            file = open(self.fileName,'r')
+        except OSError:
+            GObject.idle_add(self.errCb)
+            return
+        
+        #Find the size of the file and move to the end
+        st_results = os.stat(self.fileName)
+        st_size = st_results[6]
+        file.seek(st_size)
+        
+        while not self.exitNow.isSet():
+            where = file.tell()
+            line = file.readline()
+            if not line:
+                time.sleep(0.1)
+                file.seek(where)
+            else:
+                if len(line) > 0:
+                    GObject.idle_add(self.cb, line)
+        file.close()
+        
 def on_sigterm(runner):
     print("Sdk-Launcher> Received exit signal, stopping application",flush=True)
     runner.stop()
+    
+def addWatcher (handle, callback, flags):
+    if GObject.pygobject_version < (3,7,2):
+        GObject.io_add_watch(handle,flags,callback)
+    else:
+        GLib.io_add_watch(handle,GLib.PRIORITY_DEFAULT,flags,callback)
 
-def prepareFileHandle(handle, callback):
+def prepareFileHandle(handle, callback, flags):
     # make handle non-blocking:
     fl = fcntl.fcntl(handle, fcntl.F_GETFL)
     fcntl.fcntl(handle, fcntl.F_SETFL, fl | os.O_NONBLOCK)
-
-    if GObject.pygobject_version < (3,7,2):
-        GObject.io_add_watch(handle,GObject.IO_IN | GObject.IO_HUP,callback)
-    else:
-        GLib.io_add_watch(handle,GLib.PRIORITY_DEFAULT,GObject.IO_IN | GObject.IO_HUP,callback)
-
+    addWatcher(handle, callback, flags)
     return handle
 
 def create_procpipe(path,callback):
@@ -200,13 +240,13 @@ def create_procpipe(path,callback):
     os.mkfifo(path)
     pipe = os.open(path,os.O_RDONLY | os.O_NONBLOCK)
 
-    return prepareFileHandle(pipe, callback)
+    return prepareFileHandle(pipe, callback, GObject.IO_IN | GObject.IO_HUP)
 
 def readPipe(pipe):
     output=""
     while True:
         try:
-            output += os.read(pipe,256).decode();
+            output += os.read(pipe,1024).decode();
         except OSError as err:
             if err.errno == os.errno.EAGAIN or err.errno == os.errno.EWOULDBLOCK:
                 break
@@ -220,22 +260,18 @@ def readPipe(pipe):
 
 def on_proc_stdout(file, condition):
     output = readPipe(file)
-    print (output,end="",flush=True)
+    if len(output) > 0:
+        print (output,end="",flush=True)
     return True
 
 def on_proc_stderr(file, condition):
     output = readPipe(file)
-    print (output ,file=sys.stderr,end="",flush=True)
+    if len(output) > 0:
+        print (output ,file=sys.stderr,end="",flush=True)
     return True
 
-def create_filelistener(path, callback):
-    if(not os.path.exists(path)):
-        return None
-
-    handle = os.open(path,os.O_RDONLY | os.O_NONBLOCK)
-    os.lseek(handle,0,os.SEEK_END)
-
-    return prepareFileHandle(handle, callback)
+def syslog_err():
+    print("Sdk-Launcher> Not able to open syslog, apparmor errors will not be reported.",flush=True,file=sys.stderr)
 
 def filter_syslog_line(line):
     global skip_apparmor_denials
@@ -249,31 +285,6 @@ def filter_syslog_line(line):
         
         # do not change this line, it is interpreted by QtCreator 
         sys.stderr.write("Syslog> "+line)
-
-def on_syslog_update(fd, condition):
-    global syslogBuffer
-
-    while True:
-        chunk = os.read(fd,256).decode();
-        if (len(chunk) == 0):
-            break
-
-        syslogBuffer += chunk
-        
-    if len(syslogBuffer) <= 0 :
-        return True
-
-    #read the buffer and filter every complete line    
-    try:
-        while(True):
-            idx = syslogBuffer.index("\n")
-            line = syslogBuffer[0:idx+1]
-            syslogBuffer = syslogBuffer[idx+1:]
-            filter_syslog_line(line)
-    except ValueError:
-        pass
-    
-    return True
 
 def is_confined (manifest_obj, hook_name):
     if "apparmor" not in manifest_obj['hooks'][hook_name]:
@@ -448,10 +459,10 @@ print("Sdk-Launcher> Application installed successfully",flush=True)
 
 debug_file_name = None
 stdoutPipeName  = None
-procStdOut      = None
 stderrPipeName  = None
+procStdOut      = None
 procStdErr      = None
-syslogHandle    = None
+syslogHandler   = None
 
 try:
     confined = is_confined(manifest,hook_name)
@@ -495,13 +506,10 @@ try:
     stderrPipeName = tmp_dir+app_id+".stderr"
     procStdErr = create_procpipe(stderrPipeName,on_proc_stderr)
 
-    try:
-        syslogFileName = "/var/log/syslog"
-        syslogHandle = create_filelistener("/var/log/syslog",on_syslog_update)
-    except OSError:
-        print("Sdk-Launcher> Not able to open syslog, apparmor errors will not be reported.",flush=True,file=sys.stderr)
-
-
+    if(os.path.exists("/var/log/syslog")):
+        syslogHandler = FileTailer("/var/log/syslog", filter_syslog_line, syslog_err)
+        syslogHandler.start()
+    
     if "unix_signal_add" in dir(GLib):
         GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGTERM, on_sigterm, runner)
         GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGINT, on_sigterm, runner)
@@ -545,8 +553,9 @@ if (stderrPipeName != None and os.path.exists(stderrPipeName)):
     os.close(procStdErr)
     os.unlink(stderrPipeName)
 
-if (syslogHandle):
-    os.close(syslogHandle)
+if (syslogHandler != None):
+    syslogHandler.stop()
+    syslogHandler.join()
 
 if (options.noUninstall):
     print("Sdk-Launcher> Skipping uninstall step (--no-uninstall)")
