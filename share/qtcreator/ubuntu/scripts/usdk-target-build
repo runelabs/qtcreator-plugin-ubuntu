@@ -315,7 +315,7 @@ def add_image_to_download(framework, base_arch, target_arch, image_type):
                             target_arch,
                             image_type,
                             ubuntu_version,
-                            lxd_arch[base_arch],
+                            base_arch,
                             target_arch,
                             image_type)
     products_string = '{"%s": %s}' % (pruduct_id, product_object)

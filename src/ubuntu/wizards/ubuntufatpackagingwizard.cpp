@@ -148,7 +148,7 @@ UbuntuChooseTargetPage::UbuntuChooseTargetPage(QmakeProjectManager::QmakeProject
     m_errorLabel->setStyleSheet(QStringLiteral("background: yellow"));
 
     m_noTargetsLabel = new QLabel(tr("<h3 style=\"text-align: center;\">No Targets available</h3>"
-                                     "<p>In order to build a click package, Ubuntu Kits need to be "
+                                     "<p>In order to build a click package, Ubuntu Device Kits need to be "
                                      "added to the project. This is possible by adding them in the "
                                      "\"Projects\" tab.</p>"),this);
     m_noTargetsLabel->setWordWrap(true);

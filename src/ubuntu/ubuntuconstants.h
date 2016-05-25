@@ -298,7 +298,7 @@ const char UBUNTU_CLICK_BINARY[]  = "/usr/bin/click";
 const char UBUNTU_SUDO_BINARY[]   = "/usr/bin/pkexec";
 
 const QString UBUNTU_TARGET_TOOL = QStandardPaths::findExecutable(QStringLiteral("usdk-target"));
-const char UBUNTU_CREATE_CLICK_TARGET_ARGS[]  = "%0 create -a %1 -f %2 -n %3 -p %4";
+const char UBUNTU_CREATE_CLICK_TARGET_ARGS[]  = "env USDK_TEST_REMOTE=\"%0\" %1 create -a %2 -f %3 -n %4 -p %5";
 const char UBUNTU_DESTROY_CLICK_TARGET_ARGS[] = "%0 destroy %1";
 const char UBUNTU_UPGRADE_CLICK_TARGET_ARGS[] = "upgrade %0";
 const char UBUNTU_CLICK_OPEN_TERMINAL[]       = "%0 maint %1";

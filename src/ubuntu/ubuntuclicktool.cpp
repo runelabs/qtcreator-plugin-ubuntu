@@ -153,7 +153,9 @@ ProjectExplorer::ProcessParameters UbuntuClickTool::prepareToRunInTarget(Project
  */
 void UbuntuClickTool::parametersForCreateChroot(const Target &target, ProjectExplorer::ProcessParameters *params)
 {
+    Utils::Environment env = Utils::Environment::systemEnvironment();
     QString command = QString::fromLatin1(Constants::UBUNTU_CREATE_CLICK_TARGET_ARGS)
+            .arg(env.value(QStringLiteral("USDK_TEST_REMOTE")))
             .arg(Constants::UBUNTU_TARGET_TOOL)
             .arg(target.architecture)
             .arg(target.framework)
@@ -274,10 +276,11 @@ bool UbuntuClickTool::parseContainerName(const QString &name, UbuntuClickTool::T
     if (target->framework.isEmpty())
         return false;
 
-    //the architecture of the the container is always last in the name
-    if (ext.isEmpty())
+    //ubuntu-sdk-15.04-i386-i386-dev
+    //the architecture of the the container is always the second extension
+    if (ext.isEmpty() || ext.size() != 3)
         return false;
-    target->architecture = ext.last();
+    target->architecture = ext[1];
     return true;
 }
 
