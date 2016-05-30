@@ -367,7 +367,10 @@ bool UbuntuPlugin::checkContainerSetup()
     proc.setProgram(Constants::UBUNTU_TARGET_TOOL);
     proc.setArguments(QStringList{QStringLiteral("initialized")});
     proc.start();
-    if (!proc.waitForFinished(3000) || proc.exitStatus() != QProcess::NormalExit) {
+    if (!proc.waitForFinished(3000)) {
+        criticalError(tr("The container backend setup detection failed.\nThe detection tool did not return in time.\nPlease try again."));
+    }
+    if (proc.exitStatus() != QProcess::NormalExit) {
         criticalError(tr("The container backend setup detection failed.\nPlease try again."));
     }
 
