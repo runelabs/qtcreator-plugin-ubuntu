@@ -1,66 +1,10 @@
 {
-    "ubuntu.make": {
-        "name": "make",
-        "id": "Ubuntu.Make",
-        "parent": "Build",
-        "projectRequired": true,
-        "group": "ProjectExplorer.Group.Run",
-        "submenu": [
-            {
-                "name": "check",
-                "id": "Ubuntu.Make.Check",
-                "projectRequired": true,
-                "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_project_make check"
-                ]
-            },
-            {
-                "name": "autopilot",
-                "id": "Ubuntu.Make.Autopilot",
-                "projectRequired": true,
-                "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_project_make autopilot"
-                ]
-            },
-            {
-                "name": "install",
-                "id": "Ubuntu.Make.Install",
-                "projectRequired": true,
-                "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_project_make install"
-                ]
-            },
-            {
-                "name": "uninstall",
-                "id": "Ubuntu.Make.Uninstall",
-                "projectRequired": true,
-                "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_project_make uninstall"
-                ]
-            }
-        ]
-    },
     "ubuntu": {
         "name": "Ubuntu",
         "id": "Ubuntu.Build",
         "parent": "Build",
         "group": "ProjectExplorer.Group.Run",
         "submenu": [
-            {
-                "name": "Create manifest files",
-                "id": "Ubuntu.Build.CreateManifest",
-                "workingDirectory": "%0/..",
-                "projectRequired": true,
-                "context": ["UbuntuProject.ProjectContext","QmlProject.ProjectContext","CMakeProject.ProjectContext"],
-                "actions": [
-                    {
-                        "metacall": {
-                             "method":"createManifestFile",
-                             "args":[]
-                        }
-                    }
-                ]
-            },
             {
                 "name": "Run Application on Device",
                 "id": "Ubuntu.Build.Run.Go",
@@ -91,7 +35,7 @@
                 "id": "Ubuntu.Build.CreateClickPackage",
                 "workingDirectory": "%0/..",
                 "projectRequired": true,
-                "context": ["UbuntuProject.ProjectContext","QmlProject.ProjectContext","CMakeProject.ProjectContext"],
+                "context": ["UbuntuProject.ProjectContext","QmlProject.ProjectContext","CMakeProject.ProjectContext", "Qt4.Qt4Project"],
                 "saveRequired": true,
                 "needsClickToolchain" : true,
                 "actions": [
@@ -120,13 +64,12 @@
                     }
                 ]
             },
-
             {
                 "name": "Install Application on Device",
                 "id": "Ubuntu.Build.PackageInstall.CMake",
                 "workingDirectory": "%0/..",
                 "projectRequired": true,
-                "context": ["CMakeProject.ProjectContext"],
+                "context": ["CMakeProject.ProjectContext", "Qt4.Qt4Project"],
                 "saveRequired": true,
                 "needsClickToolchain" : true,
                 "actions": [
@@ -160,30 +103,6 @@
                 "saveRequired": true,
                 "actions": [
                     "%SCRIPTDIRECTORY%/qtc_device_buildpackage_go %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp \"%GOBUILDTARGETS%\""
-                ]
-            },
-            {
-                "name": "Build Application on Device",
-                "id": "Ubuntu.Build.Cpp",
-                "workingDirectory": "%0/..",
-                "projectRequired": true,
-                "deviceRequired": true,
-                "context": ["Qt4.Qt4Project","CMakeProject.ProjectContext"],
-                "saveRequired": true,
-                "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_device_buildpackage %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp"
-                ]
-            },
-            {
-                "name": "Build and Install Application on Device",
-                "id": "Ubuntu.BuildAndInstall.Cpp",
-                "workingDirectory": "%0/..",
-                "projectRequired": true,
-                "deviceRequired": true,
-                "qmakeProjectRequired": true,
-                "saveRequired": true,
-                "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_device_buildanddeploypackage %SERIALNUMBER% %FOLDERNAME% %USERNAME%@%IP% %PORT% /home/%USERNAME%/dev_tmp"
                 ]
             },
             {
@@ -274,14 +193,6 @@
         "parent": "Tools",
         "submenu": [
              {
-                "name": "Showcase Gallery",
-                "keysequence": "Ctrl+Shift+S",
-                "id": "Ubuntu.Menu.Showcase",
-                "actions": [
-                    "%SCRIPTDIRECTORY%/qtc_launch_gallery"
-                ]
-            },
-            {
                 "name": "Take a screenshot",
                 "id": "Ubuntu.Menu.Screenshot",
                 "keysequence": "Ctrl+Shift+P",

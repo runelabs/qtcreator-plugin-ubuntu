@@ -55,7 +55,7 @@ private slots:
     void migrateProject ();
 
 private:
-    bool checkContainerSetup(QString &errorString);
+    bool checkContainerSetup();
 
 protected:
     UbuntuDeviceMode       *m_ubuntuDeviceMode;

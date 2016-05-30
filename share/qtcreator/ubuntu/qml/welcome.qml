@@ -158,13 +158,13 @@ Rectangle {
                     title: "Build something solid in HTML5 &gt;"
                     link: "http://developer.ubuntu.com/api/html5/current/"
                     pixelSize: 20
-                }
+                }/*
                 Link {
                     width: parent.width
                     title: "Open UI Toolkit component gallery &gt;"
                     onClicked: ubuntuWelcomeMode.openGallery()
                     pixelSize: 20
-                }
+                }*/
                 Link {
                     width: parent.width
                     title: "Stay up to date with the developer community &gt;"
