@@ -21,8 +21,6 @@
 namespace Ubuntu {
 namespace Internal {
 
-//dpkg-reconfigure -p medium lxd
-
 ContainerDevicePrivate::ContainerDevicePrivate(ContainerDevice *q)
     : QObject(nullptr)
     , q_ptr(q)

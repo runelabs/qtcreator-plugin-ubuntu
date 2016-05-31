@@ -604,6 +604,8 @@ void UbuntuLocalRunConfiguration::addToBaseEnvironment(Utils::Environment &env) 
         }
     }
 
+    //disabled because we only have one Qt version in a container, however I keep the code for
+    //future reference
 #if 0
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (qtVersion)
