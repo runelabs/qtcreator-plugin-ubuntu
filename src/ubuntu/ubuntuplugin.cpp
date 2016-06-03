@@ -363,59 +363,111 @@ void UbuntuPlugin::migrateProject()
 
 bool UbuntuPlugin::checkContainerSetup()
 {
-    QProcess proc;
-    proc.setProgram(Constants::UBUNTU_TARGET_TOOL);
-    proc.setArguments(QStringList{QStringLiteral("initialized")});
-    proc.start();
-    if (!proc.waitForFinished(3000)) {
-        criticalError(tr("The container backend setup detection failed.\nThe detection tool did not return in time.\nPlease try again."));
-    }
-    if (proc.exitStatus() != QProcess::NormalExit) {
-        criticalError(tr("The container backend setup detection failed.\nPlease try again."));
-    }
+    enum {
+        ERR_NONE         = 0,
+        ERR_NO_ACCESS    = 255,
+        ERR_NEEDS_FIXING = 254,
+        ERR_NO_BRIDGE    = 253
+        //ERR_UNKNOWN      = 200
+    };
 
-    int exitCode = proc.exitCode();
-    if (exitCode == 255) {
-        //the tool tells us that we have no access to the LXD server
-        criticalError(tr("The current user can not access the LXD server which is required for the Ubuntu SDK.\nMake sure the user is part of the lxd group and restart the IDE."));
-    }
+    bool ok = false;
 
-    if(proc.exitCode() != 0 && Settings::askForContainerSetup()) {
+    while (!ok) {
+        QProcess proc;
+        proc.setProgram(Constants::UBUNTU_TARGET_TOOL);
 
-        QString text = tr("The container backend is not completely initialized.\n\n"
-                          "Create default configuration?\n"
-                          "Not setting up the container configuration will\nmake it impossible to run applications locally.\n\n"
-                          "Note: Will override existing LXD configurations."
-                          );
+        QStringList args{QStringLiteral("initialized")};
+        if(!Settings::askForContainerSetup())
+            args.append(QStringLiteral("-b"));
 
-        QMessageBox box(QMessageBox::Question, qApp->applicationName(),text, QMessageBox::Yes | QMessageBox::No | QMessageBox::Abort, Core::ICore::mainWindow());
-        QCheckBox *check = new QCheckBox(&box);
-        check->setText(tr("Do not show again"));
-        check->setChecked(false);
-        box.setCheckBox(check);
+        proc.setArguments(args);
+        proc.start();
+        if (!proc.waitForFinished(6000)) {
+            criticalError(tr("The container backend setup detection failed.\nThe detection tool did not return in time.\nPlease try again."));
+        }
+        if (proc.exitStatus() != QProcess::NormalExit) {
+            criticalError(tr("The container backend setup detection failed.\nPlease try again."));
+        }
 
-        int choice = box.exec();
-        Settings::setAskForContainerSetup(check->checkState() != Qt::Checked);
-        Settings::flushSettings();
+        switch(proc.exitCode()) {
+            case ERR_NONE:
+                ok = true;
+                break;
+            case ERR_NO_ACCESS:
+                    //the tool tells us that we have no access to the LXD server
+                    criticalError(tr("The current user can not access the LXD server which is required for the Ubuntu SDK.\n"
+                                     "Make sure the user is part of the lxd group and restart the IDE."));
+                break;
+            case ERR_NO_BRIDGE:
+                if (Settings::askForContainerSetup()) {
+                    QString text = tr("The container backend is not completely initialized.\n\n"
+                                      "Create default configuration?\n"
+                                      "Not setting up the container configuration will\nmake it impossible to run applications locally.\n\n"
+                                      "Note: Will override existing LXD configurations."
+                                      );
 
-        if (choice == QMessageBox::Yes) {
-            QString arguments = Utils::QtcProcess::joinArgs(QStringList{
-                Constants::UBUNTU_TARGET_TOOL,
-                QStringLiteral("autosetup"),
-                QStringLiteral("-y")
-            });
+                    QMessageBox box(QMessageBox::Question, qApp->applicationName(),text, QMessageBox::Yes | QMessageBox::No | QMessageBox::Abort, Core::ICore::mainWindow());
+                    QCheckBox *check = new QCheckBox(&box);
+                    check->setText(tr("Do not show again"));
+                    check->setChecked(false);
+                    box.setCheckBox(check);
 
-            ProjectExplorer::ProcessParameters params;
-            params.setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
-            params.setEnvironment(Utils::Environment::systemEnvironment());
-            params.setArguments(arguments);
+                    int choice = box.exec();
+                    Settings::setAskForContainerSetup(check->checkState() != Qt::Checked);
+                    Settings::flushSettings();
 
-            int res = ProcessOutputDialog::runProcessModal(params, Core::ICore::mainWindow());
-            if (res != 0) {
-                criticalError(tr("Setting up the container backend failed."));
+                    if (choice == QMessageBox::Yes) {
+                        QString arguments = Utils::QtcProcess::joinArgs(QStringList{
+                            Constants::UBUNTU_TARGET_TOOL,
+                            QStringLiteral("autosetup"),
+                            QStringLiteral("-y")
+                        });
+
+                        ProjectExplorer::ProcessParameters params;
+                        params.setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
+                        params.setEnvironment(Utils::Environment::systemEnvironment());
+                        params.setArguments(arguments);
+
+                        int res = ProcessOutputDialog::runProcessModal(params, Core::ICore::mainWindow());
+                        if (res != 0) {
+                            criticalError(tr("Setting up the container backend failed."));
+                        }
+                    } else if (choice == QMessageBox::Abort) {
+                        criticalError(tr("Container backend initialization was cancelled."));
+                    }
+                }
+                break;
+            case ERR_NEEDS_FIXING: {
+                QString text = tr("The container backend detection indicated problems.\n\n"
+                                  "Fix them automatically?\n"
+                                  );
+
+                QMessageBox box(QMessageBox::Question, qApp->applicationName(),text, QMessageBox::Yes | QMessageBox::Abort, Core::ICore::mainWindow());
+                int choice = box.exec();
+                if (choice == QMessageBox::Yes) {
+                    QString arguments = Utils::QtcProcess::joinArgs(QStringList{
+                        Constants::UBUNTU_TARGET_TOOL,
+                        QStringLiteral("autofix")
+                    });
+
+                    ProjectExplorer::ProcessParameters params;
+                    params.setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
+                    params.setEnvironment(Utils::Environment::systemEnvironment());
+                    params.setArguments(arguments);
+
+                    int res = ProcessOutputDialog::runProcessModal(params, Core::ICore::mainWindow());
+                    if (res != 0) {
+                        criticalError(tr("Fixing the container backend failed."));
+                    }
+                } else if (choice == QMessageBox::Abort) {
+                    criticalError(tr("Automatic container backend fixing was cancelled."));
+                }
+                break;
             }
-        } else if (choice == QMessageBox::Abort) {
-            criticalError(tr("Container backend initialization was cancelled."));
+            default:
+                criticalError(tr("Unknown error."));
+                break;
         }
     }
     return true;
