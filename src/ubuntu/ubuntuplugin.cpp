@@ -466,7 +466,7 @@ bool UbuntuPlugin::checkContainerSetup()
                 break;
             }
             default:
-                criticalError(tr("Unknown error."));
+                criticalError(tr("The container backend returned an unknown error status.\nThis is a bug and should never happen, please contact the developers."));
                 break;
         }
     }
