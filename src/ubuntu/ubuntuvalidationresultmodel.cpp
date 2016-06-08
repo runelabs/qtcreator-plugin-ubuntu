@@ -313,7 +313,7 @@ void ClickRunChecksParser::endRecieveData(const QString &data)
  */
 bool ClickRunChecksParser::tryParseNextSection(bool dataComplete)
 {
-    QRegularExpression re(QStringLiteral("^([=]+[\\s]+[A-Za-z0-9\\-_]+[\\s]+[=]+)$")); // match section beginnings
+    QRegularExpression re(QStringLiteral("^([=]+[\\s]+[\\S]+[\\s]+[=]+)$")); // match section beginnings
     re.setPatternOptions(QRegularExpression::MultilineOption);
 
     QRegularExpressionMatchIterator matchIter = re.globalMatch(m_data,m_nextSectionOffset);
