@@ -28,6 +28,8 @@
 #include <utils/qtcprocess.h>
 #include <QDebug>
 
+#include "ubuntu_global.h"
+
 
 class QDialogButtonBox;
 class QPlainTextEdit;
@@ -45,10 +47,10 @@ namespace ProjectExplorer {
 
 namespace Ubuntu {
 namespace Internal {
-
 class UbuntuClickBuildConfiguration;
+} // namespace Internal
 
-class UbuntuClickTool
+class UBUNTUSHARED_EXPORT UbuntuClickTool
 {
 public:
 
@@ -58,12 +60,10 @@ public:
     };
 
     struct Target {
-        bool    maybeBroken;
-        int     majorVersion;
-        int     minorVersion;
-        QString series;
         QString framework;
         QString architecture;
+        QString containerName;
+        QString imageName; //only set for container creation
     };
 
     UbuntuClickTool();
@@ -74,6 +74,7 @@ public:
     static void openChrootTerminal (const Target& target);
 
     static QString targetBasePath (const Target& target);
+    static bool parseContainerName (const QString &name, Target *target);
     static bool getTargetFromUser (Target* target, const QString &framework=QString());
     static QStringList getSupportedFrameworks (const Target *target);
     static QString getMostRecentFramework ( const QString &subFramework, const Target *target );
@@ -82,19 +83,24 @@ public:
     static QString findOrCreateQMakeWrapper(const UbuntuClickTool::Target &target);
     static QString findOrCreateMakeWrapper(const UbuntuClickTool::Target &target);
     static QString mapIncludePathsForCMake(ProjectExplorer::Kit *k, const QString &in);
+    static QString hostArchitecture ();
+    static bool    compatibleWithHostArchitecture (const QString &targetArch);
 
     static bool          targetExists (const Target& target);
     static QList<Target> listAvailableTargets (const QString &framework=QString());
-    static QPair<int,int> targetVersion (const Target& target);
-    static bool        targetFromPath(const QString& targetPath, Target* tg);
+    static QList<Target> listPossibleDeviceContainers ();
     static const Target *clickTargetFromTarget(ProjectExplorer::Target *t);
     static QString clickChrootSuffix ();
     static QString m_strClickChrootSuffix;
+
+    static ProjectExplorer::ProcessParameters prepareToRunInTarget (ProjectExplorer::Kit *target, const QString &cmd,
+                                                                    const QStringList &args, const QString &wd,
+                                                                    const QMap<QString, QString> &envMap = QMap<QString, QString>() );
 };
 
 QDebug operator<<(QDebug dbg, const UbuntuClickTool::Target& t);
 
-class UbuntuClickFrameworkProvider : public QObject
+class UBUNTUSHARED_EXPORT UbuntuClickFrameworkProvider : public QObject
 {
     Q_OBJECT
 
@@ -109,7 +115,7 @@ public:
     static QStringList getSupportedFrameworks ();
     static QString getMostRecentFramework ( const QString &subFramework);
     static QString getBaseFramework (const QString &framework, QStringList *extensions = 0);
-
+    static bool caseInsensitiveFWLessThan(const QString &s1, const QString &s2);
 signals:
     void frameworksUpdated();
 
@@ -133,8 +139,6 @@ private:
     QTimer                *m_cacheUpdateTimer;
     static UbuntuClickFrameworkProvider *m_instance;
 };
-
-} // namespace Internal
 } // namespace Ubuntu
 
 #endif // UBUNTU_INTERNAL_UBUNTUCLICKTOOL_H

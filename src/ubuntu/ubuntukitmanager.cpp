@@ -1,11 +1,13 @@
 #include "ubuntukitmanager.h"
 #include "clicktoolchain.h"
 #include "ubuntuconstants.h"
-#include "ubuntudevice.h"
+#include <ubuntu/device/remote/ubuntudevice.h>
 #include "ubuntuclickdialog.h"
 #include "ubuntuqtversion.h"
 #include "settings.h"
+#include "device/container/containerdevice.h"
 
+#include <coreplugin/icore.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/toolchain.h>
@@ -27,6 +29,8 @@
 #include <QStandardPaths>
 #include <QFileInfo>
 #include <QDebug>
+#include <QPair>
+#include <QInputDialog>
 
 namespace Ubuntu {
 namespace Internal {
@@ -44,15 +48,31 @@ static bool lessThanToolchain (const ClickToolChain* left, const ClickToolChain*
 {
     const UbuntuClickTool::Target &leftTarget = left->clickTarget();
     const UbuntuClickTool::Target &rightTarget = right->clickTarget();
-
-    if(leftTarget.majorVersion < rightTarget.majorVersion)
-        return true;
-    if(leftTarget.minorVersion < rightTarget.minorVersion)
-        return true;
-
-    return false;
+    return UbuntuClickFrameworkProvider::caseInsensitiveFWLessThan(leftTarget.framework, rightTarget.framework);
 }
 
+
+static void createOrFindDeviceAndType(ProjectExplorer::Kit *k, ClickToolChain *tc)
+{
+    if (UbuntuClickTool::compatibleWithHostArchitecture(tc->clickTarget().architecture)) {
+        Core::Id devId = ContainerDevice::createIdForContainer(tc->clickTarget().containerName);
+        ProjectExplorer::IDevice::ConstPtr ptr
+                = ProjectExplorer::DeviceManager::instance()->find(devId);
+
+        if (!ptr) {
+            ContainerDevice::Ptr dev = ContainerDevice::create(devId, devId);
+            ProjectExplorer::DeviceManager::instance()->addDevice(dev);
+            ptr = dev;
+        }
+
+        ProjectExplorer::DeviceTypeKitInformation::setDeviceTypeId(k,devId);
+        ProjectExplorer::DeviceKitInformation::setDevice(k, ptr);
+    } else {
+        //a Kit that cannot take a Container Device
+        Core::Id devTypeId = Core::Id(Constants::UBUNTU_DEVICE_TYPE_ID).withSuffix(tc->clickTarget().architecture);
+        ProjectExplorer::DeviceTypeKitInformation::setDeviceTypeId(k,devTypeId);
+    }
+}
 UbuntuKitManager::UbuntuKitManager()
 {
 }
@@ -74,11 +94,25 @@ QList<ClickToolChain *> UbuntuKitManager::clickToolChains()
     return toolchains;
 }
 
+QList<ProjectExplorer::Kit *> UbuntuKitManager::findKitsUsingTarget (const UbuntuClickTool::Target &target)
+{
+    auto matcher = [&target](const ProjectExplorer::Kit *k) {
+        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
+        if (!tc)
+            return false;
 
+        if (tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
+            return false;
+
+        ClickToolChain *cTc = static_cast<ClickToolChain *>(tc);
+        return (cTc->clickTarget().containerName == target.containerName);
+    };
+
+    return ProjectExplorer::KitManager::matchingKits(ProjectExplorer::KitMatcher(matcher));
+}
 
 UbuntuQtVersion *UbuntuKitManager::createOrFindQtVersion(ClickToolChain *tc)
 {
-
     QString qmakePath = UbuntuClickTool::findOrCreateQMakeWrapper(tc->clickTarget());
     if(!QFile::exists(qmakePath)) {
         return 0;
@@ -131,7 +165,7 @@ CMakeProjectManager::CMakeTool *UbuntuKitManager::createCMakeTool(const UbuntuCl
     cmake->setDisplayName(tr("Ubuntu SDK cmake (%1-%2-%3)")
                           .arg(target.architecture)
                           .arg(target.framework)
-                          .arg(target.series));
+                          .arg(target.containerName));
     return cmake;
 }
 
@@ -156,7 +190,8 @@ void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
     QList<ClickToolChain*> toolchains = clickToolChains();
 
     auto findCompatibleTc = [&](){
-        ClickToolChain* match = 0;
+        QList<ClickToolChain *> perfectMatches;
+        QList<ClickToolChain *> fuzzyMatches;
         if(toolchains.size() > 0) {
             qSort(toolchains.begin(),toolchains.end(),lessThanToolchain);
 
@@ -167,35 +202,84 @@ void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
                     continue;
 
                 if( tc->targetAbi() == requiredAbi ) {
-                    match = tc;
-                    break;
+                    perfectMatches.append(tc);
+                    continue;
                 }
 
                 //the abi is compatible but not exactly the same
-                //lets continue and see if we find a better candidate
                 if(tc->targetAbi().isCompatibleWith(requiredAbi))
-                    match = tc;
+                    fuzzyMatches.append(tc);
             }
         }
-        return match;
+        return qMakePair(perfectMatches, fuzzyMatches);
     };
 
-    //search a tk with a compatible arch
-    ClickToolChain* match = findCompatibleTc();
-    while(!match) {
-        //create target
-        int choice = QMessageBox::question(Core::ICore::mainWindow(),
-                              tr("No target available"),
-                              tr("There is no compatible chroot available on your system, do you want to create it now?"));
+    ClickToolChain* match = nullptr;
+    while (!match) {
 
-        if(choice == QMessageBox::Yes) {
-            if(!UbuntuClickDialog::createClickChrootModal(false, device->architecture(), device->framework()))
+        //search a tk with a compatible arch
+        QPair<QList<ClickToolChain *>, QList<ClickToolChain *> > matches = findCompatibleTc();
+        QList<ClickToolChain *> perfect = matches.first;
+        QList<ClickToolChain *> fuzzy = matches.second;
+
+        auto getToolchain = [](const QList<ClickToolChain *> &toolchains, bool *ok) {
+            QStringList names;
+            foreach (const ClickToolChain *curr, toolchains) {
+                names.append(curr->displayName());
+            }
+
+            if (names.empty())
+                return static_cast<ClickToolChain *>(nullptr);
+
+            QString selection = QInputDialog::getItem(Core::ICore::mainWindow(), qApp->applicationName(),
+                                                      tr("There are multiple compatible Toolchains available, please select one:"),
+                                                      names, 0, false, ok);
+            if (!ok) {
+                return static_cast<ClickToolChain *>(nullptr);
+            }
+
+            return toolchains.at(names.indexOf(selection));
+        };
+
+        if (perfect.size() > 0) {
+            if (perfect.size() == 1) {
+                match = perfect.first();
+                break;
+            } else {
+                bool ok = true;
+                match = getToolchain(perfect, &ok);
+                if (!ok)
+                    return;
+
+                break;
+            }
+        } else if (fuzzy.size() > 0) {
+            if (fuzzy.size() == 1) {
+                match = fuzzy.first();
+                break;
+            } else {
+                bool ok = true;
+                match = getToolchain(fuzzy, &ok);
+                if (!ok)
+                    return;
+
+                break;
+            }
+        }
+
+        if (!match) {
+            //create target
+            int choice = QMessageBox::question(Core::ICore::mainWindow(),
+                                  tr("No target available"),
+                                  tr("There is no compatible target available on your system, do you want to create it now?"));
+
+            if(choice == QMessageBox::Yes) {
+                if(!UbuntuClickDialog::createClickChrootModal(false, device->architecture(), device->framework()))
+                    return;
+                toolchains = clickToolChains();
+            } else
                 return;
-
-            toolchains = clickToolChains();
-            match = findCompatibleTc();
-        } else
-            return;
+        }
     }
 
     ProjectExplorer::Kit* newKit = createKit(match);
@@ -206,7 +290,7 @@ void UbuntuKitManager::autoCreateKit(UbuntuDevice::Ptr device)
                                         .arg(device->displayName())
                                         .arg(match->clickTarget().architecture)
                                         .arg(match->clickTarget().framework)
-                                        .arg(match->clickTarget().series));
+                                        .arg(match->clickTarget().containerName));
 
         ProjectExplorer::DeviceKitInformation::setDevice(newKit,device);
         ProjectExplorer::KitManager::registerKit(newKit);
@@ -262,10 +346,12 @@ void UbuntuKitManager::autoDetectKits()
             if (equalKits(existingKit, newKit)) {
                 // Kit is already registered, nothing to do
                 ProjectExplorer::Kit *oldKit = existingKits.takeAt(i);
+                oldKit->blockNotification();
                 oldKit->makeSticky();
 
                 //make sure kit has all required informations
                 fixKit(oldKit);
+                oldKit->unblockNotification();
 
                 newKits.removeAt(j);
                 ProjectExplorer::KitManager::deleteKit(newKit);
@@ -279,7 +365,7 @@ void UbuntuKitManager::autoDetectKits()
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
         CMakeProjectManager::CMakeTool* cmake = CMakeProjectManager::CMakeKitInformation::cmakeTool(k);
         if (tc && tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
-                && cmake //&& icmake->id().toString().startsWith(QLatin1String(Constants::UBUNTU_CLICK_CMAKE_TOOL_ID))
+                && cmake
                 && cmake->isValid()) {
             fixKit(k);
 
@@ -295,32 +381,38 @@ void UbuntuKitManager::autoDetectKits()
     foreach (ProjectExplorer::Kit *kit, newKits) {
         ClickToolChain *tc = static_cast<ClickToolChain *>(ProjectExplorer::ToolChainKitInformation::toolChain(kit));
         kit->setUnexpandedDisplayName(tr("UbuntuSDK for %1 (GCC %2-%3)")
+                                      .arg(tc->clickTarget().containerName)
                                       .arg(tc->clickTarget().architecture)
-                                      .arg(tc->clickTarget().framework)
-                                      .arg(tc->clickTarget().series));
+                                      .arg(tc->clickTarget().framework));
         ProjectExplorer::KitManager::registerKit(kit);
         fixKit(kit);
     }
 
-    auto cmakeUpdater = [](const Core::Id &id){
-        CMakeProjectManager::CMakeTool *tool = CMakeProjectManager::CMakeToolManager::findById(id);
-        if (!tool)
-            return;
+    static bool cmakeUpdaterSet = false;
+    if (!cmakeUpdaterSet) {
 
-        QString basePath = Settings::settingsPath().toString();
-        if (tool->cmakeExecutable().toString().startsWith(basePath)) {
-            qDebug()<<"Setting mapper to "<<tool->displayName();
-            tool->setPathMapper(&UbuntuClickTool::mapIncludePathsForCMake);
-        } else {
-            qDebug()<<"Unsetting mapper from "<<tool->displayName();
-            tool->setPathMapper(CMakeProjectManager::CMakeTool::PathMapper());
-        }
-    };
+        cmakeUpdaterSet = true;
 
-    connect(CMakeProjectManager::CMakeToolManager::instance(), &CMakeProjectManager::CMakeToolManager::cmakeAdded,
-            cmakeUpdater);
-    connect(CMakeProjectManager::CMakeToolManager::instance(), &CMakeProjectManager::CMakeToolManager::cmakeRemoved,
-            cmakeUpdater);
+        auto cmakeUpdater = [](const Core::Id &id){
+            CMakeProjectManager::CMakeTool *tool = CMakeProjectManager::CMakeToolManager::findById(id);
+            if (!tool)
+                return;
+
+            QString basePath = Settings::settingsPath().toString();
+            if (tool->cmakeExecutable().toString().startsWith(basePath)) {
+                qDebug()<<"Setting mapper to "<<tool->displayName();
+                tool->setPathMapper(&UbuntuClickTool::mapIncludePathsForCMake);
+            } else {
+                qDebug()<<"Unsetting mapper from "<<tool->displayName();
+                tool->setPathMapper(CMakeProjectManager::CMakeTool::PathMapper());
+            }
+        };
+
+        connect(CMakeProjectManager::CMakeToolManager::instance(), &CMakeProjectManager::CMakeToolManager::cmakeAdded,
+                cmakeUpdater);
+        connect(CMakeProjectManager::CMakeToolManager::instance(), &CMakeProjectManager::CMakeToolManager::cmakeRemoved,
+                cmakeUpdater);
+    }
 }
 
 /*!
@@ -344,14 +436,14 @@ ProjectExplorer::Kit *UbuntuKitManager::createKit(ClickToolChain *tc)
 
     ProjectExplorer::SysRootKitInformation::setSysRoot(newKit,Utils::FileName::fromString(UbuntuClickTool::targetBasePath(tc->clickTarget())));
 
-    //we always want a ubuntu device
-    Core::Id devTypeId = Core::Id(Constants::UBUNTU_DEVICE_TYPE_ID).withSuffix(tc->clickTarget().architecture);
-    ProjectExplorer::DeviceTypeKitInformation::setDeviceTypeId(newKit,devTypeId);
+    createOrFindDeviceAndType(newKit, tc);
 
     //@TODO add gdbserver support
     QtSupport::QtKitInformation::setQtVersion(newKit, createOrFindQtVersion(tc));
     return newKit;
 }
+
+
 
 /*!
  * \brief UbuntuKitManager::createOrFindDebugger
@@ -416,49 +508,49 @@ void UbuntuKitManager::fixKit(ProjectExplorer::Kit *k)
 
     //make sure we point to a ubuntu device
     Core::Id devId = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k);
-    if ( !devId.isValid() ||                                             //invalid type
-         devId == Constants::UBUNTU_DEVICE_TYPE_ID ||                    //Kit uses still the old device type ids
-         !devId.toString().startsWith(QLatin1String(Constants::UBUNTU_DEVICE_TYPE_ID)) //kit has a wrong device type
-         ) {
+    bool devValid        = devId.isValid(); //invalid type
+    bool usesOldDevType  = devId == Constants::UBUNTU_DEVICE_TYPE_ID; //Kit uses still the old device type ids
+    bool hasWrongDevType = devId.toString().startsWith(QLatin1String(Constants::UBUNTU_DEVICE_TYPE_ID)) ||
+            devId.toString().startsWith(QLatin1String(Constants::UBUNTU_CONTAINER_DEVICE_TYPE_ID)); //kit has a wrong device type
 
+    if (usesOldDevType) {
         //if this kit still uses the old type ids, we try to find the correct device by name
-        bool doMigration = (devId == Constants::UBUNTU_DEVICE_TYPE_ID);
 
-        //a old kit with a incorrect device ID, lets set the correct device type id
         Core::Id devTypeId = Core::Id(Constants::UBUNTU_DEVICE_TYPE_ID).withSuffix(tc->clickTarget().architecture);
         ProjectExplorer::DeviceTypeKitInformation::setDeviceTypeId(k,devTypeId);
+        UbuntuDevice::ConstPtr fuzzyMatch;
+        UbuntuDevice::ConstPtr fullMatch;
 
-        if (doMigration) {
-            UbuntuDevice::ConstPtr fuzzyMatch;
-            UbuntuDevice::ConstPtr fullMatch;
+        //lets search for a device
+        ProjectExplorer::DeviceManager *devMgr = ProjectExplorer::DeviceManager::instance();
+        for (int i = 0; i<devMgr->deviceCount(); i++) {
+            ProjectExplorer::IDevice::ConstPtr dev = devMgr->deviceAt(i);
+            if(!dev)
+                continue;
 
-            //lets search for a device
-            ProjectExplorer::DeviceManager *devMgr = ProjectExplorer::DeviceManager::instance();
-            for (int i = 0; i<devMgr->deviceCount(); i++) {
-                ProjectExplorer::IDevice::ConstPtr dev = devMgr->deviceAt(i);
-                if(!dev)
-                    continue;
+            //the type ID also checks if the architecture is correct
+            if(dev->type() != devTypeId)
+                continue;
 
-                //the type ID also checks if the architecture is correct
-                if(dev->type() != devTypeId)
-                    continue;
+            UbuntuDevice::ConstPtr ubuntuDev = qSharedPointerCast<const UbuntuDevice>(dev);
 
-                UbuntuDevice::ConstPtr ubuntuDev = qSharedPointerCast<const UbuntuDevice>(dev);
+            //we found a possible Device!
+            if(!fuzzyMatch)
+                fuzzyMatch = ubuntuDev;
 
-                //we found a possible Device!
-                if(!fuzzyMatch)
-                    fuzzyMatch = ubuntuDev;
-
-                //this is most likely the device that was used with this kit by using the autocreate button
-                QRegularExpression regExp (QStringLiteral("^(%1\\s+\\(.*\\))$").arg(ubuntuDev->displayName()));
-                QRegularExpressionMatch m = regExp.match(ubuntuDev->displayName());
-                if (m.hasMatch()) {
-                    fullMatch = ubuntuDev;
-                    break;
-                }
+            //this is most likely the device that was used with this kit by using the autocreate button
+            QRegularExpression regExp (QStringLiteral("^(%1\\s+\\(.*\\))$").arg(ubuntuDev->displayName()));
+            QRegularExpressionMatch m = regExp.match(ubuntuDev->displayName());
+            if (m.hasMatch()) {
+                fullMatch = ubuntuDev;
+                break;
             }
-            ProjectExplorer::DeviceKitInformation::setDevice(k,!fullMatch.isNull() ? fullMatch : fuzzyMatch);
         }
+        ProjectExplorer::DeviceKitInformation::setDevice(k,!fullMatch.isNull() ? fullMatch : fuzzyMatch);
+    }
+
+    if (!devValid || hasWrongDevType) {
+        createOrFindDeviceAndType(k, tc);
     }
 
     //values the user can change

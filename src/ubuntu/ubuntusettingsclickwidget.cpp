@@ -41,6 +41,9 @@ UbuntuSettingsClickWidget::UbuntuSettingsClickWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    //hide this setting for the moment, as we have no local mirror for lxd images
+    ui->checkBoxLocalMirror->setVisible(false);
+
     Settings::ChrootSettings def = Settings::chrootSettings();
 
     ui->enableUpdateCheckerCheckBox->setChecked(def.autoCheckForUpdates);
@@ -84,7 +87,7 @@ void UbuntuSettingsClickWidget::on_pushButtonCreateClickTarget_clicked()
     //make sure the current settings are stored
     apply();
 
-    Internal::UbuntuClickDialog::createClickChrootModal(true, QString(), QString(), this);
+    Internal::UbuntuClickDialog::createClickChrootModal(true, this);
     listExistingClickTargets();
 }
 
@@ -93,9 +96,9 @@ void UbuntuSettingsClickWidget::on_deleteClickChroot(const int index)
     if(index < 0 || index > m_availableTargets.size())
         return;
 
-    if(debug) qDebug()<<"Destroying chroot "<< m_availableTargets.at(index);
+    if(debug) qDebug()<<"Destroying target "<< m_availableTargets.at(index);
 
-    Internal::UbuntuClickDialog::maintainClickModal(m_availableTargets.at(index),Internal::UbuntuClickTool::Delete);
+    Internal::UbuntuClickDialog::maintainClickModal(m_availableTargets.at(index),UbuntuClickTool::Delete);
     listExistingClickTargets();
 }
 
@@ -103,14 +106,14 @@ void UbuntuSettingsClickWidget::on_maintainClickChroot(const int index)
 {
     if(index < 0 || index > m_availableTargets.size())
         return;
-    Internal::UbuntuClickTool::openChrootTerminal(m_availableTargets.at(index));
+    UbuntuClickTool::openChrootTerminal(m_availableTargets.at(index));
 }
 
 void UbuntuSettingsClickWidget::on_upgradeClickChroot(const int index)
 {
     if(index < 0 || index > m_availableTargets.size())
         return;
-    Internal::UbuntuClickDialog::maintainClickModal(m_availableTargets.at(index),Internal::UbuntuClickTool::Upgrade);
+    Internal::UbuntuClickDialog::maintainClickModal(m_availableTargets.at(index),UbuntuClickTool::Upgrade);
 }
 
 /**
@@ -123,17 +126,17 @@ void UbuntuSettingsClickWidget::listExistingClickTargets()
     //this should hopefully also delete all mapped pushbuttons
     ui->treeWidgetClickTargets->clear();
 
-    QList<Internal::UbuntuClickTool::Target> items = Internal::UbuntuClickTool::listAvailableTargets();
+    QList<UbuntuClickTool::Target> items = UbuntuClickTool::listAvailableTargets();
     m_availableTargets = items;
 
     QAbstractItemModel* model = ui->treeWidgetClickTargets->model();
 
     //fill the treeview with all existing chroots
     for(int i = 0; i < items.size(); i++) {
-        const Internal::UbuntuClickTool::Target& target = items.at(i);
+        const UbuntuClickTool::Target& target = items.at(i);
 
         QTreeWidgetItem* chrootItem = new QTreeWidgetItem;
-        chrootItem->setText(0,target.series);
+        chrootItem->setText(0,target.containerName);
         chrootItem->setText(1,target.framework);
         chrootItem->setText(2,target.architecture);
 

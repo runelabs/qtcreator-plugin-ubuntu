@@ -54,7 +54,7 @@ private:
     QSignalMapper* m_deleteMapper;
     QSignalMapper* m_updateMapper;
     QSignalMapper* m_maintainMapper;
-    QList<Ubuntu::Internal::UbuntuClickTool::Target> m_availableTargets;
+    QList<Ubuntu::UbuntuClickTool::Target> m_availableTargets;
 };
 
 }}

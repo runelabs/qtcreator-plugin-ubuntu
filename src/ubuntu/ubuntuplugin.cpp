@@ -19,22 +19,14 @@
 #include "ubuntuplugin.h"
 #include "ubuntuconstants.h"
 #include "ubuntuprojectmanager.h"
-#include "ubuntulocalrunconfiguration.h"
-#include "ubuntulocalrunconfigurationfactory.h"
-#include "ubunturemoteruncontrolfactory.h"
-#include "ubuntulocalruncontrolfactory.h"
 #include "ubuntuclicktool.h"
 #include "ubuntukitmanager.h"
-#include "ubuntudevicefactory.h"
 #include "clicktoolchain.h"
 #include "ubuntuhtmlbuildconfiguration.h"
-#include "ubunturemotedeployconfiguration.h"
-#include "ubuntulocaldeployconfiguration.h"
 #include "ubuntudevicesmodel.h"
 #include "localportsmanager.h"
 #include "ubuntubzr.h"
 #include "ubuntuqtversion.h"
-#include "ubuntudeploystepfactory.h"
 #include "ubuntuqmlbuildconfiguration.h"
 #include "ubuntueditorfactory.h"
 #include "ubuntucmakecache.h"
@@ -46,6 +38,17 @@
 #include "ubuntusettingsdeviceconnectivitypage.h"
 #include "ubuntusettingsclickpage.h"
 #include "ubuntusettingsprojectdefaultspage.h"
+#include "processoutputdialog.h"
+
+#include <ubuntu/device/container/containerdevicefactory.h>
+#include <ubuntu/device/container/ubuntulocalrunconfigurationfactory.h>
+#include <ubuntu/device/container/ubuntulocalruncontrolfactory.h>
+#include <ubuntu/device/container/ubuntulocaldeployconfiguration.h>
+
+#include <ubuntu/device/remote/ubunturemoteruncontrolfactory.h>
+#include <ubuntu/device/remote/ubuntudevicefactory.h>
+#include <ubuntu/device/remote/ubunturemotedeployconfiguration.h>
+#include <ubuntu/device/remote/ubuntudeploystepfactory.h>
 
 #include "wizards/ubuntuprojectapplicationwizard.h"
 #include "wizards/ubuntufirstrunwizard.h"
@@ -54,6 +57,8 @@
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/taskhub.h>
+#include <projectexplorer/processparameters.h>
 #include <coreplugin/featureprovider.h>
 #include <coreplugin/coreplugin.h>
 #include <utils/mimetypes/mimedatabase.h>
@@ -73,40 +78,26 @@
 #include <QtQml>
 #include <QFile>
 #include <QAction>
-#include <QProcess>
+#include <QMessageBox>
 
 #include <coreplugin/icore.h>
 #include <stdint.h>
 
+
 using namespace Ubuntu;
 using namespace Ubuntu::Internal;
 
+static void criticalError (const QString &err)
+{
+    QMessageBox::critical(Core::ICore::mainWindow(), qApp->applicationName(), err);
+    qCritical("%s", qPrintable(err));
+
+    //the Qt exit loop does not stop so we force it
+    exit(1);
+};
+
 UbuntuPlugin::UbuntuPlugin()
 {
-    if(UbuntuClickTool::clickChrootSuffix() == QLatin1String(Constants::UBUNTU_CLICK_CHROOT_DEFAULT_NAME)) {
-
-        bool started = false;
-#ifdef UBUNTU_BUILD_ROOT
-        Utils::FileName chrootAgent = Utils::FileName::fromString(QStringLiteral(UBUNTU_BUILD_ROOT));
-        chrootAgent.appendPath(QStringLiteral("chroot-agent"))  //append dir
-                .appendPath(QStringLiteral("click-chroot-agent")); //append binary
-
-        if(chrootAgent.toFileInfo().isExecutable()) {
-            started = QProcess::startDetached(chrootAgent.toFileInfo().absoluteFilePath());
-        }
-#endif
-        if(!started) {
-            Utils::FileName agent = Utils::FileName::fromString(QCoreApplication::applicationDirPath())
-                    .appendPath(QStringLiteral("click-chroot-agent"));
-
-            if (agent.toFileInfo().isExecutable()) {
-                QProcess::startDetached(agent.toString());
-            } else {
-                //start the chroot-agent
-                QProcess::startDetached(QStringLiteral("click-chroot-agent"));
-            }
-        }
-    }
 }
 
 UbuntuPlugin::~UbuntuPlugin()
@@ -118,11 +109,33 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
+
     QFont  defaultFont = QGuiApplication::font();
     defaultFont.setFamily(QStringLiteral("Ubuntu"));
     defaultFont.setWeight(QFont::Light);
 
+    if (QStandardPaths::findExecutable(QStringLiteral("lxc")).isEmpty()) {
+        criticalError(tr("\nLxd is not installed properly.\nIt is required for the Ubuntu-SDK-IDE to work."));
+        return false;
+    }
+
+    if (Constants::UBUNTU_CLICK_TARGET_WRAPPER.isEmpty()) {
+        criticalError(tr("\nusdk-wrapper was not found in PATH.\nMake sure ubuntu-sdk-tools is installed!\napt-get install ubuntu-sdk-tools"));
+        return false;
+    }
+
+    if (Constants::UBUNTU_TARGET_TOOL.isEmpty()) {
+        criticalError(tr("\nusdk-target was not found in PATH.\nMake sure ubuntu-sdk-tools is installed!\napt-get install ubuntu-sdk-tools"));
+        return false;
+    }
+
     m_settings.restoreSettings();
+
+    if(!checkContainerSetup()) {
+        if(errorString)
+            *errorString = tr("Initializing the container backend failed");
+        return false;
+    }
 
     qmlRegisterUncreatableType<UbuntuQmlDeviceConnectionState>("Ubuntu.DevicesModel",0,1,"DeviceConnectionState",QStringLiteral("Not instantiable"));
     qmlRegisterUncreatableType<UbuntuQmlDeviceDetectionState>("Ubuntu.DevicesModel",0,1,"DeviceDetectionState",QStringLiteral("Not instantiable"));
@@ -182,6 +195,7 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
     //ubuntu device support
     addAutoReleasedObject(new UbuntuDeviceFactory);
+    addAutoReleasedObject(new ContainerDeviceFactory);
     addAutoReleasedObject(new UbuntuLocalPortsManager);
 
     //deploy support
@@ -256,6 +270,10 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
 void UbuntuPlugin::extensionsInitialized()
 {
+
+    ProjectExplorer::TaskHub::addCategory(Constants::UBUNTU_TASK_CATEGORY_DEVICE,
+                         tr("Ubuntu", "Category for ubuntu device issues listed under 'Issues'"));
+
     if (m_ubuntuMenu) m_ubuntuMenu->initialize();
     m_ubuntuDeviceMode->initialize();
     m_ubuntuPackagingMode->initialize();
@@ -341,4 +359,64 @@ void UbuntuPlugin::migrateProject()
         return;
 
     UbuntuProjectMigrationWizard::doMigrateProject(p,Core::ICore::mainWindow());
+}
+
+bool UbuntuPlugin::checkContainerSetup()
+{
+    QProcess proc;
+    proc.setProgram(Constants::UBUNTU_TARGET_TOOL);
+    proc.setArguments(QStringList{QStringLiteral("initialized")});
+    proc.start();
+    if (!proc.waitForFinished(3000)) {
+        criticalError(tr("The container backend setup detection failed.\nThe detection tool did not return in time.\nPlease try again."));
+    }
+    if (proc.exitStatus() != QProcess::NormalExit) {
+        criticalError(tr("The container backend setup detection failed.\nPlease try again."));
+    }
+
+    int exitCode = proc.exitCode();
+    if (exitCode == 255) {
+        //the tool tells us that we have no access to the LXD server
+        criticalError(tr("The current user can not access the LXD server which is required for the Ubuntu SDK.\nMake sure the user is part of the lxd group and restart the IDE."));
+    }
+
+    if(proc.exitCode() != 0 && Settings::askForContainerSetup()) {
+
+        QString text = tr("The container backend is not completely initialized.\n\n"
+                          "Create default configuration?\n"
+                          "Not setting up the container configuration will\nmake it impossible to run applications locally.\n\n"
+                          "Note: Will override existing LXD configurations."
+                          );
+
+        QMessageBox box(QMessageBox::Question, qApp->applicationName(),text, QMessageBox::Yes | QMessageBox::No | QMessageBox::Abort, Core::ICore::mainWindow());
+        QCheckBox *check = new QCheckBox(&box);
+        check->setText(tr("Do not show again"));
+        check->setChecked(false);
+        box.setCheckBox(check);
+
+        int choice = box.exec();
+        Settings::setAskForContainerSetup(check->checkState() != Qt::Checked);
+        Settings::flushSettings();
+
+        if (choice == QMessageBox::Yes) {
+            QString arguments = Utils::QtcProcess::joinArgs(QStringList{
+                Constants::UBUNTU_TARGET_TOOL,
+                QStringLiteral("autosetup"),
+                QStringLiteral("-y")
+            });
+
+            ProjectExplorer::ProcessParameters params;
+            params.setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
+            params.setEnvironment(Utils::Environment::systemEnvironment());
+            params.setArguments(arguments);
+
+            int res = ProcessOutputDialog::runProcessModal(params, Core::ICore::mainWindow());
+            if (res != 0) {
+                criticalError(tr("Setting up the container backend failed."));
+            }
+        } else if (choice == QMessageBox::Abort) {
+            criticalError(tr("Container backend initialization was cancelled."));
+        }
+    }
+    return true;
 }

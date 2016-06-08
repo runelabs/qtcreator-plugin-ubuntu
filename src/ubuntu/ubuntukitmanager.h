@@ -19,7 +19,7 @@
 #define UBUNTU_INTERNAL_UBUNTUKITMANAGER_H
 
 #include "clicktoolchain.h"
-#include "ubuntudevice.h"
+#include <ubuntu/device/remote/ubuntudevice.h>
 #include <projectexplorer/kit.h>
 
 namespace Debugger{
@@ -47,6 +47,7 @@ public:
     static QVariant createOrFindDebugger(const Utils::FileName &path);
     static void fixKit (ProjectExplorer::Kit* k);
     static QList<ClickToolChain *> clickToolChains();
+    static QList<ProjectExplorer::Kit *> findKitsUsingTarget (const UbuntuClickTool::Target &target);
     static UbuntuQtVersion *createOrFindQtVersion(ClickToolChain* tc);
     static CMakeProjectManager::CMakeTool *createOrFindCMakeTool(ClickToolChain* tc);
     static CMakeProjectManager::CMakeTool *createCMakeTool(ClickToolChain *tc);

@@ -167,8 +167,5 @@ bool UbuntuKitMatcher::matches(const ProjectExplorer::Kit *k)
     if (tc->type() == QLatin1String(Ubuntu::Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
         return true;
 
-    if (ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
-        return true;
-
     return false;
 }

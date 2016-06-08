@@ -36,10 +36,7 @@ enum {
 
 QLatin1String UBUNTU_TARGET_ARCH_KEY = QLatin1String("Ubuntu.ClickToolChain.Target.Arch");
 QLatin1String UBUNTU_TARGET_FRAMEWORK_KEY = QLatin1String("Ubuntu.ClickToolChain.Target.Framework");
-QLatin1String UBUNTU_TARGET_SERIES_KEY = QLatin1String("Ubuntu.ClickToolChain.Target.Series");
-QLatin1String UBUNTU_TARGET_MINOR_KEY = QLatin1String("Ubuntu.ClickToolChain.Target.MinorV");
-QLatin1String UBUNTU_TARGET_MAJOR_KEY = QLatin1String("Ubuntu.ClickToolChain.Target.MajorV");
-
+QLatin1String UBUNTU_TARGET_CONTAINER_KEY = QLatin1String("Ubuntu.ClickToolChain.Target.ContainerName");
 
 const char UBUNTU_CLICK_GCC_WRAPPER[]    = "qtc_chroot_gcc";    //deprecated just for updating
 
@@ -102,7 +99,6 @@ void ClickToolChain::addToEnvironment(Utils::Environment &env) const
     GccToolChain::addToEnvironment(env);
     env.set(QLatin1String("CLICK_SDK_ARCH")     , m_clickTarget.architecture);
     env.set(QLatin1String("CLICK_SDK_FRAMEWORK"), m_clickTarget.framework);
-    env.set(QLatin1String("CLICK_SDK_SERIES")   , m_clickTarget.series);
 }
 
 QString ClickToolChain::makeCommand(const Utils::Environment &) const
@@ -117,7 +113,7 @@ bool ClickToolChain::operator ==(const ProjectExplorer::ToolChain &tc) const
 
     return (m_clickTarget.architecture == m_clickTarget.architecture
             && m_clickTarget.framework == m_clickTarget.framework
-            && m_clickTarget.series == m_clickTarget.series);
+            && m_clickTarget.containerName == m_clickTarget.containerName);
 }
 
 ProjectExplorer::ToolChainConfigWidget *ClickToolChain::configurationWidget()
@@ -148,10 +144,7 @@ QVariantMap ClickToolChain::toMap() const
     QVariantMap map = GccToolChain::toMap();
     map.insert(UBUNTU_TARGET_ARCH_KEY,m_clickTarget.architecture);
     map.insert(UBUNTU_TARGET_FRAMEWORK_KEY,m_clickTarget.framework);
-    map.insert(UBUNTU_TARGET_SERIES_KEY,m_clickTarget.series);
-    map.insert(UBUNTU_TARGET_MAJOR_KEY,m_clickTarget.majorVersion);
-    map.insert(UBUNTU_TARGET_MINOR_KEY,m_clickTarget.minorVersion);
-
+    map.insert(UBUNTU_TARGET_CONTAINER_KEY,m_clickTarget.containerName);
     return map;
 }
 
@@ -188,19 +181,12 @@ bool ClickToolChain::fromMap(const QVariantMap &data)
 
     if(!data.contains(UBUNTU_TARGET_ARCH_KEY)
             || !data.contains(UBUNTU_TARGET_FRAMEWORK_KEY)
-            || !data.contains(UBUNTU_TARGET_SERIES_KEY)
-            || !data.contains(UBUNTU_TARGET_MAJOR_KEY)
-            || !data.contains(UBUNTU_TARGET_MINOR_KEY))
+            || !data.contains(UBUNTU_TARGET_CONTAINER_KEY))
         return false;
 
-    m_clickTarget.architecture = data[UBUNTU_TARGET_ARCH_KEY].toString();
-    m_clickTarget.framework    = data[UBUNTU_TARGET_FRAMEWORK_KEY].toString();
-    m_clickTarget.series       = data[UBUNTU_TARGET_SERIES_KEY].toString();
-    m_clickTarget.majorVersion = data[UBUNTU_TARGET_MAJOR_KEY].toInt();
-    m_clickTarget.minorVersion = data[UBUNTU_TARGET_MINOR_KEY].toInt();
-
-    //only valid click targets are used for Kit creation
-    m_clickTarget.maybeBroken  = false;
+    m_clickTarget.architecture  = data[UBUNTU_TARGET_ARCH_KEY].toString();
+    m_clickTarget.framework     = data[UBUNTU_TARGET_FRAMEWORK_KEY].toString();
+    m_clickTarget.containerName = data[UBUNTU_TARGET_CONTAINER_KEY].toString();
     return isValid();
 }
 
@@ -220,7 +206,7 @@ ClickToolChain::ClickToolChain(const UbuntuClickTool::Target &target, Detection 
     setDisplayName(QString::fromLatin1("Ubuntu GCC (%1-%2-%3)")
                    .arg(ProjectExplorer::Abi::toString(targetAbi().architecture()))
                    .arg(target.framework)
-                   .arg(target.series));
+                   .arg(target.containerName));
 }
 
 ClickToolChain::ClickToolChain(const ClickToolChain &other)
@@ -281,8 +267,7 @@ QList<ProjectExplorer::ToolChain *> ClickToolChainFactory::createToolChainsForCl
     foreach(const UbuntuClickTool::Target &target, targets) {
         if(debug) qDebug()<<"Found Target"<<target;
 
-        if(!clickArchitectures.contains(target.architecture)
-                || target.maybeBroken)
+        if(!clickArchitectures.contains(target.architecture))
             continue;
 
         if(UbuntuClickTool::findOrCreateGccWrapper(target).isEmpty())

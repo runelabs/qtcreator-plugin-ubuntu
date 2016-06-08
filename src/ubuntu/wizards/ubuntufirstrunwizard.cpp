@@ -1,11 +1,11 @@
 #include "ubuntufirstrunwizard.h"
-#include "../ubuntuconstants.h"
-#include "../ubuntukitmanager.h"
-#include "../ubuntuclickdialog.h"
-#include "../clicktoolchain.h"
-#include "../ubuntudevicesmodel.h"
-#include "../ubuntuprocess.h"
-#include "../ubuntudevice.h"
+#include <ubuntu/ubuntuconstants.h>
+#include <ubuntu/ubuntukitmanager.h>
+#include <ubuntu/ubuntuclickdialog.h>
+#include <ubuntu/clicktoolchain.h>
+#include <ubuntu/ubuntudevicesmodel.h>
+#include <ubuntu/ubuntuprocess.h>
+#include <ubuntu/device/remote/ubuntudevice.h>
 
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitinformation.h>
@@ -131,14 +131,11 @@ void UbuntuSetupChrootWizardPage::initializePage()
     bool found = false;
     foreach(ProjectExplorer::Kit *curr, allKits) {
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(curr);
-        const Core::Id devId = ProjectExplorer::DeviceKitInformation::deviceId(curr);
-
         //we just care about Kits with a toolchain and a qt version
         if (!tc || !QtSupport::QtKitInformation::qtVersion(curr))
             continue;
 
-        if (tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID) ||
-                devId == ProjectExplorer::Constants::DESKTOP_DEVICE_ID) {
+        if (tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
             found = true;
 
             QTreeWidgetItem* kitItem = new QTreeWidgetItem;
@@ -162,7 +159,7 @@ bool UbuntuSetupChrootWizardPage::isComplete() const
 
 void UbuntuSetupChrootWizardPage::onCreateKitButtonClicked()
 {
-    UbuntuClickDialog::createClickChrootModal(true,QString(), QString(),this);
+    UbuntuClickDialog::createClickChrootModal(true, this);
     initializePage();
 }
 

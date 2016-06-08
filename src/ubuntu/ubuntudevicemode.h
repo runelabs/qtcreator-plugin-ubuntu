@@ -19,7 +19,7 @@
 #ifndef UBUNTUDEVICEMODE_H
 #define UBUNTUDEVICEMODE_H
 
-#include "ubuntudevice.h"
+#include <ubuntu/device/remote/ubuntudevice.h>
 #include <coreplugin/imode.h>
 
 class QQuickView;

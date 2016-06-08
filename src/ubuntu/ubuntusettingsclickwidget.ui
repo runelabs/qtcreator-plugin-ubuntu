@@ -17,7 +17,7 @@
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Click Build Targets</string>
+      <string>Ubuntu SDK Build Targets</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
@@ -58,7 +58,7 @@
       <item>
        <widget class="QPushButton" name="pushButtonCreateClickTarget">
         <property name="text">
-         <string>Create Click Target</string>
+         <string>Create build target</string>
         </property>
        </widget>
       </item>

@@ -22,7 +22,7 @@
 #include "ubuntudevicemode.h"
 #include "ubuntuproject.h"
 #include "ubuntuclicktool.h"
-#include "ubuntudevice.h"
+#include <ubuntu/device/remote/ubuntudevice.h>
 #include "ubuntuclickmanifest.h"
 
 #include <coreplugin/icore.h>
@@ -687,7 +687,6 @@ void UbuntuMenu::menuItemTriggered() {
                                                       ,QString::fromLatin1(Constants::UBUNTU_CLICK_CLICK_PACKAGE_DIR));
                             command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_CLICK_ARCH),clickTarget.architecture);
                             command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_CLICK_FRAMEWORK),clickTarget.framework);
-                            command = command.replace(QLatin1String(Constants::UBUNTU_ACTION_CLICK_SERIES),clickTarget.series);
 
                             //this is a clicktarget, so we change the builddirectory to the current active buildconfig
                             //directory

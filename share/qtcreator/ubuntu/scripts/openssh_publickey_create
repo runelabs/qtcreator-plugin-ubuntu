@@ -1,0 +1,59 @@
+#!/bin/bash
+# Copyright 2016 Canonical Ltd.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; version 2.1.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Author: Juhapekka Piiroinen <juhapekka.piiroinen@canonical.com>
+# Author: Benjamin Zeller <benjamin.zeller@canonical.com>
+
+if [ -z "$USDK_CONF_DIR" ]; then
+    echo "USDK_CONF_DIR must be set in order for this scripts to work" 
+    exit 1
+else
+    CONFIGDIR=$USDK_CONF_DIR
+fi
+
+SSHIDENTITY=${CONFIGDIR}/ubuntudevice_id_rsa
+
+MIN_KEYLEN="2048"
+
+function check_key {
+    printf "Checking keylen.."
+    KEY_LEN=$(ssh-keygen -l -f $SSHIDENTITY.pub | cut -f1 -d " ")
+    printf "  ${KEY_LEN}\n"
+    if [ "$KEY_LEN" -lt "${MIN_KEYLEN}" ]; then
+        echo "SSH key len ${KEY_LEN} is too weak. Creating a new one"
+        generate_key
+        deploy_key
+    fi
+}
+
+function generate_key {
+    echo "Generating host key.."
+    if [[ -f $SSHIDENTITY ]]; then
+        echo -e  'y\n'|ssh-keygen -t rsa -N '' -f $SSHIDENTITY -b ${MIN_KEYLEN}
+    else
+        ssh-keygen -t rsa -N '' -f $SSHIDENTITY -b ${MIN_KEYLEN}
+    fi
+}
+
+#################
+
+exec {lock_fd}>${CONFIGDIR}/.keylock || exit 1
+flock -x -w 10 "$lock_fd" || { echo "ERROR: flock() failed." >&2; exit 1; }
+
+if [[ -f $SSHIDENTITY ]]; then
+  check_key
+else
+  generate_key
+fi

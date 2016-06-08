@@ -39,6 +39,7 @@
 #include <QJsonObject>
 #include <QJsonParseError>
 #include <QCollator>
+#include <QTextStream>
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
@@ -57,7 +58,6 @@
 #include <QDebug>
 
 namespace Ubuntu {
-namespace Internal {
 
 enum {
     debug = 0
@@ -96,21 +96,71 @@ QString UbuntuClickTool::clickChrootSuffix()
 }
 
 /**
+ * @brief UbuntuClickTool::runToolInTarget
+ * Adjusts the \a paramsIn to run in the \a target
+ */
+ProjectExplorer::ProcessParameters UbuntuClickTool::prepareToRunInTarget(ProjectExplorer::Kit *target, const QString &cmd,
+                                                                         const QStringList &args,
+                                                                         const QString &wd,
+                                                                         const QMap<QString, QString> &envMap)
+{
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target);
+    if (!tc || tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
+        ProjectExplorer::ProcessParameters p;
+        p.setArguments(Utils::QtcProcess::joinArgs(args));
+        p.setCommand(cmd);
+        p.setWorkingDirectory(wd);
+
+        Utils::Environment env = Utils::Environment::systemEnvironment();
+        for (const QString &key : envMap.keys()) {
+            env.set(key, envMap[key]);
+        }
+        p.setEnvironment(env);
+        return p;
+    }
+
+    Internal::ClickToolChain *cTc = static_cast<Internal::ClickToolChain *>(tc);
+    const Target &clickTarget = cTc->clickTarget();
+
+    ProjectExplorer::ProcessParameters paramsOut;
+    paramsOut.setCommand(Constants::UBUNTU_TARGET_TOOL);
+
+    QStringList arguments{
+        QStringLiteral("exec"),
+        clickTarget.containerName,
+        QStringLiteral("--")
+    };
+
+    //@TODO map env vars into the container
+    if (envMap.size()) {
+
+    }
+
+    arguments.append(cmd);
+    arguments.append(args);
+
+    paramsOut.setArguments(Utils::QtcProcess::joinArgs(arguments));
+    paramsOut.setWorkingDirectory(wd);
+
+    paramsOut.setEnvironment(Utils::Environment::systemEnvironment());
+    return paramsOut;
+}
+
+/**
  * @brief UbuntuClickTool::parametersForCreateChroot
  * Initializes a ProjectExplorer::ProcessParameters object with command and arguments
  * to create a new chroot
  */
 void UbuntuClickTool::parametersForCreateChroot(const Target &target, ProjectExplorer::ProcessParameters *params)
 {
-    QString command = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_CREATE_ARGS)
-            .arg(Constants::UBUNTU_SCRIPTPATH)
+    Utils::Environment env = Utils::Environment::systemEnvironment();
+    QString command = QString::fromLatin1(Constants::UBUNTU_CREATE_CLICK_TARGET_ARGS)
+            .arg(env.value(QStringLiteral("USDK_TEST_REMOTE")))
+            .arg(Constants::UBUNTU_TARGET_TOOL)
             .arg(target.architecture)
             .arg(target.framework)
-            .arg(target.series)
-            .arg(clickChrootSuffix());
-
-    if(!Settings::chrootSettings().useLocalMirror)
-        command.prepend(QStringLiteral("env CLICK_NO_LOCAL_MIRROR=1 "));
+            .arg(target.containerName)
+            .arg(target.imageName);
 
     params->setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
     params->setEnvironment(Utils::Environment::systemEnvironment());
@@ -127,21 +177,15 @@ void UbuntuClickTool::parametersForMaintainChroot(const UbuntuClickTool::Maintai
     QString arguments;
     switch (mode) {
         case Upgrade:
-            params->setCommand(QLatin1String(Constants::UBUNTU_CLICK_BINARY));
-            arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_UPGRADE_ARGS)
-                    .arg(target.architecture)
-                    .arg(target.framework)
-                    .arg(target.series)
-                    .arg(clickChrootSuffix());
+            params->setCommand(Constants::UBUNTU_TARGET_TOOL);
+            arguments = QString::fromLatin1(Constants::UBUNTU_UPGRADE_CLICK_TARGET_ARGS)
+                    .arg(target.containerName);
             break;
         case Delete:
             params->setCommand(QLatin1String(Constants::UBUNTU_SUDO_BINARY));
-            arguments = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_DESTROY_ARGS)
-                    .arg(Constants::UBUNTU_SCRIPTPATH)
-                    .arg(target.architecture)
-                    .arg(target.framework)
-                    .arg(target.series)
-                    .arg(clickChrootSuffix());
+            arguments = QString::fromLatin1(Constants::UBUNTU_DESTROY_CLICK_TARGET_ARGS)
+                    .arg(Constants::UBUNTU_TARGET_TOOL)
+                    .arg(target.containerName);
             break;
     }
 
@@ -161,10 +205,8 @@ void UbuntuClickTool::openChrootTerminal(const UbuntuClickTool::Target &target)
     QString     term = args.takeFirst();
 
     args << QString(QLatin1String(Constants::UBUNTU_CLICK_OPEN_TERMINAL))
-            .arg(target.architecture)
-            .arg(target.framework)
-            .arg(target.series)
-            .arg(clickChrootSuffix());
+            .arg(Constants::UBUNTU_TARGET_TOOL)
+            .arg(target.containerName);
 
     if(!QProcess::startDetached(term,args,QDir::homePath())) {
         printToOutputPane(QLatin1String(Constants::UBUNTU_CLICK_OPEN_TERMINAL_ERROR));
@@ -213,11 +255,33 @@ bool UbuntuClickTool::getTargetFromUser(Target *target, const QString &framework
 
 QString UbuntuClickTool::targetBasePath(const UbuntuClickTool::Target &target)
 {
-    return QString::fromLatin1("%1/%2-%3-%4")
-            .arg(QLatin1String(Constants::UBUNTU_CLICK_CHROOT_BASEPATH))
-	    .arg(clickChrootSuffix())
-            .arg(target.framework)
-            .arg(target.architecture);
+    QProcess sdkTool;
+    sdkTool.setReadChannel(QProcess::StandardOutput);
+    sdkTool.setProgram(Constants::UBUNTU_TARGET_TOOL);
+    sdkTool.setArguments(QStringList()<<QStringLiteral("rootfs")<<target.containerName);
+    sdkTool.start(QIODevice::ReadOnly);
+    if (!sdkTool.waitForFinished(3000)
+            || sdkTool.exitCode() != 0
+            || sdkTool.exitStatus() != QProcess::NormalExit)
+        return QString();
+
+    QTextStream in(&sdkTool);
+    return in.readAll().trimmed();
+}
+
+bool UbuntuClickTool::parseContainerName(const QString &name, UbuntuClickTool::Target *target)
+{
+    QStringList ext;
+    target->framework = UbuntuClickFrameworkProvider::getBaseFramework(name, &ext);
+    if (target->framework.isEmpty())
+        return false;
+
+    //ubuntu-sdk-15.04-i386-i386-dev
+    //the architecture of the the container is always the second extension
+    if (ext.isEmpty() || ext.size() != 3)
+        return false;
+    target->architecture = ext[1];
+    return true;
 }
 
 /*!
@@ -226,11 +290,15 @@ QString UbuntuClickTool::targetBasePath(const UbuntuClickTool::Target &target)
  */
 bool UbuntuClickTool::targetExists(const UbuntuClickTool::Target &target)
 {
-    QPair<int,int> targetVer = targetVersion(target);
-    if(targetVer.first == -1)
+    QProcess proc;
+    proc.start(Constants::UBUNTU_TARGET_TOOL,
+               QStringList()<<QStringLiteral("exists")<<target.containerName);
+    if(!proc.waitForFinished(3000)) {
+        qWarning()<<"usdk-target did not return in time.";
         return false;
+    }
 
-    return true;
+    return (proc.exitCode() == 0);
 }
 
 /**
@@ -239,147 +307,76 @@ bool UbuntuClickTool::targetExists(const UbuntuClickTool::Target &target)
  */
 QList<UbuntuClickTool::Target> UbuntuClickTool::listAvailableTargets(const QString &framework)
 {
-    QList<Target> items;
-    QDir chrootDir(QLatin1String(Constants::UBUNTU_CLICK_CHROOT_BASEPATH));
+    QProcess sdkTool;
+    sdkTool.setProgram(Constants::UBUNTU_TARGET_TOOL);
+    sdkTool.setArguments(QStringList()<<QStringLiteral("list"));
+    sdkTool.start(QIODevice::ReadOnly);
+    if (!sdkTool.waitForFinished(3000)
+            || sdkTool.exitCode() != 0
+            || sdkTool.exitStatus() != QProcess::NormalExit)
+        return QList<Target>();
+
+    QJsonParseError err;
+    QJsonDocument doc = QJsonDocument::fromJson(sdkTool.readAllStandardOutput(), &err);
+    if (err.error != QJsonParseError::NoError || !doc.isArray())
+        return QList<Target>();
+
+
     QString filterRegex;
-    filterRegex = QString::fromLatin1(Constants::UBUNTU_CLICK_TARGETS_REGEX).arg(clickChrootSuffix());
-    if(!framework.isEmpty()) {
-        QRegularExpression expr(QLatin1String(Constants::UBUNTU_CLICK_BASE_FRAMEWORK_REGEX));
-        QRegularExpressionMatch match = expr.match(framework);
-        if(match.hasMatch()) {
-            if(debug) qDebug()<<"Filtering for base framework: "<<match.captured(1);
+    if (!framework.isEmpty()) {
+        QString baseFw = UbuntuClickFrameworkProvider::getBaseFramework(framework);
+        if (!baseFw.isEmpty()) {
+            if(debug) qDebug()<<"Filtering for base framework: "<<baseFw;
             filterRegex = QString::fromLatin1(Constants::UBUNTU_CLICK_TARGETS_FRAMEWORK_REGEX)
-                        		     .arg(clickChrootSuffix())
-                                             .arg(match.captured(1));
+                    .arg(clickChrootSuffix())
+                    .arg(baseFw);
         }
     }
 
-    //if the dir does not exist there are no available chroots
-    if(!chrootDir.exists())
-        return items;
+    QList <Target> targets;
+    QVariantList data = doc.toVariant().toList();
+    QRegularExpression frameworkFilter(filterRegex);
+    foreach (const QVariant &target, data) {
+        QVariantMap map = target.toMap();
 
-    QStringList availableChroots = chrootDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot,
-                                                       QDir::Name | QDir::Reversed);
-
-    QRegularExpression clickFilter(filterRegex);
-    //iterate over all chroots and check if they are click chroots
-    foreach (const QString &chroot, availableChroots) {
-        QRegularExpressionMatch match = clickFilter.match(chroot);
-        if(!match.hasMatch()) {
+        if (!map.contains(QStringLiteral("name"))
+                || !map.contains(QStringLiteral("framework"))
+                || !map.contains(QStringLiteral("architecture")))
             continue;
+
+        QString targetFw = map.value(QStringLiteral("framework")).toString();
+
+        if (!filterRegex.isEmpty()) {
+            QRegularExpressionMatch match = frameworkFilter.match(targetFw);
+            if(!match.hasMatch()) {
+                continue;
+            }
         }
 
         Target t;
-        if(!targetFromPath(chroot,&t))
-            continue;
-
-        items.append(t);
+        t.architecture  = map.value(QStringLiteral("architecture")).toString();
+        t.framework     = targetFw;
+        t.containerName = map.value(QStringLiteral("name")).toString();
+        targets.append(t);
     }
-    return items;
+    return targets;
 }
 
-/**
- * @brief UbuntuClickTool::targetVersion
- * Reads the ubuntu version from the lsb-release file
- * @returns a QPair containing the major and minor version information
- */
-QPair<int, int> UbuntuClickTool::targetVersion(const UbuntuClickTool::Target &target)
+QList<UbuntuClickTool::Target> UbuntuClickTool::listPossibleDeviceContainers()
 {
-    QFile f(QString::fromLatin1("%1/%2")
-            .arg(targetBasePath(target))
-            .arg(QLatin1String("etc/lsb-release")));
+    QString arch = hostArchitecture();
+    if (arch.isEmpty())
+        return QList<UbuntuClickTool::Target>();
 
-    if (!f.open(QIODevice::ReadOnly)) {
-        //there is no lsb-release file... what now?
-        return qMakePair(-1,-1);
+    QList<Target> allTargets = listAvailableTargets();
+
+    QList<Target> deviceTargets;
+    foreach(const Target &t, allTargets) {
+        if (t.architecture == arch
+                || (QStringLiteral("amd64") == arch && t.architecture == QStringLiteral("i386")))
+            deviceTargets.append(t);
     }
-
-    QString info = QString::fromLatin1(f.readAll());
-
-    QRegularExpression grep(QLatin1String(Constants::UBUNTU_CLICK_VERSION_REGEX),QRegularExpression::MultilineOption);
-    QRegularExpressionMatch match = grep.match(info);
-
-    if(!match.hasMatch()) {
-        return qMakePair(-1,-1);
-    }
-
-    bool ok = false;
-    int majorV = match.captured(1).toInt(&ok);
-    if(!ok) {
-        return qMakePair(-1,-1);
-    }
-
-    int minorV = match.captured(2).toInt();
-
-    return qMakePair(majorV,minorV);
-}
-
-/*!
- * \brief UbuntuClickTool::targetFromPath
- * returns true if the given path is a click target
- * if it is, \a tg will be initialized with that targets values
- */
-bool UbuntuClickTool::targetFromPath(const QString &targetPath, UbuntuClickTool::Target *tg)
-{
-    QRegularExpression clickFilter(QString::fromLatin1(Constants::UBUNTU_CLICK_TARGETS_REGEX).arg(clickChrootSuffix()));
-    QRegularExpressionMatch match = clickFilter.match(targetPath);
-    if(!match.hasMatch()) {
-        return false;
-    }
-
-    Target t;
-    t.maybeBroken  = false; //we are optimistic
-    t.framework    = match.captured(1);
-    t.architecture = match.captured(2);
-
-    //now read informations about the target
-    QFile f(QString::fromLatin1("%1/%2")
-            .arg(targetBasePath(t))
-            .arg(QLatin1String("/etc/lsb-release")));
-
-    if (!f.open(QIODevice::ReadOnly)) {
-        //there is no lsb-release file... what now?
-        t.maybeBroken = true;
-
-    } else {
-        QString info = QString::fromLatin1(f.readAll());
-
-        //read version
-        QRegularExpression grep(QLatin1String(Constants::UBUNTU_CLICK_VERSION_REGEX),QRegularExpression::MultilineOption);
-        QRegularExpressionMatch match = grep.match(info);
-
-        if(!match.hasMatch()) {
-            t.maybeBroken = true;
-        } else {
-            bool ok = false;
-
-            t.majorVersion = match.captured(1).toInt(&ok);
-            if(!ok) {
-                t.maybeBroken = true;
-                t.majorVersion = -1;
-            }
-
-            t.minorVersion = match.captured(2).toInt(&ok);
-            if(!ok) {
-                t.maybeBroken = true;
-                t.minorVersion = -1;
-            }
-        }
-
-        //read series
-        grep.setPattern(QString::fromLatin1(Constants::UBUNTU_CLICK_SERIES_REGEX));
-        grep.setPatternOptions(QRegularExpression::MultilineOption);
-        match = grep.match(info);
-
-        if(!match.hasMatch()) {
-            t.maybeBroken = true;
-        } else {
-            t.series = match.captured(1);
-        }
-    }
-
-    *tg = t;
-    return true;
+    return deviceTargets;
 }
 
 /*!
@@ -391,20 +388,20 @@ const UbuntuClickTool::Target *UbuntuClickTool::clickTargetFromTarget(ProjectExp
 {
 #ifndef IN_TEST_PROJECT
     if(!t)
-        return 0;
+        return nullptr;
 
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(t->kit());
     if(!tc || (tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)))
-        return 0;
+        return nullptr;
 
-    ClickToolChain *clickTc = static_cast<ClickToolChain*>(tc);
+    Internal::ClickToolChain *clickTc = static_cast<Internal::ClickToolChain*>(tc);
     if(!clickTc)
-        return 0;
+        return nullptr;
 
     return  &clickTc->clickTarget();
 #else
     Q_UNUSED(t);
-    return 0;
+    return nullptr;
 #endif
 }
 
@@ -474,12 +471,37 @@ QString UbuntuClickTool::mapIncludePathsForCMake(ProjectExplorer::Kit *k, const 
     return tmp;
 }
 
+QString UbuntuClickTool::hostArchitecture()
+{
+    static QString hostArch;
+
+    if(!hostArch.isEmpty())
+        return hostArch;
+
+    QProcess proc;
+    proc.setProgram(QStringLiteral("dpkg"));
+    proc.setArguments(QStringList()<<QStringLiteral("--print-architecture"));
+    proc.start(QIODevice::ReadOnly);
+    if (!proc.waitForFinished(3000) || proc.exitCode() != 0 || proc.exitStatus() != QProcess::NormalExit) {
+        qWarning()<<"Could not determine the host architecture";
+        return QString();
+    }
+
+    QTextStream in(&proc);
+    hostArch = in.readAll().simplified();
+    return hostArch;
+}
+
+bool UbuntuClickTool::compatibleWithHostArchitecture(const QString &targetArch)
+{
+    QString arch = hostArchitecture();
+    return (targetArch == arch || (QStringLiteral("amd64") == arch && targetArch == QStringLiteral("i386")));
+}
+
 QString UbuntuClickTool::findOrCreateToolWrapper (const QString &tool, const UbuntuClickTool::Target &target)
 {
-    QString baseDir = Settings::settingsPath()
-            .appendPath(QStringLiteral("%1-%2")
-                        .arg(target.framework)
-                        .arg(target.architecture)).toString();
+    QString baseDir = Internal::Settings::settingsPath()
+            .appendPath(target.containerName).toString();
 
     QDir d(baseDir);
     if(!d.exists()) {
@@ -490,7 +512,7 @@ QString UbuntuClickTool::findOrCreateToolWrapper (const QString &tool, const Ubu
     }
 
     QString toolWrapper = (Utils::FileName::fromString(baseDir).appendPath(tool).toString());
-    QString toolTarget  = QString::fromLatin1(Constants::UBUNTU_CLICK_CHROOT_WRAPPER).arg(Constants::UBUNTU_SCRIPTPATH);
+    QString toolTarget  = Constants::UBUNTU_CLICK_TARGET_WRAPPER;
 
     QFileInfo symlinkInfo(toolWrapper);
 
@@ -510,11 +532,9 @@ QString UbuntuClickTool::findOrCreateToolWrapper (const QString &tool, const Ubu
 
 QDebug operator<<(QDebug dbg, const UbuntuClickTool::Target& t)
 {
-    dbg.nospace() << "("<<"series: "<<t.series<<" "
+    dbg.nospace() << "("<<"container: "<<t.containerName<<" "
                         <<"arch: "<<t.architecture<<" "
                         <<"framework: "<<t.framework<<" "
-                        <<"version: "<<t.majorVersion<<"."<<t.minorVersion<<" "
-                        <<"broken "<<t.maybeBroken
                         <<")";
 
     return dbg.space();
@@ -571,7 +591,7 @@ static FrameworkDesc fwDescFromString (const QString &fw)
 }
 
 
-static bool caseInsensitiveFWLessThan(const QString &s1, const QString &s2)
+bool UbuntuClickFrameworkProvider::caseInsensitiveFWLessThan(const QString &s1, const QString &s2)
 {
 
     FrameworkDesc fwDesc1 = fwDescFromString(s1);
@@ -619,7 +639,7 @@ UbuntuClickFrameworkProvider::UbuntuClickFrameworkProvider()
     Q_ASSERT_X(m_instance == nullptr,Q_FUNC_INFO,"UbuntuClickFrameworkProvider can only be instantiated once");
     m_instance = this;
 
-    m_cacheFilePath = Settings::settingsPath()
+    m_cacheFilePath = Internal::Settings::settingsPath()
             .appendPath(QStringLiteral("framework-cache.json"))
             .toString();
 
@@ -861,6 +881,5 @@ QStringList UbuntuClickFrameworkProvider::parseData(const QByteArray &data) cons
     return result;
 }
 
-} // namespace Internal
 } // namespace Ubuntu
 

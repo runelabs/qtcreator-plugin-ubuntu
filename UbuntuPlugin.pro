@@ -23,14 +23,16 @@ FORMS += \
     src/ubuntu/ubuntusecuritypolicypickerdialog.ui \
     src/ubuntu/ubuntusettingsdeviceconnectivitywidget.ui \
     src/ubuntu/ubuntusettingsclickwidget.ui \
-    src/ubuntu/ubuntuclickdialog.ui \
-    src/ubuntu/ubuntucreatenewchrootdialog.ui \
+    src/ubuntu/processoutputdialog.ui \
     src/ubuntu/ubuntupackagestepconfigwidget.ui \
     src/ubuntu/ubuntumanifesteditor.ui \
     src/ubuntu/ubuntuapparmoreditor.ui \
-    src/ubuntu/ubunturemoterunconfigurationwidget.ui \
     src/ubuntu/targetupgrademanagerdialog.ui \
-    src/ubuntu/ubuntusettingsprojectdefaultspage.ui
+    src/ubuntu/ubuntusettingsprojectdefaultspage.ui \
+    src/ubuntu/wizards/createtargetimagepage.ui \
+    src/ubuntu/wizards/createtargetintropage.ui \
+    src/ubuntu/wizards/createtargetnamepage.ui
+
 
 RESOURCES += \
     src/ubuntu/resources.qrc
@@ -58,7 +60,6 @@ SOURCES += \
     src/ubuntu/ubuntuclickmanifest.cpp \
     src/ubuntu/ubuntudevicemode.cpp \
     src/ubuntu/ubuntuprocess.cpp \
-    src/ubuntu/ubuntudevicenotifier.cpp \
     src/ubuntu/ubuntusecuritypolicypickerdialog.cpp \
     src/ubuntu/ubuntupolicygroupmodel.cpp \
     src/ubuntu/ubuntupolicygroupinfo.cpp \
@@ -67,37 +68,19 @@ SOURCES += \
     src/ubuntu/ubuntusettingsclickpage.cpp \
     src/ubuntu/ubuntusettingsclickwidget.cpp \
     src/ubuntu/ubuntuclicktool.cpp \
-    src/ubuntu/ubuntucreatenewchrootdialog.cpp \
+    src/ubuntu/wizards/createtargetwizard.cpp \
     src/ubuntu/ubuntuclickdialog.cpp \
     src/ubuntu/ubuntuvalidationresultmodel.cpp \
     src/ubuntu/clicktoolchain.cpp \
     src/ubuntu/ubuntukitmanager.cpp \
-    src/ubuntu/ubuntudevicefactory.cpp \
-    src/ubuntu/ubuntudevice.cpp \
-    src/ubuntu/ubunturemoterunconfiguration.cpp \
-    src/ubuntu/ubuntuemulatornotifier.cpp \
     src/ubuntu/localportsmanager.cpp \
-    src/ubuntu/ubuntulocaldeployconfiguration.cpp \
-    src/ubuntu/ubunturemotedeployconfiguration.cpp \
-    src/ubuntu/ubuntulocalrunconfigurationfactory.cpp \
-    src/ubuntu/ubunturemoteruncontrolfactory.cpp \
-    src/ubuntu/ubuntulocalrunconfiguration.cpp \
     src/ubuntu/ubuntudevicesmodel.cpp \
-    src/ubuntu/ubunturemoteruncontrol.cpp \
-    src/ubuntu/ubunturemotedebugsupport.cpp \
-    src/ubuntu/ubunturemoteanalyzesupport.cpp \
-    src/ubuntu/ubuntudevicesignaloperation.cpp \
-    src/ubuntu/ubunturemoterunner.cpp \
-    src/ubuntu/abstractremoterunsupport.cpp\
     src/ubuntu/ubuntushared.cpp \
     src/ubuntu/ubuntupackagestep.cpp \
     src/ubuntu/ubuntuqtversion.cpp \
-    src/ubuntu/ubuntudeploystepfactory.cpp \
-    src/ubuntu/ubuntudirectuploadstep.cpp \
     src/ubuntu/ubuntuhtmlbuildconfiguration.cpp \
     src/ubuntu/ubuntuqmlbuildconfiguration.cpp \
     src/ubuntu/wizards/ubuntufirstrunwizard.cpp \
-    src/ubuntu/ubuntuwaitfordevicedialog.cpp \
     src/ubuntu/ubuntumanifesteditor.cpp \
     src/ubuntu/ubuntumanifesteditorwidget.cpp \
     src/ubuntu/ubuntuabstractguieditorwidget.cpp \
@@ -113,11 +96,18 @@ SOURCES += \
     src/ubuntu/targetupgrademanager.cpp \
     src/ubuntu/ubuntupackagingmodel.cpp \
     src/ubuntu/ubuntufixmanifeststep.cpp \
-    src/ubuntu/wizards/ubuntufatpackagingwizard.cpp \
-    src/ubuntu/ubuntulocalruncontrolfactory.cpp \
-    src/ubuntu/ubuntulocalscopedebugsupport.cpp \
+    src/ubuntu/wizards/ubuntufatpackagingwizard.cpp\
     src/ubuntu/ubuntusettingsprojectdefaultspage.cpp \
-    src/ubuntu/settings.cpp
+    src/ubuntu/settings.cpp \
+    src/ubuntu/device/container/containerdevice.cpp \
+    src/ubuntu/device/container/containerdeviceprocess.cpp \
+    src/ubuntu/device/container/containerdevicefactory.cpp \
+    src/ubuntu/device/container/ubuntulocalruncontrolfactory.cpp \
+    src/ubuntu/device/container/ubuntulocalscopedebugsupport.cpp \
+    src/ubuntu/device/container/ubuntulocaldeployconfiguration.cpp \
+    src/ubuntu/device/container/ubuntulocalrunconfigurationfactory.cpp \
+    src/ubuntu/device/container/ubuntulocalrunconfiguration.cpp \
+    src/ubuntu/processoutputdialog.cpp
 
 HEADERS += \
     src/ubuntu/ubuntuplugin.h \
@@ -139,7 +129,6 @@ HEADERS += \
     src/ubuntu/ubuntuclickmanifest.h \
     src/ubuntu/ubuntudevicemode.h \
     src/ubuntu/ubuntuprocess.h \
-    src/ubuntu/ubuntudevicenotifier.h \
     src/ubuntu/ubuntusecuritypolicypickerdialog.h \
     src/ubuntu/ubuntupolicygroupmodel.h \
     src/ubuntu/ubuntupolicygroupinfo.h \
@@ -148,36 +137,18 @@ HEADERS += \
     src/ubuntu/ubuntusettingsclickpage.h \
     src/ubuntu/ubuntusettingsclickwidget.h \
     src/ubuntu/ubuntuclicktool.h \
-    src/ubuntu/ubuntucreatenewchrootdialog.h \
+    src/ubuntu/wizards/createtargetwizard.h \
     src/ubuntu/ubuntuclickdialog.h \
     src/ubuntu/ubuntuvalidationresultmodel.h \
     src/ubuntu/clicktoolchain.h \
     src/ubuntu/ubuntukitmanager.h \
-    src/ubuntu/ubuntudevicefactory.h \
-    src/ubuntu/ubuntudevice.h \
-    src/ubuntu/ubunturemoterunconfiguration.h \
-    src/ubuntu/ubuntuemulatornotifier.h \
     src/ubuntu/localportsmanager.h \
-    src/ubuntu/ubuntulocaldeployconfiguration.h \
-    src/ubuntu/ubunturemotedeployconfiguration.h \
-    src/ubuntu/ubuntulocalrunconfigurationfactory.h \
-    src/ubuntu/ubunturemoteruncontrolfactory.h \
-    src/ubuntu/ubuntulocalrunconfiguration.h \
     src/ubuntu/ubuntudevicesmodel.h \
-    src/ubuntu/ubunturemoteruncontrol.h \
-    src/ubuntu/ubunturemotedebugsupport.h \
-    src/ubuntu/ubunturemoteanalyzesupport.h \
-    src/ubuntu/ubuntudevicesignaloperation.h \
-    src/ubuntu/ubunturemoterunner.h \
-    src/ubuntu/abstractremoterunsupport.h \
     src/ubuntu/ubuntupackagestep.h \
     src/ubuntu/ubuntuqtversion.h \
-    src/ubuntu/ubuntudeploystepfactory.h \
-    src/ubuntu/ubuntudirectuploadstep.h \
     src/ubuntu/ubuntuhtmlbuildconfiguration.h \
     src/ubuntu/ubuntuqmlbuildconfiguration.h \
     src/ubuntu/wizards/ubuntufirstrunwizard.h \
-    src/ubuntu/ubuntuwaitfordevicedialog.h \
     src/ubuntu/ubuntumanifesteditor.h \
     src/ubuntu/ubuntumanifesteditorwidget.h \
     src/ubuntu/ubuntuabstractguieditorwidget.h \
@@ -195,16 +166,58 @@ HEADERS += \
     src/ubuntu/ubuntupackagingmodel.h \
     src/ubuntu/ubuntufixmanifeststep.h \
     src/ubuntu/wizards/ubuntufatpackagingwizard.h \
-    src/ubuntu/ubuntulocalruncontrolfactory.h \
-    src/ubuntu/ubuntulocalscopedebugsupport.h\
     src/ubuntu/ubuntusettingsprojectdefaultspage.h \
-    src/ubuntu/settings.h
+    src/ubuntu/settings.h \
+    src/ubuntu/device/container/containerdevice.h \
+    src/ubuntu/device/container/containerdeviceprocess.h \
+    src/ubuntu/device/container/containerdevice_p.h \
+    src/ubuntu/device/container/containerdevicefactory.h \
+    src/ubuntu/device/container/ubuntulocalruncontrolfactory.h \
+    src/ubuntu/device/container/ubuntulocalscopedebugsupport.h \
+    src/ubuntu/device/container/ubuntulocaldeployconfiguration.h \
+    src/ubuntu/device/container/ubuntulocalrunconfigurationfactory.h \
+    src/ubuntu/device/container/ubuntulocalrunconfiguration.h \
+    src/ubuntu/processoutputdialog.h
 
-INCLUDEPATH+=$$OUT_PWD
+#remote device support
+SOURCES += \
+    src/ubuntu/device/remote/abstractremoterunsupport.cpp\
+    src/ubuntu/device/remote/ubuntudevicefactory.cpp \
+    src/ubuntu/device/remote/ubuntudevice.cpp \
+    src/ubuntu/device/remote/ubuntudevicenotifier.cpp \
+    src/ubuntu/device/remote/ubuntuemulatornotifier.cpp \
+    src/ubuntu/device/remote/ubuntudevicesignaloperation.cpp \
+    src/ubuntu/device/remote/ubunturemoterunconfiguration.cpp \
+    src/ubuntu/device/remote/ubunturemotedeployconfiguration.cpp \
+    src/ubuntu/device/remote/ubunturemoteruncontrolfactory.cpp \
+    src/ubuntu/device/remote/ubunturemoteruncontrol.cpp \
+    src/ubuntu/device/remote/ubunturemotedebugsupport.cpp \
+    src/ubuntu/device/remote/ubunturemoteanalyzesupport.cpp \
+    src/ubuntu/device/remote/ubunturemoterunner.cpp \
+    src/ubuntu/device/remote/ubuntuwaitfordevicedialog.cpp \
+    src/ubuntu/device/remote/ubuntudirectuploadstep.cpp \
+    src/ubuntu/device/remote/ubuntudeploystepfactory.cpp
 
-xml_desc.target=com.ubuntu.sdk.ClickChrootAgent.xml
-xml_desc.commands=$$[QT_INSTALL_BINS]/qdbuscpp2xml -o $$xml_desc.target $$PWD/chroot-agent/chrootagent.h
-xml_desc.depends=$$PWD/chroot-agent/chrootagent.h
-QMAKE_EXTRA_TARGETS+=xml_desc
+HEADERS +=  \
+    src/ubuntu/device/remote/abstractremoterunsupport.h \
+    src/ubuntu/device/remote/ubuntudevicefactory.h \
+    src/ubuntu/device/remote/ubuntudevice.h \
+    src/ubuntu/device/remote/ubuntudevicesignaloperation.h \
+    src/ubuntu/device/remote/ubuntudevicenotifier.h \
+    src/ubuntu/device/remote/ubuntuemulatornotifier.h \
+    src/ubuntu/device/remote/ubunturemoterunconfiguration.h \
+    src/ubuntu/device/remote/ubunturemotedeployconfiguration.h \
+    src/ubuntu/device/remote/ubunturemoteruncontrolfactory.h \
+    src/ubuntu/device/remote/ubunturemoteruncontrol.h \
+    src/ubuntu/device/remote/ubunturemotedebugsupport.h \
+    src/ubuntu/device/remote/ubunturemoteanalyzesupport.h \
+    src/ubuntu/device/remote/ubunturemoterunner.h \
+    src/ubuntu/device/remote/ubuntuwaitfordevicedialog.h \
+    src/ubuntu/device/remote/ubuntudirectuploadstep.h \
+    src/ubuntu/device/remote/ubuntudeploystepfactory.h
 
-DBUS_INTERFACES += $$xml_desc.target
+FORMS += \
+    src/ubuntu/device/remote/ubunturemoterunconfigurationwidget.ui \
+
+INCLUDEPATH += $$OUT_PWD \
+               $$PWD/src
