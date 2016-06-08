@@ -383,7 +383,7 @@ bool UbuntuPlugin::checkContainerSetup()
 
         proc.setArguments(args);
         proc.start();
-        if (!proc.waitForFinished(6000)) {
+        if (!proc.waitForFinished()) {
             criticalError(tr("The container backend setup detection failed.\nThe detection tool did not return in time.\nPlease try again."));
         }
         if (proc.exitStatus() != QProcess::NormalExit) {
