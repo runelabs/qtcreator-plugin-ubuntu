@@ -49,11 +49,13 @@ UbuntuValidationResultModel::~UbuntuValidationResultModel()
 
 void UbuntuValidationResultModel::clear()
 {
-    beginRemoveRows(QModelIndex(),0,m_rootItem->children.size()-1);
-    delete m_rootItem;
-    m_rootItem = new ClickRunChecksParser::DataItem();
-    m_rootItem->type = QLatin1String("RootItem");
-    endRemoveRows();
+    if (m_rootItem->children.size()) {
+        beginRemoveRows(QModelIndex(),0,m_rootItem->children.size()-1);
+        delete m_rootItem;
+        m_rootItem = new ClickRunChecksParser::DataItem();
+        m_rootItem->type = QLatin1String("RootItem");
+        endRemoveRows();
+    }
 }
 
 QModelIndex UbuntuValidationResultModel::index(int row, int column, const QModelIndex &parent) const
