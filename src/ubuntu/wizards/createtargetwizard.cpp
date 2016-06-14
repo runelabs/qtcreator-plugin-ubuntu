@@ -210,7 +210,7 @@ void CreateTargetImagePage::setFilter(const QString &arch, const QString &framew
     if(!arch.isEmpty())
         archFilter = arch;
 
-    m_filter = QString::fromLatin1("^%1-%2").arg(fwFilter).arg(archFilter);
+    m_filter = QString::fromLatin1("^%1-(.*)-%2-(dev|ota[0-9]+)$").arg(fwFilter).arg(archFilter);
     load();
 }
 
