@@ -1,0 +1,6 @@
+#!/bin/bash
+
+pacmd list-modules | grep protocol-tcp &> /dev/null
+if [ $? -ne 0 ]; then
+	pacmd load-module module-native-protocol-tcp
+fi
