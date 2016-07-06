@@ -45,6 +45,7 @@ protected slots:
     void on_deleteClickChroot (const int index);
     void on_maintainClickChroot (const int index);
     void on_upgradeClickChroot (const int index);
+    void on_toggleTargetUpgradeEnabled (const int index);
 
 private:
     void listExistingClickTargets ();
@@ -54,6 +55,7 @@ private:
     QSignalMapper* m_deleteMapper;
     QSignalMapper* m_updateMapper;
     QSignalMapper* m_maintainMapper;
+    QSignalMapper* m_toggleUpgradeMapper;
     QList<Ubuntu::UbuntuClickTool::Target> m_availableTargets;
 };
 

@@ -48,6 +48,9 @@ void TargetUpgradeManager::checkForUpgrades()
         m_state = CollectPendingUpdates;
         m_outdatedChroots.clear();
         foreach(const UbuntuClickTool::Target &buildTarget, UbuntuClickTool::listAvailableTargets()) {
+            if (!buildTarget.upgradesEnabled)
+                continue;
+
             QPointer<QProcess> proc(new QProcess(this));
             connect(proc.data(),SIGNAL(finished(int)),this,SLOT(processFinished()));
 

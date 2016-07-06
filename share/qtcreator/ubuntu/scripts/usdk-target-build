@@ -88,7 +88,14 @@ extra_packages = {
 runtime_packages = [
     "unity-scope-tool",
     "ssh",
-    "gdbserver"
+    "gdbserver",
+    "pulseaudio",
+    "gstreamer1.0-pulseaudio",
+    "gstreamer1.0-plugins-good",
+    "gstreamer0.10-pulseaudio",
+    "gstreamer0.10-plugins-good",
+    "qml-module-ubuntu-connectivity",
+    "webapp-container"
 ]
 
 metadata_template = """\
@@ -548,6 +555,14 @@ class ClickChroot:
                 for i in $(dpkg-architecture -a {target_arch} 2>/dev/null); \
                     do echo "export $i" >> /etc/profile.d/clickvars.sh ; \
                 done
+                echo "if [ ! -z \\"\\${{SSH_CONNECTION}}\\" ]; then" >> /etc/profile.d/clickvars.sh ;
+                echo "    IP=(\\$SSH_CONNECTION)" >> /etc/profile.d/clickvars.sh ;
+                echo "    export PULSE_SERVER=\\${{IP[0]}}" >> /etc/profile.d/clickvars.sh ;
+                echo "fi" >> /etc/profile.d/clickvars.sh ;
+                # enable pulsed streaming
+                if [ -e "/etc/pulse/default.pa" ]; then
+                    sed "s/^#load-module module-native-protocol-tcp$/load-module module-native-protocol-tcp/g" -i /etc/pulse/default.pa
+                fi
                 # Clean up
                 rm /finish.sh
                 apt-get clean

@@ -21,7 +21,6 @@
 #include "ubuntumenu.h"
 #include "ubuntuclicktool.h"
 #include "ubuntuvalidationresultmodel.h"
-#include <ubuntu/device/remote/ubuntudevice.h>
 #include "ubuntupackagestep.h"
 #include "ubuntushared.h"
 #include "ubuntucmakecache.h"
@@ -29,6 +28,9 @@
 #include "ubuntufixmanifeststep.h"
 #include "wizards/ubuntufatpackagingwizard.h"
 #include "clicktoolchain.h"
+#include "ubuntuproject.h"
+
+#include <ubuntu/device/remote/ubuntudevice.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
@@ -522,7 +524,8 @@ void UbuntuPackagingModel::buildClickPackage()
         if(!k)
             return;
 
-        if(!ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k).toString().startsWith(QLatin1String(Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID))) {
+        UbuntuKitMatcher m;
+        if (!m.matches(k)) {
             QMessageBox::warning(Core::ICore::mainWindow(),tr("Wrong kit type"),tr("It is not supported to create click packages for a non UbuntuSDK target"));
             return;
         }

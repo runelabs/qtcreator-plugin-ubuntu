@@ -63,7 +63,10 @@ public:
         QString framework;
         QString architecture;
         QString containerName;
-        QString imageName; //only set for container creation
+        bool upgradesEnabled = false;
+
+        //only set for container creation
+        QString imageName;
     };
 
     UbuntuClickTool();
@@ -90,6 +93,7 @@ public:
     static QList<Target> listAvailableTargets (const QString &framework=QString());
     static QList<Target> listPossibleDeviceContainers ();
     static const Target *clickTargetFromTarget(ProjectExplorer::Target *t);
+    static bool          setTargetUpgradesEnabled (const Target& target, const bool set = true);
     static QString clickChrootSuffix ();
     static QString m_strClickChrootSuffix;
 
