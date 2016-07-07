@@ -470,5 +470,21 @@ bool UbuntuPlugin::checkContainerSetup()
                 break;
         }
     }
+
+    QProcess proc;
+    proc.setProgram(QString::fromLatin1("%0/qtc_initialize_sound").arg(Constants::UBUNTU_SCRIPTPATH));
+    proc.start();
+    if (!proc.waitForFinished()) {
+        QMessageBox::warning(Core::ICore::mainWindow(),
+                              qApp->applicationName(),
+                              tr("Initializing the sound backend did time out.\nPlaying sound from containers may not work."));
+    }
+    if (proc.exitStatus() != QProcess::NormalExit || proc.exitCode() != 0) {
+        QMessageBox::warning(Core::ICore::mainWindow(),
+                              qApp->applicationName(),
+                              tr("Initializing the sound backend failed.\nPlaying sound from containers may not work."));
+    }
+
+
     return true;
 }

@@ -1,7 +1,8 @@
 #include "ubuntufatpackagingwizard.h"
-#include "../ubuntuclicktool.h"
-#include "../ubuntuconstants.h"
-#include "../clicktoolchain.h"
+#include <ubuntu/ubuntuclicktool.h>
+#include <ubuntu/ubuntuconstants.h>
+#include <ubuntu/clicktoolchain.h>
+#include <ubuntu/ubuntuproject.h>
 
 #include <utils/pathchooser.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -166,13 +167,14 @@ void UbuntuChooseTargetPage::initializePage()
     m_suspects.clear();
     m_targetView->clear();
 
+    UbuntuKitMatcher m;
     foreach(ProjectExplorer::Target *t , m_project->targets()) {
 
         ProjectExplorer::Kit* k = t->kit();
         if(!k)
             continue;
 
-        if(!ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k).toString().startsWith(QLatin1String(Ubuntu::Constants::UBUNTU_DEVICE_TYPE_ID)))
+        if (!m.matches(k))
             continue;
 
         foreach(ProjectExplorer::BuildConfiguration *b, t->buildConfigurations()) {

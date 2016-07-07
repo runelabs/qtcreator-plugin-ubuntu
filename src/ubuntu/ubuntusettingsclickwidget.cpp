@@ -27,6 +27,7 @@
 #include <QDir>
 #include <QRegExp>
 #include <QTreeWidgetItem>
+#include <QCheckBox>
 #include <QDebug>
 
 enum {
@@ -55,9 +56,11 @@ UbuntuSettingsClickWidget::UbuntuSettingsClickWidget(QWidget *parent) :
     connect(m_maintainMapper, SIGNAL(mapped(int)),this, SLOT(on_maintainClickChroot(int)));
     m_updateMapper = new QSignalMapper(this);
     connect(m_updateMapper, SIGNAL(mapped(int)),this, SLOT(on_upgradeClickChroot(int)));
+    m_toggleUpgradeMapper = new QSignalMapper(this);
+    connect(m_toggleUpgradeMapper, SIGNAL(mapped(int)),this, SLOT(on_toggleTargetUpgradeEnabled(int)));
 
     QStringList headers;
-    headers << tr("Series")<< tr("Framework") << tr("Architecture")<<QLatin1String("")<<QLatin1String("")<<QLatin1String("");
+    headers << tr("Series")<< tr("Framework") << tr("Architecture")<< tr("Autoupgrade") << QLatin1String("")<<QLatin1String("")<<QLatin1String("");
     ui->treeWidgetClickTargets->setHeaderLabels(headers);
     ui->treeWidgetClickTargets->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->treeWidgetClickTargets->header()->setSectionResizeMode(1, QHeaderView::Stretch);
@@ -65,6 +68,7 @@ UbuntuSettingsClickWidget::UbuntuSettingsClickWidget(QWidget *parent) :
     ui->treeWidgetClickTargets->header()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
     ui->treeWidgetClickTargets->header()->setSectionResizeMode(4, QHeaderView::ResizeToContents);
     ui->treeWidgetClickTargets->header()->setSectionResizeMode(5, QHeaderView::ResizeToContents);
+    ui->treeWidgetClickTargets->header()->setSectionResizeMode(6, QHeaderView::ResizeToContents);
     listExistingClickTargets();
 }
 
@@ -116,6 +120,19 @@ void UbuntuSettingsClickWidget::on_upgradeClickChroot(const int index)
     Internal::UbuntuClickDialog::maintainClickModal(m_availableTargets.at(index),UbuntuClickTool::Upgrade);
 }
 
+void UbuntuSettingsClickWidget::on_toggleTargetUpgradeEnabled(const int index)
+{
+    if(index < 0 || index > m_availableTargets.size())
+        return;
+
+    QCheckBox *c = qobject_cast<QCheckBox *>(m_toggleUpgradeMapper->mapping(index));
+    if(!c)
+        return;
+
+    UbuntuClickTool::setTargetUpgradesEnabled(m_availableTargets.at(index), c->checkState()==Qt::Checked);
+    listExistingClickTargets();
+}
+
 /**
  * @brief UbuntuSettingsClickWidget::listExistingClickTargets
  * Lists all existing click targets in /var/lib/schroot/chroots
@@ -139,23 +156,28 @@ void UbuntuSettingsClickWidget::listExistingClickTargets()
         chrootItem->setText(0,target.containerName);
         chrootItem->setText(1,target.framework);
         chrootItem->setText(2,target.architecture);
-
         ui->treeWidgetClickTargets->addTopLevelItem(chrootItem);
+
+        QCheckBox* box = new QCheckBox();
+        m_toggleUpgradeMapper->setMapping(box,i);
+        box->setChecked(target.upgradesEnabled);
+        connect(box, SIGNAL(stateChanged(int)), m_toggleUpgradeMapper, SLOT(map()));
+        ui->treeWidgetClickTargets->setIndexWidget(model->index(i,3), box);
 
         QPushButton* push = new QPushButton(tr("Update"));
         m_updateMapper->setMapping(push,i);
         connect(push,SIGNAL(clicked()),m_updateMapper,SLOT(map()));
-        ui->treeWidgetClickTargets->setIndexWidget(model->index(i,3), push);
+        ui->treeWidgetClickTargets->setIndexWidget(model->index(i,4), push);
 
         push = new QPushButton(tr("Maintain"));
         m_maintainMapper->setMapping(push,i);
         connect(push,SIGNAL(clicked()),m_maintainMapper,SLOT(map()));
-        ui->treeWidgetClickTargets->setIndexWidget(model->index(i,4), push);
+        ui->treeWidgetClickTargets->setIndexWidget(model->index(i,5), push);
 
         push = new QPushButton(tr("Delete"));
         m_deleteMapper->setMapping(push,i);
         connect(push,SIGNAL(clicked()),m_deleteMapper,SLOT(map()));
-        ui->treeWidgetClickTargets->setIndexWidget(model->index(i,5), push);
+        ui->treeWidgetClickTargets->setIndexWidget(model->index(i,6), push);
     }
 }
 

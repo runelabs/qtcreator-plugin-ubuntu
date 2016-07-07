@@ -157,8 +157,6 @@ void UbuntuClickTool::parametersForCreateChroot(const Target &target, ProjectExp
     QString command = QString::fromLatin1(Constants::UBUNTU_CREATE_CLICK_TARGET_ARGS)
             .arg(env.value(QStringLiteral("USDK_TEST_REMOTE")))
             .arg(Constants::UBUNTU_TARGET_TOOL)
-            .arg(target.architecture)
-            .arg(target.framework)
             .arg(target.containerName)
             .arg(target.imageName);
 
@@ -357,6 +355,7 @@ QList<UbuntuClickTool::Target> UbuntuClickTool::listAvailableTargets(const QStri
         t.architecture  = map.value(QStringLiteral("architecture")).toString();
         t.framework     = targetFw;
         t.containerName = map.value(QStringLiteral("name")).toString();
+        t.upgradesEnabled = map.value(QStringLiteral("updatesEnabled"),false).toBool();
         targets.append(t);
     }
     return targets;
@@ -403,6 +402,23 @@ const UbuntuClickTool::Target *UbuntuClickTool::clickTargetFromTarget(ProjectExp
     Q_UNUSED(t);
     return nullptr;
 #endif
+}
+
+bool UbuntuClickTool::setTargetUpgradesEnabled(const Target &target, const bool set)
+{
+    QProcess sdkTool;
+    sdkTool.setProgram(Constants::UBUNTU_TARGET_TOOL);
+    sdkTool.setArguments(QStringList{
+        QStringLiteral("set"),
+        target.containerName,
+        set ? QStringLiteral("upgrades-enabled") : QStringLiteral("upgrades-disabled")
+    });
+    sdkTool.start(QIODevice::ReadOnly);
+    if (!sdkTool.waitForFinished(3000)
+            || sdkTool.exitCode() != 0
+            || sdkTool.exitStatus() != QProcess::NormalExit)
+        return false;
+    return true;
 }
 
 QString UbuntuClickTool::findOrCreateGccWrapper (const UbuntuClickTool::Target &target)
