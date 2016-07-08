@@ -526,7 +526,7 @@ class ClickChroot:
                 # Pull down signature requirements
                 apt-get -y --force-yes install gnupg ubuntu-keyring
             """).format(target_arch=self.target_arch))
-            if self.series == "vivid":
+            if self.series == "vivid" or self.series == "xenial":
                 finish.write(dedent("""\
                     apt-get -y --force-yes install software-properties-common
                     add-apt-repository -y ppa:{ppa}
