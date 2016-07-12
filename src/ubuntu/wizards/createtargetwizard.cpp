@@ -323,11 +323,12 @@ void CreateTargetImagePage::loaderFinished()
             continue;
 
         UbuntuClickTool::Target target;
-        if (!UbuntuClickTool::parseContainerName(alias, &target))
+        QStringList extensions;
+        if (!UbuntuClickTool::parseContainerName(alias, &target, &extensions))
             continue;
 
         QTreeWidgetItem *item = new QTreeWidgetItem;
-        item->setText(0,target.framework);
+        item->setText(0,target.framework+QStringLiteral("-")+extensions.last());
         item->setData(0, Qt::UserRole, m.value(QStringLiteral("fingerprint"), QStringLiteral("error")));
         item->setData(0, Qt::UserRole+1, alias);
 

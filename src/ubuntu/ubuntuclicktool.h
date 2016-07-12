@@ -77,7 +77,7 @@ public:
     static void openChrootTerminal (const Target& target);
 
     static QString targetBasePath (const Target& target);
-    static bool parseContainerName (const QString &name, Target *target);
+    static bool parseContainerName (const QString &name, Target *target, QStringList *allExt = 0);
     static bool getTargetFromUser (Target* target, const QString &framework=QString());
     static QStringList getSupportedFrameworks (const Target *target);
     static QString getMostRecentFramework ( const QString &subFramework, const Target *target );
