@@ -105,7 +105,7 @@ ProjectExplorer::ProcessParameters UbuntuClickTool::prepareToRunInTarget(Project
                                                                          const QMap<QString, QString> &envMap)
 {
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target);
-    if (!tc || tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
+    if (!tc || tc->typeId() != Constants::UBUNTU_CLICK_TOOLCHAIN_ID) {
         ProjectExplorer::ProcessParameters p;
         p.setArguments(Utils::QtcProcess::joinArgs(args));
         p.setCommand(cmd);
@@ -292,9 +292,14 @@ bool UbuntuClickTool::parseContainerName(const QString &name, UbuntuClickTool::T
  */
 bool UbuntuClickTool::targetExists(const UbuntuClickTool::Target &target)
 {
+    return targetExists(target.containerName);
+}
+
+bool UbuntuClickTool::targetExists(const QString &targetName)
+{
     QProcess proc;
     proc.start(Constants::UBUNTU_TARGET_TOOL,
-               QStringList()<<QStringLiteral("exists")<<target.containerName);
+               QStringList()<<QStringLiteral("exists")<<targetName);
     if(!proc.waitForFinished(3000)) {
         qWarning()<<"usdk-target did not return in time.";
         return false;
@@ -394,7 +399,7 @@ const UbuntuClickTool::Target *UbuntuClickTool::clickTargetFromTarget(ProjectExp
         return nullptr;
 
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(t->kit());
-    if(!tc || (tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)))
+    if(!tc || (tc->typeId() != Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
         return nullptr;
 
     Internal::ClickToolChain *clickTc = static_cast<Internal::ClickToolChain*>(tc);
@@ -460,13 +465,13 @@ QString UbuntuClickTool::findOrCreateMakeWrapper (const UbuntuClickTool::Target 
     return UbuntuClickTool::findOrCreateToolWrapper(QStringLiteral("make"),target);
 }
 
-QString UbuntuClickTool::mapIncludePathsForCMake(ProjectExplorer::Kit *k, const QString &in)
+QString UbuntuClickTool::mapIncludePathsForCMake(const ProjectExplorer::Kit *k, const QString &in)
 {
     if (in.isEmpty())
         return in;
 
     bool canMap = ProjectExplorer::ToolChainKitInformation::toolChain(k)
-            && ProjectExplorer::ToolChainKitInformation::toolChain(k)->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
+            && ProjectExplorer::ToolChainKitInformation::toolChain(k)->typeId() == Constants::UBUNTU_CLICK_TOOLCHAIN_ID
             && !ProjectExplorer::SysRootKitInformation::sysRoot(k).isEmpty();
 
     if (!canMap)

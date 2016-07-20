@@ -11,7 +11,7 @@ class UbuntuManifestEditorFactory : public Core::IEditorFactory
     Q_OBJECT
 public:
     explicit UbuntuManifestEditorFactory();
-    Core::IEditor *createEditor();
+    Core::IEditor *createEditor() override;
 };
 
 class UbuntuApparmorEditorFactory : public Core::IEditorFactory
@@ -19,7 +19,7 @@ class UbuntuApparmorEditorFactory : public Core::IEditorFactory
     Q_OBJECT
 public:
     explicit UbuntuApparmorEditorFactory();
-    Core::IEditor *createEditor();
+    Core::IEditor *createEditor() override;
 };
 
 } // namespace Internal

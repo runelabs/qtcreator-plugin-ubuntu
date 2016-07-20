@@ -11,7 +11,7 @@ class UbuntuQtVersion : public QtSupport::BaseQtVersion
 {
 public:
     UbuntuQtVersion();
-    UbuntuQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
+    UbuntuQtVersion(const QString &containerName, const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
     ~UbuntuQtVersion() override;
 
     // BaseQtVersion interface
@@ -26,8 +26,7 @@ public:
 
     QString description() const override;
 
-    QString platformName() const override;
-    QString platformDisplayName() const override;
+    virtual QSet<Core::Id> targetDeviceTypes() const override;
 
     int scriptVersion() const;
     void setScriptVersion(int scriptVersion);
@@ -41,6 +40,7 @@ public:
 
 private:
     int m_scriptVersion;
+    QString m_containerName;
 };
 
 class UbuntuQtVersionFactory : public QtSupport::QtVersionFactory

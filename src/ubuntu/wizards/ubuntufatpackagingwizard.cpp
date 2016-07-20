@@ -231,7 +231,7 @@ bool UbuntuChooseTargetPage::isValid() const
     QString fw;
     foreach (ProjectExplorer::BuildConfiguration *conf, selectedSuspects()) {
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(conf->target()->kit());
-        if (tc && tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
+        if (tc && tc->typeId() == Constants::UBUNTU_CLICK_TOOLCHAIN_ID) {
             ClickToolChain *cTc = static_cast<ClickToolChain *>(tc);
             if (fw.isEmpty())
                 fw = cTc->clickTarget().framework;

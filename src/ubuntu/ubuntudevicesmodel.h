@@ -88,16 +88,16 @@ public:
 
     Q_INVOKABLE bool set(int index, const QString &role, const QVariant &value);
 
-    int findDevice(int uniqueIdentifier) const;
-    bool hasDevice (int uniqueIdentifier) const;
+    int findDevice(const Core::Id &devId) const;
+    bool hasDevice (const Core::Id &devId) const;
     UbuntuDevice::ConstPtr device ( const int index );
 
     // QAbstractItemModel interface
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
-    virtual QVariant data(const QModelIndex &index, int role) const;
-    virtual QHash<int, QByteArray> roleNames() const;
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    virtual bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+    virtual QVariant data(const QModelIndex &index, int role) const override;
+    virtual QHash<int, QByteArray> roleNames() const override;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     bool cancellable() const;
     QString state() const;
@@ -116,13 +116,13 @@ signals:
     void stateChanged(QString arg);
 
 public slots:
-    void triggerPortForwarding  ( const int devId );
-    void triggerSSHSetup        ( const int devId );
-    void triggerSSHConnection   ( const int devId );
-    void triggerKitAutocreate   ( const int devId );
-    void triggerKitRemove       ( const int devId, const QVariant &kitid );
-    void triggerRedetect        ( const int devId );
-    void deleteDevice           ( const int devId );
+    void triggerPortForwarding  ( const QVariant &devId );
+    void triggerSSHSetup        ( const QVariant &devId );
+    void triggerSSHConnection   ( const QVariant &devId );
+    void triggerKitAutocreate   ( const QVariant &devId );
+    void triggerKitRemove       ( const QVariant &devId, const QVariant &kitid );
+    void triggerRedetect        ( const QVariant &devId );
+    void deleteDevice           ( const QVariant &devId );
     void createEmulatorImage    ( const QString &name, const QString &arch, const QString &channel, const QString &passwd );
     void startEmulator          ( const QString &name );
     void stopEmulator           ( const QString &name );

@@ -17,7 +17,6 @@ class ContainerDeviceProcess: public RemoteLinux::LinuxDeviceProcess
 public:
     ContainerDeviceProcess(const QSharedPointer<const ProjectExplorer::IDevice> &device, QObject *parent = 0);
     ~ContainerDeviceProcess();
-    virtual void setWorkingDirectory(const QString &directory) override;
 
     // DeviceProcess interface
     virtual void interrupt() override { doSignal(2); }
@@ -27,8 +26,7 @@ public:
     void doSignal (const int sig);
 private:
     // SshDeviceProcess interface
-    virtual QString fullCommandLine() const override;
-    QString m_workingDir;
+    virtual QString fullCommandLine(const ProjectExplorer::StandardRunnable &) const override;
     QString m_pidFile;
 
 };

@@ -36,7 +36,6 @@ UbuntuProject::UbuntuProject(UbuntuProjectManager *manager, const QString &fileN
 
     setId(Constants::UBUNTUPROJECT_ID);
     setRequiredKitMatcher(UbuntuKitMatcher());
-    setPreferredKitMatcher(QtSupport::QtKitInformation::qtVersionMatcher(Core::FeatureSet(QtSupport::Constants::FEATURE_DESKTOP)));
 
     setProjectContext(Core::Context(Constants::UBUNTUPROJECT_PROJECTCONTEXT));
 
@@ -46,6 +45,7 @@ UbuntuProject::UbuntuProject(UbuntuProjectManager *manager, const QString &fileN
     m_file = QSharedPointer<UbuntuProjectFile>(new UbuntuProjectFile(this, fileName));
 
     Core::DocumentManager::addDocument(m_file.data(), true);
+    setDocument(m_file.data());
 
     m_rootNode = QSharedPointer<UbuntuProjectNode>(new UbuntuProjectNode(this, m_file.data()));
     m_manager->registerProject(this);
@@ -80,10 +80,6 @@ void UbuntuProject::extractProjectFileData(const QString& filename) {
 
 QString UbuntuProject::displayName() const {
     return m_projectName;
-}
-
-Core::IDocument *UbuntuProject::document() const {
-    return m_file.data();
 }
 
 ProjectExplorer::IProjectManager *UbuntuProject::projectManager() const {
@@ -137,7 +133,10 @@ bool UbuntuProject::requiresTargetPanel() const
     return true;
 }
 
-QString UbuntuProject::shadowBuildDirectory(const QString &proFilePath, const ProjectExplorer::Kit *k, const QString &suffix)
+QString UbuntuProject::shadowBuildDirectory(const QString &proFilePath
+                                            , const ProjectExplorer::Kit *k
+                                            , const QString &suffix
+                                            , const ProjectExplorer::BuildConfiguration::BuildType buildType)
 {
     if (proFilePath.isEmpty())
         return QString();
@@ -149,7 +148,7 @@ QString UbuntuProject::shadowBuildDirectory(const QString &proFilePath, const Pr
         return info.absolutePath();
 
     const QString projectName = QFileInfo(proFilePath).completeBaseName();
-    ProjectExplorer::ProjectMacroExpander expander(projectName, k, suffix);
+    ProjectExplorer::ProjectMacroExpander expander(projectName, k, suffix, buildType);
     QDir projectDir = QDir(projectDirectory(Utils::FileName::fromString(proFilePath)).toString());
     QString buildPath = expander.expand(Core::DocumentManager::buildDirectory());
     return QDir::cleanPath(projectDir.absoluteFilePath(buildPath));
@@ -164,7 +163,7 @@ UbuntuKitMatcher::UbuntuKitMatcher()
 bool UbuntuKitMatcher::matches(const ProjectExplorer::Kit *k)
 {
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
-    if (tc->type() == QLatin1String(Ubuntu::Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
+    if (tc->typeId() == Ubuntu::Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
         return true;
 
     return false;

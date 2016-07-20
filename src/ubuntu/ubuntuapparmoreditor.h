@@ -61,10 +61,10 @@ public:
 
 protected:
     virtual void updateAfterFileLoad() override;
-    virtual bool syncToWidgets();
+    virtual bool syncToWidgets() override;
     bool syncToWidgets(UbuntuClickManifest *source);
-    virtual void syncToSource();
-    virtual QWidget *createMainWidget();
+    virtual void syncToSource() override;
+    virtual QWidget *createMainWidget() override;
 
 protected slots:
     void on_pushButton_addpolicy_clicked();    

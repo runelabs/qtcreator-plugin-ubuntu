@@ -31,6 +31,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/runnables.h>
 #include <remotelinux/remotelinuxenvironmentaspect.h>
 #include <utils/qtcprocess.h>
 #include <cmakeprojectmanager/cmakeproject.h>
@@ -57,7 +58,7 @@ const char FORCE_INSTALL_KEY[]="UbuntuRemoteRunConfiguration.ForceInstall";
 const char UNINSTALL_KEY[]="UbuntuRemoteRunConfiguration.Uninstall";
 
 UbuntuRemoteRunConfiguration::UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent, Core::Id id)
-    : AbstractRemoteLinuxRunConfiguration(parent,id),
+    : RunConfiguration(parent,id),
       m_running(false),
       m_forceInstall(false),
       m_uninstall(true)
@@ -70,7 +71,7 @@ UbuntuRemoteRunConfiguration::UbuntuRemoteRunConfiguration(ProjectExplorer::Targ
 }
 
 UbuntuRemoteRunConfiguration::UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent, UbuntuRemoteRunConfiguration *source)
-    : AbstractRemoteLinuxRunConfiguration(parent,source),
+    : RunConfiguration(parent,source),
       m_running(false),
       m_forceInstall(false),
       m_uninstall(true)
@@ -176,6 +177,20 @@ ProjectExplorer::RunConfiguration::ConfigurationState UbuntuRemoteRunConfigurati
     return ProjectExplorer::RunConfiguration::Configured;
 }
 
+ProjectExplorer::Runnable UbuntuRemoteRunConfiguration::runnable() const
+{
+    if (m_remoteExecutable.isEmpty())
+        return ProjectExplorer::Runnable();
+
+    ProjectExplorer::StandardRunnable r;
+    r.executable = m_remoteExecutable;
+    r.device = ProjectExplorer::DeviceKitInformation::device(target()->kit());
+
+    r.environment = environment();
+
+    return r;
+}
+
 /*!
  * \brief UbuntuRemoteRunConfiguration::aboutToStart
  * Configures the internal parameters and fetched the informations from
@@ -225,7 +240,7 @@ bool UbuntuRemoteRunConfiguration::aboutToStart(QString *errorMessage)
     }
 
     ProjectExplorer::ToolChain* tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
-    if(tc->type() != QString::fromLatin1(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
+    if(tc->typeId() != Constants::UBUNTU_CLICK_TOOLCHAIN_ID) {
         if(errorMessage)
             *errorMessage = tr("Wrong toolchain type. Please check your build configuration.");
         return false;
@@ -407,7 +422,7 @@ bool UbuntuRemoteRunConfiguration::fromMap(const QVariantMap &map)
 {
     if(debug) qDebug()<<Q_FUNC_INFO;
 
-    if(!AbstractRemoteLinuxRunConfiguration::fromMap(map))
+    if(!RunConfiguration::fromMap(map))
         return false;
 
     m_uninstall = map.value(QLatin1String(UNINSTALL_KEY),true).toBool();
@@ -418,7 +433,7 @@ bool UbuntuRemoteRunConfiguration::fromMap(const QVariantMap &map)
 QVariantMap UbuntuRemoteRunConfiguration::toMap() const
 {
     if(debug) qDebug()<<Q_FUNC_INFO;
-    QVariantMap m = AbstractRemoteLinuxRunConfiguration::toMap();
+    QVariantMap m = RunConfiguration::toMap();
     m.insert(QLatin1String(UNINSTALL_KEY),m_uninstall);
     m.insert(QLatin1String(FORCE_INSTALL_KEY),m_forceInstall);
     return m;

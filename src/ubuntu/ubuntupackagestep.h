@@ -55,7 +55,7 @@ public:
 
 public:
     // BuildStep interface
-    virtual bool init() override;
+    virtual bool init(QList<const ProjectExplorer::BuildStep *> &earlierSteps) override;
     virtual void run(QFutureInterface<bool> &fi) override;
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     virtual bool immutable() const override;

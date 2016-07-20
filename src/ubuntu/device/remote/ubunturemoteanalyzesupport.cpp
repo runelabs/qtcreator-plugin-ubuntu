@@ -4,7 +4,7 @@
 #include <ubuntu/ubuntuconstants.h>
 
 #include <remotelinux/remotelinuxrunconfiguration.h>
-#include <analyzerbase/analyzerruncontrol.h>
+#include <debugger/analyzer/analyzerruncontrol.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
@@ -14,6 +14,7 @@
 #include <projectexplorer/kitinformation.h>
 
 #include <utils/qtcassert.h>
+#include <utils/port.h>
 #include <qmldebug/qmloutputparser.h>
 
 #include <QPointer>
@@ -24,23 +25,24 @@ namespace Internal {
 class UbuntuRemoteAnalyzeSupportPrivate
 {
 public:
-    UbuntuRemoteAnalyzeSupportPrivate(Analyzer::AnalyzerRunControl *rc, Core::Id runMode)
+    UbuntuRemoteAnalyzeSupportPrivate(Debugger::AnalyzerRunControl *rc, Core::Id runMode)
         : runControl(rc),
-          qmlProfiling(runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE),
-          qmlPort(-1)
+          qmlPort(-1),
+          qmlProfiling(runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
     {
     }
 
     QString clickPackage;
-    const QPointer<Analyzer::AnalyzerRunControl> runControl;
-    bool qmlProfiling;
-    int qmlPort;
 
+    const QPointer<Debugger::AnalyzerRunControl> runControl;
     QmlDebug::QmlOutputParser outputParser;
+
+    Utils::Port qmlPort;
+    bool qmlProfiling;
 };
 
 UbuntuRemoteAnalyzeSupport::UbuntuRemoteAnalyzeSupport(UbuntuRemoteRunConfiguration *runConfig,
-                                                     Analyzer::AnalyzerRunControl *engine, Core::Id runMode)
+                                                     Debugger::AnalyzerRunControl *engine, Core::Id runMode)
     : AbstractRemoteRunSupport(runConfig, engine),
       d(new UbuntuRemoteAnalyzeSupportPrivate(engine, runMode))
 {
@@ -59,7 +61,7 @@ UbuntuRemoteAnalyzeSupport::~UbuntuRemoteAnalyzeSupport()
 void UbuntuRemoteAnalyzeSupport::showMessage(const QString &msg, Utils::OutputFormat format)
 {
     if (state() != Idle && d->runControl)
-        d->runControl->logApplicationMessage(msg, format);
+        d->runControl->appendMessage(msg, format);
     d->outputParser.processOutput(msg);
 }
 
@@ -78,7 +80,8 @@ void UbuntuRemoteAnalyzeSupport::startExecution()
     // Currently we support only QML profiling
     QTC_ASSERT(d->qmlProfiling, return);
 
-    if (!assignNextFreePort(&d->qmlPort))
+    d->qmlPort = findFreePort();
+    if (!d->qmlPort.isValid())
         return;
 
     setState(Starting);
@@ -91,7 +94,7 @@ void UbuntuRemoteAnalyzeSupport::startExecution()
     connect(runner, SIGNAL(reportError(QString)), SLOT(handleAppRunnerError(QString)));
 
     runner->setEnv(environment());
-    runner->setQmlDebugPort(d->qmlPort);
+    runner->setQmlDebugPort(d->qmlPort.number());
 
     QTC_ASSERT(device()->type().toString().startsWith(QLatin1String(Constants::UBUNTU_DEVICE_TYPE_ID)),return);
     runner->start(qSharedPointerCast<const UbuntuDevice>(device()),clickPackage(),hook());

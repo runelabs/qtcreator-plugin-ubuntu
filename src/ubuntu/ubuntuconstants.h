@@ -251,6 +251,7 @@ const int   UBUNTU_MODE_DEVICES_PRIORITY = 11;
 
 const char  UBUNTU_ICON[] = ":/ubuntu/images/ubuntu-32.png";
 
+/*
 const char  FEATURE_UNITY_SCOPE[] = "Ubuntu.Wizards.FeatureUnityScope";
 const char  FEATURE_UBUNTU_PRECISE[] = "Ubuntu.Wizards.FeatureUbuntuPrecise";
 const char  FEATURE_UBUNTU_QUANTAL[] = "Ubuntu.Wizards.FeatureUbuntuQuantal";
@@ -274,6 +275,7 @@ const char  UTOPIC[] = "utopic";
 
 const char  PLATFORM_DESKTOP[] = "Desktop";
 const char  PLATFORM_DESKTOP_DISPLAYNAME[] = "Ubuntu %0";
+*/
 
 const char  TASK_DEVICE_SCRIPT[] = "Ubuntu.Task.DeviceScript";
 

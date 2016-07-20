@@ -24,7 +24,6 @@
 #include "ubuntudevicemode.h"
 #include "ubuntumenu.h"
 #include "ubuntuprojectmanager.h"
-#include "ubuntufeatureprovider.h"
 #include "ubuntuversionmanager.h"
 #include "ubuntupackagingmode.h"
 #include "ubuntusettingsdeviceconnectivitypage.h"

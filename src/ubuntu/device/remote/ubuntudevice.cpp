@@ -28,6 +28,7 @@
 #include <ubuntu/settings.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/runnables.h>
 #include <remotelinux/genericlinuxdeviceconfigurationwidget.h>
 #include <coreplugin/messagemanager.h>
 #include <ssh/sshconnection.h>
@@ -744,14 +745,14 @@ void UbuntuDeviceHelper::enablePortForward()
 
     //first port is SSH port
     QSsh::SshConnectionParameters connParms = m_dev->sshParameters();
-    connParms.port = copy.getNext();
+    connParms.port = copy.getNext().number();
     m_dev->setSshParameters(connParms);
 
     m_dev->setFreePorts(copy);
 
     QStringList ports;
     while(copy.hasMore())
-        ports.append(QString::number(copy.getNext()));
+        ports.append(QString::number(copy.getNext().number()));
 
     //@TODO per device settings
     QString deviceSshPort = QString::number(connParms.port);
@@ -1349,17 +1350,12 @@ UbuntuDeviceProcess::UbuntuDeviceProcess(const QSharedPointer<const ProjectExplo
 {
 }
 
-void UbuntuDeviceProcess::setWorkingDirectory(const QString &directory)
-{
-    m_workingDir = directory;
-}
-
 void UbuntuDeviceProcess::terminate()
 {
     LinuxDeviceProcess::terminate();
 }
 
-QString UbuntuDeviceProcess::fullCommandLine() const
+QString UbuntuDeviceProcess::fullCommandLine(const ProjectExplorer::StandardRunnable &runnable) const
 {
     //return QStringLiteral("%1 %2").arg(quote(executable()),Utils::QtcProcess::joinArgsUnix(arguments()));
 
@@ -1371,15 +1367,15 @@ QString UbuntuDeviceProcess::fullCommandLine() const
     QString fullCommandLine;
     foreach (const QString &filePath, rcFiles)
         fullCommandLine += QString::fromLatin1("test -f %1 && . %1;").arg(filePath);
-    if (!m_workingDir.isEmpty()) {
-        fullCommandLine.append(QLatin1String("cd ")).append(quote(m_workingDir))
+    if (!runnable.workingDirectory.isEmpty()) {
+        fullCommandLine.append(QLatin1String("cd ")).append(quote(runnable.workingDirectory))
                 .append(QLatin1String(" && "));
     }
 
-    fullCommandLine.append(quote(executable()));
-    if (!arguments().isEmpty()) {
+    fullCommandLine.append(quote(runnable.executable));
+    if (!runnable.commandLineArguments.isEmpty()) {
         fullCommandLine.append(QLatin1Char(' '));
-        fullCommandLine.append(Utils::QtcProcess::joinArgs(arguments(),Utils::OsTypeLinux));
+        fullCommandLine.append(runnable.commandLineArguments);
     }
 
     if(debug) qDebug()<<fullCommandLine;

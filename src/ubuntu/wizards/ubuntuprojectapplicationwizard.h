@@ -58,7 +58,7 @@ protected:
     bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage) const override;
 
 private:
-    Core::FeatureSet requiredFeatures() const;
+    QSet<Core::Id> requiredFeatures() const;
     ProjectType m_type;
 };
 

@@ -20,7 +20,7 @@
 #define UBUNTURUNCONFIGURATION_H
 
 #include <QObject>
-#include <remotelinux/abstractremotelinuxrunconfiguration.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/applicationlauncher.h>
 #include <remotelinux/remotelinuxenvironmentaspect.h>
@@ -46,7 +46,7 @@ public:
 
 };
 
-class UbuntuLocalRunConfiguration : public RemoteLinux::AbstractRemoteLinuxRunConfiguration
+class UbuntuLocalRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
 public:
@@ -58,20 +58,18 @@ public:
     bool aboutToStart (QString *errorMessage);
 
     QString appId() const;
+    void addToBaseEnvironment(Utils::Environment &env) const;
 
-    // AbstractRemoteLinuxRunConfiguration interface
-    virtual QString localExecutableFilePath() const override;
-    virtual QString remoteExecutableFilePath() const override;
-    virtual QStringList arguments() const override;
-    virtual Utils::Environment environment() const override;
-    virtual QString workingDirectory() const;
-
-    // LocalApplicationRunConfiguration interface
-    virtual void addToBaseEnvironment(Utils::Environment &env) const;
+    QString localExecutableFilePath() const;
+    QString remoteExecutableFilePath() const;
+    QStringList arguments() const;
+    Utils::Environment environment() const;
+    QString workingDirectory() const;
 
     // RunConfiguration interface
     virtual bool isConfigured () const override;
     virtual ConfigurationState ensureConfigured(QString *) override;
+    virtual ProjectExplorer::Runnable runnable() const override;
 
     //static helpers
     static QString getDesktopFile (RunConfiguration *config, QString appId, QString *errorMessage = 0);

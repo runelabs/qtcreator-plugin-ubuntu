@@ -37,7 +37,7 @@ public:
 
     // UbuntuAbstractGuiEditor interface
 protected:
-    virtual UbuntuAbstractGuiEditorWidget *createGuiEditor();
+    virtual UbuntuAbstractGuiEditorWidget *createGuiEditor() override;
 
 private:
     UbuntuManifestEditorWidget *m_editorWidget;

@@ -80,8 +80,6 @@ UbuntuPackagingMode::UbuntuPackagingMode(QObject *parent) :
     m_modeView->rootContext()->setContextProperty(QLatin1String("resourceRoot") ,Constants::UBUNTU_DEVICESCREEN_ROOT);
     m_modeView->setSource(QUrl::fromLocalFile(Constants::UBUNTU_PUBLISHSCREEN_QML));
 
-    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)), SLOT(modeChanged(Core::IMode*)));
-
     QObject* sessionManager = ProjectExplorer::SessionManager::instance();
     connect(sessionManager,SIGNAL(projectAdded(ProjectExplorer::Project*)),SLOT(on_projectAdded(ProjectExplorer::Project*)));
     connect(sessionManager,SIGNAL(projectRemoved(ProjectExplorer::Project*)),SLOT(on_projectRemoved(ProjectExplorer::Project*)));
@@ -93,10 +91,6 @@ UbuntuPackagingMode::UbuntuPackagingMode(QObject *parent) :
 
 void UbuntuPackagingMode::initialize() {
 
-}
-
-void UbuntuPackagingMode::modeChanged(Core::IMode* currentMode) {
-    previousMode = currentMode->id();
 }
 
 void UbuntuPackagingMode::updateModeState() {

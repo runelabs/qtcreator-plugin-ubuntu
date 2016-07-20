@@ -34,12 +34,12 @@
 #include "ubuntudevice.h"
 #include "ubuntuwaitfordevicedialog.h"
 
-#include <remotelinux/abstractremotelinuxrunconfiguration.h>
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <utils/environment.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/coreicons.h>
 
 #include <QString>
 #include <QIcon>
@@ -73,7 +73,7 @@ UbuntuRemoteRunControl::UbuntuRemoteRunControl(RunConfiguration *rc)
     d->environment = d->runConfig->environment();
     d->clickPackage = d->runConfig->clickPackage();
 
-    setIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
+    setIcon(Core::Icons::RUN_SMALL);
 }
 
 UbuntuRemoteRunControl::~UbuntuRemoteRunControl()

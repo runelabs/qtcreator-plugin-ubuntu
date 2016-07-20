@@ -135,7 +135,7 @@ void UbuntuSetupChrootWizardPage::initializePage()
         if (!tc || !QtSupport::QtKitInformation::qtVersion(curr))
             continue;
 
-        if (tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
+        if (tc->typeId() == Constants::UBUNTU_CLICK_TOOLCHAIN_ID) {
             found = true;
 
             QTreeWidgetItem* kitItem = new QTreeWidgetItem;

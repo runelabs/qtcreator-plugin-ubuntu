@@ -42,8 +42,9 @@ void UbuntuFixManifestStep::setPackageDir(const QString &packageDir)
     m_packageDir = packageDir;
 }
 
-bool UbuntuFixManifestStep::init()
+bool UbuntuFixManifestStep::init(QList<const BuildStep *> &earlierSteps)
 {
+    Q_UNUSED(earlierSteps);
     return true;
 }
 

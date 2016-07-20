@@ -209,7 +209,7 @@ QVariant UbuntuDevicesModel::data(const QModelIndex &index, int role) const
         case Qt::EditRole:
             return m_knownDevices[index.row()]->device()->displayName();
         case UniqueIdRole:
-            return m_knownDevices[index.row()]->id().uniqueIdentifier();
+            return qVariantFromValue(m_knownDevices[index.row()]->id());
         case DetectionStateRole:
             return m_knownDevices[index.row()]->device()->detectionState();
         case DetectionStateStringRole:
@@ -294,62 +294,62 @@ Qt::ItemFlags UbuntuDevicesModel::flags(const QModelIndex &index) const
     return QAbstractListModel::flags(index) | Qt::ItemIsEditable;
 }
 
-void UbuntuDevicesModel::triggerPortForwarding(const int devId)
+void UbuntuDevicesModel::triggerPortForwarding(const QVariant &devId)
 {
-    int row = findDevice(devId);
+    int row = findDevice(devId.value<Core::Id>());
     if(row < 0)
         return;
     m_knownDevices[row]->device()->enablePortForward();
 }
 
-void UbuntuDevicesModel::triggerSSHSetup(const int devId)
+void UbuntuDevicesModel::triggerSSHSetup(const QVariant &devId)
 {
-    int row = findDevice(devId);
+    int row = findDevice(devId.value<Core::Id>());
     if(row < 0)
         return;
     m_knownDevices[row]->device()->deployPublicKey();
 }
 
-void UbuntuDevicesModel::triggerSSHConnection(const int devId)
+void UbuntuDevicesModel::triggerSSHConnection(const QVariant &devId)
 {
-    int row = findDevice(devId);
+    int row = findDevice(devId.value<Core::Id>());
     if(row < 0)
         return;
     m_knownDevices[row]->device()->openTerminal();
 }
 
-void UbuntuDevicesModel::triggerKitAutocreate(const int devId)
+void UbuntuDevicesModel::triggerKitAutocreate(const QVariant &devId)
 {
-    int row = findDevice(devId);
+    int row = findDevice(devId.value<Core::Id>());
     if(row < 0)
         return;
     UbuntuKitManager::autoCreateKit(m_knownDevices[row]->device());
 }
 
-void UbuntuDevicesModel::triggerKitRemove(const int devId, const QVariant &kitid)
+void UbuntuDevicesModel::triggerKitRemove(const QVariant &devId, const QVariant &kitid)
 {
-    int row = findDevice(devId);
+    int row = findDevice(devId.value<Core::Id>());
     if(row < 0)
         return;
 
     ProjectExplorer::Kit* k = ProjectExplorer::KitManager::find(Core::Id::fromSetting(kitid));
-    if(ProjectExplorer::DeviceKitInformation::deviceId(k) == Core::Id::fromUniqueIdentifier(devId)) {
+    if(ProjectExplorer::DeviceKitInformation::deviceId(k) == devId.value<Core::Id>()) {
         //completely delete the kit
         ProjectExplorer::KitManager::deregisterKit(k);
     }
 }
 
-void UbuntuDevicesModel::triggerRedetect(const int devId)
+void UbuntuDevicesModel::triggerRedetect(const QVariant &devId)
 {
-    int row = findDevice(devId);
+    int row = findDevice(devId.value<Core::Id>());
     if(row < 0)
         return;
     m_knownDevices[row]->device()->helper()->refresh();
 }
 
-void UbuntuDevicesModel::deleteDevice(const int devId)
+void UbuntuDevicesModel::deleteDevice(const QVariant &devId)
 {
-    int index = findDevice(devId);
+    int index = findDevice(devId.value<Core::Id>());
     if(index < 0) {
         QMessageBox::critical(Core::ICore::mainWindow(),tr("Could not delete device"),tr("The device ID is unknown, please press the refresh button and try again."));
         return;
@@ -374,18 +374,18 @@ void UbuntuDevicesModel::clear()
     }
 }
 
-int UbuntuDevicesModel::findDevice(int uniqueIdentifier) const
+int UbuntuDevicesModel::findDevice(const Core::Id &devId) const
 {
     for ( int i = 0; i < m_knownDevices.size(); i++ ) {
-        if(m_knownDevices[i]->id().uniqueIdentifier() == uniqueIdentifier)
+        if(m_knownDevices[i]->id() == devId)
             return i;
     }
     return -1;
 }
 
-bool UbuntuDevicesModel::hasDevice(int uniqueIdentifier) const
+bool UbuntuDevicesModel::hasDevice(const Core::Id &devId) const
 {
-    return findDevice(uniqueIdentifier) >= 0;
+    return findDevice(devId) >= 0;
 }
 
 UbuntuDevice::ConstPtr UbuntuDevicesModel::device(const int index)
@@ -415,7 +415,7 @@ int UbuntuDevicesModel::indexFromHelper(QObject *possibleHelper)
 {
     UbuntuDevicesItem* hlpr = qobject_cast<UbuntuDevicesItem*>(possibleHelper);
     if(!hlpr) return -1;
-    return findDevice(hlpr->id().uniqueIdentifier());
+    return findDevice(hlpr->id());
 }
 
 void UbuntuDevicesModel::deviceChanged(QObject *possibleHelper, const QVector<int> &relatedRoles)
@@ -529,7 +529,7 @@ void UbuntuDevicesModel::deviceAdded(const Core::Id &id)
 
     if(debug) qDebug()<<"Device Manager reports device added: "<<id.toString();
 
-    if (hasDevice(id.uniqueIdentifier()))
+    if (hasDevice(id))
         return;
 
     Ubuntu::Internal::UbuntuDevice::ConstPtr ubuntuDev
@@ -550,7 +550,7 @@ void UbuntuDevicesModel::deviceAdded(const Core::Id &id)
  */
 void UbuntuDevicesModel::deviceRemoved(const Core::Id &id)
 {
-    int index = findDevice(id.uniqueIdentifier());
+    int index = findDevice(id);
     if(index < 0)
         return;
 
@@ -573,7 +573,7 @@ void UbuntuDevicesModel::deviceUpdated(const Core::Id &id)
             << Qt::DisplayRole << Qt::EditRole
             << ConnectionStateRole << ConnectionStateStringRole;
 
-    int index = findDevice(id.uniqueIdentifier());
+    int index = findDevice(id);
     if(index >= 0) {
         QModelIndex changed = createIndex(index,0);
         emit dataChanged(changed, changed,relatedRoles);
@@ -582,7 +582,7 @@ void UbuntuDevicesModel::deviceUpdated(const Core::Id &id)
 
 void UbuntuDevicesModel::deviceConnected(const QString &id)
 {
-    int idx = findDevice(Core::Id::fromSetting(id).uniqueIdentifier());
+    int idx = findDevice(Core::Id::fromSetting(id));
     if(idx >= 0)
         return;
 
@@ -599,7 +599,7 @@ void UbuntuDevicesModel::deviceConnected(const QString &id)
  */
 void UbuntuDevicesModel::registerNewDevice(const QString &serial, const QString &arch)
 {
-    if(findDevice(Core::Id::fromSetting(serial).uniqueIdentifier()) >= 0)
+    if(findDevice(Core::Id::fromSetting(serial)) >= 0)
         return;
 
     if(!ClickToolChain::supportedArchitectures().contains(arch)) {
@@ -650,30 +650,24 @@ QString UbuntuDevicesModel::state() const
     switch(m_state) {
         case CheckEmulatorInstalled: {
             return tr("Checking if emulator tool is installed");
-            break;
         }
         case InstallEmulator: {
             return tr("Installing emulator tool");
-            break;
         }
         case CreateEmulatorImage: {
             return tr("Creating emulator image");
-            break;
         }
         case ReadFromSettings:{
             return tr("Reading settings");
         }
         case FindImages:{
             return tr("Searching for emulator images");
-            break;
         }
         case AdbList:{
             return tr("Querying ADB");
-            break;
         }
         default:
             return QString();
-            break;
     }
 }
 
@@ -816,7 +810,7 @@ void UbuntuDevicesModel::queryAdb()
 
 void UbuntuDevicesModel::startEmulator(const QString &name)
 {
-    int idx = findDevice(Core::Id::fromSetting(name).uniqueIdentifier());
+    int idx = findDevice(Core::Id::fromSetting(name));
     if(idx < 0)
         return;
 
@@ -828,7 +822,7 @@ void UbuntuDevicesModel::startEmulator(const QString &name)
 
 void UbuntuDevicesModel::stopEmulator(const QString &name)
 {
-    int idx = findDevice(Core::Id::fromSetting(name).uniqueIdentifier());
+    int idx = findDevice(Core::Id::fromSetting(name));
     if(idx < 0)
         return;
 
@@ -841,7 +835,7 @@ void UbuntuDevicesModel::stopEmulator(const QString &name)
 
 void UbuntuDevicesModel::deleteEmulator(const QString &name)
 {
-    int index = findDevice(Core::Id::fromSetting(name).uniqueIdentifier());
+    int index = findDevice(Core::Id::fromSetting(name));
     if(index < 0)
         return;
 
@@ -865,7 +859,9 @@ void UbuntuDevicesModel::deleteEmulator(const QString &name)
 QVariant UbuntuDevicesModel::validateEmulatorName(const QString &name)
 {
     QString error;
-    bool result = Utils::ProjectIntroPage::validateProjectName(name,&error);
+
+    QRegularExpression exp(QStringLiteral("^[a-zA-Z][a-zA-Z0-9]+"));
+    bool result = exp.match(name).hasMatch();
 
     if(result) {
         foreach (UbuntuDevicesItem *item, m_knownDevices) {
@@ -877,6 +873,8 @@ QVariant UbuntuDevicesModel::validateEmulatorName(const QString &name)
                 }
             }
         }
+    } else {
+        error = tr("Emulator names can only contain letters and numbers.");
     }
 
     QVariantMap m;
@@ -966,10 +964,10 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
         case FindImages: {
             QStringList lines = m_reply.trimmed().split(QLatin1String(Constants::LINEFEED));
 
-            QSet<int> notFoundImages;
+            QSet<Core::Id> notFoundImages;
             foreach(UbuntuDevicesItem *item, m_knownDevices) {
                 if(item->device()->machineType() == ProjectExplorer::IDevice::Emulator)
-                    notFoundImages.insert(item->device()->id().uniqueIdentifier());
+                    notFoundImages.insert(item->device()->id());
             }
 
             QMutableStringListIterator iter(lines);
@@ -1021,10 +1019,10 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
                 bool addToManager = false;
                 Ubuntu::Internal::UbuntuDevice::Ptr dev;
                 Core::Id devId = Core::Id::fromSetting(deviceSerial);
-                int index = findDevice(devId.uniqueIdentifier());
+                int index = findDevice(devId);
 
                 if(index >= 0) {
-                    notFoundImages.remove(devId.uniqueIdentifier());
+                    notFoundImages.remove(devId);
                     dev = m_knownDevices[index]->device();
                 } else {
                     dev = Ubuntu::Internal::UbuntuDevice::create(
@@ -1046,8 +1044,12 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
             }
 
             //remove all ubuntu emulators that are in the settings but don't exist in the system
-            foreach(int curr,notFoundImages) {
-                ProjectExplorer::DeviceManager::instance()->removeDevice(Core::Id::fromUniqueIdentifier(curr));
+            foreach(const Core::Id &curr,notFoundImages) {
+                int row = findDevice(curr);
+                if (row < 0 || row >= rowCount())
+                    continue;
+
+                ProjectExplorer::DeviceManager::instance()->removeDevice(m_knownDevices.at(row)->id());
             }
 
             queryAdb();
@@ -1069,7 +1071,7 @@ void UbuntuDevicesModel::processFinished(const QString &, int exitCode)
                     continue;
                 }
 
-                QRegularExpression exp(QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_ADB_REGEX));
+                QRegularExpression exp((QLatin1String(Constants::UBUNTUDEVICESWIDGET_ONFINISHED_ADB_REGEX)));
                 QRegularExpressionMatch match = exp.match(line);
 
                 if(match.hasMatch()) {
@@ -1231,4 +1233,3 @@ void UbuntuDevicesItem::deviceStateChanged()
 
 }
 }
-

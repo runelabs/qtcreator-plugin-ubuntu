@@ -73,9 +73,6 @@ public slots:
 signals:
     void updateDeviceActions ();
 
-protected slots:
-    void modeChanged(Core::IMode*);
-
 protected:
     static UbuntuDeviceMode *m_instance;
     UbuntuDevicesModel  *m_devicesModel;

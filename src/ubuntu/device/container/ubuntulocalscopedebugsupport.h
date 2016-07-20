@@ -42,7 +42,7 @@ protected:
     void showMessage(const QString &msg, int channel);
 
 private:
-    int m_port;
+    Utils::Port m_port;
     QString m_scopeRunnerPath;
     QString m_executable;
     QString m_buildDir;

@@ -77,8 +77,9 @@ UbuntuPackageStep::~UbuntuPackageStep()
     cleanup();
 }
 
-bool UbuntuPackageStep::init()
+bool UbuntuPackageStep::init(QList<const BuildStep *> &earlierSteps)
 {
+    Q_UNUSED(earlierSteps);
     //initialization happens in internalInit,
     //because it requires informations that are only available at this
     //time
@@ -277,8 +278,8 @@ void UbuntuPackageStep::run(QFutureInterface<bool> &fi)
         }
         emit addOutput(tr("Configuration is invalid. Aborting build")
                        ,ProjectExplorer::BuildStep::MessageOutput);
-        fi.reportResult(false);
-        emit finished();
+        reportRunResult(*m_futureInterface, false);
+        cleanup();
         return;
     }
 
@@ -487,9 +488,8 @@ bool UbuntuPackageStep::processFinished(FinishedCheckMode mode)
 
     //the process failed, lets clean up
     if (!success) {
-        m_futureInterface->reportResult(false);
+        reportRunResult(*m_futureInterface, false);
         cleanup();
-        emit finished();
     }
     return success;
 }
@@ -572,9 +572,8 @@ void UbuntuPackageStep::injectDebugHelperStep()
                            .arg(m_deployDir),
                            BuildStep::ErrorMessageOutput);
 
-            m_futureInterface->reportResult(false);
+            reportRunResult(*m_futureInterface, false);
             cleanup();
-            emit finished();
             return;
         }
 
@@ -584,9 +583,8 @@ void UbuntuPackageStep::injectDebugHelperStep()
                            .arg(err),
                            BuildStep::ErrorMessageOutput);
 
-            m_futureInterface->reportResult(false);
+            reportRunResult(*m_futureInterface, false);
             cleanup();
-            emit finished();
             return;
         }
 
@@ -623,7 +621,7 @@ void UbuntuPackageStep::injectDebugHelperStep()
                     continue;
 
                 ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
-                if(!tc || tc->type() != QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
+                if(!tc || tc->typeId() != Constants::UBUNTU_CLICK_TOOLCHAIN_ID) {
                     qWarning()<<"Incompatible Toolchain for hook"<<hook.appId;
                     continue;
                 }
@@ -745,9 +743,8 @@ void UbuntuPackageStep::doNextStep()
 
             if (m_packageMode == OnlyMakeInstall) {
 
-                m_futureInterface->reportResult(true);
+                reportRunResult(*m_futureInterface, true);
                 cleanup();
-                emit finished();
 
                 return;
             }
@@ -794,9 +791,8 @@ void UbuntuPackageStep::doNextStep()
             if (!processFinished(IgnoreReturnCode))
                 return;
 
-            m_futureInterface->reportResult(true);
+            reportRunResult(*m_futureInterface, true);
             cleanup();
-            emit finished();
         }
 
         default:
@@ -824,7 +820,7 @@ void UbuntuPackageStep::onProcessStdErr()
 
 void UbuntuPackageStep::onProcessFailedToStart()
 {
-    m_futureInterface->reportResult(false);
+    reportRunResult(*m_futureInterface, false);
 
     ProjectExplorer::ProcessParameters *params;
     if (m_state == MakeInstall)
@@ -837,7 +833,6 @@ void UbuntuPackageStep::onProcessFailedToStart()
                         params->prettyArguments()),
                    BuildStep::ErrorMessageOutput);
 
-    emit finished();
     cleanup();
 
 }

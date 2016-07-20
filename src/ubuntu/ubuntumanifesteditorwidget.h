@@ -49,10 +49,10 @@ public:
 protected:
     virtual void updateAfterFileLoad() override;
     virtual void aboutToOpen(const QString &fileName, const QString &realFileName) override;
-    bool syncToWidgets ();
+    bool syncToWidgets () override;
     bool syncToWidgets (UbuntuClickManifest *source);
-    void syncToSource  ();
-    QWidget *createMainWidget();
+    void syncToSource  () override;
+    QWidget *createMainWidget() override;
     void addMissingFieldsToManifest(QString fileName);
 
 protected slots:

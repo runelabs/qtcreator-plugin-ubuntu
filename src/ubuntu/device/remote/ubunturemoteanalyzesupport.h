@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include "abstractremoterunsupport.h"
-#include <analyzerbase/analyzerruncontrol.h>
+#include <debugger/analyzer/analyzerruncontrol.h>
 
 namespace Ubuntu {
 namespace Internal {
@@ -16,7 +16,7 @@ class UbuntuRemoteAnalyzeSupport : public AbstractRemoteRunSupport
     Q_OBJECT
 public:
     UbuntuRemoteAnalyzeSupport(UbuntuRemoteRunConfiguration *runConfig,
-            Analyzer::AnalyzerRunControl *engine, Core::Id runMode);
+            Debugger::AnalyzerRunControl *engine, Core::Id runMode);
     ~UbuntuRemoteAnalyzeSupport() override;
 
 protected:

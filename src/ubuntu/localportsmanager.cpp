@@ -100,13 +100,13 @@ Utils::PortList UbuntuLocalPortsManager::getFreeRange( const QString &serial, co
         if (serial == device && localPort >= m_instance->m_first && localPort <= m_instance->m_last) {
             if(debug) qDebug()<<"Found port already linked to device: "<<localPort<<":"<<remotePort;
 
-            freePorts.addPort(localPort);
+            freePorts.addPort(Utils::Port(localPort));
 
             if (freePorts.count() == count)
                 break;
         } else {
             if(debug) qDebug()<<"Found port in use: "<<localPort<<":"<<remotePort;
-            usedPorts.addPort(localPort);
+            usedPorts.addPort(Utils::Port(localPort));
         }
     }
 
@@ -116,14 +116,14 @@ Utils::PortList UbuntuLocalPortsManager::getFreeRange( const QString &serial, co
         int port = firstPort + i;
 
         //is the port in use?
-        if(usedPorts.contains(port))
+        if(usedPorts.contains(Utils::Port(port)))
             continue;
 
         //is that port already assigned to us?
-        if(freePorts.contains(port))
+        if(freePorts.contains(Utils::Port(port)))
             continue;
 
-        freePorts.addPort(port);
+        freePorts.addPort(Utils::Port(port));
         found++;
         if(debug) qDebug()<<"Found free port: "<<port;
     }

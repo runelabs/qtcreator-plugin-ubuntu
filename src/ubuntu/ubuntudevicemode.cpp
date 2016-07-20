@@ -85,7 +85,6 @@ UbuntuDeviceMode::UbuntuDeviceMode(QObject *parent) :
     m_modeView->rootContext()->setContextProperty(QLatin1String("resourceRoot") ,Constants::UBUNTU_DEVICESCREEN_ROOT);
     m_modeView->setSource(QUrl::fromLocalFile(Constants::UBUNTU_DEVICESCREEN_QML));
 
-    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)), SLOT(modeChanged(Core::IMode*)));
     setWidget(m_modeWidget);
 }
 
@@ -111,11 +110,6 @@ void UbuntuDeviceMode::deviceSelected(const QVariant index)
 void UbuntuDeviceMode::showAddEmulatorDialog()
 {
     m_qmlControl->showAddEmulatorDialog();
-}
-
-void UbuntuDeviceMode::modeChanged(Core::IMode *mode)
-{
-    Q_UNUSED(mode);
 }
 
 void UbuntuDeviceMode::initialize() {

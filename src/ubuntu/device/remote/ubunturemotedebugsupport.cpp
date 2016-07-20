@@ -70,8 +70,8 @@ public:
     bool qmlDebugging;
     bool cppDebugging;
     QByteArray gdbserverOutput;
-    int gdbServerPort;
-    int qmlPort;
+    Utils::Port gdbServerPort;
+    Utils::Port qmlPort;
 };
 
 UbuntuRemoteDebugSupport::UbuntuRemoteDebugSupport(UbuntuRemoteRunConfiguration* runConfig,
@@ -105,10 +105,16 @@ void UbuntuRemoteDebugSupport::startExecution()
 
     setState(Starting);
 
-    if (d->cppDebugging && !assignNextFreePort(&d->gdbServerPort))
-        return;
-    if (d->qmlDebugging && !assignNextFreePort(&d->qmlPort))
+    if (d->cppDebugging) {
+        d->gdbServerPort = findFreePort();
+        if (!d->gdbServerPort.isValid())
             return;
+    }
+    if (d->qmlDebugging) {
+        d->qmlPort = findFreePort();
+        if (!d->qmlPort.isValid())
+            return;
+    }
 
     d->gdbserverOutput.clear();
 
@@ -120,9 +126,9 @@ void UbuntuRemoteDebugSupport::startExecution()
         connect(launcher, SIGNAL(clickApplicationStarted(quint16)), SLOT(handleRemoteProcessStarted(quint16)));
 
     if(d->cppDebugging)
-        launcher->setCppDebugPort(d->gdbServerPort);
+        launcher->setCppDebugPort(d->gdbServerPort.number());
     if(d->qmlDebugging)
-        launcher->setQmlDebugPort(d->qmlPort);
+        launcher->setQmlDebugPort(d->qmlPort.number());
 
     launcher->setEnv(environment());
 

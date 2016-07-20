@@ -135,7 +135,7 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
 {
     UbuntuProjectMigrationWizard wiz(project,parent);
     if(wiz.exec() == QDialog::Accepted) {
-        bool multiTargetProject = project->rootQmakeProjectNode()->projectType() == QmakeProjectManager::SubDirsTemplate;
+        bool multiTargetProject = project->rootProjectNode()->projectType() == QmakeProjectManager::SubDirsTemplate;
 
 
         QMap<QString,QString> base_replacements;
@@ -168,7 +168,7 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
             bool canRead = true;
             //setup the file reader correctly
 
-            if (ProFile *pro = reader->parsedProFile(node->path().toString())) {
+            if (ProFile *pro = reader->parsedProFile(node->filePath().toString())) {
                 if(!reader->accept(pro, QMakeEvaluator::LoadAll)) {
                     canRead = false;
                 }
@@ -179,7 +179,7 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
 
 
             if(!canRead) {
-                printToOutputPane(tr("Can not parse %1, skipping migration.").arg(node->path().toString()));
+                printToOutputPane(tr("Can not parse %1, skipping migration.").arg(node->filePath().toString()));
                 continue;
             }
 
@@ -308,7 +308,7 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
             //now add required files
             if(projectType == QmakeProjectManager::ApplicationTemplate) {
 
-                QFileInfo proFilePath(node->path().toString());
+                QFileInfo proFilePath(node->filePath().toFileInfo());
 
                 QmakeProjectManager::TargetInformation targetInfo = node->targetInformation();
                 if(hookTargets.contains(targetInfo.target)) {
@@ -441,7 +441,7 @@ void UbuntuProjectMigrationWizard::doMigrateProject(QmakeProjectManager::QmakePr
             manifestFile.write(doc.toJson());
             manifestFile.close();
 
-            project->rootQmakeProjectNode()->addSubProjects(QStringList()<<QString::fromLatin1("%1/%2").arg(project->projectDirectory().toString()).arg(QStringLiteral("/manifest.pro")));
+            project->rootProjectNode()->addSubProjects(QStringList()<<QString::fromLatin1("%1/%2").arg(project->projectDirectory().toString()).arg(QStringLiteral("/manifest.pro")));
         }
     }
 }

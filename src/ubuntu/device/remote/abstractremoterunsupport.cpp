@@ -84,14 +84,15 @@ UbuntuRemoteClickApplicationRunner *AbstractRemoteRunSupport::appRunner() const
     return &d->runner;
 }
 
-bool AbstractRemoteRunSupport::assignNextFreePort(int *port)
+Utils::Port AbstractRemoteRunSupport::findFreePort( )
 {
-    *port = d->portScanner.getNextFreePort(&d->freePorts);
-    if (*port == -1) {
+    Utils::Port thePort = d->portScanner.getNextFreePort(&d->freePorts);
+    if (!thePort.isValid()){
         handleAdapterSetupFailed(tr("Not enough free ports on device for debugging."));
-        return false;
+        return Utils::Port();
     }
-    return true;
+
+    return thePort;
 }
 
 void AbstractRemoteRunSupport::setFinished()

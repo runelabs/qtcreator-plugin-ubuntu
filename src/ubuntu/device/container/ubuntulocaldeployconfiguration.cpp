@@ -134,7 +134,7 @@ UbuntuLocalDeployConfiguration::UbuntuLocalDeployConfiguration(ProjectExplorer::
 
 void UbuntuLocalDeployConfiguration::selectAsDefaultHack()
 {
-    target()->setActiveDeployConfiguration(this);
+    //target()->setActiveDeployConfiguration(this);
 }
 
 } // namespace Internal

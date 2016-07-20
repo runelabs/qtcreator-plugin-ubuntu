@@ -67,7 +67,7 @@ QList<Core::Id> UbuntuLocalRunConfigurationFactory::availableCreationIds(Project
     if (isRemote) {
         //IF we have a remote device we just support a ubuntu toolchain
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(parent->kit());
-        if(tc && tc->type() != QLatin1String(Ubuntu::Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
+        if(tc && tc->typeId() != Ubuntu::Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
             return types;
     }
 
