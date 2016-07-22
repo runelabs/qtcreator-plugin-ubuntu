@@ -24,6 +24,7 @@
 #include <ubuntu/ubuntucmakecache.h>
 #include <ubuntu/ubuntuprojecthelper.h>
 #include <ubuntu/ubuntuclicktool.h>
+#include <ubuntu/clicktoolchain.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
@@ -621,6 +622,21 @@ bool UbuntuLocalRunConfiguration::isConfigured() const
 QStringList UbuntuLocalRunConfiguration::soLibSearchPaths() const
 {
     QStringList paths;
+
+    //lets tell GDB explicitely WHERE to look for debug syms
+    //otherwise it might try to resolve some symlinks that are broken from the hosts point of view
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
+    ClickToolChain *uTc = nullptr;
+
+    if (tc && tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
+        uTc = static_cast<ClickToolChain *>(tc);
+
+    if (uTc) {
+        paths << QString::fromLatin1("%1/lib/%2")
+                 .arg(UbuntuClickTool::targetBasePath(uTc->clickTarget()))
+                 .arg(uTc->gnutriplet());
+    }
+
     CMakeProjectManager::CMakeProject *cmakeProj
             = qobject_cast<CMakeProjectManager::CMakeProject *>(target()->project());
 

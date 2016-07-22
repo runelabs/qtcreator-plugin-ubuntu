@@ -50,8 +50,8 @@ public:
 
     // QWizardPage interface
 public:
-    virtual void initializePage();
-    virtual bool isComplete() const;
+    virtual void initializePage() override;
+    virtual bool isComplete() const override;
 };
 
 class UbuntuProjectDetailsPage : public QWizardPage
@@ -62,8 +62,8 @@ public:
 
     // QWizardPage interface
 public:
-    virtual void initializePage();
-    virtual bool isComplete() const;
+    virtual void initializePage() override;
+    virtual bool isComplete() const override;
 
 private:
     bool m_initialized;

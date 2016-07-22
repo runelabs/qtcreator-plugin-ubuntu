@@ -372,8 +372,11 @@ Item {
                                         visible: machineType === DeviceMachineType.Emulator
                                     }
                                     ListItem.SingleValue {
+                                        property string connTxt: machineType == DeviceMachineType.Emulator ?
+                                                                     i18n.tr("Please start the emulator to detect the framework version") :
+                                                                     i18n.tr("Please attach the device to detect the framework version")
                                         text: i18n.tr("Framework version")
-                                        value: frameworkVersion
+                                        value: frameworkVersion.length === 0 ? connTxt : frameworkVersion
                                     }
                                     ListItem.Standard {
                                         //show this listitem only when device is not connected

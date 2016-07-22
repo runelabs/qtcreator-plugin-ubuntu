@@ -36,14 +36,14 @@ class UbuntuAbstractGuiEditor : public Core::IEditor
 public:
     UbuntuAbstractGuiEditor(const Core::Context &context);
 
-    QWidget *toolBar();
+    QWidget *toolBar() override;
     UbuntuAbstractGuiEditorWidget *editorWidget() const;
-    Core::IDocument *document();
+    Core::IDocument *document() override;
     TextEditor::TextEditorWidget *textEditor() const;
 
-    int currentLine() const;
-    int currentColumn() const;
-    void gotoLine(int line, int column = 0) { textEditor()->gotoLine(line, column); }
+    int currentLine() const override;
+    int currentColumn() const override;
+    void gotoLine(int line, int column = 0, bool centerLine = true) override { textEditor()->gotoLine(line, column, centerLine); }
 
 protected:
     virtual UbuntuAbstractGuiEditorWidget * createGuiEditor () = 0;

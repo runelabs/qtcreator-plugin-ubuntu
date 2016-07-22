@@ -57,8 +57,8 @@ public:
     UbuntuQmlUpdateTranslationTemplateStep(ProjectExplorer::BuildStepList *bsl, UbuntuQmlUpdateTranslationTemplateStep *bs);
 
     // BuildStep interface
-    virtual bool init();
-    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    virtual bool init() override;
+    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
     QString makeCommand(ProjectExplorer::ToolChain *tc, const Utils::Environment &env) const;
 };
@@ -71,9 +71,9 @@ public:
     UbuntuQmlBuildTranslationStep(ProjectExplorer::BuildStepList *bsl, UbuntuQmlBuildTranslationStep *bs);
 
     // BuildStep interface
-    virtual bool init();
-    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    void run(QFutureInterface<bool> &fi);
+    virtual bool init() override;
+    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    void run(QFutureInterface<bool> &fi) override;
 
 private:
     QString m_translationDir;

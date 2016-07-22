@@ -16,9 +16,9 @@ public:
 
 public:
     // IOutputParser interface
-    virtual void stdOutput(const QString &line);
-    virtual void stdError(const QString &line);
-    virtual bool hasFatalErrors() const;
+    virtual void stdOutput(const QString &line) override;
+    virtual void stdError(const QString &line) override;
+    virtual bool hasFatalErrors() const override;
 
     void setTreatAllErrorsAsWarnings ( const bool set );
 
@@ -29,7 +29,7 @@ private slots:
     void onParsedNewTopLevelItem (ClickRunChecksParser::DataItem* item);
 
 private:
-    virtual void doFlush();
+    virtual void doFlush() override;
     void emitTasks (const ClickRunChecksParser::DataItem *item, int level = 0);
     bool isError (const ClickRunChecksParser::DataItem *item);
     ClickRunChecksParser m_subParser;
@@ -45,9 +45,9 @@ class UbuntuClickReviewTaskHandler : public ProjectExplorer::ITaskHandler
 
     // ITaskHandler interface
 public:
-    virtual bool canHandle(const ProjectExplorer::Task &task) const;
-    virtual void handle(const ProjectExplorer::Task &task);
-    virtual QAction *createAction(QObject *parent) const;
+    virtual bool canHandle(const ProjectExplorer::Task &task) const override;
+    virtual void handle(const ProjectExplorer::Task &task) override;
+    virtual QAction *createAction(QObject *parent) const override;
 
 private:
     QUrl getUrl (const ProjectExplorer::Task &task) const;
