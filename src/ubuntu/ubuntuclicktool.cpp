@@ -267,7 +267,7 @@ QString UbuntuClickTool::targetBasePath(const UbuntuClickTool::Target &target)
     return in.readAll().trimmed();
 }
 
-bool UbuntuClickTool::parseContainerName(const QString &name, UbuntuClickTool::Target *target)
+bool UbuntuClickTool::parseContainerName(const QString &name, UbuntuClickTool::Target *target, QStringList *allExt)
 {
     QStringList ext;
     target->framework = UbuntuClickFrameworkProvider::getBaseFramework(name, &ext);
@@ -279,6 +279,10 @@ bool UbuntuClickTool::parseContainerName(const QString &name, UbuntuClickTool::T
     if (ext.isEmpty() || ext.size() != 3)
         return false;
     target->architecture = ext[1];
+
+    if (allExt)
+        *allExt = ext;
+
     return true;
 }
 
