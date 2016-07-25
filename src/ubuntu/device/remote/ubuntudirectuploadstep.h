@@ -23,7 +23,7 @@ public:
     // BuildStep interface
     virtual void run(QFutureInterface<bool> &fi) override;
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool initInternal(QString *error = 0) override;
 
     RemoteLinux::AbstractRemoteLinuxDeployService *deployService() const override;

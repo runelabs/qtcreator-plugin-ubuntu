@@ -32,11 +32,11 @@ class UbuntuWelcomePage : public Core::IWelcomePage
 
 public:
     // IWelcomePage interface
-    virtual QUrl pageLocation() const;
-    virtual QString title() const;
-    virtual int priority() const;
-    virtual void facilitateQml(QQmlEngine *engine);
-    virtual Core::Id id() const;
+    virtual QUrl pageLocation() const override;
+    virtual QString title() const override;
+    virtual int priority() const override;
+    virtual void facilitateQml(QQmlEngine *engine) override;
+    virtual Core::Id id() const override;
 
 public slots:
     void newProject();

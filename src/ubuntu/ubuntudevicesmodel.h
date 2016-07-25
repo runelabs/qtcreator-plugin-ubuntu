@@ -93,11 +93,11 @@ public:
     UbuntuDevice::ConstPtr device ( const int index );
 
     // QAbstractItemModel interface
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
-    virtual QVariant data(const QModelIndex &index, int role) const;
-    virtual QHash<int, QByteArray> roleNames() const;
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    virtual bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+    virtual QVariant data(const QModelIndex &index, int role) const override;
+    virtual QHash<int, QByteArray> roleNames() const override;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     bool cancellable() const;
     QString state() const;

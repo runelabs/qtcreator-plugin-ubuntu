@@ -58,16 +58,14 @@ public:
     bool aboutToStart (QString *errorMessage);
 
     QString appId() const;
+    void addToBaseEnvironment(Utils::Environment &env) const;
 
     // AbstractRemoteLinuxRunConfiguration interface
     virtual QString localExecutableFilePath() const override;
     virtual QString remoteExecutableFilePath() const override;
     virtual QStringList arguments() const override;
     virtual Utils::Environment environment() const override;
-    virtual QString workingDirectory() const;
-
-    // LocalApplicationRunConfiguration interface
-    virtual void addToBaseEnvironment(Utils::Environment &env) const;
+    virtual QString workingDirectory() const override;
 
     // RunConfiguration interface
     virtual bool isConfigured () const override;

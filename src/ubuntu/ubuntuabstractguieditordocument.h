@@ -32,7 +32,7 @@ class UbuntuAbstractGuiEditorDocument : public TextEditor::TextDocument
 {
 public:
     UbuntuAbstractGuiEditorDocument(const QString &mimeType, UbuntuAbstractGuiEditorWidget *editorWidget);
-    bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false);
+    bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false) override;
 
     QString defaultPath() const override;
     QString suggestedFileName() const override;
