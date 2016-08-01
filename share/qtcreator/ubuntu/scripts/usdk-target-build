@@ -144,7 +144,7 @@ lxd_arch = {
 # list of target architecures supported by host architectures
 compatible_arches = {
     "i386": ["i386", "armhf"],
-    "amd64": ["i386", "amd64", "armhf"],
+    "amd64": ["i386", "amd64", "armhf", "arm64"],
     "armhf": ["armhf"],
 }
 
@@ -776,7 +776,7 @@ class ClickChroot:
 
 
 def check_valid_arch(value):
-    valid_arch_set = ["i386", "amd64", "armhf"]
+    valid_arch_set = ["i386", "amd64", "armhf", "arm64"]
     if value not in valid_arch_set:
         raise argparse.ArgumentTypeError("%s is not a valid arch type" % value)
     return value
