@@ -79,11 +79,8 @@ extra_packages = {
         "language-pack-en",
         ],
     "ubuntu-sdk-16.04": [
-#        "ubuntu-sdk-libs:{TARGET}",
-#        "ubuntu-sdk-libs-dev:{TARGET}",
         "ubuntu-sdk-libs-tools",
         "oxideqt-codecs-extra",
-#        "ubuntu-html5-container:{TARGET}",
         "qt5-doc",
         "language-pack-en",
         "libcontent-hub0:{TARGET}",
