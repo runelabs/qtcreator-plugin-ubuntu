@@ -79,7 +79,75 @@ extra_packages = {
         "language-pack-en",
         ],
     "ubuntu-sdk-16.04": [
-        ],
+        "ubuntu-sdk-libs-tools",
+        "oxideqt-codecs-extra",
+        "qt5-doc",
+        "language-pack-en",
+        "libcontent-hub0:{TARGET}",
+        "libjsoncpp1:{TARGET}",
+        "libnet-cpp2:{TARGET}",
+        "libprocess-cpp3:{TARGET}",
+        "libqt5keychain0:{TARGET}",
+        "libqt5multimedia5-plugins:{TARGET}",
+        "libqt5sql5-sqlite:{TARGET}",
+        "qml-module-qt-labs-folderlistmodel:{TARGET}",
+        "qml-module-qt-labs-settings:{TARGET}",
+        "qml-module-qt-websockets:{TARGET}",
+        "qml-module-qtbluetooth:{TARGET}",
+        "qml-module-qtgraphicaleffects:{TARGET}",
+        "qml-module-qtlocation:{TARGET}",
+        "qml-module-qtmultimedia:{TARGET}",
+        "qml-module-qtorganizer:{TARGET}",
+        "qml-module-qtpositioning:{TARGET}",
+        "qml-module-qtpurchasing:{TARGET}",
+        "qml-module-qtqml-models2:{TARGET}",
+        "qml-module-qtqml-statemachine:{TARGET}",
+        "qml-module-qtquick-layouts:{TARGET}",
+        "qml-module-qtquick-localstorage:{TARGET}",
+        "qml-module-qtquick-particles2:{TARGET}",
+        "qml-module-qtquick-window2:{TARGET}",
+        "qml-module-qtquick-xmllistmodel:{TARGET}",
+        "qml-module-qtquick2:{TARGET}",
+        "qml-module-qtsensors:{TARGET}",
+        "qml-module-ubuntu-onlineaccounts:{TARGET}",
+        "qml-module-ubuntu-onlineaccounts-client:{TARGET}",
+        "qt5-image-formats-plugins:{TARGET}",
+        "qtdeclarative5-poppler1.0:{TARGET}",
+        "qtdeclarative5-u1db1.0:{TARGET}",
+        "qtdeclarative5-ubuntu-content1:{TARGET}",
+        "qtdeclarative5-ubuntu-download-manager0.1:{TARGET}",
+        "qtdeclarative5-ubuntu-mediascanner0.1:{TARGET}",
+        "qtdeclarative5-ubuntu-push-plugin:{TARGET}",
+        "qtdeclarative5-ubuntu-syncmonitor0.1:{TARGET}",
+        "qtdeclarative5-ubuntu-telephony-phonenumber0.1:{TARGET}",
+        "qtdeclarative5-ubuntu-ui-toolkit-plugin:{TARGET}",
+        "qtdeclarative5-usermetrics0.1:{TARGET}",
+        "ubuntu-ui-toolkit-theme:{TARGET}",
+        "qtdeclarative5-ubuntu-ui-toolkit-plugin:{TARGET}",
+        "google-mock:{TARGET}",
+        "libcontent-hub-dev:{TARGET}",
+        "libjsoncpp-dev:{TARGET}",
+        "libnet-cpp-dev:{TARGET}",
+        "libprocess-cpp-dev:{TARGET}",
+        "libproperties-cpp-dev:{TARGET}",
+        "libqt5sensors5-dev:{TARGET}",
+        "libqt5svg5-dev:{TARGET}",
+        "libqt5websockets5-dev:{TARGET}",
+        "libqt5xmlpatterns5-dev:{TARGET}",
+        "libssl-dev:{TARGET}",
+        "libunity-scopes-dev:{TARGET}",
+        "qt3d5-dev:{TARGET}",
+        "qt5-default:{TARGET}",
+        "qtbase5-dev:{TARGET}",
+        "qtdeclarative5-dev:{TARGET}",
+        "qtdeclarative5-dev-tools:{TARGET}",
+        "qtlocation5-dev:{TARGET}",
+        "qtmultimedia5-dev:{TARGET}",
+        "qtpim5-dev:{TARGET}",
+        "qttools5-dev:{TARGET}",
+        "ubuntu-sdk-qmake-extras:{TARGET}",
+        "ubuntu-ui-toolkit-doc:{TARGET}",
+       ],
     "ubuntu-sdk-16.10": [
         ]
     }
@@ -144,8 +212,9 @@ lxd_arch = {
 # list of target architecures supported by host architectures
 compatible_arches = {
     "i386": ["i386", "armhf"],
-    "amd64": ["i386", "amd64", "armhf"],
+    "amd64": ["i386", "amd64", "armhf", "arm64"],
     "armhf": ["armhf"],
+    "arm64": ["arm64"],
 }
 
 non_meta_re = re.compile(r'^[a-zA-Z0-9+,./:=@_-]+$')
@@ -526,7 +595,7 @@ class ClickChroot:
                 # Pull down signature requirements
                 apt-get -y --force-yes install gnupg ubuntu-keyring
             """).format(target_arch=self.target_arch))
-            if self.series == "vivid":
+            if self.series == "vivid" or self.series == "xenial":
                 finish.write(dedent("""\
                     apt-get -y --force-yes install software-properties-common
                     add-apt-repository -y ppa:{ppa}
@@ -776,7 +845,7 @@ class ClickChroot:
 
 
 def check_valid_arch(value):
-    valid_arch_set = ["i386", "amd64", "armhf"]
+    valid_arch_set = ["i386", "amd64", "armhf", "arm64"]
     if value not in valid_arch_set:
         raise argparse.ArgumentTypeError("%s is not a valid arch type" % value)
     return value
