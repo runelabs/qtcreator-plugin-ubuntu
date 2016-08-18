@@ -80,6 +80,8 @@ UbuntuRemoteDebugSupport::UbuntuRemoteDebugSupport(UbuntuRemoteRunConfiguration*
       d(new UbuntuRemoteDebugSupportPrivate(runConfig, runControl))
 {
     connect(d->runControl, SIGNAL(requestRemoteSetup()), this, SLOT(handleRemoteSetupRequested()));
+    connect(d->runControl,&Debugger::DebuggerRunControl::finished,
+            this, &UbuntuRemoteDebugSupport::handleDebuggingFinished);
 }
 
 UbuntuRemoteDebugSupport::~UbuntuRemoteDebugSupport()
@@ -228,7 +230,7 @@ void UbuntuRemoteDebugSupport::handleAdapterSetupDone()
 
     Debugger::RemoteSetupResult result;
     result.success = true;
-    result.inferiorPid = d->runControl->startParameters().attachPID;
+    //result.inferiorPid   = d->runControl->startParameters().attachPID;
     result.gdbServerPort = d->gdbServerPort;
     result.qmlServerPort = d->qmlPort;
     d->runControl->notifyEngineRemoteSetupFinished(result);

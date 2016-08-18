@@ -53,6 +53,9 @@ ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplore
     if (!ubuntuRC)
         return 0;
 
+    if (!ubuntuRC->aboutToStart(errorMessage))
+        return 0;
+
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
     const auto rcRunnable = runConfiguration->runnable();
     QTC_ASSERT(rcRunnable.is<ProjectExplorer::StandardRunnable>(), return 0);
@@ -74,9 +77,6 @@ ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplore
 
     ContainerDevice::ConstPtr dev = qSharedPointerCast<const ContainerDevice>(genericDev);
     ClickToolChain *tc = static_cast<ClickToolChain *>(genericToolchain);
-
-    if (!ubuntuRC->aboutToStart(errorMessage))
-        return 0;
 
     if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE) {
         RemoteLinux::RemoteLinuxRunControl *runControl = new RemoteLinux::RemoteLinuxRunControl(ubuntuRC);
@@ -155,9 +155,7 @@ ProjectExplorer::RunControl *UbuntuLocalRunControlFactory::create(ProjectExplore
             if (!runControl)
                 return 0;
 
-            RemoteLinux::LinuxDeviceDebugSupport * const debugSupport =
-                    new RemoteLinux::LinuxDeviceDebugSupport(ubuntuRC, runControl);
-            connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
+            (void) new RemoteLinux::LinuxDeviceDebugSupport(ubuntuRC, runControl);
             return runControl;
         }
         return 0;

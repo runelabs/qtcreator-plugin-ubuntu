@@ -135,6 +135,11 @@ QList<QString> ClickToolChain::supportedArchitectures()
     return clickArchitectures.keys();
 }
 
+QString ClickToolChain::remoteCompilerCommand() const
+{
+    return QString::fromLatin1("/usr/bin/%1").arg(compilerCommand().fileName());
+}
+
 QVariantMap ClickToolChain::toMap() const
 {
     QVariantMap map = GccToolChain::toMap();

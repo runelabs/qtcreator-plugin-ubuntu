@@ -278,7 +278,8 @@ void UbuntuPackageStep::run(QFutureInterface<bool> &fi)
         }
         emit addOutput(tr("Configuration is invalid. Aborting build")
                        ,ProjectExplorer::BuildStep::MessageOutput);
-        reportRunResult(*m_futureInterface, false);
+
+        reportRunResult(fi, false);
         cleanup();
         return;
     }
@@ -488,7 +489,8 @@ bool UbuntuPackageStep::processFinished(FinishedCheckMode mode)
 
     //the process failed, lets clean up
     if (!success) {
-        reportRunResult(*m_futureInterface, false);
+        if(m_futureInterface)
+            reportRunResult(*m_futureInterface, false);
         cleanup();
     }
     return success;
@@ -572,7 +574,8 @@ void UbuntuPackageStep::injectDebugHelperStep()
                            .arg(m_deployDir),
                            BuildStep::ErrorMessageOutput);
 
-            reportRunResult(*m_futureInterface, false);
+            if(m_futureInterface)
+                reportRunResult(*m_futureInterface, false);
             cleanup();
             return;
         }
@@ -583,7 +586,8 @@ void UbuntuPackageStep::injectDebugHelperStep()
                            .arg(err),
                            BuildStep::ErrorMessageOutput);
 
-            reportRunResult(*m_futureInterface, false);
+            if(m_futureInterface)
+                reportRunResult(*m_futureInterface, false);
             cleanup();
             return;
         }
@@ -743,7 +747,8 @@ void UbuntuPackageStep::doNextStep()
 
             if (m_packageMode == OnlyMakeInstall) {
 
-                reportRunResult(*m_futureInterface, true);
+                if(m_futureInterface)
+                    reportRunResult(*m_futureInterface, true);
                 cleanup();
 
                 return;
@@ -769,7 +774,7 @@ void UbuntuPackageStep::doNextStep()
             if (!processFinished())
                 return;
 
-            QRegularExpression exp(QLatin1String(Constants::UBUNTU_CLICK_SUCCESS_PACKAGE_REGEX));
+            QRegularExpression exp((QLatin1String(Constants::UBUNTU_CLICK_SUCCESS_PACKAGE_REGEX)));
             QRegularExpressionMatch m = exp.match(m_lastLine);
             if(m.hasMatch()) {
                 m_clickPackageName = m.captured(1);
@@ -791,7 +796,8 @@ void UbuntuPackageStep::doNextStep()
             if (!processFinished(IgnoreReturnCode))
                 return;
 
-            reportRunResult(*m_futureInterface, true);
+            if(m_futureInterface)
+                reportRunResult(*m_futureInterface, true);
             cleanup();
         }
 
@@ -820,7 +826,8 @@ void UbuntuPackageStep::onProcessStdErr()
 
 void UbuntuPackageStep::onProcessFailedToStart()
 {
-    reportRunResult(*m_futureInterface, false);
+    if(m_futureInterface)
+        reportRunResult(*m_futureInterface, false);
 
     ProjectExplorer::ProcessParameters *params;
     if (m_state == MakeInstall)

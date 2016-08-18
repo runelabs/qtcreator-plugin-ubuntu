@@ -24,6 +24,7 @@
 #include <ubuntu/ubuntucmakecache.h>
 #include <ubuntu/ubuntuprojecthelper.h>
 #include <ubuntu/ubuntuclicktool.h>
+#include <ubuntu/clicktoolchain.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
@@ -132,8 +133,9 @@ ProjectExplorer::Runnable UbuntuLocalRunConfiguration::runnable() const
         return ProjectExplorer::Runnable();
 
     ProjectExplorer::StandardRunnable r;
-    r.executable = m_executable;
+    r.executable = remoteExecutableFilePath();
     r.device = ProjectExplorer::DeviceKitInformation::device(target()->kit());
+    r.commandLineArguments = Utils::QtcProcess::joinArgs(arguments(), Utils::OsTypeLinux);
 
     // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
     r.workingDirectory = Utils::FileUtils::normalizePathName(m_workingDir.toString());
@@ -638,6 +640,21 @@ bool UbuntuLocalRunConfiguration::isConfigured() const
 QStringList UbuntuLocalRunConfiguration::soLibSearchPaths() const
 {
     QStringList paths;
+
+    //lets tell GDB explicitely WHERE to look for debug syms
+    //otherwise it might try to resolve some symlinks that are broken from the hosts point of view
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
+    ClickToolChain *uTc = nullptr;
+
+    if (tc && tc->typeId() == Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
+        uTc = static_cast<ClickToolChain *>(tc);
+
+    if (uTc) {
+        paths << QString::fromLatin1("%1/lib/%2")
+                 .arg(UbuntuClickTool::targetBasePath(uTc->clickTarget()))
+                 .arg(uTc->gnutriplet());
+    }
+
     CMakeProjectManager::CMakeProject *cmakeProj
             = qobject_cast<CMakeProjectManager::CMakeProject *>(target()->project());
 

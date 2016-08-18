@@ -253,6 +253,10 @@ bool UbuntuClickTool::getTargetFromUser(Target *target, const QString &framework
 
 QString UbuntuClickTool::targetBasePath(const UbuntuClickTool::Target &target)
 {
+    static QMap<QString, QString> basePathCache;
+    if (basePathCache.contains(target.containerName))
+        return basePathCache.value(target.containerName);
+
     QProcess sdkTool;
     sdkTool.setReadChannel(QProcess::StandardOutput);
     sdkTool.setProgram(Constants::UBUNTU_TARGET_TOOL);
@@ -264,7 +268,9 @@ QString UbuntuClickTool::targetBasePath(const UbuntuClickTool::Target &target)
         return QString();
 
     QTextStream in(&sdkTool);
-    return in.readAll().trimmed();
+    QString basePath = in.readAll().trimmed();
+    basePathCache.insert(target.containerName, basePath);
+    return basePath;
 }
 
 bool UbuntuClickTool::parseContainerName(const QString &name, UbuntuClickTool::Target *target, QStringList *allExt)

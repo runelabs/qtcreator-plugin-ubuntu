@@ -114,6 +114,11 @@ int UbuntuQtVersion::minimalScriptVersion()
     return MIN_SCRIPT_VERSION;
 }
 
+QString UbuntuQtVersion::remoteQMakeCommand() const
+{
+    return QString::fromLatin1("/usr/bin/%2").arg(qmakeCommand().fileName());
+}
+
 bool UbuntuQtVersion::hasQmlDump() const
 {
     return false;

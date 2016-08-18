@@ -22,6 +22,7 @@
 #include <cmakeprojectmanager/cmaketoolmanager.h>
 #include <cmakeprojectmanager/cmaketool.h>
 #include <cmakeprojectmanager/cmakekitinformation.h>
+#include <cmakeprojectmanager/cmakeconfigitem.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <QMessageBox>
@@ -564,13 +565,20 @@ void UbuntuKitManager::fixKit(ProjectExplorer::Kit *k)
     k->setMutable(ProjectExplorer::SysRootKitInformation::id(),false);
 
     //make sure we use a ubuntu Qt version
-    QtSupport::QtKitInformation::setQtVersion(k, createOrFindQtVersion(tc));
+    UbuntuQtVersion *qtVer = createOrFindQtVersion(tc);
+    QtSupport::QtKitInformation::setQtVersion(k, qtVer);
 
     //make sure we use a ubuntu cmake
     CMakeProjectManager::CMakeTool *cmake = createOrFindCMakeTool(tc);
     if(cmake) {
+        CMakeProjectManager::CMakeConfig  conf{
+            CMakeProjectManager::CMakeConfigItem("QT_QMAKE_EXECUTABLE",  qtVer->remoteQMakeCommand().toUtf8()),
+            CMakeProjectManager::CMakeConfigItem("CMAKE_CXX_COMPILER",  tc->remoteCompilerCommand().toUtf8())
+        };
+
         cmake->setPathMapper(&UbuntuClickTool::mapIncludePathsForCMake);
         CMakeProjectManager::CMakeKitInformation::setCMakeTool(k, cmake->id());
+        CMakeProjectManager::CMakeConfigurationKitInformation::setConfiguration(k , conf);
     }
 
 }

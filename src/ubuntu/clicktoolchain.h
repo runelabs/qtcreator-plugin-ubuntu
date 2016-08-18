@@ -52,6 +52,8 @@ public:
     static ProjectExplorer::Abi architectureNameToAbi ( const QString &arch );
     static QList<QString> supportedArchitectures ();
 
+    QString remoteCompilerCommand () const;
+
 protected:
     virtual bool fromMap(const QVariantMap &data) override;
 

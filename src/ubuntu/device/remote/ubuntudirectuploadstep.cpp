@@ -65,11 +65,7 @@ UbuntuDirectUploadStep::~UbuntuDirectUploadStep()
 
 void UbuntuDirectUploadStep::run(QFutureInterface<bool> &fi)
 {
-    if (/* DISABLES CODE */ (true)) {
-        doFail(tr("This is a test error!!!!!!!!!!!!!!!!!!!!!!!!!!!!"));
-        m_future = 0;
-        return;
-    }
+    m_future = &fi;
 
     m_foundClickPackage = false;
     projectNameChanged();
@@ -90,7 +86,6 @@ void UbuntuDirectUploadStep::run(QFutureInterface<bool> &fi)
         return;
     }
 
-    m_future = &fi;
     if(dev->deviceState() != ProjectExplorer::IDevice::DeviceReadyToUse) {
         //we are already waiting
         if (m_waitDialog)
@@ -136,7 +131,8 @@ void UbuntuDirectUploadStep::doFail(const QString &err)
 {
     emit addOutput(err, ErrorMessageOutput);
     disconnect(deployService(), 0, this, 0);
-    reportRunResult(*m_future, false);
+    if (m_future)
+        reportRunResult(*m_future, false);
 }
 
 ProjectExplorer::BuildStepConfigWidget *UbuntuDirectUploadStep::createConfigWidget()

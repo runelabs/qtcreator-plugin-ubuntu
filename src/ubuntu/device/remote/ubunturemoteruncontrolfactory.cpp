@@ -112,6 +112,7 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
             params.startMode = Debugger::AttachToRemoteServer;
             params.closeMode = Debugger::KillAndExitMonitorAtClose;
             params.remoteSetupNeeded = true;
+            params.useContinueInsteadOfRun = true;
 
             if (aspect->useQmlDebugger()) {
                 params.qmlServer.host = dev->sshParameters().host;
@@ -119,12 +120,14 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
             }
             if (aspect->useCppDebugger()) {
                 aspect->setUseMultiProcess(true);
+#if 1
                 params.inferior.executable = stdRunnable.executable;
                 params.inferior.commandLineArguments = stdRunnable.commandLineArguments;
                 if (aspect->useQmlDebugger()) {
                     params.inferior.commandLineArguments.prepend(QLatin1Char(' '));
                     params.inferior.commandLineArguments.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices));
                 }
+#endif
                 params.remoteChannel = dev->sshParameters().host + QLatin1String(":-1");
                 params.symbolFile = rc->localExecutableFilePath();
             }

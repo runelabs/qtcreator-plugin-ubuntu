@@ -33,6 +33,8 @@ public:
 
     static int minimalScriptVersion ();
 
+    QString remoteQMakeCommand () const;
+
     // BaseQtVersion interface
     virtual bool hasQmlDump() const override;
     virtual bool hasQmlDumpWithRelocatableFlag() const override;

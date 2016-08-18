@@ -148,7 +148,7 @@ QString UbuntuProject::shadowBuildDirectory(const QString &proFilePath
         return info.absolutePath();
 
     const QString projectName = QFileInfo(proFilePath).completeBaseName();
-    ProjectExplorer::ProjectMacroExpander expander(projectName, k, suffix, buildType);
+    ProjectExplorer::ProjectMacroExpander expander(proFilePath, projectName, k, suffix, buildType);
     QDir projectDir = QDir(projectDirectory(Utils::FileName::fromString(proFilePath)).toString());
     QString buildPath = expander.expand(Core::DocumentManager::buildDirectory());
     return QDir::cleanPath(projectDir.absoluteFilePath(buildPath));
