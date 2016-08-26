@@ -52,9 +52,9 @@ SOURCES += \
     src/ubuntu/ubuntuproject.cpp \
     src/ubuntu/ubuntuprojectfile.cpp \
     src/ubuntu/ubuntuprojectnode.cpp \
-    src/ubuntu/ubuntuversion.cpp \
-    src/ubuntu/ubuntufeatureprovider.cpp \
-    src/ubuntu/ubuntuversionmanager.cpp \
+    #src/ubuntu/ubuntuversion.cpp \
+    #src/ubuntu/ubuntufeatureprovider.cpp \
+    #src/ubuntu/ubuntuversionmanager.cpp \
     src/ubuntu/ubuntupackagingmode.cpp \
     src/ubuntu/ubuntubzr.cpp \
     src/ubuntu/ubuntuclickmanifest.cpp \
@@ -121,9 +121,9 @@ HEADERS += \
     src/ubuntu/ubuntuproject.h \
     src/ubuntu/ubuntuprojectfile.h \
     src/ubuntu/ubuntuprojectnode.h \
-    src/ubuntu/ubuntuversion.h \
-    src/ubuntu/ubuntufeatureprovider.h \
-    src/ubuntu/ubuntuversionmanager.h \
+    #src/ubuntu/ubuntuversion.h \
+    #src/ubuntu/ubuntufeatureprovider.h \
+    #src/ubuntu/ubuntuversionmanager.h \
     src/ubuntu/ubuntupackagingmode.h \
     src/ubuntu/ubuntubzr.h \
     src/ubuntu/ubuntuclickmanifest.h \

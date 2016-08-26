@@ -18,7 +18,7 @@ public:
     void setPackageDir(const QString &packageDir);
 
     // BuildStep interface
-    virtual bool init() override;
+    virtual bool init(QList<const BuildStep *> &earlierSteps) override;
     virtual void run(QFutureInterface<bool> &fi) override;
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 

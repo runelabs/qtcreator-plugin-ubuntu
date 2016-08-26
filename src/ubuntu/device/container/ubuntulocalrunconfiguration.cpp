@@ -30,6 +30,7 @@
 #include <qtsupport/qtkitinformation.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/runnables.h>
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
 #include <cmakeprojectmanager/cmakeproject.h>
@@ -60,14 +61,14 @@ Utils::Environment UbuntuLocalEnvironmentAspect::baseEnvironment() const
 }
 
 UbuntuLocalRunConfiguration::UbuntuLocalRunConfiguration(ProjectExplorer::Target *parent, Core::Id id)
-    : RemoteLinux::AbstractRemoteLinuxRunConfiguration(parent, id)
+    : ProjectExplorer::RunConfiguration(parent, id)
 {
     setDisplayName(appId());
     addExtraAspect(new UbuntuLocalEnvironmentAspect(this));
 }
 
 UbuntuLocalRunConfiguration::UbuntuLocalRunConfiguration(ProjectExplorer::Target *parent, UbuntuLocalRunConfiguration *source)
-    : RemoteLinux::AbstractRemoteLinuxRunConfiguration(parent,source)
+    : ProjectExplorer::RunConfiguration(parent,source)
 {
 }
 
@@ -124,6 +125,23 @@ QString UbuntuLocalRunConfiguration::workingDirectory() const
 ProjectExplorer::RunConfiguration::ConfigurationState UbuntuLocalRunConfiguration::ensureConfigured(QString *)
 {
     return Configured;
+}
+
+ProjectExplorer::Runnable UbuntuLocalRunConfiguration::runnable() const
+{
+    if (m_executable.isEmpty())
+        return ProjectExplorer::Runnable();
+
+    ProjectExplorer::StandardRunnable r;
+    r.executable = remoteExecutableFilePath();
+    r.device = ProjectExplorer::DeviceKitInformation::device(target()->kit());
+    r.commandLineArguments = Utils::QtcProcess::joinArgs(arguments(), Utils::OsTypeLinux);
+
+    // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
+    r.workingDirectory = Utils::FileUtils::normalizePathName(m_workingDir.toString());
+    r.environment = environment();
+
+    return r;
 }
 
 bool UbuntuLocalRunConfiguration::aboutToStart(QString *errorMessage)
@@ -628,7 +646,7 @@ QStringList UbuntuLocalRunConfiguration::soLibSearchPaths() const
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
     ClickToolChain *uTc = nullptr;
 
-    if (tc && tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
+    if (tc && tc->typeId() == Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
         uTc = static_cast<ClickToolChain *>(tc);
 
     if (uTc) {

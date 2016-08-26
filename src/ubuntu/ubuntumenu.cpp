@@ -116,7 +116,7 @@ void UbuntuMenu::slotUpdateActions() {
         isClickTarget = startupProject->activeTarget()
                 && startupProject->activeTarget()->kit()
                 && ProjectExplorer::ToolChainKitInformation::toolChain(startupProject->activeTarget()->kit())
-                && ProjectExplorer::ToolChainKitInformation::toolChain(startupProject->activeTarget()->kit())->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID);
+                && ProjectExplorer::ToolChainKitInformation::toolChain(startupProject->activeTarget()->kit())->typeId() == Constants::UBUNTU_CLICK_TOOLCHAIN_ID;
     }
 
     //bool canRun = projectExplorerInstance->canRun(startupProject,ProjectExplorer::NormalRunMode);

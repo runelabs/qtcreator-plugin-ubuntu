@@ -65,12 +65,13 @@ UbuntuDirectUploadStep::~UbuntuDirectUploadStep()
 
 void UbuntuDirectUploadStep::run(QFutureInterface<bool> &fi)
 {
+    m_future = &fi;
+
     m_foundClickPackage = false;
     projectNameChanged();
     if(!m_foundClickPackage) {
-        emit addOutput(tr("Deploy step failed. No click package was created"), ErrorMessageOutput);
-        fi.reportResult(false);
-        emit finished();
+        doFail(tr("Deploy step failed. No click package was created"));
+        m_future = 0;
         return;
     }
 
@@ -80,13 +81,11 @@ void UbuntuDirectUploadStep::run(QFutureInterface<bool> &fi)
 
     UbuntuDevice::ConstPtr dev = deviceFromTarget(target());
     if(!dev) {
-        emit addOutput(tr("Deploy step failed. No valid device configured"), ErrorMessageOutput);
-        fi.reportResult(false);
-        emit finished();
+        doFail(tr("Deploy step failed. No valid device configured"));
+        m_future = 0;
         return;
     }
 
-    m_future = &fi;
     if(dev->deviceState() != ProjectExplorer::IDevice::DeviceReadyToUse) {
         //we are already waiting
         if (m_waitDialog)
@@ -109,10 +108,8 @@ void UbuntuDirectUploadStep::handleWaitDialogCanceled( )
 {
     m_waitDialog->deleteLater();
 
-    emit addOutput(tr("Deploy step failed"), ErrorMessageOutput);
-    m_future->reportResult(false);
+    doFail(tr("Deploy step failed"));
     m_future = 0;
-    emit finished();
 }
 
 void UbuntuDirectUploadStep::handleDeviceReady()
@@ -121,15 +118,21 @@ void UbuntuDirectUploadStep::handleDeviceReady()
 
     QString whyNot;
     if(!deployService()->isDeploymentPossible(&whyNot)) {
-        emit addOutput(tr("Deploy step failed. %1").arg(whyNot), ErrorMessageOutput);
-        m_future->reportResult(false);
+        doFail(tr("Deploy step failed. %1").arg(whyNot));
         m_future = 0;
-        emit finished();
         return;
     }
 
     AbstractRemoteLinuxDeployStep::run(*m_future);
     m_future = 0;
+}
+
+void UbuntuDirectUploadStep::doFail(const QString &err)
+{
+    emit addOutput(err, ErrorMessageOutput);
+    disconnect(deployService(), 0, this, 0);
+    if (m_future)
+        reportRunResult(*m_future, false);
 }
 
 ProjectExplorer::BuildStepConfigWidget *UbuntuDirectUploadStep::createConfigWidget()

@@ -25,6 +25,7 @@
 #include <QFutureInterface>
 #include <QQueue>
 #include <projectexplorer/processparameters.h>
+#include <cmakeprojectmanager/cmaketool.h>
 #include <utils/qtcprocess.h>
 #include <QDebug>
 
@@ -85,11 +86,12 @@ public:
     static QString findOrCreateToolWrapper(const QString &tool, const UbuntuClickTool::Target &target);
     static QString findOrCreateQMakeWrapper(const UbuntuClickTool::Target &target);
     static QString findOrCreateMakeWrapper(const UbuntuClickTool::Target &target);
-    static QString mapIncludePathsForCMake(ProjectExplorer::Kit *k, const QString &in);
+    static QString mapIncludePathsForCMake(const ProjectExplorer::Kit *k, const QString &in);
     static QString hostArchitecture ();
     static bool    compatibleWithHostArchitecture (const QString &targetArch);
 
     static bool          targetExists (const Target& target);
+    static bool          targetExists (const QString& targetName);
     static QList<Target> listAvailableTargets (const QString &framework=QString());
     static QList<Target> listPossibleDeviceContainers ();
     static const Target *clickTargetFromTarget(ProjectExplorer::Target *t);

@@ -57,7 +57,7 @@ public:
     UbuntuQmlUpdateTranslationTemplateStep(ProjectExplorer::BuildStepList *bsl, UbuntuQmlUpdateTranslationTemplateStep *bs);
 
     // BuildStep interface
-    virtual bool init() override;
+    virtual bool init(QList<const BuildStep *> &earlierSteps) override;
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
     QString makeCommand(ProjectExplorer::ToolChain *tc, const Utils::Environment &env) const;
@@ -71,7 +71,7 @@ public:
     UbuntuQmlBuildTranslationStep(ProjectExplorer::BuildStepList *bsl, UbuntuQmlBuildTranslationStep *bs);
 
     // BuildStep interface
-    virtual bool init() override;
+    virtual bool init(QList<const BuildStep *> &earlierSteps) override;
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     void run(QFutureInterface<bool> &fi) override;
 
@@ -107,14 +107,14 @@ class UbuntuQmlBuildStepFactory : public ProjectExplorer::IBuildStepFactory
 
 public:
     // IBuildStepFactory interface
-    virtual QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const override;
-    virtual QString displayNameForId(const Core::Id id) const override;
-    virtual bool canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const override;
+    virtual QList<ProjectExplorer::BuildStepInfo> availableSteps(ProjectExplorer::BuildStepList *parent) const override;
     virtual ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id) override;
-    virtual bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const override;
     virtual ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) override;
-    virtual bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) const override;
     virtual ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) override;
+
+private:
+    bool canHandle(ProjectExplorer::BuildStepList *parent, const Core::Id id) const;
+
 };
 
 } // namespace Internal

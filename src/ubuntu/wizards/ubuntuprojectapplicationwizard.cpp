@@ -33,6 +33,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <cmakeprojectmanager/cmakekitinformation.h>
 #include <cmakeprojectmanager/cmaketool.h>
+#include <coreplugin/id.h>
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/toolchain.h>
@@ -141,14 +142,16 @@ Core::GeneratedFiles UbuntuProjectApplicationWizard::generateFiles(const QWizard
 }
 
 
-Core::FeatureSet UbuntuProjectApplicationWizard::requiredFeatures() const
+QSet<Core::Id> UbuntuProjectApplicationWizard::requiredFeatures() const
 {
 #ifdef Q_PROCESSOR_ARM
     return CustomProjectWizard::requiredFeatures();
 #else
-    return CustomProjectWizard::requiredFeatures()
-            | Core::Feature(QtSupport::Constants::FEATURE_QMLPROJECT)
-            | Core::Feature::versionedFeature(QtSupport::Constants::FEATURE_QT_QUICK_PREFIX, 2);
+    QSet<Core::Id> features = CustomProjectWizard::requiredFeatures();
+    features << QtSupport::Constants::FEATURE_QMLPROJECT
+             << Core::Id::versionedId(QtSupport::Constants::FEATURE_QT_QUICK_PREFIX, 2);
+
+    return features;
 #endif
 }
 
@@ -220,7 +223,7 @@ void UbuntuProjectApplicationWizardDialog::addChrootSetupPage(int id)
     bool found = false;
     foreach(ProjectExplorer::Kit *curr, allKits) {
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(curr);
-        if (tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)) {
+        if (tc->typeId() == Constants::UBUNTU_CLICK_TOOLCHAIN_ID) {
             found = true;
             break;
         }
@@ -279,7 +282,7 @@ void UbuntuProjectApplicationWizardDialog::addTargetSetupPage(int id)
 #endif
                 //this is just a fallback for now to remove all ubuntu kits until cross compiling is sorted out
                 //it should not be hit at all but i keep it there just to be safe
-                m_targetSetupPage->setRequiredKitMatcher(QtSupport::QtKitInformation::platformMatcher(QLatin1String(QtSupport::Constants::DESKTOP_PLATFORM)));
+                m_targetSetupPage->setRequiredKitMatcher(QtSupport::QtKitInformation::platformMatcher(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE));
             break;
         }
         case UbuntuProjectApplicationWizard::QMakeProject:

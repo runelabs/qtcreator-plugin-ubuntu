@@ -113,7 +113,7 @@ int UbuntuClickDialog::maintainClickModal(const QList<UbuntuClickTool::Target> &
     int code = runProcessModal(paramList);
     if(mode == UbuntuClickTool::Delete) {
         //redetect documentation
-        QtSupport::QtVersionManager::delayedInitialize();
+        QtSupport::QtVersionManager::triggerDocumentationUpdate();
     }
     return code;
 }

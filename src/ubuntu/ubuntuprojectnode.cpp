@@ -87,7 +87,7 @@ ProjectExplorer::FolderNode *UbuntuProjectNode::findOrCreateFolderByName(const Q
     if (! end)
         return 0;
 
-    QString baseDir = path().toFileInfo().path();
+    QString baseDir = filePath().toFileInfo().path();
 
     QString folderName;
     for (int i = 0; i < end; ++i) {

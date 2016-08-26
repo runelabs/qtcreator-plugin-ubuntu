@@ -38,7 +38,7 @@ UbuntuLocalScopeDebugSupport::~UbuntuLocalScopeDebugSupport()
 
 void UbuntuLocalScopeDebugSupport::startExecution()
 {
-    QTC_ASSERT(state() == GatheringPorts, return);
+    QTC_ASSERT(state() == GatheringResources, return);
 
     setState(StartingRunner);
     m_gdbserverOutput.clear();
@@ -47,7 +47,8 @@ void UbuntuLocalScopeDebugSupport::startExecution()
     // as it will stick even for the next non debug run, and even though
     // we can then start without gdbserver the timouts will be always set
     // high, because the DebugMode=true setting is still there
-    if(!setPort(m_port)) {
+    m_port = findPort();
+    if(!m_port.isValid()) {
         Debugger::RemoteSetupResult res;
         res.success = false;
         res.reason = tr("Could not assign a free port for debugging.");
@@ -118,7 +119,7 @@ void UbuntuLocalScopeDebugSupport::startExecution()
     }
 
     args.append(QStringLiteral("--cppdebug"));
-    args.append(QString::number(m_port));
+    args.append(QString::number(m_port.number()));
 
 
     setState(StartingRunner);
@@ -138,9 +139,7 @@ void UbuntuLocalScopeDebugSupport::startExecution()
     connect(m_runControl, &Debugger::DebuggerRunControl::stateChanged,
             this, &UbuntuLocalScopeDebugSupport::handleStateChanged);
 
-    runner->setEnvironment(environment());
-    runner->setWorkingDirectory(workingDirectory());
-    runner->start(device(), m_executable, args);
+    runner->start(device(), runnable());
 }
 
 void UbuntuLocalScopeDebugSupport::handleRemoteSetupRequested()
@@ -148,7 +147,7 @@ void UbuntuLocalScopeDebugSupport::handleRemoteSetupRequested()
     QTC_ASSERT(state() == Inactive, return);
 
     showMessage(tr("Checking available ports...") + QLatin1Char('\n'), Debugger::LogStatus);
-    AbstractRemoteLinuxRunSupport::handleRemoteSetupRequested();
+    startPortsGathering();
 }
 
 void UbuntuLocalScopeDebugSupport::handleAppRunnerError(const QString &error)
@@ -171,7 +170,7 @@ void UbuntuLocalScopeDebugSupport::handleRemoteOutput(const QByteArray &output)
 
 void UbuntuLocalScopeDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
 {
-    QTC_ASSERT(state() != GatheringPorts, return);
+    QTC_ASSERT(state() != GatheringResources, return);
 
     if (!m_runControl)
         return;

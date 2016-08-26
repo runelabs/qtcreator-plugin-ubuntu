@@ -17,13 +17,13 @@ public:
     typedef QSharedPointer<UbuntuDeviceSignalOperation> Ptr;
 
     // DeviceProcessSignalOperation interface
-    virtual void killProcess(int pid) override;
+    virtual void killProcess(qint64 pid) override;
     virtual void killProcess(const QString &filePath) override;
-    virtual void interruptProcess(int pid) override;
+    virtual void interruptProcess(qint64 pid) override;
     virtual void interruptProcess(const QString &filePath) override;
 
 private:
-    void sendSignal (int pid, int signal);
+    void sendSignal (qint64 pid, int signal);
 
 private slots:
     void processFinished (int exitCode, QProcess::ExitStatus exitState);

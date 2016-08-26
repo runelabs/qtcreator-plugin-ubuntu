@@ -27,13 +27,13 @@
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <debugger/debuggerruncontrol.h>
+#include <qmldebug/qmldebugcommandlinearguments.h>
 #include <remotelinux/remotelinuxdebugsupport.h>
 #include <remotelinux/remotelinuxruncontrol.h>
 #include <remotelinux/remotelinuxanalyzesupport.h>
-#include <analyzerbase/analyzerstartparameters.h>
-#include <analyzerbase/analyzermanager.h>
-#include <analyzerbase/analyzerruncontrol.h>
-#include <analyzerbase/ianalyzertool.h>
+#include <debugger/analyzer/analyzerstartparameters.h>
+#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerruncontrol.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 
@@ -45,7 +45,6 @@ enum {
 
 bool UbuntuRemoteRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfiguration,
                                 Core::Id mode) const {
-
     if(qobject_cast<UbuntuRemoteRunConfiguration*>(runConfiguration)) {
         if (mode != ProjectExplorer::Constants::NORMAL_RUN_MODE
                 && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE
@@ -74,7 +73,11 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
         if (!rc->aboutToStart(errorMessage))
             return 0;
 
-        QTC_ASSERT(rc, return 0);
+        QTC_ASSERT(rc, return 0);        
+        const auto rcRunnable = runConfiguration->runnable();
+        QTC_ASSERT(rcRunnable.is<ProjectExplorer::StandardRunnable>(), return 0);
+        const auto stdRunnable = rcRunnable.as<ProjectExplorer::StandardRunnable>();
+
 
         if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE) {
             return new UbuntuRemoteRunControl(rc);
@@ -94,34 +97,62 @@ ProjectExplorer::RunControl *UbuntuRemoteRunControlFactory::create(ProjectExplor
                 return 0;
             }
 
-            if (2 > dev->freePorts().count()) {
+            auto aspect = rc->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+            if (aspect->portsUsedByDebugger() > dev->freePorts().count()) {
                 *errorMessage = tr("Cannot debug: Not enough free ports available.");
                 return 0;
             }
-            Debugger::DebuggerStartParameters params = RemoteLinux::LinuxDeviceDebugSupport::startParameters(rc);
+
+            /*
+             * Taken from remotelinuxruncontrolfactory.cpp and adapted
+             * to work here.
+             */
+            Debugger::DebuggerStartParameters params;
+            params.startMode = Debugger::AttachToRemoteServer;
+            params.closeMode = Debugger::KillAndExitMonitorAtClose;
+            params.remoteSetupNeeded = true;
+            params.useContinueInsteadOfRun = true;
+
+            if (aspect->useQmlDebugger()) {
+                params.qmlServer.host = dev->sshParameters().host;
+                params.qmlServer.port = Utils::Port(); // port is selected later on
+            }
+            if (aspect->useCppDebugger()) {
+                aspect->setUseMultiProcess(true);
+#if 1
+                params.inferior.executable = stdRunnable.executable;
+                params.inferior.commandLineArguments = stdRunnable.commandLineArguments;
+                if (aspect->useQmlDebugger()) {
+                    params.inferior.commandLineArguments.prepend(QLatin1Char(' '));
+                    params.inferior.commandLineArguments.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices));
+                }
+#endif
+                params.remoteChannel = dev->sshParameters().host + QLatin1String(":-1");
+                params.symbolFile = rc->localExecutableFilePath();
+            }
 
             params.solibSearchPath.append(rc->soLibSearchPaths());
 
-            //Always leave this empty or the debugger backend tries to execute
-            //the binary on the phone instead of attaching and continuing the already
-            //running app
-            params.remoteExecutable = QString();
-            //params.expectedSignals.append("SIGTRAP");
-
-            if(debug) qDebug()<<"Solib search path : "<<params.solibSearchPath;
-
-            Debugger::DebuggerRunControl * const runControl
-                    = Debugger::createDebuggerRunControl(params, rc, errorMessage, mode);
+            Debugger::DebuggerRunControl * const runControl = Debugger::createDebuggerRunControl(params, rc, errorMessage, mode);
             if (!runControl)
                 return 0;
+
             UbuntuRemoteDebugSupport * const debugSupport =
                     new UbuntuRemoteDebugSupport(rc, runControl);
             connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
             return runControl;
 
         } else if ( mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE ) {
-            Analyzer::AnalyzerStartParameters params = RemoteLinux::RemoteLinuxAnalyzeSupport::startParameters(rc, mode);
-            Analyzer::AnalyzerRunControl *runControl = Analyzer::AnalyzerManager::createRunControl(params, runConfiguration);
+            /*
+             * Taken from remotelinuxruncontrolfactory.cpp and adapted
+             * to work here.
+             */
+            auto runControl = Debugger::createAnalyzerRunControl(rc, mode);
+            Debugger::AnalyzerConnection connection;
+            connection.connParams =
+                ProjectExplorer::DeviceKitInformation::device(rc->target()->kit())->sshParameters();
+            connection.analyzerHost = connection.connParams.host;
+            runControl->setConnection(connection);
             UbuntuRemoteAnalyzeSupport * const analyzeSupport =
                     new UbuntuRemoteAnalyzeSupport(rc, runControl, mode);
             connect(runControl, SIGNAL(finished()), analyzeSupport, SLOT(handleProfilingFinished()));

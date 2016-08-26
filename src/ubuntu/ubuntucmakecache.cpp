@@ -8,6 +8,7 @@
 
 #include <QRegularExpression>
 #include <QDir>
+#include <QDebug>
 
 namespace Ubuntu{
 namespace Internal {

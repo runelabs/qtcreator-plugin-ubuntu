@@ -40,15 +40,12 @@ public:
     void initialize();
 
 protected slots:
-    void modeChanged(Core::IMode*);
-
     void on_projectAdded(ProjectExplorer::Project *project);
     void on_projectRemoved(ProjectExplorer::Project *project);
     void updateModeState();
 
 protected:
     QWidget* m_modeWidget;
-    Core::Id previousMode;
 
 private:
     static UbuntuPackagingMode* m_instance;

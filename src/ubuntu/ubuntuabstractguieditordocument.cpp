@@ -59,16 +59,6 @@ bool UbuntuAbstractGuiEditorDocument::save(QString *errorString, const QString &
     return false;
 }
 
-QString UbuntuAbstractGuiEditorDocument::defaultPath() const
-{
-    return filePath().toFileInfo().absolutePath();
-}
-
-QString UbuntuAbstractGuiEditorDocument::suggestedFileName() const
-{
-    return filePath().toFileInfo().fileName();
-}
-
 bool UbuntuAbstractGuiEditorDocument::isModified() const
 {
     return TextDocument::isModified() ||  m_editorWidget->isModified();

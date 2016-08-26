@@ -39,6 +39,9 @@ private slots:
     void handleDeviceReady ();
 
 private:
+    void doFail (const QString &err);
+
+private:
     RemoteLinux::GenericDirectUploadService *m_deployService;
     bool m_foundClickPackage;
 

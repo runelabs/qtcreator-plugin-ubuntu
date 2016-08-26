@@ -34,7 +34,7 @@ protected:
     virtual void handleAdapterSetupFailed(const QString &error);
     virtual void handleAdapterSetupDone();
 
-    bool assignNextFreePort(int *port);
+    Utils::Port findFreePort();
     void setFinished ();
     void reset();
 

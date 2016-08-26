@@ -6,6 +6,7 @@
 #include <ubuntu/ubuntupackagestep.h>
 
 #include <utils/qtcassert.h>
+#include <utils/algorithm.h>
 
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
@@ -23,9 +24,9 @@
 namespace Ubuntu {
 namespace Internal {
 
-QList<Core::Id> UbuntuDeployStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
+QList<ProjectExplorer::BuildStepInfo> UbuntuDeployStepFactory::availableSteps(ProjectExplorer::BuildStepList *parent) const
 {
-    QList<Core::Id> types;
+    QList<ProjectExplorer::BuildStepInfo> types;
 
     if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
         return types;
@@ -43,34 +44,37 @@ QList<Core::Id> UbuntuDeployStepFactory::availableCreationIds(ProjectExplorer::B
     if (isRemote) {
         //IF we have a remote device we just support a ubuntu toolchain
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(parent->target()->kit());
-        if(tc && tc->type() != QLatin1String(Ubuntu::Constants::UBUNTU_CLICK_TOOLCHAIN_ID))
+        if(tc && tc->typeId() != Ubuntu::Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
             return types;
     }
 
-    if(isRemote && ( isHTML || isQML || isCMake || isQMake ) )
-        types << Constants::UBUNTU_DEPLOY_UPLOADSTEP_ID
-              << Constants::UBUNTU_CLICK_PACKAGESTEP_ID;
+    if(isRemote && ( isHTML || isQML || isCMake || isQMake ) ) {
+
+        types << ProjectExplorer::BuildStepInfo (Constants::UBUNTU_DEPLOY_UPLOADSTEP_ID,
+                                                 UbuntuDirectUploadStep::displayName(),
+                                                 ProjectExplorer::BuildStepInfo::UniqueStep)
+              << ProjectExplorer::BuildStepInfo (Constants::UBUNTU_CLICK_PACKAGESTEP_ID,
+                                                 tr("UbuntuSDK create click package", "Display name for UbuntuPackageStep id."),
+                                                 ProjectExplorer::BuildStepInfo::UniqueStep)
+              //backwards compatibility to older projects
+              << ProjectExplorer::BuildStepInfo (Constants::UBUNTU_DEPLOY_MAKESTEP_ID,
+                                                 tr("UbuntuSDK create click package", "Display name for UbuntuPackageStep id."),
+                                                 ProjectExplorer::BuildStepInfo::Flags(ProjectExplorer::BuildStepInfo::UniqueStep
+                                                 | ProjectExplorer::BuildStepInfo::Uncreatable
+                                                 | ProjectExplorer::BuildStepInfo::Unclonable));
+    }
 
     return types;
 }
 
-QString UbuntuDeployStepFactory::displayNameForId(const Core::Id id) const
+bool UbuntuDeployStepFactory::canHandle(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
 {
-    if (id == Constants::UBUNTU_DEPLOY_UPLOADSTEP_ID)
-        return UbuntuDirectUploadStep::displayName();
-    else if (id == Constants::UBUNTU_CLICK_PACKAGESTEP_ID)
-        return tr("UbuntuSDK create click package", "Display name for UbuntuPackageStep id.");
-    return QString();
-}
-
-bool UbuntuDeployStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
-{
-    return availableCreationIds(parent).contains(id);
+    return Utils::contains(availableSteps(parent), Utils::equal(&ProjectExplorer::BuildStepInfo::id, id));
 }
 
 ProjectExplorer::BuildStep *UbuntuDeployStepFactory::create(ProjectExplorer::BuildStepList *parent, const Core::Id id)
 {
-    if (!canCreate(parent, id))
+    if (!canHandle(parent, id))
         return 0;
 
     if(id == Constants::UBUNTU_DEPLOY_UPLOADSTEP_ID)
@@ -83,24 +87,12 @@ ProjectExplorer::BuildStep *UbuntuDeployStepFactory::create(ProjectExplorer::Bui
     return 0;
 }
 
-bool UbuntuDeployStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
-{
-    Core::Id toRestore = ProjectExplorer::idFromMap(map);
-
-    //backwards compatibility to older projects
-    if( toRestore == Constants::UBUNTU_DEPLOY_MAKESTEP_ID )
-        return canCreate(parent,Core::Id(Constants::UBUNTU_CLICK_PACKAGESTEP_ID));
-
-    return canCreate(parent,toRestore);
-}
-
 ProjectExplorer::BuildStep *UbuntuDeployStepFactory::restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map)
 {
     Core::Id id = ProjectExplorer::idFromMap(map);
-    if(!canCreate(parent,id))
+    if(!canHandle(parent,id))
         return 0;
 
-    //backwards compatibility to older projects
     if( id == Constants::UBUNTU_DEPLOY_MAKESTEP_ID ) {
         UbuntuPackageStep *step = new UbuntuPackageStep(parent);
         return step;
@@ -115,14 +107,9 @@ ProjectExplorer::BuildStep *UbuntuDeployStepFactory::restore(ProjectExplorer::Bu
     return step;
 }
 
-bool UbuntuDeployStepFactory::canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) const
-{
-    return canCreate(parent,product->id());
-}
-
 ProjectExplorer::BuildStep *UbuntuDeployStepFactory::clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product)
 {
-    if (!canClone(parent, product))
+    if (!canHandle(parent, product->id()))
         return 0;
 
     const Core::Id id = product->id();

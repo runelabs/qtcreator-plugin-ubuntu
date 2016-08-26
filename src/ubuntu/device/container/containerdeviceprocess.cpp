@@ -3,6 +3,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <projectexplorer/runnables.h>
 
 #include <QProcess>
 #include <QDebug>
@@ -30,13 +31,11 @@ ContainerDeviceProcess::~ContainerDeviceProcess()
     };
 
     connect(cleaner, &SshDeviceProcess::finished, callback);
-    cleaner->start(QStringLiteral("rm"), QStringList{m_pidFile});
-}
 
-void ContainerDeviceProcess::setWorkingDirectory(const QString &directory)
-{
-    m_workingDir = directory;
-    LinuxDeviceProcess::setWorkingDirectory(directory);
+    ProjectExplorer::StandardRunnable r;
+    r.executable = QStringLiteral("rm");
+    r.commandLineArguments = m_pidFile;
+    cleaner->start(r);
 }
 
 void ContainerDeviceProcess::doSignal(const int sig)
@@ -50,11 +49,14 @@ void ContainerDeviceProcess::doSignal(const int sig)
         }
         signaler->deleteLater();
     });
-    QString cmd = QString::fromLatin1("kill -%2 `cat %1`").arg(m_pidFile).arg(sig);
-    signaler->start(cmd, QStringList());
+
+    ProjectExplorer::StandardRunnable r;
+    r.executable = QStringLiteral("kill");
+    r.commandLineArguments = QString::fromLatin1("-%2 `cat %1`").arg(m_pidFile).arg(sig);
+    signaler->start(r);
 }
 
-QString ContainerDeviceProcess::fullCommandLine() const
+QString ContainerDeviceProcess::fullCommandLine(const ProjectExplorer::StandardRunnable &runnable) const
 {
     QString fullCommandLine;
     QStringList rcFiles {
@@ -63,12 +65,12 @@ QString ContainerDeviceProcess::fullCommandLine() const
     };
     foreach (const QString &filePath, rcFiles)
         fullCommandLine += QString::fromLatin1("test -f %1 && . %1;").arg(filePath);
-    if (!m_workingDir.isEmpty()) {
-        fullCommandLine.append(QLatin1String("cd ")).append(Utils::QtcProcess::quoteArgUnix(m_workingDir))
+    if (runnable.workingDirectory.isEmpty()) {
+        fullCommandLine.append(QLatin1String("cd ")).append(Utils::QtcProcess::quoteArgUnix(runnable.workingDirectory))
                 .append(QLatin1String(" && "));
     }
     QString envString;
-    for (auto it = environment().constBegin(); it != environment().constEnd(); ++it) {
+    for (auto it = runnable.environment.constBegin(); it != runnable.environment.constEnd(); ++it) {
         if (!envString.isEmpty())
             envString += QLatin1Char(' ');
         envString.append(it.key()).append(QLatin1String("='")).append(it.value())
@@ -82,10 +84,10 @@ QString ContainerDeviceProcess::fullCommandLine() const
 
     fullCommandLine.append(Utils::QtcProcess::quoteArgUnix(QStringLiteral("dbus-run-session")));
     fullCommandLine += QString::fromLatin1(" bash -c \"echo \\$\\$ > %1; exec ").arg(m_pidFile);
-    fullCommandLine.append(Utils::QtcProcess::quoteArgUnix(executable()));
-    if (!arguments().isEmpty()) {
+    fullCommandLine.append(Utils::QtcProcess::quoteArgUnix(runnable.executable));
+    if (!runnable.commandLineArguments.isEmpty()) {
         fullCommandLine.append(QLatin1Char(' '));
-        fullCommandLine.append(Utils::QtcProcess::joinArgs(arguments(), Utils::OsTypeLinux));
+        fullCommandLine.append(runnable.commandLineArguments);
     }
     fullCommandLine.append(QStringLiteral("\""));
     return fullCommandLine;

@@ -24,6 +24,7 @@
 #include <QQmlContext>
 
 #include <utils/fileutils.h>
+#include <utils/algorithm.h>
 #include <coreplugin/iwizardfactory.h>
 #include <projectexplorer/projectexplorer.h>
 
@@ -69,7 +70,10 @@ Core::Id UbuntuWelcomePage::id() const
 
 void UbuntuWelcomePage::newProject()
 {
-    Core::ICore::showNewItemDialog(tr("New Project"), Core::IWizardFactory::wizardFactoriesOfKind(Core::IWizardFactory::ProjectWizard));
+    Core::ICore::showNewItemDialog(tr("New Project"), Utils::filtered(Core::IWizardFactory::allWizardFactories(),
+                                                                      [](Core::IWizardFactory *f) {
+                                                                          return f->kind() == Core::IWizardFactory::ProjectWizard;
+                                                                      }));
 }
 
 void UbuntuWelcomePage::openProject()

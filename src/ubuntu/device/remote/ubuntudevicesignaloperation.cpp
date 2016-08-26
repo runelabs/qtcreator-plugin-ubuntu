@@ -10,7 +10,7 @@ UbuntuDeviceSignalOperation::UbuntuDeviceSignalOperation(UbuntuDevice::ConstPtr 
 
 }
 
-void UbuntuDeviceSignalOperation::killProcess(int pid)
+void UbuntuDeviceSignalOperation::killProcess(qint64 pid)
 {
     sendSignal(pid,9);
 }
@@ -21,7 +21,7 @@ void UbuntuDeviceSignalOperation::killProcess(const QString &filePath)
     emit finished(tr("Sending signals to processes by filePath is not supported on Ubuntu Devices"));
 }
 
-void UbuntuDeviceSignalOperation::interruptProcess(int pid)
+void UbuntuDeviceSignalOperation::interruptProcess(qint64 pid)
 {
     sendSignal(pid,2);
 }
@@ -32,7 +32,7 @@ void UbuntuDeviceSignalOperation::interruptProcess(const QString &filePath)
     emit finished(tr("Sending signals to processes by filePath is not supported on Ubuntu Devices"));
 }
 
-void UbuntuDeviceSignalOperation::sendSignal(int pid, int signal)
+void UbuntuDeviceSignalOperation::sendSignal(qint64 pid, int signal)
 {
     QProcess *proc = new QProcess(this);
 

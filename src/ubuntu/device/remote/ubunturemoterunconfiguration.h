@@ -18,7 +18,7 @@
 #ifndef UBUNTU_INTERNAL_UBUNTUREMOTERUNCONFIGURATION_H
 #define UBUNTU_INTERNAL_UBUNTUREMOTERUNCONFIGURATION_H
 
-#include <remotelinux/abstractremotelinuxrunconfiguration.h>
+#include <projectexplorer/runconfiguration.h>
 #include <coreplugin/id.h>
 
 namespace Ui {
@@ -28,7 +28,7 @@ namespace Ui {
 namespace Ubuntu {
 namespace Internal {
 
-class UbuntuRemoteRunConfiguration : public RemoteLinux::AbstractRemoteLinuxRunConfiguration
+class UbuntuRemoteRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
     Q_PROPERTY(bool forceInstall READ forceInstall WRITE setForceInstall NOTIFY forceInstallChanged)
@@ -38,13 +38,12 @@ public:
     UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
     UbuntuRemoteRunConfiguration(ProjectExplorer::Target *parent, UbuntuRemoteRunConfiguration *source);
 
-    // AbstractRemoteLinuxRunConfiguration interface
 public:
-    virtual QString localExecutableFilePath() const override;
-    virtual QString remoteExecutableFilePath() const override;
-    virtual QStringList arguments() const override;
-    virtual QString workingDirectory() const override;
-    virtual Utils::Environment environment() const override;
+    QString localExecutableFilePath() const;
+    QString remoteExecutableFilePath() const;
+    QStringList arguments() const;
+    QString workingDirectory() const;
+    Utils::Environment environment() const;
 
     virtual QStringList soLibSearchPaths () const;
     bool aboutToStart (QString *errorMessage);
@@ -55,6 +54,7 @@ public:
     virtual QString disabledReason() const override;
     virtual bool isConfigured() const override;
     virtual ConfigurationState ensureConfigured(QString *) override;
+    virtual ProjectExplorer::Runnable runnable ( ) const override;
 
     // ProjectConfiguration interface
     virtual bool fromMap(const QVariantMap &map) override;

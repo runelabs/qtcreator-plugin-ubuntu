@@ -33,10 +33,6 @@ class UbuntuAbstractGuiEditorDocument : public TextEditor::TextDocument
 public:
     UbuntuAbstractGuiEditorDocument(const QString &mimeType, UbuntuAbstractGuiEditorWidget *editorWidget);
     bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false) override;
-
-    QString defaultPath() const override;
-    QString suggestedFileName() const override;
-
     bool isModified() const override;
     bool isSaveAsAllowed() const override;
 private:

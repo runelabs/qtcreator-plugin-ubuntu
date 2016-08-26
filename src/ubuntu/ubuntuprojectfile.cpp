@@ -34,14 +34,6 @@ bool UbuntuProjectFile::save(QString *, const QString &, bool) {
     return false;
 }
 
-QString UbuntuProjectFile::defaultPath() const {
-    return QString();
-}
-
-QString UbuntuProjectFile::suggestedFileName() const {
-    return QString();
-}
-
 bool UbuntuProjectFile::isModified() const {
     return false;
 }

@@ -42,6 +42,7 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/applicationlauncher.h>
+#include <projectexplorer/buildconfiguration.h>
 
 namespace Ubuntu {
 namespace Internal {
@@ -65,7 +66,6 @@ public:
     UbuntuProject(UbuntuProjectManager *manager, const QString &fileName);
 
     QString displayName() const override;
-    Core::IDocument *document() const override;
     ProjectExplorer::IProjectManager *projectManager() const override;
 
     ProjectExplorer::ProjectNode *rootProjectNode() const override;
@@ -88,7 +88,9 @@ public:
     bool needsConfiguration() const override;
     bool requiresTargetPanel() const override;
 
-    static QString shadowBuildDirectory(const QString &proFilePath, const ProjectExplorer::Kit *k, const QString &suffix = QString());
+    static QString shadowBuildDirectory(const QString &proFilePath, const ProjectExplorer::Kit *k,
+                                        const QString &suffix = QString(),
+                                        const ProjectExplorer::BuildConfiguration::BuildType buildType = ProjectExplorer::BuildConfiguration::Unknown);
 private:
     void extractProjectFileData(const QString& filename);
 

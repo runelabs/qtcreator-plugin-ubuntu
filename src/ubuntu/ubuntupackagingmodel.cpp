@@ -404,7 +404,7 @@ void UbuntuPackagingModel::targetChanged()
             p->activeTarget() &&
             p->activeTarget()->kit() &&
             ProjectExplorer::ToolChainKitInformation::toolChain(p->activeTarget()->kit()) &&
-            (ProjectExplorer::ToolChainKitInformation::toolChain(p->activeTarget()->kit())->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
+            (ProjectExplorer::ToolChainKitInformation::toolChain(p->activeTarget()->kit())->typeId() == Constants::UBUNTU_CLICK_TOOLCHAIN_ID
              ||  p->projectManager()->mimeType() == QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE));
 
     setCanBuild(buildButtonsEnabled);
@@ -467,7 +467,7 @@ void UbuntuPackagingModel::buildClickPackage()
                 m_packageBuildSteps.append(QSharedPointer<ProjectExplorer::BuildStepList> (new ProjectExplorer::BuildStepList(b,ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
 
                 ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(b->target()->kit());
-                if(tc && tc->type() == QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID)){
+                if(tc && tc->typeId() == Constants::UBUNTU_CLICK_TOOLCHAIN_ID){
                     ClickToolChain *cTc = static_cast<ClickToolChain *>(tc);
                     usedArchitectures << cTc->clickTarget().architecture;
                 }

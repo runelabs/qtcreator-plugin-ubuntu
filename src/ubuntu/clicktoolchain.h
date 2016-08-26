@@ -37,7 +37,6 @@ public:
 
     virtual QList<Utils::FileName> suggestedMkspecList() const override;
     virtual Utils::FileName suggestedDebugger() const override;
-    virtual QString type() const override;
     virtual QString typeDisplayName() const override;
     virtual bool isValid() const override;
     virtual void addToEnvironment(Utils::Environment &env) const override;
@@ -52,6 +51,8 @@ public:
 
     static ProjectExplorer::Abi architectureNameToAbi ( const QString &arch );
     static QList<QString> supportedArchitectures ();
+
+    QString remoteCompilerCommand () const;
 
 protected:
     virtual bool fromMap(const QVariantMap &data) override;
@@ -75,11 +76,11 @@ public:
 
     // ToolChainFactory interface
 public:
-    virtual QList<ProjectExplorer::ToolChain *> autoDetect() override;
+    virtual QList<ProjectExplorer::ToolChain *> autoDetect(const QList<ProjectExplorer::ToolChain *> &alreadyKnown) override;
     virtual bool canRestore(const QVariantMap &data) override;
     virtual ProjectExplorer::ToolChain *restore(const QVariantMap &data) override;
 
-    static QList<ProjectExplorer::ToolChain *> createToolChainsForClickTargets();
+    static QList<ProjectExplorer::ToolChain *> createToolChainsForClickTargets(const QList<ProjectExplorer::ToolChain *> &alreadyKnown);
 };
 
 } // namespace Internal

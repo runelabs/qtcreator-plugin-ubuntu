@@ -161,8 +161,8 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
     addAutoReleasedObject(new UbuntuSettingsProjectDefaultsPage);
     addAutoReleasedObject(new UbuntuSettingsDeviceConnectivityPage);
 
-    addAutoReleasedObject(new UbuntuVersionManager);
-    Core::IWizardFactory::registerFeatureProvider(new UbuntuFeatureProvider);
+    //addAutoReleasedObject(new UbuntuVersionManager);
+    //Core::IWizardFactory::registerFeatureProvider(new UbuntuFeatureProvider);
 
     // welcome page plugin
     addAutoReleasedObject(new UbuntuWelcomePage);

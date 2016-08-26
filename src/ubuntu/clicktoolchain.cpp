@@ -20,6 +20,7 @@
 #include "ubuntuconstants.h"
 
 #include <utils/fileutils.h>
+#include <utils/algorithm.h>
 #include <projectexplorer/abi.h>
 #include <QDebug>
 #include <QVariant>
@@ -79,11 +80,6 @@ Utils::FileName ClickToolChain::suggestedDebugger() const
     return Utils::FileName::fromString(QLatin1String("/usr/bin/gdb-multiarch"));
 }
 
-QString ClickToolChain::type() const
-{
-    return QString::fromLatin1(Constants::UBUNTU_CLICK_TOOLCHAIN_ID);
-}
-
 QString ClickToolChain::typeDisplayName() const
 {
     return ClickToolChainFactory::tr("Ubuntu GCC");
@@ -137,6 +133,11 @@ ProjectExplorer::Abi ClickToolChain::architectureNameToAbi(const QString &arch)
 QList<QString> ClickToolChain::supportedArchitectures()
 {
     return clickArchitectures.keys();
+}
+
+QString ClickToolChain::remoteCompilerCommand() const
+{
+    return QString::fromLatin1("/usr/bin/%1").arg(compilerCommand().fileName());
 }
 
 QVariantMap ClickToolChain::toMap() const
@@ -196,7 +197,7 @@ Utils::FileName ClickToolChain::compilerCommand() const
 }
 
 ClickToolChain::ClickToolChain(const UbuntuClickTool::Target &target, Detection d)
-    : GccToolChain(QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID), d)
+    : GccToolChain(Constants::UBUNTU_CLICK_TOOLCHAIN_ID, d)
     , m_clickTarget(target)
 {
     resetToolChain(Utils::FileName::fromString(
@@ -216,24 +217,24 @@ ClickToolChain::ClickToolChain(const ClickToolChain &other)
 }
 
 ClickToolChain::ClickToolChain()
-    : GccToolChain(QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID),ManualDetection)
+    : GccToolChain(Constants::UBUNTU_CLICK_TOOLCHAIN_ID,ManualDetection)
 {
 }
 
 ClickToolChainFactory::ClickToolChainFactory()
 {
-    setId(Constants::UBUNTU_CLICK_TOOLCHAIN_ID);
     setDisplayName(tr("Ubuntu GCC"));
 }
 
-QList<ProjectExplorer::ToolChain *> ClickToolChainFactory::autoDetect()
+QList<ProjectExplorer::ToolChain *> ClickToolChainFactory::autoDetect(
+        const QList<ProjectExplorer::ToolChain *> &alreadyKnown)
 {
-    return createToolChainsForClickTargets();
+    return createToolChainsForClickTargets(alreadyKnown);
 }
 
 bool ClickToolChainFactory::canRestore(const QVariantMap &data)
 {
-    return idFromMap(data).startsWith(QLatin1String(Constants::UBUNTU_CLICK_TOOLCHAIN_ID) + QLatin1Char(':'));
+    return typeIdFromMap(data) == Constants::UBUNTU_CLICK_TOOLCHAIN_ID;
 }
 
 ProjectExplorer::ToolChain *ClickToolChainFactory::restore(const QVariantMap &data)
@@ -259,7 +260,7 @@ ProjectExplorer::ToolChain *ClickToolChainFactory::restore(const QVariantMap &da
     return 0;
 }
 
-QList<ProjectExplorer::ToolChain *> ClickToolChainFactory::createToolChainsForClickTargets()
+QList<ProjectExplorer::ToolChain *> ClickToolChainFactory::createToolChainsForClickTargets(const QList<ProjectExplorer::ToolChain *> &alreadyKnown)
 {
     QList<ProjectExplorer::ToolChain*> toolChains;
 
@@ -270,10 +271,20 @@ QList<ProjectExplorer::ToolChain *> ClickToolChainFactory::createToolChainsForCl
         if(!clickArchitectures.contains(target.architecture))
             continue;
 
-        if(UbuntuClickTool::findOrCreateGccWrapper(target).isEmpty())
+        QString comp = UbuntuClickTool::findOrCreateGccWrapper(target);
+        if(comp.isEmpty())
             continue;
 
-        ClickToolChain* tc = new ClickToolChain(target, ProjectExplorer::ToolChain::AutoDetection);
+        auto predicate = [&](ProjectExplorer::ToolChain *tc) {
+            if (tc->typeId() != Constants::UBUNTU_CLICK_TOOLCHAIN_ID)
+                return false;
+            auto clickTc = static_cast<ClickToolChain *>(tc);
+            return clickTc->clickTarget().containerName == target.containerName;
+        };
+
+        ProjectExplorer::ToolChain *tc = Utils::findOrDefault(alreadyKnown, predicate);
+        if (!tc)
+            tc = new ClickToolChain(target, ProjectExplorer::ToolChain::AutoDetection);
         toolChains.append(tc);
     }
 

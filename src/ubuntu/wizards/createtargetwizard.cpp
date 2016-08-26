@@ -364,7 +364,7 @@ CreateTargetNamePage::CreateTargetNamePage(QWidget *parent) : Utils::WizardPage(
         return true;
     });
     ui->lineEditName->setPlaceholderText(tr("Please select a name"));
-    ui->lineEditName->triggerChanged();
+    ui->lineEditName->validate();
 
     setTitle(tr("Please type a name:"));
     setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Name"));
