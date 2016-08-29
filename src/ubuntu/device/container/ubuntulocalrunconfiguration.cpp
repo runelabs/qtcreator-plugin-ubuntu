@@ -40,6 +40,10 @@
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 #include <qmljs/parser/qmldirparser_p.h>
 #include <qmljs/parser/qmlerror.h>
+#include <coreplugin/icore.h>
+
+#include <QRegularExpression>
+#include <QMessageBox>
 
 using namespace Ubuntu::Internal;
 
@@ -55,6 +59,13 @@ UbuntuLocalEnvironmentAspect::UbuntuLocalEnvironmentAspect(ProjectExplorer::RunC
 Utils::Environment UbuntuLocalEnvironmentAspect::baseEnvironment() const
 {
     Utils::Environment env = RemoteLinuxEnvironmentAspect::baseEnvironment();
+    Utils::Environment lEnv = Utils::Environment::systemEnvironment();
+
+    //forward the currently used DISPLAY for the current session
+    const QString displayKey(QStringLiteral("DISPLAY"));
+    if (lEnv.hasKey(displayKey))
+        env.set(displayKey, lEnv.value(displayKey));
+
     if (const UbuntuLocalRunConfiguration *rc = qobject_cast<const UbuntuLocalRunConfiguration *>(runConfiguration()))
         rc->addToBaseEnvironment(env);
     return env;
@@ -146,6 +157,25 @@ ProjectExplorer::Runnable UbuntuLocalRunConfiguration::runnable() const
 
 bool UbuntuLocalRunConfiguration::aboutToStart(QString *errorMessage)
 {
+    int displayNr = 0;
+    QString d = QString::fromLocal8Bit(qgetenv("DISPLAY"));
+    if(!d.isEmpty()) {
+        QRegularExpression exp(":([0-9]+)");
+        auto match = exp.match(d);
+        if (match.hasMatch()) {
+            bool isInt = false;
+            int capturedVal = match.captured(1).toInt(&isInt);
+            if (isInt) {
+                displayNr = capturedVal;
+            }
+        }
+    }
+
+    if (!QFile::exists(QString::fromLatin1("/tmp/.X11-unix/X%1").arg(displayNr))) {
+        QMessageBox::warning(Core::ICore::mainWindow(), qApp->applicationName(),
+                             tr("The X11 socket in /tmp/.X11-unix is missing, the application will most likely not run."));
+    }
+
     if(target()->project()->id() != Constants::UBUNTUPROJECT_ID) {
         QString idString = id().toString();
         if(idString.startsWith(QLatin1String(Constants::UBUNTUPROJECT_RUNCONTROL_APP_ID))) {
