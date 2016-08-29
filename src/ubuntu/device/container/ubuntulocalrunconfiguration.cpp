@@ -174,7 +174,7 @@ bool UbuntuLocalRunConfiguration::aboutToStart(QString *errorMessage)
     if (!QFile::exists(QString::fromLatin1("/tmp/.X11-unix/X%1").arg(displayNr))) {
         QMessageBox msgBox(Core::ICore::mainWindow());
         msgBox.setWindowTitle(qApp->applicationName());
-        msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
+        msgBox.setTextFormat(Qt::RichText);   //make the link clickable
         msgBox.setText(tr("The X11 socket in /tmp/.X11-unix is missing, the application will most likely not run.<br/><br/>"
                           "%1")
                         .arg("<a href=\"http://askubuntu.com/questions/818264/ubuntu-sdk-ide-qxcbconnection-could-not-connect-to-display\">More Info on AskUbuntu.</a>"));
