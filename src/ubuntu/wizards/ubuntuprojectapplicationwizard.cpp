@@ -27,6 +27,7 @@
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 #include <utils/mimetypes/mimedatabase.h>
+#include <utils/algorithm.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <projectexplorer/kitmanager.h>
@@ -171,39 +172,37 @@ UbuntuProjectApplicationWizardDialog::~UbuntuProjectApplicationWizardDialog()
         delete m_targetSetupPage;
 }
 
-bool UbuntuProjectApplicationWizardDialog::writeUserFile(const QString &projectFileName) const
+void UbuntuProjectApplicationWizardDialog::writeUserFile(const QString &projectFileName) const
 {
     if (!m_targetSetupPage)
-        return false;
+        return;
 
     QFileInfo fi = QFileInfo(projectFileName);
     if (!fi.exists())
-        return false;
+        return;
 
     QString filePath = fi.canonicalFilePath();
 
     Utils::MimeDatabase mimeDb;
     const Utils::MimeType mt = mimeDb.mimeTypeForFile(fi);
     if (mt.isValid()) {
-        QList<ProjectExplorer::IProjectManager*> allProjectManagers = ExtensionSystem::PluginManager::getObjects<ProjectExplorer::IProjectManager>();
-        foreach (ProjectExplorer::IProjectManager *manager, allProjectManagers) {
-            if (manager->mimeType() == mt.name()) {
-                QString tmp;
-                if (ProjectExplorer::Project *pro = manager->openProject(filePath, &tmp)) {
-                    if(debug) qDebug()<<"Storing project type settings: "<<pro->id().toSetting();
 
-                    bool success = m_targetSetupPage->setupProject(pro);
-                    if(success) {
-                        pro->saveSettings();
-                    }
-                    delete pro;
-                    return success;
-                }
-                break;
+        QString tmp;
+        QList<ProjectExplorer::IProjectManager *> managerList = ExtensionSystem::PluginManager::getObjects<ProjectExplorer::IProjectManager>();
+        auto manager = Utils::findOrDefault(managerList, Utils::equal(&ProjectExplorer::IProjectManager::mimeType, mt.name()));
+        ProjectExplorer::Project *project = manager ? manager->openProject(filePath, &tmp) : 0;
+        if(project) {
+            if (m_targetSetupPage->setupProject(project)) {
+                if(debug) qDebug()<<"Storing project type settings: "<<project->id().toSetting();
+                project->saveSettings();
             }
+            delete project;
+            project = nullptr;
         }
+
+        return;
     }
-    return false;
+    return;
 }
 
 

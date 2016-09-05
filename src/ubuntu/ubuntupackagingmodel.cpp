@@ -23,7 +23,6 @@
 #include "ubuntuvalidationresultmodel.h"
 #include "ubuntupackagestep.h"
 #include "ubuntushared.h"
-#include "ubuntucmakecache.h"
 #include "ubuntuprojecthelper.h"
 #include "ubuntufixmanifeststep.h"
 #include "wizards/ubuntufatpackagingwizard.h"

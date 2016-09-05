@@ -29,7 +29,6 @@
 #include "ubuntuqtversion.h"
 #include "ubuntuqmlbuildconfiguration.h"
 #include "ubuntueditorfactory.h"
-#include "ubuntucmakecache.h"
 #include "ubuntutestcontrol.h"
 #include "ubuntupackageoutputparser.h"
 #include "ubuntuprojecthelper.h"
@@ -175,7 +174,6 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
     // Build support
     addAutoReleasedObject(new ClickToolChainFactory);
-    addAutoReleasedObject(new UbuntuCMakeCache);
     addAutoReleasedObject(new UbuntuHtmlBuildConfigurationFactory);
     addAutoReleasedObject(new UbuntuQmlBuildConfigurationFactory);
     addAutoReleasedObject(new UbuntuQmlBuildStepFactory);
