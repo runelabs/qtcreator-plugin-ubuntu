@@ -47,7 +47,7 @@ UbuntuRemoteAnalyzeSupport::UbuntuRemoteAnalyzeSupport(UbuntuRemoteRunConfigurat
       d(new UbuntuRemoteAnalyzeSupportPrivate(engine, runMode))
 {
     d->clickPackage = runConfig->clickPackage();
-    connect(d->runControl, &Debugger::AnalyzerRunControl::starting,
+    connect(d->runControl.data(), &Debugger::AnalyzerRunControl::starting,
             this, &UbuntuRemoteAnalyzeSupport::handleRemoteSetupRequested);
     connect(&d->outputParser, SIGNAL(waitingForConnectionOnPort(Utils::Port)),
             SLOT(remoteIsRunning()));
