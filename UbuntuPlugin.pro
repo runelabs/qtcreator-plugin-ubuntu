@@ -88,7 +88,6 @@ SOURCES += \
     src/ubuntu/ubuntuabstractguieditordocument.cpp \
     src/ubuntu/ubuntuapparmoreditor.cpp \
     src/ubuntu/ubuntueditorfactory.cpp \
-    src/ubuntu/ubuntucmakecache.cpp \
     src/ubuntu/ubuntutestcontrol.cpp \
     src/ubuntu/ubuntupackageoutputparser.cpp \
     src/ubuntu/ubuntuprojecthelper.cpp \
@@ -159,7 +158,6 @@ HEADERS += \
     src/ubuntu/ubuntuabstractguieditordocument.h \
     src/ubuntu/ubuntuapparmoreditor.h \
     src/ubuntu/ubuntueditorfactory.h \
-    src/ubuntu/ubuntucmakecache.h \
     src/ubuntu/ubuntutestcontrol.h \
     src/ubuntu/ubuntupackageoutputparser.h \
     src/ubuntu/ubuntuprojecthelper.h \

@@ -20,7 +20,6 @@
 #include <ubuntu/ubuntuprojecthelper.h>
 #include <ubuntu/clicktoolchain.h>
 #include <ubuntu/ubuntuclickmanifest.h>
-#include <ubuntu/ubuntucmakecache.h>
 #include <ubuntu/ubuntushared.h>
 
 #include <ubuntu/device/remote/ubunturemoterunconfiguration.h>

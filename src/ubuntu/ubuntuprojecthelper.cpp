@@ -16,7 +16,6 @@
  * Author: Benjamin Zeller <benjamin.zeller@canonical.com>
  */
 #include "ubuntuprojecthelper.h"
-#include "ubuntucmakecache.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
@@ -24,6 +23,7 @@
 
 #include <cmakeprojectmanager/cmakeproject.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
+#include <cmakeprojectmanager/cmakebuildconfiguration.h>
 
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
@@ -33,6 +33,7 @@
 #include <QDebug>
 
 #include <QFile>
+#include <QDir>
 #include <QTextStream>
 #include <QRegularExpression>
 
@@ -124,12 +125,24 @@ QList<Utils::FileName> UbuntuProjectHelper::findFilesRecursive(const Utils::File
 QString UbuntuProjectHelper::getManifestPath(ProjectExplorer::Target *target, const QString &defaultValue)
 {
     if(target && target->project()->id() == CMakeProjectManager::Constants::CMAKEPROJECT_ID ) {
-        QVariant manifestPath = UbuntuCMakeCache::getValue(QStringLiteral("UBUNTU_MANIFEST_PATH"),
-                                                           target->activeBuildConfiguration(),
-                                                           defaultValue);
+
+        CMakeProjectManager::CMakeConfig fullCache = CMakeProjectManager::CMakeProject::activeCmakeCacheForTarget(target);
+
+        QString manifestPath;
+
+        QByteArray fromCache = CMakeProjectManager::CMakeConfigItem::valueOf("UBUNTU_MANIFEST_PATH", fullCache );
+        if (!fromCache.isEmpty()) {
+            manifestPath = QString::fromUtf8(fromCache);
+        } else {
+            manifestPath = defaultValue;
+        }
+
+        if(QDir::isAbsolutePath(manifestPath))
+            return manifestPath;
 
         Utils::FileName projectDir = target->project()->projectDirectory();
-        return projectDir.appendPath(manifestPath.toString()).toString();
+        return projectDir.appendPath(manifestPath).toString();
+
     } else if (target && target->project()->id() == QmakeProjectManager::Constants::QMAKEPROJECT_ID ) {
         QmakeProjectManager::QmakeProject *qmakeProj = static_cast<QmakeProjectManager::QmakeProject *>(target->project());
         QList<QmakeProjectManager::QmakeProFileNode *> nodes = qmakeProj->allProFiles();
