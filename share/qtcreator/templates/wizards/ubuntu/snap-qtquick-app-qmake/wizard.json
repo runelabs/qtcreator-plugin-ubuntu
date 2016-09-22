@@ -1,0 +1,108 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "Qt4ProjectManager.Qt4Project" ],
+    "id": "A.QtQuick Snappy Application",
+    "category": "B.Snapcraft",
+    "trDescription": "Creates a experimental C++ Ubuntu snappy application project with a sample UI containing a Label and a Button.",
+    "trDisplayName": "QtQuick App with QML Ubuntu UI",
+    "trDisplayCategory": "Snapcraft",
+    "icon": "../share/ubuntu.png",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0}",
+
+    "options":
+    [
+        { "key": "ProjectFile", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'pro')}" },
+        { "key": "ProjectNameL", "value": "%{JS: \"%{ProjectName}\".toLowerCase()}" },
+        { "key": "CppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" },
+        { "key": "IsTopLevelProject", "value": "%{JS: !'%{Exists:ProjectExplorer.Profile.Ids}'}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project"
+        },
+        {
+            "trDisplayName": "Developer ID",
+            "trShortTitle": "Developer ID",
+            "typeId": "Fields",
+            "data" :
+            [
+                {
+                    "name": "DeveloperId",
+                    "trDisplayName": "Developer ID:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data": { 
+                        "validator": "^[A-Za-z0-9-]+$",
+                        "trText": "%{JS: Ubuntu.developerId()}"
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "enabled": "%{IsTopLevelProject}",
+            "data": { "projectFilePath": "%{ProjectFile}" }
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "appName.pro",
+                    "target": "%{ProjectFile}",
+                    "openAsProject": true
+                },
+                {
+                    "source": "snapcraft.yaml",
+                    "openInEditor": true
+                },
+                {
+                    "source": "appName/main.cpp",
+                    "target": "%{ProjectDirectory}/%{ProjectNameL}/%{CppFileName}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "appName/Main.qml",
+                    "target": "%{ProjectDirectory}/%{ProjectNameL}/Main.qml",
+                    "openInEditor": true
+                },
+                {
+                    "source": "appName/appName.desktop",
+                    "target": "%{ProjectDirectory}/%{ProjectNameL}/%{ProjectNameL}.desktop"
+                },
+                {
+                    "source": "appName/appName.png",
+                    "target": "%{ProjectDirectory}/%{ProjectNameL}/%{ProjectNameL}.png"
+                },
+                {
+                    "source": "appName/appName.pro",
+                    "target": "%{ProjectDirectory}/%{ProjectNameL}/%{ProjectNameL}.pro"
+                },
+                {
+                    "source": "appName/appName.qrc",
+                    "target": "%{ProjectDirectory}/%{ProjectNameL}/%{ProjectNameL}.qrc"
+                },
+                {
+                    "source": "appName/appName.wrapper",
+                    "target": "%{ProjectDirectory}/%{ProjectNameL}/%{ProjectNameL}.wrapper",
+                    "userExecutable": true 
+                }
+
+            ]
+        }
+    ]
+}

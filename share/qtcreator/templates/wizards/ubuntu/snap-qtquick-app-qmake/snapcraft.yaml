@@ -1,0 +1,23 @@
+name: %{ProjectNameL}
+version: 0.01
+summary: Example application
+description: Shows a basic UITK based UI
+confinement: strict
+
+apps:
+  %{ProjectNameL}:
+    command: %{ProjectNameL}.wrapper
+    plugs: [unity7, opengl]
+
+parts:
+  %{ProjectNameL}:
+    plugin: dump
+    source: deploy/
+    stage-packages:
+      - ubuntu-sdk-libs
+      - qtubuntu-desktop
+      - qtmir-desktop
+      - mir-graphics-drivers-desktop
+
+
+

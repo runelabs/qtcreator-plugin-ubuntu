@@ -71,3 +71,4 @@ exists( $$PWD/../../plugins.pro ) {
     LIBS += -L$$[QT_INSTALL_LIBS]/qtcreator
     LIBS += -L$$[QT_INSTALL_LIBS]/qtcreator/plugins
 }
+
