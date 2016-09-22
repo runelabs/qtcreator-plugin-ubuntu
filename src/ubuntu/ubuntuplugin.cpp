@@ -50,9 +50,11 @@
 #include <ubuntu/device/remote/ubunturemotedeployconfiguration.h>
 #include <ubuntu/device/remote/ubuntudeploystepfactory.h>
 
-#include "wizards/ubuntuprojectapplicationwizard.h"
-#include "wizards/ubuntufirstrunwizard.h"
-#include "wizards/ubuntuprojectmigrationwizard.h"
+#include <ubuntu/wizards/ubuntuprojectapplicationwizard.h>
+#include <ubuntu/wizards/ubuntufirstrunwizard.h>
+#include <ubuntu/wizards/ubuntuprojectmigrationwizard.h>
+
+#include "ubuntujsextension.h"
 
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -61,6 +63,7 @@
 #include <projectexplorer/processparameters.h>
 #include <coreplugin/featureprovider.h>
 #include <coreplugin/coreplugin.h>
+#include <coreplugin/jsexpander.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/mimetypes/mimeglobpattern_p.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>
@@ -234,6 +237,9 @@ bool UbuntuPlugin::initialize(const QStringList &arguments, QString *errorString
 
     addAutoReleasedObject(new Internal::UbuntuManifestEditorFactory);
     addAutoReleasedObject(new Internal::UbuntuApparmorEditorFactory);
+
+    //Ubuntu expander
+    Core::JsExpander::registerQObjectForJs(QStringLiteral("Ubuntu"), new UbuntuJsExtension);
 
     //trigger kit autodetection and update after projectexplorer loaded the kits
     connect(ProjectExplorer::KitManager::instance(),SIGNAL(kitsLoaded())

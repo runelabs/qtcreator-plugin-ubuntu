@@ -147,6 +147,7 @@ extra_packages = {
         "qttools5-dev:{TARGET}",
         "ubuntu-sdk-qmake-extras:{TARGET}",
         "ubuntu-ui-toolkit-doc:{TARGET}",
+        "snapcraft"
        ],
     "ubuntu-sdk-16.10": [
         ]

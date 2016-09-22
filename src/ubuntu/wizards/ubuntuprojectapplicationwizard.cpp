@@ -18,11 +18,13 @@
 
 #include "ubuntuprojectapplicationwizard.h"
 #include "ubuntufirstrunwizard.h"
-#include "../ubuntushared.h"
-#include "../ubuntuconstants.h"
-#include "../ubuntuproject.h"
-#include "../ubuntubzr.h"
-#include "../ubuntuclicktool.h"
+
+#include <ubuntu/ubuntushared.h>
+#include <ubuntu/ubuntushared.h>
+#include <ubuntu/ubuntuconstants.h>
+#include <ubuntu/ubuntuproject.h>
+#include <ubuntu/ubuntubzr.h>
+#include <ubuntu/ubuntuclicktool.h>
 
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>

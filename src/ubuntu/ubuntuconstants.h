@@ -344,6 +344,7 @@ const char UBUNTU_LOCAL_DEPLOYCONFIGURATION_ID[] = "UbuntuProjectManager.LocalDe
 const char UBUNTU_DEPLOY_UPLOADSTEP_ID[] = "UbuntuProjectManager.UploadStep";
 const char UBUNTU_DEPLOY_MAKESTEP_ID[]   = "UbuntuProjectManager.UbuntuCMake.DeployMakeStep";
 const char UBUNTU_CLICK_PACKAGESTEP_ID[] = "UbuntuProjectManager.ClickPackageStep";
+const char UBUNTU_SNAP_PACKAGESTEP_ID[] = "UbuntuProjectManager.SnapPackageStep";
 const char UBUNTU_DEPLOY_DESTDIR[] = ".ubuntu-sdk-deploy";
 const char UBUNTU_CLICK_SUCCESS_PACKAGE_REGEX[] = "^.*'(.*)'.$";
 

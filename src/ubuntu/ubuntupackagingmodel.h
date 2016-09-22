@@ -95,6 +95,7 @@ signals:
 
 private:
     void buildClickPackage ();
+    void buildSnapPackage ();
     void clearPackageBuildList ();
     void updateFrameworkList ();
     void resetValidationResult ();

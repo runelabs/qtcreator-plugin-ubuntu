@@ -107,7 +107,10 @@ SOURCES += \
     src/ubuntu/device/container/ubuntulocaldeployconfiguration.cpp \
     src/ubuntu/device/container/ubuntulocalrunconfigurationfactory.cpp \
     src/ubuntu/device/container/ubuntulocalrunconfiguration.cpp \
-    src/ubuntu/processoutputdialog.cpp
+    src/ubuntu/processoutputdialog.cpp \
+    $$PWD/src/ubuntu/ubuntujsextension.cpp \
+    src/ubuntu/snap/snapcraftpackagestep.cpp \
+    src/ubuntu/snap/snaphelper.cpp
 
 HEADERS += \
     src/ubuntu/ubuntuplugin.h \
@@ -177,7 +180,10 @@ HEADERS += \
     src/ubuntu/device/container/ubuntulocaldeployconfiguration.h \
     src/ubuntu/device/container/ubuntulocalrunconfigurationfactory.h \
     src/ubuntu/device/container/ubuntulocalrunconfiguration.h \
-    src/ubuntu/processoutputdialog.h
+    src/ubuntu/processoutputdialog.h \
+    $$PWD/src/ubuntu/ubuntujsextension.h \
+    src/ubuntu/snap/snapcraftpackagestep.h \
+    src/ubuntu/snap/snaphelper.h
 
 #remote device support
 SOURCES += \
@@ -215,6 +221,7 @@ HEADERS +=  \
     src/ubuntu/device/remote/ubuntuwaitfordevicedialog.h \
     src/ubuntu/device/remote/ubuntudirectuploadstep.h \
     src/ubuntu/device/remote/ubuntudeploystepfactory.h
+
 
 FORMS += \
     src/ubuntu/device/remote/ubunturemoterunconfigurationwidget.ui \
