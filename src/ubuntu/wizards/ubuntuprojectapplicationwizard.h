@@ -76,7 +76,7 @@ public:
     void addTargetSetupPage(int id = -1);
 
     QList<Core::Id> selectedKits() const;
-    bool writeUserFile(const QString &projectFileName) const;
+    void writeUserFile(const QString &projectFileName) const;
 private slots:
     void generateProfileName(const QString &projectName, const QString &path);
 private:

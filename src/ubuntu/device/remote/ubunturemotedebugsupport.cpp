@@ -79,8 +79,8 @@ UbuntuRemoteDebugSupport::UbuntuRemoteDebugSupport(UbuntuRemoteRunConfiguration*
     : AbstractRemoteRunSupport(runConfig,runControl),
       d(new UbuntuRemoteDebugSupportPrivate(runConfig, runControl))
 {
-    connect(d->runControl, SIGNAL(requestRemoteSetup()), this, SLOT(handleRemoteSetupRequested()));
-    connect(d->runControl,&Debugger::DebuggerRunControl::finished,
+    connect(d->runControl.data(), SIGNAL(requestRemoteSetup()), this, SLOT(handleRemoteSetupRequested()));
+    connect(d->runControl.data(),&Debugger::DebuggerRunControl::finished,
             this, &UbuntuRemoteDebugSupport::handleDebuggingFinished);
 }
 
