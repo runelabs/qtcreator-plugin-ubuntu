@@ -30,6 +30,8 @@
 #include "ubuntuproject.h"
 
 #include <ubuntu/device/remote/ubuntudevice.h>
+#include <ubuntu/snap/snaphelper.h>
+#include <ubuntu/snap/snapcraftpackagestep.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
@@ -159,7 +161,6 @@ void UbuntuPackagingModel::onFinishedAction(const QProcess *proc, QString cmd)
         m_ubuntuProcess.append(QStringList() << QString::fromLatin1(Constants::CLICK_REVIEWERSTOOLS_LOCATION).arg(sClickPackagePath));
         m_ubuntuProcess.start(QString(QLatin1String(Constants::UBUNTUPACKAGINGWIDGET_CLICK_REVIEWER_TOOLS_AGAINST_PACKAGE)).arg(sClickPackagePath));
     }
-
 }
 
 void UbuntuPackagingModel::onMessage(QString msg)
@@ -294,6 +295,16 @@ void UbuntuPackagingModel::on_pushButtonClickPackage_clicked() {
     if(!project)
         return;
 
+    if (SnapHelper::isSnappyProject(project)) {
+        if(m_reviewToolsInstalled)
+            m_postPackageTask = Verify;
+        else
+            m_postPackageTask = None;
+
+        buildSnapPackage();
+        return;
+    }
+
     QString mimeType = project->projectManager()->mimeType();
     if(mimeType == QLatin1String(CMakeProjectManager::Constants::CMAKEPROJECTMIMETYPE)
             || mimeType == QLatin1String(Ubuntu::Constants::UBUNTUPROJECT_MIMETYPE)
@@ -303,6 +314,7 @@ void UbuntuPackagingModel::on_pushButtonClickPackage_clicked() {
             m_postPackageTask = Verify;
         else
             m_postPackageTask = None;
+
         buildClickPackage();
     } else {
         m_UbuntuMenu_connection =  QObject::connect(UbuntuMenu::instance(),SIGNAL(finished_action(const QProcess*,QString)),this,SLOT(onFinishedAction(const QProcess*,QString)));
@@ -330,10 +342,11 @@ void UbuntuPackagingModel::buildFinished(const bool success)
     if (success) {
         //the step that created the click package is always in the last list and always the last step
         UbuntuPackageStep *pckStep = qobject_cast<UbuntuPackageStep*>(m_packageBuildSteps.last()->steps().last());
-        if (pckStep && !pckStep->packagePath().isEmpty()) {
+        SnapcraftPackageStep *snapPckStep = qobject_cast<SnapcraftPackageStep*>(m_packageBuildSteps.last()->steps().last());
+        if ((pckStep && !pckStep->packagePath().isEmpty()) || (snapPckStep && !snapPckStep->packagePath().isEmpty())) {
             m_ubuntuProcess.stop();
 
-            QString sClickPackagePath = pckStep->packagePath();
+            QString sClickPackagePath = pckStep ? pckStep->packagePath() : snapPckStep->packagePath();
             if (sClickPackagePath.isEmpty()) {
                 clearPackageBuildList();
                 return;
@@ -381,19 +394,34 @@ void UbuntuPackagingModel::buildFinished(const bool success)
 void UbuntuPackagingModel::buildAndInstallPackageRequested()
 {
     m_postPackageTask = Install;
+
+    if (SnapHelper::isSnappyProject(ProjectExplorer::SessionManager::startupProject())) {
+        QMessageBox::information(Core::ICore::mainWindow(), qApp->applicationName(),
+                                 tr("Installing is currently not supported for snappy projects."));
+        return;
+    }
+
     buildClickPackage();
 }
 
 void UbuntuPackagingModel::buildAndVerifyPackageRequested()
 {
     m_postPackageTask = Verify;
-    buildClickPackage();
+
+    if (SnapHelper::isSnappyProject(ProjectExplorer::SessionManager::startupProject()))
+        buildSnapPackage();
+    else
+        buildClickPackage();
 }
 
 void UbuntuPackagingModel::buildPackageRequested()
 {
     m_postPackageTask = None;
-    buildClickPackage();
+
+    if (SnapHelper::isSnappyProject(ProjectExplorer::SessionManager::startupProject()))
+        buildSnapPackage();
+    else
+        buildClickPackage();
 }
 
 void UbuntuPackagingModel::targetChanged()
@@ -559,6 +587,59 @@ void UbuntuPackagingModel::buildClickPackage()
 
         ProjectExplorer::BuildManager::buildList(m_packageBuildSteps.last().data(),tr("Build Project"));
     }
+}
+
+void UbuntuPackagingModel::buildSnapPackage()
+{
+    ProjectExplorer::Project* project = ProjectExplorer::SessionManager::startupProject();
+    if(!project) {
+        QMessageBox::warning(Core::ICore::mainWindow(),tr("No Project"),tr("No valid project loaded."));
+        return;
+    }
+
+    if(ProjectExplorer::BuildManager::isBuilding()) {
+        QMessageBox::information(Core::ICore::mainWindow(),tr("Build running"),tr("There is currently a build running, please wait for it to be finished"));
+        return;
+    }
+
+    if(!ProjectExplorer::ProjectExplorerPlugin::instance()->saveModifiedFiles())
+        return;
+
+    if(!SnapHelper::isSnappyProject(project))
+        return;
+
+    ProjectExplorer::Target* target = project->activeTarget();
+    if(!target)
+        return;
+
+    ProjectExplorer::BuildConfiguration* bc = target->activeBuildConfiguration();
+    if(!bc) {
+        QMessageBox::information(Core::ICore::mainWindow(),tr("Error"),tr("Please add a valid buildconfiguration to your project"));
+        return;
+    }
+
+    if(!bc->isEnabled()) {
+        QString disabledReason = bc->disabledReason();
+        QMessageBox::information(Core::ICore::mainWindow(),tr("Disabled"),tr("The currently selected Buildconfiguration is disabled. %1").arg(disabledReason));
+        return;
+    }
+
+    clearPackageBuildList();
+
+    m_packageBuildSteps.append(QSharedPointer<ProjectExplorer::BuildStepList> (new ProjectExplorer::BuildStepList(bc,ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
+    ProjectExplorer::BuildStepList *buildSteps = bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
+    if (buildSteps && buildSteps->count() > 0) {
+        //add the normal buildsteps
+        m_packageBuildSteps.last()->cloneSteps(buildSteps);
+    }
+
+    //append the snap packaging step
+    SnapcraftPackageStep *package = new SnapcraftPackageStep(m_packageBuildSteps.last().data());
+    m_packageBuildSteps.last()->appendStep(package);
+
+    m_buildManagerConnection = connect(ProjectExplorer::BuildManager::instance(),SIGNAL(buildQueueFinished(bool)),this,SLOT(buildFinished(bool)));
+
+    ProjectExplorer::BuildManager::buildList(m_packageBuildSteps.last().data(),tr("Build Project"));
 }
 
 /*!

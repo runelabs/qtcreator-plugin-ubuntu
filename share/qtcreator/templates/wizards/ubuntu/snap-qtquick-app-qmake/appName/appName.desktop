@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=%{ProjectNameL}
+Exec=%{ProjectNameL}
+TryExec=%{ProjectNameL}
+Icon=${SNAP}/meta/gui/%{ProjectNameL}.png
+Terminal=false
+Type=Application
+X-Ubuntu-Touch=true

@@ -80,7 +80,7 @@ MainView {
             spacing: units.gu(2)
             Button {
                 visible: publishModel.showValidationUi
-                text: "Validate existing click package"
+                text: "Validate existing package"
                 onClicked: {
                     publishModel.on_pushButtonReviewersTools_clicked();
                 }
@@ -88,7 +88,7 @@ MainView {
             Button {
                 visible: publishModel.showValidationUi
                 enabled: publishModel.canBuild
-                text: "Build and validate click package"
+                text: "Build and validate package"
                 onClicked: {
                     publishModel.on_pushButtonClickPackage_clicked();
                 }
